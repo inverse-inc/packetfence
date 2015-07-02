@@ -1,7 +1,7 @@
 /* A wrapper around ntlm_auth to log arguments and 
 running time. 
 WARNING: We cheat and do no bother to free memory allocated to strings here. 
-The process is meant to be very short lived an never reused. */
+The process is meant to be very short lived and never reused. */
 
 /*  
   Copyright (C) 2015 Inverse inc.
@@ -42,6 +42,10 @@ The process is meant to be very short lived an never reused. */
 const char *argp_program_version = "ntlm_auth_wrapper 1.0";
 const char *argp_program_bug_address = "<info@inverse.ca>";
 
+// These have to be initialized early so they can be used in the signal handler.
+pid_t pid = 0 ; // initialize the child pid 
+int TIMEOUT = 199;
+
 /* Program documentation. */
 static char doc[] =
     "ntm_auth_wrapper: \tA performance logging wrapper for ntlm_auth";
@@ -74,9 +78,6 @@ struct arguments {
 	char *port;
 	char *args[];		// Arguments to ntlm_auth itself
 };
-
-// TERM signal handler flag
-volatile sig_atomic_t termflag = 0;
 
 /* Parse a single option. */
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -211,12 +212,12 @@ log_result(int argc, char **argv, const struct arguments args, int status,
         i++;
 	}
 	syslog(args.level, "%s time: %g ms, status: %i, exiting pid: %i",
-	       log_msg, elapsed, WEXITSTATUS(status), ppid);
+	       log_msg, elapsed, status, ppid);
 	closelog();
 }
 
 // send to statsd 
-void send_statsd(const struct arguments args, int status, double elapsed)
+void send_statsd(const struct arguments args , int status, double elapsed)
 {
 	struct addrinfo *ailist;
 	struct addrinfo hint;
@@ -229,32 +230,33 @@ void send_statsd(const struct arguments args, int status, double elapsed)
 	hint.ai_canonname = NULL;
 	hint.ai_addr = NULL;
 	hint.ai_next = NULL;
-	if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0)
+	if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
 		sprintf("getaddrinfo error: %s", gai_strerror(err));
+    } 
 
 	if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
 		err = errno;
 		fprintf(stderr, "cannot contact %s:%s: %s\n", args.host,
 			args.port, strerror(err));
-	} else {
-		char *buf;
-		char hostname[MAX_STR_LENGTH];
-		gethostname(hostname, sizeof(hostname));
-		connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
+    }
 
-		asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
+	connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
+    char *buf;
+    char hostname[MAX_STR_LENGTH];
+    gethostname(hostname, sizeof(hostname));
 
-		send(sockfd, buf, strlen(buf), 0);
+    asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
 
-		// increment counter if auth failed
-		if (status == ETIMEDOUT) {
-			asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
-			send(sockfd, buf, strlen(buf), 0);
-		} else if (status > 0) {
-			asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
-			send(sockfd, buf, strlen(buf), 0);
-		}
-	}
+    send(sockfd, buf, strlen(buf), 0);
+
+    // increment counter if auth failed
+    if (status == SIGTERM) {
+        asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
+        send(sockfd, buf, strlen(buf), 0);
+    } else if (status > 0) {
+        asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
+        send(sockfd, buf, strlen(buf), 0);
+    }
 }
 
 double howlong(struct timeval t1)
@@ -272,28 +274,31 @@ void
 log_timeouts(int argc, char **argv, const struct arguments args,
 	     struct timeval start)
 {
-	if (termflag) {
-		double elapsed;
-		elapsed = howlong(start);
-		if (args.log)
-			log_result(argc, argv, args, ETIMEDOUT, elapsed,
-				   getpid());
+    double elapsed;
+    elapsed = howlong(start);
+    if (args.log)
+        log_result(argc, argv, args, SIGTERM, elapsed,
+               getpid());
 
-		if (!args.nostatsd)
-			send_statsd(args, ETIMEDOUT, elapsed);
-	}
+    if (!args.nostatsd)
+        send_statsd(args, SIGTERM, elapsed);
 }
 
 // We set a handler for the TERM signal.
-// If we receive one, we set the termflag and send ourselves a SIGKILL.
-// This will in turn call atexit which will call timeout()
-static void termhandler(int sig)
+// If we receive one, we kill the child and send ourselves a SIGALRM in one second.
+// This should be enough time to clean up, log the timeout and exit.
+// If it isn't, well... too bad. We _exit anyway.
+static void handler(int sig)
 {
 	if (sig == SIGTERM) {
-        fprintf(stderr, "termhandler called!\n");
-		termflag = 1;
-		exit(1);
+        if (pid == 0) _exit(SIGTERM); // we haven't forked yet or we are still in the child pre exec
+        kill(pid, SIGTERM);
+        alarm(1) ; // wake us up in one second, giving us just enough time to finish logging 
 	}
+    if (sig == SIGALRM ) { 
+        kill(pid, SIGTERM); // just in case we may have forked in the meantime
+        _exit(SIGTERM); // we waited long enough
+    }
 }
 
 int main(argc, argv, envp)
@@ -320,26 +325,19 @@ char **argv, **envp;
 	double elapsed;
 	gettimeofday(&t1, NULL);
 
-	// wrapping function around log_timeouts to get around atexit's limitations, i.e. no arguments allowed.
-	void timedout() {
-        fprintf(stderr, "timeout called!\n");
-		log_timeouts(argc, argv, arguments, t1);
-	}
-	// set function to handle TERM due to child timing out
-	int ret;
-	if ((ret = atexit(timedout)) != 0) {
-		fprintf(stderr,
-			"Error: could not register atexit function. Exiting.");
-		exit(ret);
-	}
-	// set TERM signal handler
+	// set the signal handler
 	struct sigaction sa;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-	sa.sa_handler = termhandler;
+	sa.sa_handler = handler;
 	if (sigaction(SIGTERM, &sa, NULL) == -1) {
 		fprintf(stderr,
 			"Error: could not register TERM signal handler. Exiting.");
+		exit(1);
+	}
+	if (sigaction(SIGALRM, &sa, NULL) == -1) {
+		fprintf(stderr,
+			"Error: could not register ALRM signal handler. Exiting.");
 		exit(1);
 	}
 
@@ -362,7 +360,7 @@ char **argv, **envp;
     }
 
 	// Fork a process, exec it and then wait for the exit.
-	pid_t pid, ppid;
+	pid_t  ppid;
 	ppid = getpid();
 	int status;
 	if ((pid = fork()) < 0) {
@@ -373,11 +371,15 @@ char **argv, **envp;
 		perror(argv[0]);
 		exit(127);
 	}
-    again:
+    
 	if (waitpid(pid, &status, 0) != pid) {	// wait for child
-        if (errno == EINTR) goto again; /* just an interrupted system call */
-		perror(argv[0]);
-		exit(1);
+        if (errno == EINTR) {  // we received a signal
+            status = SIGTERM;
+        }
+        else {
+		    perror(argv[0]);
+		    exit(1);
+        }
 	}
 
 	elapsed = howlong(t1);
