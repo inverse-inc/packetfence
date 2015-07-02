@@ -4,7 +4,7 @@
     You are about to buy [% tier.description %] for [% tier.price %]
 </div>
 
-<form action="[% billing.verify_url %]" method="POST" id="payment-form">
+<form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
   <span class="payment-errors"></span>
 
   <div class="form-row">
