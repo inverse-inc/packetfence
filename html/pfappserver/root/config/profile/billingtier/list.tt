@@ -1,21 +1,33 @@
-      <table id="items" class="table items[% ' hidden' UNLESS items.size %]" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
-        <thead>
-          <tr>
-            <th>[% l('Role Name') %]</th>
-            <th>[% l('Description') %]</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          [% FOREACH item IN items %]
-          <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
-            <td>[% item.description | html%]</td>
-            <td>
-              [% IF can_access("ADMIN_ROLES_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>[% END %]
-              [% IF can_access("ADMIN_ROLES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
-            </td>
-          </tr>
-          [% END -%]
-        </tbody>
-      </table>
+[% SET billing_controller = c.controller('Config::Profile::BillingTier') %]
+<table id="items" class="table items table-sortable admin_ordered" data-list-uri="[% c.uri_for(billing_controller.action_for('list'), [id]) %]">
+<thead>
+  <tr class="disabled">
+    <th class="hidden-phone"></th>
+    <th>[% l('Name') %]</th>
+    <th>[% l('Description') %]</th>
+    <th></th>
+  </tr>
+</thead>
+<tbody>
+[% FOREACH tier IN billing_tiers %]
+<tr>
+  <td class="sort-handle hidden-phone">[% loop.index + 1 %]</td>
+  <td>
+    <a href="[% c.uri_for(billing_controller.action_for('view'), [ id, tier.id ]) %]">[% tier.id | html %]</a>
+  </td>
+  <td>
+    [% IF can_access("PORTAL_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% id | html %]"  href="[% c.uri_for(billing_controller.action_for('remove'), [ id, tier.id ]) %]">[% l('Delete') %]</a>[% END %]
+  </td>
+</tr>
+[% END %]
+</tbody>
+<tfooter>
+  <tr >
+    <td colspan="4">
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(billing_controller.action_for('create'), [id]) %]">[% l('Add Billing Tier') %]</a>
+      </div>
+    </td>
+  </tr>
+</tfooter>
+</table>
