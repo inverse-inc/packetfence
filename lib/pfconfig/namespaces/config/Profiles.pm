@@ -49,7 +49,7 @@ sub build_child {
         if($tier_id =~ /([^ ]+) billing_tier ([^\s]+)/) {
             my $profile_id = $1;
             if (exists $Profiles_Config{$profile_id} ) {
-                my @fields = qw(name timeout destination_url category price description);
+                my @fields = qw(name access_duration destination_url category price description);
                 my %new_tier = (id => $2);
                 @new_tier{@fields} = @{$tier}{@fields};
                 push @{$Profiles_Config{$1}{tiers}},\%new_tier;
