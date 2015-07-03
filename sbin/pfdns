@@ -195,7 +195,7 @@ sub regzone {
         if ( ($qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
-            my $query = $CHI_CACHE->get($qname);
+            my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
             if ($query) {
                 add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
                 foreach my $rr ($query->answer) {
@@ -220,8 +220,7 @@ sub regzone {
         } else {
             #Check if the answer already exist
             my ($ttl, $rdata);
-            my $res   = Net::DNS::Resolver->new;
-            my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
+            my $query = $CHI_CACHE->get($qname);
             if ($query) {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
