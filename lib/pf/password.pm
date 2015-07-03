@@ -353,7 +353,7 @@ sub _update_field_for_action {
         $data->{$field} = $values[0]->{value};
     }
     else {
-        $data->{$field} = $default;
+        $data->{$field} = $default unless exists $data->{$field};
     }
 }
 
@@ -370,7 +370,7 @@ sub modify_actions {
         valid_from expiration
         access_duration access_level category sponsor unregdate
         );    # respect the prepared statement placeholders order
-    delete @{$password}{@ACTION_FIELDS};
+#    delete @{$password}{@ACTION_FIELDS};
     _update_from_actions( $password, $actions );
     my $pid   = $password->{pid};
     my $query = db_query_execute(
