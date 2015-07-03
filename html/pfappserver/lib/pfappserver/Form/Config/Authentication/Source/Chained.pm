@@ -33,6 +33,11 @@ has_field 'authentication_source' =>
    options_method => \&options_authentication_source,
   );
 
+has_field authentication_source_can_continue => (
+    type => 'Checkbox',
+    checked_value => 1,
+);
+
 our %ALLOWED_CHAINED_SOURCES = (
     SMS          => undef,
     Email        => undef,

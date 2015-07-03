@@ -33,6 +33,7 @@ has '+type' => (default => 'Chained');
 has '+unique' => (default => 1 );
 has chained_authentication_source => ( is => 'rw', required => 1 );
 has authentication_source => ( is => 'rw', required => 1 );
+has authentication_source_can_continue => ( is => 'rw', default => 0, isa => 'Bool');
 
 =head2 available_attributes
 
