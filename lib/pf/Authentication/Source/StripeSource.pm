@@ -25,6 +25,7 @@ use pf::Authentication::constants;
 use pf::util;
 use pf::config::util;
 use pf::log;
+use pf::person;
 
 extends 'pf::Authentication::Source::BillingSource';
 our $logger = get_logger;
@@ -283,8 +284,21 @@ sub handle_invoice_payment_succeeded {
 
 sub handle_invoice_payment_failed {
     my ($self, $object) = @_;
-    $self->send_mail_for_event($object);
+    my $customer_id = $object->{data}{object}{customer};
+    my ($status, $customer) = $self->get_customer($customer_id);
+    my $email = $customer->{email};
+    $self->move_to_lower_tier($email,'low_speed');
+
+    $self->send_mail_for_event($object,email => $customer->{email}, subject => "Credit Card payment failed" );
     return 200;
+}
+
+sub move_to_lower_tier {
+    my ($self, $email, $category) = @_;
+    foreach my $node (person_nodes($email)  ) {
+        $node->{category_id} = $category;
+        node_modify($node->{mac}, %{$node});
+    }
 }
 
 sub send_mail_for_event {
@@ -296,7 +310,18 @@ sub send_mail_for_event {
     }
 }
 
-sub can_send_mail_for_event { 1 }
+sub get_customer {
+    my ($self, $customer) = @_;
+    my $curl = $self->curl;
+    my $path = "/v1/customers/$customer";
+    $self->_set_url($curl, $path);
+    return $self->_do_request($curl);
+}
+
+sub can_send_mail_for_event {
+    my ($self, $event) = @_;
+    return 1;
+}
 
 =head1 AUTHOR
 
