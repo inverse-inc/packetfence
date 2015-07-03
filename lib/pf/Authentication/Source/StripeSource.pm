@@ -14,15 +14,17 @@ pf::Authentication::Source::StripeSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid);
-use pf::Authentication::constants;
-use pf::util;
-use pf::log;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
+
+use pf::config qw($FALSE $TRUE $default_pid);
+use pf::Authentication::constants;
+use pf::util;
+use pf::config::util;
+use pf::log;
 
 extends 'pf::Authentication::Source::BillingSource';
 our $logger = get_logger;
@@ -279,7 +281,15 @@ sub handle_invoice_payment_succeeded {
 
 sub invoice_payment_failed {
     my ($self, $object) = @_;
+    $self->send_mail_for_event($object);
     return 200;
+}
+
+sub send_mail_for_event {
+    my ($self, $event, %data) = @_;
+    my $type = $event->{type};
+    $data{event} = $event;
+    pf::config::util::send_email("billing_stripe_$type", $data{'email'}, $data{'subject'}, \%data);
 }
 
 =head1 AUTHOR
