@@ -178,6 +178,7 @@ sub login : Local : Args(0) {
         $c->forward('enforceLoginRetryLimit');
         $c->forward('authenticationLogin');
         $c->forward('validateMandatoryFields');
+        $c->forward("checkIfChainedAuth");
         $c->forward('postAuthentication');
         $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
         $c->forward( 'CaptivePortal' => 'endPortalSession' );
@@ -208,7 +209,7 @@ sub enforceLoginRetryLimit : Private {
 
 =head2 postAuthentication
 
-TODO: documention
+Performs post authentication
 
 =cut
 
@@ -216,7 +217,6 @@ sub postAuthentication : Private {
     my ( $self, $c ) = @_;
     my $logger = $c->log;
     $c->detach('showLogin') if $c->has_errors;
-    $c->forward("checkIfChainedAuth");
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $profile = $c->profile;
@@ -261,6 +261,32 @@ sub checkIfChainedAuth : Private {
     elsif ($chainedSource->class eq 'billing') {
         $c->detach(Billing => 'index');
     }
+}
+
+=head2 continue_chained_auth
+
+Allow the chained auth source to continue login using it's auth source
+
+=cut
+
+sub continue_chained_auth : Local {
+    my ($self, $c) = @_;
+    my $source_id = $c->session->{chained_source};
+    unless ($source_id) {
+        $self->showError($c, "You do not have permission to continue");
+    }
+    my $source = getAuthenticationSource($source_id);
+    unless($source && $source->type eq 'Chained' && $source->authentication_source_can_continue) {
+        #if not a chained auth leave
+        $self->showError($c, "You do not have permission to continue");
+    }
+    #Change the matched source id to the authentication source of the chain
+    my $new_source = $source->authentication_source;
+    $c->session->{source_id} = $new_source;
+    $c->session->{source_match} = $new_source;
+    $c->forward('postAuthentication');
+    $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
+    $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
 
 our %GUEST_SOURCE_TYPES = (
@@ -636,7 +662,7 @@ sub validateMandatoryFields : Private {
     my $profile    = $c->profile;
     my ( $error_code, @error_args );
 
-    # Portal profile based custom fields
+# Portal profile based custom fields
     my @mandatory_fields;
     my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
     push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$c->session->{source_id}});
