@@ -55,6 +55,8 @@ has 'live_publishable_key' => (is => 'rw', required => 1);
 
 has 'style' => (is => 'rw', default => 'charge');
 
+has 'mail_event' => (is => 'rw');
+
 =head2 url
 
   The url to the rpc message to
@@ -227,7 +229,6 @@ sub subscribe_customer {
         plan   => $tier->{id},
         source => $token,
         email => $session->{email},
-        currency => $self->currency,
         description => $tier->{description},
     };
     my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
@@ -276,10 +277,11 @@ sub handle_charge_succeeded {
 
 sub handle_invoice_payment_succeeded {
     my ($self, $object) = @_;
+
     return 200;
 }
 
-sub invoice_payment_failed {
+sub handle_invoice_payment_failed {
     my ($self, $object) = @_;
     $self->send_mail_for_event($object);
     return 200;
@@ -287,10 +289,14 @@ sub invoice_payment_failed {
 
 sub send_mail_for_event {
     my ($self, $event, %data) = @_;
-    my $type = $event->{type};
-    $data{event} = $event;
-    pf::config::util::send_email("billing_stripe_$type", $data{'email'}, $data{'subject'}, \%data);
+    if($self->can_send_mail_for_event($event)) {
+        my $type = $event->{type};
+        $data{event} = $event;
+        pf::config::util::send_email("billing_stripe_$type", $data{'email'}, $data{'subject'}, \%data);
+    }
 }
+
+sub can_send_mail_for_event { 1 }
 
 =head1 AUTHOR
 
