@@ -17,14 +17,14 @@ use warnings;
 
 use base ('pf::firewallsso');
 
-use POSIX;
+use POSIX();
 use pf::log;
 
 use pf::config;
 sub description { 'Iboss Appliance' }
 use pf::node qw(node_view);
-use LWP::UserAgent;
-use HTTP::Request::Common;
+use LWP::UserAgent ();
+use HTTP::Request::Common ();
 
 #Export environement variables for LWP
 $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
@@ -41,7 +41,7 @@ my $ua = LWP::UserAgent->new;
 
 sub action {
     my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
-    my $logger = get_loggerref($self)();
+    my $logger = get_logger();
 
     if ($method eq 'Start') {
         my $node_info = node_view($mac);
