@@ -7,14 +7,14 @@ pf::cmd::pf::pfconfig add documentation
 
  pfcmd pfonfig <command> <namespace>
 
-Commands:
+  Commands:
 
- expire <namespace>  | expire a pfconfig namespace 
- reload              | reload all pfconfig namespaces
- list                | list all pfconfig namespaces
- show <namespace>    | rebuild and display a pfconfig namespace
- get <namespace>     | display a pfconfig namespace from pfconfig process
- clear_overlay       | clear all overlayed namespaces of pfconfig
+   expire <namespace>  | expire a pfconfig namespace 
+   reload              | reload all pfconfig namespaces
+   list                | list all pfconfig namespaces
+   show <namespace>    | rebuild and display a pfconfig namespace
+   get <namespace>     | display a pfconfig namespace from pfconfig process
+   clear_overlay       | clear all overlayed namespaces of pfconfig
 
 =head1 DESCRIPTION
 
