@@ -18,7 +18,7 @@ use warnings;
 use base ('pf::firewallsso');
 
 use POSIX;
-use Log::Log4perl;
+use pf::log;
 
 use pf::config;
 sub description { 'Iboss Appliance' }
@@ -33,7 +33,7 @@ $ENV{'PERL_LWP_SSL_VERIFY_HOSTNAME'} = 0;
 
 =head2 action
 
-Perform a xml api request based on the registered status of the node and his role.
+Perform a http get request based on the registered status of the node and his role.
 
 =cut
 
@@ -41,7 +41,7 @@ my $ua = LWP::UserAgent->new;
 
 sub action {
     my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = get_loggerref($self)();
 
     if ($method eq 'Start') {
         my $node_info = node_view($mac);
@@ -100,7 +100,6 @@ sub action {
                 $logger->info("Username $username with node $mac is unregistered and logout from the Iboss");
             }
             else {
-            Dumper('Logon: $req');
                 $logger->warn("Username $username with node $mac failed to logout from the Iboss");
             }
          }
