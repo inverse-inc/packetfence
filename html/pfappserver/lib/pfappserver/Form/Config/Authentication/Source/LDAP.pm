@@ -90,6 +90,7 @@ has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
+   trim => undef,
    password => 0,
   );
 has_field 'stripped_user_name' =>
