@@ -23,6 +23,7 @@ use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
+use pf::fingerbank;
 use pf::Portal::ProfileFactory();
 use pf::radius::custom();
 use pf::violation();
@@ -873,6 +874,16 @@ sub dynamic_register_node : Public {
         pf::node::node_register($postdata{'mac'}, $postdata{'username'}, %info);
         pf::enforcement::reevaluate_access( $postdata{'mac'}, 'manage_register' );
     }
+}
+
+=head2 fingerbank_process
+
+=cut
+
+sub fingerbank_process : Public {
+    my ( $class, $args ) = @_;
+
+    return (pf::fingerbank::process($args));
 }
 
 =head1 AUTHOR
