@@ -16,7 +16,7 @@ Is the Generic class for the cached config
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use HTTP::Status qw(:constants :is);
 
 BEGIN { extends 'Catalyst::Model'; }
