@@ -33,6 +33,10 @@
 
       <div class="tab-pane fade" id="violationTriggers">
         <div id="viewTriggers">
+          <div class="control-group">
+              <a id="add_trigger" class="btn btn-primary" href="#addTrigger">[% l('Add new trigger') %]</a>
+          </div>
+
           <div id="triggerContainer">
           [% form.field('trigger').render | none %]
           </div>
@@ -52,10 +56,12 @@
               </select>
             </div>
           [% END %]
+
         </div>
 
         <div id="editTrigger" style="display:none">
-          <div id="editedTrigger"></div>
+          <div id="editedTrigger">
+          </div>
           <div class="control-group">
             <div class="controls">
               <select id="trigger_type" class="input-medium">
@@ -64,7 +70,7 @@
                 [% END -%]
               </select>
               <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
-              <a id="add_trigger" class="btn" href="#addTrigger">[% l('Add') %]</a>
+              <a id="add_trigger" class="btn" href="#addTriggerPart">[% l('Add') %]</a>
             </div>
           </div>
         </div>
@@ -92,7 +98,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("VIOLATIONS_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("VIOLATIONS_UPDATE") %]<button class="btn btn-primary" id="violationSubmit" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>

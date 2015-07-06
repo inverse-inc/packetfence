@@ -231,6 +231,21 @@ $(function() { // DOM ready
         return false;
     });
 
+    /* Modal Editor: add a combined trigger */
+    $('body').on('click', '[href="#addTrigger"]', function(event) {
+        event.preventDefault();
+        var jthis = $(event.target);
+        $('#viewTriggers').slideUp(function(){
+          $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
+          violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
+          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default">Back</a>');
+          $('#editedTrigger .chzn-select').chosen();
+          $('#editTrigger').slideDown();
+        });
+        
+        return false;
+    });
+
     /* Modal Editor: edit a trigger */
     $('body').on('click', '[href="#editTrigger"]', function(event) {
         event.preventDefault();
@@ -257,11 +272,12 @@ $(function() { // DOM ready
           $('#viewTriggers').slideDown();
         });
         
+        violationsView.recompute_triggers();
         return false;
     });
 
-    /* Modal Editor: add a trigger */
-    $('body').on('click', '[href="#addTrigger"]', function(event) {
+    /* Modal Editor: add a trigger to a combined trigger */
+    $('body').on('click', '[href="#addTriggerPart"]', function(event) {
         event.preventDefault();
         var tid =  $('#tid');
         var id = tid.val();
@@ -283,7 +299,16 @@ $(function() { // DOM ready
         if (last)
             select.append('<option value="' + value + '" selected="selected">' + name + '</option>');
         select.trigger("liszt:updated");
+    });
+
+    
+    $('body').on('click', '#violationSubmit', function(event) {
+        event.preventDefault();
+        $('#editTrigger .control-group select').not('#trigger_type').appendTo('#viewTriggers');
         violationsView.recompute_triggers();
+        console.log($('#trigger').val())
+        $('[name="violation"]').submit();
+        return false;
     });
 
 
@@ -318,6 +343,22 @@ ViolationsView.prototype.recompute_triggers = function() {
 
   $('#trigger').val(triggers.join());
 
+}
+
+ViolationsView.add_combined_trigger_form = function(){
+  var form = [
+  '<div class="control-group">',
+  '  <span class="triggerButtons">',
+  '    <a class="btn pull-left" href="#editTrigger">Edit</a>',
+  '    <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>',
+  '  </span>',
+  '  <div class="control-group">',
+  '    <select multiple="multiple" class="chzn-select input-xxlarge">',
+  '    </select>',
+  '  </div>',
+  '</div>']
+
+  return form.join(' ');
 }
 
 var violationsView = new ViolationsView();
