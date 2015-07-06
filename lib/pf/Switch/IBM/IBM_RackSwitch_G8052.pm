@@ -22,7 +22,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Net::SNMP;
-use Try::Tiny;
 
 use base ('pf::Switch::IBM');
 use pf::constants;
@@ -30,8 +29,6 @@ use pf::config;
 use pf::Switch::constants;
 use pf::util;
 use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_disconnect);
-
 
 sub description { 'IBM RackSwitch G8052' }
 
