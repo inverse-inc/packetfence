@@ -15,7 +15,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 =head1 AUTHOR
 
