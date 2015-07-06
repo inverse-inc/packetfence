@@ -28,6 +28,7 @@ pfcmd <command> [options]
   locationhistoryswitch       | Switch/Port history
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
+  pfconfig                    | interact with pfconfig
   portalprofileconfig         | query/modify portal profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
