@@ -1,7 +1,7 @@
 package pf::cmd::pf::pfconfig;
 =head1 NAME
 
-pf::cmd::pf::pfconfig add documentation
+pf::cmd::pf::pfconfig
 
 =head1 SYNOPSIS
 
@@ -18,7 +18,7 @@ pf::cmd::pf::pfconfig add documentation
 
 =head1 DESCRIPTION
 
-pf::cmd::pf::pfconfig
+Sub-commands to interact with pfconfig via pfcmd.
 
 =cut
 
