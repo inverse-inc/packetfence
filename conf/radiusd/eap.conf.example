@@ -13,7 +13,8 @@ eap {
         cadir = ${confdir}/certs
         private_key_file = %%install_dir%%/conf/ssl/server.key
         certificate_file = %%install_dir%%/conf/ssl/server.crt
-        #CA_file = $nstall_dir%%/conf/ssl/ca.pem
+#        CA_file = %%install_dir%%/conf/ssl/ca.pem
+#        private_key_password = whatever
         dh_file = ${certdir}/dh
         random_file = /dev/urandom
         cipher_list = "DEFAULT"
