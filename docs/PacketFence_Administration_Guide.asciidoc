@@ -1391,6 +1391,8 @@ Make sure the role exists in PacketFence otherwise you will encounter registrati
 
 These parameters can also be configured from the *Configuration -> Registration* section.
 
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
 Eduroam
 ~~~~~~~
 
@@ -2587,6 +2589,8 @@ Pre-registration is disabled by default. Once enabled, PacketFence's firewall an
 
 CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionnality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
 
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
 Configuration
 ^^^^^^^^^^^^^
 
@@ -2607,6 +2611,8 @@ These parameters can also be configured from the *Configuration -> Self Registra
 Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
+
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
 Self-registered guests are added under the users tab of the PacketFence Web administration interface.
 
