@@ -5,7 +5,7 @@ pf::cmd::pf::pfconfig
 
 =head1 SYNOPSIS
 
- pfcmd pfonfig <command> <namespace>
+ pfcmd pfconfig <command> <namespace>
 
   Commands:
 
