@@ -34,6 +34,8 @@ has_field 'authentication_source' =>
   (
    type => 'Select',
    options_method => \&options_authentication_source,
+   tags => { after_element => \&help,
+             help => 'The internal source used to authenticate' },
   );
 
 our %ALLOWED_CHAINED_SOURCES = (
