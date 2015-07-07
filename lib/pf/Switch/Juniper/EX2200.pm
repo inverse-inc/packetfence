@@ -52,7 +52,7 @@ sub supportsWiredDot1x { return $TRUE; }
 # We overide it here because it's expensive and useless for this specific module
 # as it can do everything using RADIUS
 sub NasPortToIfIndex {return undef}
-sub getIfIndexByNasPortId{return undef}
+sub getIfIndexByNasPortId{return $_[1]}
 
 
 =head2 getVoipVsa
