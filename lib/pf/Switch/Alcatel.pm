@@ -187,10 +187,6 @@ sub radiusDisconnect {
             LocalAddr => $management_network->tag('vip'),
         };
 
-        $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
-
         my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
