@@ -209,7 +209,7 @@ sub is_a {
     my $logger = pf::log::get_logger;
 
     if ( !defined($device_type) || $device_type eq '' ) {
-        $logger->warn("Undefined / invalid device type passed");
+        $logger->debug("Undefined / invalid device type passed");
         return "unknown";
     }
 
