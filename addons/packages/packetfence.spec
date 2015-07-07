@@ -1159,7 +1159,6 @@ fi
                         /usr/local/pf/lib/pfconfig/*
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %dir                    /usr/local/pf/addons/pfconfig
-%exclude                /usr/local/pf/addons/pfconfig/README.asciidoc
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
