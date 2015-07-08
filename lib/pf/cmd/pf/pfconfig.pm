@@ -28,11 +28,11 @@ use pfconfig::manager;
 use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
-use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants;
 use base qw(pf::base::cmd::action_cmd);
 
-=head2 namesapce_verify
+=head2 namespace_verify
 
 Verify if the namespace exist
 
