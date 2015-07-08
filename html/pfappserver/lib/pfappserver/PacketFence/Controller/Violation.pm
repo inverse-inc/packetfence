@@ -21,8 +21,8 @@ use POSIX;
 use pf::log;
 use pf::config;
 use pf::Switch::constants;
-use pf::factory::triggerParser;
 use pfappserver::Form::Violation;
+use pf::factory::condition::violation;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -71,7 +71,7 @@ sub begin :Private {
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
-        trigger_types => \@pf::factory::triggerParser::VALID_TRIGGER_TYPES,
+        trigger_types => [sort(keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE))],
         current_model_instance => $model,
         current_form_instance =>
               $c->form("Violation",
