@@ -28,8 +28,31 @@ use pfconfig::manager;
 use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::constants;
 use base qw(pf::base::cmd::action_cmd);
+
+=head2 namesapce_verify
+
+Verify if the namespace exist
+
+=cut
+
+sub verify_namespace {
+    my ($self, $full_namespace) = @_;
+    my ($namespace, @args) = pfconfig::util::parse_namespace($full_namespace);
+    my $manager = pfconfig::manager->new;
+    my @namespaces = $manager->list_namespaces();
+    unless(defined($namespace)){
+        die "ERROR! No namespace provided.";
+    }    
+    if ( grep {$_ eq $namespace} @namespaces){
+        return $TRUE;
+    }
+    else{
+        die "ERROR! Unknown namespace.";
+    }
+}
 
 =head2 action_expire 
 
@@ -40,20 +63,8 @@ Expire a pfconfig namespace
 sub action_expire {
     my ($self) = @_;
     my ($namespace) = $self->action_args;
-    my $manager = pfconfig::manager->new;
-    $manager->expire($namespace);
+    $self->verify_namespace($namespace);
     return $EXIT_SUCCESS;
-}
-
-=head2 parse_expire
-
-Verify arguments passed to expire
-
-=cut
-
-sub parse_expire {
-    my ($self,@args) = @_;
-    return @args == 1;
 }
 
 =head2 action_reload
@@ -78,26 +89,10 @@ Rebuild and display a pfconfig namespace
 sub action_show {
     my ($self) = @_;
     my ($full_namespace) = $self->action_args;
-    my ($namespace, @args) = pfconfig::util::parse_namespace($full_namespace);
     my $manager = pfconfig::manager->new;
-    if(defined($namespace)){
-        my @namespaces = $manager->list_namespaces();
-        if ( grep {$_ eq $namespace} @namespaces){
-            print Dumper($manager->get_cache($full_namespace));
-        }
-    }
-    return $EXIT_SUCCESS; 
-}
-
-=head2 parse_show
-
-Check arguments passed to show
-
-=cut
-
-sub parse_show {
-    my ($self,@args) = @_;
-    return @args == 1;
+    $self->verify_namespace($full_namespace);
+    print Dumper($manager->get_cache($full_namespace));
+    return $EXIT_SUCCESS;
 }
 
 =head2 action_list
@@ -125,23 +120,11 @@ Display a pfconfig namespace from pfconfig process
 sub action_get {
     my ($self) = @_;
     my ($namespace) = $self->action_args;
-    if(defined($namespace)){
-        my $obj = pfconfig::cached->new;
-        my $response = $obj->_get_from_socket($namespace, "element");
-        print Dumper($response);
-    }
+    $self->verify_namespace($namespace);
+    my $obj = pfconfig::cached->new;
+    my $response = $obj->_get_from_socket($namespace, "element");
+    print Dumper($response);
     return $EXIT_SUCCESS;
-}
-
-=head2 parse_get
-
-Verify arguments passed to get
-
-=cut
-
-sub parse_get {
-    my ($self,@args) = @_;
-    return @args == 1;
 }
 
 =head2 action_clear_overlay
