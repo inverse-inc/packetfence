@@ -227,6 +227,9 @@ $(function() { // DOM ready
         event.preventDefault();
         var jthis = $(event.target);
         jthis.closest('.control-group').remove()
+        if(!$('#viewTriggers').find('select').length){
+          $('#noTrigger').show();
+        }
         violationsView.recompute_triggers();
         return false;
     });
@@ -238,7 +241,7 @@ $(function() { // DOM ready
         $('#viewTriggers').slideUp(function(){
           $('#editedTrigger').html(ViolationsView.add_combined_trigger_form());
           violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
-          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default">Back</a>');
+          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
           $('#editedTrigger .chzn-select').chosen();
           $('#editTrigger').slideDown();
         });
@@ -254,7 +257,7 @@ $(function() { // DOM ready
           var triggers = jthis.closest('.control-group');
           triggers.appendTo('#editedTrigger');
           violationsView.previous_trigger_options = $('#editedTrigger .triggerButtons').html();
-          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default">Back</a>');
+          $('#editedTrigger .triggerButtons').html('<a href="#backEditTrigger" class="pull-left btn btn-default"><i class="icon  icon-chevron-left"></i></a>');
           $('#editTrigger').slideDown();
         });
         
@@ -267,8 +270,12 @@ $(function() { // DOM ready
         var jthis = $(event.target);
         $('#editTrigger').slideUp(function(){
           var triggers = jthis.closest('.control-group');
-          triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
-          triggers.appendTo('#viewTriggers');
+          if(triggers.find("select option:selected").length){
+            $('#noTrigger').hide();
+            triggers.find('.triggerButtons').html(violationsView.previous_trigger_options);
+            triggers.appendTo('#viewTriggers');
+          }
+          $('#editedTrigger').html('');
           $('#viewTriggers').slideDown();
         });
         
@@ -349,13 +356,15 @@ ViolationsView.add_combined_trigger_form = function(){
   var form = [
   '<div class="control-group">',
   '  <span class="triggerButtons">',
-  '    <a class="btn pull-left" href="#editTrigger">Edit</a>',
-  '    <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>',
+  '    <a class="btn pull-left" href="#editTrigger">',
+  '      <i class="icon icon-pencil"></i>',
+  '    </a>',
+  '    <a class="btn btn-danger pull-left" href="#deleteTrigger">',
+  '      <i class="icon icon-remove"></i>',
+  '    </a>',
   '  </span>',
-  '  <div class="control-group">',
-  '    <select multiple="multiple" class="chzn-select input-xxlarge">',
-  '    </select>',
-  '  </div>',
+  '  <select multiple="multiple" class="chzn-select input-xxlarge">',
+  '  </select>',
   '</div>']
 
   return form.join(' ');

@@ -1,3 +1,9 @@
+#add_trigger {
+  position:absolute;
+  right:10px;
+  top:60px;
+}
+
 #viewTriggers .control-group .btn, #viewTriggers .control-group select {
   margin-right:5px;
 }

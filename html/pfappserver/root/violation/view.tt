@@ -34,18 +34,28 @@
       <div class="tab-pane fade" id="violationTriggers">
         <div id="viewTriggers">
           <div class="control-group">
-              <a id="add_trigger" class="btn btn-primary" href="#addTrigger">[% l('Add new trigger') %]</a>
+              <a id="add_trigger" class="btn btn-default" href="#addTrigger">
+                <i class="icon icon-plus-sign"></i>
+              </a>
           </div>
 
           <div id="triggerContainer">
           [% form.field('trigger').render | none %]
           </div>
 
+          <div id="noTrigger" class="unwell" [% IF splitted_triggers.size %]style="display:none"[% END %]>
+            <i class="icon icon-cog"></i><p>No trigger defined</p>
+          </div>
+
           [% FOREACH trigger IN splitted_triggers %]
             <div class="control-group">
               <span class="triggerButtons">
-                <a class="btn pull-left" href="#editTrigger">Edit</a>
-                <a class="btn btn-danger pull-left" href="#deleteTrigger">Delete</a>
+                <a class="btn pull-left" href="#editTrigger">
+                  <i class="icon icon-pencil"></i>
+                </a>
+                <a class="btn btn-danger pull-left" href="#deleteTrigger">
+                  <i class="icon icon-remove"></i>
+                </a>
               </span>
               <select multiple="multiple" class='chzn-select input-xxlarge'>
               [% FOREACH subtrigger IN trigger %]
@@ -56,7 +66,6 @@
               </select>
             </div>
           [% END %]
-
         </div>
 
         <div id="editTrigger" style="display:none">
@@ -70,7 +79,7 @@
                 [% END -%]
               </select>
               <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
-              <a id="add_trigger" class="btn" href="#addTriggerPart">[% l('Add') %]</a>
+              <a id="add_trigger_part" class="btn" href="#addTriggerPart">[% l('Add') %]</a>
             </div>
           </div>
         </div>
