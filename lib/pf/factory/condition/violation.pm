@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
 use List::MoreUtils qw(any);
+use pf::constants;
 
 our @MODULES;
 
@@ -23,19 +24,19 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'      => {type => 'equals',        key  => 'last_accounting_id'},
-    'detect'          => {type => 'equals',        key  => 'last_detect_id'},
+    'accounting'      => {type => 'equals',        key  => 'last_accounting_id', event => $TRUE},
+    'detect'          => {type => 'equals',        key  => 'last_detect_id', event => $TRUE},
     'device'          => {type => 'includes',      key  => 'device_id'},
     'dhcp_fingerprint'=> {type => 'equals',        key  => 'dhcp_fingerprint_id'},
     'dhcp_vendor'     => {type => 'equals',        key  => 'dhcp_vendor_id'},
-    'internal'        => {type => 'equals',        key  => 'last_internal_id'},
+    'internal'        => {type => 'equals',        key  => 'last_internal_id', event => $TRUE},
     'mac'             => {type => 'matches',       key  => 'mac'},
     'mac_vendor'      => {type => 'equals',        key  => 'mac_vendor_id'},
-    'nessus'          => {type => 'equals',        key  => 'last_nessus_id'},
-    'openvas'         => {type => 'equals',        key  => 'last_openvas_id'},
-    'provisioner'     => {type => 'equals',        key  => 'last_provisioner_id'},
-    'soh'             => {type => 'equals',        key  => 'last_soh_id'},
-    'user_agent'      => {type => 'equals',        key  => 'last_user_agent_id'},
+    'nessus'          => {type => 'equals',        key  => 'last_nessus_id', event => $TRUE},
+    'openvas'         => {type => 'equals',        key  => 'last_openvas_id', event => $TRUE},
+    'provisioner'     => {type => 'equals',        key  => 'last_provisioner_id', event => $TRUE},
+    'soh'             => {type => 'equals',        key  => 'last_soh_id', event => $TRUE},
+    'user_agent'      => {type => 'equals',        key  => 'user_agent_id'},
 );
 
 sub modules {
