@@ -1110,9 +1110,8 @@ sub node_update_bandwidth {
     }
     elsif ($sth->rows == 1) {
         # Close any existing violation related to bandwidth
-        my @tid = pf::trigger::trigger_view_tid($pf::config::ACCOUNTING_POLICY_BANDWIDTH);
-        foreach my $violation (@tid) {
-            violation_force_close($mac, $violation->{'vid'});
+        while (my ($vid, $trigger) = each %BANDWIDTH_TRIGGERS){
+            violation_force_close($mac, $vid);
         }
     }
 

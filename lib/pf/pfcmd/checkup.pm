@@ -25,7 +25,6 @@ use pf::violation_config;
 use pf::util;
 use pf::config::util;
 use pf::services;
-use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
 use pf::web::filter;
@@ -826,31 +825,13 @@ Checking for violations configurations
 =cut
 
 sub violations {
-
-    my $deprecated_disable_seen = $FALSE;
-    foreach my $violation ( keys %Violation_Config ) {
-
-        # parse triggers if they exist
-        if ( defined $Violation_Config{$violation}{'trigger'} ) {
-            try {
-                # TODO we are parsing triggers both on checkup and when we parse the configuration on startup
-                # we probably can do something smarter here (but can't find right maintenance / efficiency balance now)
-                parse_triggers($Violation_Config{$violation}{'trigger'});
-            } catch {
-                add_problem($WARN, "Violation $violation is ignored: $_");
-            };
+    require pfconfig::namespaces::resource::ViolationFilterEngine;
+    my $engine = pfconfig::namespaces::resource::ViolationFilterEngine->new;
+    $engine->build(); 
+    while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
+        foreach my $trigger (@$triggers){
+            add_problem($WARN, "Invalid trigger $trigger for violation $violation");
         }
-
-        if ( defined $Violation_Config{$violation}{'disable'} ) {
-            $deprecated_disable_seen = $TRUE;
-        }
-    }
-
-    if ($deprecated_disable_seen) {
-        add_problem( $FATAL,
-            "violations.conf's disable parameter is deprecated in favor of enabled. " .
-            "Make sure to update your configuration. Read UPGRADE for details and an upgrade script."
-        );
     }
 }
 

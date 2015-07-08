@@ -36,7 +36,6 @@ use pf::db;
 use pf::iplog;
 use pf::node;
 use pf::person;
-use pf::trigger;
 use pf::util;
 use pf::services::util;
 use pf::violation;

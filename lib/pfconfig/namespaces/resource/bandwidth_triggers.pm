@@ -1,20 +1,37 @@
-package pf::triggerParser::detect;
+package pfconfig::namespaces::resource::bandwidth_triggers;
+
 =head1 NAME
 
-pf::triggerParser::detect - Trigger for detect
+pfconfig::namespaces::resource::bandwidth_triggers
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::detect
+pfconfig::namespaces::resource::bandwidth_triggers
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::triggerParser';
+use pf::constants;
+use pfconfig::namespaces::resource::ViolationFilterEngine;
+
+use base 'pfconfig::namespaces::resource';
+
+sub init {
+    my ($self, $host_id) = @_;
+    $self->{_engine} = pfconfig::namespaces::resource::ViolationFilterEngine->new;
+    $self->{_engine}->build();
+}
+
+sub build {
+    my ($self) = @_;
+
+    return $self->{_engine}->{bandwidth_triggers};
+}
+
+=back
 
 =head1 AUTHOR
 
@@ -44,3 +61,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

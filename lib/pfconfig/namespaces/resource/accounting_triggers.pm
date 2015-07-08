@@ -1,37 +1,37 @@
-package pf::triggerParser::accounting;
+package pfconfig::namespaces::resource::accounting_triggers;
+
 =head1 NAME
 
-pf::triggerParser::accounting - Trigger for accounting
+pfconfig::namespaces::resource::accounting_triggers
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::accounting
+pfconfig::namespaces::resource::accouting_triggers
 
 =cut
 
-use Moo;
-extends 'pf::triggerParser';
-use pf::config;
-use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
+use strict;
+use warnings;
+use pf::constants;
+use pfconfig::namespaces::resource::ViolationFilterEngine;
 
-our @TRIGGER_IDS = ($ACCOUNTING_POLICY_BANDWIDTH, $ACCOUNTING_POLICY_TIME);
+use base 'pfconfig::namespaces::resource';
 
-sub validateTid {
-    my ($self, $tid) = @_;
-    die("Invalid accounting trigger id: $tid")
-      unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/
-        || $tid eq $ACCOUNTING_POLICY_TIME
-        || $tid eq $ACCOUNTING_POLICY_BANDWIDTH);
-    return 1;
+sub init {
+    my ($self, $host_id) = @_;
+    $self->{_engine} = pfconfig::namespaces::resource::ViolationFilterEngine->new;
+    $self->{_engine}->build();
 }
 
-sub search {
-    my ($self,$query) = @_;
-    my @items = map { { display => $_, value => $_ } } grep { $_ =~ /\Q$query\E/i } @TRIGGER_IDS;
-    return \@items;
+sub build {
+    my ($self) = @_;
+
+    return $self->{_engine}->{accounting_triggers};
 }
+
+=back
 
 =head1 AUTHOR
 
@@ -61,3 +61,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

@@ -13,21 +13,32 @@ pfconfig::namespaces::resource::ViolationFilterEngine
 
 use strict;
 use warnings;
+use pf::constants;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::Violations;
 use pf::factory::condition::violation;
+use pf::condition::any;
 use pf::condition::false;
 use pf::filter;
 use pf::filter_engine;
 use pf::util;
+use pf::log;
 
 use base 'pfconfig::namespaces::resource';
+
+sub init {
+    my ($self) = @_;
+    $self->{child_resources} = [ 'resource::accounting_triggers', 'resource::bandwidth_triggers' ];
+}
 
 sub build {
     my ($self) = @_;
 
     my $config_violations = pfconfig::namespaces::config::Violations->new( $self->{cache} );
     my %Violations_Config = %{ $config_violations->build };
+    $self->{accounting_triggers} = {};
+    $self->{bandwidth_triggers} = {};
+    $self->{invalid_triggers} = {};
 
     my @filters;
     while (my ($violation, $violation_config) = each %Violations_Config) {
@@ -35,8 +46,27 @@ sub build {
         my $violation_condition;
         if(isenabled($violation_config->{enabled}) && defined($violation_config->{trigger})){
             foreach my $trigger (split(',', $violation_config->{trigger})){
-                my $condition = pf::factory::condition::violation->instantiate($trigger);
-                push @conditions, $condition;
+                my $condition;
+                eval {
+                    $condition = pf::factory::condition::violation->instantiate($trigger);
+                };
+                if($@) {
+                    get_logger->error("Invalid trigger $trigger. Error was : $@");
+                    unless($self->{invalid_triggers}->{$violation}){
+                        $self->{invalid_trigger}->{$violation} = [];
+                    }
+                    push @{$self->{invalid_triggers}->{$violation}}, $trigger;
+                }
+                else {
+                    push @conditions, $condition;
+                }
+
+                if($trigger =~ /^accounting::/i){
+                    $self->{accounting_triggers}->{(split('::',$trigger))[1]} = $violation;
+                }
+                if($trigger =~ /^accounting::BandwidthExpired$/i){
+                    $self->{bandwidth_triggers}->{$violation} = (split('::',$trigger))[1];
+                }
             }
             $violation_condition = pf::condition::any->new({conditions => \@conditions});
         }
