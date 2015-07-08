@@ -123,6 +123,8 @@ requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
 requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Crypt::OpenSSL::X509)
+requires: perl(Crypt::OpenSSL::RSA)
+requires: perl(Crypt::OpenSSL::PKCS10)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
@@ -290,6 +292,7 @@ Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
 Requires: fingerbank >= 1.0.3
+Requires: perl(File::Tempdir)
 
 %description -n %{real_name}
 
