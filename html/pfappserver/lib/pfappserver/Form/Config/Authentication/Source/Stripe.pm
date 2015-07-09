@@ -17,6 +17,9 @@ use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 
+has 'roles' => (
+    is => 'rw',
+);
 # Form fields
 has_field 'test_secret_key' => (
     type => 'Text'
@@ -43,8 +46,29 @@ has_field 'style' => (
 );
 
 has_block definition => (
-    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style test_mode)]
+    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key failed_payment_role style test_mode)]
 );
+
+has_field 'failed_payment_role' => (
+    type => 'Select',
+    required => 1,
+    label => 'Role',
+);
+
+sub options_failed_payment_role {
+    my $self = shift;
+
+    # $self->roles comes from pfappserver::Model::Roles
+    my @roles = map { $_->{name} => $_->{name} } @{$self->roles} if ($self->roles);
+
+    return (@roles);
+}
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Roles')->list();
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+}
 
 =head1 AUTHOR
 
