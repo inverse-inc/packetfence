@@ -36,7 +36,7 @@ sub build {
 
     my $config_violations = pfconfig::namespaces::config::Violations->new( $self->{cache} );
     my %Violations_Config = %{ $config_violations->build };
-    $self->{accounting_triggers} = {};
+    $self->{accounting_triggers} = [];
     $self->{bandwidth_triggers} = {};
     $self->{invalid_triggers} = {};
 
@@ -44,6 +44,7 @@ sub build {
     while (my ($violation, $violation_config) = each %Violations_Config) {
         my @conditions;
         my $violation_condition;
+        # TODO ? WHITESPACE CLEAN TRIGGER PART ?
         if(isenabled($violation_config->{enabled}) && defined($violation_config->{trigger})){
             foreach my $trigger (split(',', $violation_config->{trigger})){
                 my $condition;
@@ -61,8 +62,8 @@ sub build {
                     push @conditions, $condition;
                 }
 
-                if($trigger =~ /^accounting::/i){
-                    $self->{accounting_triggers}->{(split('::',$trigger))[1]} = $violation;
+                while($trigger =~ /(accounting::.*?)([,)&]{1}|$)/gi){
+                    push @{$self->{accounting_triggers}}, {trigger => (split('::',$1))[1], violation => $violation}
                 }
                 if($trigger =~ /^accounting::BandwidthExpired$/i){
                     $self->{bandwidth_triggers}->{$violation} = (split('::',$trigger))[1];

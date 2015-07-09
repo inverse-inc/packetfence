@@ -46,7 +46,7 @@ use pf::factory::condition::violation;
 pf::factory::condition::violation->modules;
 tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'resource::ViolationFilterEngine';
 tie our %BANDWIDTH_TRIGGERS, 'pfconfig::cached_hash' => 'resource::bandwidth_triggers';
-tie our %ACCOUNTING_TRIGGERS, 'pfconfig::cached_hash' => 'resource::accounting_triggers';
+tie our @ACCOUNTING_TRIGGERS, 'pfconfig::cached_array' => 'resource::accounting_triggers';
 
 BEGIN {
     use Exporter ();
@@ -88,7 +88,7 @@ BEGIN {
         violation_run_delayed
 
         %BANDWIDTH_TRIGGERS
-        %ACCOUNTING_TRIGGERS
+        @ACCOUNTING_TRIGGERS
     );
 }
 use pf::action;

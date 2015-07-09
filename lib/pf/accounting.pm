@@ -360,7 +360,9 @@ sub acct_maintenance {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->info("getting violations triggers for accounting cleanup");
 
-    while (my ($acct_policy, $vid) = each %ACCOUNTING_TRIGGERS) {
+    foreach my $info (@ACCOUNTING_TRIGGERS) {
+        my $acct_policy = $info->{trigger};
+        my $vid = $info->{violation};
         if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
 
             my $direction = $1;
@@ -383,6 +385,8 @@ sub acct_maintenance {
             else {
                 $interval = "all";
             }
+            
+            $logger->info("Found timeframed accounting policy : $acct_policy for violation $vid");
 
             # Grab the list of the mac address first without caring about the violations
             my $releaseDate = "1";
