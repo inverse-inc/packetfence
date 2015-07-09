@@ -58,6 +58,8 @@ has 'style' => (is => 'rw', default => 'charge');
 
 has 'mail_event' => (is => 'rw');
 
+has 'failed_payment_role' => ( is => 'rw');
+
 =head2 url
 
   The url to the rpc message to
@@ -127,7 +129,11 @@ sub _send_form {
 
 sub encode_form {
     my ($object) = @_;
-    return join ('&',pairmap { uri_escape($a) . "=" . uri_escape($b) } %$object);
+    my @values;
+    while( my ($key, $val) = each %$object) {
+        push @values, (uri_escape($key) . "=" . uri_escape($val));
+    }
+    return join ('&',@values);
 }
 
 =head2 _set_body
@@ -287,7 +293,7 @@ sub handle_invoice_payment_failed {
     my $customer_id = $object->{data}{object}{customer};
     my ($status, $customer) = $self->get_customer($customer_id);
     my $email = $customer->{email};
-    $self->move_to_lower_tier($email,'low_speed');
+    $self->move_to_lower_tier($email, $self->failed_payment_role);
 
     $self->send_mail_for_event($object,email => $customer->{email}, subject => "Credit Card payment failed" );
     return 200;
