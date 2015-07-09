@@ -24,7 +24,7 @@ use pf::node qw(node_attributes node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
-use pf::violation qw(violation_count_trap violation_exist_open violation_view_top violation_trigger violation_add);
+use pf::violation qw(violation_count_reevaluate_access violation_exist_open violation_view_top violation_trigger violation_add);
 use pf::floatingdevice::custom;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
@@ -217,7 +217,7 @@ sub getViolationVlan {
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
 
-    my $open_violation_count = violation_count_trap($mac);
+    my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count == 0) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return 0;

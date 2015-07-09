@@ -28,7 +28,7 @@ use Log::Log4perl;
 use base ('pf::roles');
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 
 our $VERSION = 0.90;
 

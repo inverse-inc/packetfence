@@ -5005,8 +5005,8 @@ msgid "testing"
 msgstr "Testing"
 
 # pf::action (VIOLATION_ACTIONS)
-msgid "trap_action"
-msgstr "Trap"
+msgid "reevaluate_access_action"
+msgstr "Reevaluate access"
 
 # conf/documentation.conf
 msgid "trapping"

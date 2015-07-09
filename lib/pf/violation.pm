@@ -71,7 +71,7 @@ BEGIN {
         violation_modify
         violation_trigger
         violation_count
-        violation_count_trap
+        violation_count_reevaluate_access
         violation_view_top
         violation_delete
         violation_exist_open
@@ -196,8 +196,8 @@ sub violation_db_prepare {
     $violation_statements->{'violation_count_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and status="open" ]);
 
-    $violation_statements->{'violation_count_trap_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status!="closed" ]);
+    $violation_statements->{'violation_count_reevaluate_access_sql'} = get_db_handle()->prepare(
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status!="closed" ]);
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
@@ -292,10 +292,10 @@ sub violation_count {
     return ($val);
 }
 
-sub violation_count_trap {
+sub violation_count_reevaluate_access {
     my ($mac) = @_;
 
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_trap_sql', $mac)
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_reevaluate_access_sql', $mac)
         || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();

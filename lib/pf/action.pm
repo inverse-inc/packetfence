@@ -9,7 +9,7 @@ pf::action - module to handle violation actions
 =head1 DESCRIPTION
 
 pf::action contains the functions necessary to manage all the different 
-actions (email, log, trap, ...) triggered when a violation is created, 
+actions (email, log, reevaluate_access, ...) triggered when a violation is created, 
 opened, closed or deleted.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -34,7 +34,7 @@ use constant ACTION => 'action';
 #FIXME port all hard-coded strings to these constants
 Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $UNREG => 'unreg';
-Readonly::Scalar our $TRAP => 'trap';
+Readonly::Scalar our $REEVALUATE_ACCESS => 'reevaluate_access';
 Readonly::Scalar our $EMAIL_USER => 'email_user';
 Readonly::Scalar our $EMAIL_ADMIN => 'email_admin';
 Readonly::Scalar our $LOG => 'log';
@@ -50,7 +50,7 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $UNREG,
    $EMAIL_USER,
    $EMAIL_ADMIN,
-   $TRAP,
+   $REEVALUATE_ACCESS,
    $LOG,
    $EXTERNAL,
    $WINPOPUP,
@@ -202,9 +202,9 @@ sub action_execute {
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
-        if ( $action eq $TRAP ) {
+        if ( $action eq $REEVALUATE_ACCESS ) {
             $leave_open = 1;
-            action_trap( $mac, $vid );
+            action_reevaluate_access( $mac, $vid );
         } elsif ( $action eq $EMAIL_ADMIN ) {
             action_email_admin( $mac, $vid, $notes );
         } elsif ( $action eq $EMAIL_USER ) {
@@ -230,7 +230,7 @@ sub action_execute {
         }
     }
     if ( !$leave_open && !( ($vid eq $POST_SCAN_VID) || ($vid eq $PRE_SCAN_VID) ) ) {
-        $logger->info("this is a non-trap violation, closing violation entry now");
+        $logger->info("this is a non-reevaluate-access violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );
     }
@@ -344,7 +344,7 @@ sub action_log {
     close($log_fh);
 }
 
-sub action_trap {
+sub action_reevaluate_access {
     my ($mac, $vid) = @_;
     pf::enforcement::reevaluate_access($mac, "manage_vopen");
 }

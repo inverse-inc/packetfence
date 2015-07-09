@@ -58,7 +58,7 @@ use pf::constants;
 use pf::config;
 use pf::node qw(node_attributes node_add_simple node_exist);
 use pf::util;
-use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
+use pf::violation qw(violation_count_reevaluate_access violation_exist_open violation_view_top);
 
 our $VERSION = 1.01;
 
@@ -215,7 +215,7 @@ sub getViolationVlan {
     my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id) = @_;
     my $logger = Log::Log4perl->get_logger();
 
-    my $open_violation_count = violation_count_trap($mac);
+    my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count == 0) {
         return 0;
     }
