@@ -18,7 +18,6 @@ use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
 use URI::Escape::XS qw(uri_escape);
-use List::Util qw(pairmap);
 
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
