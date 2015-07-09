@@ -1110,7 +1110,7 @@ sub node_update_bandwidth {
     }
     elsif ($sth->rows == 1) {
         # Close any existing violation related to bandwidth
-        while (my ($vid, $trigger) = each %BANDWIDTH_TRIGGERS){
+        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
             violation_force_close($mac, $vid);
         }
     }

@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{child_resources} = [ 'resource::accounting_triggers', 'resource::bandwidth_triggers' ];
+    $self->{child_resources} = [ 'resource::accounting_triggers', 'resource::bandwidth_expired_violations' ];
 }
 
 sub build {
@@ -37,7 +37,7 @@ sub build {
     my $config_violations = pfconfig::namespaces::config::Violations->new( $self->{cache} );
     my %Violations_Config = %{ $config_violations->build };
     $self->{accounting_triggers} = [];
-    $self->{bandwidth_triggers} = {};
+    $self->{bandwidth_expired_violations} = [];
     $self->{invalid_triggers} = {};
 
     my @filters;
@@ -65,8 +65,8 @@ sub build {
                 while($trigger =~ /(accounting::.*?)([,)&]{1}|$)/gi){
                     push @{$self->{accounting_triggers}}, {trigger => (split('::',$1))[1], violation => $violation}
                 }
-                if($trigger =~ /^accounting::BandwidthExpired$/i){
-                    $self->{bandwidth_triggers}->{$violation} = (split('::',$trigger))[1];
+                if($trigger =~ /accounting::BandwidthExpired/i){
+                    push @{$self->{bandwidth_expired_violations}}, $violation;
                 }
             }
             $violation_condition = pf::condition::any->new({conditions => \@conditions});

@@ -196,7 +196,7 @@ sub processTransaction : Private {
         }
 
         # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        while (my ($vid, $trigger) = each %BANDWIDTH_TRIGGERS){
+        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
 
             # Close any existing violation
             violation_force_close($mac, $vid);

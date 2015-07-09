@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::bandwidth_triggers;
+package pfconfig::namespaces::resource::bandwidth_expired_violations;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::bandwidth_triggers
+pfconfig::namespaces::resource::bandwidth_expired_violations
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::bandwidth_triggers
+pfconfig::namespaces::resource::bandwidth_expired_violations
 
 =cut
 
@@ -28,7 +28,7 @@ sub init {
 sub build {
     my ($self) = @_;
 
-    return $self->{_engine}->{bandwidth_triggers};
+    return $self->{_engine}->{bandwidth_expired_violations};
 }
 
 =back

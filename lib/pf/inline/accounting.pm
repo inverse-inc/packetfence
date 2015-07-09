@@ -183,7 +183,7 @@ sub inline_accounting_maintenance {
     my $result = 0;
 
     # Check if there's at least a violation using an accounting
-    while (my ($violation_id, $trigger) = each %BANDWIDTH_TRIGGERS){
+    if (@BANDWIDTH_EXPIRED_VIOLATIONS > 0) {
         $logger->debug("There is an accounting violation. analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
