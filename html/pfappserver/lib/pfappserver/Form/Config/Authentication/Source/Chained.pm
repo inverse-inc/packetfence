@@ -18,6 +18,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
+with 'pfappserver::Base::Form::Role::Help';
 use pf::authentication;
 
 # Form fields
@@ -25,12 +26,16 @@ has_field 'chained_authentication_source' =>
   (
    type => 'Select',
    options_method => \&options_chained_authentication_source,
+   tags => { after_element => \&help,
+             help => 'The rules of the chained source are applied' },
   );
 
 has_field 'authentication_source' =>
   (
    type => 'Select',
    options_method => \&options_authentication_source,
+   tags => { after_element => \&help,
+             help => 'The internal source used to authenticate' },
   );
 
 our %ALLOWED_CHAINED_SOURCES = (

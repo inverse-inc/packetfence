@@ -1391,6 +1391,8 @@ Make sure the role exists in PacketFence otherwise you will encounter registrati
 
 These parameters can also be configured from the *Configuration -> Registration* section.
 
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
 Eduroam
 ~~~~~~~
 
@@ -2587,6 +2589,8 @@ Pre-registration is disabled by default. Once enabled, PacketFence's firewall an
 
 CAUTION: Pre-registration increases the attack surface of the PacketFence system since a subset of it's functionnality is exposed on the Internet. Make sure you understand the risks, apply the critical operating system updates and apply PacketFence's security fixes.
 
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+
 Configuration
 ^^^^^^^^^^^^^
 
@@ -2607,6 +2611,8 @@ These parameters can also be configured from the *Configuration -> Self Registra
 Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
+
+NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
 
 Self-registered guests are added under the users tab of the PacketFence Web administration interface.
 
@@ -2731,6 +2737,82 @@ At the bottom, select in the list "Run a new instance in parallel" in order to u
 
 Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
+Disabled Account
+^^^^^^^^^^^^^^
+
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Web Services*.
+
+----
+##########################################################################################
+#Powershell script to unregister disabled Active Directory account based on the UserName.#
+##########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-disabled-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4725
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_disabled_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
 Locked Account
 ^^^^^^^^^^^^^^
 
@@ -2741,7 +2823,7 @@ Create the script `unreg_node_locked_account.ps1` on the Windows Server with the
 #Powershell script to unregister locked Active Directory account based on the UserName.#
 #########################################################################################
 
-Get-EventLog -LogName Security -InstanceId 4725 |
+Get-EventLog -LogName Security -InstanceId 4740 |
    Select ReplacementStrings,"Account name"|
    % {
     $url = "https://@IP_PACKETFENCE:9090/"
@@ -2788,7 +2870,7 @@ Triggers -> New
 Begin on the task: On an event
 Log: Security
 Source: Microsoft Windows security auditing.
-Event ID: 4726
+Event ID: 4740
 ----
 
 Actions -> New

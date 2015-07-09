@@ -1,31 +1,20 @@
-#!/usr/bin/perl
+package pf::Switch::IBM;
+
 =head1 NAME
 
-switch-template add documentation
+pf::Switch::IBM - Object oriented module to access SNMP enabled IBM switches
 
-=cut
+=head1 SYNOPSIS
 
-=head1 DESCRIPTION
-
-switch-template
+The pf::Switch::IBM module implements an object oriented interface
+to access SNMP enabled IBM switches.
 
 =cut
 
 use strict;
 use warnings;
-use Text::CSV_XS;
-use Getopt::Long;
-use Template;
-our %Options = ( delimiter => "\t");
-my $result = GetOptions (\%Options,"inputfile|i=s", "template|t=s", "delimiter|d=s", "define=s%" );
-die "--inputfile and/or --template does not exists" unless exists $Options{inputfile} && exists $Options{template} && -e $Options{inputfile} && -e $Options{template};
-my $csv = Text::CSV_XS->new({ sep_char => $Options{delimiter} });
-open(my $io,$Options{inputfile}) or die "cannot open $Options{inputfile}";
-my $cols = $csv->getline($io);
-$csv->column_names($cols);
-our %vars = ( %{ $Options{define} },  entries => $csv->getline_hr_all($io) );
-our $template = Template->new;
-$template->process($Options{template}, \%vars ) || die $template->error;
+
+use base ('pf::Switch');
 
 =head1 AUTHOR
 
@@ -54,3 +43,8 @@ USA.
 
 =cut
 
+1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

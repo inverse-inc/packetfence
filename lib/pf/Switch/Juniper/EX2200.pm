@@ -46,9 +46,14 @@ sub supportsRadiusVoip { return $TRUE; }
 # special features
 sub supportsFloatingDevice {return $TRUE}
 sub supportsMABFloatingDevices { return $TRUE }
-sub supportsLldp { return $TRUE; }
 sub isVoIPEnabled {return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+
+# We overide it here because it's expensive and useless for this specific module
+# as it can do everything using RADIUS
+sub NasPortToIfIndex {return undef}
+sub getIfIndexByNasPortId{return $_[1]}
+
 
 =head2 getVoipVsa
 
@@ -70,104 +75,6 @@ sub getVoipVsa{
         'Tunnel-Private-Group-ID' => $voiceVlan, 
     );
  
-}
-
-=head2 getIfIndexByNasPortId
-
-Return the SNMP ifindex based on the Nas-Port-Id RADIUS attribute
-
-=cut
-
-sub getIfIndexByNasPortId{
-    my ($this, $nas_port_id) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $nas_port_id =~ s/\.\d+$//g;
-
-    my $OID_ifName = "1.3.6.1.2.1.2.2.1.2";
-    if ( !$this->connectRead() ) {
-        $logger->warn("Cannot connect to switch $this->{'_ip'} using SNMP");
-    }
-    my $result = $this->{_sessionRead}
-        ->get_table( -baseoid => $OID_ifName );
-
-    
-    foreach my $key ( keys %{$result} ) {
-        my $portName = $result->{$key}; 
-        if ($portName eq $nas_port_id ){
-            $key =~ /^$OID_ifName\.(\d+)$/;
-            my $ifindex = $1;
-            $logger->debug("Found ifindex $ifindex for nas port id $nas_port_id");
-            return $ifindex;
-        }
-    }
-    return $FALSE;
-}
-
-=head2 getPhonesLLDPAtIfIndex
-
-Return list of MACs found through LLDP on a given ifIndex.
-
-=cut
-
-sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    # if can't SNMP read abort
-    return if ( !$this->connectRead() );
-    
-    # LLDP info takes a few seconds to appear in the SNMP table after the switch makes the radius request
-    # Sleep for 2 seconds to make sure the info is there
-    sleep(2);
-
-    # SNMP index for LLDP info is 1 more than the usual SNMP index
-    # Ex : 520 becomes 521
-    my $lldpPort = $ifIndex+"1";
-
-    my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
-    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
-    
-    $logger->trace(
-        "SNMP get_next_request for lldpRemSysCapEnabled: "
-        . "$oid_lldpRemSysCapEnabled"
-    );
-    my $result = $this->{_sessionRead}->get_table(
-        -baseoid => "$oid_lldpRemSysCapEnabled"
-    );
-    # Cap entries look like this:
-    # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
-    # We want to validate that the telephone capability bit is turned on.
-    my @phones = (); 
-    foreach my $oid ( keys %{$result} ) {
-
-        # grab the lldpRemIndex
-        if ( $oid =~ /^$oid_lldpRemSysCapEnabled\.([0-9]+)\.$lldpPort\.([0-9]+)$/ ) {
-
-            my $lldpRemTimeMark = $1;
-            my $lldpRemIndex = $2;
-            # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
-            if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
-                $logger->debug("Found phone on lldp port : ".$lldpPort);
-                # we have a phone on the port. Get the MAC
-                $logger->trace(
-                    "SNMP get_request for lldpRemPortId: "
-                    . "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
-                );
-                my $portIdResult = $this->{_sessionRead}->get_request(
-                    -varbindlist => [
-                        "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
-                    ]
-                );
-                next if (!defined($portIdResult));
-
-                if ($portIdResult->{"$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"}
-                        =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})\:[0-9A-Z]+$/i) {
-                    push @phones, lc("$1:$2:$3:$4:$5:$6");
-                }
-            }
-        }
-    }
-    return @phones;
 }
 
 
@@ -272,7 +179,6 @@ sub wiredeauthTechniques {
     elsif ($connection_type == $WIRED_MAC_AUTH) {
         my $default = $SNMP::RADIUS;
         my %tech = (
-            $SNMP::TELNET => 'handleReAssignVlanTrapForWiredMacAuth',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
         ); 
         if (!defined($method) || !defined($tech{$method})) {
@@ -402,6 +308,74 @@ sub disableMABFloatingDevice{
 
     return 1;
 }
+
+# LLDP detection is INCREDIBLY SLOW
+# FIRST we need to sleep for 2 seconds while the LLDP table gets populated
+# SECOND SNMP is slow on Juniper so response time is 10 times higher than usual
+# Uncomment the two next methods to activate it.
+#sub supportsLldp { return $TRUE; }
+#sub getPhonesLLDPAtIfIndex {
+#    my ( $this, $ifIndex ) = @_;
+#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#
+#    # if can't SNMP read abort
+#    return if ( !$this->connectRead() );
+#    
+#    # LLDP info takes a few seconds to appear in the SNMP table after the switch makes the radius request
+#    # Sleep for 2 seconds to make sure the info is there
+#    sleep(2);
+#
+#    # SNMP index for LLDP info is 1 more than the usual SNMP index
+#    # Ex : 520 becomes 521
+#    my $lldpPort = $ifIndex+"1";
+#
+#    my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
+#    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+#    
+#    $logger->trace(
+#        "SNMP get_next_request for lldpRemSysCapEnabled: "
+#        . "$oid_lldpRemSysCapEnabled"
+#    );
+#    my $result = $this->{_sessionRead}->get_table(
+#        -baseoid => "$oid_lldpRemSysCapEnabled"
+#    );
+#    # Cap entries look like this:
+#    # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
+#    # We want to validate that the telephone capability bit is turned on.
+#    my @phones = (); 
+#    foreach my $oid ( keys %{$result} ) {
+#
+#        # grab the lldpRemIndex
+#        if ( $oid =~ /^$oid_lldpRemSysCapEnabled\.([0-9]+)\.$lldpPort\.([0-9]+)$/ ) {
+#
+#            my $lldpRemTimeMark = $1;
+#            my $lldpRemIndex = $2;
+#            # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
+#            if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+#                $logger->debug("Found phone on lldp port : ".$lldpPort);
+#                # we have a phone on the port. Get the MAC
+#                $logger->trace(
+#                    "SNMP get_request for lldpRemPortId: "
+#                    . "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
+#                );
+#                my $portIdResult = $this->{_sessionRead}->get_request(
+#                    -varbindlist => [
+#                        "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
+#                    ]
+#                );
+#                next if (!defined($portIdResult));
+#
+#                if ($portIdResult->{"$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"}
+#                        =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})\:[0-9A-Z]+$/i) {
+#                    push @phones, lc("$1:$2:$3:$4:$5:$6");
+#                }
+#            }
+#        }
+#    }
+#    return @phones;
+#}
+
+
 
 =head1 AUTHOR
 

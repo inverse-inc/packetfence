@@ -176,6 +176,18 @@ sub _build_clientIp {
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
     my $directly_connected_ip = $self->remoteAddress;
 
+    # Handle NATed web authentication clients
+    if($self->dispatcherSession->{is_external_portal}){
+        my $session_ip = $self->dispatcherSession->{_client_ip};
+        if(defined($session_ip)){
+            $logger->info("Detected external portal client. Using the IP $session_ip address in it's session.");
+            return $session_ip;
+        }
+        else{
+            $logger->error("Tried to compute the IP address from external portal session but found an undefined value");
+        }
+    }
+
     # every source IP in this table are considered to be from a proxied source
     my %proxied_lookup =
       %{ $CAPTIVE_PORTAL{'loadbalancers_ip'} };    #load balancers first

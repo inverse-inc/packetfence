@@ -192,7 +192,7 @@ sub reset_password :Private {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2014 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

@@ -167,7 +167,11 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOU
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $form->process( ctx => $c, init_object => getAuthenticationSource($form->value->{id}));
+        my $source = getAuthenticationSource($form->value->{id});
+        my %obj;
+        my @attrs = map { $_->name } $source->meta->get_all_attributes();
+        @obj{@attrs} = @{$source}{@attrs};
+        $form->process( ctx => $c, init_object => \%obj);
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$form->value->{id}]);
         $c->stash->{form} = $form;
         $c->stash->{template} = 'authentication/source/read.tt';
