@@ -543,7 +543,6 @@ sub info_for_violation_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
     my $node_info = node_view($mac);
-    print "$type $tid";
 
     $type = lc($type);
 
@@ -599,6 +598,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
+    $logger->info("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 
@@ -618,7 +618,8 @@ sub violation_trigger {
     }
 
     my $info = info_for_violation_engine($mac,$type,$tid);
-    use Data::Dumper; print Dumper($info);
+    use Data::Dumper; 
+    $logger->info("Infos for violation engine : ".Dumper($info));
     my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;
