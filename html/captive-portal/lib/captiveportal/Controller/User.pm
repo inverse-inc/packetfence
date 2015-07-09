@@ -18,6 +18,8 @@ sub signup : Local {
     }
 }
 
+our $ROLE_FOR_LOGIN = 'low_speed';
+
 sub validate_new_user : Private {
     my ($self, $c) = @_;
     my $request = $c->request;
@@ -40,7 +42,7 @@ sub validate_new_user : Private {
         $self->_display_error($c, "Unable to create user $pid");
     }
     my @actions = (
-        {type => 'set_role', value => 'low_speed'},
+        {type => 'set_role', value => $ROLE_FOR_LOGIN},
     );
     my $new_password = pf::password::generate($pid, \@actions, $password);
 }
