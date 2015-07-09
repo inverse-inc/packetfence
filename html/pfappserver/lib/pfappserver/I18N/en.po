@@ -4122,8 +4122,11 @@ msgid "email"
 msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
-msgid "email_action"
-msgstr "Send email"
+msgid "email_admin_action"
+msgstr "Send email to administrator"
+
+msgid "email_user_action"
+msgstr "Send email to owner"
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
