@@ -1,7 +1,7 @@
 #!/bin/bash
 # Creates a chroot environment that it suitable for testing
 #
-# Copyright (C) 2005-2014 Inverse inc.
+# Copyright (C) 2005-2015 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #
