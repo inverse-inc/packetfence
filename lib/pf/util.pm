@@ -32,6 +32,8 @@ use NetAddr::IP;
 use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
+use Encode qw(encode);
+
 
 our ( %local_mac );
 
@@ -1093,6 +1095,47 @@ sub strip_username {
         return ($2,$1);
     }
     return $username;
+}
+
+sub send_email {
+    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
+    my $logger = get_logger;
+    my %options;
+    $options{INCLUDE_PATH} = "$conf_dir/templates/";
+    $options{ENCODING} = "utf8";
+    
+    use Data::Dumper;
+    $logger->info(Dumper(\%info));
+
+    my $import_succesfull = try { require MIME::Lite::TT; };
+    if (!$import_succesfull) {
+        $logger->error(
+            "Could not send email because I couldn't load a module. ".
+            "Are you sure you have MIME::Lite::TT installed?"
+        );
+        return $FALSE;
+    }
+    utf8::decode($subject);
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $from,
+        To          =>  $to,
+        Cc          =>  $info{'cc'},
+        Subject     =>  encode("MIME-Header", $subject),
+        Template    =>  "emails-$template.html",
+        'Content-Type' => 'text/html; charset="utf-8"',
+        TmplOptions =>  \%options,
+        TmplParams  =>  \%info,
+    );
+
+    my $result = 0;
+    try {
+      $msg->send('smtp', $smtp_server, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to ".$to." (".$subject.")");
+    }
+    catch {
+      $logger->error("Can't send email to ".$to.": $!");
+    };
 }
 
 =back

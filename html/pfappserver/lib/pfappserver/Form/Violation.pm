@@ -62,6 +62,14 @@ has_field 'actions' =>
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add an action' }
   );
+has_field 'user_mail_message' =>
+  (
+   type => 'TextArea',
+   label => 'Additionnal message for the user',
+   element_class => ['input-large'],
+   tags => { after_element => \&help, 
+             help => 'A message that will be added to the e-mail sent to the user regarding this violation.' }, 
+  );
 has_field 'vclose' =>
   (
    type => 'Select',

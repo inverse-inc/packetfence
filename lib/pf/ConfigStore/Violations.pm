@@ -131,6 +131,9 @@ Clean up violation
 sub cleanupAfterRead {
     my ($self, $id, $violation) = @_;
     $self->expand_list($violation, qw(actions whitelisted_categories));
+    if($violation->{user_mail_message} && ref($violation->{user_mail_message}) eq 'ARRAY'){
+        $violation->{user_mail_message} = join("\n", @{$violation->{user_mail_message}});
+    }
     if ( exists $violation->{window} ) {
         $violation->{'window_dynamic'} = $violation->{window};
     }

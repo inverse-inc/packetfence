@@ -23,7 +23,10 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 use pf::node;
+use pf::log;
+use pf::person;
 use pf::util;
+use pf::violation_config;
 
 use constant ACTION => 'action';
 
@@ -32,7 +35,8 @@ use constant ACTION => 'action';
 Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $UNREG => 'unreg';
 Readonly::Scalar our $TRAP => 'trap';
-Readonly::Scalar our $EMAIL => 'email';
+Readonly::Scalar our $EMAIL_USER => 'email_user';
+Readonly::Scalar our $EMAIL_ADMIN => 'email_admin';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $WINPOPUP => 'winpopup';
@@ -44,7 +48,8 @@ Readonly::Array our @VIOLATION_ACTIONS =>
   (
    $AUTOREG,
    $UNREG,
-   $EMAIL,
+   $EMAIL_USER,
+   $EMAIL_ADMIN,
    $TRAP,
    $LOG,
    $EXTERNAL,
@@ -200,8 +205,10 @@ sub action_execute {
         if ( $action eq $TRAP ) {
             $leave_open = 1;
             action_trap( $mac, $vid );
-        } elsif ( $action eq $EMAIL ) {
-            action_email( $mac, $vid, $notes );
+        } elsif ( $action eq $EMAIL_ADMIN ) {
+            action_email_admin( $mac, $vid, $notes );
+        } elsif ( $action eq $EMAIL_USER ) {
+            action_email_user( $mac, $vid, $notes );
         } elsif ( $action eq $LOG ) {
             action_log( $mac, $vid );
         } elsif ( $action eq $EXTERNAL ) {
@@ -265,7 +272,7 @@ sub action_unreg {
     node_deregister($mac);
 }
 
-sub action_email {
+sub action_email_admin {
     my ($mac, $vid, $notes) = @_;
     my %message;
 
@@ -279,6 +286,38 @@ sub action_email {
     $message{'message'} .= pf::lookup::node::lookup_node($mac);
 
     pfmailer(%message);
+}
+
+sub action_email_user {
+    my ($mac, $vid, $notes) = @_;
+    my $node_info = node_attributes($mac);
+    my $person = person_view($node_info->{pid});
+
+    if(defined($person->{email}) && $person->{email}){
+        my %message;
+
+        require pf::lookup::node;
+        my $class_info  = class_view($vid);
+        my $description = $class_info->{'description'};
+
+        my $additionnal_message = join('<br/>', split('\n',$pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+
+        pf::util::send_email(
+            $Config{'alerting'}{'smtpserver'},
+            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email}, 
+            "$description detection on $mac", 
+            "violation-triggered", 
+            description => $description, 
+            hostname => $node_info->{computername},
+            os => $node_info->{device_type}, 
+            mac => $mac,
+            additionnal_message => $additionnal_message,
+        );  
+
+    }
+    else{
+        get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
+    }
 }
 
 sub action_log {

@@ -27,6 +27,7 @@
         [% form.field('vclose').render | none %]
         [% form.field('target_category').render | none %]
         [% form.field('external_command').render | none %]
+        [% form.field('user_mail_message').render | none %]
         [% form.field('priority').render | none %]
         [% form.field('whitelisted_categories').render | none %]
       </div><!-- tab-pane -->
