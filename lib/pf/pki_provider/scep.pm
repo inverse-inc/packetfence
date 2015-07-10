@@ -1,14 +1,14 @@
-package pf::pki_provider::ms_sscep;
+package pf::pki_provider::scep;
 
 =head1 NAME
 
-pf::pki_provider::ms_sscep
+pf::pki_provider::scep
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pki_provider::ms_sscep
+pf::pki_provider::scep
 
 =cut
 
@@ -28,7 +28,7 @@ use pf::log;
 
 =head2 host
 
-The host of the ms_sscep pki service
+The host of the scep pki service
 
 =cut
 
@@ -36,7 +36,7 @@ has host => ( is => 'rw', default => "127.0.0.1" );
 
 =head2 port
 
-The port of the ms_sscep pki service
+The port of the scep pki service
 
 =cut
 
@@ -44,7 +44,7 @@ has port => ( is => 'rw', default => 80 );
 
 =head2 proto
 
-The proto of the ms_sscep pki service
+The proto of the scep pki service
 
 =cut
 
@@ -52,7 +52,7 @@ has proto => ( is => 'rw', default => "http" );
 
 =head2 username
 
-The username to connect to the ms_sscep pki service
+The username to connect to the scep pki service
 
 =cut
 
@@ -68,7 +68,7 @@ has url => ( is => 'rw' );
 
 =head2 password
 
-The password to connect to the ms_sscep pki service
+The password to connect to the scep pki service
 
 =cut
 
@@ -76,7 +76,7 @@ has password => ( is => 'rw' );
 
 =head2 profile
 
-The profile to use for the ms_sscep pki service
+The profile to use for the scep pki service
 
 =cut
 
@@ -108,7 +108,7 @@ has organisation => ( is => 'rw' );
 
 =head2 get_cert
 
-Get the certificate from the ms_sscep pki service
+Get the certificate from the scep pki service
 sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d
 
 =cut
@@ -121,7 +121,7 @@ sub get_cert {
     my $ca = $self->get_ca($path, $args);
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
-    system("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1');
+    system("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
     my $cert = read_file ($cert_path);
     return $cert;
 }
@@ -153,7 +153,7 @@ sub make_request {
         csr => $csr_path,
     };
     my $req = Crypt::OpenSSL::PKCS10->new;
-    my $subject = $self->subject_string;
+    my $subject = $self->subject_string($args);
     $req->set_subject($subject);
     $req->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name,"email:" . $args->{certificate_email});
     $req->write_pem_pk($key_path);
@@ -188,10 +188,10 @@ sub subject_string {
     my ($self, $args) = @_;
     my $subject = '';
     $subject .= "/C=" . $self->country;
-    $subject .= ",/ST=" . $self->state;
-    $subject .= ",/O=" . $self->organization;
-    $subject .= ",/O=" . $self->organization;
-    $subject .= ",/CN=" . $args->{'certificate_cn'};
+    $subject .= "/ST=" . $self->state;
+    $subject .= "/O=" . $self->organisation;
+    $subject .= "/CN=" . $args->{'certificate_cn'};
+    return $subject;
 }
 
 
