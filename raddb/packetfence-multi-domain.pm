@@ -56,13 +56,13 @@ sub authorize {
 
     my $start = Time::HiRes::gettimeofday();
     # We try to find the realm that's configured in PacketFence
-   my $realm;
-   my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
-   if ($user_name =~ /^host\/([0-9a-zA-Z-]+)\.(.*)$/) {
-       $realm = $ConfigRealm{$2};
-   } else {
-       $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
-   }
+    my $realm;
+    my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
+    if ($user_name =~ /^host\/([0-9a-zA-Z-]+)\.(.*)$/) {
+        $realm = $ConfigRealm{$2};
+    } else {
+        $realm = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+    }
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
