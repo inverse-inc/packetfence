@@ -39,7 +39,6 @@ Readonly::Scalar our $EMAIL_USER => 'email_user';
 Readonly::Scalar our $EMAIL_ADMIN => 'email_admin';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
-Readonly::Scalar our $WINPOPUP => 'winpopup';
 Readonly::Scalar our $CLOSE => 'close';
 Readonly::Scalar our $ROLE => 'role';
 Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
@@ -53,7 +52,6 @@ Readonly::Array our @VIOLATION_ACTIONS =>
    $REEVALUATE_ACCESS,
    $LOG,
    $EXTERNAL,
-   $WINPOPUP,
    $CLOSE,
    $ROLE,
    $ENFORCE_PROVISIONING,
@@ -213,8 +211,6 @@ sub action_execute {
             action_log( $mac, $vid );
         } elsif ( $action eq $EXTERNAL ) {
             action_api( $mac, $vid );
-        } elsif ( $action eq $WINPOPUP ) {
-            action_winpopup( $mac, $vid );
         } elsif ( $action eq $AUTOREG ) {
             action_autoregister($mac, $vid);
         } elsif ( $action eq $CLOSE ) {
@@ -347,38 +343,6 @@ sub action_log {
 sub action_reevaluate_access {
     my ($mac, $vid) = @_;
     pf::enforcement::reevaluate_access($mac, "manage_vopen");
-}
-
-sub action_winpopup {
-    my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
-
-    eval "use Net::NetSend qw(:all); 1" || return (0);
-    eval "use Net::NBName; 1"           || return (0);
-
-    require pf::lookup::node;
-    my $class_info  = class_view($vid);
-    my $description = $class_info->{'description'};
-    my $message     = "$description detection on $mac " 
-                      . pf::lookup::node::lookup_node($mac);
-
-    my $nb = Net::NBName->new;
-    my $nq = $nb->name_query( $Config{'alerting'}{'wins_server'},
-        $Config{'alerting'}{'admin_netbiosname'}, 0x00 );
-    if ($nq) {
-        my $admin_addr_obj = ( $nq->addresses )[0];
-        my $admin_ip       = $admin_addr_obj->address;
-        if (!sendMsg(
-                $Config{'alerting'}{'admin_netbiosname'},
-                'Packetfence', $admin_ip, $message, 0
-            )
-            )
-        {
-            $logger->error("Unable to send winpopup to $admin_ip");
-        }
-    } else {
-        $logger->error("Unable to resolve NetBIOS->IP to send winpopup");
-    }
 }
 
 sub action_autoregister {

@@ -1,2 +1,4 @@
 Need to rename action trap into reevaluate_access
 Need to rename whitelisted_categories into whitelisted_roles
+Remove alerting.wins_server
+Remove alerting.admin_netbiosname

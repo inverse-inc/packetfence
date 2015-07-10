@@ -1876,12 +1876,6 @@ msgstr ""
 msgid "Native VLAN"
 msgstr ""
 
-# conf/documentation.conf (alerting.admin_netbiosname)
-msgid ""
-  "NetBIOS name of administrative workstation to send alerts with"
-  "\"winpopup\" action assigned."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/interface/list.tt
@@ -3664,12 +3658,6 @@ msgstr "WEP Key Entry Method"
 msgid "WEP_Key_Size"
 msgstr "WEP Key Size"
 
-# conf/documentation.conf (alerting.wins_server)
-msgid ""
-  "WINS server to resolve NetBIOS name of administrative workstation to"
-  "IP address."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
 msgstr ""
@@ -5184,10 +5172,6 @@ msgstr "Monitoring"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"
 msgstr ""
-
-# pf::action (VIOLATION_ACTIONS)
-msgid "winpopup_action"
-msgstr "Windows popup message"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "years"
