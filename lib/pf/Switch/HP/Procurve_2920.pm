@@ -64,7 +64,7 @@ sub getPhonesLLDPAtIfIndex {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
-        $logger->info( "VoIP not enabled on switch "
+        $logger->debug( "VoIP not enabled on switch "
                 . $this->{_ip}
                 . ". getPhonesLLDPAtIfIndex will return empty list." );
         return @phones;
@@ -74,11 +74,9 @@ sub getPhonesLLDPAtIfIndex {
     if ( !$this->connectRead() ) {
         return @phones;
     }
-    $logger->debug(
+    $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemChassisIdSubtype"
     );
-    # 
-    sleep(10);
     my $result = $this->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemChassisIdSubtype );
     foreach my $oid ( keys %{$result} ) {
@@ -92,7 +90,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemIndex        = $3;
 
                 if ( $this->getBitAtPosition(pack("C", hex($result->{$oid})), $SNMP::LLDP::TELEPHONE) ) {
-                    $logger->debug(
+                    $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
                     my $MACresult = $this->{_sessionRead}->get_request(
@@ -114,6 +112,7 @@ sub getPhonesLLDPAtIfIndex {
     }
     return @phones;
 }
+
 
 
 =head1 AUTHOR
