@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+use pf::log;
 
 has 'roles' => (
     is => 'rw',
@@ -51,17 +52,17 @@ has_block definition => (
 
 has_field 'failed_payment_role' => (
     type => 'Select',
+    options_method => \&options_failed_payment_role,
     required => 1,
     label => 'Role',
 );
 
 sub options_failed_payment_role {
     my $self = shift;
-
+    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
+    return ( @roles);
     # $self->roles comes from pfappserver::Model::Roles
-    my @roles = map { $_->{name} => $_->{name} } @{$self->roles} if ($self->roles);
-
-    return (@roles);
 }
 
 sub ACCEPT_CONTEXT {
