@@ -50,7 +50,7 @@ sub getVlanPool {
     return $vlan if $self->rangeValidator($vlan);
     my $range = Number::Range->new($vlan);
 
-    $vlan = $self->getRoundRobbin($mac, $node_info, $range);
+    $vlan = $self->getRoundRobin($mac, $node_info, $range);
     return $vlan;
 }
 
@@ -80,13 +80,13 @@ sub rangeValidator {
 }
 
 
-=head2 getRoundRobbin
+=head2 getRoundRobin
 
-Return the vlan id based on round robbin
+Return the vlan id based on round robin
 
 =cut
 
-sub getRoundRobbin {
+sub getRoundRobin {
     my ($self, $mac, $node_info, $range) = @_;
     my $logger =  pf::log::get_logger();
 

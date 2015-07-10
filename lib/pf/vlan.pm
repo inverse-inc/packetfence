@@ -496,9 +496,9 @@ sub getNormalVlan {
         $logger->info("[$mac] Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
     $vlan = $switch->getVlanByName($role);
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     my $vlanpool = new pf::vlan::pool;
     $vlan = $vlanpool->getVlanPool($vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan, $role);
 }
 
