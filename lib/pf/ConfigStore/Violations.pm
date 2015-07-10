@@ -130,7 +130,7 @@ Clean up violation
 
 sub cleanupAfterRead {
     my ($self, $id, $violation) = @_;
-    $self->expand_list($violation, qw(actions whitelisted_categories));
+    $self->expand_list($violation, qw(actions whitelisted_roles));
     if($violation->{user_mail_message} && ref($violation->{user_mail_message}) eq 'ARRAY'){
         $violation->{user_mail_message} = join("\n", @{$violation->{user_mail_message}});
     }
@@ -147,7 +147,7 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $violation) = @_;
-    $self->flatten_list($violation, qw(actions trigger whitelisted_categories));
+    $self->flatten_list($violation, qw(actions trigger whitelisted_roles));
     if ($violation->{'window_dynamic'}) {
         $violation->{'window'} = 'dynamic';
     }

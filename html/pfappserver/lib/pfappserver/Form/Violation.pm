@@ -100,7 +100,7 @@ has_field 'priority' =>
    tags => { after_element => \&help,
              help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.' },
   );
-has_field 'whitelisted_categories' =>
+has_field 'whitelisted_roles' =>
   (
    type => 'Select',
    multiple => 1,

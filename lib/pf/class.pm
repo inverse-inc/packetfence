@@ -147,7 +147,7 @@ sub class_modify {
 sub class_merge {
     my $id = $_[0];
     my $actions = pop(@_);
-    my $whitelisted_categories = pop(@_);
+    my $whitelisted_roles = pop(@_);
     my $logger = Log::Log4perl::get_logger('pf::class');
 
     # delete existing violation actions

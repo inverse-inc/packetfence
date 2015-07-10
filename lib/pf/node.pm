@@ -24,6 +24,7 @@ use Log::Log4perl::Level;
 use Readonly;
 use pf::StatsD;
 use pf::util::statsd qw(called);
+use pf::violation qw(violation_count violation_add violation_trigger violation_force_close);
 
 use constant NODE => 'node';
 
@@ -638,7 +639,7 @@ sub node_view {
     $node_info_ref = {
         %$node_info_ref,
         %$locationlog_info_ref,
-        'nbopenviolations' => violation_count($mac),
+        'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
     return ($node_info_ref);
@@ -959,10 +960,10 @@ sub node_register {
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
-            violation_add( $mac, $SCAN_VID );
+            pf::violation::violation_add( $mac, $SCAN_VID );
         }
         if (isenabled($scan->{'post_registration'})) {
-                violation_add( $mac, $POST_SCAN_VID );
+                pf::violation::violation_add( $mac, $POST_SCAN_VID );
         }
     }
 
@@ -1110,8 +1111,8 @@ sub node_update_bandwidth {
     }
     elsif ($sth->rows == 1) {
         # Close any existing violation related to bandwidth
-        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-            violation_force_close($mac, $vid);
+        foreach my $vid (@pf::violation::BANDWIDTH_EXPIRED_VIOLATIONS){
+            pf::violation::violation_force_close($mac, $vid);
         }
     }
 

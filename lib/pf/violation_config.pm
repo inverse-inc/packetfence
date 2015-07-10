@@ -72,7 +72,7 @@ sub loadViolationsIntoDb {
             $data->{'target_category'},
             $data->{'delay_by'},
             $data->{'external_command'},
-            $data->{'whitelisted_categories'} || '',
+            $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
         );
     }

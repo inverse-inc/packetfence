@@ -30,6 +30,7 @@ use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::User_Agent;
 use pf::log;
+use pf::violation_config;
 
 
 # Violation status constants
@@ -102,6 +103,7 @@ use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::util;
 use pf::config::util;
 use pf::client;
+use pf::violation_config;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $violation_db_prepared = 0;
@@ -542,7 +544,7 @@ sub violation_last_errors { @ERRORS }
 sub info_for_violation_engine {
     # NEED TO HANDLE THE NEW TID
     my ($mac,$type,$tid) = @_;
-    my $node_info = node_view($mac);
+    my $node_info = pf::node::node_view($mac);
 
     $type = lc($type);
 
@@ -624,17 +626,8 @@ sub violation_trigger {
 
     my $addedViolation = 0;
     foreach my $vid (@vids) {
-        my $row = class_view($vid);
-        # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
-        if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
-            $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
-            next;
-        }
-        my $vid = $row->{'vid'};
-
-        # if the node's category is whitelisted, skip
-        if (_is_node_category_whitelisted($row, $mac)) {
-            $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
+        if (_is_node_category_whitelisted($vid, $mac)) {
+            $logger->info("Not adding violation ${vid} node $mac is whitelisted because of its role");
             next;
         }
 
@@ -798,15 +791,17 @@ sub violation_view_last_closed {
 =cut
 
 sub _is_node_category_whitelisted {
-    my ($trigger_info, $mac) = @_;
+    my ($vid, $mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
+    my $class = $pf::violation_config::Violation_Config{$vid};
+
     # if whitelist is empty, node is not whitelisted
-    if (!defined($trigger_info->{'whitelisted_categories'}) || $trigger_info->{'whitelisted_categories'} eq '') {
+    if (!defined($class->{'whitelisted_roles'}) || @{$class->{'whitelisted_roles'}} == 0) {
         return 0;
     }
 
-    # Grabbing the node's informations (incl. category)
+    # Grabbing the node's informations (incl. role)
     # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
     my $node_info = node_attributes($mac);
     if(!defined($node_info) || ref($node_info) ne 'HASH') {
@@ -815,15 +810,15 @@ sub _is_node_category_whitelisted {
     }
 
     # trying to match node's category on whitelisted categories
-    my $category_found = 0;
-    # whitelisted_categories is of the form "cat1,cat2,cat3,etc."
-    foreach my $category (split(",", $trigger_info->{'whitelisted_categories'})) {
-        if (lc($category) eq lc($node_info->{'category'})) {
-            $category_found = 1;
+    my $role_found = 0;
+    # whitelisted_roles is of the form "cat1,cat2,cat3,etc."
+    foreach my $role (@{$class->{'whitelisted_roles'}}) {
+        if (lc($role) eq lc($node_info->{'category'})) {
+            $role_found = 1;
         }
     }
 
-    return $category_found;
+    return $role_found;
 }
 
 =item violation_maintenance

@@ -29,7 +29,7 @@
         [% form.field('external_command').render | none %]
         [% form.field('user_mail_message').render | none %]
         [% form.field('priority').render | none %]
-        [% form.field('whitelisted_categories').render | none %]
+        [% form.field('whitelisted_roles').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="violationTriggers">
