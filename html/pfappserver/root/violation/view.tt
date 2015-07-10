@@ -49,6 +49,7 @@
           </div>
 
           [% FOREACH trigger IN splitted_triggers %]
+            [% trigger_index = loop.index %]
             <div class="control-group">
               <span class="triggerButtons">
                 <a class="btn pull-left" href="#editTrigger">
@@ -58,10 +59,12 @@
                   <i class="icon icon-remove"></i>
                 </a>
               </span>
-              <select multiple="multiple" class='chzn-select input-xxlarge'>
+              <select multiple="multiple" class='chzn-select input-xxlarge trigger'>
               [% FOREACH subtrigger IN trigger %]
+                [% subtrigger_index = loop.index %]
                 <option value="[% subtrigger %]" selected="selected">
-                  [% subtrigger %]
+                  [% infos = pretty_triggers.$trigger_index.$subtrigger_index %]
+                  [% i18n(infos.type) %] : [% infos.value %]
                 </option>
               [% END %]
               </select>

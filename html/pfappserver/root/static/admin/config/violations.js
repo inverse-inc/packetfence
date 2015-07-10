@@ -40,6 +40,15 @@ $(function() { // DOM ready
               })
             }
         });
+        $('.trigger option').each(function(elem){
+          var jthis = $(this);
+          var infos = jthis.val().split('::');
+          if(infos[0].toLowerCase() == "accounting"){
+            var new_value = violationsView.prettify_accounting(infos[0], infos[1]);
+            jthis.html(new_value)
+            jthis.closest('select').trigger("liszt:updated");
+          }
+        })
         modal.modal('show');
     }
 
@@ -301,19 +310,19 @@ $(function() { // DOM ready
         var type = type_select.val();
         var type_name = type_select.text();
         var value = type + "::" + id;
-        var name = type_name + "::" + id;
+        var value_pretty = type_name + " : " + id;
         var select = $('#editedTrigger select').first();
         var last = true;
         tid.val('');
         select.find('option').each(function() {
             if ($(this).val() > value) {
-                $('<option value="' + value + '" selected="selected">' + name + '</option>').insertBefore(this);
+                $('<option value="' + value + '" selected="selected">' + value_pretty + '</option>').insertBefore(this);
                 last = false;
                 return false;
             }
         });
         if (last)
-            select.append('<option value="' + value + '" selected="selected">' + name + '</option>');
+            select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
         select.trigger("liszt:updated");
     });
 
@@ -377,6 +386,35 @@ ViolationsView.add_combined_trigger_form = function(){
   '</div>']
 
   return form.join(' ');
+}
+
+ViolationsView.prototype.prettify_accounting = function(type, value) {
+  var lc_type = type.toLowerCase();
+  var lc_value = value.toLowerCase();
+  var lc_trigger = lc_type+"::"+lc_value;
+  var pretty;
+  if(lc_value == "bandwidthexpired") pretty = "Bandwidth expired";
+  else if(lc_value == "timeexpired") pretty = "Time expired";
+  else {
+    var rx = /^(TOT|IN|OUT)([0-9]+)(B|KB|MB|GB|TB)([DWMY])$/;
+    var results = rx.exec(value)
+    var direction = results[1];
+    var amount = results[2]
+    var unit = results[3]
+    var timeframe = results[4]
+    console.log(results);
+    pretty = ""
+
+    if(direction == "TOT") pretty += "Total traffic over "+amount+" "+unit+" "
+    else if(direction == "IN") pretty += "Inbound traffic over "+amount+" "+unit+" "
+    else if(direction == "OUT") pretty += "Outbound traffic over "+amount+" "+unit+" "
+
+    if(timeframe == "D") pretty += "per day"
+    else if(timeframe == "W") pretty += "per week"
+    else if(timeframe == "M") pretty += "per month"
+    else if(timeframe == "Y") pretty += "per year"
+  }
+  return pretty;
 }
 
 var violationsView = new ViolationsView();

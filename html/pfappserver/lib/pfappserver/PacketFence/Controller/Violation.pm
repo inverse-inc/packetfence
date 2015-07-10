@@ -21,8 +21,18 @@ use POSIX;
 use pf::log;
 use pf::config;
 use pf::Switch::constants;
+use pf::constants::trigger qw($TRIGGER_MAP);
+use JSON;
 use pfappserver::Form::Violation;
 use pf::factory::condition::violation;
+use Switch;
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::MAC_Vendor;
+use fingerbank::Model::User_Agent;
+
+
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -95,22 +105,65 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-sub split_triggers {
-    my ($self,$triggers) = @_;
-    use Data::Dumper;
-    my @splitted_triggers = map {
-      my $trigger = $_;
-      if($trigger =~ /\((.+)\)/){
-        [split('&', $1)];
+sub prettify_trigger {
+    my ($self, $trigger) = @_;
+
+    my @parts = split('::', $trigger);
+    my $type = lc($parts[0]);
+    my $tid = lc($parts[1]);
+    
+    my $pretty_type = $type;
+    my $pretty_value;
+    switch($type){
+      case "device" {
+        my ($status, $elem) = fingerbank::Model::Device->read($tid);
+        use Data::Dumper; get_logger("device : ".Dumper($status));
+        $pretty_value = $elem->{name} if(is_success($status));
+      }
+      case "dhcp_fingerprint" {
+        my ($status, $elem) = fingerbank::Model::DHCP_Fingerprint->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "dhcp_vendor" {
+        my ($status, $elem) = fingerbank::Model::DHCP_Vendor->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "mac_vendor" {
+        my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "user_agent" {
+        my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
       }
       else {
-        [($trigger)];
+        $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
+                          $TRIGGER_MAP->{$type}->{$tid} : undef;
       }
-    } split ',', $triggers;
+    } 
+    $pretty_value = (defined($pretty_value)) ? $pretty_value : $parts[1];
 
-    get_logger->info(Dumper(\@splitted_triggers));
+    return {type => $pretty_type, value => $pretty_value};
+}
 
-    return \@splitted_triggers;
+sub parse_triggers {
+    my ($self,$triggers) = @_;
+    my @splitted_triggers; 
+    my @pretty_triggers; 
+    foreach my $trigger (split ',', $triggers) {
+        if($trigger =~ /\((.+)\)/){
+          push @splitted_triggers, [split('&', $1)];
+          push @pretty_triggers, [ map { $self->prettify_trigger($_); } split('&', $1) ];
+        }
+        else {
+          push @splitted_triggers, [($trigger)];
+          push @pretty_triggers, [($self->prettify_trigger($trigger))];
+        }
+    } 
+
+    use Data::Dumper; get_logger->info(Dumper(\@pretty_triggers));
+
+    return (\@splitted_triggers,\@pretty_triggers);
 }
 
 =head2 after view
@@ -120,10 +173,9 @@ sub split_triggers {
 after view => sub {
     my ($self, $c, $id) = @_;
     if (!$c->stash->{action_uri}) {
-        use Data::Dumper;
         if ($c->stash->{item}) {
-            $c->stash->{splitted_triggers} = $self->split_triggers($c->stash->{item}->{trigger});
-            $c->log->info(Dumper($c->stash->{item}));
+            ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) = 
+                $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));

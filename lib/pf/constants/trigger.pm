@@ -19,6 +19,7 @@ use Readonly;
 our @EXPORT_OK = qw(
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $TRIGGER_ID_PROVISIONER
+        $TRIGGER_MAP
 );
 
 # Violation trigger types
@@ -34,6 +35,15 @@ Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
+
+Readonly::Scalar our $TRIGGER_MAP => {
+  $TRIGGER_TYPE_INTERNAL => {
+    "1100010" => "Rogue DHCP detection",
+  },
+  $TRIGGER_TYPE_PROVISIONER => {
+    $TRIGGER_ID_PROVISIONER => "Check status",
+  },
+};
 
 =head1 AUTHOR
 
