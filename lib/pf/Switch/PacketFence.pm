@@ -35,7 +35,8 @@ sub connectWrite {
         -hostname  => '127.0.0.1',
         -version   => 1,
         -port      => '162',
-        -community => $this->{_SNMPCommunityTrap}
+        -community => $this->{_SNMPCommunityTrap},
+        -maxmsgsize => 4096
     );
     if ( !defined( $this->{_sessionWrite} ) ) {
         $logger->error( "error creating SNMP v1 connection to 127.0.0.1: "

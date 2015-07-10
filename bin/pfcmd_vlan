@@ -318,7 +318,8 @@ if ($reevaluateAccess) {
                 -authprotocol => $switch->{_SNMPAuthProtocolRead},
                 -authpassword => $switch->{_SNMPAuthPasswordRead},
                 -privprotocol => $switch->{_SNMPPrivProtocolRead},
-                -privpassword => $switch->{_SNMPPrivPasswordRead}
+                -privpassword => $switch->{_SNMPPrivPasswordRead},
+                -maxmsgsize => 4096
             );
         } else {
             ( $session, $error ) = Net::SNMP->session(
@@ -326,7 +327,8 @@ if ($reevaluateAccess) {
                 -version   => $switch->{_SNMPVersion},
                 -timeout   => 2,
                 -retries   => 1,
-                -community => $switch->{_SNMPCommunityRead}
+                -community => $switch->{_SNMPCommunityRead},
+                -maxmsgsize => 4096
             );
         }
         my $type      = 'unknown';
