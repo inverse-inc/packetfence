@@ -5075,7 +5075,7 @@ msgstr "unregistered"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
-msgstr "Deregister node"
+msgstr "Unregister node"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
