@@ -1,4 +1,3 @@
-[% INCLUDE violation/maps.tt %]
 
 
       <div class="modal modal-large fade hide" id="modalViolation">
