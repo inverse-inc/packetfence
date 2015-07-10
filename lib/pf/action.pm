@@ -32,7 +32,6 @@ use constant ACTION => 'action';
 
 # Action types constants
 #FIXME port all hard-coded strings to these constants
-Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $UNREG => 'unreg';
 Readonly::Scalar our $REEVALUATE_ACCESS => 'reevaluate_access';
 Readonly::Scalar our $EMAIL_USER => 'email_user';
@@ -45,7 +44,6 @@ Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
 
 Readonly::Array our @VIOLATION_ACTIONS =>
   (
-   $AUTOREG,
    $UNREG,
    $EMAIL_USER,
    $EMAIL_ADMIN,
@@ -195,7 +193,6 @@ sub action_execute {
     my $logger = Log::Log4perl::get_logger('pf::action');
     my $leave_open = 0;
     my @actions = class_view_actions($vid);
-    # Sort the actions in reverse order in order to always finish with the autoreg action
     @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
@@ -211,8 +208,6 @@ sub action_execute {
             action_log( $mac, $vid );
         } elsif ( $action eq $EXTERNAL ) {
             action_api( $mac, $vid );
-        } elsif ( $action eq $AUTOREG ) {
-            action_autoregister($mac, $vid);
         } elsif ( $action eq $CLOSE ) {
             action_close( $mac, $vid );
         } elsif ( $action eq $ROLE ) {
@@ -343,36 +338,6 @@ sub action_log {
 sub action_reevaluate_access {
     my ($mac, $vid) = @_;
     pf::enforcement::reevaluate_access($mac, "manage_vopen");
-}
-
-sub action_autoregister {
-    my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
-
-    if (isenabled($Config{'trapping'}{'registration'})) {
-
-        require pf::vlan::custom;
-        my $vlan_obj = new pf::vlan::custom();
-        if ($vlan_obj->shouldAutoRegister($mac, 0, 1)) {
-
-            # auto-register
-            # sorry for the weird call, check pf::vlan for this sub's parameters
-            my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef, $mac, undef, 0, 1);
-            $logger->debug("auto-registering node $mac because of violation action=autoreg");
-
-            require pf::node;
-            if (!pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
-                $logger->error("auto-registration of node $mac failed");
-                return 0;
-            }
-            require pf::enforcement;
-            pf::enforcement::reevaluate_access($mac, 'manage_register');
-        } else {
-            $logger->info("autoreg action defined for violation $vid, but won't do it: custom config said not to");
-        }
-    } else {
-        $logger->warn("autoreg action defined for violation $vid, but registration disabled");
-    }
 }
 
 sub action_close {
