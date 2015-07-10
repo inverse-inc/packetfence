@@ -53,8 +53,6 @@ has_block definition => (
 has_field 'failed_payment_role' => (
     type => 'Select',
     options_method => \&options_failed_payment_role,
-    required => 1,
-    label => 'Role',
 );
 
 sub options_failed_payment_role {
