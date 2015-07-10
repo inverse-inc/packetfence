@@ -36,6 +36,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'openvas'         => {type => 'equals',        key  => 'last_openvas_id', event => $TRUE},
     'provisioner'     => {type => 'equals',        key  => 'last_provisioner_id', event => $TRUE},
     'soh'             => {type => 'equals',        key  => 'last_soh_id', event => $TRUE},
+    'suricata'        => {type => 'starts_with',   key  => 'last_suricata_event', event => $TRUE},
     'user_agent'      => {type => 'equals',        key  => 'user_agent_id'},
 );
 

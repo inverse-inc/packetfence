@@ -85,6 +85,14 @@
               <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
               <a id="add_trigger_part" class="btn" href="#addTriggerPart">[% l('Add') %]</a>
             </div>
+            <div class="controls suricata_categories">
+              <label>Suricata categories : </label>
+              <select class="input-medium">
+              [% FOREACH trigger IN trigger_map.suricata.sort %]
+                <option value="[% trigger %]">[% trigger %]</option>
+              [% END %]
+              </select>
+            </div>
           </div>
         </div>
 

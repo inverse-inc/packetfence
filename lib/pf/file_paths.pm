@@ -68,6 +68,7 @@ our (
     $scan_config_file,
     $wmi_config_file,
     $pki_provider_config_file,
+    $suricata_categories_file,
 );
 
 BEGIN {
@@ -113,6 +114,7 @@ BEGIN {
         $scan_config_file
         $wmi_config_file
         $pki_provider_config_file
+        $suricata_categories_file
     );
 }
 
@@ -135,6 +137,7 @@ $domains_chroot_dir = catdir( "/chroots");
 $pfcmd_binary   = catfile($bin_dir, "pfcmd");
 
 $oui_file           = catfile($conf_dir, "oui.txt");
+$suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
 $pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");
 $oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");

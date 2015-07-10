@@ -176,6 +176,7 @@ after view => sub {
         if ($c->stash->{item}) {
             ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) = 
                 $self->parse_triggers($c->stash->{item}->{trigger});
+            $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
