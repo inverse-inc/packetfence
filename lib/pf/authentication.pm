@@ -218,6 +218,11 @@ sub authenticate {
 
     $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
 
+    # Fetching IP and MAC from Portal Session, as to properly LOG them together with the USERNAME 
+	my $portalSession = pf::Portal::Session->new();
+	my $ip = $portalSession->getClientIp();
+	my $mac = $portalSession->getClientMac();
+
     foreach my $current_source (@sources) {
         my ($result, $message);
         $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
@@ -226,7 +231,7 @@ sub authenticate {
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for ".$display_username."/".$ip."/".$mac." in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
