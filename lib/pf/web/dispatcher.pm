@@ -118,6 +118,14 @@ sub handler {
         return Apache2::Const::DECLINED;
     }
 
+    # Billing hooks
+    if ($r->uri =~ m#/hook/billing#) {
+        $logger->trace("Found the hook");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::billinghook'] );
+        return Apache2::Const::DECLINED;
+    }
+
     # Portal-profile filters
     # TODO: Migrate to Catalyst
     if ( defined($WEB::ALLOWED_RESOURCES_PROFILE_FILTER) && $uri =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o ) {
@@ -160,7 +168,7 @@ sub html_redirect {
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
     }
-        
+
     # Enforcing HTTP (not HTTPS) when dealing with captive-portal detection mecanism
     if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport/s) ) {
         $proto = $HTTP;
