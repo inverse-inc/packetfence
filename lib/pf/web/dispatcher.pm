@@ -54,6 +54,12 @@ sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("hitting translator with URL: " . $r->uri);
+    if ($r->uri =~ m#/hook/billing#) {
+        $logger->trace("Found the hook");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::billinghook'] );
+        return Apache2::Const::DECLINED;
+    }
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
     if ( ( ($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
@@ -151,11 +157,11 @@ sub redirect {
    my $external_portal = pf::web::externalportal->new();
 
    my ($cgi_session_id, $external_portal_destinationUrl) = $external_portal->handle($r);
-   
+
    my $is_external_portal;
    if ($cgi_session_id) {
       $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
-      $destination_url = $external_portal_destinationUrl if(defined($external_portal_destinationUrl)); 
+      $destination_url = $external_portal_destinationUrl if(defined($external_portal_destinationUrl));
       $is_external_portal = 1;
    }
 
