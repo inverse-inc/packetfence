@@ -40,14 +40,14 @@ has_field 'url' =>
   (
    type => 'Text',
    tags => { after_element => \&help,
-             help => 'The url used to connect to the MS SCEP PKI service'},
+             help => 'The url used to connect to the SCEP PKI service'},
   );
 
 has_field 'username' =>
   (
    type => 'Text',
    tags => { after_element => \&help,
-             help => 'Username to connect to the MS SCEP PKI Service'},
+             help => 'Username to connect to the SCEP PKI Service'},
   );
 
 has_field 'password' =>
@@ -72,11 +72,25 @@ has_field 'state' =>
              help => 'State for the certificate'},
   );
 
-has_field 'organisation' =>
+has_field 'locality' =>
   (
    type => 'Text',
    tags => { after_element => \&help,
-             help => 'Organisation for the certificate'},
+             help => 'Locality for the certificate'},
+  );
+
+has_field 'organization' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Organization for the certificate'},
+  );
+
+has_field 'organizational_unit' =>
+  (
+   type => 'Text',
+   tags => { after_element => \&help,
+             help => 'Organizational unit for the certificate'},
   );
 
 
@@ -92,7 +106,7 @@ has_field 'cn_attribute' =>
 
 has_block definition =>
   (
-    render_list => [qw(type url username password country state organisation cn_attribute)],
+    render_list => [qw(type url username password country state organization cn_attribute)],
   );
 
 =head1 COPYRIGHT
