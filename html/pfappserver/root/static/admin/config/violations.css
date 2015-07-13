@@ -15,3 +15,21 @@
 #triggerContainer {
   display:none;
 }
+
+.trigger_widget {
+  display:none;
+  margin-top:10px;
+}
+
+.trigger_widget select {
+  width:318px;
+}
+
+.trigger_widget span.code {
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  border:1px solid #aaaaaa;
+  color:black;
+  padding:2px;
+  font-size:90%;
+} 

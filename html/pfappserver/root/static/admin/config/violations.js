@@ -302,7 +302,7 @@ $(function() { // DOM ready
     });
 
     /* Modal Editor: add a trigger to a combined trigger */
-    $('body').on('click', '[href="#addTriggerPart"]', function(event) {
+    $('body').on('click', '#add_trigger_part', function(event) {
         event.preventDefault();
         var tid =  $('#tid');
         var id = tid.val();
@@ -326,6 +326,31 @@ $(function() { // DOM ready
         select.trigger("liszt:updated");
     });
 
+    /* Modal Editor: add a trigger to a combined trigger from a widget */
+    $('body').on('click', '.add_trigger_part', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var tid =  $(this).closest('.controls').find('select').find(':selected');
+        var id = tid.val();
+        var type_select = $('#trigger_type').find(':selected');
+        var type = type_select.val();
+        var type_name = type_select.html();
+        var value = type + "::" + id;
+        var value_pretty = type_name + " : " + tid.html();
+        var select = $('#editedTrigger select').first();
+        var last = true;
+        select.find('option').each(function() {
+            if ($(this).val() > value) {
+                $('<option value="' + value + '" selected="selected">' + value_pretty + '</option>').insertBefore(this);
+                last = false;
+                return false;
+            }
+        });
+        if (last)
+            select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
+        select.trigger("liszt:updated");
+    });
+
     
     $('body').on('click', '#violationSubmit', function(event) {
         event.preventDefault();
@@ -335,6 +360,18 @@ $(function() { // DOM ready
         $('[name="violation"]').submit();
         return false;
     });
+
+    $('body').on('change', '#trigger_type', function(){
+        var type = $('#trigger_type option:selected').val();
+        $('.trigger_widget').slideUp();
+        $('.'+type+'_triggers').slideDown();
+    })
+
+    $('body').on('click', '.trigger_widget a', function(){
+        var modal = $('#modalViolation');
+        modal.modal('hide');
+        window.location = $(this).attr('href'); 
+    })
 
 
 });
