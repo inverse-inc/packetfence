@@ -98,13 +98,29 @@ What state to use for the certificate
 
 has state => ( is => 'rw' );
 
-=head2 organisation
+=head2 locality
 
-What organisation to use for the certificate
+What locality to use for the certificate
 
 =cut
 
-has organisation => ( is => 'rw' );
+has locality => ( is => 'rw' );
+
+=head2 organization
+
+What organization to use for the certificate
+
+=cut
+
+has organization => ( is => 'rw' );
+
+=head2 organizational_unit
+
+What organizational_unit to use for the certificate
+
+=cut
+
+has organizational_unit => ( is => 'rw' );
 
 =head2 get_cert
 
@@ -152,10 +168,12 @@ sub make_request {
         key => $key_path,
         csr => $csr_path,
     };
-    my $req = Crypt::OpenSSL::PKCS10->new;
+    my $req = Crypt::OpenSSL::PKCS10->new(2048);;
     my $subject = $self->subject_string($args);
     $req->set_subject($subject);
     $req->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name,"email:" . $args->{certificate_email});
+    $req->add_ext_final();
+    $req->sign();
     $req->write_pem_pk($key_path);
     $req->write_pem_req($csr_path);
     return $request_data;
@@ -189,7 +207,9 @@ sub subject_string {
     my $subject = '';
     $subject .= "/C=" . $self->country;
     $subject .= "/ST=" . $self->state;
-    $subject .= "/O=" . $self->organisation;
+    $subject .= "/L=" . $self->locality;
+    $subject .= "/O=" . $self->organization;
+    $subject .= "/OU=" . $self->organizational_unit;
     $subject .= "/CN=" . $args->{'certificate_cn'};
     return $subject;
 }
