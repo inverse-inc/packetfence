@@ -17,7 +17,7 @@ __PACKAGE__->config(
         js => \&js_filter,
         none => sub { $_[0] },
     },
-    PARSER => Template::AutoFilter::Parser->new,
+    CLASS => 'Template::AutoFilter',
     render_die => 1,
     expose_methods => [qw(can_access can_access_any can_access_group_any)],
 );
