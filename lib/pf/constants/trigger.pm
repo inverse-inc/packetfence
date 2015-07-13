@@ -51,6 +51,7 @@ Readonly::Scalar our $SURICATA_CATEGORIES => sub {
 Readonly::Scalar our $TRIGGER_MAP => {
   $TRIGGER_TYPE_INTERNAL => {
     "1100010" => "Rogue DHCP detection",
+    "new_dhcp_info" => "DHCP packet received",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
