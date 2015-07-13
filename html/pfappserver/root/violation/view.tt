@@ -78,6 +78,7 @@
           <div class="control-group">
             <div class="controls">
               <select id="trigger_type" class="input-medium">
+                <option value=""></option>
                 [% FOREACH type IN trigger_types -%]
                 <option value="[% type | html %]">[% l(type) %]</option>
                 [% END -%]
@@ -85,17 +86,21 @@
               <input id='tid' class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" autocomplete="off" data-provide="typeahead"/>
               <a id="add_trigger_part" class="btn" href="#addTriggerPart">[% l('Add') %]</a>
             </div>
+
             [% FOREACH category IN trigger_map.keys %]
-              <div class="controls trigger_widget [% category %]_triggers">
-                <label>[% i18n(category) %] triggers : </label>
-                <select class="input-medium">
-                [% FOREACH trigger IN trigger_map.$category.sort %]
-                  <option value="[% trigger %]">[% trigger_map.$category.$trigger %]</option>
-                [% END %]
-                </select>
-                <button onclick="javascript:void(0)" class="btn add_trigger_part">[% l('Add') %]</button>
+              <div class="trigger_widget [% category %]_triggers">
+                <div class="controls">
+                  <label>[% i18n(category) %] triggers : </label>
+                  <select class="input-medium trigger_widget_select">
+                  [% FOREACH trigger IN trigger_map.$category.sort %]
+                    <option value="[% trigger %]">[% trigger_map.$category.$trigger %]</option>
+                  [% END %]
+                  </select>
+                  <button onclick="javascript:void(0)" class="btn add_trigger_part">[% l('Add') %]</button>
+                </div>
               </div>
             [% END %]
+
             [% FOREACH type IN ['user_agent', 'dhcp_fingerprint', 'mac_vendor', 'dhcp_vendor', 'device'] %]
               <div class="alert alert-info trigger_widget [% type %]_triggers">
                 <strong>Tip :</strong>
@@ -110,6 +115,52 @@
               <p>You can use <span class="code">^01:23</span> to match MAC addresses beginning by 01:23</p>
               <p>You can use <span class="code">45:67$</span> to match MAC addresses ending by 45:67</p>
             </div>
+
+            <div class="trigger_widget accounting_triggers">
+              <div class="control-group">
+                <label class="control-label">Direction :</label>
+                <div class="controls">
+                <select id="accounting_widget_direction" class="trigger_widget_select">
+                  <option value="TOT">Total (Inbound/Outbound)</option>
+                  <option value="IN">Inbound</option>
+                  <option value="OUT">Outbound</option>
+                </select>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">Amount :</label>
+                <div class="controls">
+                  <input type="number" id="accounting_widget_amount"/>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">Unit :</label>
+                <div class="controls">
+                <select id="accounting_widget_unit" class="trigger_widget_select">
+                  <option value="B">Byte</option>
+                  <option value="KB">Kilobyte</option>
+                  <option value="MB">Megabyte</option>
+                  <option value="GB">Gigabyte</option>
+                  <option value="TB">Terabyte</option>
+                </select>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">Window :</label> 
+                <div class="controls">
+                <select id="accounting_widget_window" class="trigger_widget_select">
+                  <option value="D">Day</option>
+                  <option value="W">Week</option>
+                  <option value="M">Month</option>
+                  <option value="Y">Year</option>
+                </select>
+                </div>
+              </div>
+              <div class="controls">
+                <button onclick="javascript:void(0)" class="btn add_accounting_trigger">[% l('Add') %]</button>
+              </div>
+            </div>
+
           </div>
         </div>
 

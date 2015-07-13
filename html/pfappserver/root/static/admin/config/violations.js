@@ -1,20 +1,5 @@
 $(function() { // DOM ready
 
-    function getTrigger(query, process) {
-        var input = $('#violationTriggers [data-provide="typeahead"]');
-        var trigger_type = $('#trigger_type');
-        var type = trigger_type.val();
-        //console.log(trigger_type);
-        var control = input.closest('.control-group');
-        $.ajax('/trigger/search/' + type + "/" + query)
-            .done(function(data) {
-                process(data.items);
-            })
-            .fail(function(jqXHR) {
-                control.addClass('error');
-            });
-    }
-
     /* Show a violation from the received HTML */
     function showViolation(data) {
         var modal = $('#modalViolation');
@@ -25,20 +10,6 @@ $(function() { // DOM ready
         modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
         modal.one('shown', function() {
             $('#actions').trigger('change');
-        });
-        modal.find('[data-provide="typeahead"]').typeahead({
-            minLength: 2,
-            items: 11,
-            source: getTrigger,
-            matcher: function(item) { return true; },
-            updater: function(item) { return item.value; },
-            sorter: function(items) { return items; },
-            highlighter: function (item) {
-              var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
-              return item.display.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-                return '<strong>' + match + '</strong>'
-              })
-            }
         });
         $('.trigger option').each(function(elem){
           var jthis = $(this);
@@ -308,6 +279,9 @@ $(function() { // DOM ready
         var id = tid.val();
         var type_select = $('#trigger_type').find(':selected');
         var type = type_select.val();
+
+        if(type == '') return false;
+  
         var type_name = type_select.text();
         var value = type + "::" + id;
         var value_pretty = type_name + " : " + id;
@@ -324,6 +298,21 @@ $(function() { // DOM ready
         if (last)
             select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
         select.trigger("liszt:updated");
+    });
+
+    $('body').on('click', '.add_accounting_trigger', function(event){
+      event.preventDefault();
+      var trigger_direction = $('#accounting_widget_direction').find(':selected').val();    
+      var trigger_amount = $('#accounting_widget_amount').val();    
+      var trigger_unit = $('#accounting_widget_unit').find(':selected').val();    
+      var trigger_window = $('#accounting_widget_window').find(':selected').val();    
+      console.log(trigger_direction+trigger_amount+trigger_unit+trigger_window)
+      var tid = trigger_direction+trigger_amount+trigger_unit+trigger_window;
+      var trigger = "accounting::"+tid
+      var option = $('<option value="'+trigger+'" selected="selected">'+violationsView.prettify_accounting("accounting",tid)+'</option>');
+      var select = $('#editedTrigger select')
+      select.append(option)
+      select.trigger("liszt:updated");
     });
 
     /* Modal Editor: add a trigger to a combined trigger from a widget */
@@ -354,7 +343,7 @@ $(function() { // DOM ready
     
     $('body').on('click', '#violationSubmit', function(event) {
         event.preventDefault();
-        $('#editTrigger .control-group select').not('#trigger_type').appendTo('#viewTriggers');
+        $('#editTrigger .control-group select').not('#trigger_type').not('.trigger_widget_select').appendTo('#viewTriggers');
         violationsView.recompute_triggers();
         console.log($('#trigger').val())
         $('[name="violation"]').submit();
