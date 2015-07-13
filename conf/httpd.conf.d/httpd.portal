@@ -112,6 +112,7 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
+PerlLoadModule pf::web::billinghook
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
@@ -148,6 +149,7 @@ use pf::constants::config;
 use pf::util qw(isenabled);
 use pf::config::util;
 use pf::authentication();
+use pf::web::constants();
 use pf::web::constants();
 use Tie::DxHash;
 use pf::services::manager::httpd();
@@ -313,6 +315,10 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
              },
              "/content" => {
                 "Allow" => "from all",
+             },
+             "/hook/billing" => {
+               "SetHandler" => "modperl",
+               "PerlResponseHandler" => "pf::web::billinghook",
              },
              @status_options,
              @allowed_from_all_options,
