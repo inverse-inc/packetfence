@@ -6,6 +6,8 @@ use pf::file_paths;
 use pf::admin_roles;
 
 use base 'Catalyst::View::TT';
+use Template::AutoFilter;
+use Template::AutoFilter::Parser;
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
@@ -13,10 +15,11 @@ __PACKAGE__->config(
     FILTERS => {
         css => \&css_filter,
         js => \&js_filter,
+        none => sub { $_[0] },
     },
+    PARSER => Template::AutoFilter::Parser->new,
     render_die => 1,
     expose_methods => [qw(can_access can_access_any can_access_group_any)],
-    COMPILE_DIR => $tt_compile_cache_dir
 );
 
 =head1 NAME

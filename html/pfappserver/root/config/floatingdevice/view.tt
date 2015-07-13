@@ -9,11 +9,11 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS item.id %]
-        [% form.field('ip').render %]
-        [% form.field('pvid').render %]
-        [% form.field('trunkPort').render %]
-        [% form.field('taggedVlan').render %]
+        [% form.field('id').render | none UNLESS item.id %]
+        [% form.field('ip').render | none %]
+        [% form.field('pvid').render | none %]
+        [% form.field('trunkPort').render | none %]
+        [% form.field('taggedVlan').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

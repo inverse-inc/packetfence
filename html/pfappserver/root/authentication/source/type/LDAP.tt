@@ -1,20 +1,20 @@
         <div class="control-group">
           <label class="control-label">[% l('Host') %]</label>
           <div class="controls">
-            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %] 
+            [% form.field('host').render_element | none %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %] 
           </div>
         </div>
-[% form.field('connection_timeout').render %]
-[% form.field('basedn').render %]
-[% form.field('scope').render %]
-[% form.field('usernameattribute').render %]
-[% form.field('binddn').render %]
-[% form.field('cache_match').render %]
+[% form.field('connection_timeout').render | none %]
+[% form.field('basedn').render | none %]
+[% form.field('scope').render | none %]
+[% form.field('usernameattribute').render | none %]
+[% form.field('binddn').render | none %]
+[% form.field('cache_match').render | none %]
         <div class="control-group">
           <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
           <div class="controls">
-            [% form.field('password').render_element %]
+            [% form.field('password').render_element | none %]
             <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>
-[% form.field('stripped_user_name').render %]
+[% form.field('stripped_user_name').render | none %]

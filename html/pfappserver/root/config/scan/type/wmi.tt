@@ -2,7 +2,7 @@
   <div class="control-group">
     <label class="control-label" for="wmi_rules">[% l('WMI Rules') %]</label>
     <div class="controls">
-      [% form.field('wmi_rules').render %]
+      [% form.field('wmi_rules').render | none %]
       <div id="wmi_rulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('wmi_rules').index > 1 %]">
         <p>
           <i class="icon-cog icon-large"></i>

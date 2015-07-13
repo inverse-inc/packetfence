@@ -8,7 +8,7 @@
         </div>
 
         <div class="modal-body">
-          [% form.block('templates').render %]
+          [% form.block('templates').render | none %]
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
@@ -34,7 +34,7 @@
                   <h6>[% l('Profile') %]</h6>
                 </div>
               </div>
-              [% form.block('user').render %]
+              [% form.block('user').render | none %]
             </div><!--tab-pane-->
 
 [% IF user.password.defined  %]
@@ -72,8 +72,8 @@
               <div class="control-group">
                 <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
                 <div class="controls input-daterange datepicker">
-                  [% form.field('valid_from').render_element %] <i class="icon-arrow-right"></i>
-                  [% form.field('expiration').render_element %]
+                  [% form.field('valid_from').render_element | none %] <i class="icon-arrow-right"></i>
+                  [% form.field('expiration').render_element | none %]
                 </div>
               </div>
               <div class="control-group">
@@ -96,8 +96,8 @@
                           [% ELSE %]
                               [%field_value.element_class = []%]
                           [% END %]
-                          [% field_type.render_element %]
-                          [% field_value.render_element %]
+                          [% field_type.render_element | none %]
+                          [% field_value.render_element | none %]
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -121,11 +121,11 @@
             [%- END %]
 
             <div class="tab-pane fade" id="userMiscellaneous">
-              [% form.block('miscellaneous').render %]
+              [% form.block('miscellaneous').render | none %]
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="userCustomFields">
-              [% form.block('custom_fields').render %]
+              [% form.block('custom_fields').render | none %]
             </div><!--tab-pane-->
 
           </div><!--tab-content-->

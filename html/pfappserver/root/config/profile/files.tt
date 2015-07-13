@@ -50,7 +50,7 @@ td a.btn { margin-left: 5px; }
         <tr class="[%IF entry.hidden %]hidden[% END %]" data-swap="[%IF !entry.hidden %]hidden[% END %]">
             <td colspan="3">
                 <div id="[%dir_id%]" class="collapse fade [%IF !entry.hidden %]in[% END %]">
-                [% display_file_table(entry.entries,dirs.merge([name])) %]
+                [% display_file_table(entry.entries,dirs.merge([name])) | none %]
                 </div>
             </td>
         </tr>
@@ -104,10 +104,10 @@ td a.btn { margin-left: 5px; }
         [% name = entry.name %]
         [% IF entry.type == 'dir' %]
         [% 
-           display_directory(entry,dirs)
+           display_directory(entry,dirs) | none
         %]
         [% ELSE %]
-            [% display_file(entry,dirs) %]
+            [% display_file(entry,dirs) | none %]
         [% END %]
       [% END %]
     </tbody>
@@ -201,7 +201,7 @@ td a.btn { margin-left: 5px; }
     <div class="tab-pane fade in active" id="files">
       <table class="table table-condensed table-striped">
         <tbody>
-          [% display_directory(root, []) %]
+          [% display_directory(root, []) | none %]
         </tbody>
       </table>
 

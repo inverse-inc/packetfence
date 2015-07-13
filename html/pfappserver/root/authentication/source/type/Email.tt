@@ -1,4 +1,4 @@
-[% form.field('activation_domain').render %]
-[% form.field('email_activation_timeout').render %]
-[% form.field('allow_localdomain').render %]
-[% form.field('create_local_account').render %]
+[% form.field('activation_domain').render | none %]
+[% form.field('email_activation_timeout').render | none %]
+[% form.field('allow_localdomain').render | none %]
+[% form.field('create_local_account').render | none %]

@@ -2,7 +2,7 @@
   <form name="section" class="form-horizontal" action="[% c.uri_for(c.action,section) %]" method="POST">
 
 [% FOREACH field IN form.fields %]
-  [% form.field(field.name).render %]
+  [% form.field(field.name).render | none %]
 [% END %]
 
     [%- IF can_access("CONFIGURATION_MAIN_UPDATE") %]

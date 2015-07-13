@@ -15,7 +15,10 @@ Fixes a closing tag in the shipped version.
 use Moose::Role;
 use HTML::FormHandler::Render::Util ('process_attrs');
 with 'HTML::FormHandler::Widget::Field::Span';
+use HTML::Entities qw(encode_entities);
+
 use namespace::autoclean;
+
 
 sub render_element {
     my ( $self, $result ) = @_;
@@ -25,7 +28,14 @@ sub render_element {
     $output .= ' id="' . $self->id . '"';
     $output .= process_attrs($self->element_attributes($result));
     $output .= '>'; # the shipped version is incorrectly closing the span tag
-    $output .= $self->value if defined $self->value;
+    if(defined $self->value) {
+        if($self->can("escape_value") && $self->escape_value) {
+            $output .= encode_entities($self->value);
+        }
+        else {
+            $output .= $self->value;
+        }
+    }
     $output .= '</span>';
     return $output;
 }

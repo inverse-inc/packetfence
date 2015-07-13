@@ -11,14 +11,14 @@
             <dd>
               <div class="control-group">
                 <div class="controls">
-                    [% form.field('name').render_element %]
+                    [% form.field('name').render_element | none %]
                 </div>
               </div>
             </dd>
             <dt>[% l('Action') %]</dt>
             <dd>
-               [% form.field('action').render_element %]
-               [% form.field('vid').render_element %]
+               [% form.field('action').render_element | none %]
+               [% form.field('vid').render_element | none %]
             </dd>
           </dl>
           <dl>
@@ -32,9 +32,9 @@
                       <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
                     </td>
                     <td>
-                      [% rule.field('class').render_element %]
-                      [% rule.field('op').render_element %]
-                      [% rule.field('status').render_element %]
+                      [% rule.field('class').render_element | none %]
+                      [% rule.field('op').render_element | none %]
+                      [% rule.field('status').render_element | none %]
                     </td>
                     <td class="action">
                       <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>

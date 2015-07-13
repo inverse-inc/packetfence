@@ -6,7 +6,7 @@
 
 <form id="fingerbankonboard" class="form-horizontal" action="[%c.uri_for(c.controller.action_for('onboard'))%]" method="post">
   [% FOREACH field IN form.fields %]
-    [% form.field(field.name).render %]
+    [% form.field(field.name).render | none %]
   [% END %]
 
   <div class="form-actions">

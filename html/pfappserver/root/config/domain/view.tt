@@ -9,14 +9,14 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS item.id %]
-        [% form.field('workgroup').render %]
-        [% form.field('dns_name').render %]
-        [% form.field('server_name').render %]
-        [% form.field('ad_server').render %]
-        [% form.field('dns_server').render %]
-        [% form.field('bind_dn').render %]
-        [% form.field('bind_pass').render %]
+        [% form.field('id').render | none UNLESS item.id %]
+        [% form.field('workgroup').render | none %]
+        [% form.field('dns_name').render | none %]
+        [% form.field('server_name').render | none %]
+        [% form.field('ad_server').render | none %]
+        [% form.field('dns_server').render | none %]
+        [% form.field('bind_dn').render | none %]
+        [% form.field('bind_pass').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

@@ -7,11 +7,11 @@
 
   <div class="modal-body">
 
-  [% form.field('name').render %]
+  [% form.field('name').render | none %]
 
-  [% form.field('notes').render %]
+  [% form.field('notes').render | none %]
 
-  [% form.field('max_nodes_per_pid').render %]
+  [% form.field('max_nodes_per_pid').render | none %]
 
   </div><!--modal-body-->
 

@@ -10,7 +10,7 @@
                         <option value="any">[% l('any') %]</option>
                       </select>
                       [% END %]
-                      [% l('Match [_1] of the following conditions:', [match_options]) %]
+                      [% l('Match [_1] of the following conditions:', [match_options]) | none%]
               </div>
               <table class="table-dynamic" id="searches">
                 <tbody>
