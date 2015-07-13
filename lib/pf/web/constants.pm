@@ -66,6 +66,7 @@ Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
 Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_PAY           => '/billing/(.+)';
+Readonly::Scalar our $URL_HOOK_BILLING          => '/hook/billing/(.+)';
 Readonly::Scalar our $URL_PAY                   => '/pay';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
@@ -81,6 +82,7 @@ Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
+Readonly::Scalar our $URL_USER_SIGNUP           => '/user/(.+)';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 
 # guest related
