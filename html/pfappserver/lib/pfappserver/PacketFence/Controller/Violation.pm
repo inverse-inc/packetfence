@@ -130,7 +130,7 @@ sub prettify_trigger {
       }
       case "mac_vendor" {
         my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
-        $pretty_value = $elem->{value} if(is_success($status));
+        $pretty_value = $elem->{name} if(is_success($status));
       }
       case "user_agent" {
         my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
