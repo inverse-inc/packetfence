@@ -32,6 +32,7 @@ sub handler {
     my $source = find_source_for_hook($r);
     if ($source) {
         my $content = get_content($r);
+        $logger->trace(sub { "The content of is " . $content });
         my $status = $source->hook($r->headers_in, $content);
         $r->status($status);
     }
