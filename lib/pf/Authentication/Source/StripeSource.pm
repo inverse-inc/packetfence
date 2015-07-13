@@ -253,6 +253,7 @@ sub hook {
             $status = $self->$handler($object);
         };
         if ($@) {
+            $logger->error($@);
             return 500;
         }
         return $status;
