@@ -66,6 +66,7 @@ Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
 Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_PAY           => '/billing/(.+)';
+Readonly::Scalar our $URL_HOOK_BILLING          => '/hook/billing/(.+)';
 Readonly::Scalar our $URL_PAY                   => '/pay';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
