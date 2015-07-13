@@ -3,6 +3,7 @@
 /usr/local/pf/logs/*log {
     weekly
     rotate 52
+    su pf
     missingok
     compress
     create 640 pf pf
@@ -13,6 +14,7 @@
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
     weekly
     rotate 52
+    su pf
     missingok
     compress
     create 640 pf pf
