@@ -1,4 +1,2 @@
-  <div class="modal modal-large fade hide" id="modalItem">
-  </div>
   [% SET billing_tiers = item.billing_tiers %]
   [% INCLUDE config/profile/billingtier/list.tt %]
