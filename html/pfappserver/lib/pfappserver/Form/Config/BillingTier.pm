@@ -33,6 +33,16 @@ has_field 'id' => (
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
 );
 
+=head2 name
+
+=cut
+
+has_field 'name' => (
+    type     => 'Text',
+    label    => 'Short description',
+    required => 1,
+);
+
 =head2 description
 
 =cut
@@ -40,7 +50,7 @@ has_field 'id' => (
 has_field 'description' => (
     type     => 'Text',
     label    => 'Description',
-    required => 0,
+    required => 1,
 );
 
 =head2 price
@@ -48,7 +58,7 @@ has_field 'description' => (
 =cut
 
 has_field 'price' => (
-    type => 'Text',
+    type => 'Money',
     required => 1,
 );
 
@@ -85,7 +95,7 @@ has_field 'destination_url' => (
 =cut
 
 has_block 'definition' => (
-    render_list => [qw(description price access_duration category destination_url)]
+    render_list => [qw(name description price access_duration category destination_url)]
 );
 
 sub options_category {
