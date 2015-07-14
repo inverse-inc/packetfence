@@ -29,7 +29,7 @@ has_field 'id' => (
     type     => 'Text',
     label    => 'Name',
     required => 1,
-    messages => {required => 'Please specify an identifier for the rule.'},
+    messages => {required => 'Please specify an identifier for the tier'},
     apply    => [{check => qr/^\S+$/, message => 'The name must not contain spaces.'}],
 );
 
