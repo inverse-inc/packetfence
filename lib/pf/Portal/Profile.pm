@@ -579,15 +579,20 @@ sub findTier {
     return first { $_->{id} eq $tier_id } @{$self->tiers};
 }
 
+=head2 isBillingEnabled
+
+Check to see if the profile has billing enabled
+
+=cut
+
 sub isBillingEnabled {
-    my ($self, $chained_source) = @_;
-    if(defined $chained_source) {
-        my ($chained) = grep { $_->id eq $chained_source }  $self->getSourcesAsObjects;
-        my $billing = pf::authentication::getAuthenticationSource($chained->chained_authentication_source);
-        return defined $billing && $billing->class eq 'billing';
-    }
-    return 0 unless defined $self->{_tiers} && @{$self->{_tiers}} && scalar $self->getBillingSources;
-    return 1;
+    my ($self) = @_;
+    return 0 unless defined $self->{_tiers} && @{$self->{_tiers}};
+    return 1 if scalar $self->getBillingSources;
+    my ($chained) = grep {$_->type eq 'Chained'} $self->getSourcesAsObjects;
+    return 0 unless defined $chained;
+    my $billing = pf::authentication::getAuthenticationSource($chained->chained_authentication_source);
+    return defined $billing && $billing->class eq 'billing';
 }
 
 =back
