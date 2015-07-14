@@ -1,4 +1,6 @@
 <h2></h2>
+  <div class="modal modal-large fade hide" id="modalItem">
+  </div>
 [%-  tab =  c.req.param('tab') || 'settings' -%]
 <div id="portal_profile_read">
   <div class="modal fade hide" id="saveProfile">
