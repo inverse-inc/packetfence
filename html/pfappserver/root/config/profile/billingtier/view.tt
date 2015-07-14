@@ -4,7 +4,7 @@
 [% SET action_url = c.req.uri %]
 [% END %]
 <form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
-  [%- IF billingiter.id %]<input type="hidden" name="id" value="[% billingiter.id | html %]">[% END %]
+  [%- IF billing_tier.id %]<input type="hidden" name="id" value="[% billing_tier.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF billing_tier.id %]<i>[% l('Billing Tier') %]</i> [% billing_tier.id | html %][% ELSE %][% l('New Billing Tier') %][% END %]</h3>
