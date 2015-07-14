@@ -1015,6 +1015,7 @@ sub portal_profiles {
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
 
     foreach my $portal_profile ( keys %Profiles_Config ) {
+        next if $portal_profile =~ /\s/;
         my $data = $Profiles_Config{$portal_profile};
         # Checks for the non default profiles
         if ($portal_profile ne 'default' ) {
