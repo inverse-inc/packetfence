@@ -92,8 +92,7 @@ document.observe("dom:loaded", function() {
   [% IF billing_sources.size %]
   <div class="input">
     [% FOREACH billing IN billing_sources %]
-    [% type = billing.type %]
-    <button id="billing_source_[% billing.id | html %]" name="source" type="submit" value="[% billing.id | html %]" class="btn disabled">[% i18n("Pay with ${type}") %]</button>
+    <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn disabled">
     [% END %]
   </div>
   [% END %]
