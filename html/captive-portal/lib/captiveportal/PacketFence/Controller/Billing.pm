@@ -118,8 +118,13 @@ sub confirm : Local : Args(0) {
 sub validate : Private {
     my ($self, $c) = @_;
     my $request = $c->request;
+    my $source_param = first { /^billing_source_/ } $request->param_names;
+    if($source_param =~ /^billing_source_(.*)/) {
+        $self->source($c, $1);
+    } else {
+        $self->showError($c, "Invalid billing source for profile");
+    }
     #Check if the billing source provided is correct
-    $self->source($c, $request->param("source"));
     my $selected_tier = $request->param('tier');
     my $first_name = $request->param('firstname');
     my $last_name = $request->param('lastname');
