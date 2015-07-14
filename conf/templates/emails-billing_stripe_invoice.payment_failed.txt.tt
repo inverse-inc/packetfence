@@ -1,0 +1,5 @@
+Hello [% firstname %] [% lastname %],
+
+Your payment has failed please
+
+To update your credit card information , please visit https://[% hostname %].[% domain %][% URL_STATUS %]
