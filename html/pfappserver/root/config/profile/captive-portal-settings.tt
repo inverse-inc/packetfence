@@ -34,3 +34,9 @@
               </div>
             </div>
           </div>
+      [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
+      <div class="form-actions">
+        <a data-modal="saveProfile" data-modal-content="[% id | html %]" class="btn btn-primary call-modal-confirm-form">[% l('Save') %]</a>
+        <button type="reset" class="btn">[% l('Reset') %]</button>
+      </div>
+      [%- END %]
