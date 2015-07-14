@@ -220,6 +220,7 @@ sub secret_key {
 sub verify {
     my ($self, $session, $params, $path) = @_;
     my $token = $params->{stripeToken};
+    die "No Token found" unless defined $token;
     my $style = $self->style;
     my ($code, $response);
     if ($style eq 'charge') {
@@ -227,6 +228,10 @@ sub verify {
     } elsif ($style eq 'subscription') {
         ($code, $response) = $self->subscribe_customer($session, $session->{tier}, $token);
     }
+    unless(is_success($code)) {
+        die "Unable to process payment : " . $response->{error}{message};
+    }
+    return {};
 }
 
 sub subscribe_customer {
