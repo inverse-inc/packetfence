@@ -82,6 +82,7 @@ sub verify : Chained('source') : Args(0) {
     };
     if ($@) {
         $c->log->error($@);
+        $self->showError($c, "Unable to process payment");
     }
     else {
         $c->forward('processTransaction');
