@@ -1001,6 +1001,7 @@ sub portal_profiles {
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
 
     foreach my $portal_profile ( keys %Profiles_Config ) {
+        next if $portal_profile =~ /\s/;
         my $data = $Profiles_Config{$portal_profile};
         # Checks for the non default profiles
         if ($portal_profile ne 'default' ) {
@@ -1109,7 +1110,7 @@ sub valid_certs {
     unless(-e "$install_dir/raddb/eap.conf"){
         add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
         return;
-    }   
+    }
 
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
