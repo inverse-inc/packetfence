@@ -9,7 +9,7 @@ Get-EventLog -LogName Security -InstanceId 4726 |
     $username = "admin" # Username for the webservice
     $password = "admin" # Password for the webservice
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
