@@ -27,6 +27,9 @@ sub validate_new_user : Private {
     }
     my $password = $request->param("password");
     my $password_check = $request->param("password_check");
+    unless (defined $password && length ($password) > 0 && defined $password_check && length ($password_check) > 0) {
+        $self->_display_error($c, "No password given");
+    }
     if($password ne $password_check) {
         $self->_display_error($c, "Passwords do not match");
     }
