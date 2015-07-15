@@ -272,11 +272,6 @@ sub handle_customer_created {
     return 200;
 }
 
-sub handle_customer_subscription_deleted {
-    my ($self, $object) = @_;
-    return 200;
-}
-
 sub handle_invoice_created {
     my ($self, $object) = @_;
     return 200;
