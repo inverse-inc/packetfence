@@ -273,7 +273,7 @@ sub handle_customer_created {
     return 200;
 }
 
-sub handle_customer_subscription_created {
+sub handle_customer_subscription_deleted {
     my ($self, $object) = @_;
     return 200;
 }
@@ -298,10 +298,17 @@ sub handle_invoice_payment_failed {
     my ($self, $object) = @_;
     my $customer_id = $object->{data}{object}{customer};
     my ($status, $customer) = $self->get_customer($customer_id);
-    my $email = $customer->{email};
-    $self->move_to_lower_tier($email, $self->failed_payment_role);
-
     $self->send_mail_for_event($object,email => $customer->{email}, subject => "Credit Card payment failed" );
+    return 200;
+}
+
+sub handle_customer_subscription_deleted {
+    my ($self, $object) = @_;
+    my $customer_id = $object->{data}{object}{customer};
+    my ($status, $customer) = $self->get_customer($customer_id);
+    my $email = $customer->{email};
+    $self->move_to_lower_tier($email, 'default');
+    $self->send_mail_for_event($object,email => $customer->{email}, subject => "Your Subscription has been canceled" );
     return 200;
 }
 
