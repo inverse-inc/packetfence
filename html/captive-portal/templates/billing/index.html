@@ -75,6 +75,7 @@ document.observe("dom:loaded", function() {
       <span>[% i18n("Email") %]</span>
       <input class="field" name="email" type="text" value="[% email | html %]" />
   </div>
+  [% UNLESS c.session.aup_signed %]
   [%# AUP %]
   <div class="input" style="margin-top: 0px">
     <div>[% i18n("Acceptable Use Policy") %]</div>
@@ -88,11 +89,12 @@ document.observe("dom:loaded", function() {
         <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
     </div>
   </div>
+  [% END %]
 
   [% IF billing_sources.size %]
   <div class="input">
     [% FOREACH billing IN billing_sources %]
-    <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn disabled">
+    <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn [% 'disabled' UNLESS c.session.aup_signed %]">
     [% END %]
   </div>
   [% END %]
