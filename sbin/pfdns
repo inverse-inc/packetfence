@@ -40,6 +40,7 @@ use pf::services::util;
 use pf::pfdns::constants;
 use pf::CHI;
 use pf::ConfigStore::Interface;
+use pf::cluster;
 
 # initialization
 # --------------
@@ -101,10 +102,21 @@ Readonly::Scalar our $HTTP_PORT         => '80';
 
 my $cs = pf::ConfigStore::Interface->new;
 foreach my $interface ( @{$cs->readAllIds} ) {
-    $interface = "interface $interface";
-    my $ip = $Config{$interface}{'vip'} || $Config{$interface}{'ip'};
-    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
-        $loadb_ip->{$ip} = $Config{$interface}{'active_active_ip'} if (defined($Config{$interface}{'active_active_ip'}) && isenabled($Config{$interface}{'active_active_enabled'}));
+    my $full_interface = "interface $interface";
+    my $ip = $Config{$full_interface}{'vip'} || $Config{$full_interface}{'ip'};
+    if ( 
+        defined ($Config{$full_interface}{'enforcement'}) && 
+        ( 
+          ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) 
+          || is_type_inline($Config{$full_interface}{'enforcement'}) 
+        ) 
+    ){
+        # if cluster is enabled we return the VIP when queried on the server interface
+        # we also listen on the VIP in case it's needed
+        if ($cluster_enabled){
+            $loadb_ip->{$ip} = pf::cluster::cluster_ip($interface);
+            push @ip_addr, pf::cluster::cluster_ip($interface);
+        }
         push @ip_addr, $ip;
     }
 }
