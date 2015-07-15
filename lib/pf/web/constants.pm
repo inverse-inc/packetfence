@@ -63,6 +63,7 @@ CGI they map.
 # normal flow
 Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
+Readonly::Scalar our $URL_CONTINUE_CHAIN        => '/authenticate/continue_chained_auth';
 Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_PAY           => '/billing/(.+)';
