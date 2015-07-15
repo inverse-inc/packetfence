@@ -46,6 +46,7 @@ use pf::util;
 use pf::config::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::client;
+use pf::cluster;
 
 use Readonly;
 
@@ -125,7 +126,13 @@ sub _vlan_reevaluation {
                 . "connection type: "
                 . $connection_type_explained{$conn_type} );
 
-        my $client = pf::client::getClient();
+        my $client;
+        if ($cluster_enabled && isenabled($Config{active_active}{centralized_deauth})){
+            $client = pf::client::getManagementClient();
+        }
+        else {
+            $client = pf::client::getClient();
+        }
         my %data = (
             'switch'           => $switch_id,
             'mac'              => $mac,

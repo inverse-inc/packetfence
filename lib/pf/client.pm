@@ -16,6 +16,7 @@ use warnings;
 use pf::config;
 use List::MoreUtils qw(any);
 use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
+use pf::cluster;
 
 my @MODULES = __PACKAGE__->modules;
 
@@ -42,6 +43,10 @@ gets the currently configured client
 
 sub getClient {
     $CURRENT_CLIENT->new;
+}
+
+sub getManagementClient {
+    $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
 }
  
 =head1 AUTHOR
