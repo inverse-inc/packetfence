@@ -1093,6 +1093,11 @@ password=1234
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 virtual_router_id=50
+#
+# active_active.dns_on_vip_only
+#
+# Activate so the clients in registration and isolation are pointed to the VIP of the server instead of all the servers.
+dns_on_vip_only=disabled
 
 [monitoring]
 #

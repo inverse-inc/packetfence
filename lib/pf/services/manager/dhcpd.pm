@@ -98,18 +98,25 @@ EOT
             }
             my $active = '0';
             my $dns ='0';
-            foreach my $interface (@listen_ints) {
-                my $cfg             = $Config{"interface $interface"};
-                my $current_network = NetAddr::IP->new($cfg->{'ip'}, $cfg->{'mask'});
-                my @active_members  = values %{pf::cluster::members_ips($interface)};
-                my $members         = join(',', @active_members);
-                if ($members) {
-                    if ($current_network->contains($ip)) {
-                        $dns = $members;
-                        $active =
-                          defined($net{next_hop})
-                          ? NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'})
-                          : NetAddr::IP::Lite->new($cfg->{'ip'},     $cfg->{'mask'});
+            if($cluster_enabled){
+                foreach my $interface ( @listen_ints ) {
+                    my $cfg = $Config{"interface $interface"};
+                    my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+                    my $members;
+                    if(isenabled($Config{active_active}{dns_on_vip_only})){
+                        $members = pf::cluster::cluster_ip($interface);
+                    }
+                    else {
+                        my @active_members = values %{pf::cluster::members_ips($interface)};
+                        $members = join(',',@active_members);
+                    }
+                    if ($members) {
+                        if ($current_network->contains($ip)) {
+                            $dns = $members;
+                        $active = defined($net{next_hop}) ? 
+                                 NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'}) :
+                                 NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                        }
                     }
                 }
             }
