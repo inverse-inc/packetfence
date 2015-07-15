@@ -22,6 +22,10 @@ sub validate_new_user : Private {
     my $request = $c->request;
     my $pid = $request->param("username");
     my $email = $pid;
+    my $valid_email = pf::web::util::is_email_valid($email);
+    unless ($valid_email) {
+        $self->_display_error($c, "Invalid Email address given");
+    }
     if(pf::person::person_exist($pid)) {
         $self->_display_error($c, "username $pid already exists\n");
     }
