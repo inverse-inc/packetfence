@@ -94,6 +94,7 @@ __PACKAGE__->config(
             namespace => 'httpd.portal',
         },
         cookie_name => 'CGISESSION',
+        cookie_expires => 0,
     },
     default_view               => 'HTML',
 );
