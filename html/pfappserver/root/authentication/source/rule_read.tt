@@ -1,4 +1,4 @@
-[% form.block('templates').render %]
+[% form.block('templates').render | none %]
 
 <form name="rule" class="form form-horizontal" method="post" action="[% action_uri %]">
   <div class="modal-header">
@@ -6,10 +6,10 @@
     <h3>[% IF rule %]<i>[% l('Rule') %]</i> [% form.field('id').value %][% ELSE %][% l('New Rule') %][% END %]</h3>
   </div>
   <div class="modal-body">
-    [% form.field('id').render %]
-    [% form.field('description').render %]
+    [% form.field('id').render | none %]
+    [% form.field('description').render | none %]
     <dl>
-      <dt>[% l('If [_1] of the following conditions are met:', [ form.field('match').render_element ]) %]</dt>
+      <dt>[% l('If [_1] of the following conditions are met:', [ form.field('match').render_element ]) | none %]</dt>
       <dd>
         <table id="ruleConditions" class="table table-dynamic table-sortable table-condensed">
           <tbody>
@@ -24,9 +24,9 @@
                     [% CALL condition.field('operator').set_element_attr("disabled", "disabled") %]
                     [% CALL condition.field('value').set_element_attr("disabled", "disabled") %]
                 [% END %]
-                [% condition.field('attribute').render_element %]
-                [% condition.field('operator').render_element %]
-                [% condition.field('value').render_element %]
+                [% condition.field('attribute').render_element | none %]
+                [% condition.field('operator').render_element | none %]
+                [% condition.field('value').render_element | none %]
               </td>
               <td class="action">
                 <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -62,8 +62,8 @@
                     [% CALL action.field('type').set_element_attr("disabled", "disabled") %]
                     [% CALL action.field('value').set_element_attr("disabled", "disabled") %]
                 [% END %]
-                [% action.field('type').render_element %]
-                [% action.field('value').render_element %]
+                [% action.field('type').render_element | none %]
+                [% action.field('value').render_element | none %]
               </td>
               <td class="action">
                 <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>

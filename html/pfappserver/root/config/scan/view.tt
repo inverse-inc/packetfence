@@ -14,7 +14,7 @@
     CALL form.field('id').type_attr('hidden');
     CALL form.field('id').do_label(0);
   END -%]
-    [% form.block('definition').render %]
+    [% form.block('definition').render | none %]
   [% INCLUDE "config/scan/type/${item.type}.tt" %]
   </div><!--modal-body-->
 

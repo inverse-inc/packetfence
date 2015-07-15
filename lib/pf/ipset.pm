@@ -326,11 +326,12 @@ sub get_mangle_mark_for_mac {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $_EXIT_CODE_EXISTS = 1;
 
+    my $iplog = pf::iplog::mac2ip($mac);
+
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
 
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-        my $iplog = pf::iplog::mac2ip($mac);
 
         if (defined $iplog) {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);

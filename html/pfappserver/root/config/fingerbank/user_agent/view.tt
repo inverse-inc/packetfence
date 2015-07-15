@@ -11,7 +11,7 @@
   </div>
 
   <div class="modal-body">
-        [% form.block('definition').render %]
+        [% form.block('definition').render | none %]
         
   </div><!--modal-body-->
 

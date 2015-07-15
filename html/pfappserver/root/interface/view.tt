@@ -4,16 +4,16 @@
     <h3>[% ifname || interface  | html %][% IF vlan %] <span class="label">vlan [% vlan | html %]</span>[% END %]</h3>
   </div>
   <div class="modal-body">
-    [% form.field('name').render_element %]
-    [% form.field('ipaddress').render %]
-    [% form.field('netmask').render %]
-    [% form.field('type').render %]
-    [% form.field('additional_listening_daemons').render %]
-    [% form.field('high_availability').render UNLESS high_availability %]
-    [% form.field('dns').render %]
-    [% form.field('vip').render %]
-    [% form.field('dhcpd_enabled').render %]
-    [% form.field('nat_enabled').render %]
+    [% form.field('name').render_element | none %]
+    [% form.field('ipaddress').render | none %]
+    [% form.field('netmask').render | none %]
+    [% form.field('type').render | none %]
+    [% form.field('additional_listening_daemons').render | none %]
+    [% form.field('high_availability').render | none UNLESS high_availability %]
+    [% form.field('dns').render | none %]
+    [% form.field('vip').render | none %]
+    [% form.field('dhcpd_enabled').render | none %]
+    [% form.field('nat_enabled').render | none %]
     <p class="info_inline">[% l('Remember to enable ip_forward on your operating system for the inline mode to work.') %]</p>
     <p class="info_routed">[% l('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than natting it. Make sure to add the routes on the system.') %]</p>
   </div>

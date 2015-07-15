@@ -133,7 +133,7 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| js )?\%\]/g) {
+            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| (js|none) )?\%\]/g) {
                 add_string($1, $template) unless ($1 =~ m/\${/);
             }
         }
@@ -144,10 +144,10 @@ sub parse_tt {
     open(TT, $template);
     while (defined($line = <TT>)) {
         chomp $line;
-        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
             add_string($1, $template);
         }
-        elsif ($line =~ m/\[\% ?pf_section_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+        elsif ($line =~ m/\[\% ?pf_section_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
             add_string($1, $template);
         }
     }
@@ -157,7 +157,7 @@ sub parse_tt {
     open(TT, $template);
     while (defined($line = <TT>)) {
         chomp $line;
-        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\) ?\%\]/g) {
+        if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
             add_string($1, $template);
         }
     }

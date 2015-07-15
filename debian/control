@@ -13,7 +13,9 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}),
- fingerbank (>= 1.0.3), graphite-web, winbind
+ fingerbank (>= 1.0.3), graphite-web, winbind,
+# wmi
+ libnet-wmiclient-perl, libwmiclient1, wmi-client
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
@@ -51,7 +53,7 @@ Depends: ${misc:Depends}, vlan, make,
  libcgi-session-perl, libcgi-session-driver-chi-perl (>= 1.0.3), libconfig-inifiles-perl (>= 2.78.0),
  libdatetime-format-dateparse-perl, libdatetime-format-rfc3339-perl, libdbi-perl,librose-db-perl,librose-db-object-perl,
  libnet-telnet-perl, libregexp-common-perl,
- libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
+ libreadonly-perl, libtemplate-perl, libtemplate-autofilter-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,
  libnet-ldap-perl, libcrypt-generatepassword-perl, libbytes-random-secure-perl, libcrypt-eksblowfish-perl, perl-doc,
  librrds-perl, libnetpacket-perl (>= 1.3), libcache-cache-perl, libcarp-perl,
@@ -83,8 +85,8 @@ Depends: ${misc:Depends}, vlan, make,
  libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl, libcatalyst-plugin-unicode-encoding-perl,
- libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl, libjson-xs-perl,
- libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl (>=0.59),
+ libcatalyst-view-tt-perl (>= 0.37), libhtml-formfu-perl, libjson-perl, libjson-xs-perl,
+ libsort-naturally-perl, libhtml-formhandler-perl (=0.40013-2), libchi-perl (>=0.59),
  libchi-driver-memcached-perl,libcache-memcached-perl, libcache-memcached-getparserxs-perl, libdata-serializer-perl,
  libcache-fastmmap-perl, libmoo-perl (>=1.001000), libterm-size-any-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
@@ -105,8 +107,6 @@ Depends: ${misc:Depends}, vlan, make,
 # used by bin/pftest
  libio-interactive-perl,
  haproxy (>= 1.5), keepalived (>= 1.2),
-# wmi
- libnet-wmiclient-perl, libwmiclient1, wmi-client,
 # monitoring
  collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,

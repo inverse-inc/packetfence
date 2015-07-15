@@ -18,8 +18,8 @@
     </div>[% END -%]
 
     <form name="source" class="form-horizontal" method="post" action="[% action_uri %]">
-        [% form.field('id').render %]
-        [% form.field('description').render %]
+        [% form.field('id').render | none %]
+        [% form.field('description').render | none %]
         [% INCLUDE "authentication/source/type/${source.type}.tt" %]
         [% IF source.type != 'Chained' %]
             [% IF source.id %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]

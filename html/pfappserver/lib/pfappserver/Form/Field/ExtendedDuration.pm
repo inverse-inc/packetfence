@@ -82,6 +82,7 @@ has_field 'example' =>
   (
    type => 'Uneditable',
    label => 'Example',
+   escape_value => 0,
    do_wrapper => 0,
    label_class => ['text-info'],
    element_class => ['text-info'],

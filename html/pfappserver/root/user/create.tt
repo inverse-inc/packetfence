@@ -7,7 +7,7 @@
 </div>[% END %]
 <p>[% l('Create local users that trigger specific actions.') %]</p>
 
-[% form.block('templates').render %]
+[% form.block('templates').render | none %]
 
 <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
 
@@ -25,31 +25,31 @@
   <div class="tab-content">
 
     <div class="tab-pane fade in active" id="single">
-      [% form_single.field('pid').render %]
-      [% form_single.field('password').render %]
-      [% form_single.field('firstname').render %]
-      [% form_single.field('lastname').render %]
-      [% form_single.field('company').render %]
-      [% form_single.field('phone').render %]
-      [% form_single.field('email').render %]
-      [% form_single.field('address').render %]
-      [% form_single.field('notes').render %]
+      [% form_single.field('pid').render | none %]
+      [% form_single.field('password').render | none %]
+      [% form_single.field('firstname').render | none %]
+      [% form_single.field('lastname').render | none %]
+      [% form_single.field('company').render | none %]
+      [% form_single.field('phone').render | none %]
+      [% form_single.field('email').render | none %]
+      [% form_single.field('address').render | none %]
+      [% form_single.field('notes').render | none %]
     </div><!-- tab-pane -->
 
     [% IF can_access('USERS_CREATE_MULTIPLE') %]
       <div class="tab-pane fade" id="multiple">
         <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</div>
-        [% form_multiple.field('prefix').render %]
-        [% form_multiple.field('quantity').render %]
-        [% form_multiple.field('firstname').render %]
-        [% form_multiple.field('lastname').render %]
-        [% form_multiple.field('company').render %]
-        [% form_multiple.field('notes').render %]
+        [% form_multiple.field('prefix').render | none %]
+        [% form_multiple.field('quantity').render | none %]
+        [% form_multiple.field('firstname').render | none %]
+        [% form_multiple.field('lastname').render | none %]
+        [% form_multiple.field('company').render | none %]
+        [% form_multiple.field('notes').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="import">
-        [% form_import.field('users_file').render %]
-        [% form_import.field('delimiter').render %]
+        [% form_import.field('users_file').render | none %]
+        [% form_import.field('delimiter').render | none %]
         <div class="control-group">
           <label class="control-label">[% l('Columns Order') %]</label>
           <div class="controls">
@@ -59,9 +59,9 @@
                 <tr>
                   <td class="sort-handle"><span>[% loop.index + 1 %]</span></td>
                   <td>
-                    [% column.field('name').render_element %]
-                    [% column.field('enabled').render_element %]&nbsp;
-                    [% column.field('label').render_element %]
+                    [% column.field('name').render_element | none %]
+                    [% column.field('enabled').render_element | none %]&nbsp;
+                    [% column.field('label').render_element | none %]
                   </td>
                 </tr>
                 [% END %]
@@ -77,8 +77,8 @@
   <div class="control-group">
     <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
     <div class="controls input-daterange datepicker">
-      [% form.field('valid_from').render_element %] <i class="icon-arrow-right"></i>
-      [% form.field('expiration').render_element %]
+      [% form.field('valid_from').render_element | none %] <i class="icon-arrow-right"></i>
+      [% form.field('expiration').render_element | none %]
     </div>
   </div>
 
@@ -93,8 +93,8 @@
               <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
             </td>
             <td>
-              [% action.field('type').render_element %]
-              [% action.field('value').render_element %]
+              [% action.field('type').render_element | none %]
+              [% action.field('value').render_element | none %]
             </td>
             <td class="action">
               <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>

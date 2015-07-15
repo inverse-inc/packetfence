@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 5.1.0\n"
+"Project-Id-Version: 5.3.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-05-14 08:52-0400\n"
+"PO-Revision-Date: 2015-07-13 21:05-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -35,14 +35,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "802.1X Username"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
-msgid "802.1x"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
-msgid "802.1x types"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
@@ -84,12 +76,14 @@ msgstr "Admin Roles - Update"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Authorize Path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API ID"
 msgstr ""
@@ -100,6 +94,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Secret"
 msgstr ""
@@ -107,12 +102,14 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Token Path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL"
 msgstr ""
@@ -120,6 +117,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
 msgstr ""
@@ -361,6 +359,10 @@ msgstr ""
 msgid "Add violation"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Additionnal listening daemon(s)"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -525,6 +527,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Authorized domains"
 msgstr ""
@@ -692,12 +695,16 @@ msgstr ""
 msgid "Captive portal"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+msgid "Change the default key is you have it"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "Check this box if you want the profiles signed"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
-msgid "Check this box if your network is using a hidden SSID"
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate."
 msgstr ""
 
 # pf::firewallsso (Firewall SSO)
@@ -769,7 +776,8 @@ msgstr ""
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
-# html/pfappserver/root/config/domain/index.tt
+# html/pfappserver/root/config/domain/list.tt
+# html/pfappserver/root/config/domain/modal_info.tt
 # html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
@@ -855,6 +863,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Comma separated list of domains that will be resolve with the correct IP addresses."
 msgstr ""
@@ -869,11 +878,6 @@ msgstr ""
 
 # conf/documentation.conf (general.dnsservers)
 msgid "Comma-delimited list of DNS servers."
-msgstr ""
-
-# conf/documentation.conf (scan.dot1x_type)
-# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
-msgid "Comma-delimited list of EAP-Type attributes that will pass to the scan engine."
 msgstr ""
 
 # conf/documentation.conf (trapping.whitelist)
@@ -1026,6 +1030,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create Local Account"
 msgstr ""
@@ -1050,6 +1055,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create a local account on the PacketFence system based on the account email address provided."
 msgstr ""
@@ -1453,7 +1459,7 @@ msgid "Describes the technique PacketFence will use to enforce network access.VL
 msgstr ""
 
 # conf/documentation.conf (interface.type)
-msgid "Describes type of the named interface.<ul><li><i>internal</i> describes interfaces where PacketFence will enforce network access.</li><li><i>management</i> (or managed) interfaces have the administrative GUI running on them, host SNMP trap receiver and RADIUS server.</li><li><i>monitor</i> is the interface that snort listens on.</li><li><i>dhcp-listener</i> is an interface where the DHCP traffic is coming in either via a network SPAN or IP-Helpers configuration.</li><li><i>high-availability</i> is for an interface between two PacketFence servers dedicated to high-availability (drbd, corosync).</li></ul>"
+msgid "Describes type of the named interface.<ul><li><i>internal</i> describes interfaces where PacketFence will enforce network access.</li><li><i>management</i> (or managed) interfaces have the administrative GUI running on them, host SNMP trap receiver and RADIUS server.</li><li><i>monitor</i> is the interface that snort listens on.</li><li><i>dhcp-listener</i> is an interface where the DHCP traffic is coming in either via a network SPAN or IP-Helpers configuration.</li><li><i>high-availability</i> is for an interface between two PacketFence servers dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> interface have the captive-portal running on them without the need of having any enforcement mecanism.</li></ul>"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -1526,7 +1532,6 @@ msgstr ""
 msgid "Dismiss Changes for "
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
 # html/pfappserver/root/config/domain/list.tt
@@ -1909,6 +1914,10 @@ msgstr ""
 msgid "Floating Device"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "For CoA request, if we have to send to another port"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Force redirection URL"
 msgstr ""
@@ -1992,6 +2001,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -2093,6 +2103,10 @@ msgstr ""
 msgid "IP address of the router to reach this network"
 msgstr ""
 
+# pf::firewallsso (Firewall SSO)
+msgid "Iboss"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -2106,6 +2120,7 @@ msgstr ""
 msgid "Identification"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Identifier"
 msgstr ""
@@ -2139,11 +2154,6 @@ msgstr ""
 msgid "If the captive portal is put behind load-balancer(s) that act at Layer 7 (HTTP level) effectively doing reverse proxying then the captive portal no longer sees the IP of the node trying to access the portal. In that case, the load-balancers must do SSL offloading and add a X-Forwarded-By header in the HTTP traffic they forward to PacketFence. Most do by default. Then in this parameter you must specify the IP of the various load balancers. This will instruct the captive portal to look for client IPs in the X-Forwarded-For instead of the actual TCP session when it matches an IP in the list. Format is a comma separated list of IPs. Note: Apache access log format is not changed to automatically log the X-Forwarded-By header. Modify conf/httpd.conf.d/captive-portal-common.conf to use loadbalanced_combined instead of combined in CustomLog statement."
 msgstr ""
 
-# conf/documentation.conf (scan.dot1x)
-# html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
-msgid "If this option is enabled, PacketFence will scan all the 802.1x auto-registration connections."
-msgstr ""
-
 # conf/documentation.conf (scan.registration)
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "If this option is enabled, the PF system will scan each host after registration is complete."
@@ -2165,6 +2175,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -2572,7 +2583,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/config/wrix/search_form.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -2638,6 +2648,10 @@ msgstr ""
 msgid "MySQL server does not seems to be running. You should start it to avoid any problems."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+msgid "NAC Name"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "NODES"
 msgstr "Nodes"
@@ -2668,6 +2682,7 @@ msgstr "Nodes - Update"
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/configurator/database.tt
@@ -2847,6 +2862,10 @@ msgstr ""
 msgid "No IP history"
 msgstr ""
 
+# html/pfappserver/root/config/pki_provider/list.tt
+msgid "No PKI Provider defined"
+msgstr ""
+
 # html/pfappserver/root/user/nodes.tt
 msgid "No device found"
 msgstr ""
@@ -2875,10 +2894,6 @@ msgstr ""
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "No node found"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/list.tt
-msgid "No pki_provider defined"
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -2952,6 +2967,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -3032,10 +3048,6 @@ msgid "One-level"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Only for Wi-Fi, if the deauth request must be send to another device than the access point then set the ip of the controller"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Only for external captive portal, specify the URL of the captive portal that will be send back as a RADIUS attribute"
 msgstr ""
 
@@ -3108,6 +3120,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "PID"
 msgstr ""
@@ -3119,6 +3132,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "PKI Provider Name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "PKI Provider type"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -3144,10 +3161,6 @@ msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "PKI_PROVIDER_UPDATE"
-msgstr ""
-
-# html/pfappserver/root/config/pki_provider/list.tt
-msgid "PKI_Provider Name"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3192,6 +3205,10 @@ msgstr "Provisioning - Update"
 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "PacketFence Configuration"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "PacketFence is the server that assigns the Role (or ACL) to the devices. This mode is for web authentication."
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -3269,7 +3286,7 @@ msgid "Path of the CA that will generate your certificates"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-msgid "Path of the Radius Server Authentication certificate"
+msgid "Path of the RADIUS server authentication certificate"
 msgstr ""
 
 # conf/documentation.conf (provisioning.certificate)
@@ -3320,10 +3337,6 @@ msgstr ""
 msgid "Please specify a brief description of the violation."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "Please specify a domain"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 msgid "Please specify a name for the category."
 msgstr ""
@@ -3331,6 +3344,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Please specify a name for the scan engine"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Please specify an identifier"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -3412,6 +3429,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+msgid "Please specify the hostname or IP of the Iboss"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -3498,6 +3519,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -3524,6 +3546,10 @@ msgstr ""
 msgid "Port the administrative interface listens on."
 msgstr ""
 
+# conf/documentation.conf (ports.httpd_portal_modstatus)
+msgid "Port the mod_status for httpd.portal listens on."
+msgstr ""
+
 # conf/documentation.conf (database.port)
 msgid "Port the mysql server is running on."
 msgstr ""
@@ -3542,6 +3568,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Portal URL"
@@ -3976,6 +4003,10 @@ msgstr ""
 msgid "Revert File"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Revoke on unregistration"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/roles/read.tt
@@ -4015,6 +4046,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -4325,6 +4357,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Secret or Key"
 msgstr ""
@@ -4488,6 +4521,10 @@ msgstr ""
 msgid "Should match the IP of a registration interface or the production DNS server if the network is Inline L3"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+msgid "Should match the NAC name from the Iboss configuration"
+msgstr ""
+
 # conf/documentation.conf (services.memcached)
 msgid "Should memcached be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -4610,6 +4647,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Specify a unique identifier for your configuration.<br/>This doesn't have to be related to your domain"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -4804,8 +4845,20 @@ msgstr ""
 msgid "The Certificate for signing in pem format"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The DNS name (FQDN) of the domain."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "The ID of the Switch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The IP address of the DNS server for this domain."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "The IP address or DNS name of your Active Directory server"
 msgstr ""
 
 # conf/documentation.conf (omapi.key_base64)
@@ -4884,12 +4937,17 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_host)
 msgid "The hostname of the the database storing the Graphite dashboard settings."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
+msgid "The internal source used to authenticate"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
@@ -4964,6 +5022,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
+msgid "The rules of the chained source are applied"
 msgstr ""
 
 # conf/documentation.conf (billing.mirapay_terminal_id)
@@ -5043,6 +5105,10 @@ msgstr ""
 msgid "This server's name"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "This server's name (account name) in your Active Directory."
+msgstr ""
+
 # html/pfappserver/root/configurator/configuration.tt
 msgid "This step covers some basic configuration parameters required to have a functional PacketFence installation."
 msgstr ""
@@ -5118,6 +5184,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
 msgstr ""
@@ -5238,6 +5305,10 @@ msgstr "Users - Update"
 
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "UTC Timezone"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
+msgid "Uncheck this box if you are using a hidden SSID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -5590,6 +5661,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Web Services"
+msgstr ""
+
+# html/pfappserver/root/configurator/enforcement.tt
+msgid "WebAuth enforcement"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid)
@@ -6210,7 +6285,6 @@ msgstr ""
 # conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
-# conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.carbon-cache options)
 # conf/documentation.conf (services.carbon-relay options)
@@ -6297,7 +6371,6 @@ msgstr "Send email"
 # conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (registration.device_registration options)
-# conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.carbon-cache options)
 # conf/documentation.conf (services.carbon-relay options)
@@ -6771,6 +6844,7 @@ msgid "managed"
 msgstr ""
 
 # conf/documentation.conf (interface.type options)
+# html/pfappserver/root/interface/list.tt
 # pf::config (Network types)
 msgid "management"
 msgstr "Management"
@@ -7058,6 +7132,10 @@ msgstr ""
 msgid "port"
 msgstr "Port"
 
+# conf/documentation.conf (interface.type options)
+msgid "portal"
+msgstr ""
+
 # conf/documentation.conf
 msgid "ports"
 msgstr "Ports"
@@ -7069,6 +7147,10 @@ msgstr ""
 # conf/documentation.conf
 msgid "ports.admin"
 msgstr "Admin"
+
+# conf/documentation.conf
+msgid "ports.httpd_portal_modstatus"
+msgstr ""
 
 # conf/documentation.conf
 msgid "ports.pf_status"
@@ -7182,14 +7264,6 @@ msgstr ""
 # conf/documentation.conf
 msgid "scan"
 msgstr "Scan"
-
-# conf/documentation.conf
-msgid "scan.dot1x"
-msgstr "802.1x"
-
-# conf/documentation.conf
-msgid "scan.dot1x_type"
-msgstr "802.1x types"
 
 # conf/documentation.conf
 msgid "scan.duration"
@@ -7665,6 +7739,7 @@ msgstr ""
 # pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::OAuthSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
+# pf::Authentication::Source::TwitterSource (available_attributes)
 # pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
 msgstr ""

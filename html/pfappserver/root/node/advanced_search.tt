@@ -24,18 +24,18 @@
                 <i class="icon-angle-down"></i>
               </a>
               <ul class="dropdown-menu dropdown-menu-form">
-                [% column_checkbox('status', 'Status') %]
-                [% column_checkbox('mac', 'MAC') %]
-                [% column_checkbox('detect_date', 'Detected Date') %]
-                [% column_checkbox('regdate', 'Registration Date') %]
-                [% column_checkbox('unregdate', 'Unregistration Date') %]
-                [% column_checkbox('computername', 'Computer Name') %]
-                [% column_checkbox('pid', 'Owner') %]
-                [% column_checkbox('last_ip', 'IP Address') %]
-                [% column_checkbox('dhcp_fingerprint', 'OS (DHCP)') %]
-                [% column_checkbox('category', 'Role') %]
-                [% column_checkbox('bypass_vlan', 'Bypass VLAN') %]
-                [% column_checkbox('bypass_role', 'Bypass Role') %]
+                [% column_checkbox('status', 'Status') | none %]
+                [% column_checkbox('mac', 'MAC') | none %]
+                [% column_checkbox('detect_date', 'Detected Date') | none %]
+                [% column_checkbox('regdate', 'Registration Date') | none %]
+                [% column_checkbox('unregdate', 'Unregistration Date') | none %]
+                [% column_checkbox('computername', 'Computer Name') | none %]
+                [% column_checkbox('pid', 'Owner') | none %]
+                [% column_checkbox('last_ip', 'IP Address') | none %]
+                [% column_checkbox('dhcp_fingerprint', 'OS (DHCP)') | none %]
+                [% column_checkbox('category', 'Role') | none %]
+                [% column_checkbox('bypass_vlan', 'Bypass VLAN') | none %]
+                [% column_checkbox('bypass_role', 'Bypass Role') | none %]
               </ul>
               </form>
             </div>
@@ -48,18 +48,18 @@
                 <thead>
                   <tr>
                     <th><input type="checkbox" value="on" id="toggle_all_items"/></th>
-                    [% header('status', 'Status') %]
-                    [% header('mac', 'MAC') %]
-                    [% header('detect_date', 'Detect Date') %]
-                    [% header('regdate', 'Registration Date') %]
-                    [% header('unregdate', 'Unregistration Date') %]
-                    [% header('computername', 'Computer Name', 'hidden-phone') %]
-                    [% header('pid', 'Owner', 'hidden-phone') %]
-                    [% header('last_ip', 'IP Address') %]
-                    [% header('dhcp_fingerprint', 'OS (DHCP)', 'hidden-phone') %]
-                    [% header('category', 'Role', 'hidden-phone') %]
-                    [% header('bypass_vlan', 'Bypass VLAN', 'hidden-phone') %]
-                    [% header('bypass_role', 'Bypass Role', 'hidden-phone') %]
+                    [% header('status', 'Status') | none %]
+                    [% header('mac', 'MAC') | none %]
+                    [% header('detect_date', 'Detect Date') | none %]
+                    [% header('regdate', 'Registration Date') | none %]
+                    [% header('unregdate', 'Unregistration Date') | none %]
+                    [% header('computername', 'Computer Name', 'hidden-phone') | none %]
+                    [% header('pid', 'Owner', 'hidden-phone') | none %]
+                    [% header('last_ip', 'IP Address') | none %]
+                    [% header('dhcp_fingerprint', 'OS (DHCP)', 'hidden-phone') | none %]
+                    [% header('category', 'Role', 'hidden-phone') | none %]
+                    [% header('bypass_vlan', 'Bypass VLAN', 'hidden-phone') | none %]
+                    [% header('bypass_role', 'Bypass Role', 'hidden-phone') | none %]
                   </tr>
                 </thead>
                 <tbody>
@@ -98,6 +98,7 @@
                     [%- END %]
                     [%- IF c.session.nodecolumns.bypass_vlan %]
                     <td class="hidden-phone">[% node.bypass_vlan | html %]</td>
+                    [%- END %]
                     [%- IF c.session.nodecolumns.bypass_role %]
                     <td class="hidden-phone">[% node.bypass_role | html %]</td>
                     [%- END %]

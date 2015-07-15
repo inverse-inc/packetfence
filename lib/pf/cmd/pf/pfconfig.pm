@@ -64,6 +64,8 @@ sub action_expire {
     my ($self) = @_;
     my ($namespace) = $self->action_args;
     $self->verify_namespace($namespace);
+    my $manager = pfconfig::manager->new;
+    $manager->expire($namespace);
     return $EXIT_SUCCESS;
 }
 

@@ -117,8 +117,6 @@ install: build
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
-	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
-	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
 	#Create our dhcpd.leases
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 # Build architecture-independent files here.

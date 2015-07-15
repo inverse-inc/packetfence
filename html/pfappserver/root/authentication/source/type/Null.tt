@@ -1,1 +1,1 @@
-[% form.field('email_required').render %]
+[% form.field('email_required').render | none %]

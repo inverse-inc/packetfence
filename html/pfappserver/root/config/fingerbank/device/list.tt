@@ -16,7 +16,7 @@
     <tr>
             <th colspan="5">
               [% INCLUDE config/fingerbank/search.tt %]
-              [% pagination(action || 'list', pageNum, perPage, pageCount) %]
+              [% pagination(action || 'list', pageNum, perPage, pageCount) | none %]
             </th>
           </tr>
     <tr>

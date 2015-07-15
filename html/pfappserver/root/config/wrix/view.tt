@@ -23,24 +23,24 @@
     <div class="tab-content">
 
       <div class="tab-pane fade in active" id="wrixIdentification">
-        [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.block('identification').render %]
+        [% form.field('id').render | none UNLESS item && item.id.defined %]
+        [% form.block('identification').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="wrixLocation">
-        [% form.block('location').render %]
+        [% form.block('location').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="wrixSSID">
-        [% form.block('ssid').render %]
+        [% form.block('ssid').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="wrixHours">
-        [% form.block('hours').render %]
+        [% form.block('hours').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="wrixLatLong">
-        [% form.block('lat_long').render %]
+        [% form.block('lat_long').render | none %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->

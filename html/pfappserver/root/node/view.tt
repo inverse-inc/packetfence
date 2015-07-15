@@ -24,18 +24,18 @@
                 <h6>[% l('Profile') %]</h6>
               </div>
             </div>
-            [% form.field('pid').render %]
-            [% form.field('status').render %]
-            [% form.field('category_id').render %]
-            [% form.field('regdate').render %]
-            [% form.field('unregdate').render %]
+            [% form.field('pid').render | none %]
+            [% form.field('status').render | none %]
+            [% form.field('category_id').render | none %]
+            [% form.field('regdate').render | none %]
+            [% form.field('unregdate').render | none %]
             <div class="control-group">
               <label class="control-label">[% l('Access Time Balance') %]</label>
-              <div class="controls">[% form.field('time_balance').render_element %] [% l('seconds') %]</div>
+              <div class="controls">[% form.field('time_balance').render_element | none %] [% l('seconds') %]</div>
             </div>
             <div class="control-group">
               <label class="control-label">[% l('Bandwidth Balance') %]</label>
-              <div class="controls">[% form.field('bandwidth_balance').render_element %] [% l('bytes') %]</div>
+              <div class="controls">[% form.field('bandwidth_balance').render_element | none %] [% l('bytes') %]</div>
             </div>
 
             <div class="control-group">
@@ -49,14 +49,14 @@
                 </span></span></div>
             </div>
 
-            [% form.field('device_type').render %]
-            [% form.field('device_class').render %]
-            [% form.field('vendor').render %]
-            [% form.field('computername').render IF node.computername -%]
-            [% form.field('voip').render %]
-            [% form.field('bypass_vlan').render %]
-            [% form.field('bypass_role_id').render %]
-            [% form.field('notes').render %]
+            [% form.field('device_type').render | none %]
+            [% form.field('device_class').render | none %]
+            [% form.field('vendor').render | none %]
+            [% form.field('computername').render | none IF node.computername -%]
+            [% form.field('voip').render | none %]
+            [% form.field('bypass_vlan').render | none %]
+            [% form.field('bypass_role_id').render | none %]
+            [% form.field('notes').render | none %]
 
             [% IF node.last_switch OR node.last_ssid -%]
 
@@ -83,7 +83,7 @@
             </div>
             [% END -%]
 
-            [% form.field('last_dot1x_username').render IF node.last_dot1x_username -%]
+            [% form.field('last_dot1x_username').render | none IF node.last_dot1x_username -%]
 
             [% END %]
 
@@ -94,7 +94,7 @@
               </div>
             </div>
 
-            [% form.field('user_agent').render %]
+            [% form.field('user_agent').render | none %]
 
             <div class="control-group">
               <label class="control-label">[% l('Browser') %]</label>
@@ -106,9 +106,9 @@
               <div class="controls"><span class="uneditable">[% node.useragent.os | html %]</span></div>
             </div>
 
-            [% form.field('useragent.device').render %]
+            [% form.field('useragent.device').render | none %]
 
-            [% form.field('useragent.mobile').render %]
+            [% form.field('useragent.mobile').render | none %]
 
             [%- END # user_agent %]
 

@@ -16,6 +16,7 @@ extends 'HTML::FormHandler::Field::Text';
 use namespace::autoclean;
 
 has '+widget' => ( default => 'Span' );
+has 'escape_value' => ( default => 1, is => 'rw');
 
 =head1 COPYRIGHT
 

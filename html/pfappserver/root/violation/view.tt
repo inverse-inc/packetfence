@@ -20,19 +20,19 @@
     <div class="tab-content">
 
       <div class="tab-pane fade in active" id="violationDefinition">
-        [% form.field('enabled').render %]
-        [% form.field('id').render UNLESS item.id %]
-        [% form.field('desc').render %]
-        [% form.field('actions').render %]
-        [% form.field('vclose').render %]
-        [% form.field('target_category').render %]
-        [% form.field('external_command').render %]
-        [% form.field('priority').render %]
-        [% form.field('whitelisted_categories').render %]
+        [% form.field('enabled').render | none %]
+        [% form.field('id').render | none UNLESS item.id %]
+        [% form.field('desc').render | none %]
+        [% form.field('actions').render | none %]
+        [% form.field('vclose').render | none %]
+        [% form.field('target_category').render | none %]
+        [% form.field('external_command').render | none %]
+        [% form.field('priority').render | none %]
+        [% form.field('whitelisted_categories').render | none %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="violationTriggers">
-        [% form.field('trigger').render %]
+        [% form.field('trigger').render | none %]
         <div class="control-group">
           <div class="controls">
             <select id="trigger_type" class="input-medium">
@@ -49,19 +49,19 @@
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="violationRemediation">
-        [% form.field('auto_enable').render %]
-        [% form.field('max_enable').render %]
-        [% form.field('grace').render %]
-        [% form.field('window_dynamic').render %]
-        [% form.field('window').render %]
-        [% form.field('delay_by').render %]
-        [% form.field('template').render %]
-        [% form.field('button_text').render %]
+        [% form.field('auto_enable').render | none %]
+        [% form.field('max_enable').render | none %]
+        [% form.field('grace').render | none %]
+        [% form.field('window_dynamic').render | none %]
+        [% form.field('window').render | none %]
+        [% form.field('delay_by').render | none %]
+        [% form.field('template').render | none %]
+        [% form.field('button_text').render | none %]
       </div><!--tab-pane-->
       
       <div class="tab-pane fade" id="violationAdvanced">
-        [% form.field('vlan').render %]
-        [% form.field('redirect_url').render %]
+        [% form.field('vlan').render | none %]
+        [% form.field('redirect_url').render | none %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->
