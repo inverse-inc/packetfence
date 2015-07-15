@@ -17,7 +17,7 @@ use pf::ConfigStore::Profile;
 
 extends 'pf::ConfigStore::Group';
 
-sub pfconfigNamespace {'config::Authentication'}
+sub pfconfigNamespace {'config::Profiles'}
 
 =head2 Methods
 
