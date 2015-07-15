@@ -15,6 +15,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::config::util;
 use pf::violation;
+use pf::person;
 use pf::web;
 use pf::web::billing 1.00;
 use List::Util qw(first);
@@ -128,7 +129,15 @@ sub validate : Private {
     my $selected_tier = $request->param('tier');
     my $first_name = $request->param('firstname');
     my $last_name = $request->param('lastname');
-    my $email = $request->param('email');
+    my $email;
+    my $person;
+    if($c->session->{username}) {
+        $person = person_view($c->session->{username});
+        $email = $c->session->{username}
+    }
+    else {
+        $email = $request->param('email');
+    }
     unless ($selected_tier) {
         $c->log->error("No Tier selected");
         $c->stash({
@@ -153,7 +162,7 @@ sub validate : Private {
         "firstname" => $first_name,
         "lastname"  => $last_name,
         "email"     => $email,
-        "login"     => $email,
+        "username"  => $email,
         "tier"      => $tier,
     );
     $c->session(%temp);
@@ -216,7 +225,7 @@ sub processTransaction : Private {
 
     # Transactions informations
     my $tier = $session->{'tier'};
-    my $pid  = $c->session->{'login'};
+    my $pid  = $c->session->{'username'};
 
     # Adding person (using modify in case person already exists)
     person_modify(
