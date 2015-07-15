@@ -70,6 +70,7 @@ document.observe("dom:loaded", function() {
     [% END %]
   </div>
   [% END %]
+  [% UNLESS c.session.username %]
   <div class="input">
       <span>[% i18n("Firstname") %]</span>
       <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
@@ -78,6 +79,7 @@ document.observe("dom:loaded", function() {
       <span>[% i18n("Email") %]</span>
       <input class="field" name="email" type="text" value="[% email | html %]" />
   </div>
+  [% END %]
   [% UNLESS c.session.aup_signed %]
   [%# AUP %]
   <div class="input" style="margin-top: 0px">
