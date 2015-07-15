@@ -477,6 +477,7 @@ sub validateLogin : Private {
             $self->showError($c,'You need to accept the terms before proceeding any further.');
             $c->detach('showLogin');
         }
+        $c->stash->{aup_signed} = $aup_signed;
     } else {
         $c->detach('showLogin');
     }
@@ -522,6 +523,7 @@ sub authenticationLogin : Private {
             "username"  => $username,
             "source_id" => $sources[0]->id,
             "source_match" => \@sources,
+            "aup_signed" => $c->stash->{aup_signed}
         );
     } else {
         # validate login and password
@@ -533,6 +535,7 @@ sub authenticationLogin : Private {
                 "username"  => $username // $default_pid,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
+                "aup_signed" => $c->stash->{aup_signed}
             );
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
