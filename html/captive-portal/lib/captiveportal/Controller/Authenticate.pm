@@ -1,7 +1,42 @@
 package captiveportal::Controller::Authenticate;
 use Moose;
+use pf::authentication;
+use pf::person;
 
 BEGIN { extends 'captiveportal::PacketFence::Controller::Authenticate'; }
+
+=head2 checkIfChainedAuth
+
+Checked to see if source that was authenticated with is chained
+
+=cut
+
+sub checkIfChainedAuth : Private {
+    my ($self, $c) = @_;
+    my $source_id = $c->session->{source_id};
+    my $source = getAuthenticationSource($source_id);
+    #if not chained then leave
+    return unless $source && $source->type eq 'Chained';
+    $c->session->{chained_source} = $source_id;
+    my $pid = $c->session->{"username"};
+    if($pid) {
+        my $person = person_view($pid);
+        if($person) {
+            my  $role = $person->{category};
+            if ($role && $role ne 'default') {
+               $c->detach('continue_chained_auth');
+            }
+        }
+    }
+    my $chainedSource = $source->getChainedAuthenticationSourceObject();
+    if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
+        $self->setAllowedGuestModes($c,$chainedSource);
+        $c->detach(Signup => 'showSelfRegistrationPage');
+    }
+    elsif ($chainedSource->class eq 'billing') {
+        $c->detach(Billing => 'index');
+    }
+}
 
 =head1 NAME
 
