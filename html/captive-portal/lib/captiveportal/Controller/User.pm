@@ -1,5 +1,6 @@
 package captiveportal::Controller::User;
 use Moose;
+use POSIX;
 use pf::person;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -45,8 +46,10 @@ sub validate_new_user : Private {
     unless ($result) {
         $self->_display_error($c, "Unable to create user $pid");
     }
+    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + 60*60*24*365));
     my @actions = (
         {type => 'set_role', value => 'default'},
+        {type => 'expiration', value => $expiration},
     );
     my $new_password = pf::password::generate($pid, \@actions, $password);
 }
