@@ -506,6 +506,7 @@ sub validateLogin : Private {
         }
         $c->stash->{aup_signed} = $aup_signed;
     } else {
+        $c->stash->{txt_validation_error} = "No username or password given";
         $c->detach('showLogin');
     }
 }
