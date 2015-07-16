@@ -41,7 +41,7 @@ sub field_names {
 sub countAll {
     my ( $self,  %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status, $status_msg );
     my $count;
     eval {
@@ -63,7 +63,7 @@ sub countAll {
 sub search {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @items;

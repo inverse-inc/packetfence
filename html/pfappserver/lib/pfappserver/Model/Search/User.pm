@@ -47,7 +47,7 @@ sub make_builder {
 
 sub search {
     my ($self,$params) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $builder = $self->make_builder;
     $self->setup_query($builder,$params);
     my $results = $self->do_query($builder,$params);
@@ -122,7 +122,7 @@ sub setup_query {
 
 sub do_query {
     my ($self,$builder,$params) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %results = %$params;
     my $sql = $builder->sql;
     my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};

@@ -39,7 +39,7 @@ Readonly::Scalar our $UPGRADE => 'upgrade';
 
 sub checkForRootUser {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -58,7 +58,7 @@ sub checkForRootUser {
 
 sub checkForUpgrade {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $filehandler;
 
@@ -105,7 +105,7 @@ sub checkForUpgrade {
 
 sub update_currently_at {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     open PFRELEASE, '<', "$conf_dir/pf-release";
     my @pfrelease  = <PFRELEASE>;

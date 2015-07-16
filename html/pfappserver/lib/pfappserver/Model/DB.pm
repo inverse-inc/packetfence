@@ -35,7 +35,7 @@ our $dbHandler;
 
 sub assign {
     my ( $self, $db, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -97,7 +97,7 @@ sub assign {
 
 sub connect {
     my ( $self, $db, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -118,7 +118,7 @@ sub connect {
 
 sub create {
     my ( $self, $db, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status_msg, $result );
 
@@ -157,7 +157,7 @@ sub create {
 
 sub secureInstallation {
     my ( $self, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -202,7 +202,7 @@ TODO: sanitize parameters going into pf_run with strict regex
 
 sub schema {
     my ( $self, $db, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status_msg, $result );
     $root_user = quotemeta ($root_user);
@@ -251,7 +251,7 @@ sub schema {
 
 sub resetUserPassword {
     my ( $self, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status, $status_msg );
     # Making sure username/password are "ok"

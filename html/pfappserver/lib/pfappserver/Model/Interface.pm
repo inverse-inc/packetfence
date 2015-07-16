@@ -31,7 +31,7 @@ extends 'Catalyst::Model';
 
 sub create {
     my ( $self, $interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -79,7 +79,7 @@ sub create {
 sub delete {
     my ($self, $interface, $host) = @_;
     my $models = $self->{models};
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -137,7 +137,7 @@ sub delete {
 
 sub down {
     my ( $self, $interface, $host ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -271,7 +271,7 @@ sub get {
 sub update {
     my ($self, $interface, $interface_ref) = @_;
     my $models = $self->{models};
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($ipaddress, $netmask, $status, $status_msg);
 
@@ -494,7 +494,7 @@ sub interfaceForDestination {
 
     my @interfaces = $self->_listInterfaces('all');
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     foreach my $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
@@ -660,7 +660,7 @@ sub _prepare_interface_for_pfconf {
 
 sub up {
     my ( $self, $interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 

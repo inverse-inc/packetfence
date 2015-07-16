@@ -4,7 +4,7 @@ use namespace::autoclean;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 
 use pf::constants;

@@ -1,7 +1,7 @@
 package captiveportal::PacketFence::Controller::Activate::Sms;
 use Moose;
 use namespace::autoclean;
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 

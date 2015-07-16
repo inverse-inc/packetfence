@@ -27,7 +27,7 @@ extends 'Catalyst::Model';
 
 sub check_mysqld_status {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # -x: this causes the program to also return process id's of shells running the named scripts.
     my $pid;
@@ -44,7 +44,7 @@ sub check_mysqld_status {
 
 sub getDefaultGateway {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $default_gateway = (split(" ", `LANG=C sudo ip route show to 0/0`))[2];
     $logger->debug("Default gateway: " . $default_gateway);
@@ -58,7 +58,7 @@ sub getDefaultGateway {
 
 sub getInterfaceForGateway {
     my ( $self, $interfaces_ref, $gateway ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
         next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
@@ -79,7 +79,7 @@ sub getInterfaceForGateway {
 
 sub setDefaultRoute {
     my ($self, $gateway) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $_EXIT_CODE_EXISTS = 7;
 
@@ -116,7 +116,7 @@ sub setDefaultRoute {
 
 sub start_mysqld_service {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -154,7 +154,7 @@ sub start_mysqld_service {
 
 sub restart_pfconfig {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -183,7 +183,7 @@ sub restart_pfconfig {
 
 sub write_network_persistent {
     my ( $self, $interfaces_ref, $gateway ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg, $systemObj);
 
@@ -261,7 +261,7 @@ Obtain a system object suited for your system.
 
 sub getSystem {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -331,7 +331,7 @@ our $var_dir              = "/usr/local/pf/var/";
 
 sub writeNetworkConfigs {
     my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -432,7 +432,7 @@ our $var_dir              ="/usr/local/pf/var/";
 
 sub writeNetworkConfigs {
     my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 

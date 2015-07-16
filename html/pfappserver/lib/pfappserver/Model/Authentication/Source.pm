@@ -27,7 +27,7 @@ use pf::ConfigStore::Authentication;
 sub update {
     my ($self, $source_id, $source_obj, $def_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     unless ($source_id) {
         # Add a new source

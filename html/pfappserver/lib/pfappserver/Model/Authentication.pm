@@ -27,7 +27,7 @@ use pf::ConfigStore::Authentication;
 sub update {
     my ($self, $sources) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     
     # Update sources order
     my %valid_sources = map { $_->{id} => $_ } @pf::ConfigStore::auth_sources;

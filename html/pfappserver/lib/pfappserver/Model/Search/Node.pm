@@ -29,7 +29,7 @@ extends 'pfappserver::Base::Model::Search';
 
 sub search {
     my ($self, $params, $pageNum, $perPage) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $builder = $self->make_builder;
     $params->{page_num} = $pageNum;
     $params->{per_page} = $perPage;

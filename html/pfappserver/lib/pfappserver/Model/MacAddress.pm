@@ -49,7 +49,7 @@ count all mac addresses that match search parameters
 sub countAll {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status_msg, $count );
     eval {
         my $greper = sub {1};
@@ -84,7 +84,7 @@ find all all mac addresses that match search parameters
 sub search {
     my ( $self, %params ) = @_;
     load_oui();
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status, $status_msg );
     my $items;
     eval {

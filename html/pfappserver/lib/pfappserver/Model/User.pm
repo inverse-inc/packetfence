@@ -119,7 +119,7 @@ sub _make_actions {
 sub countAll {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my $count;
@@ -143,7 +143,7 @@ sub countAll {
 sub search {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @users;
@@ -168,7 +168,7 @@ Return the nodes associated to the person ID.
 sub nodes {
     my ( $self, $pid ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @nodes;
@@ -193,7 +193,7 @@ Return the violations associated to the person ID.
 sub violations {
     my ($self, $pid) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @violations;
@@ -216,7 +216,7 @@ sub violations {
 
 sub update {
     my ($self, $pid, $user_ref, $user) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     unless ($self->_userRoleAllowedForUser($user_ref, $user)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
@@ -245,7 +245,7 @@ sub update {
 sub update_actions {
     my ($self, $pid, $actions) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
     my $tp = pf::password::view($pid);
     # Only update the actions if the user has an entry in password
@@ -264,7 +264,7 @@ sub update_actions {
 sub mail {
     my ($self, $c, $pids) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
     my @users;
 
@@ -314,7 +314,7 @@ sub mail {
 sub delete {
     my ($self, $pid) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK, 'The user was successfully deleted.');
 
     eval {
@@ -342,7 +342,7 @@ pf::web::guest::preregister
 sub createSingle {
     my ($self, $data, $user) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result) = ($STATUS::CREATED);
     my $pid = $data->{pid};
     my @users = ();
@@ -421,7 +421,7 @@ pf::web::guest::preregister_multiple
 sub createMultiple {
     my ($self, $data, $user) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     unless ($self->_userRoleAllowedForUser($data, $user)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
@@ -477,7 +477,7 @@ pf::web::guest::import_csv
 sub importCSV {
     my ($self, $data, $user) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     unless ($self->_userRoleAllowedForUser($data, $user)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }

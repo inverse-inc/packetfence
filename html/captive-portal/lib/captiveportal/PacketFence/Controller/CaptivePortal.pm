@@ -453,7 +453,7 @@ See F<pf::web::custom> for examples.
 
 sub webNodeRegister : Private {
     my ($self, $c, $pid, %info ) = @_;
-    my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger        = get_logger();
     my $portalSession = $c->portalSession;
 
     # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
