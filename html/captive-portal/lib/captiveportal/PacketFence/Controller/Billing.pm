@@ -42,7 +42,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ($self, $c) = @_;
-    unless( $c->profile->isBillingEnabled($c->session->{chained_source}) ) {
+    unless( $c->profile->isBillingEnabled() ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
