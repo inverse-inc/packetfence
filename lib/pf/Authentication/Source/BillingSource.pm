@@ -38,6 +38,14 @@ has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool', default => 1);
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $TRUE }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.
