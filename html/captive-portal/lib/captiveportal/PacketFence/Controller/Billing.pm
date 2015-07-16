@@ -64,7 +64,8 @@ sub source : Chained('/') : PathPart('billing') : CaptureArgs(1) {
         $billing = first {$_->id eq $source_id} $profile->getBillingSources;
     }
     unless ($billing) {
-        $self->showError($c, "Invalid billing source for profile");
+        $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL) . "&txt_validation_error=Your session has expired cannot access billing try again");
+        $c->detach;
     }
     $c->stash->{billing} = $billing;
 }
