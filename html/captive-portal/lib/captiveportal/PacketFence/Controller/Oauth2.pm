@@ -257,7 +257,7 @@ sub oauth2Result : Path : Args(1) {
                 $type, $profile->getName
             )
         );
-        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+        $c->response->redirect( $c->portalSession->destinationUrl );
     }
 }
 
