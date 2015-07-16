@@ -285,19 +285,7 @@ $(function() { // DOM ready
         var type_name = type_select.text();
         var value = type + "::" + id;
         var value_pretty = type_name + " : " + id;
-        var select = $('#editedTrigger select').first();
-        var last = true;
-        tid.val('');
-        select.find('option').each(function() {
-            if ($(this).val() > value) {
-                $('<option value="' + value + '" selected="selected">' + value_pretty + '</option>').insertBefore(this);
-                last = false;
-                return false;
-            }
-        });
-        if (last)
-            select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
-        select.trigger("liszt:updated");
+        violationsView.append_trigger(value, value_pretty);
     });
 
     $('body').on('click', '.add_accounting_trigger', function(event){
@@ -309,10 +297,7 @@ $(function() { // DOM ready
       console.log(trigger_direction+trigger_amount+trigger_unit+trigger_window)
       var tid = trigger_direction+trigger_amount+trigger_unit+trigger_window;
       var trigger = "accounting::"+tid
-      var option = $('<option value="'+trigger+'" selected="selected">'+violationsView.prettify_accounting("accounting",tid)+'</option>');
-      var select = $('#editedTrigger select')
-      select.append(option)
-      select.trigger("liszt:updated");
+      violationsView.append_trigger(trigger, violationsView.prettify_accounting("accounting",tid));
     });
 
     /* Modal Editor: add a trigger to a combined trigger from a widget */
@@ -326,18 +311,7 @@ $(function() { // DOM ready
         var type_name = type_select.html();
         var value = type + "::" + id;
         var value_pretty = type_name + " : " + tid.html();
-        var select = $('#editedTrigger select').first();
-        var last = true;
-        select.find('option').each(function() {
-            if ($(this).val() > value) {
-                $('<option value="' + value + '" selected="selected">' + value_pretty + '</option>').insertBefore(this);
-                last = false;
-                return false;
-            }
-        });
-        if (last)
-            select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
-        select.trigger("liszt:updated");
+        violationsView.append_trigger(value, value_pretty);
     });
 
     
@@ -441,6 +415,24 @@ ViolationsView.prototype.prettify_accounting = function(type, value) {
     else if(timeframe == "Y") pretty += "per year"
   }
   return pretty;
+}
+
+ViolationsView.prototype.append_trigger = function(value,value_pretty){
+  if(!value_pretty) value_pretty = value;
+
+  var select = $('#editedTrigger select').first();
+  var last = true;
+  select.find('option').each(function() {
+      if ($(this).val() > value) {
+          $('<option value="' + value + '" selected="selected">' + value_pretty + '</option>').insertBefore(this);
+          last = false;
+          return false;
+      }
+  });
+  if (last)
+      select.append('<option value="' + value + '" selected="selected">' + value_pretty + '</option>');
+  select.trigger("liszt:updated");
+
 }
 
 var violationsView = new ViolationsView();
