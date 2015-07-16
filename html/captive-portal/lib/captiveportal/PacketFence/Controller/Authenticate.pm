@@ -177,6 +177,7 @@ sub login : Local : Args(0) {
         $c->forward('validateLogin');
         $c->forward('enforceLoginRetryLimit');
         $c->forward('authenticationLogin');
+        $c->detach('showLogin') if $c->has_errors;
         $c->forward('validateMandatoryFields');
         $c->forward("checkIfChainedAuth");
         $c->forward('postAuthentication');
