@@ -21,7 +21,7 @@
         [% form.field('id').render %]
         [% form.field('description').render %]
         [% INCLUDE "authentication/source/type/${source.type}.tt" %]
-        [% IF source.id %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]
+        [% IF source.id && (source.class != 'billing' && source.type != 'Chained') %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]
 
         [%- IF can_access("USERS_SOURCES_UPDATE") %]
         <div class="form-actions">
