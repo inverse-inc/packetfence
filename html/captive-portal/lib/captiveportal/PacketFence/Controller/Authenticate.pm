@@ -530,6 +530,8 @@ sub authenticationLogin : Private {
                 "source_id" => $source_id,
                 "source_match" => $source_id,
             );
+            # Logging USER/IP/MAC of the just-authenticated user
+            $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
         } else {
             $c->error($message);
         }
