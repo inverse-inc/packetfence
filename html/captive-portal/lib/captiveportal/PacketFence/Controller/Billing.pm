@@ -201,12 +201,9 @@ sub cancel : Chained('source') : Args(0) {
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
-    my @billing_sources;
-    if($c->session->{chained_source}) {
+    my @billing_sources = $c->profile->getBillingSources;
+    unless(@billing_sources) {
         @billing_sources = $c->profile->getChainedBillingSources;
-    }
-    else {
-        @billing_sources = $c->profile->getBillingSources;
     }
     $c->stash(
         billing_sources => \@billing_sources,
