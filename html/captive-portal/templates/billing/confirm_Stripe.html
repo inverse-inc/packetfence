@@ -3,6 +3,9 @@
 <div>
     You are about to buy [% tier.description %] for [% tier.price %]
 </div>
+    [% IF txt_validation_error.defined %]
+    <div class="error"><p>[% txt_validation_error %]</p></div>
+    [% END %]
 
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
   <div class="error"><p id="payment-errors"></p></div>
