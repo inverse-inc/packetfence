@@ -31,6 +31,7 @@ use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::User_Agent;
 use pf::log;
 use pf::violation_config;
+use pf::node;
 
 
 # Violation status constants
@@ -98,7 +99,6 @@ use pf::class qw(class_view);
 use pf::config;
 use pf::enforcement;
 use pf::db;
-use pf::node;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::util;
 use pf::config::util;

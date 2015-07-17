@@ -24,7 +24,7 @@ use Log::Log4perl::Level;
 use Readonly;
 use pf::StatsD;
 use pf::util::statsd qw(called);
-use pf::violation qw(violation_count violation_add violation_trigger violation_force_close);
+#use pf::violation qw(violation_count violation_add violation_trigger violation_force_close);
 
 use constant NODE => 'node';
 
@@ -88,7 +88,6 @@ use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
-use pf::violation;
 use pf::Portal::ProfileFactory;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
