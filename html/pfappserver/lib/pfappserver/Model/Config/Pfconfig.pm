@@ -15,7 +15,6 @@ This doesn't use the ConfigStore
 use Moose;
 use namespace::autoclean;
 use pfconfig::config;
-use pf::log;
 use pfconfig::constants;
 use Config::IniFiles;
 

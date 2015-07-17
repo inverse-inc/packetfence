@@ -17,7 +17,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
-use pf::log;
 use HTML::FormHandler::Params;
 BEGIN {
     with 'pfappserver::Base::Controller::Crud' => {

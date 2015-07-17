@@ -16,7 +16,6 @@ Is the Generic class for the cached config
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
-use pf::log;
 use HTTP::Status qw(:constants :is);
 
 BEGIN { extends 'Catalyst::Model'; }
