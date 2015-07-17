@@ -260,7 +260,7 @@ sub regzone {
                 foreach my $answer ($reply->answer) {
                     my $query = $CHI_CACHE->compute($answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
-                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, '135', '464');
+                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', '49155', '49156', '49172');
                     }
                 }
                 $rcode = "NOERROR";
