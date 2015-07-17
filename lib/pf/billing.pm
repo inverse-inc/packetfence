@@ -16,7 +16,7 @@ All of the methods of this module can be redefined using pf:billing:custom in li
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 use Try::Tiny;
 
@@ -90,7 +90,7 @@ This will allow methods redefinition.
 
 sub new {
     my ( $class, %argv ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Instanciating a new pf:billing object");
 
@@ -107,7 +107,7 @@ TODO: Add some verification that all the information is there and in a good form
 
 sub createNewTransaction {
     my ( $self, $transaction_infos_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Preparing the transaction attributes
     # slicing hashref on the right assigning proper values to the left
@@ -144,7 +144,7 @@ TODO: Put theses configuration in database and be able to modify them using the 
 
 sub getAvailableTiers {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my %tiers = (
             tier1 => {
@@ -169,7 +169,7 @@ Instantiate a new transaction using the payment gateway configured.
 
 sub instantiateNewTransaction {
     my ( $self, $type, $transaction_infos_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $transaction = 'pf::billing::gateway::' . $type;
     try {
@@ -191,7 +191,7 @@ sub instantiateNewTransaction {
 
 sub processTransaction {
     my ( $self, $transaction_infos_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Create the new transaction
     my $transaction = $self->createNewTransaction($transaction_infos_ref);
@@ -217,7 +217,7 @@ Update the status of a transaction in the database
 
 sub updateTransactionStatus {
     my ( $self, $id, $status ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Updating the transaction: $id with status: $status");
 
@@ -235,7 +235,7 @@ This is meant to be overridden in L<pf::billing::custom>.
 
 sub prepareConfirmationInfo {
     my ( $self, $transaction_infos_ref, $confirmationInfo ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my %info = ( pf::web::constants::to_hash() );
     my %tiers = $self->getAvailableTiers();

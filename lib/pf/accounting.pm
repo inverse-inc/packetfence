@@ -15,7 +15,7 @@ pf::accounting is a module to add the RADIUS accounting fonctionnalities and ena
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use constant ACCOUNTING => 'accounting';
@@ -84,7 +84,7 @@ Initialize database prepared statements
 =cut
 
 sub accounting_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::accounting');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::accounting database queries");
 
     $accounting_statements->{'acct_current_sessionid_sql'} = get_db_handle()->prepare(qq[
@@ -357,7 +357,7 @@ Check in the accounting tables for potential bandwidth abuse
 =cut
 
 sub acct_maintenance {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->info("getting violations triggers for accounting cleanup");
 
     foreach my $info (@ACCOUNTING_TRIGGERS) {

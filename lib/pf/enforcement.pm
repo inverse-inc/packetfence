@@ -25,7 +25,7 @@ use strict;
 use warnings;
 
 use List::MoreUtils qw(none);
-use Log::Log4perl;
+use pf::log;
 
 BEGIN {
     use Exporter ();
@@ -64,7 +64,7 @@ Triggered by pfcmd.
 
 sub reevaluate_access {
     my ( $mac, $function, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
 
     # Untaint MAC
     $mac = clean_mac($mac);
@@ -115,7 +115,7 @@ Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
 
 sub _vlan_reevaluation {
     my ( $mac, $locationlog_entry, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
 
     if ( _should_we_reassign_vlan( $mac, $locationlog_entry, %opts ) ) {
 
@@ -168,7 +168,7 @@ Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redef
 
 sub _should_we_reassign_vlan {
     my ( $mac, $locationlog_entry, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
     if ( $opts{'force'} ) {
         $logger->info("[$mac] VLAN reassignment is forced.");
         return $TRUE;

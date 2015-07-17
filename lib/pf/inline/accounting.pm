@@ -27,7 +27,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 my $accounting_table = 'inline_accounting';
@@ -73,7 +73,7 @@ Prepares all the SQL statements related to this module
 =cut
 
 sub accounting_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing" . __PACKAGE__ . "database queries");
 
     $accounting_statements->{'accounting_update_session_for_ip'} =
@@ -155,7 +155,7 @@ sub accounting_db_prepare {
 
 sub inline_accounting_update_session_for_ip {
     my ($ip, $inbytes, $outbytes, $firstseen, $lastmodified) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $active_session_query =  db_query_execute("inline::accounting",
                                                  $accounting_statements,
@@ -179,7 +179,7 @@ sub inline_accounting_update_session_for_ip {
 
 sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $result = 0;
 
     # Check if there's at least a violation using an accounting

@@ -21,7 +21,7 @@ use Apache2::Request;
 use Apache2::Access;
 use Apache2::Connection;
 use Apache2::Const;
-use Log::Log4perl;
+use pf::log;
 use Template;
 
 use pf::authentication;
@@ -50,7 +50,7 @@ sub handler {
 
     my $r = (shift);
     my $req = Apache2::Request->new($r);
-    my $logger = Log::Log4perl->get_logger('auth_handler');
+    my $logger = get_logger();
 
     $logger->trace("hitting wispr");
 

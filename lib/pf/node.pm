@@ -19,8 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl qw(get_logger);
-use Log::Log4perl::Level;
+use pf::log;
 use Readonly;
 use pf::StatsD;
 use pf::util::statsd qw(called);
@@ -103,7 +102,7 @@ TODO: This list is incomlete
 =cut
 
 sub node_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing pf::node database queries");
 
     $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
@@ -415,7 +414,7 @@ sub node_view_reg_pid {
 #
 sub node_delete {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = get_logger();
 
     $mac = clean_mac($mac);
 
@@ -460,7 +459,7 @@ our %DEFAULT_NODE_VALUES = (
 #
 sub node_add {
     my ( $mac, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("node add called");
 
     $mac = clean_mac($mac);
@@ -591,7 +590,7 @@ sub _node_view_old {
     $mac = clean_mac($mac);
 
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    #my $logger = get_logger();
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -616,7 +615,7 @@ sub node_view {
     my ($mac) = @_;
 
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    #my $logger = get_logger();
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -645,7 +644,7 @@ sub node_view {
 
 sub node_count_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -701,7 +700,7 @@ sub node_count_all {
 
 sub node_custom_search {
     my ($sql) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug($sql);
     $node_statements->{'node_custom_search_sql_customer'} = $sql;
     return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
@@ -715,7 +714,7 @@ Warning: The connection_type field is translated into its human form before retu
 
 sub node_view_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -776,7 +775,7 @@ node_attributes_with_fingerprint code.  This code will disappear in 2013.
 
 sub node_view_with_fingerprint {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->warn("DEPRECATED! You should migrate the caller to the faster node_attributes_with_fingerprint");
     my $query = db_query_execute(NODE, $node_statements, 'node_view_with_fingerprint_sql', $mac) || return (0);
@@ -789,7 +788,7 @@ sub node_view_with_fingerprint {
 
 sub node_modify {
     my ( $mac, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # validation
     $mac = clean_mac($mac);
@@ -895,7 +894,7 @@ sub node_modify {
 
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -970,7 +969,7 @@ sub node_register {
 
 sub node_deregister {
     my ($mac, %info) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $pf::StatsD::statsd->increment( called() . ".called" );
 
     $info{'status'}    = 'unreg';
@@ -1004,7 +1003,7 @@ called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
 =cut
 
 sub nodes_maintenance {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("nodes_maintenance called");
 
@@ -1067,7 +1066,7 @@ sub node_expire_lastdhcp {
 
 sub node_cleanup {
     my ($time) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("calling node_cleanup with time=$time");
 
     foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
@@ -1095,7 +1094,7 @@ Updates the bandwidth balance of a node and close the violations that use the ba
 
 sub node_update_bandwidth {
     my ($mac, $bytes) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Validate arguments
     $mac = clean_mac($mac);
@@ -1136,7 +1135,7 @@ in: mac address
 
 sub is_node_voip {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->trace("Asked whether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);
@@ -1157,7 +1156,7 @@ in: mac address
 
 sub is_node_registered {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->trace("Asked whether node $mac is registered or not");
     my $node_info = node_attributes($mac);
@@ -1178,7 +1177,7 @@ returns category_id, undef if no category was required or 0 if no category is fo
 
 sub _node_category_handling {
     my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if (defined($data{'category_id'})) {
         # category_id has priority over category
@@ -1215,7 +1214,7 @@ The MAC address is currently not used.
 
 sub is_max_reg_nodes_reached {
     my ($mac, $pid, $category, $category_id) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # default_pid is a special case: no limit for this user
     return $FALSE if ($pid eq $default_pid || $pid eq $admin_pid);

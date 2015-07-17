@@ -16,7 +16,7 @@ This module extends pf::vlan
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use pf::log;
 
 use base ('pf::vlan');

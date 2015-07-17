@@ -15,7 +15,7 @@ All the behavior contained here can be overridden in lib/pf/vlan/custom.pm.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
@@ -52,9 +52,9 @@ Usually you don't want to call this constructor but use the pf::vlan::custom sub
 =cut
 
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::vlan");
-    $logger->debug("instantiating new pf::vlan object");
     my ( $class, %argv ) = @_;
+    my $logger = $class->get_logger;
+    $logger->debug("instantiating new pf::vlan object");
     my $this = bless {}, $class;
     return $this;
 }
@@ -72,7 +72,7 @@ getRegistrationVlan or getNormalVlan.
 
 sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::vlan');
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $node_info = node_attributes($mac);
@@ -151,7 +151,7 @@ version doesn't do the right thing for you.
 
 sub doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger;
 
     # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
@@ -214,7 +214,7 @@ sub getViolationVlan {
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $open_violation_count = violation_count_reevaluate_access($mac);
@@ -311,7 +311,7 @@ sub getRegistrationVlan {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     # trapping on registration is enabled
@@ -382,7 +382,7 @@ sub getNormalVlan {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $options = {};
@@ -523,7 +523,7 @@ sub getInlineVlan {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my ($result,$role) = $this->filterVlan('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
@@ -556,7 +556,7 @@ sub getNodeInfoForAutoReg {
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name, $connection_sub_type) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger();
     my $start = Time::HiRes::gettimeofday();
 
     #define the current connection value to instantiate the correct portal
@@ -661,7 +661,7 @@ sub shouldAutoRegister {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = $this->logger;
 
     $logger->trace("[$mac] asked if should auto-register device");
 
@@ -709,7 +709,7 @@ Return true if a radius properties match with the inline trigger
 
 sub isInlineTrigger {
     my ($self, $switch, $port, $mac, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = $self->logger;
     if (defined($switch->{_inlineTrigger}) && $switch->{_inlineTrigger} ne '') {
         foreach my $trigger (@{$switch->{_inlineTrigger}})  {
 
@@ -741,7 +741,7 @@ sub isInlineTrigger {
 
 sub _check_bypass {
     my ( $mac, $node_info, $switch ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref(__PACKAGE__) );
+    my $logger = get_logger;
 
     if ( @_ < 3 ) { return undef; }
 
@@ -757,6 +757,17 @@ sub _check_bypass {
     else {
         return undef;
     }
+}
+
+=head2 logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 

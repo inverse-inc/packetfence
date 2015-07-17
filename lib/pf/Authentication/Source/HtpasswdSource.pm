@@ -13,6 +13,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source;
 use pf::util;
+use pf::log;
 
 use Apache::Htpasswd;
 
@@ -45,7 +46,7 @@ sub available_attributes {
 sub authenticate {
     my ($self, $username, $password) = @_;
 
-    my $logger = Log::Log4perl->get_logger('pf::authentication');
+    my $logger = get_logger();
     my $password_file = $self->{'path'};
 
     if (! -r $password_file) {

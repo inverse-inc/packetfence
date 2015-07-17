@@ -17,7 +17,7 @@ instantiate the objects.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::config;
 use pf::node;
@@ -40,7 +40,7 @@ tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Pro
 
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $options ||= {};
     if (defined($options->{'portal'})) {
         $logger->info("Instantiate profile ".$options->{'portal'});

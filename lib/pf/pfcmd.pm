@@ -16,7 +16,7 @@ F</usr/local/pf/bin/pfcmd> to parse the options.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use Regexp::Common qw(net);
 
@@ -39,7 +39,7 @@ my $pid_re = qr{(?:
 
 sub parseCommandLine {
     my ($commandLine) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::pfcmd");
+    my $logger = get_logger();
     $logger->debug("starting to parse '$commandLine'");
 
     $commandLine =~ s/\s+$//;

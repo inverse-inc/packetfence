@@ -39,7 +39,7 @@ our $sms_carrier_statements = {};
 =cut
 
 sub sms_carrier_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::sms_carrier');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::sms_carrier database queries");
 
     $sms_carrier_statements->{'sms_carrier_view_all_sql'} = get_db_handle()->prepare(qq[

@@ -10,6 +10,7 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
+use pf::log;
 use pf::config;
 use pf::constants;
 use Moose;
@@ -150,7 +151,7 @@ sub match {
     my ($self, $params) = @_;
 
     my $common_attributes = $self->common_attributes();
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my $logger = get_logger();
 
     # Add current date & time to the list of parameters
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
@@ -240,7 +241,6 @@ sub match_condition {
 
 sub search_attributes {
     my ($self,$username) = @_;
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     my $realm;
     ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
     return $self->search_attributes_in_subclass($username);
@@ -255,7 +255,7 @@ Returns a hashref that will be injected in pf::person::modify or 0 ($FALSE) if i
 =cut
 
 sub search_attributes_in_subclass {
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my $logger = get_logger();
     $logger->debug("search_attributes_in_subclass is not supported on this source.");
     return $FALSE;
 }

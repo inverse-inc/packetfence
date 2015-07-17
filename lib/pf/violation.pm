@@ -19,7 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use POSIX;
 use Time::HiRes qw(time);
@@ -123,7 +123,7 @@ This list is incomplete.
 =cut
 
 sub violation_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::violation database queries");
 
     $violation_statements->{'violation_desc_sql'} = get_db_handle()->prepare(qq [ desc violation ]);
@@ -226,7 +226,7 @@ sub violation_desc {
 #
 sub violation_modify {
     my ( $id, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     return (0) if ( !$id );
     my $existing = violation_exist_id($id);
@@ -348,7 +348,7 @@ sub violation_view {
 
 sub violation_count_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     violation_db_prepare() if (!$violation_db_prepared);
@@ -424,7 +424,7 @@ sub violation_view_all_active {
 #
 sub violation_add {
     my ( $mac, $vid, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     return (0) if ( !$vid );
     violation_clear_warnings();
     violation_clear_errors();
@@ -599,6 +599,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     $logger->info("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
@@ -619,7 +620,7 @@ sub violation_trigger {
     }
 
     my $info = info_for_violation_engine($mac,$type,$tid);
-    
+
     $logger->debug(sub { use Data::Dumper; "Infos for violation engine : ".Dumper($info) });
     my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
@@ -711,7 +712,7 @@ sub violation_delete {
 #
 sub violation_close {
     my ( $mac, $vid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     require pf::class;
     my $class_info = pf::class::class_view($vid);
 
@@ -740,7 +741,7 @@ sub violation_close {
 #
 sub violation_force_close {
     my ( $mac, $vid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
@@ -791,7 +792,7 @@ sub violation_view_last_closed {
 
 sub _is_node_category_whitelisted {
     my ($vid, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     my $class = $pf::violation_config::Violation_Config{$vid};
 
@@ -828,7 +829,7 @@ Check if we should close violations based on release_date
 
 sub violation_maintenance {
     my ($batch,$timelimit) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     $logger->debug("Looking at expired violations... batching $batch timelimit $timelimit");
     my $start_time = time;

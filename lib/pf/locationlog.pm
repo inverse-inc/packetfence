@@ -15,8 +15,8 @@ MAC-Switch-Port-VLAN history.
 
 use strict;
 use warnings;
-use Log::Log4perl;
-use Log::Log4perl::Level;
+use pf::log;
+use pf::log;
 use pf::floatingdevice::custom;
 
 use constant LOCATIONLOG => 'locationlog';
@@ -98,7 +98,7 @@ TODO: list incomplete
 =cut
 
 sub locationlog_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::locationlog database queries");
 
     $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
@@ -369,7 +369,7 @@ sub locationlog_view_open_mac {
 
 sub locationlog_insert_start {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
         or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
@@ -396,7 +396,7 @@ sub locationlog_insert_start {
 
 sub locationlog_insert_closed {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
         or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
@@ -410,7 +410,7 @@ sub locationlog_insert_closed {
 sub locationlog_update_end {
     my ( $switch, $ifIndex, $mac ) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
     if ( defined($mac) ) {
         $logger->info("locationlog_update_end called with mac=$mac");
         locationlog_update_end_mac($mac);
@@ -459,7 +459,7 @@ synchronize locationlog to current values if necessary
 
 sub locationlog_synchronize {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
     $logger->trace("locationlog_synchronize called");
 
     # flag to determine if we must insert a new record or not
@@ -538,7 +538,7 @@ sub locationlog_close_all {
 
 sub locationlog_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
     $logger->debug("calling locationlog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
     my $now = db_now();
     my $start_time = time;
@@ -567,7 +567,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
     my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::locationlog');
+    my $logger = get_logger();
     $logger->trace("verifying if locationlog is accurate called");
 
     # avoid undef warnings during tests by setting undef values to empty string

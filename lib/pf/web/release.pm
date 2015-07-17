@@ -15,7 +15,7 @@ use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
-use Log::Log4perl;
+use pf::log;
 use URI::Escape::XS qw(uri_escape);
 
 use pf::class;

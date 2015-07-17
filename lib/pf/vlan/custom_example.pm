@@ -6,16 +6,16 @@ pf::vlan::custom
 
 =head1 SYNOPSIS
 
-This is a sample custom pf::vlan::custom module. It performs a database 
+This is a sample custom pf::vlan::custom module. It performs a database
 lookup on the requests coming from a Cisco WLC to pre-prend a building Id
-to the returned VLAN. The query on the database is made using the 
+to the returned VLAN. The query on the database is made using the
 Called-Station-Id to discriminate based on the AP.
 
 This module extends pf::vlan
 
 =head1 INSTALLATION
 
-This module requires the presence of a special table in the database: 
+This module requires the presence of a special table in the database:
 
     mysql> explain aps;
     +-----------------+-------------+------+-----+---------+-------+
@@ -26,7 +26,7 @@ This module requires the presence of a special table in the database:
     | building_name   | text        | NO   |     | NULL    |       |
     +-----------------+-------------+------+-----+---------+-------+
 
-Also, the Called-Sation-Id parameter must be added in pf::radius' 
+Also, the Called-Sation-Id parameter must be added in pf::radius'
 fetchVlanForNode. Preferably do this in L<pf::radius::custom>.
 
     $radius_request->{'Called-Station-Id'}
@@ -41,7 +41,7 @@ use strict;
 use warnings;
 
 use Exporter qw( import );
-use Log::Log4perl;
+use pf::log;
 
 use constant CUSTOM => 'vlan::custom';
 
@@ -66,7 +66,7 @@ use pf::db;
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $custom_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required 
+# the hash if required
 our $custom_statements = {};
 
 =head1 SUBROUTINES
@@ -80,7 +80,7 @@ Prepares the database statements.
 =cut
 
 sub custom_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $custom_statements->{'buildingnum_per_called_station_sql'} = get_db_handle()->prepare(<<"    SQL");
         SELECT building_id
@@ -99,13 +99,13 @@ Returns the building id matching the provided Called-Station-Id.
 
 =cut
 
-#   
+#
 # CUSTOM: here we fetch the building id for a given called station id
 # Useful for per building per category VLAN assignments
-#   
+#
 sub buildingnum_per_called_station_id {
     my ($called_station_id) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # extract MAC out of Called-Station-Id
     my $mac;
@@ -125,7 +125,7 @@ sub buildingnum_per_called_station_id {
         || return;
 
     my ($val) = $query->fetchrow_array();
-    $query->finish(); 
+    $query->finish();
     return ($val);
 }
 
@@ -147,7 +147,7 @@ CUSTOM: pass the Called-Station-Id to violation, registration and normal VLAN re
 
 sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $called_station_id ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::vlan');
+    my $logger = get_logger();
 
     # violation handling
     my $violation = $this->getViolationVlan(
@@ -190,17 +190,17 @@ Overrides pf::vlan::getViolationVlan
 CUSTOM: handling called_station_id
 
 Return values:
-    
-=over 6 
-        
+
+=over 6
+
 =item * -1 means kick-out the node (not always supported)
-    
+
 =item * 0 means no violation for this node
-    
+
 =item * undef means there was an error
-    
+
 =item * anything else is either a VLAN name string or a VLAN number
-    
+
 =back
 
 =cut
@@ -209,11 +209,11 @@ sub getViolationVlan {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
-    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = get_logger();
 
     my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count == 0) {
@@ -222,7 +222,7 @@ sub getViolationVlan {
 
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
-    
+
     # By default we assume that we put the user in isolationVlan unless proven otherwise
     my $vlan = "isolationVlan";
 
@@ -231,15 +231,15 @@ sub getViolationVlan {
     my $top_violation = violation_view_top($mac);
     # fetching top violation failed
     if (!$top_violation || !defined($top_violation->{'vid'})) {
-    
+
         $logger->warn("Could not find highest priority open violation for $mac. ".
                       "Setting target vlan to switches.conf's isolationVlan");
         return $switch->getVlanByName($vlan);
-    }   
-        
+    }
+
     # get violation id
     my $vid=$top_violation->{'vid'};
-    
+
     # find violation class based on violation id
     require pf::class;
     my $class=pf::class::class_view($vid);
@@ -290,7 +290,7 @@ Return values:
 =item * undef means there was an error
 
 =item * anything else is either a VLAN name string or a VLAN number
-    
+
 =back
 
 =cut
@@ -300,11 +300,11 @@ sub getRegistrationVlan {
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
-    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = get_logger();
 
     # trapping on registration is enabled
     if (!isenabled($Config{'trapping'}{'registration'})) {
@@ -315,7 +315,7 @@ sub getRegistrationVlan {
     # CUSTOM: pre-compute registrationVlan based on being on a WLC or not
     my $vlan_number;
     if (defined($called_station_id) && ref($switch) eq 'pf::Switch::Cisco::WLC_4400') {
-        $vlan_number = 
+        $vlan_number =
             buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName('registration');
     }
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
@@ -347,7 +347,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 sub getNormalVlan {
 
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
-    my $logger = Log::Log4perl->get_logger();
+    my $logger = get_logger();
 
     # CUSTOM: fetching per building VLAN id if switch type is Cisco::WLC
     # by default no buliding id vlan prefix

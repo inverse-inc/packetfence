@@ -20,7 +20,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use XML::Simple;
-use Log::Log4perl;
+use pf::log;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
 
@@ -101,19 +101,50 @@ has alt_agent_download_uri => (is => 'rw');
 
 sub get_refresh_token {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     return $self->{'refresh_token'}
+}
+
+sub set_refresh_token {
+    my ($self, $refresh_token) = @_;
+    my $logger = $self->logger;
+    if (!defined($refresh_token) || $refresh_token eq ''){
+        $logger->error("Called set_refresh_token but the refresh token is invalid");
+    }
+    else{
+        $self->{'refresh_token'} = $refresh_token;
+        my $cs = pf::ConfigStore::Provisioning->new;
+        $logger->info($self->{'id'});
+        $cs->update($self->{'id'}, {refresh_token => $refresh_token});
+        $cs->commit();
+    }
+
 }
 
 sub get_access_token {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     return $self->{'access_token'};
+}
+
+sub set_access_token {
+    my ($self, $access_token) = @_;
+    my $logger = $self->logger;
+    if (!defined($access_token) || $access_token eq ''){
+        $logger->error("Called set_access_token but the access token is invalid.");
+    }
+    else{
+        $self->{'access_token'} = $access_token;
+        my $cs = pf::ConfigStore::Provisioning->new;
+        $logger->info($self->{'id'});
+        $cs->update($self->{'id'}, {access_token => $access_token});
+        $cs->commit();
+    }
 }
 
 sub refresh_access_token {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     my $refresh_token = $self->get_refresh_token();
     my $curl = WWW::Curl::Easy->new;
@@ -178,7 +209,7 @@ sub update_config {
 
 sub validate_ip_in_sepm {
     my ($self, $ip_to_search) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     my $postdata
     = qq(<?xml version="1.0" encoding="UTF-8"?>
     <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
@@ -235,7 +266,7 @@ sub authorize {
     my ($self,$mac) = @_;
     my $ip = pf::iplog::mac2ip($mac);
     if(defined($ip)){
-        my $logger = Log::Log4perl::get_logger( ref($self) );
+        my $logger = $self->logger;
         my $result = $self->validate_ip_in_sepm($ip);
         if( $result == $pf::provisioner::COMMUNICATION_FAILED){
             $logger->info("SEPM Oauth access token is not valid anymore.");
@@ -252,6 +283,17 @@ sub authorize {
         }
     }
 
+}
+
+=head2 logger
+
+Return the current logger for the provisioner
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =head1 AUTHOR

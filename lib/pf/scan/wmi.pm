@@ -15,7 +15,7 @@ pf::scan::wmi is a module to add WMI scanning option.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use base ('pf::scan');
@@ -42,7 +42,7 @@ Create a new WMI scanning object with the required attributes
 
 sub new {
     my ( $class, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Instantiating a new pf::scan::wmi scanning object");
 
@@ -73,7 +73,7 @@ sub new {
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $rule_tester = new pf::scan::wmi::rules;
     my $result = $rule_tester->test($this);

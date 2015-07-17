@@ -17,7 +17,7 @@ use strict;
 use warnings;
 
 use HTTP::Request::Common qw(POST);
-use Log::Log4perl;
+use pf::log;
 use LWP::UserAgent;
 use Readonly;
 
@@ -44,7 +44,7 @@ Create a new object for transactions using Authorize.net payment gateway
 
 sub new {
     my ( $class, $transaction_infos_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Instanciating a new " . __PACKAGE__ . " object");
 
@@ -85,7 +85,7 @@ sub new {
 
 sub processPayment {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $post_values = {
             x_login           => $this->{'_authorizenet_login'},

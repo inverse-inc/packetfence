@@ -32,7 +32,6 @@ use File::Basename;
 use HTML::Entities;
 use JSON;
 use Locale::gettext qw(gettext ngettext);
-use Log::Log4perl;
 use Readonly;
 use Template;
 use URI::Escape::XS qw(uri_escape uri_unescape);
@@ -48,6 +47,7 @@ BEGIN {
 }
 
 use pf::authentication;
+use pf::log;
 use pf::Authentication::constants;
 use pf::constants;
 use pf::config;
@@ -104,7 +104,7 @@ Cuts in the session cookies and template rendering boiler plate.
 
 sub render_template {
     my ($portalSession, $template, $r) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     # so that we will get the calling sub in the logs instead of this utility sub
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
 
@@ -184,7 +184,7 @@ sub generate_release_page {
 
 sub generate_scan_start_page {
     my ( $portalSession, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $portalSession->stash({
         timer           => $Config{'scan'}{'duration'},
@@ -229,7 +229,7 @@ sub generate_error_page {
 
 sub web_user_authenticate {
     my ( $portalSession ,$username, $password) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = get_logger();
     $logger->trace("authentication attempt");
 
     my $session = $portalSession->getSession();

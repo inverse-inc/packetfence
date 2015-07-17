@@ -8,6 +8,7 @@ pf::Authentication::Source::LDAPSource
 
 =cut
 
+use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
 use pf::Authentication::constants;
@@ -59,6 +60,8 @@ has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 
+our $logger = get_logger();
+
 =head1 METHODS
 
 =head2 available_attributes
@@ -86,7 +89,6 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
-  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
@@ -145,7 +147,6 @@ if all connections fail
 sub _connect {
   my $self = shift;
   my $connection;
-  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
@@ -249,7 +250,6 @@ sub match_in_subclass {
 
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
         return undef;
@@ -356,7 +356,6 @@ Test if we can bind and search to the LDAP server
 
 sub test {
   my ($self) = @_;
-  my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
@@ -469,7 +468,6 @@ sub bind_with_credentials {
 
 sub search_attributes_in_subclass {
     my ($self, $username) = @_;
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
@@ -493,7 +491,7 @@ sub search_attributes_in_subclass {
     else {
          $logger->info("User: '$username' found in the directory");
     }
-    
+
     my $info = {};
     foreach my $attrs (keys %ATTRIBUTES_MAP){
         foreach my $attr (split('\|',$ATTRIBUTES_MAP{$attrs})) {
@@ -530,7 +528,6 @@ Setup any resouces need for matching
 
 sub preMatchProcessing {
     my ($self) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
         return undef;

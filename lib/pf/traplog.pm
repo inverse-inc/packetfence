@@ -2,21 +2,19 @@ package pf::traplog;
 
 =head1 NAME
 
-pf::traplog - module to manage the SNMP traps history. 
+pf::traplog - module to manage the SNMP traps history.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::traplog contains the functions necessary to read and manage the SNMP 
-traps history gathered by PacketFence from the switches on the network. 
+pf::traplog contains the functions necessary to read and manage the SNMP
+traps history gathered by PacketFence from the switches on the network.
 
 =cut
 
 use strict;
 use warnings;
-use Log::Log4perl;
-use Log::Log4perl::Level;
 use RRDs;
 
 use constant TRAPLOG => 'traplog';
@@ -43,6 +41,8 @@ BEGIN {
     );
 }
 
+use Log::Log4perl::Level;
+use pf::log;
 use pf::config;
 use pf::db;
 
@@ -53,7 +53,7 @@ our $traplog_db_prepared = 0;
 our $traplog_statements = {};
 
 sub traplog_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::traplog database queries");
 
     $traplog_statements->{'traplog_insert_sql'} = get_db_handle()->prepare(
@@ -90,7 +90,7 @@ sub traplog_insert {
 
 sub traplog_cleanup {
     my ($time) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
 
     $logger->debug("calling traplog_cleanup with time=$time");
     my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_cleanup_sql', $time) || return (0);
@@ -101,7 +101,7 @@ sub traplog_cleanup {
 }
 
 sub traplog_get_first_timestamp {
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
 
     my $query = db_query_execute(TRAPLOG, $traplog_statements, 'traplog_first_TimeStamp_sql');
     if ( my $ref = $query->fetchrow_hashref() ) {
@@ -149,7 +149,7 @@ sub traplog_get_type_count {
 
 sub traplog_get_switch_type_count {
     my ( $startTime, @switches ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
 
     my $traplog_switch_type_count = {};
     foreach my $switch (@switches) {
@@ -162,7 +162,7 @@ sub traplog_get_switch_type_count {
             'reAssignVlan'           => 0
         };
     }
-    my $query = db_query_execute(TRAPLOG, $traplog_statements, 
+    my $query = db_query_execute(TRAPLOG, $traplog_statements,
         'traplog_switch_type_count_sql', $startTime, $startTime + 300)
         || return $traplog_switch_type_count;
 
@@ -177,7 +177,7 @@ sub traplog_get_switch_type_count {
 }
 
 sub traplog_update_rrd {
-    my $logger  = Log::Log4perl::get_logger('pf::traplog');
+    my $logger  = get_logger();
     my $rrdDir  = $install_dir . "/var/rrd";
     my $htmlDir = $install_dir . "/html/admin/traplog";
 
@@ -207,7 +207,7 @@ sub traplog_update_rrd {
 
 sub create_missing_RRDs {
     my ( $rrdDir, $startTime, @switches ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
     push @switches, "total";
     foreach my $switch (@switches) {
         if ( !-e "$rrdDir/$switch.rrd" ) {
@@ -234,7 +234,7 @@ sub create_missing_RRDs {
 sub traplog_get_switches_with_most_traps {
     my ( $nb, %params ) = @_;
     my $timeSpan = $params{'timespan'};
-    my $logger   = Log::Log4perl::get_logger('pf::traplog');
+    my $logger   = get_logger();
 
     if ( $timeSpan =~ /total/ ) {
         return db_data(TRAPLOG, $traplog_statements, 'traplog_switches_with_most_traps_sql', $nb);
@@ -252,7 +252,7 @@ sub traplog_get_switches_with_most_traps {
 
 sub fill_RRDs {
     my ( $rrdDir, $startTime, $lastStartTime, $firstRun, @switches ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
 
     #do we have to start at the beginning or do we only need to read
     #the last 5 min interval ?
@@ -288,7 +288,7 @@ sub fill_RRDs {
 
 sub generate_graphs {
     my ( $rrdDir, $htmlDir, $startTime, $lastStartTime, @switches ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::traplog');
+    my $logger = get_logger();
     push @switches, "total";
 
     my $graphTypes = {

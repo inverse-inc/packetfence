@@ -21,7 +21,7 @@ use strict;
 use warnings;
 
 use IO::Interface::Simple;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use NetAddr::IP;
 
@@ -78,7 +78,7 @@ Constructor
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::iptables");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::iptables object");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -88,7 +88,7 @@ sub new {
 
 sub iptables_generate {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
         'filter_forward_vlan' => '', 'filter_forward_domain' => '',
@@ -159,7 +159,7 @@ Creating proper source interface matches to jump to the right chains for proper 
 
 sub generate_filter_if_src_to_chain {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     my $rules = '';
 
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
@@ -254,7 +254,7 @@ Handling both FILTER and NAT tables at the same time.
 
 sub generate_inline_rules {
     my ($self,$filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline, $input_filtering_ref) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
 
@@ -343,7 +343,7 @@ Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrou
 
 sub generate_passthrough_rules {
     my ($passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
 
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
     my $reg_int = "";
@@ -384,7 +384,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 
 sub generate_inline_if_src_to_chain {
     my ($self, $table) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     my $rules = '';
 
     # internal interfaces handling
@@ -449,7 +449,7 @@ sub generate_inline_if_src_to_chain {
 
 sub generate_nat_redirect_rules {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     my $rules = '';
 
     # Exclude the OAuth from the DNAT
@@ -513,7 +513,7 @@ sub update_mark {
 
 sub iptables_save {
     my ($self, $save_file) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     $logger->info( "saving existing iptables to " . $save_file );
     pf_run("/sbin/iptables-save -t nat > $save_file");
     pf_run("/sbin/iptables-save -t mangle >> $save_file");
@@ -522,7 +522,7 @@ sub iptables_save {
 
 sub iptables_restore {
     my ($self, $restore_file) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
         pf_run("/sbin/iptables-restore < $restore_file");
@@ -531,7 +531,7 @@ sub iptables_restore {
 
 sub iptables_restore_noflush {
     my ($self, $restore_file) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     if ( -r $restore_file ) {
         $logger->info(
             "restoring iptables (no flush) from " . $restore_file );
@@ -554,7 +554,7 @@ of the inline mode because of time constraints.
 
 sub generate_filter_forward_scanhost {
     my @self = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     my $filter_rules = '';
 
     # TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
@@ -587,7 +587,7 @@ Return the list of network interface to enable SNAT.
 
 sub get_inline_snat_interface {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
         return $Config{'inline'}{'interfaceSNAT'};
     } else {
@@ -603,7 +603,7 @@ Return the list of network interface to enable SNAT for passthrough.
 
 sub get_network_snat_interface {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if (defined ($Config{'network'}{'interfaceSNAT'}) && $Config{'network'}{'interfaceSNAT'} ne '') {
         return $Config{'network'}{'interfaceSNAT'};
     }
@@ -617,7 +617,7 @@ Creating porper source interface matches to jump to the right chains for vlan en
 
 sub generate_interception_rules {
     my ($self, $nat_if_src_to_chain,$nat_prerouting_vlan, $input_inter_vlan_if) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -658,34 +658,34 @@ sub generate_interception_rules {
 }
 
 sub generate_provisioning_passthroughs {
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sepm')) {
         $logger->info("Adding passthrough for Symantec Endpoint Manager");
         my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
-        my @lines  = pf_run($cmd); 
+        my @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
         my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
-        my @lines  = pf_run($cmd); 
+        my @lines  = pf_run($cmd);
         # Allow http communication with the MobileIron server
         $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},80 2>&1");
-        @lines  = pf_run($cmd); 
+        @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
         $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1");
-        @lines  = pf_run($cmd); 
+        @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
         # Allow http communication with the MobileIron server
         my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{host},80 2>&1");
-        my @lines  = pf_run($cmd); 
+        my @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
         $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{host},443 2>&1");
-        @lines  = pf_run($cmd); 
+        @lines  = pf_run($cmd);
     }
 
 
@@ -693,7 +693,7 @@ sub generate_provisioning_passthroughs {
 
 sub generate_domain_rules {
     my ( $filter_forward_domain, $domain_postrouting ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = get_logger();
     foreach my $name (@{pf::ConfigStore::Domain->new->readAllIds}){
         $$filter_forward_domain .= "-A FORWARD -o $name-b -j ACCEPT\n";
         $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";

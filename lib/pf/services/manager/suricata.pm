@@ -13,6 +13,7 @@ pf::services::manager::suricata
 
 use strict;
 use warnings;
+use pf::log;
 use pf::file_paths;
 use pf::constants;
 use pf::config;
@@ -32,7 +33,7 @@ has '+launcher' => (
 );
 
 sub generateConfig {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %tags;
     $tags{'template'}      = "$conf_dir/suricata.yaml";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};

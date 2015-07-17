@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use HTTP::BrowserDetect;
-use Log::Log4perl;
+use pf::log;
 use Sort::Naturally;
 use List::Util qw(first);
 
@@ -66,7 +66,7 @@ Initialize database prepared statements
 =cut
 
 sub useragent_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::useragent database queries");
 
     $useragent_statements->{'node_useragent_exist_sql'} = get_db_handle()->prepare(qq[
@@ -119,7 +119,7 @@ sub node_useragent_exist {
 
 sub node_useragent_add {
     my ( $mac, $data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     if ( node_useragent_exist($mac) ) {
         $logger->error("rejected attempt to add existing node-useragent entry for $mac");
@@ -140,7 +140,7 @@ sub node_useragent_add {
 
 sub node_useragent_update {
     my ( $mac, $data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_update_sql',
         $data->{'os'}, $data->{'browser'}, $data->{'device'}, $data->{'device_name'}, $data->{'mobile'}, $mac
@@ -156,7 +156,7 @@ sub node_useragent_update {
 
 sub update_node_useragent_record {
     my ($mac, $browserDetect) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     my $record = {
         'os' => $browserDetect->os_string() || undef,
@@ -289,7 +289,7 @@ View all useragent triggers
 =cut
 
 sub view_all {
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     _init() if (!@useragent_data);
 
@@ -303,7 +303,7 @@ View all useragent triggers
 =cut
 
 sub node_useragent_view_all_searchable {
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
     my ( %params ) = @_;
     _init() if (!@useragent_data);
     my $greper = _make_greper(\%params);
@@ -400,7 +400,7 @@ We don't want our users to keep updating their conf/violations.conf file to trac
 =cut
 
 sub _init {
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     # TODO this is very strongly coupled to HTTP::BrowserDetect's internals, we should aim to add a feature upstream
     my %triggers = (
@@ -460,7 +460,7 @@ based on User-Agent properties.
 
 sub process_useragent {
     my ($mac, $useragent) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my $logger = get_logger();
 
     my $browserDetect = HTTP::BrowserDetect->new($useragent);
 

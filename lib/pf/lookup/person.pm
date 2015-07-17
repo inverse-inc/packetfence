@@ -6,7 +6,7 @@ pf::lookup::person - lookup person information
 
 =head1 SYNOPSYS
 
-The lookup_person function is called via 
+The lookup_person function is called via
 "pfcmd lookup person E<lt>pidE<gt>"
 through the administrative GUI,
 or as the content of a violation action
@@ -19,18 +19,19 @@ use strict;
 use warnings;
 use Net::LDAP;
 
+use pf::log;
 use pf::person;
 use pf::util;
 use pf::authentication;
 
 sub lookup_person {
     my ($pid,$source_id) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::lookup::person');
+    my $logger = get_logger();
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
        $logger->info("Unable to locate the source $source_id");
        return "Unable to locate the source $source_id!\n";
-    } 
+    }
 
     unless (person_exist($pid)) {
         return "Person $pid is not a registered user!\n";
@@ -39,8 +40,8 @@ sub lookup_person {
     if (!$person) {
        $logger->info("Cannot search attributes for user '$pid'");
        return "Cannot search attributes for user '$pid'!\n";
-    } 
-   
+    }
+
     person_modify($pid, %$person);
 }
 

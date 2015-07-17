@@ -13,7 +13,7 @@ pf::savedsearch - module for savedsearch management
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant USERPREF => 'savedsearch';
 
@@ -51,7 +51,7 @@ Instantiate SQL statements to be prepared
 =cut
 
 sub savedsearch_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing pf::savedsearch database queries");
     my $dbh = get_db_handle();
 
@@ -102,7 +102,7 @@ BEGIN {
         my $statement_name = "savedsearch_${name}_sql";
         *{$sub_name} = sub {
             my (@args) = @_;
-            my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+            my $logger = get_logger();
             $logger->debug("Executing $statement_name with " . join(" ",@args));
             return db_data(USERPREF, $savedsearch_statements, $statement_name, @args);
         }
@@ -113,7 +113,7 @@ BEGIN {
         my $statement_name = "savedsearch_${name}_sql";
         *{$sub_name} = sub {
             my (@args) = @_;
-            my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+            my $logger = get_logger();
             my $sth = db_query_execute(USERPREF, $savedsearch_statements, $statement_name, @args);
             if($sth) {
                 return $sth->rows;

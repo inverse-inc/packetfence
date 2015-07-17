@@ -16,7 +16,7 @@ This module extends pf::billing
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use base ('pf::billing');
 
@@ -29,7 +29,7 @@ our $VERSION = 1.00;
 =cut
 
 #sub getAvailableTiers {
-#    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+#    my $logger = get_logger();
 #
 #    my %tiers = (
 #            tier1 => {

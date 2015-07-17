@@ -11,7 +11,7 @@ use warnings;
 
 use Apache2::MPM ();
 use Apache2::RequestRec;
-use Log::Log4perl;
+use pf::log;
 use ModPerl::Util;
 
 use pf::config;

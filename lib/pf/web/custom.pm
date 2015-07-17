@@ -8,7 +8,7 @@ pf::web::custom - custom code to override pf::web's behavior
 
 =head1 DESCRIPTION
 
-pf::web::custom allows you to redefine subs in pf::web. 
+pf::web::custom allows you to redefine subs in pf::web.
 It will never be overwritten when upgrading PacketFence.
 
 =cut
@@ -21,7 +21,7 @@ use POSIX;
 use JSON;
 use Template;
 use Locale::gettext;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use pf::config;
@@ -33,7 +33,7 @@ use pf::web;
 
 =head1 WARNING
 
-What we are doing here is a little bit tricky: We are redefining subs in pf::web. 
+What we are doing here is a little bit tricky: We are redefining subs in pf::web.
 
 To do so, we are messing with typeglobs installing anonymous subs in the pf::web namespace
 replacing earlier implementations.
@@ -53,12 +53,12 @@ package pf::web;
 
 =item categorization sample
 
-WARNING: The technique described below is for demonstration purposes only. 
-Node categorization is better performed by the authentication modules under 
+WARNING: The technique described below is for demonstration purposes only.
+Node categorization is better performed by the authentication modules under
 conf/authentication now. See L<pf::web::auth> for more information.
 
 Here if a particular session variable was set, we categorize the node as a guest
-and we set it's expiration to now + $GUEST_SESSION_DURATION. 
+and we set it's expiration to now + $GUEST_SESSION_DURATION.
 Then the normal registration code is called.
 
 To set the particular session variable use the following:

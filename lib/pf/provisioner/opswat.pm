@@ -20,7 +20,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use XML::Simple;
-use Log::Log4perl;
+use pf::log;
 use pf::iplog;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
@@ -348,6 +348,17 @@ sub decode_response {
         return $json_response;
     }
 
+}
+
+=head2 logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =head1 AUTHOR

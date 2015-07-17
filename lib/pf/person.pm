@@ -15,7 +15,7 @@ deletion, read info, ...
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant PERSON => 'person';
 
@@ -78,7 +78,7 @@ our @FIELDS = qw(
 =cut
 
 sub person_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::person database queries");
 
     $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
@@ -173,7 +173,7 @@ sub person_exist {
 sub person_delete {
     my ($pid) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     return (0) if ( $pid eq "admin" || $pid eq "default" );
 
     if ( !person_exist($pid) ) {
@@ -200,7 +200,7 @@ sub person_delete {
 #
 sub person_add {
     my ( $pid, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     if ( person_exist($pid) ) {
         $logger->error("attempt to add existing person $pid");
@@ -229,7 +229,7 @@ sub person_view {
 
 sub person_count_all {
     my ( %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $person_count_all_sql is pre-filled
     person_db_prepare() if (!$person_db_prepared);
@@ -261,7 +261,7 @@ sub person_count_all {
 
 sub person_custom_search {
     my ($sql) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $person_statements->{'person_custom_search'} = $sql;
     return db_data(PERSON, $person_statements, 'person_custom_search');
@@ -269,7 +269,7 @@ sub person_custom_search {
 
 sub person_view_all {
     my ( %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $person_view_all_sql is pre-filled
     person_db_prepare() if (!$person_db_prepared);
@@ -307,7 +307,7 @@ sub person_view_all {
 sub person_modify {
     my ( $pid, %data ) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     if ( !person_exist($pid) ) {
         if ( person_add( $pid, %data ) ) {
             $logger->warn(

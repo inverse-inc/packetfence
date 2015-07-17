@@ -21,7 +21,7 @@ conf/ui.conf
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 our $VERSION = 1.00;
 
@@ -59,7 +59,7 @@ pf::config::ui::custom subclass instead.
 
 sub new {
     my ( $class, %argv ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("instantiating new " . __PACKAGE__ . " object");
     my $self = bless {}, $class;
     return $self;
@@ -83,7 +83,7 @@ Load ui.conf into a Config::IniFiles tied hashref
 
 sub _ui_conf {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     unless (defined $_ui_conf_tie) {
         my %conf;
@@ -115,7 +115,7 @@ Ex resources:
 #      hard-coded names
 sub field_order {
     my ($self, $resource) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $uiconfig = $self->_ui_conf();
     my @fields;

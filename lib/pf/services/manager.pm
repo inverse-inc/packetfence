@@ -473,7 +473,7 @@ get the pid from the pid file
 sub pidFromFile {
     my ($self) = @_;
     my $name = $self->name;
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = get_logger();
     my $pid;
     my $pid_file = $self->pidFile;
     if (-e $pid_file) {

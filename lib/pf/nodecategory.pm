@@ -20,7 +20,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant NODECATEGORY => 'nodecategory';
 
@@ -60,7 +60,7 @@ our $nodecategory_statements = {};
 =cut
 
 sub nodecategory_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::nodecategory');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::nodecategory database queries");
 
     $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
