@@ -42,7 +42,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco');
-use Log::Log4perl;
+use pf::log;
 use Carp;
 use Net::SNMP;
 use Net::Appliance::Session;
@@ -51,7 +51,7 @@ sub description { 'Cisco ISR 1800 Series' }
 
 #sub getMinOSVersion {
 #    my $this   = shift;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #    return '';
 #}
 
@@ -71,7 +71,7 @@ sub description { 'Cisco ISR 1800 Series' }
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # port assigned to VLAN (VLAN membership)
     my $oid_vmMembershipSummaryMemberPorts = "1.3.6.1.4.1.9.9.68.1.2.1.1.2"; #from CISCO-VLAN-MEMBERSHIP-MIB
@@ -93,7 +93,7 @@ sub isDefinedVlan {
 
 sub getVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (!$this->connectRead()) {
         return 0;
@@ -126,7 +126,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 sub getMacBridgePortHash {
     my $this   = shift;
     my $vlan   = shift || '';
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my %macBridgePortHash  = ();
 
     if ($vlan eq '') {
@@ -216,7 +216,7 @@ Returns a list of all IfIndex part of a given VLAN
 
 sub _getAllIfIndexForThisVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (!$this->connectRead()) {
         return 0;

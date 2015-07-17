@@ -20,7 +20,7 @@ We are also not sure about the VoIP using 802.1X/Mac Auth.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
@@ -41,7 +41,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+    my $logger                  = $this->logger;
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode    = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex  = 1;
@@ -103,7 +103,7 @@ sub getMaxMacAddresses {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_hpSecPtLearnMode   = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
@@ -144,7 +144,7 @@ sub isPortSecurityEnabled {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR

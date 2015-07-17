@@ -15,7 +15,7 @@ It should work on all 6500 WiSM modules and maybe 7500.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::WLC');

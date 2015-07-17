@@ -19,7 +19,7 @@ pf::Switch::H3C - Object oriented module to access and configure enabled H3C swi
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use POSIX;
 
@@ -84,7 +84,7 @@ Same as pf::Switch::ThreeCom::SS4500
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub getIfIndexForThisDot1dBasePort {
     my ( $this, $dot1dBasePort ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # port number into ifIndex
     my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
 
@@ -110,7 +110,7 @@ Returns the software version of the slot.
 
 sub getVersion {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $OID_hh3cLswSysVersion = '1.3.6.1.4.1.25506.8.35.18.1.4';    # from HH3C-LSW-DEV-ADM-MIB
     my $slotNumber = '0';
@@ -150,7 +150,7 @@ Returns RADIUS attributes for voip phone devices.
 
 sub getVoipVsa {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return (
         'Tunnel-Type'               => $RADIUS::VLAN,
@@ -179,7 +179,7 @@ Same as pf::Switch::ThreeCom::Switch_4200G
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # 4096 NAS-Port slots are reserved per physical ports, 
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
@@ -210,7 +210,7 @@ All traps ignored
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $trapHashRef;
 

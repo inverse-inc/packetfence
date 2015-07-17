@@ -18,7 +18,7 @@ Should work on the Huawei version started 2.0
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 use Try::Tiny;
 
@@ -57,7 +57,7 @@ This is called when we receive an SNMP-Trap for this device
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -71,7 +71,7 @@ sub parseTrap {
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }
@@ -84,7 +84,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -106,7 +106,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -131,7 +131,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -203,7 +203,7 @@ Find RADIUS SSID parameter on the Huawei AC6605 controller
 
 sub extractSsid {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (defined($radius_request->{'Called-Station-Id'})) {
         return $radius_request->{'Called-Station-Id'};

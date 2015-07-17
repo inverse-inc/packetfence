@@ -41,7 +41,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch');
 
@@ -71,7 +71,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 sub getVersion {
     my ($this) = @_;
     my $oid_alliedFirmwareVersion = '.1.3.6.1.4.1.89.2.4.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }

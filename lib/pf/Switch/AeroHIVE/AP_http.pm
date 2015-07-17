@@ -25,7 +25,7 @@ Using the default success page of AeroHIVE works.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use pf::constants;
 use pf::config;
 use pf::node;
@@ -46,7 +46,7 @@ sub supportsWebFormRegistration { return $TRUE }
 
 sub parseUrl {
     my($self, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     # need to synchronize the locationlog event if we'll reject
     $self->synchronize_locationlog("0", "0", clean_mac($$req->param('Calling-Station-Id')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
@@ -64,7 +64,7 @@ Overriding the default implementation for the external captive portal
 
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
 
@@ -91,7 +91,7 @@ sub returnRadiusAccessAccept {
 
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     $logger->debug("[$mac] Creating web release form");
 
     my $node = node_view($mac);

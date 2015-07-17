@@ -18,7 +18,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use pf::constants;
 use pf::config;
 use base ('pf::Switch::Dell');
@@ -36,7 +36,7 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '112';
 }
 
@@ -48,7 +48,7 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 
 sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }

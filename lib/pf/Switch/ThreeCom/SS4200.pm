@@ -14,7 +14,7 @@ oriented interface to access SNMP enabled
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::ThreeCom');
@@ -23,7 +23,7 @@ sub description { '3COM SS4200' }
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_StackUnitSWVersion
         = '1.3.6.1.4.1.43.10.27.1.1.1.12.1';    #from A3COM-0352-STACK-CONFIG
@@ -47,7 +47,7 @@ sub getVersion {
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -114,7 +114,7 @@ sub getDot1dBasePortForThisIfIndex {
 
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
     if ( !$this->connectRead() ) {
@@ -136,7 +136,7 @@ sub getVlan {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;

@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 # disabling port-security since its known not to work
 #use Net::Telnet;
@@ -25,7 +25,7 @@ sub getVersion {
     my ($this) = @_;
     my $oid_rlPhdUnitGenParamSoftwareVersion
         = '1.3.6.1.4.1.89.53.14.1.2.1';    #RADLAN-Physicaldescription-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -47,7 +47,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->trace("matching trap string");
     if ( $trapString
         =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.\d+ = INTEGER: [^|]+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.\d+ = INTEGER: [^(]+\((\d)\) END VARIABLEBINDINGS/
@@ -81,7 +81,7 @@ sub parseTrap {
 
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->trace("isDefinedVlan vlan: $vlan ?");
     if ( $vlan == 1 ) {
         return 1;
@@ -93,7 +93,7 @@ sub getTrunkPorts {
     my ($this) = @_;
     my $OID_vlanPortModeState = '1.3.6.1.4.1.89.48.22.1.1';    #RADLAN-vlan-MIB
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return -1;
@@ -133,7 +133,7 @@ sub getUpLinks {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -305,7 +305,7 @@ sub _setVlan {
 # See other telnet consuming switches for correct implementation.
 #sub connectTelnet {
 #    my ($this)       = @_;
-#    my $logger       = Log::Log4perl::get_logger( ref($this) );
+#    my $logger       = $this->logger;
 #    my $maxTries     = 50;
 #    my $tryNb        = 1;
 #    my $cliAvailable = 0;
@@ -360,7 +360,7 @@ sub _setVlan {
 # disabling port-security since its known not to work
 #sub isPortSecurityEnabled {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #    my $OID_swIfHostMode
 #        = '1.3.6.1.4.1.89.43.1.1.30';    #RADLAN-rlInterfaces MIB
 #
@@ -381,7 +381,7 @@ sub _setVlan {
 # disabling port-security since its known not to work
 #sub setPortSecurityDisabled {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #
 #    $logger->info("function not implemented yet !");
 #    return 1;
@@ -390,7 +390,7 @@ sub _setVlan {
 # disabling port-security since its known not to work
 #sub isDynamicPortSecurityEnabled {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #    return ( $this->isPortSecurityEnabled($ifIndex)
 #            && ( !$this->isStaticPortSecurityEnabled($ifIndex) ) );
 #}
@@ -398,7 +398,7 @@ sub _setVlan {
 # disabling port-security since its known not to work
 #sub isStaticPortSecurityEnabled {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+#    my $logger                  = $this->logger;
 #    my $OID_swIfLockAdminStatus = '1.3.6.1.4.1.89.43.1.1.8';
 #
 #    if ( !$this->connectRead() ) {
@@ -430,7 +430,7 @@ sub _setVlan {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger                      = Log::Log4perl::get_logger( ref($this) );
+    my $logger                      = $this->logger;
     my $OID_swIfLockMaxMacAddresses = '1.3.6.1.4.1.89.43.1.1.38';
 
     if ( !$this->connectRead() ) {
@@ -463,7 +463,7 @@ sub getMaxMacAddresses {
 # disabling port-security since its known not to work
 #sub getSecureMacAddresses {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger               = Log::Log4perl::get_logger( ref($this) );
+#    my $logger               = $this->logger;
 #    my $secureMacAddrHashRef = {};
 #    my $ifName               = $this->getIfName($ifIndex);
 #    if ( $ifName eq '' ) {
@@ -494,7 +494,7 @@ sub getMaxMacAddresses {
 # disabling port-security since its known not to work
 #sub getAllSecureMacAddresses {
 #    my ($this)               = @_;
-#    my $logger               = Log::Log4perl::get_logger( ref($this) );
+#    my $logger               = $this->logger;
 #    my $secureMacAddrHashRef = {};
 #    my %ifNameIfIndexHash    = $this->getIfNameIfIndexHash();
 #    my $telnetConnection     = $this->connectTelnet();
@@ -522,7 +522,7 @@ sub getMaxMacAddresses {
 # disabling port-security since its known not to work
 #sub authorizeMAC {
 #    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #    my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 #
 #    if ( !$this->isProductionMode() ) {

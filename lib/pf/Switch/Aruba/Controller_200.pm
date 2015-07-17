@@ -13,7 +13,7 @@ to access SNMP enabled Aruba Controller 200
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use base ('pf::Switch::Aruba');
 

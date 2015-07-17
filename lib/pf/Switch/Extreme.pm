@@ -60,7 +60,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
+use pf::log;
 use Net::Appliance::Session;
 use Net::SNMP;
 use SOAP::Lite;
@@ -91,7 +91,7 @@ sub getVersion {
     my ($this) = @_;
     # current image description
     my $oid_extremeImageDescription = '1.3.6.1.4.1.1916.1.1.1.34.1.10.3'; # from EXTREME-SYSTEM-MIB
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     if (!$this->connectRead()) {
         return '';
     }
@@ -111,7 +111,7 @@ sub getVersion {
 
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # a binary map of all the ports 0 = not in vlan, 1 = in vlan
     my $oid_extremeVlanOpaqueUntaggedPorts = '1.3.6.1.4.1.1916.1.2.6.1.1.2'; #from EXTREME-VLAN-MIB
 
@@ -157,7 +157,7 @@ sub getVlan {
 
 sub getVlans {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_extremeVlanIfVlanId = "1.3.6.1.4.1.1916.1.2.1.2.1.10"; #from EXTREME-VLAN-MIB
     # vlanIfIndex to vlan name
@@ -200,7 +200,7 @@ sub getVlans {
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_extremeVlanIfVlanId = "1.3.6.1.4.1.1916.1.2.1.2.1.10"; #from EXTREME-VLAN-MIB
     
@@ -230,7 +230,7 @@ It uses the new MIB available in Extreme XOS 12.2+: extremeFdbMacExosFdbTable.
 
 sub _getMacAtIfIndex {
     my ( $this, $ifIndex, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my @macArray;
 
     if ( !$this->connectRead() ) {
@@ -287,7 +287,7 @@ A auto-detection layer and code re-routing could be written if there is some inc
 
 sub _getMacAtIfIndexPreXOS {
     my ( $this, $ifIndex, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my @macArray;
 
     if ( !$this->connectRead() ) {
@@ -338,7 +338,7 @@ key: mac address / value: ifIndex of port where mac address is
 sub getMacBridgePortHash {
     my $this   = shift;
     my $vlan   = shift || '';
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my %macBridgePortHash  = ();
 
     if ( !$this->connectRead() ) {
@@ -379,7 +379,7 @@ These switches uses a vlan ifIndex everywhere instead of using directly the vlan
 
 sub _getVlanTagFromVlanIfIndex {
     my ($this, $vlanIfIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_extremeVlanIfVlanId = "1.3.6.1.4.1.1916.1.2.1.2.1.10.".$vlanIfIndex; #from EXTREME-VLAN-MIB
 
@@ -410,7 +410,7 @@ Useful to avoid multiple lookups in a tight loop.
 
 sub _getVlanTagLookupTable {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_extremeVlanIfVlanId = "1.3.6.1.4.1.1916.1.2.1.2.1.10"; #from EXTREME-VLAN-MIB
@@ -445,7 +445,7 @@ number like most of the other makers do.
 
 sub _getVlanIfIndexFromVlanTag {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_extremeVlanIfVlanId = "1.3.6.1.4.1.1916.1.2.1.2.1.10"; #from EXTREME-VLAN-MIB
     
@@ -475,7 +475,7 @@ These switches uses VLAN ifDescr for Fdb operations over Web Services. Helper me
 
 sub _getVlanIfDescrFromVlanTag {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # vlanIfIndex to vlanIfDescr
     my $oid_extremeVlanIfDescr = "1.3.6.1.4.1.1916.1.2.1.2.1.2"; #from EXTREME-VLAN-MIB
@@ -506,7 +506,7 @@ sub _getVlanIfDescrFromVlanTag {
 
 sub _getVlanTagFromVlanIfDescr {
     my ($this, $vlanIfDescr) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # vlanIfIndex to vlanIfDescr
     my $oid_extremeVlanIfDescr = "1.3.6.1.4.1.1916.1.2.1.2.1.2"; #from EXTREME-VLAN-MIB
@@ -545,7 +545,7 @@ sub _getVlanTagFromVlanIfDescr {
 
 sub _getDot1dPortFromIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $ifName = $this->_getIfNameFromIfIndex($ifIndex);
     if ($ifName =~ /(\d+):(\d+)/) {
@@ -563,7 +563,7 @@ ifName format is: <switch stack id>:<dot1d port number> (ex: 1:12)
 
 sub _getIfNameFromIfIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # get interface name which is stack:port on extreme switches
     my $oid_ifName = "1.3.6.1.2.1.31.1.1.1.1.".$ifIndex; # from IF-MIB
 
@@ -588,7 +588,7 @@ ifName format is: <switch stack id>:<dot1d port number> (ex: 1:12)
 
 sub _getIfIndexLookupTable {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # get interface name which is stack:port on extreme switches
     my $oid_ifName = "1.3.6.1.2.1.31.1.1.1.1"; # from IF-MIB
 
@@ -622,7 +622,7 @@ sub _getIfIndexLookupTable {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     # linkUp / linkDown trap
     if ($trapString =~ /BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .+\|\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1 = INTEGER: (\d+)\|/) {
@@ -649,7 +649,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $result;
 
     if ( !$this->connectRead() ) {
@@ -772,7 +772,7 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 sub _getAllSecureMacAddressesWithSNMP {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # from EXTREME-FDB-MIB
     my $oid_extremeFdbMacExosFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.4.1.3';
@@ -830,7 +830,7 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 # and we should have the SNMP interface back (hopefully)
 sub _getAllSecureMacAddressesWithWS {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $secureMacAddrHashRef = {};
 
@@ -908,7 +908,7 @@ Returns an hashref with MAC => Array(VLANs)
 # and we should have the SNMP interface back (hopefully)
 sub _getSecureMacAddressesWithWS {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $secureMacAddrHashRef = {};
 
@@ -967,7 +967,7 @@ Returns an hashref with MAC => Array(VLANs)
 
 sub _getSecureMacAddressesWithSNMP {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # from EXTREME-FDB-MIB
     my $oid_extremeFdbMacExosFdbPortIfIndex = '1.3.6.1.4.1.1916.1.16.4.1.3';
@@ -1021,7 +1021,7 @@ Requires ExtremeXOS 12.4.3
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $oid_extremePortVlanInfoMacLockDownEnabled = '1.3.6.1.4.1.1916.1.4.17.1.4'; # from EXTREME-PORT-MIB
 
@@ -1077,7 +1077,7 @@ capabilities of the Extreme OS (can't know if maclock is activated or not)
 
 sub _isPortSecurityEnabledOld {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $oid_extremeFdbPermFdbPortList = '1.3.6.1.4.1.1916.1.16.3.1.4'; # from EXTREME-FDB-MIB
 
@@ -1128,7 +1128,7 @@ sub _isPortSecurityEnabledOld {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't add an entry to the SecureMacAddrTable");
@@ -1154,7 +1154,7 @@ sub authorizeMAC {
 
 sub _authorizeMAC {
     my ($this, $ifIndex, $mac, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $ws_client = $this->_getSOAPHandle();
 
@@ -1199,7 +1199,7 @@ For compatibility we won't change subroutine signature, we will just throw out t
 
 sub _deauthorizeMAC {
     my ($this, $ifIndex, $mac, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $ws_client = $this->_getSOAPHandle();
 
@@ -1301,7 +1301,7 @@ sub _translateStackDot1dToPortListPosition {
 
 sub _getPortsPerSlot {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $logger->debug("unimplemented");
     # TODO: unimplemented but would be relatively easy to do so since all required hooks are there
@@ -1318,7 +1318,7 @@ sub _getPortsPerSlot {
 #TODO test self-signed certs from the server (disabled by default)
 sub _getSOAPHandle {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $proxy_url = 
         $this->{_wsTransport} . "://" # transport (http, https)
@@ -1349,7 +1349,7 @@ On this switch, the lock-learning is a per-vlan attribute so it performs it on t
 
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $result = $this->_setPortSecurityByIfIndex($ifIndex, $TRUE);
     if (!defined($result)) {
@@ -1367,7 +1367,7 @@ On this switch, the lock-learning is a per-vlan attribute so it performs it on t
 
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $result = $this->_setPortSecurityByIfIndex($ifIndex, $FALSE);
     if (!defined($result)) {
@@ -1387,7 +1387,7 @@ On this switch, the lock-learning is a per-vlan attribute so it performs it on t
 
 sub _setPortSecurityByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $oid_extremePortVlanInfoMacLockDownEnabled = '1.3.6.1.4.1.1916.1.4.17.1.4'; # from EXTREME-PORT-MIB
 
@@ -1437,7 +1437,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub _setPortSecurityByIfIndexCLI {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $session;
     eval {
@@ -1501,7 +1501,7 @@ sub isVoIPEnabled {
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $voiceVlan = $this->getVlanByName('voice');
     if (defined($voiceVlan)) {

@@ -68,7 +68,7 @@ ethernet interface.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::Appliance::Session;
 
 use base ('pf::Switch');
@@ -102,7 +102,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this) = @_;
     my $oid_mwWncVarsSoftwareVersion = '1.3.6.1.4.1.15983.1.1.4.1.1.27'; # from meru-wlan
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -137,7 +137,7 @@ This is called when we receive an SNMP-Trap for this device
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -157,7 +157,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't deauthenticate $mac");
@@ -241,7 +241,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::TELNET;
     my %tech = (
         $SNMP::TELNET => 'deauthenticateMacDefault',

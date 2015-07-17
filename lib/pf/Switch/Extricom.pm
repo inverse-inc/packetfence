@@ -24,7 +24,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch');
@@ -57,7 +57,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this) = @_;
     my $oid_inventoryswver = '1.3.6.1.4.1.23937.6.11.0'; # EXTRICOM-SNMP-MIB::inventoryswver
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return '';
@@ -82,7 +82,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # EXTRICOM-SNMP-MIB::clientDisassociate: .1.3.6.1.4.1.23937.2.1
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.23937\.2\.1 = STRING: "[0-9]+:Client ([0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2}:[0-9A-Z]{2})/ ) {
@@ -105,7 +105,7 @@ Writing to the read community instead (then putting back appropriate in place)
 
 sub connectWrite {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( defined( $this->{_sessionWrite} ) ) {
         return 1;
     }
@@ -188,7 +188,7 @@ sub connectWrite {
 
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0'; # EXTRICOM-SNMP-MIB::clearDot11Client
 
     if ( !$this->isProductionMode() ) {
@@ -230,7 +230,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

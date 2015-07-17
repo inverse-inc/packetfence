@@ -29,7 +29,7 @@ use strict;
 use warnings;
 
 use POSIX;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -52,7 +52,7 @@ Returns 1 on success 0 on failure.
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("Args to authorizeMAC: $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan");
 
 
@@ -134,7 +134,7 @@ See bugs and limitations.
 
 sub forceDeauthOnLinkDown {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # here we actively ignore uplinks because this is called from the parsing threads which don't
     # check for uplinks (yet).
@@ -170,7 +170,7 @@ This is to maintain backwards compatibility with existing implementations of thi
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_agentPortSecurityTable      = '1.3.6.1.4.1.4526.10.20.1.2';
     my $OID_agentPortSecurityMode       = '1.3.6.1.4.1.4526.10.20.1.2.1.1'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
@@ -218,7 +218,7 @@ This is to maintain backwards compatibility with existing implementations of thi
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_agentPortSecurityStaticMACs = '1.3.6.1.4.1.4526.10.20.1.2.1.6'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $secureMacAddrHashRef            = {};
@@ -256,7 +256,7 @@ sub getSecureMacAddresses {
 
 sub isPortSecurityEnabled {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_agentGlobalPortSecurityMode = '1.3.6.1.4.1.4526.10.20.1.1.0';   # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my %PortSecurityMode = ( 1 => "enabled", 2 => "disabled" );
@@ -294,7 +294,7 @@ sub isPortSecurityEnabled {
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $trapHashRef;
 
@@ -347,7 +347,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_configPortDefaultVlanId = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
 

@@ -60,7 +60,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch');
 
@@ -95,7 +95,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 sub getVersion {
     my ($this) = @_;
     my $oid_snAgImgVer = '.1.3.6.1.4.1.1991.1.1.2.1.11';          #Proprietary Brocade MIB 1.3.6.1.4.1.1991 -> brcdIp
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -124,7 +124,7 @@ Allows callers to refer to this implementation even though someone along the way
 
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
 
     my $oid_brcdDot1xAuthPortConfigPortControl = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
@@ -163,7 +163,7 @@ All traps ignored
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->debug("trap ignored, not useful for switch");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -179,7 +179,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     return (
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
@@ -210,7 +210,7 @@ Disabled by default.
 
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # VLAN enforcement
     my $radius_reply_ref = {

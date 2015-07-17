@@ -20,7 +20,7 @@ Bumping a port doesn't reevaluate the access.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 use Try::Tiny;
 
@@ -53,7 +53,7 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $this->deauthenticateMacRadius($mac);
 }

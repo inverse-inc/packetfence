@@ -18,7 +18,7 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SSH2;
 use POSIX;
 use Try::Tiny;
@@ -54,7 +54,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.4.1.14988.1.1.4.4.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -72,7 +72,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
@@ -96,7 +96,7 @@ This method has been kept since we will probably use this deauth method in the f
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -121,7 +121,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -198,7 +198,7 @@ ATTRIBUTE       Mikrotik-Wireless-VlanIDType            27      integer
 
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # Inline Vs. VLAN enforcement
     my $radius_reply_ref = {};
@@ -240,7 +240,7 @@ Right now the only way to do it is from the CLI (through SSH).
 
 sub deauthenticateMacSSH {
     my ( $self, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't deauthenticate $mac");

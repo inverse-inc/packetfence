@@ -18,7 +18,7 @@ This module is currently only a placeholder, see pf::Switch::Nortel.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Nortel');

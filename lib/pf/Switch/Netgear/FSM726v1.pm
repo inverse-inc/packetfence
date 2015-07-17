@@ -43,7 +43,7 @@ use strict;
 use warnings;
 
 use POSIX;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -65,7 +65,7 @@ sub description { 'Netgear FSM726v1' }
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_trustedMacStatus = '1.3.6.1.4.1.4526.1.1.15.1.1.3';    # NETGEAR-MIB
 
@@ -141,7 +141,7 @@ See bugs and limitations.
 
 sub forceDeauthOnLinkDown {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # here we actively ignore uplinks because this is called from the parsing threads which don't
     # check for uplinks (yet). 
@@ -168,7 +168,7 @@ sub forceDeauthOnLinkDown {
 
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
     my $secureMacAddrHashRef = {};
@@ -206,7 +206,7 @@ sub getAllSecureMacAddresses {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
     my $secureMacAddrHashRef = {};
@@ -243,7 +243,7 @@ sub getSecureMacAddresses {
 
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $OID_configPortDefaultVlanId = '1.3.6.1.4.1.4526.1.1.11.6.1.12';    # NETGEAR-MIB
     
@@ -289,7 +289,7 @@ sub isPortSecurityEnabled { return $TRUE; }
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $trapHashRef;
 
@@ -333,7 +333,7 @@ See bugs and limitations.
 
 sub setAdminStatus {
     my ( $this, $ifIndex, $status ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_configPortAutoNegotiation = '1.3.6.1.4.1.4526.1.1.11.6.1.14';    # NETGEAR-MIB
 
@@ -378,7 +378,7 @@ sub setAdminStatus {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $OID_vlanPortStatus = '1.3.6.1.4.1.4526.1.1.13.2.1.3';            # NETGEAR-MIB
     my $OID_configPortDefaultVlanId = '1.3.6.1.4.1.4526.1.1.11.6.1.12';  # NETGEAR-MIB

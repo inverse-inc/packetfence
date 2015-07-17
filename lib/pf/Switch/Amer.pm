@@ -21,13 +21,13 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 sub getVersion {
     my ($this)          = @_;
     my $oid_swOpCodeVer = '1.3.6.1.4.1.5929.11.48.1.1.1.1.1.1.0';
-    my $logger          = Log::Log4perl::get_logger( ref($this) );
+    my $logger          = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -45,7 +45,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     #this trap is identical to Accton's 'newest' firmware release trap
     if ( $trapString =~ /BEGIN VARIABLEBINDINGS .+\|\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) =/ )
@@ -61,7 +61,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;

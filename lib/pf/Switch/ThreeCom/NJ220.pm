@@ -19,7 +19,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::ThreeCom');
 
@@ -27,13 +27,13 @@ sub description { '3COM NJ220' }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '2.0.23';
 }
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }

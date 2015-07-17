@@ -84,7 +84,7 @@ It's really a matter of choice.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use POSIX;
 
@@ -120,7 +120,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # 4096 NAS-Port slots are reserved per physical ports, 
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
@@ -152,7 +152,7 @@ See in L</"BUGS AND LIMITATIONS">.
 
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $logger->warn(
         "Bouncing the port instead of performing 802.1x port re-authentication because of a 4200G bug. "

@@ -37,7 +37,7 @@ use strict;
 use warnings;
 use Carp;
 use Data::Dumper;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use Test::MockObject::Extends;
 use Time::HiRes qw( usleep );
@@ -110,7 +110,7 @@ sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 
 sub connectRead {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( defined( $this->{_sessionRead} ) ) {
         return 1;
     }
@@ -205,7 +205,7 @@ sub connectRead {
 
 sub disconnectRead {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !defined( $this->{_sessionRead} ) ) {
         return 1;
     }
@@ -225,7 +225,7 @@ It performs a write test to make sure that the write actually works.
 
 sub connectWriteTo {
     my ($this, $ip, $sessionKey) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # if connection already exists, no need to connect again
     return 1 if ( defined( $this->{$sessionKey} ) );
@@ -286,7 +286,7 @@ Closes an SNMP Write connection. Requires sessionKey stored in object (as when c
 
 sub disconnectWriteTo {
     my ($this, $sessionKey) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     return 1 if ( !defined( $this->{$sessionKey} ) );
 
@@ -302,7 +302,7 @@ sub disconnectWriteTo {
 
 sub _setVlanByOnlyModifyingPvid {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -333,7 +333,7 @@ sub _setVlanByOnlyModifyingPvid {
 
 sub getIfOperStatus {
     my ( $this, $ifIndex ) = @_;
-    my $logger           = Log::Log4perl::get_logger( ref($this) );
+    my $logger           = $this->logger;
     my $oid_ifOperStatus = '1.3.6.1.2.1.2.2.1.8';
     if ( !$this->connectRead() ) {
         return 0;
@@ -352,7 +352,7 @@ sub getIfOperStatus {
 
 sub getAlias {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -370,7 +370,7 @@ sub getAlias {
 
 sub getSwitchLocation {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -387,7 +387,7 @@ sub getSwitchLocation {
 
 sub setAlias {
     my ( $this, $ifIndex, $alias ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->info( "setting "
             . $this->{_id}
             . " ifIndex $ifIndex ifAlias from "
@@ -415,7 +415,7 @@ fully-qualified domain name
 
 sub getSysName {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_sysName = '1.3.6.1.2.1.1.5';                     # mib-2
     if ( !$this->connectRead() ) {
         return '';
@@ -436,7 +436,7 @@ sub getSysName {
 
 sub getIfDesc {
     my ( $this, $ifIndex ) = @_;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';                     # IF-MIB
     my $oid        = $OID_ifDesc . "." . $ifIndex;
     if ( !$this->connectRead() ) {
@@ -458,7 +458,7 @@ sub getIfDesc {
 
 sub getIfName {
     my ( $this, $ifIndex ) = @_;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $OID_ifName = '1.3.6.1.2.1.31.1.1.1.1';                  # IF-MIB
     my $oid        = $OID_ifName . "." . $ifIndex;
     if ( !$this->connectRead() ) {
@@ -481,7 +481,7 @@ sub getIfName {
 # FIXME this one doesn't work
 sub getIfNameIfIndexHash {
     my ($this)     = @_;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $OID_ifName = '1.3.6.1.2.1.31.1.1.1.1';                  # IF-MIB
     my %ifNameIfIndexHash;
     if ( !$this->connectRead() ) {
@@ -502,7 +502,7 @@ sub getIfNameIfIndexHash {
 
 sub setAdminStatus {
     my ( $this, $ifIndex, $status ) = @_;
-    my $logger            = Log::Log4perl::get_logger( ref($this) );
+    my $logger            = $this->logger;
     my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';
 
     if ( !$this->isProductionMode() ) {
@@ -545,7 +545,7 @@ sub bouncePort {
 
 sub getSysUptime {
     my ($this)        = @_;
-    my $logger        = Log::Log4perl::get_logger( ref($this) );
+    my $logger        = $this->logger;
     my $oid_sysUptime = '1.3.6.1.2.1.1.3.0';
     if ( !$this->connectRead() ) {
         return '';
@@ -562,7 +562,7 @@ sub getSysUptime {
 
 sub getIfType {
     my ( $this, $ifIndex ) = @_;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $OID_ifType = '1.3.6.1.2.1.2.2.1.3';                     #IF-MIB
     if ( !$this->connectRead() ) {
         return 0;
@@ -577,7 +577,7 @@ sub getIfType {
 
 sub getAllDot1dBasePorts {
     my ( $this, @ifIndexes ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !@ifIndexes ) {
         @ifIndexes = $this->getManagedIfIndexes();
     }
@@ -611,7 +611,7 @@ sub getAllDot1dBasePorts {
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
     my $dot1dBasePort            = undef;
     if ( !$this->connectRead() ) {
@@ -635,7 +635,7 @@ sub getDot1dBasePortForThisIfIndex {
 # FIXME not properly mocked
 sub getAllIfDesc {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $ifDescHashRef;
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';    # IF-MIB
 
@@ -657,7 +657,7 @@ sub getAllIfDesc {
 # FIXME not properly mocked
 sub getAllIfType {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $ifTypeHashRef;
     my $OID_ifType = '1.3.6.1.2.1.2.2.1.3';
 
@@ -679,7 +679,7 @@ sub getAllIfType {
 # FIXME not properly mocked
 sub getAllIfOctets {
     my ( $this, @ifIndexes ) = @_;
-    my $logger          = Log::Log4perl::get_logger( ref($this) );
+    my $logger          = $this->logger;
     my $oid_ifInOctets  = '1.3.6.1.2.1.2.2.1.10';
     my $oid_ifOutOctets = '1.3.6.1.2.1.2.2.1.16';
     my $ifOctetsHashRef;
@@ -722,7 +722,7 @@ sub getAllIfOctets {
 # FIXME not properly mocked
 sub isIfLinkUpDownTrapEnable {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -737,7 +737,7 @@ sub isIfLinkUpDownTrapEnable {
 # FIXME not properly mocked
 sub setIfLinkUpDownTrapEnable {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port ifLinkUpDownTrapEnable");
@@ -760,7 +760,7 @@ sub setIfLinkUpDownTrapEnable {
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -851,7 +851,7 @@ sub isNewerVersionThan {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #link up/down
     if ( $trapString
@@ -1021,7 +1021,7 @@ sub parseTrap {
 # FIXME not properly mocked
 sub getAllVlans {
     my ( $this, @ifIndexes ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $vlanHashRef;
     if ( !@ifIndexes ) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -1071,7 +1071,7 @@ sub getAllVlans {
 # FIXME not properly mocked
 sub getVoiceVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -1095,7 +1095,7 @@ sub getVoiceVlan {
 # to reproduce: bin/pfcmd_vlan -getVlan -ifIndex 999 -switch <ip>
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -1125,7 +1125,7 @@ sub getVlan {
 # FIXME not properly mocked
 sub isLearntTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -1148,7 +1148,7 @@ sub setLearntTrapsEnabled {
 
     #1 means 'enabled', 2 means 'disabled'
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -1168,7 +1168,7 @@ sub setLearntTrapsEnabled {
 # FIXME not properly mocked
 sub isRemovedTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -1194,7 +1194,7 @@ sub setRemovedTrapsEnabled {
 
     #1 means 'enabled', 2 means 'disabled'
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -1214,7 +1214,7 @@ sub setRemovedTrapsEnabled {
 # FIXME not properly mocked
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
@@ -1242,7 +1242,7 @@ sub isPortSecurityEnabled {
 # FIXME not properly mocked
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -1285,7 +1285,7 @@ sub _setVlan {
 # FIXME not properly mocked
 sub setTrunkPortNativeVlan {
     my ( $this, $ifIndex, $newVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -1309,7 +1309,7 @@ sub setTrunkPortNativeVlan {
 # FIXME not properly mocked
 sub getVmVlanType {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -1333,7 +1333,7 @@ sub getVmVlanType {
 # FIXME not properly mocked
 sub setVmVlanType {
     my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->info( "setting port $ifIndex vmVlanType from "
             . $this->getVmVlanType($ifIndex)
             . " to $type" );
@@ -1367,7 +1367,7 @@ sub getMacBridgePortHash {
     my $this              = shift;
     my $vlan              = shift || '';
     my %macBridgePortHash = ();
-    my $logger            = Log::Log4perl::get_logger( ref($this) );
+    my $logger            = $this->logger;
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
 
@@ -1460,7 +1460,7 @@ sub getMacBridgePortHash {
 # FIXME not properly mocked
 sub getIfIndexForThisMac {
     my ( $this, $mac ) = @_;
-    my $logger   = Log::Log4perl::get_logger( ref($this) );
+    my $logger   = $this->logger;
     my @macParts = split( ':', $mac );
     my @uplinks  = $this->getUpLinks();
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
@@ -1533,7 +1533,7 @@ sub getIfIndexForThisMac {
 # FIXME not properly mocked
 sub isMacInAddressTableAtIfIndex {
     my ( $this, $mac, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my @macParts = split( ':', $mac );
     my $OID_dot1dTpFdbPort       = '1.3.6.1.2.1.17.4.3.1.2';    #BRIDGE-MIB
     my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #BRIDGE-MIB
@@ -1609,7 +1609,7 @@ sub isMacInAddressTableAtIfIndex {
 # FIXME not properly mocked
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_vlanTrunkPortDynamicState
         = "1.3.6.1.4.1.9.9.46.1.6.1.1.13";    #CISCO-VTP-MIB
     if ( !$this->connectRead() ) {
@@ -1636,7 +1636,7 @@ sub isTrunkPort {
 # FIXME not properly mocked
 sub setModeTrunk {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_vlanTrunkPortDynamicState = "1.3.6.1.4.1.9.9.46.1.6.1.1.13";    #CISCO-VTP-MIB
 
     # $mode = 1 -> switchport mode trunk
@@ -1662,7 +1662,7 @@ sub getVlans {
     my ($this)          = @_;
     my $vlans           = {};
     my $oid_vtpVlanName = '1.3.6.1.4.1.9.9.46.1.3.1.1.4.1';    #CISCO-VTP-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return $vlans;
@@ -1685,7 +1685,7 @@ sub getVlans {
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
     my $oid_vtpVlanName = '1.3.6.1.4.1.9.9.46.1.3.1.1.4.1';    #CISCO-VTP-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -1704,7 +1704,7 @@ sub getUpLinks {
     my @ifIndex;
     my @upLinks;
     my $result;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
 
@@ -1770,7 +1770,7 @@ sub getUpLinks {
 
 sub getManagedIfIndexes {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("fake getManagedIfIndexes");
     my @managedIfIndexes;
     my @tmp_managedIfIndexes = $this->SUPER::getManagedIfIndexes();
@@ -1790,7 +1790,7 @@ sub getManagedIfIndexes {
 # FIXME not properly mocked
 sub getAllMacs {
     my ( $this, @ifIndexes ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !@ifIndexes ) {
         @ifIndexes = $this->getManagedIfIndexes();
     }
@@ -1905,7 +1905,7 @@ sub getAllMacs {
 
 sub getPhonesDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on network device $this->{_id}: no phones returned" );
@@ -1938,7 +1938,7 @@ sub getPhonesDPAtIfIndex {
 # FIXME not properly mocked
 sub getPhonesCDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("fake getPhonesCDPAtIfIndex ifIndex: $ifIndex");
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
@@ -1988,7 +1988,7 @@ sub isVoIPEnabled {
 # FIXME not properly mocked
 sub getManagedPorts {
     my $this       = shift;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
     my @nonUpLinks;
@@ -2071,7 +2071,7 @@ sub clearMacAddressTable {
     my $command;
     my $session;
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     $logger->info("clearMacAddressTable called.");
 
     $logger->info("Connect through Telnet and get enabled rights if required.");
@@ -2097,7 +2097,7 @@ sub clearMacAddressTable {
 # FIXME not properly mocked
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
@@ -2159,7 +2159,7 @@ With VoIP
 
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("called with ifIndex: $ifIndex");
 
     my $maxSecureMacTotal;
@@ -2205,7 +2205,7 @@ sub enablePortSecurityByIfIndex {
 
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("called with ifIndex: $ifIndex");
 
     # no switchport port-security
@@ -2243,7 +2243,7 @@ sub disablePortSecurityByIfIndex {
 # FIXME not properly mocked
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->debug("called with ifIndex: $ifIndex");
 
     if ( !$this->isProductionMode() ) {
@@ -2272,7 +2272,7 @@ Sets the global (data + voice) maximum number of MAC addresses for port-security
 # FIXME not properly mocked
 sub setPortSecurityMaxSecureMacAddrByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddr on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
@@ -2298,7 +2298,7 @@ Sets the maximum number of MAC addresses on the data vlan for port-security on a
 
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddrPerVlan on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
@@ -2343,7 +2343,7 @@ Tells the switch what to do when the number of MAC addresses on the port has exc
 # FIXME not properly mocked
 sub setPortSecurityViolationActionByIfIndex {
     my ( $this, $ifIndex, $action ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfViolationAction on $ifIndex to $action but the switch is not in production -> Do nothing");
@@ -2371,7 +2371,7 @@ Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devi
 # FIXME not properly mocked
 sub setTaggedVlans {
     my ( $this, $ifIndex, @vlans ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port vlanTrunkPortVlansEnabled");
@@ -2423,7 +2423,7 @@ Removes all the tagged Vlans on a multi-Vlan port. Used for floating network dev
 # FIXME not properly mocked
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port OID_vlanTrunkPortVlansEnabled");
@@ -2474,7 +2474,7 @@ sub removeAllTaggedVlans {
 
 sub enablePortConfigAsTrunk {
     my ($this, $mac, $switch_port, $taggedVlans)  = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # switchport mode trunk
     $logger->info("Setting port $switch_port as trunk.");
@@ -2507,7 +2507,7 @@ sub enablePortConfigAsTrunk {
 
 sub disablePortConfigAsTrunk {
     my ($this, $switch_port) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # switchport mode access
     $logger->info("Setting port $switch_port as non trunk.");
@@ -2551,7 +2551,7 @@ Allows callers to refer to this implementation even though someone along the way
 
 sub _dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $logger->info("Trying generic MIB to force 802.1x port re-authentication. Your mileage may vary. "
         . "If it doesn't work open a bug report with your hardware type.");
@@ -2576,14 +2576,14 @@ sub _dot1xPortReauthenticate {
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '12.2(25)SEE2';
 }
 
 # FIXME not properly mocked
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
@@ -2614,7 +2614,7 @@ sub getAllSecureMacAddresses {
 # FIXME not properly mocked
 sub isDynamicPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if ( !$this->connectRead() ) {
@@ -2642,7 +2642,7 @@ sub isDynamicPortSecurityEnabled {
 # FIXME not properly mocked
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if ( !$this->connectRead() ) {
@@ -2670,7 +2670,7 @@ sub isStaticPortSecurityEnabled {
 # FIXME not properly mocked
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
@@ -2698,7 +2698,7 @@ sub getSecureMacAddresses {
 # FIXME not properly mocked
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     if ( !$this->isProductionMode() ) {
@@ -2753,7 +2753,7 @@ sub authorizeMAC {
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if ($NAS_port =~ s/^5/1/) {
         return $NAS_port;
@@ -2770,7 +2770,7 @@ sub NasPortToIfIndex {
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $switch_ip = $this->{'_ip'};
     my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $ifIndex );
@@ -2837,7 +2837,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -2850,7 +2850,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return $TRUE;
 }
 
@@ -2874,7 +2874,7 @@ return Default Deauthentication Default technique
 
 sub deauthenticateMacDefault {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->warn("Unimplemented! First, make sure your configuration is ok. "
         . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
@@ -2899,7 +2899,7 @@ Extract VLAN from the radius attributes.
 
 sub extractVLAN {
     my ($self, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     $logger->warn("Not implemented");
     return;
 }
@@ -2912,7 +2912,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques {
     my ($this, $method, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return $TRUE;
 }
 
@@ -2953,7 +2953,7 @@ Extract all the param from the url.
 
 sub parseUrl {
     my ($self,$req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     $logger->warn("Not implemented");
     return;
 }

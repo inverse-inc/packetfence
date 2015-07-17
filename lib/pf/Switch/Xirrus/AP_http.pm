@@ -6,7 +6,7 @@ pf::Switch::Xirrus::AP_http
 
 =head1 SYNOPSIS
 
-The pf::Switch::Xirrus::AP_http module implements an object oriented interface to 
+The pf::Switch::Xirrus::AP_http module implements an object oriented interface to
 manage the external captive portal on Xirrus access points
 
 =head1 STATUS
@@ -27,7 +27,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Xirrus');
-use Log::Log4perl;
+use pf::log;
 
 use pf::constants;
 use pf::config;
@@ -61,7 +61,7 @@ status code
 
 sub parseUrl {
     my($this, $req, $r) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $connection = $r->connection;
     $this->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
@@ -73,8 +73,7 @@ sub parseUrl {
 
 sub parseSwitchIdFromRequest {
     my($class, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( $class );
-    return $$req->param('nasid'); 
+    return $$req->param('nasid');
 }
 
 =head2 returnRadiusAccessAccept
@@ -87,22 +86,22 @@ Overriding the default implementation for the external captive portal
 
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
 
     my $node = node_view($mac);
 
     my $violation = pf::violation::violation_view_top($mac);
-    # if user is unregistered or is in violation then we reject him to show him the captive portal 
+    # if user is unregistered or is in violation then we reject him to show him the captive portal
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
         $logger->info("[$mac] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
-        }; 
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref]; 
+        };
+        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 
     }
     else{
@@ -114,7 +113,7 @@ sub returnRadiusAccessAccept {
 
 sub getAcceptForm {
     my ( $self, $mac , $destination_url, $cgi_session) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     $logger->debug("[$mac] Creating web release form");
 
     my $uamip = $cgi_session->param("ecwp-original-param-uamip");

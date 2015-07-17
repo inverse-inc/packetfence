@@ -17,7 +17,7 @@ This module is currently only a placeholder, see pf::Switch::AeroHIVE
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use base ('pf::Switch::AeroHIVE');
 

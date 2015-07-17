@@ -89,7 +89,7 @@ It's really a matter of choice.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use POSIX;
 

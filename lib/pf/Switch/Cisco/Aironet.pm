@@ -48,7 +48,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Log::Log4perl;
+use pf::log;
 use Net::Appliance::Session;
 use Net::SNMP;
 
@@ -88,7 +88,7 @@ L<http://www.cpanforum.com/threads/6909/>
 
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $mac = format_mac_as_cisco($mac);
     if ( !defined($mac) ) {
@@ -134,7 +134,7 @@ sub isLearntTrapsEnabled {
 
 sub setLearntTrapsEnabled {
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -146,28 +146,28 @@ sub isRemovedTrapsEnabled {
 
 sub setRemovedTrapsEnabled {
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
     my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -175,14 +175,14 @@ sub isTrunkPort {
 sub getVlans {
     my ($this) = @_;
     my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
@@ -201,7 +201,7 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 # Same as in pf::Switch::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
@@ -239,7 +239,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::TELNET;
     my %tech = (
         $SNMP::TELNET => 'deauthenticateMacDefault',

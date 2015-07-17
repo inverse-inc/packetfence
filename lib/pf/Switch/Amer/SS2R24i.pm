@@ -21,7 +21,7 @@ Developed and tested on SS2R24i running on firmware version 4.02-B15
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Amer');
 

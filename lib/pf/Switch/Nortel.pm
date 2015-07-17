@@ -34,7 +34,7 @@ Be aware of that if you start to see MAC authorization failures and report the p
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch');
@@ -70,7 +70,7 @@ TODO: This list is incomplete
 sub getVersion {
     my ($this) = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return '';
@@ -88,7 +88,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( $trapString
         =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.\d+ = INTEGER: [^|]+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.\d+ = INTEGER: [^)]+\)/
         )
@@ -130,7 +130,7 @@ Warning: MIB says 1 is access, 2 is trunk but we've encountered other values.
 
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return;
@@ -168,7 +168,7 @@ sub getTrunkPorts {
     my ($this) = @_;
     my $OID_rcVlanPortType = '1.3.6.1.4.1.2272.1.3.3.1.4'; #RC-VLAN-MIB
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return -1;
@@ -210,7 +210,7 @@ Set a port as mode access or mode trunk based on ifIndex given.
 
 sub setModeTrunk {
     my ( $this, $ifIndex, $setTrunk ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port's trunk mode");
@@ -246,7 +246,7 @@ In what VLAN should a VoIP device be?
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $voiceVlan = $this->getVlanByName('voice');
     if (defined($voiceVlan)) {
@@ -260,7 +260,7 @@ sub getVoiceVlan {
 
 sub getVlans {
     my $this = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_rcVlanName = '1.3.6.1.4.1.2272.1.3.2.1.2'; #RC-VLAN-MIB
     my $vlans = {};
     if ( !$this->connectRead() ) {
@@ -283,7 +283,7 @@ sub getVlans {
 
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_rcVlanName = '1.3.6.1.4.1.2272.1.3.2.1.2'; #RC-VLAN-MIB
     if ( !$this->connectRead() ) {
         return 0;
@@ -300,7 +300,7 @@ sub isDefinedVlan {
 
 sub getAllVlans {
     my ( $this, @ifIndexes ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $vlanHashRef;
     if ( !@ifIndexes ) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -331,7 +331,7 @@ sub getVlan {
     my ( $this, $ifIndex ) = @_;
     my $OID_rcVlanPortDefaultVlanId
         = '1.3.6.1.4.1.2272.1.3.3.1.7'; # RC-VLAN-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -347,7 +347,7 @@ sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11'; #RC-VLAN-MIB
     my $OID_rcVlanPortDefaultVlanId = '1.3.6.1.4.1.2272.1.3.3.1.7'; #RC-VLAN-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $result;
 
     if ( !$this->connectRead() ) {
@@ -419,7 +419,7 @@ Should return either 0 or 1
 
 sub getFirstBoardIndex {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
   
     if ( !$this->connectRead() ) {
         return 1;
@@ -484,7 +484,7 @@ sub getIfIndexFromBoardPort {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
 
     my $secureMacAddrHashRef = {};
@@ -513,7 +513,7 @@ $/x) && ( $ctrlType == 1 )) {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4'; #S5-SWITCH-BAYSECURE-MIB
     my $secureMacAddrHashRef = {};
 
@@ -546,7 +546,7 @@ $/x ) && ( $ctrlType == 1 )) {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #so that everything runs like on a Cisco
     return 2;
@@ -554,7 +554,7 @@ sub getMaxMacAddresses {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( ($deauthMac) && ( !$this->isFakeMac($deauthMac) ) ) {
         $this->_authorizeMAC( $ifIndex, $deauthMac, 0 );
@@ -571,7 +571,7 @@ sub _authorizeMAC {
     my ( $this, $ifIndex, $mac, $authorize ) = @_;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
     my $OID_s5SbsAuthCfgStatus = '1.3.6.1.4.1.45.1.6.5.3.10.1.5';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info( "not in production mode ... we won't delete an entry from the SecureMacAddrTable" );
@@ -627,7 +627,7 @@ sub isStaticPortSecurityEnabled {
 # This function has not been tested on stacked switches !
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_s5SbsPortSecurityStatus = "1.3.6.1.4.1.45.1.6.5.3.15.0";
 
@@ -662,7 +662,7 @@ sub setPortSecurityEnableByIfIndex {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $oid_s5SbsSecurityStatus = '1.3.6.1.4.1.45.1.6.5.3.3';
     my $oid_s5SbsSecurityAction = '1.3.6.1.4.1.45.1.6.5.3.5';
@@ -732,7 +732,7 @@ sub isPortSecurityEnabled {
 
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "
@@ -797,7 +797,7 @@ Takes an ifIndex, a TRUE/FALSE value (tag or untag), the switch locker to avoid 
 
 sub setTagVlansByIfIndex {
     my ( $this, $ifIndex, $setTo, $switch_locker_ref, @vlans ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_rcVlanPortMembers = '1.3.6.1.4.1.2272.1.3.2.1.11'; #RC-VLAN-MIB
 
     if ( !$this->connectRead() ) {

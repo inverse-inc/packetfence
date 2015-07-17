@@ -61,7 +61,7 @@ Maybe we can switch to use autolearn with forced 02:00... addresses to fill the 
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use Net::Telnet;
 
@@ -89,7 +89,7 @@ sub supportsLldp { return $SNMP::TRUE; }
 
 sub getVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_hwLswSlotSoftwareVersion = '1.3.6.1.4.1.43.45.1.2.23.1.18.4.3.1.6.0.0'; #from A3COM-HUAWEI-DEVICE-MIB
     if ( !$this->connectRead() ) {
@@ -110,7 +110,7 @@ sub getVersion {
 #TODO this implementation is broken, it returns an integer instead of vlan name
 sub getVlans {
     my $this                = shift;
-    my $logger              = Log::Log4perl::get_logger( ref($this) );
+    my $logger              = $this->logger;
     my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.1'; #from A3COM-HUAWEI-LswVLAN-MIB
     my $vlans = {};
     if ( !$this->connectRead() ) {
@@ -131,7 +131,7 @@ sub getVlans {
 
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
-    my $logger               = Log::Log4perl::get_logger( ref($this) );
+    my $logger               = $this->logger;
     my $OID_hwdot1qVlanIndex = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.1'; #from A3COM-HUAWEI-LswVLAN-MIB
     if ( !$this->connectRead() ) {
         return 0;
@@ -148,7 +148,7 @@ sub isDefinedVlan {
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+    my $logger                  = $this->logger;
     my $OID_hwifXXBasePortIndex = '1.3.6.1.4.1.43.45.1.2.23.1.1.1.1.10.' . $ifIndex; #from A3COM-HUAWEI-LswINF-MIB
 
     if ( !$this->connectRead() ) {
@@ -175,7 +175,7 @@ returns ifIndex for a given "normal" port number (dot1d)
 
 sub getIfIndexForThisDot1dBasePort {
     my ( $this, $dot1dBasePort ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # port number into ifIndex
     my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
 
@@ -195,7 +195,7 @@ sub getIfIndexForThisDot1dBasePort {
 
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger        = Log::Log4perl::get_logger( ref($this) );
+    my $logger        = $this->logger;
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';           # Q-BRIDGE-MIB
     if ( !$this->connectRead() ) {
         return 0;
@@ -217,7 +217,7 @@ before adding the correct MAC to the correct VLAN.
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -252,7 +252,7 @@ sub _setVlan {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # a3com-huawei-port-security.mib
     my $OID_h3cSecurePortSecurityControl = '1.3.6.1.4.1.43.45.1.10.2.26.1.1.1.0';
@@ -313,7 +313,7 @@ Authorize and deauthorize MAC addresses. A core component of port-security handl
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = Log::Log4perl::get_logger( ref($this) );
+    my $logger  = $this->logger;
 
     return $this->_authorizeMacWithSnmp($ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan);
 }
@@ -328,7 +328,7 @@ ports in autolearn mode.
 
 sub _authorizeMacWithSnmp {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = Log::Log4perl::get_logger( ref($this) );
+    my $logger  = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info( "not in production mode ... we won't modify static MAC addresses");
@@ -402,7 +402,7 @@ Uses "mac-address static" instead of "mac-address security" because the latter o
 
 sub _authorizeMacWithTelnet {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = Log::Log4perl::get_logger( ref($this) );
+    my $logger  = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info( "not in production mode ... we won't modify static MAC addresses");
@@ -486,7 +486,7 @@ Returns a hash table with mac, ifIndex, vlan
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # Status of all MAC addresses
     my $OID_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3'; # from A3COM-HUAWEI-LswMAM-MIB
     # Port number of all MAC addresses
@@ -550,7 +550,7 @@ Returns a hash table with mac, vlan
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # OID holds Vlan and MAC. The result is dot1dPort
     my $OID_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; #from A3COM-HUAWEI-LswMAM-MIB
     # OID holds Vlan and MAC. The result is mac type
@@ -617,7 +617,7 @@ We extract the LLDP index from SNMP request to the switch
 
 sub _getLLDPIndex {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -639,7 +639,7 @@ Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "

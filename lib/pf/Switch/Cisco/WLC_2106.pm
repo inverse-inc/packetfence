@@ -13,7 +13,7 @@ This module is currently only a placeholder, see L<pf::Switch::Cisco::WLC_2100> 
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::WLC_2100');

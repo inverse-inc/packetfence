@@ -17,7 +17,7 @@ No port security support, no RADIUS.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
@@ -26,7 +26,7 @@ sub description {'D-Link DES 3526'}
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my @fields = split '\|', $trapString;
 

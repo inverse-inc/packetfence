@@ -31,7 +31,7 @@ and voice VLANs).
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -50,7 +50,7 @@ sub description { 'Netgear GS110' }
 
 sub getVersion {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $OID_version = "1.3.6.1.2.1.47.1.1.1.1.10.1";    # Provided by snmpbulkwalk the switch
 
@@ -87,7 +87,7 @@ sub getVersion {
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $trapHashRef;
 
@@ -117,7 +117,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if ( !$this->isProductionMode() ) {
         $logger->info("The switch isn't in production mode (Do nothing): Should set ifIndex $ifIndex to VLAN $newVlan");

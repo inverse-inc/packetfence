@@ -30,7 +30,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 use base ('pf::Switch');
@@ -69,7 +69,7 @@ For now it returns the voiceRole untagged since Alcatel supports multiple untagg
 
 sub getVoipVsa{
     my ($this) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) ); 
+    my $logger = $this->logger; 
     my $voiceRole = $this->getRoleByName('voice');
     $logger->info("Accepting phone with untagged Access-Accept on role $voiceRole");
     
@@ -88,7 +88,7 @@ Method to deauth a wired node with CoA.
 
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
 
     # perform CoA
@@ -115,7 +115,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques { 
    my ($this, $method, $connection_type) = @_;
-   my $logger = Log::Log4perl::get_logger( ref($this) );
+   my $logger = $this->logger;
 
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::RADIUS;
@@ -158,7 +158,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));

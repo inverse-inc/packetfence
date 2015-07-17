@@ -12,7 +12,7 @@ This module is currently only a placeholder, see pf::Switch::Extricom
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use base ('pf::Switch::Extricom');
 

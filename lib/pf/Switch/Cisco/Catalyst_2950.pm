@@ -86,7 +86,7 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco');
-use Log::Log4perl;
+use pf::log;
 use Carp;
 use Net::Appliance::Session;
 use Net::SNMP;
@@ -124,13 +124,13 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '12.1(22)EA10';
 }
 
 sub getManagedPorts {
     my $this       = shift;
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
     my @nonUpLinks;
@@ -220,7 +220,7 @@ sub clearMacAddressTable {
     my $command;
     my $session;
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
-    my $logger     = Log::Log4perl::get_logger( ref($this) );
+    my $logger     = $this->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
@@ -269,7 +269,7 @@ sub clearMacAddressTable {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     my $secureMacAddrHashRef = {};
@@ -299,7 +299,7 @@ sub getAllSecureMacAddresses {
 
 sub isDynamicPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger                   = Log::Log4perl::get_logger( ref($this) );
+    my $logger                   = $this->logger;
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
     if ( !$this->connectRead() ) {
@@ -325,7 +325,7 @@ sub isDynamicPortSecurityEnabled {
 
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger                   = Log::Log4perl::get_logger( ref($this) );
+    my $logger                   = $this->logger;
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
     if ( !$this->connectRead() ) {
@@ -351,7 +351,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     my $secureMacAddrHashRef = {};
@@ -380,7 +380,7 @@ sub getSecureMacAddresses {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     if ( !$this->isProductionMode() ) {
@@ -430,7 +430,7 @@ sub authorizeMAC {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
@@ -491,7 +491,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 sub ping {
     my ( $this, $ip ) = @_;
     my $session;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
@@ -545,7 +545,7 @@ With VoIP
 
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $maxSecureMacTotal;
     my $maxSecureMacVlanAccess = 1;
@@ -590,7 +590,7 @@ sub enablePortSecurityByIfIndex {
 
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     # no switchport port-security
     if (! $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE)) {
         $logger->error("An error occured while disablling port-security on ifIndex $ifIndex");
@@ -626,7 +626,7 @@ sub disablePortSecurityByIfIndex {
 
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfPortSecurityEnable on $ifIndex to $enable but the switch is not in production -> Do nothing");
@@ -653,7 +653,7 @@ Sets the global (data + voice) maximum number of MAC addresses for port-security
 
 sub setPortSecurityMaxSecureMacAddrByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddr on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
@@ -681,7 +681,7 @@ floating network devices with VoIP through SSH transport
 
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
@@ -710,7 +710,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddrPerVlan on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
@@ -779,7 +779,7 @@ Tells the switch what to do when the number of MAC addresses on the port has exc
 
 sub setPortSecurityViolationActionByIfIndex {
     my ( $this, $ifIndex, $action ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set IfViolationAction on $ifIndex to $action but the switch is not in production -> Do nothing");
@@ -806,7 +806,7 @@ Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devi
 
 sub setTaggedVlans {
     my ( $this, $ifIndex, $switch_locker, @vlans ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port vlanTrunkPortVlansEnabled");
@@ -857,7 +857,7 @@ Removes all the tagged Vlans on a multi-Vlan port. Used for floating network dev
 
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex, $switch_locker) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port OID_vlanTrunkPortVlansEnabled");
@@ -910,7 +910,7 @@ Overriding default enablePortConfigAsTrunk to fix a race issue with Cisco
 
 sub enablePortConfigAsTrunk {
     my ($this, $mac, $switch_port, $switch_locker, $taggedVlans)  = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # switchport mode trunk
     $logger->info("Setting port $switch_port as trunk.");
@@ -944,7 +944,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this)); 
+    my $logger = $this->logger; 
 
     # 50017 is ifIndex 17
     if ($NAS_port =~ s/^500//) {
@@ -964,7 +964,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -979,7 +979,7 @@ or set the VLAN and log if there is a VoIP device.
 
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $logger->info(
         "802.1X renegociation on this switch is not compatible with PacketFence. "
@@ -1067,7 +1067,7 @@ In that case, create a generic ifIndexToLldpLocalPort also.
 
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # if can't SNMP read abort
     return if ( !$this->connectRead() );
@@ -1133,7 +1133,7 @@ We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
 
 sub ifIndexToLldpLocalPort {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # if can't SNMP read abort
     return if ( !$this->connectRead() );

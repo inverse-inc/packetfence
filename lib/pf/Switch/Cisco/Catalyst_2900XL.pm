@@ -15,7 +15,7 @@ This modules extends pf::Switch::Cisco::Catalyst_3500XL
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Catalyst_3500XL');

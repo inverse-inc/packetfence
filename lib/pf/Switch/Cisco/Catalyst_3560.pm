@@ -63,7 +63,7 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::config;
@@ -77,7 +77,7 @@ sub description { 'Cisco Catalyst 3560' }
 
 sub setModeTrunk {
     my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_vlanTrunkPortDynamicState = "1.3.6.1.4.1.9.9.46.1.6.1.1.13";    #CISCO-VTP-MIB
     my $OID_vlanTrunkEncapsulation = "1.3.6.1.4.1.9.9.46.1.6.1.1.3";
 

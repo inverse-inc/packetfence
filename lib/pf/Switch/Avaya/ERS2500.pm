@@ -33,7 +33,7 @@ Firmware series 4.3 is apparently fine.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Avaya');

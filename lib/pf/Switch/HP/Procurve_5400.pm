@@ -40,7 +40,7 @@ Recommanded Firmware is K.15.06.0008
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_2500');
@@ -76,7 +76,7 @@ TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
 }
