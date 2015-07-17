@@ -418,9 +418,25 @@ ViolationsView.prototype.prettify_accounting = function(type, value) {
 }
 
 ViolationsView.prototype.append_trigger = function(value,value_pretty){
+  var that = this;
   if(!value_pretty) value_pretty = value;
 
+  var error = false;
   var select = $('#editedTrigger select').first();
+  select.find('option:selected').each(function(){
+    console.log($(this).val())
+    var data = $(this).val().split('::');
+    console.log(data)
+    if(that.event_triggers.indexOf(data[0].toLowerCase()) > -1){
+        error = $(this).html();
+    }
+  });
+
+  if(error) {
+    showError($('#viewTriggers'), "There is already an evenemential trigger defined ("+error+"). Only one is allowed per combined trigger.");
+    return;
+  }
+
   var last = true;
   select.find('option').each(function() {
       if ($(this).val() > value) {

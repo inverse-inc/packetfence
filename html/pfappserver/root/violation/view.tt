@@ -1,3 +1,7 @@
+<script>
+violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
+</script>
+
 [% UNLESS action_uri%]
 [% SET action_uri = c.req.uri %]
 [% END %]
@@ -33,6 +37,7 @@
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="violationTriggers">
+        <div class="alert alert-error hide"></div>
         <div id="viewTriggers">
           <div class="control-group">
               <a id="add_trigger" class="btn btn-default" href="#addTrigger">

@@ -117,7 +117,6 @@ sub prettify_trigger {
     switch($type){
       case "device" {
         my ($status, $elem) = fingerbank::Model::Device->read($tid);
-        use Data::Dumper; get_logger("device : ".Dumper($status));
         $pretty_value = $elem->{name} if(is_success($status));
       }
       case "dhcp_fingerprint" {
@@ -161,8 +160,6 @@ sub parse_triggers {
         }
     } 
 
-    use Data::Dumper; get_logger->info(Dumper(\@pretty_triggers));
-
     return (\@splitted_triggers,\@pretty_triggers);
 }
 
@@ -177,6 +174,7 @@ after view => sub {
             ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) = 
                 $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
+            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
