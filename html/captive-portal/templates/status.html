@@ -218,7 +218,7 @@ document.observe("dom:loaded", function() {
           [% UNLESS showLogin %]
           <div>
             <span><a class="btn" href="[% c.uri_for(c.controller.action_for('logout')) %]">Logout</a></span>
-            <span style="float:right"><a class="btn" href="/billing/">Click Here to Upgrade Your Access</a></span>
+            <span style="float:right"><a class="btn" href="[% URL_BILLING %]">Click Here to Upgrade Your Access</a></span>
           </div>
           [% END  %]
         </div>
