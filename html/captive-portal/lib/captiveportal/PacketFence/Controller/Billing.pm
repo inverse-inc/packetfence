@@ -282,6 +282,7 @@ sub processTransaction : Private {
         violation_force_close($mac, $violation->{'vid'});
     }
 
+    $c->forward('updatePreviousNodesForUser');
     # Register the node
     $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
 
@@ -295,6 +296,24 @@ sub processTransaction : Private {
     $c->forward('CaptivePortal' => 'endPortalSession');
 }
 
+=head2 updatePreviousNodesForUser
+
+Update the previous nodes for user
+
+=cut
+
+sub updatePreviousNodesForUser : Private {
+    my ($self, $c) = @_;
+    my $logger = $c->log;
+    my $session = $c->session;
+    my $pid = $session->{username};
+    my $category = $session->{tier}->{'category'};
+    foreach my $node (person_nodes($pid)  ) {
+        $c->log->info("changing nodes for user $category");
+        $node->{category} = $category;
+        node_modify($node->{mac}, %{$node});
+    }
+}
 
 =head2 prepareConfirmationInfo
 
