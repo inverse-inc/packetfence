@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use HTML::Entities;
-use Log::Log4perl;
 use WWW::Curl::Easy;
 use XML::Simple;
 use Encode qw(decode);

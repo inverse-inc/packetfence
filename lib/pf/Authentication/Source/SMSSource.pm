@@ -11,7 +11,6 @@ pf::Authentication::Source::SMSSource
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
-use Log::Log4perl qw(get_logger);
 use Moose;
 extends 'pf::Authentication::Source';
 

@@ -23,7 +23,6 @@ See http://packetfence.org/mantis/view.php?id=674
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 sub new {
     my ($class) = @_;

@@ -16,7 +16,6 @@ use lib "/usr/local/pf/conf";
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use pf::config;
 use pf::locationlog;

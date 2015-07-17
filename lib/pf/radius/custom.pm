@@ -18,7 +18,6 @@ behavior here.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use base ('pf::radius');
 use pf::config;
