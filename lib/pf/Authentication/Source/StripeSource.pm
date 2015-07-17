@@ -309,7 +309,7 @@ sub handle_customer_subscription_deleted {
 sub move_to_lower_tier {
     my ($self, $email, $category) = @_;
     foreach my $node (person_nodes($email)  ) {
-        $node->{category_id} = $category;
+        $node->{category} = $category;
         node_modify($node->{mac}, %{$node});
     }
 }
