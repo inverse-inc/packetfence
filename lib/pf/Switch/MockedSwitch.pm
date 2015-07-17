@@ -37,7 +37,6 @@ use strict;
 use warnings;
 use Carp;
 use Data::Dumper;
-use pf::log;
 use Net::SNMP;
 use Test::MockObject::Extends;
 use Time::HiRes qw( usleep );

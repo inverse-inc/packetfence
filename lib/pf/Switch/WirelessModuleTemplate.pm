@@ -43,7 +43,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 
 use pf::constants;
 use pf::config;

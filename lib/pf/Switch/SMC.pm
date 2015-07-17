@@ -20,7 +20,6 @@ use strict;
 use warnings;
 
 use POSIX;
-use pf::log;
 
 use base ('pf::Switch');
 

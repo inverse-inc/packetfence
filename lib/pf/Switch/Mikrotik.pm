@@ -18,7 +18,6 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SSH2;
 use POSIX;
 use Try::Tiny;

@@ -40,7 +40,6 @@ Recommanded Firmware is K.15.06.0008
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_2500');

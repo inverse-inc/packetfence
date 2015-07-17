@@ -13,7 +13,6 @@ to access SNMP enabled Accton::ES3528M switches.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Accton');
 

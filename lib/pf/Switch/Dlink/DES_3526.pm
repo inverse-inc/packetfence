@@ -17,7 +17,6 @@ No port security support, no RADIUS.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 

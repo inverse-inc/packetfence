@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco');
-use pf::log;
 use Carp;
 use Net::Appliance::Session;
 use Net::SNMP;

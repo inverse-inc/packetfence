@@ -20,7 +20,6 @@ We are also not sure about the VoIP using 802.1X/Mac Auth.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 

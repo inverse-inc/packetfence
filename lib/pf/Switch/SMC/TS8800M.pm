@@ -34,7 +34,6 @@ SNMPv3 support was not tested.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::SMC');

@@ -50,7 +50,6 @@ use warnings;
 
 use base ('pf::Switch');
 use POSIX;
-use pf::log;
 use Net::SNMP;
 
 use pf::util;

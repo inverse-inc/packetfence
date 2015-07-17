@@ -23,7 +23,6 @@ Developped and tested on IOS 15.0(2)SE5
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 use Net::Telnet;
 use Try::Tiny;

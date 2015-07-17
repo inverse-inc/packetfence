@@ -13,7 +13,6 @@ This module is currently only a placeholder, see L<pf::Switch::Cisco::WLC> for r
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::WLC');

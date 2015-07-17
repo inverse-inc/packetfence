@@ -19,7 +19,6 @@ pf::Switch::H3C - Object oriented module to access and configure enabled H3C swi
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 use POSIX;
 

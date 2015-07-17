@@ -18,7 +18,6 @@ Should work on the Huawei version started 2.0
 use strict;
 use warnings;
 
-use pf::log;
 use POSIX;
 use Try::Tiny;
 

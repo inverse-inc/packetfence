@@ -37,7 +37,6 @@ Nothing documented at this point.
 use strict;
 use warnings;
 
-use pf::log;
 use Net::Appliance::Session;
 use Try::Tiny;
 

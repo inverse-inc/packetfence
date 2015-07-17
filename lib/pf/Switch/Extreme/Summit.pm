@@ -13,7 +13,6 @@ This module is currently only a placeholder, see pf::Switch::Extreme.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Extreme');
 

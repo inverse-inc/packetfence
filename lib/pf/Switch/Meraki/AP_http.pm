@@ -31,7 +31,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 
 use pf::constants;
 use pf::config;
@@ -49,7 +48,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
-=item getVersion - obtain image version information from switch
+=head2 getVersion - obtain image version information from switch
 
 =cut
 

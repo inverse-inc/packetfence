@@ -27,7 +27,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 use base ('pf::Switch');

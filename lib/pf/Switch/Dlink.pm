@@ -16,7 +16,6 @@ use warnings;
 
 use base ('pf::Switch');
 use Net::SNMP;
-use pf::log;
 
 use pf::Switch::constants;
 use pf::util;

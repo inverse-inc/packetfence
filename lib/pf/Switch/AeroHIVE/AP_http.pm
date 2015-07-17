@@ -25,7 +25,6 @@ Using the default success page of AeroHIVE works.
 
 use strict;
 use warnings;
-use pf::log;
 use pf::constants;
 use pf::config;
 use pf::node;

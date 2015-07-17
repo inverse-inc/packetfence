@@ -44,7 +44,6 @@ Firmware 3.0.0.13 and 3.0.0.16 are known to be affected.
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Dlink');

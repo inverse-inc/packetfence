@@ -16,7 +16,6 @@ This module is currently only a placeholder, see pf::Switch::Motorola
 
 use strict;
 use warnings;
-use pf::log;
 
 use base ('pf::Switch::Motorola');
 

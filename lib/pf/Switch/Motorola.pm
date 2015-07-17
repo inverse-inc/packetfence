@@ -54,7 +54,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::constants;

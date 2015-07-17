@@ -13,7 +13,6 @@ oriented interface to access SNMP enabled Enterasys SecureStack C2 switches.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Enterasys');
 

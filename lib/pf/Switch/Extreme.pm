@@ -60,7 +60,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 use Net::Appliance::Session;
 use Net::SNMP;
 use SOAP::Lite;

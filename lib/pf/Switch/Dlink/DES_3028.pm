@@ -13,7 +13,6 @@ to access SNMP enabled Dlink DES 3526 switches.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 

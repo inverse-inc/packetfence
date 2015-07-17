@@ -15,7 +15,6 @@ It should work on all D2 switches and maybe more.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 use Net::Telnet;
 use pf::Switch::constants;

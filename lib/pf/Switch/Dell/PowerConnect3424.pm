@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Data::Dumper;
-use pf::log;
 use Net::Telnet;
 
 use base ('pf::Switch::Dell');

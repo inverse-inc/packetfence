@@ -30,7 +30,6 @@ Be aware of that if you start to see MAC authorization failures and report the p
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Nortel');

@@ -23,7 +23,6 @@ SNMPv3 support is untested.
 use strict;
 use warnings;
 
-use pf::log;
 use POSIX;
 
 use base ('pf::Switch');

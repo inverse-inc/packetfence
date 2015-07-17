@@ -13,7 +13,6 @@ oriented interface to access SNMP enabled HP Procurve 4100 switches.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_2500');

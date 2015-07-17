@@ -13,7 +13,6 @@ Module to manage Trapeze controllers
 use strict;
 use warnings;
 
-use pf::log;
 use Net::Appliance::Session;
 use POSIX;
 

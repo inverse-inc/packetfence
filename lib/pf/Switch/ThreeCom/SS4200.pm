@@ -14,7 +14,6 @@ oriented interface to access SNMP enabled
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::ThreeCom');

@@ -68,7 +68,6 @@ ethernet interface.
 use strict;
 use warnings;
 
-use pf::log;
 use Net::Appliance::Session;
 
 use base ('pf::Switch');

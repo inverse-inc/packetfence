@@ -16,7 +16,6 @@ This module was not developed by Inverse. Unknown firmware revision used for dev
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::SMC');

@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 use Net::SNMP;
 # disabling port-security since its known not to work
 #use Net::Telnet;

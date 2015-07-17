@@ -37,7 +37,6 @@ IfIndex on this platform is not the same as port # or dot1d port.
 
 use strict;
 use warnings;
-use pf::log;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');

@@ -17,7 +17,6 @@ Should work on all HP Wireless Access Point
 use strict;
 use warnings;
 
-use pf::log;
 use POSIX;
 
 use base ('pf::Switch::HP::Controller_MSM710');

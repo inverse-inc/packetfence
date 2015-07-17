@@ -25,7 +25,6 @@ presents some issues, the SNMP deauthentication is not working.
 use strict;
 use warnings;
 
-use pf::log;
 use POSIX;
 
 use base ('pf::Switch');

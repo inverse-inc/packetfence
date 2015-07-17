@@ -63,7 +63,6 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 
 use pf::config;

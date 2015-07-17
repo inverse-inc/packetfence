@@ -27,7 +27,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Xirrus');
-use pf::log;
 
 use pf::constants;
 use pf::config;

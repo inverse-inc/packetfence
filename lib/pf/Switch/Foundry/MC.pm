@@ -20,7 +20,6 @@ Please let us know if you have access to such hardware and can validate our clai
 
 use strict;
 use warnings;
-use pf::log;
 
 use base ('pf::Switch::Meru');
 

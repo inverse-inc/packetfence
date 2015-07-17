@@ -82,7 +82,6 @@ It's really a matter of choice.
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 use POSIX;
 

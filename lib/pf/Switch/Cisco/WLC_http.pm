@@ -24,7 +24,6 @@ With CWA mode (not available for LWA)
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 use Net::Telnet;
 use Try::Tiny;

@@ -15,7 +15,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use pf::log;
 
 sub parseTrap {
     my ( $this, $trapString ) = @_;

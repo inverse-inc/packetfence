@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use POSIX;
-use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;

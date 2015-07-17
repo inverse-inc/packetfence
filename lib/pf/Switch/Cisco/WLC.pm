@@ -102,7 +102,6 @@ Caveat CSCty44701
 use strict;
 use warnings;
 
-use pf::log;
 use Net::SNMP;
 use Net::Telnet;
 

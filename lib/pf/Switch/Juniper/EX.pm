@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use pf::log;
 use Net::Appliance::Session;
 
 use pf::config;
