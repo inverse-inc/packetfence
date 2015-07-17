@@ -19,8 +19,9 @@
 .trigger_widget {
   display:none;
   margin-top:10px;
-  padding-top:10px;
-  border-top:2px solid black;
+  padding:10px 0;
+  border:2px solid rgb(221, 221, 221);
+  border-radius:5px;
 }
 
 .trigger_widget select {
