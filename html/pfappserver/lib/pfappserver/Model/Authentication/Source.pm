@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::authentication;
 use pf::error qw(is_error is_success);
 use pf::ConfigStore::Authentication;

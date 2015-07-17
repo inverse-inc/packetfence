@@ -20,6 +20,7 @@ use namespace::autoclean;
 use Time::localtime;
 use Time::Local;
 
+use pf::log;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::util qw(download_oui load_oui);

@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
+use pf::log;
 use pf::SearchBuilder;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);

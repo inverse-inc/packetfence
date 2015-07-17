@@ -6,6 +6,7 @@ extends 'Catalyst::Model';
 
 use Try::Tiny;
 
+use pf::log;
 use pf::constants;
 use pf::config;
 use pfconfig::manager;

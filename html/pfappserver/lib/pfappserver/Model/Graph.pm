@@ -14,6 +14,7 @@ use Moose;
 use namespace::autoclean;
 
 use Date::Parse;
+use pf::log;
 use pf::config::ui;
 use pf::error qw(is_error is_success);
 use pf::pfcmd::graph;

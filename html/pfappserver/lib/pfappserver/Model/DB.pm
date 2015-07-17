@@ -17,6 +17,7 @@ use DBI;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::config;
 use pf::error;
 use pf::util;
@@ -39,7 +40,7 @@ sub assign {
 
     my $status_msg;
 
-    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");   
+    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
@@ -69,7 +70,7 @@ sub assign {
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # Create pf_graphite database
-    $db = $graphitedb; 
+    $db = $graphitedb;
     foreach my $host ("'%'","localhost") {
         my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
@@ -270,7 +271,7 @@ sub resetUserPassword {
           [ "The password of [_1] was successfully modified.", $user ];
         return ( $STATUS::OK, $status_msg );
     }
-    else {                                                                                                            
+    else {
         $logger->warn("Error while changing the password of $user");
         $status_msg = [ "Error while changing the password of [_1].", $user ];
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );

@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
+use pf::log;
 use pf::SearchBuilder;
 use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);

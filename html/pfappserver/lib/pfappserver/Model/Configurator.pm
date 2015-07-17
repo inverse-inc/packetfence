@@ -18,6 +18,7 @@ use Moose;
 use Readonly;
 use namespace::autoclean;
 
+use pf::log;
 use pf::config;
 use pf::error;
 use pf::util;
