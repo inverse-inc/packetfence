@@ -53,7 +53,7 @@ pf::SwitchFactory::preLoadModules();
 # init signal handlers
 our $PROGRAM_NAME = $0 = "pfdns";
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = get_logger( $PROGRAM_NAME );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,

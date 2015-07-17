@@ -85,7 +85,7 @@ $thread = 1;
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = "pfsetvlan";
 
-my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+my $logger = get_logger( $PROGRAM_NAME );
 
 # Initialize a new cache for the traps sent from switches IfIndex
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
@@ -236,8 +236,8 @@ while ( defined( $currentTrapLine = $fh->read ) ) {
 # sub addTrapLineToQueue($trapLine) - cond_signal(@trapList_queued){{{1
 sub addTrapLineToQueue {
     my ($trapLine) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     $lockLogger->trace("locking - trying to lock trapList_queued");
     {
@@ -255,8 +255,8 @@ sub addTrapLineToQueue {
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
     use pf::log(service => 'pfsetvlan', reinit => 1);
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     while (1) {
@@ -518,8 +518,8 @@ sub signalHandlerTrapListQueued {
 # sub parseTrap {{{1
 sub parseTrap {
     my ($trapLine) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->debug("parsing trap $trapLine");
@@ -751,8 +751,8 @@ sub parseTrap {
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
     use pf::log(service => 'pfsetvlan', reinit => 1);
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
 
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
@@ -791,8 +791,8 @@ sub signalHandlerThreadListQueued {
 
 # sub startTrapHandlers {{{1
 sub startTrapHandlers {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $mustDoSomeThing = 0;
@@ -927,8 +927,8 @@ sub handleTrap {
 
     # initialize {{{2
     my ( $switch_id, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac, $trapSSID , $trapClientUserName, $trapIfIndex, $trapConnectionType) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     my $vlan_obj = new pf::vlan::custom();
 
@@ -1721,8 +1721,8 @@ sub handleTrap {
 
 # sub cleanupAfterThread {{{1
 sub cleanupAfterThread {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::cleanup');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::cleanup');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     my ( $switch_id, $switch_port ) = @_;
     $lockLogger->trace(
@@ -1767,8 +1767,8 @@ sub cleanupAfterThread {
 
 # sub normal_sighandler {{{1
 sub normal_sighandler {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     if (   ( isenabled( $Config{'vlan'}{'closelocationlogonstop'} ) )
         && ( threads->self->tid() == 0 ) )
@@ -1784,7 +1784,7 @@ sub normal_sighandler {
 # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
 # bug: http://www.packetfence.org/mantis/view.php?id=907
 sub ignore_sighandler {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger     = get_logger('pfsetvlan');
 
     $logger->error("caught SIG" . $_[0] . ". This is probably a telnet or ssh management attempt that timed out. "
         ."THIS WILL HANG A PACKETFENCE THREAD FOR SEVERAL MINUTES! Doublecheck your config or the network between "
@@ -1796,7 +1796,7 @@ sub ignore_sighandler {
 # sub node_update_PF {{{1
 sub node_update_PF {
     my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = get_logger('pfsetvlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     my $vlan_obj = new pf::vlan::custom();
 
@@ -1835,7 +1835,7 @@ sub node_update_PF {
 sub node_determine_and_set_into_VLAN {
     my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
 
-    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
+    my $logger = get_logger('pfsetvlan::handling');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $vlan_obj = new pf::vlan::custom();
@@ -1855,7 +1855,7 @@ sub node_determine_and_set_into_VLAN {
 # sub perform_trap_limiting {{{1
 sub perform_trap_limiting {
     my ( $switch, $switchIfIndex ) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger('pfsetvlan');
 
     # skipping if feature is disabled
     return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
@@ -1920,8 +1920,8 @@ sub perform_trap_limiting {
 # sub do_port_security {{{1
 sub do_port_security {
     my ( $mac, $switch, $switch_port, $trapType ) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     #determine if $mac is authorized elsewhere
@@ -2056,7 +2056,7 @@ sub getSwitch {
     my ($switch_id) = @_;
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
     my $switch;
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     {
         lock $switchFactory_locker;
     #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();

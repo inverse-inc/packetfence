@@ -56,7 +56,7 @@ pf::SwitchFactory::preLoadModules();
 # assign process name (see #1464)
 our $PROGRAM_NAME = "pfdhcplistener";
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = get_logger( $PROGRAM_NAME );
 
 # init signal handlers
 POSIX::sigaction(

@@ -28,6 +28,7 @@ BEGIN {
     use pf::log(service => 'pfdetect');
 }
 
+use pf::log;
 use pf::action;
 use pf::class;
 use pf::config;
@@ -51,7 +52,7 @@ use pfconfig::cached_hash;
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = "pfdetect";
 
-my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+my $logger = get_logger( $PROGRAM_NAME );
 
 # init signal handlers
 POSIX::sigaction(
