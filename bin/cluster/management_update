@@ -18,6 +18,8 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::log;
+use Net::Interface;
+use Socket;
 
 my $logger = get_logger;
 
@@ -31,11 +33,35 @@ if($state eq "MASTER"){
     $logger->info("Transition to master state, starting management services.");
     `/usr/local/pf/bin/pfcmd service pfdhcplistener start`;
     `/usr/local/pf/bin/pfcmd service pfmon start`;
+    my $interface = interface_for_ip($vrrp_ip);
+    `arping -c 4 -A -I $interface $vrrp_ip`;
 }
 elsif($state eq "SLAVE"){
     $logger->info("Transition to master state, stoping management services.");
     `/usr/local/pf/bin/pfcmd service pfdhcplistener stop`;
     `/usr/local/pf/bin/pfcmd service pfmon stop`;
+}
+
+=head2 interface_for_ip
+
+Get the name of the interface on which the IP is binded
+
+=cut
+
+sub interface_for_ip {
+    my ($ip) = @_;
+    my @all_ifs = Net::Interface->interfaces();
+    foreach my $inf (@all_ifs) {
+        my @masks = $inf->netmask(AF_INET());
+        my @addresses = $inf->address(AF_INET());
+        for my $i (0 .. $#masks) {
+            if (inet_ntoa($addresses[$i]) eq $ip) {
+                my $name = $inf->name;
+                $logger->debug("Found ifname $name for VRRP IP $ip");
+                return $name;
+            }
+        }
+    }
 }
 
 =back
