@@ -141,7 +141,7 @@ foreach my $network ( keys %ConfigNetworks ) {
 # Instantiate dns_hash
 my %dns_hash;
 foreach my $key ( keys %ConfigDomain ) {
-    $dns_hash{$ConfigDomain{$key}->{dns_name}} = $ConfigDomain{$key}->{dns_server};
+    $dns_hash{$ConfigDomain{$key}->{dns_name}} = $ConfigDomain{$key}->{dns_server} if (isenabled($ConfigDomain{$key}->{registration}));
 }
 
 populate_ipset_cache($IPSET_SESSION);
