@@ -74,6 +74,16 @@ sub match_in_subclass {
     return $params->{'username'};
 }
 
+=head2 additionalMandatoryFields
+
+Additional mandatory fields for SMS source
+
+=cut
+
+sub additionalMandatoryFields {
+    return qw(email phone mobileprovider);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
