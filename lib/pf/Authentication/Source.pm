@@ -238,6 +238,14 @@ Setup any resouces need for matching
 
 sub preMatchProcessing { }
 
+=head2 additionalMandatoryFields
+
+Return the list of mandatory for this source
+
+=cut
+
+sub additionalMandatoryFields {}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
