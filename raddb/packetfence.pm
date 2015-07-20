@@ -319,6 +319,9 @@ sub accounting {
         my $data;
         $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST) if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update');
 
+	# Tracking IP address.
+	$data = send_rpc_request($config, "update_iplog", {mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+
 	#
 	# Updating location log in on initial ('Start') accounting run.
 	#
