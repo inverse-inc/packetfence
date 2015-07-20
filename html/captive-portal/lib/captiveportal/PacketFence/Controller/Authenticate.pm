@@ -227,7 +227,9 @@ sub postAuthentication : Private {
     $info->{pid} = $pid;
     $c->stash->{info} = $info;
     # We make sure the person exists and assign it to the device
-    person_add($pid);
+    if ( !pf::person::person_exist($pid) ) {
+        person_add($pid);
+    }
     node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
