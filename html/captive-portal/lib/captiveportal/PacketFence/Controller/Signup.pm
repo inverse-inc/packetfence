@@ -31,8 +31,8 @@ use pf::web::custom;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-our @PERSON_FIELDS = grep { 
-    $_ ne 'pid' 
+our @PERSON_FIELDS = grep {
+    $_ ne 'pid'
     && $_ ne 'notes'
     && $_ ne 'portal'
     && $_ ne 'source'
@@ -112,7 +112,7 @@ sub index : Path : Args(0) {
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
         $c->forward('validateSelfRegistration');
         $c->forward('doSelfRegistration');
-    }  
+    }
     $c->forward('showSelfRegistrationPage');
 }
 
@@ -176,7 +176,7 @@ sub doEmailSelfRegistration : Private {
         'user_email' => $email
     };
     $c->stash->{matchParams} = $auth_params;
-    
+
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
     $session->{source_id} = $source->{id};
@@ -421,7 +421,7 @@ sub doSmsSelfRegistration : Private {
 
     unless ($auth_return) {
         $self->validationError( $c, $err );
-    } 
+    }
 
     # set node in pending mode with the appropriate role
     $info{'status'} = $pf::node::STATUS_PENDING;
@@ -582,19 +582,8 @@ sub validateMandatoryFields : Private {
 
     # Getting the source object
     my $source = $profile->getSourceByType($source_type);
-    my $source_id = $source->{'id'};
-
-    # Source based mandatory fields
-    my @mandatory_fields;
-    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{$source_type}} );
-
-    # Portal profile based custom fields
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
-    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$source_id});
-
-    # Make sure mandatory fields are unique
-    @mandatory_fields = uniq @mandatory_fields;
-
+    my $source_id = $source->id;
+    my @mandatory_fields = $profile->getManadoryFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
@@ -633,7 +622,6 @@ sub showSelfRegistrationPage : Private {
     my $profile = $c->profile;
     my $request = $c->request;
     my @sources = $profile->getExternalSources;
-
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
       ->default;
@@ -653,18 +641,7 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    # Source based mandatory fields
-    my @mandatory_fields;
-    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
-    # 2015.05.11 - dwuelfrath@inverse.ca
-    push ( @mandatory_fields, @{$c->profile->getMandatoryFields->{'temp_current_portal'}} );
-    # Portal profile based custom fields
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
-    foreach ( @sources ) {
-        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
-    }
-    # Make sure mandatory fields are unique
-    @mandatory_fields = uniq @mandatory_fields;
+    my @mandatory_fields = $profile->getManadoryFieldsForSources(@sources);
 
     $c->stash( mandatory_fields => \@mandatory_fields );
 
