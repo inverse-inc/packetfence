@@ -106,10 +106,10 @@ sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
     my $previous_model = $c->session->{$class};
+    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal});
+    my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
-    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
-    my $model;
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
