@@ -101,7 +101,7 @@ has_field 'registration' =>
    type => 'Checkbox',
    label => 'Allow on registration',
    tags => { after_element => \&help,
-             help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration.' },
+             help => 'If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN.' },
   );
 
 =over
