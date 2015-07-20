@@ -11,19 +11,39 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 5.3.0 released on 2015-07-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+* Support for Single Sign-On integration with IBoss.
+* Support for web authentication for NATed clients.
+* Support for MAC Authentication and 802.1x to Alcatel switches.
+* Support for the IBM StackSwitch G8052.
+
 
 Enhancements
 ++++++++++++
 
+* New Powershell scripts to allow unregistering nodes for disabled accounts on Active-Directory.
+* Force a JSON response if the Accept header is set to 'application/json'.
+* Fingerbank processing in pfdhcplistener is now asyncronous using the webservices.
+* Integration of pfconfig commands in bin/pfcmd.
+* Added web form registration to Ruckus Controllers.
+* Improved database maintenance script to prevent prolonged locking of tables.
+* Active/Active mode will now send gratuitous ARPs to update routers when changing master node.
+
 
 Bug Fixes
 +++++++++
+
+* Fix multiple xss vulnerabilities in the administration GUI.
+* Fixed incorrect RADIUS realm detection when using windows computer authentication.
+* Fixed an issue with pfdns returning the wrong IP when using active/active mode.
+* Fixed an issue on Debian and Ubuntu where the GUI could not change some field values.
+* Fixed incorrect graphite document root on Ubuntu.
+* Fixed SMS bug where the list of carriers could be accidentally deleted.
 
 Version 5.2.0 released on 2015-06-18
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
