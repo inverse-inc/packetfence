@@ -586,7 +586,7 @@ sub _is_locationlog_accurate {
     # ifIndex on wireless is not important
     my $ifIndexChanged = 0;
     if (($connection_type & $WIRED) == $WIRED) {
-        $ifIndexChanged = ($locationlog_mac->{port} != $ifIndex);
+        $ifIndexChanged = ($locationlog_mac->{port} ne $ifIndex);
     }
 
     if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged) {
