@@ -254,13 +254,14 @@ sub regzone {
         #Handle SRV record to be able to contact Active Directory in the reg vlan
         $rcode = "NXDOMAIN";
         foreach my $key ( keys %dns_hash ) {
-            if ($qname =~ /(.*)_msdcs.$key/) {
+            if ($qname =~ /(.*)_msdcs.$key/i) {
                 my $resolver = new Net::DNS::Resolver(nameservers => [$dns_hash{$key}]);
                 my $reply = $resolver->search($qname, $qtype);
                 foreach my $answer ($reply->answer) {
                     my $query = $CHI_CACHE->compute($answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
-                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', '49155', '49156', '49172');
+                        get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
+                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
                     }
                 }
                 $rcode = "NOERROR";
