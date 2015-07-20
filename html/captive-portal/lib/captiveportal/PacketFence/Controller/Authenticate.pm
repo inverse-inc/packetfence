@@ -592,16 +592,7 @@ sub showLogin : Private {
         guest_allowed   => $guest_allowed,
     );
 
-    # TODO: Handle this differently on rework; for the moment, making sure everything is displayed...
-    # 2015.05.11 - dwuelfrath@inverse.ca
-    # Portal profile based custom fields
-    my @mandatory_fields;
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
-    foreach ( @sources ) {
-        push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$_->{'id'}});
-    }
-    # Make sure mandatory fields are unique
-    @mandatory_fields = uniq @mandatory_fields;
+    my @mandatory_fields = $profile->getManadoryFieldsForSources(@sources);
 
     $c->stash( mandatory_fields => \@mandatory_fields );
 }
@@ -632,13 +623,9 @@ sub validateMandatoryFields : Private {
     my $profile    = $c->profile;
     my ( $error_code, @error_args );
 
+    my $source = getAuthenticationSource($session->{source_id});
     # Portal profile based custom fields
-    my @mandatory_fields;
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$c->profile->getCustomFieldsSources};
-    push ( @mandatory_fields, @{$c->profile->getCustomFields} ) if exists($custom_fields_authentication_sources{$c->session->{source_id}});
-    # Make sure mandatory fields are unique
-    @mandatory_fields = uniq @mandatory_fields;
-
+    my @mandatory_fields = $profile->getManadoryFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
