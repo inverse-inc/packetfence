@@ -122,7 +122,7 @@ has_field 'cn_attribute' =>
 
 has_block definition =>
   (
-    render_list => [qw(type url username password country state organization cn_attribute ca_cert_path server_cert_path)],
+    render_list => [qw(type url username password country state locality organization organizational_unit cn_attribute ca_cert_path server_cert_path)],
   );
 
 =head1 COPYRIGHT
