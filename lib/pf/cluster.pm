@@ -193,7 +193,7 @@ sub members_ips {
     my ($interface) = @_;
     my $logger = get_logger;
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
-        $logger->error("requesting member ips for an undefined interface...");
+        $logger->warn("requesting member ips for an undefined interface...");
         return {};
     }
     my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;
