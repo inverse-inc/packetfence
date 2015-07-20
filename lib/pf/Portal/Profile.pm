@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use List::Util qw(first);
-use List::MoreUtils qw(all none any);
+use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::log;
@@ -510,6 +510,28 @@ sub findScan {
     }
     return undef;
 }
+
+=item getManadoryFieldsForSources
+
+Get all the mandatory fields need for sources provides
+
+=cut
+
+sub getManadoryFieldsForSources {
+    my ($self, @sources) = @_;
+    my @mandatory_fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
+    if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
+        @mandatory_fields = @{$self->getCustomFields};
+    }
+    my @additionalMandatoryFields = map {$_->additionalMandatoryFields()} @sources;
+
+    # Combine the profile and the source mandatory fields
+    push @mandatory_fields, @additionalMandatoryFields;
+    # Make sure mandatory fields are unique
+    return uniq @mandatory_fields;
+}
+
 
 =back
 
