@@ -443,6 +443,7 @@ sub validate {
     $self->field('locale')->value(\@uniq_locales);
 
     my @uniq_sources = uniq @{$self->value->{'sources'}};
+    my %sources = map { $_ => 1 } @uniq_sources;
     $self->field('sources')->value(\@uniq_sources);
 
     my %external;
@@ -454,6 +455,12 @@ sub validate {
         if ($external{$source->{'type'}} > 1) {
             $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
             last;
+        }
+    }
+    my @custom_fields_authentication_sources = @{$self->value->{'custom_fields_authentication_sources'} || []};
+    foreach my $custom_fields_authentication_source (@custom_fields_authentication_sources) {
+        unless ( exists $sources{$custom_fields_authentication_source}) {
+            $self->field('custom_fields_authentication_sources')->add_error("$custom_fields_authentication_source must also be set in sources");
         }
     }
 }
