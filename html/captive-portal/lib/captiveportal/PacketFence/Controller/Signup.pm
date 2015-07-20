@@ -582,7 +582,6 @@ sub validateMandatoryFields : Private {
 
     # Getting the source object
     my $source = $profile->getSourceByType($source_type);
-    my $source_id = $source->id;
     my @mandatory_fields = $profile->getManadoryFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
