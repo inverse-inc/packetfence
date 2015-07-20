@@ -54,6 +54,16 @@ sub match_in_subclass {
     return $params->{'username'};
 }
 
+=head2 additionalMandatoryFields
+
+Additional mandatory fields for Sponsor source
+
+=cut
+
+sub additionalMandatoryFields {
+    return qw(email sponsor_email);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
