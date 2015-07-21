@@ -10,6 +10,7 @@ Form definition to create or update a section of pf.conf.
 
 =cut
 
+use HTML::Entities qw(encode_entities);
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
@@ -40,7 +41,7 @@ sub field_list {
         my $defaults = $Default_Config{$section};
         $doc_section->{description} =~ s/\n//sg;
         my $field =
-          { element_attr => { 'placeholder' => $defaults->{$name} },
+          { element_attr => { 'placeholder' => encode_entities($defaults->{$name}) },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
                       help => $doc_section->{description} },
             id => $name,
