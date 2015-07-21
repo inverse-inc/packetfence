@@ -103,7 +103,7 @@ sub login : Local {
 
 sub logout : Local {
     my ( $self, $c ) = @_;
-    $c->delete_session;
+    $c->delete_session('logout');
     $c->forward('index');
 }
 
