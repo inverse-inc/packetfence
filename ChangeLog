@@ -1,3 +1,1039 @@
+commit 95e0a86af5e30377718e1a26f3adc851b458d484
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 21 10:23:10 2015 -0400
+
+    Updated changelog files.
+
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 88318d553558225f5dac254ba862f05a2e64892d
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 21 10:20:04 2015 -0400
+
+    Added Debian/Ubuntu related upgrade notes.
+
+M	UPGRADE.asciidoc
+
+commit e1bfeec3231582ce9c2dd595fd07d1d6be75b918
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 21 09:41:21 2015 -0400
+
+    Updated UPGRADE doc prior to releasing 5.3.
+
+M	UPGRADE.asciidoc
+
+commit a7dd7e159ee865fd1798a24a8c40f7aec1031ccd
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 20 16:21:10 2015 -0400
+
+    Fixed error if the user already exist
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Authenticate.pm
+
+commit b859868928bfbeae873fddf049fc3b39a09641e4
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 20 13:15:51 2015 -0400
+
+    Updates to i18n prior to 5.3 release.
+
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/es/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/locale/he_IL/LC_MESSAGES/packetfence.po
+M	conf/locale/it/LC_MESSAGES/packetfence.po
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pl_PL/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+M	html/pfappserver/lib/pfappserver/I18N/fr.po
+
+commit 014ae14579625814c0dde5acec0729ca4ae435fb
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jul 20 12:08:55 2015 -0400
+
+    Bad comparison operator when port is a string
+
+M	lib/pf/locationlog.pm
+
+commit 80e329e710ee596b76e5aa1c2b4290daa1988a37
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 20 11:38:59 2015 -0400
+
+    Renamed db files prior to 5.3 release.
+
+A	db/pf-schema-5.3.0.sql
+D	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-5.2.0-5.3.0.sql
+D	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 6190debe33f7c473391cc690eea5f07916f23b17
+Author: extrafu <lmarcotte@inverse.ca>
+Date:   Mon Jul 20 10:52:46 2015 -0400
+
+    Update NEWS.asciidoc
+    
+    Small typos + formatting changes.
+
+M	NEWS.asciidoc
+
+commit 8715442b77e609e0a8e83411701d2eb2d82c9f07
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 20 10:47:12 2015 -0400
+
+    Updated prior to 5.3 release.
+
+M	NEWS.asciidoc
+
+commit a90b276ffc522b28df7cf66a87bd228eac753ae1
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jul 20 07:56:21 2015 -0400
+
+    Lower log level, hurts @lzammit eyes
+    
+    Fixes #768
+
+M	lib/pf/cluster.pm
+
+commit da1185da03a52792837a7b4f590e053f6bdfd8e3
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jul 16 11:52:30 2015 -0400
+
+    Updated debian control file to pin libmoo version.
+
+M	debian/control
+
+commit cbb02481bdd617b69dea2334351aaa0399759388
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jul 15 14:36:15 2015 -0400
+
+    Fix json request
+
+M	addons/AD/unreg_node_locked_account.ps1
+
+commit 17b14c44b0ce17551fd807e43f99522653c320ca
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jul 15 14:35:49 2015 -0400
+
+    Fix json request
+
+M	addons/AD/unreg_node_disabled_account.ps1
+
+commit f2b5414e066d6034db02ecf33c97f57393d181db
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jul 15 14:34:45 2015 -0400
+
+    Fix json request
+
+M	addons/AD/unreg_node_deleted_account.ps1
+
+commit fcdab8bd2a226a6db2fff17160bb70ae2d30c67c
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jul 15 10:49:38 2015 -0400
+
+    add arping on vrrp transition
+    
+    Fixes #759
+
+M	bin/cluster/management_update
+
+commit c885a7303f22e518d2b29b39515b8208e10883dc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jul 15 10:25:37 2015 -0400
+
+    FIX - VIP map creation in pfdns
+    
+    Fixes #758
+
+M	sbin/pfdns
+
+commit 5338342ed18138a8f1458fe2c7c0a549fc67241f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 13 21:17:10 2015 -0400
+
+    Updated translation file
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit 815d45992b28a531478b8b7d7918adb87e4c363a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 13 21:12:10 2015 -0400
+
+    Updated translation file
+
+M	html/pfappserver/lib/pfappserver/I18N/i_default.po
+
+commit b4099f03380e617e349f9beee1a92a247e180409
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 13 21:08:13 2015 -0400
+
+    Handle the none filter
+
+M	addons/extract_i18n_strings.pl
+
+commit 80aa70c17cf343049e57335012f570ba344514e2
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 13 17:59:02 2015 -0400
+
+    Fix to version of libtemplate-autofilter-perl on debian.
+
+M	debian/control
+
+commit 326c77ebeefcdc504e567109552b30ab52481631
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 13 14:47:25 2015 -0400
+
+    Change to CLASS to Template::AutoFilter
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 88491f23f3ebfbb8dc29888450aa95d63e1b1555
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 13 14:03:57 2015 -0400
+
+    Lower version of libcatalyst-view-tt-perl needed
+
+M	debian/control
+
+commit 2b8fedb61330fbd8bb9dc8f81aaace6a024d66cf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 30 14:20:15 2015 -0400
+
+    Remove the template cache
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit cd45d66fab8250b78f1154b4ae58359cc5a7f333
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 30 13:53:10 2015 -0400
+
+    html encode the value of Uneditable fields
+
+M	html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/Uneditable.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/Span.pm
+
+commit 4a6b95ff9c17ea6daf2615d5df50447ebb4b474c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 23 10:58:28 2015 -0400
+
+    Update Template::View::TT version number
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit f4953dda3c33c12d26d5fb3675768f0f7d95a63b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 23 10:54:05 2015 -0400
+
+    Create new parser directly
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 314154d1d9ae32d15d2316cc55547dbf62bcf7a4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jun 23 10:27:21 2015 -0400
+
+    Apply the none filter to all safe html output
+
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/admin/wrapper.tt
+M	html/pfappserver/root/configurator/configuration.tt
+M	html/pfappserver/root/configurator/wrapper.tt
+
+commit 0b9e889068e7564992a0e58e1dd936a9da61142f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 22 16:38:21 2015 -0400
+
+    Apply the none filter to all safe html output
+
+M	html/pfappserver/root/admin/nodes.tt
+M	html/pfappserver/root/admin/reports.tt
+M	html/pfappserver/root/admin/users.tt
+M	html/pfappserver/root/authentication/source/read.tt
+M	html/pfappserver/root/authentication/source/rule_read.tt
+M	html/pfappserver/root/authentication/source/rules_read.tt
+M	html/pfappserver/root/authentication/source/type/AD.tt
+M	html/pfappserver/root/authentication/source/type/Chained.tt
+M	html/pfappserver/root/authentication/source/type/Email.tt
+M	html/pfappserver/root/authentication/source/type/Facebook.tt
+M	html/pfappserver/root/authentication/source/type/Github.tt
+M	html/pfappserver/root/authentication/source/type/Google.tt
+M	html/pfappserver/root/authentication/source/type/Htpasswd.tt
+M	html/pfappserver/root/authentication/source/type/Kerberos.tt
+M	html/pfappserver/root/authentication/source/type/LDAP.tt
+M	html/pfappserver/root/authentication/source/type/LinkedIn.tt
+M	html/pfappserver/root/authentication/source/type/Null.tt
+M	html/pfappserver/root/authentication/source/type/RADIUS.tt
+M	html/pfappserver/root/authentication/source/type/SMS.tt
+M	html/pfappserver/root/authentication/source/type/SponsorEmail.tt
+M	html/pfappserver/root/authentication/source/type/Twitter.tt
+M	html/pfappserver/root/authentication/source/type/WindowsLive.tt
+M	html/pfappserver/root/config/adminroles/view.tt
+M	html/pfappserver/root/config/authentication.tt
+M	html/pfappserver/root/config/domain/view.tt
+M	html/pfappserver/root/config/fingerbank/combination/list.tt
+M	html/pfappserver/root/config/fingerbank/combination/view.tt
+M	html/pfappserver/root/config/fingerbank/device/list.tt
+M	html/pfappserver/root/config/fingerbank/device/upstream/view.tt
+M	html/pfappserver/root/config/fingerbank/device/view.tt
+M	html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+M	html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
+M	html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+M	html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
+M	html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+M	html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
+M	html/pfappserver/root/config/fingerbank/settings/index.tt
+M	html/pfappserver/root/config/fingerbank/settings/onboard.tt
+M	html/pfappserver/root/config/fingerbank/user_agent/list.tt
+M	html/pfappserver/root/config/fingerbank/user_agent/view.tt
+M	html/pfappserver/root/config/firewall_sso/view.tt
+M	html/pfappserver/root/config/floatingdevice/view.tt
+M	html/pfappserver/root/config/networks/view.tt
+M	html/pfappserver/root/config/pki_provider/view.tt
+M	html/pfappserver/root/config/profile/captive-portal-settings.tt
+M	html/pfappserver/root/config/profile/edit.tt
+M	html/pfappserver/root/config/profile/files.tt
+M	html/pfappserver/root/config/profile/index.tt
+M	html/pfappserver/root/config/profile/tab-content.tt
+M	html/pfappserver/root/config/provisioning/type/accept.tt
+M	html/pfappserver/root/config/provisioning/type/android.tt
+M	html/pfappserver/root/config/provisioning/type/deny.tt
+M	html/pfappserver/root/config/provisioning/type/ibm.tt
+M	html/pfappserver/root/config/provisioning/type/mobileconfig.tt
+M	html/pfappserver/root/config/provisioning/type/mobileiron.tt
+M	html/pfappserver/root/config/provisioning/type/opswat.tt
+M	html/pfappserver/root/config/provisioning/type/sepm.tt
+M	html/pfappserver/root/config/provisioning/type/symantec.tt
+M	html/pfappserver/root/config/provisioning/type/windows.tt
+M	html/pfappserver/root/config/realm/view.tt
+M	html/pfappserver/root/config/scan/type/wmi.tt
+M	html/pfappserver/root/config/scan/view.tt
+M	html/pfappserver/root/config/switch/list.tt
+M	html/pfappserver/root/config/switch/view.tt
+M	html/pfappserver/root/config/wmi/view.tt
+M	html/pfappserver/root/config/wrix/list.tt
+M	html/pfappserver/root/config/wrix/search_form.tt
+M	html/pfappserver/root/config/wrix/view.tt
+M	html/pfappserver/root/configuration/section.tt
+M	html/pfappserver/root/interface/create.tt
+M	html/pfappserver/root/interface/view.tt
+M	html/pfappserver/root/node/advanced_search.tt
+M	html/pfappserver/root/node/create.tt
+M	html/pfappserver/root/node/search.tt
+M	html/pfappserver/root/node/simple_search.tt
+M	html/pfappserver/root/node/view.tt
+M	html/pfappserver/root/roles/read.tt
+M	html/pfappserver/root/soh/read.tt
+M	html/pfappserver/root/user/advanced_search.tt
+M	html/pfappserver/root/user/create.tt
+M	html/pfappserver/root/user/list.tt
+M	html/pfappserver/root/user/simple_search.tt
+M	html/pfappserver/root/user/view.tt
+M	html/pfappserver/root/violation/view.tt
+
+commit 696865ece70fdb3f826b6014b4647615afbf1b74
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jun 22 16:07:26 2015 -0400
+
+    Use Template::AutoFilter to automatically apply the html filter all output
+
+M	addons/packages/packetfence.spec
+M	debian/control
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 71fcf522d842391f8c6268af0af7bbec84366ef5
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 13 13:53:25 2015 -0400
+
+    Fixed logrotate on debian.
+    Removed 1Gb trigger to logrotate as that conflicts with the "weekly"
+    rule.
+
+M	addons/logrotate
+A	debian/packetfence.logrotate
+M	debian/rules
+
+commit ee933f0276fea99833e5e68372c64590492f6833
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 13 13:17:31 2015 -0400
+
+    Pinned version of libhtml-formhandler-perl  on debian and derivatives.
+
+M	debian/control
+
+commit cde5f79e2c5329f992b69338f2b9950c753c3d57
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Jul 10 15:12:22 2015 -0400
+
+    Added code that actually expires when calling pfconfig expire.
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit 97b317b14b523fba3c8286529805b654b54ea9a4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 10 14:11:50 2015 -0400
+
+    Missing space
+
+M	raddb/packetfence-multi-domain.pm
+
+commit f057ff542518b86b4aa056df5bc4c1bdff81e0be
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 10 14:07:25 2015 -0400
+
+    Match realm with machine auth
+
+M	raddb/packetfence-multi-domain.pm
+
+commit ac29105bbde15674cd88bafe2515d0f9aa9f0e25
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Jul 10 13:22:09 2015 -0400
+
+    Added wmi dependencies in predepend on debian so that the ldconfig has
+    time to run before starting the GUI.
+
+M	debian/control
+
+commit ff7a0bf2ea4c692c683149c2a83a4361a1e34006
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Jul 10 11:23:32 2015 -0400
+
+    Fixed wrong graphite documentroot on ubuntu.
+
+M	conf/httpd.conf.d/httpd.graphite
+
+commit 49d56d81e2eded16c860b5da4479a7321d93df8f
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jul 9 21:21:08 2015 -0400
+
+    Let's save ourselves some resource
+
+M	lib/pf/ipset.pm
+
+commit be559b971776bbdec4656c81326aef5763977515
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jul 9 15:29:35 2015 -0400
+
+    Fixing typo introduced by Zammit you reverted my fixed for that same typo
+    ZAMMIT DON'T !
+
+M	UPGRADE.asciidoc
+
+commit 0012fe417baea0938e53a38ab277952a19cfdff6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 9 11:15:59 2015 -0400
+
+    Updated copyright
+
+M	addons/dev-helpers/centos-chroot/make_chroot.sh
+M	html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/Domain.pm
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Domain.pm
+M	raddb/packetfence-multi-domain.pm
+
+commit 438133068637102f3b8069d4afc4952773a9aca3
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jul 8 16:18:28 2015 -0400
+
+    typos + useless import
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit c3f97741d313f2b5d377cf8be430e5bccbbe5c18
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Wed Jul 8 16:14:26 2015 -0400
+
+    Better error message, verification method
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit b34b7c1a2a3c2dc78050d8609d6daefa34d828b5
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jul 8 11:50:15 2015 -0400
+
+    Upgraded spec file to freeradius 2.2.5-3 to ensure that our version is
+    selected.
+
+M	addons/packages/packetfence.spec
+
+commit 095bc337adea5641b9d7e6db10b2797e08d6a9e8
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jul 8 09:29:59 2015 -0400
+
+    fix typo on MACVENDOR
+
+M	UPGRADE.asciidoc
+
+commit 86fae61ebb4e554e14b5a634caddb291aac9ea73
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Jul 8 09:22:41 2015 -0400
+
+    Fix libhtml-formhandler-perl
+
+M	debian/control
+
+commit ec8a0c590ed56fb692cd0a7f1e8eb865d7cfcc5e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 18:15:05 2015 -0400
+
+    Handle the case a EAP RADIUS config is not yet generated
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit acb2a771c596ac2ba9d841c4e8ccb1e766c03b0c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 7 17:35:40 2015 -0400
+
+    Fixed viewing of the SMS carriers after saving
+
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
+
+commit 04eae05ca782315056af6e947f81728a5c1d6349
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 17:30:26 2015 -0400
+
+    Typo
+
+M	UPGRADE.asciidoc
+
+commit 0b2af17c668b2d4a693f4dbf0894f8a59edd20a8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 7 15:47:10 2015 -0400
+
+    Updated help
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
+
+commit 8d35a6c78f048fa8b8053015ff44dee7584dfffe
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 7 15:39:55 2015 -0400
+
+    Do not display rules of chained sources
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
+M	html/pfappserver/root/authentication/source/read.tt
+
+commit bb2ef01efa40f1decc5cb9a6b08f4e593b6524e4
+Author: lzammit <lzammit@inverse.ca>
+Date:   Tue Jul 7 15:37:43 2015 -0400
+
+    fix libhtml-formhandler-perl version for debian
+
+M	debian/control
+
+commit 1ce27c7dd54464e2e36d321007959f70c7d433f6
+Author: lzammit <lzammit@inverse.ca>
+Date:   Tue Jul 7 15:09:54 2015 -0400
+
+    Force the version libhtml-formhandler-perl
+    
+    libhtml-formhandler-perl of to 0.40013-1 or lower.
+
+M	debian/control
+
+commit 0bf6b2c592db424aac65221996d242e17155fd89
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 14:57:29 2015 -0400
+
+    A bit too verbose
+    Zammit will love it
+
+M	lib/pf/fingerbank.pm
+
+commit 3cb1c667db7d1c1df84fb474cd3c3a975a111f25
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 7 14:39:58 2015 -0400
+
+    Update version in pf-schema.sql
+
+M	db/pf-schema-X.Y.Z.sql
+
+commit 94cbb59091ce753819c917061881bc7fc039b058
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 7 14:37:39 2015 -0400
+
+    Update EX2200.pm
+
+M	lib/pf/Switch/Juniper/EX2200.pm
+
+commit 5f4fcd90ab3e869f1afdb4bcd5e6be7051764871
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 14:24:47 2015 -0400
+
+    Document 'portal' interface type for some features
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit ad48e9de761deb95f4b048033433d2604550411c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 13:57:25 2015 -0400
+
+    My indentation is better than yours
+
+M	raddb/modules/mschap
+
+commit 3c3a23a0717355a67ecf5811fc3e9f42acf66082
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 7 13:53:20 2015 -0400
+
+    Fixed a typo in help message.
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit d59d21561faede833e20ce04ef780a636f18ae76
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 7 13:26:58 2015 -0400
+
+    Removed pfconfig/README.asciidoc from spec file.
+
+M	addons/packages/packetfence.spec
+
+commit 96ebaf92c0e5a161f55b10235dee4888ae236d59
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 7 13:03:38 2015 -0400
+
+    Removed obsolete README for packetfence config.
+
+D	addons/pfconfig/README.asciidoc
+
+commit 496a02f28b5a041f3feab2b857de5064e09a99b7
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 7 13:01:25 2015 -0400
+
+    Removed obsolete cmd.pl from spec file.
+
+M	addons/packages/packetfence.spec
+
+commit b5ca14c1506c570932ec7ea143b79b3d97c577a2
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 7 10:14:44 2015 -0400
+
+    hide the form for ruckus webrelease
+
+M	lib/pf/Switch/Ruckus.pm
+
+commit 8d6a47bcf7c4fef523a4db9d86ea8a06af4a1cb8
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 7 10:06:08 2015 -0400
+
+    remove useless code
+
+M	lib/pf/Switch/Alcatel.pm
+
+commit 5b7af19df450ba7bbf77667820c95c1be6ea3642
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 7 09:58:33 2015 -0400
+
+    Typo + add useful parameter
+
+M	conf/radiusd/eap.conf.example
+
+commit 23753acf84a720058ee84941810dc5b4a6d9dfe8
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 7 09:27:15 2015 -0400
+
+    Remove Juniper EX2200 SNMP interaction since it's slow
+    
+    - Removed ifindex detection since it was slow
+    - Removed LLDP phone detection since it was slow
+
+M	lib/pf/Switch/Juniper/EX2200.pm
+
+commit a64baa382f02a334f73f5ffb9bf765a8cbe59e38
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jul 6 16:19:18 2015 -0400
+
+    That should be the latest step :)
+
+M	UPGRADE.asciidoc
+
+commit 9a2026511d7dcbdff0ff8201100ddbcae570c4f6
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jul 6 16:18:24 2015 -0400
+
+    fix name/description
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit 2491165625e53e83d70942aa5098e6f12122c85d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jul 6 16:17:10 2015 -0400
+
+    We decided to go with absolute paths
+
+M	UPGRADE.asciidoc
+
+commit 32317c76cece678f949714c3d6f4dbf1320eaff5
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 6 16:17:05 2015 -0400
+
+    Cleanup of the old unused script in addons.
+
+D	addons/autodiscover.pl
+D	addons/connect_and_read.pl
+D	addons/convertToPortSecurity.pl
+D	addons/monitorpfsetvlan.pl
+D	addons/network-save-configs.pl
+D	addons/recovery.pl
+D	addons/sign.sh
+D	addons/template-from-csv.pl
+
+commit 1432ea670ca6a2827e1cd1e4de9b825feb23da1c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jul 6 15:45:24 2015 -0400
+
+    fix help syntax
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit d1a3322a7ff9c5eb69040bb2dbb88f6664db20f9
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Thu Jul 2 09:53:29 2015 -0400
+
+    remove old pfconfig command
+
+D	addons/pfconfig/cmd.pl
+
+commit efbbc994f80b3b4c4e4e786a545cf1fa0d72c406
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 22 09:36:55 2015 -0400
+
+    syntax help
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit 81facf020c0fbb49e03f9b6e9d9daba05b4ebe3c
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Mon Jun 22 09:33:52 2015 -0400
+
+    use constant, add help
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit 4084f8b0d17fcba4c9fa2fb91a6a1e83972788f6
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 19 15:21:56 2015 -0400
+
+    typos + added parse methods for args
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit e6f33d306750c6e89ea583e0675c3ff3d20ce5a3
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Fri Jun 19 14:52:17 2015 -0400
+
+    added pfconfig command with pfcmd
+
+M	lib/pf/cmd/pf/pfconfig.pm
+
+commit 3fa577b61ddda46a083e2fdcc0fe5e4f50c4e2a2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu May 28 14:40:10 2015 -0400
+
+    Add new command to interact with pfconfig
+
+M	lib/pf/cmd/pf.pm
+A	lib/pf/cmd/pf/pfconfig.pm
+
+commit f87e0f5d720dbe3823a8306ae4a63a509404e8c3
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Mon Jul 6 15:19:31 2015 -0400
+
+    remove log4perl
+
+M	lib/pf/Switch/IBM.pm
+
+commit 7815e2ca414d0e2271f736eb1f9cf1706db9c8f3
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Mon Jul 6 15:09:12 2015 -0400
+
+    code improvment
+
+M	lib/pf/firewallsso/Iboss.pm
+
+commit 9977fca214944dc7493336cbcc259a7dd7607a53
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Mon Jul 6 14:58:27 2015 -0400
+
+    code improvement/cleaning
+
+M	lib/pf/firewallsso/Iboss.pm
+
+commit 46cde2d44bef4885436e0b3266eeb144198d35a9
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 6 13:54:06 2015 -0400
+
+    Added missing version update.
+
+M	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 0dce2eecf57ed8cda62e3a761e13aa960cb159d3
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jul 6 11:07:21 2015 -0400
+
+    use pf::log instead of log4perl
+
+M	html/pfappserver/lib/pfappserver/Base/Model/Config.pm
+
+commit 4629da454ad5124bd6cdff76d9fcb4cbf35f032b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jul 6 11:06:29 2015 -0400
+
+    FIX - Don't trim LDAP password field
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+
+commit 269f75262dafcf9208e13a3b97d647f51921d481
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Mon Jul 6 10:20:05 2015 -0400
+
+    code cleaning
+
+M	lib/pf/Switch/IBM/IBM_RackSwitch_G8052.pm
+
+commit 977e859356d568e28a490db3d511fd79191e8628
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Mon Jul 6 10:17:51 2015 -0400
+
+    code cleaning
+
+M	lib/pf/Switch/IBM/IBM_RackSwitch_G8052.pm
+
+commit 8b844d958fc9fd0c670fe0094f85d4ead1efa920
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jul 6 08:24:28 2015 -0400
+
+    add captiveportal.conf to gitignore
+
+M	.gitignore
+
+commit 13d3f6f8037eafc88af5de29cf49c1bb12f92b09
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 30 16:31:22 2015 -0400
+
+    code cleaning
+
+M	lib/pf/Switch/IBM/IBM_RackSwitch_G8052.pm
+
+commit 46f8d055b69bc6849671eeabf57d73d83ae47925
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 30 16:23:41 2015 -0400
+
+    module and doc improvements
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/Switch/IBM/IBM_RackSwitch_G8052.pm
+
+commit 5943a1b628fd17c1dcefefa3c888f9b1500694a6
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 30 13:37:48 2015 -0400
+
+    changes to alcatel doc
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 9d09b548299daf1b906d2bbd7614c71616cbd6c1
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 30 09:40:24 2015 -0400
+
+    doc improvement
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 24b808b38a329ea1446cb92264ee9340369a1a2b
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jun 29 17:08:44 2015 -0400
+
+    Post 5.2.0 procedure.
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/pf-release
+A	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 1a7f10532b554d9401eec1c0d0fbde8f10e0270a
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jun 29 16:41:13 2015 -0400
+
+    missing node entry
+
+M	lib/pf/cmd/pf.pm
+
+commit 465725817930b081e991763aa67f0ce735cce49e
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Jun 26 09:31:21 2015 -0400
+
+    Added modifications for config difference between 6 and 8
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/Switch/Alcatel.pm
+
+commit be6533af48ef1bbd2e8bb6a7751bf9155d8814fa
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 10:13:18 2015 -0400
+
+    Fix winbindd managers building namespaces on status
+    
+    One of the child manager (the first) will be the namespaces for all of them
+    Fixes an issue where namespaces are recreated on status
+
+M	lib/pf/services.pm
+M	lib/pf/services/manager/winbindd.pm
+A	lib/pf/services/manager/winbindd_child.pm
+
+commit 736776359931e8a74679136a409c2c8161687440
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 09:19:52 2015 -0400
+
+    rework params order for readability
+
+M	addons/database-backup-and-maintenance.sh
+
+commit c5198d31856a3c64fd1083ffce167b141978c412
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 09:08:17 2015 -0400
+
+    change logging level
+
+M	addons/database-cleaner
+
+commit 604535e2eb1e054baa0bd3c213fb34915bf9456b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 09:06:56 2015 -0400
+
+    fix error message
+
+M	addons/database-cleaner
+
+commit fb94987a0d2772068edb951c3354573c0267476a
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 09:06:40 2015 -0400
+
+    missing db host
+
+M	addons/database-backup-and-maintenance.sh
+
+commit 7d43725ab438010ea3cfab3009f5e84009242f54
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 09:03:56 2015 -0400
+
+    make maintenance script less bad
+
+M	addons/database-backup-and-maintenance.sh
+
+commit e4ced451c56e4f79c49a1e2e11249bb8ba604a6d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 08:54:30 2015 -0400
+
+    add documentation for cleaner
+
+M	addons/database-cleaner
+
+commit 29cc355f04fca90def6f0123d6b60ff8de5d71aa
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 25 08:21:39 2015 -0400
+
+    base for new db cleaning
+
+M	addons/database-backup-and-maintenance.sh
+A	addons/database-cleaner
+
+commit a0a551fe1af13446f63ea1609dd7ea1ec6401f4d
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Wed Jun 24 20:38:23 2015 -0400
+
+    Commented configreload in postinst (debian)
+
+M	debian/packetfence.postinst
+
+commit 3db639be7ab19e20ba7ffbcbaf8cca66a023f011
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Wed Jun 24 19:52:29 2015 -0400
+
+    Replace service by invoke-rc.d (fix for usb key)
+
+M	debian/packetfence.postinst
+
+commit f3200be2f3d882204d8936e84de505fefcbeae4c
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 23 15:29:34 2015 -0400
+
+    fix doc
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit ef4c24204aa1b597e893c5cea514dc350110ed5d
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Tue Jun 23 15:24:59 2015 -0400
+
+    Added support for IBM RackSwitch G8052
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+A	lib/pf/Switch/IBM.pm
+A	lib/pf/Switch/IBM/IBM_RackSwitch_G8052.pm
+
+commit 9480eb56a87bf02bccfcdd5aa77ea15c8258b971
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 23 09:29:09 2015 -0400
+
+    remove debugging
+
+M	lib/pf/Switch/Alcatel.pm
+
+commit 7b527fc4953bd36e521d662b69b6b4c6b39aabdc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 23 08:33:22 2015 -0400
+
+    add web form registration to ruckus
+
+M	lib/pf/Switch/Ruckus.pm
+
+commit 69eb52822c30f4b6a1a419b3d3d760803fbcd605
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jun 23 08:15:53 2015 -0400
+
+    added documentation for alcatel
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 0c1d0d9e6cf7659c0a8b618ae8090d8d9d8e9f76
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 22 15:15:17 2015 -0400
+
+    With mab, dot1x + voip support
+
+A	lib/pf/Switch/Alcatel.pm
+
+commit fc9133e043cd285df03fbb4334947afc4b4df3c4
+Author: Ludovic Marcotte <lmarcotte@inverse.ca>
+Date:   Mon Jun 22 09:30:40 2015 -0400
+
+    adjusted copyright information
+
+M	lib/pf/lookup/person.pm
+
+commit 00aa6df3b5d10f3f7c030f0f1a60c61f3fc1c5e1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 19 12:54:02 2015 -0400
+
+    Updated init script to be able to start/stop/restart a specific service and fixed packaging
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.init
+M	debian/packetfence.postinst
+M	packetfence.init
+
+commit 252ff72f9ae226c63b5d79fb88682b363dc55df8
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jun 18 13:48:31 2015 -0400
+
+    Updated Changelog prior to release 5.2.
+
+M	ChangeLog
+
 commit e23ffa584488ddebabfdfab7b0b28d666ef1e2e5
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Thu Jun 18 13:44:32 2015 -0400
@@ -882,6 +1918,23 @@ Date:   Fri Jun 12 11:50:40 2015 -0400
 
 M	html/pfappserver/lib/pfappserver/Model/DB.pm
 
+commit b53ce0b7922b5997ba91371b799f3008d24fea64
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 11:20:08 2015 -0400
+
+    No longer needed since now going through webservices
+
+M	conf/log.conf.d/pfdhcplistener.conf.example
+
+commit 4a4e23287089b90ab46db456de6b508c2f765b75
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jun 12 11:19:25 2015 -0400
+
+    notify call for fingerbank in pfdhcplistener
+
+M	lib/pf/api.pm
+M	sbin/pfdhcplistener
+
 commit 8cec17b52eeea0e805ae826836550af6518e4301
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
 Date:   Fri Jun 12 09:58:14 2015 -0400
@@ -972,6 +2025,14 @@ Date:   Thu Jun 11 11:10:07 2015 -0400
     added statsd timing for multi domain module
 
 M	raddb/packetfence-multi-domain.pm
+
+commit 1d0c4009af3a46a94b334e13bc731d111c1f534d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jun 11 10:23:41 2015 -0400
+
+    Use external portal session to compute IP in catalyst
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Model/Portal/Session.pm
 
 commit 5a9e26742ce4c1d5feb1ea7b82cd067ef2bb1e96
 Author: Durand <fdurand@inverse.ca>
@@ -1130,6 +2191,14 @@ Date:   Mon Jun 8 16:19:05 2015 -0400
 
 M	html/pfappserver/lib/pfappserver/Model/Node.pm
 
+commit 434942073e679644d9d757475c19503e1f77ab34
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Jun 8 14:00:46 2015 -0400
+
+    Force sending JSON if accept header is requesting it
+
+M	html/pfappserver/lib/pfappserver/PacketFence/Controller/Root.pm
+
 commit 602a85d4363b76074c8d628e77813464e19ceb68
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
 Date:   Mon Jun 8 13:17:52 2015 -0400
@@ -1214,6 +2283,31 @@ Date:   Fri Jun 5 15:06:38 2015 -0400
 
 M	html/captive-portal/templates/windows-profile.xml
 
+commit 6244f0dce332e8d86351e20b3ec3b62165117407
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Fri Jun 5 13:33:11 2015 -0400
+
+    fix typo #2..
+
+M	addons/AD/unreg_node_deleted_account.ps1
+
+commit 857d62e36ecb0e602dcc9e346b5ebdfc06c7a233
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Fri Jun 5 13:30:39 2015 -0400
+
+    fix typo, thanks to the seaman's bullseye
+
+M	addons/AD/unreg_node_deleted_account.ps1
+
+commit 9d879f573758b75fdad737944166bb41ddf87a14
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Fri Jun 5 13:21:39 2015 -0400
+
+    Iboss module improvement
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+M	lib/pf/firewallsso/Iboss.pm
+
 commit d92335021ead686de2050d7c4816a6963c133ef9
 Author: Antoine Amacher <aamacher@inverse.ca>
 Date:   Fri Jun 5 12:12:00 2015 -0400
@@ -1258,6 +2352,23 @@ Date:   Thu Jun 4 17:36:05 2015 -0400
     only find .pm files in pfconfig list namespaces
 
 M	lib/pfconfig/manager.pm
+
+commit 01914a3dd49157fe3494b56620c95ee32f3f2684
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Thu Jun 4 17:25:39 2015 -0400
+
+    Change the default Iboss API port
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+
+commit e011aa0aa435f2fff75cc72cf3ba2df64a7a4705
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Thu Jun 4 17:23:17 2015 -0400
+
+    Added the SSO Iboss support
+
+A	html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
+A	lib/pf/firewallsso/Iboss.pm
 
 commit b594c8c42b6914a26de78d0c1e3ca457f395b38a
 Author: Antoine Amacher <aamacher@inverse.ca>
@@ -3395,6 +4506,24 @@ Date:   Tue May 26 16:11:44 2015 -0400
     Updated pfcmd help
 
 M	lib/pf/cmd/pf.pm
+
+commit d9dcf954c0d231fcc95e734bc611d37dccc2249d
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Wed May 27 10:52:20 2015 -0400
+
+    typo
+
+M	addons/AD/unreg_node_disabled_account.ps1
+
+commit 4251a6006b744ea82bd9063ad1d2ccee9633b876
+Author: Zammit Ludovic <lzammit@inverse.ca>
+Date:   Wed May 27 10:41:54 2015 -0400
+
+    Rework of actual IDs and add a script to unregister node if an account is disabled
+
+M	addons/AD/unreg_node_deleted_account.ps1
+A	addons/AD/unreg_node_disabled_account.ps1
+M	docs/PacketFence_Administration_Guide.asciidoc
 
 commit 2b9245f3ed6716289dc99d0bf974d048387695b4
 Author: lzammit <lzammit@inverse.ca>
