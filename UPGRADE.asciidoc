@@ -52,7 +52,7 @@ Run the following commands:
 
   # dpkg -r --ignore-depends=packetfence   libhtml-formhandler-perl
   # apt-get install  libhtml-formhandler-perl  libtemplate-autofilter-perl  libmoo-perl 
-  # apt-get install packetfence packetfence-config packetfence-pfcmd-suid 
+  # apt-get install packetfence packetfence-config packetfence-pfcmd-suid libdist-checkconflicts-perl libimport-into-perl 
 
 
 Database schema update
