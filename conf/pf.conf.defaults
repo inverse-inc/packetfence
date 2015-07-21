@@ -655,16 +655,6 @@ memcached_memory_usage=64
 # 
 # The maximum of size of the items allowed to be stored
 memcached_max_item_size=1M
-# 
-# services.httpd_mod_qos
-# 
-# Enable mod_qos
-httpd_mod_qos=disabled
-# 
-# services.httpd_mod_qos_maximum_users
-# 
-# The maximum connections per device 
-httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #
@@ -839,6 +829,71 @@ detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.go
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
 wispr_redirection = enabled
+
+# captive_portal.httpd_mod_qos
+#
+# Enable mod_qos
+httpd_mod_qos=disabled
+#
+# captive_portal.httpd_mod_qos_maximum_users
+#
+# The maximum connections per device
+httpd_mod_qos_maximum_connections_per_device=5
+#
+# captive_portal.httpd_mod_evasive
+#
+# Enable mod_evasive
+httpd_mod_evasive=disabled
+#
+# captive_portal.httpd_mod_evasive_white_list
+#
+# Whitelisted ip/network
+httpd_mod_evasive_white_list=127.0.0.1
+#
+# captive_portal.httpd_mod_evasive_hash_table_size
+#
+# The hash table size
+httpd_mod_evasive_hash_table_size=3097
+#
+# captive_portal.httpd_mod_evasive_page_count
+#
+# Limit the number of request on the same page
+httpd_mod_evasive_page_count=2
+#
+# captive_portal.httpd_mod_evasive_page_interval
+#
+# The intervale for the page count in second
+httpd_mod_evasive_page_interval=1
+#
+# captive_portal.httpd_mod_evasive_site_count
+#
+# Limit the number of request on the same listener
+httpd_mod_evasive_site_count=50
+#
+# captive_portal.httpd_mod_evasive_site_interval
+#
+# The intervale for the site count in second
+httpd_mod_evasive_site_interval=1
+#
+# captive_portal.httpd_mod_evasive_blocking_period
+#
+# The amount of time a client will be blocked
+httpd_mod_evasive_blocking_period=10
+#
+# captive_portal.httpd_mod_evasive_email_notify
+#
+# The email address where the notification will be sent
+httpd_mod_evasive_email_notify=root@localhost
+#
+# captive_portal.httpd_mod_evasive_system_command
+#
+# The command that will be executed when a ip becomes blacklisted
+httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout 10 & rm -f /usr/local/pf/logs/dos-%s"
+#
+# captive_portal.httpd_mod_evasive_log_dir
+#
+# The log dir for mod_evasive
+httpd_mod_evasive_log_dir="/usr/local/pf/logs/"
 
 [advanced]
 #

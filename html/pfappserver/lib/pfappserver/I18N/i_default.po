@@ -1756,7 +1756,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-# conf/documentation.conf (services.httpd_mod_qos)
+# conf/documentation.conf (captive_portal.httpd_mod_qos)
 msgid "Enables mod_qos for the portal "
 msgstr ""
 
@@ -5114,7 +5114,7 @@ msgstr ""
 msgid "The last step of this configuration wizard is to start the PacketFence daemons."
 msgstr ""
 
-# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device)
+# conf/documentation.conf (captive_portal.httpd_mod_qos_maximum_connections_per_device)
 msgid "The maximum connections per device "
 msgstr ""
 
@@ -6499,8 +6499,8 @@ msgstr ""
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_graphite options)
-# conf/documentation.conf (services.httpd_mod_qos options)
-# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (captive_portal.httpd_mod_qos options)
+# conf/documentation.conf (captive_portal.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
@@ -6590,8 +6590,8 @@ msgstr "Send email"
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_graphite options)
-# conf/documentation.conf (services.httpd_mod_qos options)
-# conf/documentation.conf (services.httpd_mod_qos_maximum_connections_per_device options)
+# conf/documentation.conf (captive_portal.httpd_mod_qos options)
+# conf/documentation.conf (captive_portal.httpd_mod_qos_maximum_connections_per_device options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
@@ -7591,12 +7591,56 @@ msgid "services.httpd_graphite"
 msgstr "httpd.graphite"
 
 # conf/documentation.conf
-msgid "services.httpd_mod_qos"
+msgid "captive_portal.httpd_mod_qos"
 msgstr "QoS"
 
 # conf/documentation.conf
-msgid "services.httpd_mod_qos_maximum_connections_per_device"
+msgid "captive_portal.httpd_mod_qos_maximum_connections_per_device"
 msgstr "QoS max connections"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive"
+msgstr "Enable mod_evasive"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_white_list"
+msgstr "White list"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_hash_table_size"
+msgstr "Hash table size"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_page_count"
+msgstr "Same page limit"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_page_interval"
+msgstr "Page limit interval"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_site_count"
+msgstr "Same listener limit"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_site_interval"
+msgstr "Listener limit interval"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_blocking_period"
+msgstr "Blocking period"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_email_notify"
+msgstr "Email address"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_system_command"
+msgstr "System command"
+
+# conf/documentation.conf
+msgid "captive_portal.httpd_mod_evasive_log_dir"
+msgstr "Log directory"
 
 # conf/documentation.conf
 msgid "services.httpd_portal"

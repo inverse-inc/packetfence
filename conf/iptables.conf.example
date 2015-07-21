@@ -67,6 +67,7 @@
 -A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 
 :input-internal-vlan-if - [0:0]
+-A input-internal-vlan-if -m set --match-set portal_deny src --jump REJECT
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
@@ -80,6 +81,7 @@
 %%input_inter_vlan_if%%
 
 :input-internal-inline-if - [0:0]
+-A input-internal-inline-if -m set --match-set portal_deny src --jump REJECT
 # DHCP
 -A input-internal-inline-if --protocol udp --match udp --dport 67  --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
