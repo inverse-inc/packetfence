@@ -21,6 +21,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Tempdir;
 use File::Slurp qw(read_file);
 use Crypt::OpenSSL::PKCS10;
+use Crypt::OpenSSL::PKCS12;
 
 extends 'pf::pki_provider';
 
@@ -139,7 +140,7 @@ sub get_cert {
     my $cert_path = "$path/cert";
     system("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
     my $cert = read_file ($cert_path);
-    return $cert;
+    return Crypt::OpenSSL::PKCS12->create_as_string($cert, $request->{key}, $args->{certificate_pwd});
 }
 
 =head2 get_ca
@@ -164,10 +165,6 @@ sub make_request {
     my ($self, $tempdir, $args) = @_;
     my $key_path = "$tempdir/key";
     my $csr_path = "$tempdir/csr";
-    my $request_data = {
-        key => $key_path,
-        csr => $csr_path,
-    };
     my $req = Crypt::OpenSSL::PKCS10->new(2048);;
     my $subject = $self->subject_string($args);
     $req->set_subject($subject);
@@ -176,6 +173,11 @@ sub make_request {
     $req->sign();
     $req->write_pem_pk($key_path);
     $req->write_pem_req($csr_path);
+    my $request_data = {
+        key => $key_path,
+        csr => $csr_path,
+        req => $req,
+    };
     return $request_data;
 }
 
