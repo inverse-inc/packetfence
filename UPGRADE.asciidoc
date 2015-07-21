@@ -30,7 +30,7 @@ If your database is more than a few hundred megabytes, you may also want to cons
 Taking a complete backup of your current installation is strongly recommended. 
 You can take a backup of the pf directory with the following command:
 
-  tar -C /usr/local -czf /root/packetfence.tar.gz pf 
+  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs'
 
 Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
 
