@@ -37,6 +37,24 @@ Please note that the sections below are cumulative. That is to say, if you are u
 Upgrading from a version prior to 5.3.0
 ---------------------------------------
 
+Debian and Ubuntu
+^^^^^^^^^^^^^^^^^
+
+A downgrade in a package version may cause an error when trying to upgrade.
+
+If you receive this error: 
+
+  The following packages have unmet dependencies:
+   packetfence : Depends: libhtml-formhandler-perl (= 0.40013-2) but 0.40050-2 is to be installed
+  E: Unable to correct problems, you have held broken packages.
+
+Run the following commands:
+
+  # dpkg -r --ignore-depends=packetfence   libhtml-formhandler-perl
+  # apt-get install  libhtml-formhandler-perl  libtemplate-autofilter-perl  libmoo-perl 
+  # apt-get install packetfence packetfence-config packetfence-pfcmd-suid 
+
+
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
 
