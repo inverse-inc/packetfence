@@ -61,6 +61,17 @@ sub getModuleName {
     $subclass;
 }
 
+=head2 getModuleDescription
+
+Get the sub module description
+
+=cut
+
+sub getModuleDescription {
+    my ( $class, $name ) = @_;
+    return "pf::pki_provider::$name"->description;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

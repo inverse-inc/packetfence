@@ -50,7 +50,14 @@ Usage: /config/pki_provider
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{types} = [ sort @pf::factory::pki_provider::TYPES];
+
+    my %pki_providers = ();
+    foreach my $type ( @pf::factory::pki_provider::TYPES ) {
+        $pki_providers{$type}{'type'} = $type;
+        $pki_providers{$type}{'description'} = pf::factory::pki_provider->getModuleDescription($type);
+    }
+    $c->stash->{types} = \%pki_providers;
+
     $c->forward('list');
 }
 

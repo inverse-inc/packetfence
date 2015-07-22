@@ -22,6 +22,8 @@ use pf::log;
 
 extends 'pf::pki_provider';
 
+sub description { 'PacketFence Local' }
+
 =head1 ATTRIBUTE(S)
 
 =head2 revoke_on_unregistration

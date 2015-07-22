@@ -23,6 +23,8 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
+sub description { 'PacketFence PKI' }
+
 =head2 host
 
 The host of the packetfence_pki pki service
