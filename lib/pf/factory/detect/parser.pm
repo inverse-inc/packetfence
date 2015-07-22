@@ -31,10 +31,8 @@ sub new {
 sub getModuleName {
     my ($class,$name,$data) = @_;
     my $mainClass = $class->factory_for;
-    my $type = $data->{type};
-    my $subclass = "${mainClass}::${type}";
-    die "type is not defined for $name" unless defined $type;
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
+    my $subclass = "${mainClass}::${name}";
+    die "$name is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
 }
 

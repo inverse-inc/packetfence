@@ -105,13 +105,16 @@ my $parser = pf::factory::detect::parser->new($parser_type);
 my $client = pf::client->getClient();
 
 while (<$snortpipe_fh>) {
-    $logger->info("alert received: $_");
-    my $data = $parser->parse($_);
-    unless($data) {
-        $logger->warn("unknown input: $_ ");
-        next;
+    my $line = $_;
+    if($line =~ s/^([a-zA-Z]+\s[0-9]{1,2}\s[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s+([\w-]+)\s+//g){
+        $logger->info("alert received: '$line'");
+        my $data = $parser->parse($line);
+        unless($data) {
+            $logger->warn("unknown input: $line ");
+            next;
+        }
+        $client->notify( event_add => ($data->{date}, $data->{srcip}, "detect", $data->{sid} || $portscan_sid));
     }
-    $client->notify( event_add => ($data->{date}, $data->{srcip}, "detect", $data->{sid} || $portscan_sid));
 
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
