@@ -62,7 +62,7 @@ Changes have been made to the database schema. You will need to update it accord
 
 Make sure you run the following to update your schema:
 
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.1.0-5.2.0.sql
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.2.0-5.3.0.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.3.0).
 
