@@ -95,6 +95,7 @@ Requires: memcached
 Requires: freeradius >= 2.2.5-3, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
+Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= %{perl_version}
@@ -125,6 +126,7 @@ requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Crypt::OpenSSL::RSA)
 requires: perl(Crypt::OpenSSL::PKCS10)
+requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
