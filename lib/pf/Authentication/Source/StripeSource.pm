@@ -25,6 +25,7 @@ use pf::util;
 use pf::config::util;
 use pf::log;
 use pf::person;
+use pf::password;
 
 extends 'pf::Authentication::Source::BillingSource';
 our $logger = get_logger;
@@ -254,7 +255,7 @@ sub hook {
     if ($self->can($handler)) {
         my $status;
         eval {
-            $status = $self->$handler($object);
+            $status = $self->$handler($headers, $object);
         };
         if ($@) {
             $logger->error($@);
@@ -262,51 +263,30 @@ sub hook {
         }
         return $status;
     }
-    else {
-        $logger->warn("Unsupport type $type recieved");
-    }
+    $logger->warn("Unsupport type $type recieved");
+    return $self->handle_event($headers, $object);
 }
 
-sub handle_customer_created {
-    my ($self, $object) = @_;
-    return 200;
-}
-
-sub handle_invoice_created {
-    my ($self, $object) = @_;
-    return 200;
-}
-
-sub handle_charge_succeeded {
-    my ($self, $object) = @_;
-    return 200;
-}
-
-sub handle_invoice_payment_succeeded {
-    my ($self, $object) = @_;
-
-    return 200;
-}
-
-sub handle_invoice_payment_failed {
-    my ($self, $object) = @_;
-    my $customer_id = $object->{data}{object}{customer};
-    my ($status, $customer) = $self->get_customer($customer_id);
-    $self->send_mail_for_event($object,email => $customer->{email}, subject => "Credit Card payment failed" );
+sub handle_event {
     return 200;
 }
 
 sub handle_customer_subscription_deleted {
-    my ($self, $object) = @_;
+    my ($self, $headers, $object) = @_;
     my $customer_id = $object->{data}{object}{customer};
     my ($status, $customer) = $self->get_customer($customer_id);
     my $email = $customer->{email};
-    $self->move_to_lower_tier($email, 'default');
-    $self->send_mail_for_event($object,email => $customer->{email}, subject => "Your Subscription has been canceled" );
+    pf::password::modify_attributes($email, category => 'default');
+    $self->change_node_category_for_person($email, 'default');
+    $self->send_mail_for_event(
+        $object,
+        email   => $customer->{email},
+        subject => "Your Subscription has been canceled"
+    );
     return 200;
 }
 
-sub move_to_lower_tier {
+sub change_node_category_for_person {
     my ($self, $email, $category) = @_;
     foreach my $node (person_nodes($email)  ) {
         $node->{category} = $category;
