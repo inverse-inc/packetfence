@@ -22,7 +22,6 @@ use warnings;
 use Carp;
 use base "Etsy::StatsD";
 use Sys::Hostname;
-use pf::config;
 use POSIX;
 use Readonly;
 
@@ -32,6 +31,8 @@ our $statsd;
 
 Readonly my $GRAPHITE_DELIMITER => ".";
 Readonly my $STATSD_DELIMITER   => ":";
+Readonly my $STATSD_HOST   => "127.0.0.1";
+Readonly my $STATSD_PORT   => 8125;
 
 initStatsd();
 
@@ -53,8 +54,8 @@ sub new {
 }
 
 sub initStatsd {
-    my $host = $Config{'monitoring'}{'statsd_host'} // '127.0.0.1';
-    my $port = $Config{'monitoring'}{'statsd_port'} // 8125;
+    my $host = $STATSD_HOST;
+    my $port = $STATSD_PORT;
 
     # we need to make sure the host and port are not tainted.
     ($host) = $host =~ m/^(.*)$/;
