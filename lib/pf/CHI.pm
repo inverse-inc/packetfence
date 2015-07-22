@@ -15,11 +15,8 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use CHI::Driver::Memcached;
-use CHI::Driver::RawMemory;
-use CHI::Driver::File;
+use Cache::Memcached::libmemcached;
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
-use Cache::Memcached;
 use Clone();
 use pf::file_paths;
 use pf::IniFiles;
@@ -80,9 +77,10 @@ our %DEFAULT_CONFIG = (
             'driver' => 'RawMemory'
         },
         'memcached' => {
-            driver => 'Memcached',
+            driver => 'Memcached::libmemcached',
             servers => ['127.0.0.1:11211'],
             compress_threshold => 10000,
+            behavior_binary_protocol => 1,
         },
         'file' => {
             driver => 'File',
@@ -120,9 +118,6 @@ sub chiConfigFromIniFile {
             next unless exists $storage->{$param};
             my $value =  listify($storage->{$param});
             $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
-        }
-        if ( exists $storage->{traits} ) {
-            $storage->{param_name} = $storage->{traits};
         }
     }
     setDefaultStorage($args{storage});
@@ -197,7 +192,7 @@ sub sectionData {
 
 sub CLONE {
     pf::CHI->clear_memoized_cache_objects;
-    Cache::Memcached->disconnect_all;
+    Cache::Memcached::libmemcached->disconnect_all;
 }
 
 sub preload_chi_drivers {

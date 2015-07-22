@@ -23,10 +23,10 @@ expires_in=10m
 expires_on_backend=1
 
 [storage memcached]
-driver=Memcached
-servers=127.0.0.1:11211
-global=1
-compress_threshold=10000
+driver = Memcached::libmemcached
+servers = 127.0.0.1:11211
+compress_threshold = 10000
+behavior_binary_protocol = 1
 
 [storage file]
 driver=File

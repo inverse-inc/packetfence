@@ -237,8 +237,7 @@ Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
-Requires: perl(Cache::Memcached)
-Requires: perl(Cache::Memcached::GetParserXS)
+Requires: perl(Cache::Memcached::libmemcached)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
@@ -321,7 +320,7 @@ server.
 
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
+Requires: perl >= %{perl_version}, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached::libmemcached)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
