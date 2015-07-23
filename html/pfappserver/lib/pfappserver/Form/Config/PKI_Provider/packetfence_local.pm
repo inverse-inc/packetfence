@@ -21,7 +21,7 @@ has_field 'id' => (
     messages => { required => 'Please specify the name of the PKI provider' },
     tags     => { 
         after_element   => \&help,
-        help            => 'The unique id of the PKI provider',
+        help            => 'The unique ID of the PKI provider',
     },
 );
 
@@ -32,46 +32,63 @@ has_field 'type' => (
 );
 
 has_field 'client_cert_path' => (
-    type         => 'Path',
-    required     => 1,
-    tags         => { 
+    type        => 'Path',
+    label       => 'Client cert path',
+    required    => 1,
+    tags        => { 
         after_element   => \&help,
-        help            => 'Path of the CA that will generate your certificates',
+        help            => 'Path of the client cert that will be used to generate the p12',
+    },
+);
+
+has_field 'client_key_path' => (
+    type        => 'Path',
+    label       => 'Client key path',
+    required    => 1,
+    tags        => {
+        after_element   => \&help,
+        help            => 'Path of the client key that will be used to generate the p12',
+    },
+);
+
+has_field 'cn_attribute' => (
+    type     => 'Select',
+    label    => 'Common Name Attribute',
+    options  => [ { label => 'MAC address', value => 'mac' }, { label => 'Username', value => 'pid' } ],
+    default  => 'pid',
+    tags     => { 
+        after_element   => \&help,
+        help            => 'Defines what attribute of the node to use as the common name during the certificate generation',
     },
 );
 
 has_field 'ca_cert_path' => (
     type        => 'Path',
+    label       => 'CA cert path',
     required    => 1,
     tags        => { 
         after_element   => \&help,
-        help            => 'Path of the CA that will generate your certificates',
-    },
-);
-
-has_field 'cn_attribute' => (
-   type     => 'Select',
-   label    => 'Common name Attribute',
-   options  => [ { label => 'MAC address', value => 'mac' }, { label => 'Username', value => 'pid' } ],
-   default  => 'pid',
-   tags     => { 
-        after_element   => \&help,
-        help            => 'Defines what attribute of the node to use as the common name during the certificate generation.',
+        help            => 'Path of the CA certificate used to generate client certificate/key combination',
     },
 );
 
 has_field 'server_cert_path' => (
-    type         => 'Path',
-    required     => 1,
-    tags         => { 
+    type        => 'Path',
+    label       => 'Server cert path',
+    required    => 1,
+    tags        => { 
         after_element   => \&help,
         help            => 'Path of the RADIUS server authentication certificate',
     },
 );
 
 has_block 'definition' => (
-    render_list => [ qw(type client_cert_path cn_attribute ca_cert_path server_cert_path) ],
+    render_list => [ qw(type client_cert_path client_key_path cn_attribute ca_cert_path server_cert_path) ],
 );
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
