@@ -14,13 +14,10 @@ use Apache2::RequestRec;
 use Log::Log4perl;
 use ModPerl::Util;
 
-BEGIN {
-    use pf::log 'service' => 'httpd.webservices';
-}
-
 use pf::config;
 use pf::api;
 use pf::client;
+use pf::log;
 pf::client::setClient("pf::api::local");
 
 #uncomment for more debug information
