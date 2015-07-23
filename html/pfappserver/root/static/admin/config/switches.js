@@ -88,10 +88,10 @@ var SwitchView = function(options) {
     options.parent.on('click', '#switches [href*="/list/"]', pagination);
 
     // submit search
-    options.parent.on('submit', '#search', $.proxy(this.submitSearch, this));
+    options.parent.on('submit', '#switches #search', $.proxy(this.submitSearch, this));
 
     // reset search
-    options.parent.on('reset', '#search', $.proxy(this.resetSearch, this));
+    options.parent.on('reset', '#switches #search', $.proxy(this.resetSearch, this));
 
     // pagination search
     options.parent.on('click', '#switches [href*="/switch/search/"]', $.proxy(this.searchPagination, this));
