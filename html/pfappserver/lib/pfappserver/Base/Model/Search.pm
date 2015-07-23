@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use pf::util;
+use pf::SearchBuilder;
 extends 'pfappserver::Base::Model';
 
 my %OP_MAP = (
@@ -53,7 +54,7 @@ sub process_query {
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
         if($value =~ s/([%_])/\\$1/g) {
-           @escape = ("'\\'");
+           @escape = ("\\");
         }
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";

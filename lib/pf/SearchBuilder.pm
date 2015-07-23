@@ -258,18 +258,19 @@ sub _unary_postfix {
 }
 
 sub _like {
-    my ($self,$lhs,$op,@rhs) = @_;
+    my ($self, $lhs, $op, $rhs, @escape) = @_;
     my @clauses;
-    if( 1 == @rhs || @rhs == 2  ) {
+    if (defined $rhs && (@escape == 0 || (@escape == 1 && defined $escape[0]))) {
+
         #if rhs side value is undefined
         my $formatted_lhs = $self->format_column($lhs);
-        if ( !defined $rhs[0]) {
+        push @clauses, $formatted_lhs, $op, $self->_format_values($rhs);
 
-        } else {
-            push @clauses,$formatted_lhs, $op,$self->_format_values(@rhs);
-        }
+        push @clauses, 'ESCAPE', $self->_format_values(@escape)
+            if @escape;
 
-    } else {
+    }
+    else {
         die "invalid amount operands provided";
     }
     return @clauses;
