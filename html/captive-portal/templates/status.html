@@ -141,7 +141,7 @@ document.observe("dom:loaded", function() {
           [% IF showLogin %]
           <div>[% i18n("Login to manage registered devices") %]</div>
           <div>
-            <form name="login" method="post" action="[% c.uri_for(c.controller.action_for('login')) %]">
+            <form name="login" method="post" action="/status/login">
               [%# AUP %]
               <div class="input">
                 <div>[% i18n("Acceptable Use Policy") %]</div>
@@ -205,7 +205,7 @@ document.observe("dom:loaded", function() {
                 <td>[% n.mac %]</td>
                 <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
                 <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
-                <td style="text-align: right"><a href="[% c.uri_for(c.controller('Node::Manager').action_for('unreg'), n.mac) %]" class="btn">[% i18n("Unregister") %]</a></td>
+                <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn">[% i18n("Unregister") %]</a></td>
               </tr>
           [%- END %]
             </tbody>
@@ -216,7 +216,7 @@ document.observe("dom:loaded", function() {
           [% END %]
           <div id="popup"><a href="[% URL_STATUS %]" target="_new" alt="[% i18n("Open in new popup window") %]"><img src="/content/images/extract.png"/></a></div>
           [% UNLESS showLogin %]
-            <a class="btn" href="[% c.uri_for(c.controller.action_for('logout')) %]">Logout</a>
+            <a class="btn" href="/status/logout">Logout</a>
           [% END  %]
         </div>
 
