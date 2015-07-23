@@ -58,6 +58,8 @@ sub parseArgs {
         print STDERR "the namespace '$namespace' does not exist\n";
         return 0;
     }
+    $namespace =~ /^(.*)$/;
+    $namespace = $1;
     my $action = shift @args;
     my $action_method = "action_$action";
     unless ($self->can($action_method)) {
