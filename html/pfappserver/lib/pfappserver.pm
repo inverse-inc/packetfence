@@ -231,7 +231,14 @@ sub forms {
     return $c->_comp_names(qw/Form F/);
 }
 
+sub _clear_logging_ctx {
+    for my $ctx (qw(ip mac)) {
+        Log::Log4perl::MDC->put($ctx, undef);
+    }
+}
+
 before handle_request => sub {
+    _clear_logging_ctx();
     pf::config::cached::ReloadConfigs();
 };
 
@@ -248,6 +255,7 @@ after finalize => sub {
             }
         }
     }
+    _clear_logging_ctx();
 };
 
 sub add_deferred_actions {
