@@ -148,7 +148,6 @@ sub doEmailRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
-            $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
 
             # change the unregdate of the node associated with the submitted code
@@ -316,7 +315,6 @@ sub doSponsorRegistration : Private {
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info; 
-            $c->forward('Authenticate' => 'postAuthentication');
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
