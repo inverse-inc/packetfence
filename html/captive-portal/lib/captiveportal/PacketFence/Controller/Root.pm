@@ -85,13 +85,6 @@ sub setupCommonStash : Private {
     my $portalSession   = $c->portalSession;
     my $destination_url = $portalSession->destinationUrl;
 
-    my @list_help_info;
-    push @list_help_info,
-      { name => i18n('IP'), value => $portalSession->clientIp }
-      if ( defined( $portalSession->clientIp ) );
-    push @list_help_info,
-      { name => i18n('MAC'), value => $portalSession->clientMac }
-      if ( defined( $portalSession->clientMac ) );
     if (defined( $portalSession->clientMac ) ) {
         my $node_info = node_view($portalSession->clientMac);
         if ( defined( $node_info ) ) {
@@ -106,8 +99,12 @@ sub setupCommonStash : Private {
         pf::web::constants::to_hash(),
         destination_url => encode_entities($destination_url),
         logo            => $c->profile->getLogo,
-        list_help_info  => \@list_help_info,
     );
+    $c->stash(
+        client_mac => $portalSession->clientMac,
+        client_ip => $portalSession->clientIp,
+    );
+
 }
 
 =head2 setupLanguage
