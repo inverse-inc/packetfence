@@ -18,7 +18,6 @@ use namespace::autoclean;
 
 use pf::file_paths;
 use pf::log;
-use pf::CHI;
 
 =head1 METHODS
 
@@ -32,17 +31,7 @@ Returns the content of conf/pf-release
 sub pf_release {
     my ($self) = @_;
 
-    my $cache = pf::CHI->new(namespace => 'configfiles');
-    my $filename = "$conf_dir/pf-release";
-    my $release = $cache->compute($filename, undef, sub {
-                                      my $filehandler;
-                                      open( $filehandler, '<', $filename );
-                                      chomp(my $pf_release = <$filehandler>);
-                                      close( $filehandler );
-                                      return $pf_release;
-                                  });
-
-    return $release;
+    return pf::version::version_get_release();
 }
 
 =head2 fingerbank_version
