@@ -88,7 +88,7 @@ Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrac
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
-Requires: mod_perl, mod_qos
+Requires: mod_perl, mod_qos, mod_sslhaf
 requires: libapreq2
 Requires: dhcp
 Requires: memcached

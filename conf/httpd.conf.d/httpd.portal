@@ -48,6 +48,9 @@
   <IfModule !mod_status.c>
     LoadModule status_module /usr/lib/apache2/modules/mod_status.so
   </IfModule>
+  <IfModule !mod_sslhaf.c>
+    LoadModule sslhaf_module /usr/lib/apache2/modules/mod_sslhaf.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -100,6 +103,9 @@
   </IfModule>
   <IfModule !mod_status.c>
     LoadModule status_module modules/mod_status.so
+  </IfModule>
+  <IfModule !mod_sslhaf.c>
+    LoadModule sslhaf_module modules/mod_sslhaf.so
   </IfModule>
 </IfDefine>
 
@@ -325,6 +331,7 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
          CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+         CustomLog    => "${install_dir}/logs/httpd.portal.stats stats env=STATS",
          Include => "${var_dir}/conf/captive-portal-common.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",

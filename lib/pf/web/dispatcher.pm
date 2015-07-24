@@ -17,6 +17,7 @@ use Apache2::RequestUtil ();
 use Apache2::ServerRec;
 use Apache2::URI ();
 use Apache2::Util ();
+use Apache2::Connection ();
 
 use APR::Table;
 use APR::URI;
@@ -38,7 +39,28 @@ use pf::web::externalportal;
 
 =over
 
-=item translate
+
+=item uaprof
+try to retrieve user agent profile
+=cut
+
+sub uaprof {
+    my $r = shift;
+    my $uaprof = $r->headers_in->{'x-wap-profile'} || $r->headers_in->{'Profile'};
+    if (!defined($uaprof)) {
+        if (defined($r->headers_in->{'Opt'})) {
+            my $opt = $r->headers_in->{'Opt'};
+            if ($opt = /ns=(\d+)/) {
+                 $uaprof = $r->headers_in->{"$1-Profile"};
+            }
+        } else {
+            return '';
+        }
+    }
+    return $uaprof;
+}
+
+=item handler
 
 Implementation of PerlTransHandler. Rewrite all URLs except those explicitly
 allowed by the Captive portal.
@@ -54,6 +76,19 @@ sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("hitting translator with URL: " . $r->uri);
+
+    # Fetch stats
+    my $c = $r->connection();
+    my $ip =  $r->headers_in->{'X-Forwarded-For'} || $c->remote_ip();
+    my $mac = pf::iplog::ip2mac($ip);
+    if ( defined $mac ) {
+        my $suites = $r->subprocess_env("SSLHAF_SUITES") || '';
+        my $user_agent = $r->headers_in->{'User-Agent'} || '';
+        my $ua_prof = uaprof($r);
+        $r->subprocess_env->set(STATS => 1);
+        $r->subprocess_env(STATS => "$mac^$user_agent^$ua_prof^$suites");
+    }
+
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
     if ( ( ($r->hostname.$r->uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
