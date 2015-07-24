@@ -11,8 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 5.3.1 released on 2015-07-24
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is strictly a bug fix release.
+It corrects the following:
+
+Bug Fixes
++++++++++
+
+* Fixed radiusd dying due to OOM caused by pf::statsd calling on pf::config
+* Fixed incorrect whisper retention policy affecting metrics such as server load and memory use
+* Fixed SMS and email registration case where using a different device to register may set an incorrect role
+* Added delete session reason to status page logout
+* Fixed incorrect HTML escaping in LDAP and AD authentication sources
+
+
 Version 5.3.0 released on 2015-07-21
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
