@@ -1,3 +1,87 @@
+commit b6c81ed77b24497787df88247d7096ce62abc593
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Jul 24 10:34:46 2015 -0400
+
+    Updated changelogs.
+
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit dbba02935a4cad300fc5775ffb34cffcd7680360
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Jul 24 10:31:20 2015 -0400
+
+    Updated NEWS file and version numbers prior to releasing 5.3.1.
+
+M	NEWS.asciidoc
+M	conf/pf-release
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit befb1620d5f00c04009c8264e7de574c3eea198d
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jul 23 11:29:50 2015 -0400
+
+    Fix LDAP + AD bad html escape
+    
+    Fixes #797
+
+M	html/pfappserver/root/authentication/source/type/AD.tt
+M	html/pfappserver/root/authentication/source/type/LDAP.tt
+
+commit 8adcf5d26f7db6fd991e613bdd9db7287e6def79
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Jul 21 10:59:32 2015 -0400
+
+    Add delete session reason to status page logout
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
+
+commit 5f9848cb9bea8004c58f0cad09b175f167c72331
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Jul 23 09:23:56 2015 -0400
+
+    Don't do postAuthentication when activating SMS or email
+    
+    It can apply bad PID or role to a device if you use a different device to activate the link.
+    The set role and unreg date is already done
+
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+M	html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm
+
+commit 9e220b0f4b0c6d6e9f2bdbd87d5b8bca37cd797b
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Thu Jul 23 09:14:15 2015 -0400
+
+    Set default whisper retention policy to 90 days.
+
+M	conf/monitoring/storage-schemas.conf.example
+
+commit c51fcb80028906bd24e8bb900cbe712fd54eb511
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Jul 22 16:16:45 2015 -0400
+
+    fix statsd behaving like pfsetvlan
+
+M	lib/pf/StatsD.pm
+
+commit 3261260aa8937f656a089c719ef2ebfc91ca99ca
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 21 10:52:16 2015 -0400
+
+    Added Ubuntu specific upgrade message to deal with
+    libdist-checkconflicts-perl libimport-into-perl .
+
+M	UPGRADE.asciidoc
+
+commit c60391749be9ab3bf8a4488ee5523e086dc2af17
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Tue Jul 21 10:25:19 2015 -0400
+
+    Updated Changelog prior to 5.3 release.
+
+M	ChangeLog
+
 commit 95e0a86af5e30377718e1a26f3adc851b458d484
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Tue Jul 21 10:23:10 2015 -0400
