@@ -858,7 +858,7 @@ httpd_mod_evasive_hash_table_size=3097
 # captive_portal.httpd_mod_evasive_page_count
 #
 # Limit the number of request on the same page
-httpd_mod_evasive_page_count=20
+httpd_mod_evasive_page_count=5
 #
 # captive_portal.httpd_mod_evasive_page_interval
 #
@@ -868,7 +868,7 @@ httpd_mod_evasive_page_interval=2
 # captive_portal.httpd_mod_evasive_site_count
 #
 # Limit the number of request on the same listener
-httpd_mod_evasive_site_count=50
+httpd_mod_evasive_site_count=20
 #
 # captive_portal.httpd_mod_evasive_site_interval
 #
