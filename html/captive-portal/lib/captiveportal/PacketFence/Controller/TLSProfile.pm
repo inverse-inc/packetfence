@@ -86,13 +86,13 @@ sub index : Path : Args(0) {
     $c->detach();
 }
 
-=head2 get_cert
+=head2 get_bundle
 
-Use PkiProvider{get_cert} method to send the request in order to generate the certificate
+Use PkiProvider{get_bundle} method to send the request in order to generate the certificate
 
 =cut
 
-sub get_cert : Private {
+sub get_bundle : Private {
     my ($self, $c) = @_;
     my ($provisioner,$pki_provider);
     my $portalSession = $c->portalSession;
@@ -103,7 +103,7 @@ sub get_cert : Private {
         $c->log->error("No provisioner or pki_provider was found!");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
     }
-    my $cert_content = $pki_provider->get_cert({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
+    my $cert_content = $pki_provider->get_bundle({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
     $c->log->debug(sub { "cert_content from pki service $cert_content" });
 
     unless(defined($cert_content)){
@@ -208,7 +208,7 @@ sub prepare_profile : Private {
     my $server_cn = $provisioner->getPkiProvider()->server_cn();
     my $ca_cn = $provisioner->getPkiProvider()->ca_cn();
 
-    $c->forward('get_cert');
+    $c->forward('get_bundle');
     my $b64_cert = encode_base64($stash->{cert_content});
 
     @$pki_session{qw(ca_cn server_cn ca_content b64_cert)} = (

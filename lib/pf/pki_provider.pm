@@ -29,14 +29,14 @@ has cn_attribute => (is => 'rw');
 
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
-=head2 get_cert
+=head2 get_bundle
 
-Get the certificate from the pki
+Get the certificate bundle from the pki
 
 =cut
 
-sub get_cert {
-    get_logger->error("get_cert is not implemented for this PKI provider. Certificate generation will fail.");
+sub get_bundle {
+    get_logger->error("get_bundle is not implemented for this PKI provider. Certificate generation will fail.");
     return $FALSE;
 }
 

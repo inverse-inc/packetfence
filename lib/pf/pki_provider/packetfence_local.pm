@@ -52,13 +52,13 @@ has 'client_key_path' => ( is => 'rw' );
 
 =head1 METHOD(S)
 
-=head2 get_cert
+=head2 get_bindle
 
-Get the certificate from the provided client certificate path
+Get the certificate bundle using the provided client certificate/key path
 
 =cut
 
-sub get_cert {
+sub get_bundle {
     my ($self,$args) = @_;
     my $logger = get_logger();
 
