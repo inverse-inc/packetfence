@@ -191,3 +191,13 @@ push @{ $VirtualHost{$vhost.":".$PfConfig->{'ports'}{'pf_status'}} },
 
 </Perl>
 
+Listen 10000
+LoadModule php5_module modules/libphp5.so
+
+<FilesMatch \.php$>
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+<VirtualHost *:10000>
+    DocumentRoot /usr/local/pf/addons/external_auth
+</VirtualHost>
