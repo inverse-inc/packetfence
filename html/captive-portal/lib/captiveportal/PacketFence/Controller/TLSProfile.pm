@@ -48,10 +48,20 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
 
+    my $provisioner = $c->profile->findProvisioner($mac);
+    my $pki_provider = $provisioner->getPkiProvider();
+    my $pki_provider_name = ref($pki_provider);
+    $pki_provider_name =~ s#^.*:##;
+
     unless(defined($c->session->{username})){
         $c->log->warn("$mac tried to access the TLS profile page without being authenticated.");
         $c->response->redirect('/authenticate');
         $c->detach();
+    }
+
+    unless ( $provisioner && $pki_provider ) {
+        $c->log->error("No provisioner or pki_provider was found!");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
     }
 
     if ( $c->request->method eq 'POST' ) {
@@ -71,7 +81,7 @@ sub index : Path : Args(0) {
 
     $c->stash(
         certificate_pwd     => word(4,6),
-        template            => 'pki.html',
+        template            => "pki_provider/$pki_provider_name.html",
     );
     $c->detach();
 }
@@ -130,14 +140,20 @@ Validate informations input by the user
 sub process_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
+
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
     my $passwd = $c->request->param('certificate_pwd');
+    my $provisioner = $c->profile->findProvisioner($mac);
+    my $pki_provider = $provisioner->getPkiProvider();
+    my $pki_provider_name = ref($pki_provider);
+    $pki_provider_name =~ s#^.*:##;
+
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => 'pki.html',
+            template            => "pki_provider/$pki_provider_name.html",
         );
         $c->detach();
     }
@@ -153,13 +169,11 @@ sub process_form : Private {
         $c->stash(txt_validation_error => 'No e-mail given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => 'pki.html',
+            template            => "pki_provider/$pki_provider_name.html",
         );
         $c->detach();
     }
 
-    my $provisioner   = $c->profile->findProvisioner($mac);
-    my $pki_provider = $provisioner->getPkiProvider();
     my $node_info = node_view($mac);
     my $certificate_cn = $pki_provider->user_cn($node_info);
     my $user_cache = $c->user_cache;
