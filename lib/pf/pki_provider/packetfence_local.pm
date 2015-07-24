@@ -42,6 +42,14 @@ End-user client certificate path
 
 has 'client_cert_path' => ( is => 'rw' );
 
+=head2 client_key_path
+
+End-user client key path
+
+=cut
+
+has 'client_key_path' => ( is => 'rw' );
+
 =head1 METHOD(S)
 
 =head2 get_cert
