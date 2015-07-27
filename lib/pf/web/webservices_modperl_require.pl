@@ -16,7 +16,6 @@ BEGIN {
     use pf::log 'service' => 'httpd.webservices', reinit => 1;
 }
 
-use pf::WebAPI();
 use pf::config();
 use pf::iplog();
 use pf::violation();
