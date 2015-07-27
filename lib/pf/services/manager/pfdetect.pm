@@ -21,7 +21,7 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
 
-has '+launcher' => (default => sub {"%1\$s -d -p $install_dir/var/alert &"});
+has '+launcher' => (default => sub {"%1\$s -d &"});
 
 sub isManaged { return isenabled( $Config{'trapping'}{'detection'} ); }
 

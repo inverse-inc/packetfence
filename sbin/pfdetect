@@ -6,7 +6,7 @@ pfdetect - listen to alerts and create PF violations
 
 =head1 SYNOPSIS
 
-pfdetect -p <alert_pipe> [options]
+pfdetect [options]
 
  Options:
    -d     Daemonize
@@ -19,7 +19,7 @@ use warnings;
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause);
 
 BEGIN {
     # log4perl init
@@ -77,57 +77,126 @@ POSIX::sigaction(
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts( 'dhp:', \%args );
+getopts( 'dh:', \%args );
 
 my $daemonize = $args{d};
-my $alert_pipe = $args{p};
-my $alert_pipe_fh;
 my $portscan_sid = 1200003;
 
-pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
+pod2usage( -verbose => 1 ) if ( $args{h} );
 
 my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip);
 
 daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
 
 $logger->info("initialized");
 
-if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
-    $logger->logdie("unable to open alert pipe ($alert_pipe): $!");
-} else {
-    $logger->info("listening on $alert_pipe");
+my %CHILDREN;
+my $IS_CHILD = 0;
+my $running = 1;
+
+
+sub start_detectors {
+    my @REGISTERED_DETECTORS = ({ id => 'snort', 'type' => 'snort', 'path' => '/usr/local/pf/var/alert' });
+    while(@REGISTERED_DETECTORS) {
+        my $detector = shift @REGISTERED_DETECTORS;
+        run_detector($detector);
+    }
 }
 
-my $parser_type = $Config{trapping}{detection_parser} || $Config{trapping}{detection_engine};
+=head2 runtask
 
-my $parser = pf::factory::detect::parser->new($parser_type);
+creates a new child to run a task
 
-my $client = pf::client->getClient();
+=cut
 
-while (<$alert_pipe_fh>) {
-    my $line = $_;
-    if($line =~ s/^([a-zA-Z]+\s[0-9]{1,2}\s[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s+([\w-]+)\s+//g){
-        $logger->info("alert received: '$line'");
-        my $data = $parser->parse($line);
-        unless($data) {
-            $logger->warn("unknown input: $line ");
-            next;
-        }
-        while (my ($type, $value) = each %{$data->{events}}) {
-            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
-        }
+sub run_detector {
+    my ($detector) = @_;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $detector->{id};
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        _run_detector($detector);
+    } else {
+    }
+}
+
+=head2 _runtask
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _run_detector {
+    my ($detector) = @_;
+    $0 = "pfdetect - ".$detector->{id};
+
+    my $alert_pipe = $detector->{path};
+    my $alert_pipe_fh;
+
+    if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
+        $logger->logdie("unable to open alert pipe ($alert_pipe): $!");
+    } else {
+        $logger->info("listening on $alert_pipe");
     }
 
-    #reload all cached configs after each iteration
-    pf::config::cached::ReloadConfigs();
+    my $parser_type = $detector->{type};
+
+    my $parser = pf::factory::detect::parser->new($parser_type);
+
+    my $client = pf::client->getClient();
+
+    while (<$alert_pipe_fh>) {
+        last unless $running;
+
+        my $line = $_;
+        if($line =~ s/^([a-zA-Z]+\s[0-9]{1,2}\s[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s+([\w-]+)\s+//g){
+            $logger->info("alert received: '$line'");
+            my $data = $parser->parse($line);
+            unless($data) {
+                $logger->warn("unknown input: $line ");
+                next;
+            }
+            while (my ($type, $value) = each %{$data->{events}}) {
+                $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
+            }
+        }
+
+        #Stop running if parent is no longer alive
+        unless(is_parent_alive()) {
+            $logger->error("Parent is no longer running shutting down");
+            $running = 0;
+        }
+
+        #reload all cached configs after each iteration
+        pf::config::cached::ReloadConfigs();
+    }
+
+    $logger->trace("$$ shutting down");
+    exit;
 }
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
+}
+
+start_detectors();
+while($running){
+  sleep 5;
+  pause;
+}
+
 
 END {
     deletepid();
-    if (defined($alert_pipe_fh)) {
-        $logger->info("stopping pfdetect");
-        close($alert_pipe_fh);
-    }
 }
 
 exit(0);
