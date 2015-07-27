@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-pfdetect - listen to snort alerts and create PF violations
+pfdetect - listen to alerts and create PF violations
 
 =head1 SYNOPSIS
 
-pfdetect -p <snortpipe> [options]
+pfdetect -p <alert_pipe> [options]
 
  Options:
    -d     Daemonize
@@ -80,8 +80,8 @@ my %args;
 getopts( 'dhp:', \%args );
 
 my $daemonize = $args{d};
-my $snortpipe = $args{p};
-my $snortpipe_fh;
+my $alert_pipe = $args{p};
+my $alert_pipe_fh;
 my $portscan_sid = 1200003;
 
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
@@ -92,10 +92,10 @@ daemonize($PROGRAM_NAME) if ($daemonize);
 
 $logger->info("initialized");
 
-if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
-    $logger->logdie("unable to open snort pipe ($snortpipe): $!");
+if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
+    $logger->logdie("unable to open alert pipe ($alert_pipe): $!");
 } else {
-    $logger->info("listening on $snortpipe");
+    $logger->info("listening on $alert_pipe");
 }
 
 my $parser_type = $Config{trapping}{detection_parser} || $Config{trapping}{detection_engine};
@@ -104,7 +104,7 @@ my $parser = pf::factory::detect::parser->new($parser_type);
 
 my $client = pf::client->getClient();
 
-while (<$snortpipe_fh>) {
+while (<$alert_pipe_fh>) {
     my $line = $_;
     if($line =~ s/^([a-zA-Z]+\s[0-9]{1,2}\s[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s+([\w-]+)\s+//g){
         $logger->info("alert received: '$line'");
@@ -124,9 +124,9 @@ while (<$snortpipe_fh>) {
 
 END {
     deletepid();
-    if (defined($snortpipe_fh)) {
+    if (defined($alert_pipe_fh)) {
         $logger->info("stopping pfdetect");
-        close($snortpipe_fh);
+        close($alert_pipe_fh);
     }
 }
 
