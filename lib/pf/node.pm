@@ -516,9 +516,8 @@ Cleans the status value to make sure that a valid status is being set
 
 sub _cleanup_status_value {
     my ($status) = @_;
-    my $logger = get_logger();
-    $logger->info("$status ");
     unless ( defined $status && exists $ALLOW_STATUS{$status} ) {
+        my $logger = get_logger();
         $logger->warn("The status was set to " . (defined $status ? $status : "'undef'") . " changing it $STATUS_UNREGISTERED" );
         $status = $STATUS_UNREGISTERED;
     }
