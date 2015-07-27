@@ -8,7 +8,7 @@
         </div>
 
         <div class="modal-body">
-          [% saved_search_form.block('search').render %]
+          [% saved_search_form.block('search').render | none %]
         </div>
 
         <div class="modal-footer">
