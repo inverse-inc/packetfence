@@ -1096,14 +1096,6 @@ virtual_router_id=50
 
 [monitoring]
 #
-# monitoring.statsd_host
-#
-statsd_host=localhost
-#
-# monitoring.statsd_port
-#
-statsd_port=8125
-#
 # monitoring.graphite_host
 #
 graphite_host=localhost
