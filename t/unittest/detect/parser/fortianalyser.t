@@ -15,7 +15,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 20;
+use Test::More tests => 4;
 
 BEGIN {
     #include test libs
