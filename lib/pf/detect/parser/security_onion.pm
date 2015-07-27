@@ -19,7 +19,6 @@ extends qw(pf::detect::parser);
 
 sub parse {
     my ($self,$line) = @_;
-    my $data;
 
     if (index($line, "OSSEC") == -1) {
         # Split the line on the Curly Brace { }
@@ -30,13 +29,14 @@ sub parse {
         # The stuff we need in in position 4
         my @Step2 = split(" ", $Step1[4]);
 
-        $data = {
+        my $data = {
             srcip => $Step2[0],
             sid   => $Step2[6],
             descr => $Step1[3],
-        }
+        };
+
+        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid} } };
     }
-    return $data;
 }
 
 =head1 AUTHOR

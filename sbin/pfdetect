@@ -113,7 +113,9 @@ while (<$snortpipe_fh>) {
             $logger->warn("unknown input: $line ");
             next;
         }
-        $client->notify( event_add => ($data->{date}, $data->{srcip}, "detect", $data->{sid} || $portscan_sid));
+        while (my ($type, $value) = each %{$data->{events}}) {
+            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
+        }
     }
 
     #reload all cached configs after each iteration

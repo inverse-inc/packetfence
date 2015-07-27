@@ -20,7 +20,7 @@ sub parse {
     my ($self,$line) = @_;
     my $data;
     if ( $line
-        =~ /^(.*)snort[:]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
+        =~ /^(.*)snort[:]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+\[.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
         )
     {
     
@@ -31,6 +31,7 @@ sub parse {
             srcip => $4,
             dstip => $6,
         };
+        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid}, suricata => $data->{descr} } };
     } elsif ( $line
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         )
@@ -40,6 +41,7 @@ sub parse {
             srcip => $3,
             descr => "PORTSCAN",
         };
+        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{descr} } };
     } elsif ( $line
         =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         )
@@ -49,8 +51,8 @@ sub parse {
             srcip => $3,
             descr => "PORTSCAN",
         };
+        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{descr} } };
     }
-    return $data;
 }
  
 =head1 AUTHOR
