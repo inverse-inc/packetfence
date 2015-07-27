@@ -23,9 +23,6 @@ sub parse {
     my @fields = (); my %fields = (); 
     @fields = grep  /\=/ ,  split( /\s+/, $line );
     %fields = map { split /\=/ } @fields;
-    $data->{"date"} = $fields{date};
-    $data->{"srcip"} = $fields{srcip};
-    $data->{"event_id"} = $fields{logid};
 
     return { srcip => $fields{srcip}, events => { detect => $fields{logid} } };
 }
