@@ -29,6 +29,12 @@ Step 1: Install Active Directory Certificate Service (ADCS)
 
 NOTE: This will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2. This configuration has been tested to be integreted with PacketFence. The installation of ADCS is not cover by this guide see the Microsoft white paper about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
+For the integration with PacketFence the following subroles need to be installed in ADCS:
+
+* Active Directory Certificate Service
+* Network Device Enrollment Service
+* Online Responder
+
 Communication between MSPKI and PacketFence will be using port 80 or 443 depending on your configuration.
 
 Configuring Network Device Enrollement Service (NDES)
@@ -68,11 +74,11 @@ Certificate template
 
 NOTE: Remember that the validity of your CA can impact your whole certificate architecture.
 
-The settings to change need to be access via `Server Manager` > `Active Directory Certificates Services` > `Certificate templates`.
+The settings to change need to be access via `Server Manager` > `Roles` > `Active Directory Certificates Services` > `Certificate templates`.
 
-The main goal is to deliver certificate for either `user Authentication` or `machine Authentication`, this mean we have to setup a specific template.
+The main goal is to deliver certificate for `user Authentication`, this mean we have to setup a specific template.
 
-First, indepandent of which type of authentication you will use, the certificate template need at least the following `Enhanced Key Usage`:
+First, the certificate template need at least the following `Enhanced Key Usage`:
 
 * Client Authentication
 
@@ -81,15 +87,15 @@ and the following `Key Usage`:
 * Digital signature
 * Key encipherment
 
-Then if you want to use machineAuth you should duplicate the template `Computer` and change the settings that suits your use of certificate. To force a template to deliver Machine certificates, right click the newly created template, navigate to the tab `Subject Name` and select `Type of subject` > `Computer or other device`.
+Since we will duplicate a template, those `Key Usage`, and `Enhanced Key Usage` are already configured. We advice to duplicate the template `User` and change the necessary settings.
 
-For the userAuth we advice to duplicate the template `User` and change the necessary settings.
+Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
 
-iFor the userAuth, you need to change another setting. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
+Now that you chose your template to deliver you need to allow the use of this template by NDES and configure it in the registry.
 
-Now that you chose your type of authentication and which template to deliver you need to configure this template in the registry.
+To allow NDES to use this template you need to navigate to `Server Manager` > `Roles` > `Active Directory Certificates Services` > expand `YourServerName`, right click `Certificate template` and chose `New template to issue`, in the list select your newly created template.
 
-Press `Start` and type `regedit` in the search bar.
+For the registry, press `Start` and type `regedit` in the search bar.
 
 While in the registry navigate to `Computer` > `HKEY_LOCAL_MACHINE` > `SOFTWARE` > `Microsoft` > `Cryptography` > `MSCEP`.
 
@@ -99,7 +105,7 @@ Here you should have a list of three keys entries:
 * GeneralPurposeTemplate,
 * SignatureTemplate.
 
-Replace each value with our newly created template. The default value should be `IPSec(Offile Request)`.
+Replace each value with our newly created template. The default value should be `IPSECIntermediateOffline`.
 
 You now need to reboot the NDES server to apply changes to the registry.
 
@@ -110,14 +116,14 @@ The use of SCEP with PacketFence also require a change in the IIS configuration.
 
 Navigate to `Server Manager` > `Web(IIS)` > expand `Default web site` > select `CertSrv` > `mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity`is selected.
 
-OCSP
-^^^^
+Online Certificate Status Protocol (OCSP)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For the configuration of OCSP with a Microsoft Windows 2008 R2, there are small changes to apply.
 
 After the installation of OCSP we need to create a "Revocation Configuration".
 
-In `Server Manager` > `Active Directory Certificate Services`, expand OnlineResponder. Expand `YourServerName`, right click on "Revocation Configuration", select `Add Revocation Configuration`, click `Next`, chose a name for your configuration, click `Next`. Chose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Chose `Automatically select a signing certificate`, make sure `Auto-Enroll for and OCSP signing certificate` is selected, then chose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you whish to use some CRL in addition to OCSP.
+In `Server Manager` > `Roles` > `Active Directory Certificate Services`, expand `OnlineResponder`. Expand `YourServerName`, right click on "Revocation Configuration", select `Add Revocation Configuration`, click `Next`, chose a name for your configuration, click `Next`. Chose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Chose `Automatically select a signing certificate`, make sure `Auto-Enroll for and OCSP signing certificate` is selected, then chose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you whish to use some CRL in addition to OCSP.
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the tab `Signing`, here you need to select `Enable NONCE extension support` then click `OK`.
 
@@ -130,21 +136,25 @@ Using the PKI of Microsft include that all your certificates will be deliver by 
 
 As for RADIUS authentication we will need to generate a certificate for FreeRADIUS in PacketFence.
 
-The template `WebServer` match most of what we need for the creation of the RADIUS certificate. 
+The template `WebServer` match most of what we need for the creation of the RADIUS certificate.
 
 Duplicate the template `WebServer` and change the following settings inside the template, in the tab `Request Handling` select `Allow private key to be exported`.
 
 For the RADIUS server certificate we also advice to change the validity of it's template. We advice to use a longer time here e.g. 10years.
 
-After this template creation we will need to create the certificate.
+Allow this template to be used by adding to the `Certifcate template` as we did for the `User` template.
 
-Press `Start` and type mmc.exe, go to `options` > `add/remove Snap-in`, select `Certificates` and chose `Computer Account`.
+Once our template is ready we will make the certificate signing request (CSR) from PacketFence and submit it to the NDES server.
 
-In your mmc expand `Certificates` and right click `Personal` > `All tasks` > `Request new certificate`. Click `Next` then chose `Active Directory Enrollement Policy` and click `Next` again. Select the template you created earlier for the RADIUS server. You should have the following message with an exclamation mark at the start: `More information is required to enroll for this certificate. Click here to configure settings`. Click it.
+To do so we need a private key on PacketFence to sign the CSR, in your CLI type the following:
 
-In the settings we will add a CN, the Country, the State, Organization, Locality and Organization Unit.
+ # openssl genrsa -out ~/fqdn.server.key 2048
 
-Here is an example of valid values:
+Then we will generate the CSR:
+
+ # openssl req -new -sha256 -key ~/fqdn.server.key -out ~/fqdn.server.csr
+
+You will be prompt for some information, here is an example of a valid configuration.
 
 * CN=packetfence.local
 * C=CA
@@ -153,26 +163,25 @@ Here is an example of valid values:
 * Organization=Inverse
 * Organization Unit=IT
 
-The tab `General` is here if you need a description for which device the certificate is. In the tab `Private Key` verify that `Make private key exportable` is checked.
+No fields are mandatory else than the CN.
 
-When you finished fill the necessary informations click `Apply`, `OK` and then `Enroll`.
+Once you have your CSR we will submit it to the NDES server.
 
-Your certificate is now install in the store computer, you will need to export it to PacketFence.
+Gather the .csr file and open a web browser, reach the following:
 
-Go in your computer personal store: `Personal` > `Certificate` and right click your newly created certificate. Chose `All tasks` > `Export...`.
+ http://<fqdn of the NDES server>/CertSrv/
 
-In the export menu, click `Next`, check the box `Yes, export the private key` and click `Next`. In the next step, select `Personal Information Exchange - PKCS12 (.PFX)`, click `Next` and chose a password, this will be use once to change the certificate fromat from PKCS12 to PEM. Now you need to chose the file name under which you will save the PKCS12 file. Click `Next`, use this step to double check the information you input, when done click `Finish`.
+You can now submit a request. Click `Request a certificate`, select `advanced certificate request`. Paste the content of your CSR file and select the template `Web Server`. Click `Submit`. On this page select `Base 64 encoded` and click `Download certificate`. 
 
-Copy this file from the NDES server to PacketFence, using WinSCP is a good way to do it.
+This will give you the certificate(public key) for FreeRADIUS, you have the private key from the openssl genrsa command and now we need to download the CA.
 
-Certificate of authority
-^^^^^^^^^^^^^^^^^^^^^^^^
+To do so use the website where we were ealier; 
 
-For FreeRADIUS to work we will also need the CA certificate on PacketFence. The easiest way to export it, is to use the mmc we used for the RADIUS server certificate. This mmc allow access to computer certificate. Your ROOT certificate should be accessible from `Personal` > `Certificates`. Once you found it, right click on it and select `All tasks` > `Export...`. 
+ http://<fqdn of the NDES server>/CertSrv/
 
-This time we should not export the private key. Make sure that `No, do not export the private key` is selected while trying to export the certificate. Chose the `Base-64 encoded X.509(.CER)` and click `Next`, chose your file name to export it and click `Next`. Verify the information you input and click `Finish`.
+Click `Download a CA certificate, certificate chain or CRL`, select your CA certificatein the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
 
-Copy the file over to PacketFence server, using WinSCP is good way to do it.
+Copy those files from the location you downloaded them to PacketFence.
 
 Step 2: Configuring PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,10 +195,11 @@ It is recommended to create a separate directory to separate EAP-TLS certificate
 
 RADIUS EAP-TLS authentication requires three files, the CA certificate, the server certificate and the private key.
 
-Then, convert the pfx(pkcs12) file to the pem format using the openssl tool(the password is the one you configured when you exported the certificate form the NDES server):
+Copy those files in your newly created folder:
 
- # openssl pkcs12 -in YourCert.p12 -nocerts -out /usr/local/pf/conf/ssl/tls_certs/YourCert.key -nodes
- # openssl pkcs12 -in YourCert.p12 -out /usr/local/pf/conf/ssl/tls_certs/YourCert.pem -clcerts -nokeys
+* Privatekey of the RADIUS server (~/fqdn.server.key)
+* Certificate for RADIUS (obtained from the CSR submitted)
+* Certificate CA (downloaded from NDES website)
 
 Ensure that the files are readable by "pf": 
 
@@ -211,7 +221,6 @@ E.g.
  certificate_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.pem
  CA_file = %%install_dir%%/conf/ssl/tls_certs/MyCA.pem
 
-
 Certificate revocation checks also have to be configured using OCSP in the same block.
 
 For example: 
@@ -221,7 +230,6 @@ For example:
         override_cert_url = yes
         url = "http://<fqdn of the ndes server>/ocsp"
     }
-
 
 Restart radiusd to regenerate the new configuration files and enable EAP-TLS using your CA signed certificates:
 
@@ -236,11 +244,11 @@ Add a new PKI provider and select MS PKI.
 
 Fill out the form for a PKI provider according to your Certificate of Authority configuration.
 
-image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"] *TO RENEW*
+image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 For the url it will be http://<fqdn of the server>/CertSrv/mscep if you use our configuration.
 
-image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"] *TO RENEW*
+image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 The "server certificate path" and "CA cert path" both need to be absolute (e.g. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path).
 
@@ -271,7 +279,7 @@ The fields affect the provisioning behavior in the following fashion:
 
 The following is an example on how to configure an EAP-TLS connection for Windows/Android/OS X/iOS
 
-image::docs/images/packetfence-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::docs/images/scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 OS X/iOS require signing the provisioning profile with a Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
