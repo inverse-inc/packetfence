@@ -43,7 +43,7 @@ To allow the use of NDES as a Pki-Provider in BOYD deployement there is multiple
 Challenge Password
 ^^^^^^^^^^^^^^^^^^
 
-MSCEP include by default a challenge password, which is unique and dynamically generated for each device which want to enroll on the system. The issue here while using the challenge password is that it is necessary for an administrator to connect to the NDES server from the user's device. This a barrier to BOYD deployement for instance, where you want the user to be able to register himself his device. Since we use NDES with PacketFence, our security to obtain a certificate would be the credetials necessary to access the enrollement system.
+MSCEP include by default a challenge password, which is unique and dynamically generated for each device which want to enroll on the system. The issue here while using the challenge password is that it is necessary for an administrator to connect to the NDES server from the user's device. This a barrier to BOYD deployement for instance, where you want the user to be able to register himself his device. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollement system.
 
 To disable the challenge password you need to modifiy the following key in the Windows registry. 
 
@@ -63,10 +63,12 @@ To do so, enter the following command in the CLI on the NDES server:
  %systemroot%\system32\inetsrv\appcmd.exe set config /section:system.webServer/
  security/requestFiltering /requestLimits.maxQueryString:"8192" /commit:apphost
 
-Certificate template 
+Certificate template
 ^^^^^^^^^^^^^^^^^^^^
 
 NOTE: Remember that the validity of your CA can impact your whole certificate architecture.
+
+The settings to change need to be access via `Server Manager` > `Active Directory Certificates Services` > `Certificate templates`.
 
 The main goal is to deliver certificate for either `user Authentication` or `machine Authentication`, this mean we have to setup a specific template.
 
@@ -79,11 +81,11 @@ and the following `Key Usage`:
 * Digital signature
 * Key encipherment
 
-Then if you want to use machineAuth you should duplicate the template `Computer` and change the settings that suits your use of certificate. To force a template to deliver Machine certificates, go to the tab `Subject Name` and select `Type of subject` > `Computer or other device`.
+Then if you want to use machineAuth you should duplicate the template `Computer` and change the settings that suits your use of certificate. To force a template to deliver Machine certificates, right click the newly created template, navigate to the tab `Subject Name` and select `Type of subject` > `Computer or other device`.
 
 For the userAuth we advice to duplicate the template `User` and change the necessary settings.
 
-With PacketFence integration, you need also to change another setting in the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
+iFor the userAuth, you need to change another setting. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
 
 Now that you chose your type of authentication and which template to deliver you need to configure this template in the registry.
 
@@ -104,26 +106,26 @@ You now need to reboot the NDES server to apply changes to the registry.
 OCSP
 ^^^^
 
-For the configuration of OCSP with a Microsoft Windows 2008 R2, there is small changes to apply.
+For the configuration of OCSP with a Microsoft Windows 2008 R2, there are small changes to apply.
 
 After the installation of OCSP we need to create a "Revocation Configuration".
 
-Expand OnlineResponder: YourServerName, right click on "Revocation Configuration", select `Add Revocation Configuration`, click `Next`, chose aname for your configuration, click `Next`. Chose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Chose `Automatically select a signing certificate`, make sure `Auto-Enroll for and OCSP signing certificate` is selected, then chose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you whish to use some CRL in addition to OCSP.
+In `Server Manager` > `Active Directory Certificate Services`, expand OnlineResponder. Expand `YourServerName`, right click on "Revocation Configuration", select `Add Revocation Configuration`, click `Next`, chose a name for your configuration, click `Next`. Chose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Chose `Automatically select a signing certificate`, make sure `Auto-Enroll for and OCSP signing certificate` is selected, then chose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you whish to use some CRL in addition to OCSP.
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the tab `Signing`, here you need to select `Enable NONCE extension support` then click `OK`.
 
-Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. Also verify if `Include in the online certificate status protocol(OCSP) extension`.
+Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
-Certificate generation
-^^^^^^^^^^^^^^^^^^^^^^
+RADIUS Certificate generation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using the PKI of Microsft include that all your certificate will be deliver by the root CA of the PKI. The public key of this certificate is necessary on PacketFence. 
+Using the PKI of Microsft include that all your certificates will be deliver by the root CA of the PKI. The public key of this certificate is necessary on PacketFence. 
 
 As for RADIUS authentication we will need to generate a certificate for FreeRADIUS in PacketFence.
 
 The template `WebServer` match most of what we need for the creation of the RADIUS certificate. 
 
-Duplicate the template `WebServer` and change the following settings inside the template, in the tab `Request Handling` tick the case `Allow private key to be exported`.
+Duplicate the template `WebServer` and change the following settings inside the template, in the tab `Request Handling` select `Allow private key to be exported`.
 
 For the RADIUS server certificate we also advice to change the validity of it's template. We advice to use a longer time here e.g. 10years.
 
@@ -148,7 +150,7 @@ The tab `General` is here if you need a description for which device the certifi
 
 When you finished fill the necessary informations click `Apply`, `OK` and then `Enroll`.
 
-Your certificate is know install in the store computer, you will need to export it to PacketFence.
+Your certificate is now install in the store computer, you will need to export it to PacketFence.
 
 Go in your computer personal store: `Personal` > `Certificate` and right click your newly created certificate. Chose `All tasks` > `Export...`.
 
@@ -156,8 +158,8 @@ In the export menu, click `Next`, check the box `Yes, export the private key` an
 
 Copy this file from the NDES server to PacketFence, using WinSCP is a good way to do it.
 
-CA certificate
-^^^^^^^^^^^^^^
+Certificate of authority
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 For FreeRADIUS to work we will also need the CA certificate on PacketFence. The easiest way to export it, is to use the mmc we used for the RADIUS server certificate. This mmc allow access to computer certificate. Your ROOT certificate should be accessible from `Personal` > `Certificates`. Once you found it, right click on it and select `All tasks` > `Export...`. 
 
@@ -181,7 +183,7 @@ Convert the CA to a pem format using openssl tool:
 
  # openssl x509 -inform DER -in MyCA.cer -outform PEM -out /usr/local/pf/conf/ssl/tls_certs/MyCA.pem
 
-Then, convert the pfx(pkcs12) file to the pem format using the openssl tool(the password is the one you chose when you exported the certificate form the NDES server):
+Then, convert the pfx(pkcs12) file to the pem format using the openssl tool(the password is the one you configured when you exported the certificate form the NDES server):
 
  # openssl pkcs12 -in YourCert.p12 -nocerts -out /usr/local/pf/conf/ssl/tls_certs/YourCert.key -nodes
  # openssl pkcs12 -in YourCert.p12 -out /usr/local/pf/conf/ssl/tls_certs/YourCert.pem -clcerts -nokeys
@@ -225,9 +227,7 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 PacketFence provider configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under Configuration > Users.
-The provider configuration defines how PacketFence connects to the MS PKI and what informations will be send.
-
+Using the PKI requires configuring the PKI providers section in the PacketFence GUI under Configuration > Users. The provider configuration defines how PacketFence connects to the MS PKI and what information will be send.
 
 Add a new PKI provider and select MS PKI.
 
