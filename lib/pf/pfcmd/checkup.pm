@@ -1106,7 +1106,7 @@ sub valid_certs {
         add_problem($WARN, "Cannot detect Apache SSL configuration. Not validating the certificates.");
         return;
     }
-    unless(-e "$install_dir/raddb/eap.conf"){
+    unless(-e "$install_dir/raddb/eap.conf" || -e "$install_dir/conf/radiusd/eap.conf"){
         add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
         return;
     }   
