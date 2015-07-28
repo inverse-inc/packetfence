@@ -33,6 +33,10 @@ has_field merchant_id => (
     required => 1,
 );
 
+has_block definition => (
+    render_list => [qw(base_url shared_secret merchant_id)]
+);
+
 
 =head1 AUTHOR
 
