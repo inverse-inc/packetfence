@@ -87,9 +87,9 @@ and the following `Key Usage`:
 * Digital signature
 * Key encipherment
 
-Since we will duplicate a template, those `Key Usage`, and `Enhanced Key Usage` are already configured. We advice to duplicate the template `User` and change the necessary settings.
+Since we will duplicate a template, those `Key Usage`, and `Enhanced Key Usage` are already configured. We advise to duplicate the template `User` and change the necessary settings.
 
-Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
+Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
 
 Now that you chose your template to deliver you need to allow the use of this template by NDES and configure it in the registry.
 
@@ -114,7 +114,7 @@ IIS configuration
 
 The use of SCEP with PacketFence also require a change in the IIS configuration.
 
-Navigate to `Server Manager` > `Web(IIS)` > expand `Default web site` > select `CertSrv` > `mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity`is selected.
+Navigate to `Server Manager` > `Web(IIS)` > expand `Default web site` > select `CertSrv` > `mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
 
 Online Certificate Status Protocol (OCSP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,7 +140,7 @@ The template `WebServer` match most of what we need for the creation of the RADI
 
 Duplicate the template `WebServer` and change the following settings inside the template, in the tab `Request Handling` select `Allow private key to be exported`.
 
-For the RADIUS server certificate we also advice to change the validity of it's template. We advice to use a longer time here e.g. 10years.
+For the RADIUS server certificate we also advice to change the validity of it's template. We advise to use a longer time here e.g. 10years.
 
 Allow this template to be used by adding to the `Certifcate template` as we did for the `User` template.
 
@@ -167,7 +167,7 @@ No fields are mandatory else than the CN.
 
 Once you have your CSR we will submit it to the NDES server.
 
-Gather the .csr file and open a web browser, reach the following:
+Display the content of the .csr file and open a web browser, reach the following:
 
  http://<fqdn of the NDES server>/CertSrv/
 
@@ -179,7 +179,7 @@ To do so use the website where we were ealier;
 
  http://<fqdn of the NDES server>/CertSrv/
 
-Click `Download a CA certificate, certificate chain or CRL`, select your CA certificatein the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
+Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
 
 Copy those files from the location you downloaded them to PacketFence.
 
