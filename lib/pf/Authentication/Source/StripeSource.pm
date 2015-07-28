@@ -57,10 +57,6 @@ has 'live_publishable_key' => (is => 'rw', required => 1);
 
 has 'style' => (is => 'rw', default => 'charge');
 
-has 'mail_event' => (is => 'rw');
-
-has 'failed_payment_role' => ( is => 'rw');
-
 =head2 url
 
   The url to the rpc message to
