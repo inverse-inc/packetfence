@@ -103,6 +103,13 @@ Replace each value with our newly created template. The default value should be 
 
 You now need to reboot the NDES server to apply changes to the registry.
 
+IIS configuration
+^^^^^^^^^^^^^^^^^
+
+The use of SCEP with PacketFence also require a change in the IIS configuration.
+
+Navigate to `Server Manager` > `Web(IIS)` > expand `Default web site` > select `CertSrv` > `mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity`is selected.
+
 OCSP
 ^^^^
 
@@ -163,7 +170,7 @@ Certificate of authority
 
 For FreeRADIUS to work we will also need the CA certificate on PacketFence. The easiest way to export it, is to use the mmc we used for the RADIUS server certificate. This mmc allow access to computer certificate. Your ROOT certificate should be accessible from `Personal` > `Certificates`. Once you found it, right click on it and select `All tasks` > `Export...`. 
 
-This time we should not export the private key. Make sure that `No, do not export the private key` is selected while trying to export the certificate. Chose the `DER encoded binary X.509(.CER)` and click `Next`, chose your file name to export it and click `Next`. Verify the information you input and click `Finish`.
+This time we should not export the private key. Make sure that `No, do not export the private key` is selected while trying to export the certificate. Chose the `Base-64 encoded X.509(.CER)` and click `Next`, chose your file name to export it and click `Next`. Verify the information you input and click `Finish`.
 
 Copy the file over to PacketFence server, using WinSCP is good way to do it.
 
@@ -178,10 +185,6 @@ It is recommended to create a separate directory to separate EAP-TLS certificate
  # mkdir /usr/local/pf/conf/ssl/tls_certs/
 
 RADIUS EAP-TLS authentication requires three files, the CA certificate, the server certificate and the private key.
-
-Convert the CA to a pem format using openssl tool:
-
- # openssl x509 -inform DER -in MyCA.cer -outform PEM -out /usr/local/pf/conf/ssl/tls_certs/MyCA.pem
 
 Then, convert the pfx(pkcs12) file to the pem format using the openssl tool(the password is the one you configured when you exported the certificate form the NDES server):
 
@@ -234,6 +237,8 @@ Add a new PKI provider and select MS PKI.
 Fill out the form for a PKI provider according to your Certificate of Authority configuration.
 
 image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"] *TO RENEW*
+
+For the url it will be http://<fqdn of the server>/CertSrv/mscep if you use our configuration.
 
 image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"] *TO RENEW*
 
