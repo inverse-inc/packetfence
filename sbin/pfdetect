@@ -19,7 +19,7 @@ use warnings;
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
-use POSIX qw(:signal_h pause);
+use POSIX qw(:signal_h pause _exit);
 
 BEGIN {
     # log4perl init
@@ -44,6 +44,7 @@ use pf::SwitchFactory;
 pf::SwitchFactory::preLoadModules();
 use pf::factory::detect::parser;
 use pf::client;
+use pfconfig::cached_hash;
 
 # initialization
 # --------------
@@ -95,12 +96,11 @@ my %CHILDREN;
 my $IS_CHILD = 0;
 my $running = 1;
 
+tie our %ConfigDetect, 'pfconfig::cached_hash', 'config::PfDetect';
 
 sub start_detectors {
-    my @REGISTERED_DETECTORS = ({ id => 'snort', 'type' => 'snort', 'path' => '/usr/local/pf/var/alert' });
-    while(@REGISTERED_DETECTORS) {
-        my $detector = shift @REGISTERED_DETECTORS;
-        run_detector($detector);
+    foreach my $id (keys %ConfigDetect) {
+        run_detector($id);
     }
 }
 
@@ -111,10 +111,13 @@ creates a new child to run a task
 =cut
 
 sub run_detector {
-    my ($detector) = @_;
+    my ($id) = @_;
+    my $detector = $ConfigDetect{$id};
+    $detector->{id} = $id;
     my $pid = fork();
     if($pid) {
         $CHILDREN{$pid} = $detector->{id};
+        $SIG{CHLD} = "IGNORE";
     } elsif ($pid == 0) {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
@@ -137,7 +140,8 @@ sub _run_detector {
     my $alert_pipe_fh;
 
     if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
-        $logger->logdie("unable to open alert pipe ($alert_pipe): $!");
+        $logger->error("unable to open alert pipe ($alert_pipe): $!");
+        _exit(1);
     } else {
         $logger->info("listening on $alert_pipe");
     }
@@ -173,7 +177,7 @@ sub _run_detector {
     }
 
     $logger->trace("$$ shutting down");
-    exit;
+    _exit(0);
 }
 
 =head2 is_parent_alive
@@ -188,8 +192,14 @@ sub is_parent_alive {
 
 start_detectors();
 while($running){
-  sleep 5;
-  pause;
+    sleep 1;
+    foreach my $pid (keys %CHILDREN){
+        unless(kill(0,$pid)){
+            get_logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
+            run_detector($CHILDREN{$pid});
+            delete $CHILDREN{$pid};
+        }
+    }
 }
 
 
@@ -200,6 +210,9 @@ END {
 exit(0);
 
 sub normal_sighandler {
+    foreach my $pid (keys %CHILDREN){
+        kill(SIGKILL, $pid);
+    }
     deletepid();
     $logger->logdie( "caught SIG" . $_[0] . " - terminating" );
 }
