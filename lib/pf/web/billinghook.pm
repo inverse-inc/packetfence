@@ -24,6 +24,7 @@ use Apache2::RequestIO();
 use Apache2::RequestRec();
 use pf::log;
 use pf::authentication qw(getAuthenticationSource);
+use pf::billing::hook;
 
 my $logger = get_logger();
 
@@ -32,8 +33,8 @@ sub handler {
     my $source = find_source_for_hook($r);
     if ($source) {
         my $content = get_content($r);
-        $logger->trace(sub { "The content of is " . $content });
-        my $status = $source->hook($r->headers_in, $content);
+        $logger->trace(sub {"The content of is " . $content});
+        my $status = pf::billing::hook::handler_hook($source, $r->headers_in, $content);
         $r->status($status);
     }
     return Apache2::Const::OK;
