@@ -11,8 +11,8 @@
   </div>
 
   <div class="modal-body">
-        [% form.field('id').render UNLESS billing_tier && billing_tier.id.defined %]
-        [% form.block('definition').render %]
+        [% form.field('id').render | none UNLESS billing_tier && billing_tier.id.defined %]
+        [% form.block('definition').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
