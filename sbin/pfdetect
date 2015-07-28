@@ -152,16 +152,14 @@ sub _run_detector {
         last unless $running;
 
         my $line = $_;
-        if($line =~ s/^([a-zA-Z]+\s[0-9]{1,2}\s[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s+([\w-]+)\s+//g){
-            $logger->info("alert received: '$line'");
-            my $data = $parser->parse($line);
-            unless($data) {
-                $logger->warn("unknown input: $line ");
-                next;
-            }
-            while (my ($type, $value) = each %{$data->{events}}) {
-                $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
-            }
+        $logger->info("alert received: '$line'");
+        my $data = $parser->parse($line);
+        unless($data) {
+            $logger->warn("unknown input: $line ");
+            next;
+        }
+        while (my ($type, $value) = each %{$data->{events}}) {
+            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
         }
 
         #Stop running if parent is no longer alive
