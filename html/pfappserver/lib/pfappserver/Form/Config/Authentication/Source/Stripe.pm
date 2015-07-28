@@ -47,12 +47,7 @@ has_field 'style' => (
 );
 
 has_block definition => (
-    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key failed_payment_role style test_mode)]
-);
-
-has_field 'failed_payment_role' => (
-    type => 'Select',
-    options_method => \&options_failed_payment_role,
+    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style test_mode)]
 );
 
 sub options_failed_payment_role {
