@@ -1,1 +1,1 @@
-[% form.field('always_allow').render %]
+[% form.block('definition').render | none %]
