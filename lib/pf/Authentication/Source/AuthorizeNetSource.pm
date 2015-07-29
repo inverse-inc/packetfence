@@ -2,7 +2,7 @@ package pf::Authentication::Source::AuthorizeNetSource;
 
 =head1 NAME
 
-pf::Authentication::Source::AuthorizeNetSource add documentation
+pf::Authentication::Source::AuthorizeNetSource
 
 =cut
 

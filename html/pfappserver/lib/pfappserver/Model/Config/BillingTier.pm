@@ -2,7 +2,7 @@ package pfappserver::Model::Config::BillingTier;
 
 =head1 NAME
 
-pfappserver::Model::Config::Profile add documentation
+pfappserver::Model::Config::Profile
 
 =cut
 

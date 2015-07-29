@@ -1,7 +1,7 @@
 package pf::Authentication::Source::MirapaySource;
 =head1 NAME
 
-pf::Authentication::Source::MirapaySource add documentation
+pf::Authentication::Source::MirapaySource
 
 =cut
 

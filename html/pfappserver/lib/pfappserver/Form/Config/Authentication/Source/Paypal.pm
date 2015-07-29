@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Authentication::Source::Paypal;
 
 =head1 NAME
 
-pfappserver::Form::Config:::Authentication::Source::Paypal add documentation
+pfappserver::Form::Config:::Authentication::Source::Paypal
 
 =cut
 
@@ -54,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

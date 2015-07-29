@@ -1,7 +1,7 @@
 package pf::Authentication::Source::StripeSource;
 =head1 NAME
 
-pf::Authentication::Source::StripeSource add documentation
+pf::Authentication::Source::StripeSource
 
 =cut
 

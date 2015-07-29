@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Authentication::Source::Stripe;
 
 =head1 NAME
 
-pfappserver::Form::Authentication::Source::Stripe add documentation
+pfappserver::Form::Authentication::Source::Stripe
 
 =cut
 
@@ -70,7 +70,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

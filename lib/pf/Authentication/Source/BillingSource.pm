@@ -1,7 +1,7 @@
 package pf::Authentication::Source::BillingSource;
 =head1 NAME
 
-pf::Authentication::Source::BillingSource add documentation
+pf::Authentication::Source::BillingSource
 
 =cut
 
