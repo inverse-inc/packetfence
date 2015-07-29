@@ -139,7 +139,9 @@ sub get_cert {
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
     system("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
-    my $cert = read_file ($cert_path);
+    my $cert = eval {
+        read_file ($cert_path)
+    };
     return Crypt::OpenSSL::PKCS12->create_as_string($cert, $request->{key}, $args->{certificate_pwd});
 }
 
@@ -207,11 +209,11 @@ if [ ! "$UNSTRUCTURED_NAME" ]; then
 sub subject_string {
     my ($self, $args) = @_;
     my $subject = '';
-    $subject .= "/C=" . $self->country;
-    $subject .= "/ST=" . $self->state;
-    $subject .= "/L=" . $self->locality;
-    $subject .= "/O=" . $self->organization;
-    $subject .= "/OU=" . $self->organizational_unit;
+    $subject .= "/C=" . $self->country if defined $self->country;
+    $subject .= "/ST=" . $self->state if defined $self->state;
+    $subject .= "/L=" . $self->locality if defined $self->locality;
+    $subject .= "/O=" . $self->organization if defined $self->organization;
+    $subject .= "/OU=" . $self->organizational_unit if defined $self->organizational_unit;
     $subject .= "/CN=" . $args->{'certificate_cn'};
     return $subject;
 }
