@@ -2,7 +2,7 @@ package pf::Authentication::Source::PaypalSource;
 
 =head1 NAME
 
-pf::Authentication::Source::PaypalSource add documentation
+pf::Authentication::Source::PaypalSource
 
 =cut
 

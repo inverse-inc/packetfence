@@ -2,7 +2,7 @@ package pf::web::billinghook;
 
 =head1 NAME
 
-pf::web::billinghook add documentation
+pf::web::billinghook
 
 =cut
 
