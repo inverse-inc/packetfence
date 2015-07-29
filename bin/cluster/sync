@@ -62,7 +62,7 @@ foreach my $store (@tmp_stores){
     push @stores, $store;
 }
 
-my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf");
+my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", "/usr/local/fingerbank/conf/fingerbank.conf");
 
 open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
   or print "WARN : Couldn't open the list of additionnal files to sync.";
