@@ -28,12 +28,12 @@ __PACKAGE__->config(
        # Reconfigure the object action from pfappserver::Base::Controller::Crud
        # Configure access rights
        object => { Chained => 'parent', CaptureArgs => 1 , PathPart => '' },
-       list   => { AdminRole => 'USERS_SOURCES_READ', Args => 0, Chained => 'parent' },
-       create => { AdminRole => 'USERS_SOURCES_CREATE', Args => 0, Chained => 'parent' },
-       view   => { AdminRole => 'USERS_SOURCES_READ', },
-       clone  => { AdminRole => 'USERS_SOURCES_CREATE' },
-       update => { AdminRole => 'USERS_SOURCES_UPDATE' },
-       remove => { AdminRole => 'USERS_SOURCES_DELETE' },
+       list   => { AdminRole => 'PORTAL_PROFILES_READ', Args => 0, Chained => 'parent' },
+       create => { AdminRole => 'PORTAL_PROFILES_CREATE', Args => 0, Chained => 'parent' },
+       view   => { AdminRole => 'PORTAL_PROFILES_READ', },
+       clone  => { AdminRole => 'PORTAL_PROFILES_CREATE' },
+       update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
+       remove => { AdminRole => 'PORTAL_PROFILES_DELETE' },
    },
     action_args => {
         # Setting the global model and form for all actions
