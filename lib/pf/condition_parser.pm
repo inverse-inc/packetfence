@@ -85,7 +85,7 @@ sub _parse_expr {
 # EXPR = OR
     my @expr;
     push @expr, _parse_or();
-    while (/\G\s*\|\|/gc) {
+    while (/\G\s*\|{1,2}/gc) {
         push @expr, _parse_or();
     }
 
@@ -105,7 +105,7 @@ sub _parse_or {
 # OR   = FACT
     my @expr;
     push @expr, _parse_fact();
-    while (/\G\s*\&\&/gc) {
+    while (/\G\s*\&{1,2}/gc) {
         push @expr, _parse_fact();
     }
 
