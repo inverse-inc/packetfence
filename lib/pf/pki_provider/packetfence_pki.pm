@@ -73,30 +73,6 @@ The profile to use for the packetfence_pki pki service
 
 has profile => ( is => 'rw' );
 
-=head2 country
-
-What country to use for the certificate
-
-=cut
-
-has country => ( is => 'rw' );
-
-=head2 state
-
-What state to use for the certificate
-
-=cut
-
-has state => ( is => 'rw' );
-
-=head2 organisation
-
-What organisation to use for the certificate
-
-=cut
-
-has organisation => ( is => 'rw' );
-
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger;
@@ -183,7 +159,7 @@ sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger;
     my $uri = "/pki/cert/rest/revoke/".$cn."/";
-    my $post_fields = 
+    my $post_fields =
       "CRLReason=" . uri_escape("superseded");
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);

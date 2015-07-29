@@ -83,46 +83,6 @@ The profile to use for the scep pki service
 
 has profile => ( is => 'rw' );
 
-=head2 country
-
-What country to use for the certificate
-
-=cut
-
-has country => ( is => 'rw' );
-
-=head2 state
-
-What state to use for the certificate
-
-=cut
-
-has state => ( is => 'rw' );
-
-=head2 locality
-
-What locality to use for the certificate
-
-=cut
-
-has locality => ( is => 'rw' );
-
-=head2 organization
-
-What organization to use for the certificate
-
-=cut
-
-has organization => ( is => 'rw' );
-
-=head2 organizational_unit
-
-What organizational_unit to use for the certificate
-
-=cut
-
-has organizational_unit => ( is => 'rw' );
-
 =head2 get_cert
 
 Get the certificate from the scep pki service
@@ -229,6 +189,12 @@ sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
 }
+
+=head2 module_description
+
+=cut
+
+sub module_description { 'SCEP PKI' }
 
 =head1 AUTHOR
 
