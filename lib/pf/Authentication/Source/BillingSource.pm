@@ -104,7 +104,6 @@ sub _build_base_path {
     my ($self) = @_;
     my $id     = $self->id;
     my $base_path = "http://$fqdn/billing/$id";
-#    my $base_path = "http://192.168.56.101:8080/billing/$id";
     return $base_path;
 }
 
