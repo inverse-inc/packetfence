@@ -272,20 +272,20 @@ sub checkIfChainedAuth : Private {
     }
 }
 
-=head2 continue_chained_auth
+=head2 skip_chained_auth
 
-Allow the chained auth source to continue login using it's auth source
+Allow to skip the chained auth source to continue login using the chained source auth source
 
 =cut
 
-sub continue_chained_auth : Local {
+sub skip_chained_auth : Local {
     my ($self, $c) = @_;
     my $source_id = $c->session->{chained_source};
     unless ($source_id) {
         $self->showError($c, "You do not have permission to continue");
     }
     my $source = getAuthenticationSource($source_id);
-    unless($source && $source->type eq 'Chained' && $source->authentication_source_can_continue) {
+    unless($source && $source->type eq 'Chained' && $source->skip_chained_auth) {
         #if not a chained auth leave
         $self->showError($c, "You do not have permission to continue");
     }

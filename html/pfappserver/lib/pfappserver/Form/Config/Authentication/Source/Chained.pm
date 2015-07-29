@@ -38,7 +38,7 @@ has_field 'authentication_source' =>
              help => 'The internal source used to authenticate' },
   );
 
-has_field authentication_source_can_continue => (
+has_field skip_chained_auth => (
     type => 'Checkbox',
     checked_value => 1,
 );
