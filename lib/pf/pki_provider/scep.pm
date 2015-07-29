@@ -75,13 +75,13 @@ The password to connect to the scep pki service
 
 has password => ( is => 'rw' );
 
-=head2 profile
+=head2 custom_subject
 
-The profile to use for the scep pki service
+A custom subject to
 
 =cut
 
-has profile => ( is => 'rw' );
+has custom_subject => ( is => 'rw' );
 
 =head2 get_cert
 
@@ -146,29 +146,13 @@ sub make_request {
 
 =head2 subject_string
 
-TODO: documention
-	echo "C=$COUNTRY" >> $CONFIG
-fi
-if [ "$STATE" ]; then
-	echo "ST=$STATE" >> $CONFIG
-fi
-if [ "$LOCALITY" ]; then
-	echo "L=$LOCALITY" >> $CONFIG
-fi
-if [ "$ORGANIZATION" ]; then
-	echo "O=$ORGANIZATION" >> $CONFIG
-fi
-if [ "$ORGANIZATIONAL_UNIT" ]; then
-	echo "OU=$ORGANIZATIONAL_UNIT" >> $CONFIG
-fi
-if [ ! "$UNSTRUCTURED_NAME" ]; then
-	echo "CN=$PARAMETER" >> $CONFIG
+Builds the subject string to send to the scep provider
 
 =cut
 
 sub subject_string {
     my ($self, $args) = @_;
-    my $subject = '';
+    my $subject = $self->custom_subject // '';
     $subject .= "/C=" . $self->country if defined $self->country;
     $subject .= "/ST=" . $self->state if defined $self->state;
     $subject .= "/L=" . $self->locality if defined $self->locality;
