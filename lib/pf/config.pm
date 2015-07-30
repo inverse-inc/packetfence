@@ -119,6 +119,8 @@ our (
     %ConfigWmi,
 
     %ConfigPKI_Provider,
+#pfdetect.conf
+    %ConfigDetect,
 );
 
 BEGIN {
@@ -168,6 +170,7 @@ BEGIN {
         %ConfigScan
         %ConfigWmi
         %ConfigPKI_Provider
+        %ConfigDetect
     );
 }
 
@@ -231,6 +234,8 @@ tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
 tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 
 tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
+
+tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
 
 sub import {
     pf::config->export_to_level(1,@_);

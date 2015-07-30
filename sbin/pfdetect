@@ -96,8 +96,6 @@ my %CHILDREN;
 my $IS_CHILD = 0;
 my $running = 1;
 
-tie our %ConfigDetect, 'pfconfig::cached_hash', 'config::PfDetect';
-
 sub start_detectors {
     foreach my $id (keys %ConfigDetect) {
         run_detector($id);
