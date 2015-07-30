@@ -144,13 +144,7 @@ As for RADIUS authentication we will need to generate a certificate for FreeRADI
 
 To generate the RADIUS certificate the template `WebServer` will be used.
 
-For the RADIUS server certificate we also advice to change the validity of it's template. We advise to use a longer time here e.g. 10years.
-
-Allow this template to be used by adding to the `Certifcate template` as we did for the `User` template.
-
-Once our template is ready we will make the certificate signing request (CSR) from PacketFence and submit it to the NDES server.
-
-The idea now is to create the request and private key from the PacketFence server. Connect to PacketFence via ssh and type the following in the CLI to generate the private key:
+The idea now is to create the request (.CSR), a private key from the PacketFence server and submit the CSR to the NDES server. Connect to PacketFence via ssh and type the following in the CLI to generate the private key:
 
  openssl genrsa -out ~/fqdn.server.key 2048
 
