@@ -92,7 +92,7 @@ Once duplicated, right click your new template, go to `Properties`. Navigate to 
 
 To allow NDES to use this template you need to navigate to `Server Manager` > `Roles` > `Active Directory Certificates Services` > expand `YourServerName`, right click `Certificate template` and chose `New template to issue`, in the list select your newly created template.
 
-Now that you chose your template to deliver you need to configure it in the registry.
+Now that you chose the template to deliver you need to configure it in the registry.
 
 For the registry, press `Start` and type `regedit` in the search bar.
 
@@ -120,7 +120,7 @@ Online Certificate Status Protocol (OCSP)
 
 For the configuration of OCSP, there are small changes to apply.
 
-First we need to add the allow the use of the template "OCSPResponseSigning" by the server, to do so navigate to `Server Manager` > `Roles` > `Active Directory Certificates Services` > expand `YourServerName`, right click `Certificate template` and chose `New template to issue`, in the list select your newly created template.
+First we need to allow the use of the template "OCSPResponseSigning" by the server, to do so navigate to `Server Manager` > `Roles` > `Active Directory Certificates Services` > expand `YourServerName`, right click `Certificate template` and chose `New template to issue`, in the list select "OCSPResponseSigning".
 
 After the installation of OCSP we need to create a "Revocation Configuration".
 
