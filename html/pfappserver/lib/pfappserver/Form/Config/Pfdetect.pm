@@ -39,7 +39,7 @@ has_field 'type' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'Domain',
+   label => 'Type',
    options_method => \&options_parsers,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to select a parser'},
