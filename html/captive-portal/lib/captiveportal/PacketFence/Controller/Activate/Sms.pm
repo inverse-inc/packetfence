@@ -65,19 +65,8 @@ sub index : Path : Args(0) {
         if ($source) {
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} =
-              &pf::authentication::match( $source->{id}, $auth_params,
-                $Actions::SET_ACCESS_DURATION );
-            if ( defined $info{'unregdate'} ) {
-                $info{'unregdate'} = pf::config::access_duration($info{'unregdate'});
-            } else {
-                $info{'unregdate'} =
-                  &pf::authentication::match( $source->{id}, $auth_params,
-                    $Actions::SET_UNREG_DATE );
-            }
-            $info{'category'} =
-              &pf::authentication::match( $source->{id}, $auth_params,
-                $Actions::SET_ROLE );
+            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};

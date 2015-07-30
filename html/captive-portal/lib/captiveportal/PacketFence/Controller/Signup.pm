@@ -31,8 +31,8 @@ use pf::web::custom;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-our @PERSON_FIELDS = grep { 
-    $_ ne 'pid' 
+our @PERSON_FIELDS = grep {
+    $_ ne 'pid'
     && $_ ne 'notes'
     && $_ ne 'portal'
     && $_ ne 'source'
@@ -112,7 +112,7 @@ sub index : Path : Args(0) {
     if ( $mode && $mode eq $pf::web::guest::GUEST_REGISTRATION ) {
         $c->forward('validateSelfRegistration');
         $c->forward('doSelfRegistration');
-    }  
+    }
     $c->forward('showSelfRegistrationPage');
 }
 
@@ -176,7 +176,7 @@ sub doEmailSelfRegistration : Private {
         'user_email' => $email
     };
     $c->stash->{matchParams} = $auth_params;
-    
+
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
     $session->{source_id} = $source->{id};
@@ -301,17 +301,7 @@ sub doSponsorSelfRegistration : Private {
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} =
-      &pf::authentication::match( $source->{id}, $auth_params,
-        $Actions::SET_ACCESS_DURATION );
-
-    if ( defined $info{'unregdate'} ) {
-        $info{'unregdate'} = pf::config::access_duration($info{'unregdate'});
-    } else {
-        $info{'unregdate'} =
-          &pf::authentication::match( $source->{id}, $auth_params,
-            $Actions::SET_UNREG_DATE );
-    }
+    $info{'unregdate'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
 
     # set node in pending mode
     $info{'status'} = $pf::node::STATUS_PENDING;
@@ -421,7 +411,7 @@ sub doSmsSelfRegistration : Private {
 
     unless ($auth_return) {
         $self->validationError( $c, $err );
-    } 
+    }
 
     # set node in pending mode with the appropriate role
     $info{'status'} = $pf::node::STATUS_PENDING;

@@ -849,15 +849,7 @@ sub dynamic_register_node : Public {
     my $source;
     my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
     #Compute autoreg if we use autoreg
-    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
-    if (defined $value) {
-        $logger->trace("No unregdate found - computing it from access duration");
-        $value = pf::config::access_duration($value);
-    }
-    else {
-        $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-        $value = pf::config::dynamic_unreg_date($value);
-    }
+    my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
     if (defined $value) {
         my %info = (
             'unregdate' => $value,
