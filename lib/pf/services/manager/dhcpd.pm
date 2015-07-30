@@ -105,7 +105,7 @@ EOT
                 my $members = join(',',@active_members);
                 if ($members) {
                     if ($current_network->contains($ip)) {
-                        $dns = $members;
+                        $dns = pf::cluster::cluster_ip($interface);
                         $active = defined($net{next_hop}) ? 
                                  NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'}) :
 				 NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
