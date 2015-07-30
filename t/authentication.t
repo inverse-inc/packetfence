@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 8;                      # last test to print
+use Test::More tests => 12;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -80,6 +80,19 @@ is( pf::authentication::match(
     'Violation Manager',
     "Return action in first matching source"
 );
+
+is(
+    pf::authentication::match("htpasswd1", { username => 'set_access_duration_test' }, 'set_access_duration'),undef,
+    "No longer match on set_access_duration "
+);
+
+my $value = pf::authentication::match("htpasswd1", { username => 'set_access_duration_test' }, 'set_unreg_date');
+
+ok( $value , "set_access_duration matched on set_unreg_date");
+
+ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_duration is a date");
+
+is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
 
 =head1 AUTHOR
 
