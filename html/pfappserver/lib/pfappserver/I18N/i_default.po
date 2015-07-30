@@ -7364,15 +7364,15 @@ msgstr "dhcpd path"
 
 # conf/documentation.conf
 msgid "services.haproxy"
-msgstr ""
+msgstr "HAProxy"
 
 # conf/documentation.conf
 msgid "services.haproxy_binary"
-msgstr ""
+msgstr "HAProxy path"
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
-msgstr ""
+msgstr "httpd.aaa"
 
 # conf/documentation.conf
 msgid "services.httpd_admin"
@@ -7416,11 +7416,11 @@ msgstr "iptables path"
 
 # conf/documentation.conf
 msgid "services.keepalived"
-msgstr ""
+msgstr "Keepalived"
 
 # conf/documentation.conf
 msgid "services.keepalived_binary"
-msgstr ""
+msgstr "Keepalived path"
 
 # conf/documentation.conf
 msgid "services.memcached"
@@ -7508,11 +7508,11 @@ msgstr "suricata path"
 
 # conf/documentation.conf
 msgid "services.winbindd"
-msgstr ""
+msgstr "winbindd"
 
 # conf/documentation.conf
 msgid "services.winbindd_binary"
-msgstr ""
+msgstr "winbindd path"
 
 # conf/documentation.conf
 msgid "servicewatch"
