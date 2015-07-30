@@ -157,7 +157,6 @@ DomainView.prototype.setPassword = function(domain,callback) {
   var that = this;
   var modal = $('#modalDomainSetPassword-'+domain);
   var form = $('#modalDomainSetPassword-'+domain+' form');
-  console.log(form[0]);
   form.submit(function(evt){
     evt.preventDefault();
     $.ajax({
@@ -167,11 +166,13 @@ DomainView.prototype.setPassword = function(domain,callback) {
         })
         .success(function(data) {
             modal.modal('hide');     
+            form.find('input[type="password"]').val('');
             callback();
         })
         .fail(function(jqXHR) {
             $("body,html").animate({scrollTop:0}, 'fast');
             var status_msg = getStatusMsg(jqXHR);
+            form.find('input[type="password"]').val('');
             showError($('#section h2'), status_msg);
         });
     return false;
