@@ -127,13 +127,6 @@ detection_engine=snort
 range=192.168.0.0/24
 
 #
-# trapping.detection_parser
-#
-# Let you define the trapping parser if none if defined will use the parser for the detection_engine
-#
-detection_parser=
-
-#
 # trapping.wireless_ips
 #
 # Enable wids trapping detection
