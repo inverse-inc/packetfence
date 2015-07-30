@@ -257,14 +257,18 @@ our %ALLOW_ACTIONS_TYPES = (
 );
 
 our %ACTION_VALUE_FILTERS = (
-    $Actions::SET_ACCESS_DURATION => \&pf::config::dynamic_unreg_date,
-    $Actions::SET_UNREG_DATE => \&pf::config::access_duration,
+    $Actions::SET_ACCESS_DURATION => \&pf::config::access_duration,
+    $Actions::SET_UNREG_DATE => \&pf::config::dynamic_unreg_date,
 );
 
 sub match {
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+    if( defined $action && !exists $ALLOW_ACTIONS_TYPES{$action}) {
+        $logger->warn("Calling match with an invalid $action");
+        return undef;
+    }
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     }
@@ -277,7 +281,7 @@ sub match {
     foreach my $source (@sources) {
         $actions = $source->match($params);
         next unless defined $actions;
-        if (defined $action && exists $ALLOW_ACTIONS_TYPES{$action}) {
+        if (defined $action ) {
             my $allowed_actions = $ALLOW_ACTIONS_TYPES{$action};
 
             # Return the value only if the action matches
