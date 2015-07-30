@@ -17,7 +17,8 @@ Assumptions
 * You have at least one server with PacketFence 5.4 or later.
 * The server already has a properly configured switch with 802.1X support.
 * The PacketFence RADIUS server is working in your environment.
-* You have an Active Directory server or another Microsoft Windows 2008 R2 server installed.
+* You have a Microsoft Windows 2008 R2 Entreprise server installed.
+* In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
 * The PacketFence management IP will be 192.168.1.5.
 * The RADIUS shared secret is "useStrongerSecret".
 
@@ -35,12 +36,14 @@ For the integration with PacketFence the following subroles need to be installed
 * Network Device Enrollment Service
 * Online Responder
 
-Before start the configuration, a hotfix is necessary to install, due to a Microsft issue, after restarting the service ADCS, the server cannot enroll new certificate with the error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
+Before start the configuration, a hotfix is necessary due to a Microsft issue. After restarting the service ADCS, the server cannot enroll new certificate with the error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
 
 Communication between MSPKI and PacketFence will be using port 80 with this configuration.
 
 Configuring Network Device Enrollement Service (NDES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+NOTE: In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
 
 Our main activity in the deployment of ADCS is to configure Network Enrollement Device Service (NDES) which will allow us to exchange certificate with the MS PKI server via the protocol Simple Certificate Exchange Protocol (SCEP).
 
@@ -76,8 +79,6 @@ Certificate template
 
 NOTE: Remember that the validity of your CA can impact your whole certificate architecture.
 
-The settings to change need to be access via `Server Manager` > `Roles` > `Active Directory Certificates Services` > `Certificate templates`.
-
 The main goal is to deliver certificate for `user Authentication`, this mean we have to setup a specific template.
 
 First, the certificate template need at least the following `Enhanced Key Usage` and `Key Usage`:
@@ -87,6 +88,8 @@ image::docs/images/scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandator
 image::docs/images/scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory Key Usage"]
 
 Since we will duplicate a template, those `Key Usage`, and `Enhanced Key Usage` are already configured. We advise to duplicate the template `User` and change the necessary settings.
+
+To duplicate the template, you need to navigate through `Server Manager` > `Roles` > `Active Directory Certificates Services` > `Certificate templates`. Now right click the template `User` and select `Duplicate this template`.
 
 Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, else the requested CN will be overwritten by NDES.
 
@@ -100,7 +103,7 @@ While in the registry navigate to `Computer` > `HKEY_LOCAL_MACHINE` > `SOFTWARE`
 
 Here you should have a list of three keys entries: 
 
-* EncryptionTemplate, 
+* EncryptionTemplate,
 * GeneralPurposeTemplate,
 * SignatureTemplate.
 
@@ -130,7 +133,7 @@ Chose `Select a certificate for an existing entreprise CA`, click `Next`. Click 
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the tab `Signing`, here you need to select `Enable NONCE extension support` then click `OK`.
 
-Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. In this menu type the "http://" then insert "<ServerDNSName>" and type "/ocsp", the line you add should look like the following: `http://<ServerDNSName>/ocsp`, then validate by clicking OK. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
+Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. In this menu type the "http://" then insert "<ServerDNSName>" and type "/ocsp", the line you add should look like the following: `http://<ServerDNSName>/ocsp`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
 RADIUS Certificate generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -139,9 +142,7 @@ Using the PKI of Microsft include that all your certificates will be deliver by 
 
 As for RADIUS authentication we will need to generate a certificate for FreeRADIUS in PacketFence.
 
-The template `WebServer` match most of what we need for the creation of the RADIUS certificate.
-
-Duplicate the template `WebServer` and change the following settings inside the template, in the tab `Request Handling` select `Allow private key to be exported`.
+To generate the RADIUS certificate the template `WebServer` will be used.
 
 For the RADIUS server certificate we also advice to change the validity of it's template. We advise to use a longer time here e.g. 10years.
 
@@ -149,13 +150,13 @@ Allow this template to be used by adding to the `Certifcate template` as we did 
 
 Once our template is ready we will make the certificate signing request (CSR) from PacketFence and submit it to the NDES server.
 
-To do so we need a private key on PacketFence to sign the CSR, in your CLI type the following:
+The idea now is to create the request and private key from the PacketFence server. Connect to PacketFence via ssh and type the following in the CLI to generate the private key:
 
- # openssl genrsa -out ~/fqdn.server.key 2048
+ openssl genrsa -out ~/fqdn.server.key 2048
 
-Then we will generate the CSR:
+Then we will generate the CSR and sign it with our private key:
 
- # openssl req -new -sha256 -key ~/fqdn.server.key -out ~/fqdn.server.csr
+ openssl req -new -sha256 -key ~/fqdn.server.key -out ~/fqdn.server.csr
 
 You will be prompt for some information, here is an example of a valid configuration.
 
@@ -172,7 +173,7 @@ Once you have your CSR we will submit it to the NDES server.
 
 Display the content of the .csr file and open a web browser, reach the following:
 
- http://<fqdn of the NDES server>/CertSrv/
+ http://<ServerDNSName>/CertSrv/
 
 You can now submit a request. Click `Request a certificate`, select `advanced certificate request`. Paste the content of your CSR file and select the template `Web Server`. Click `Submit`. On this page select `Base 64 encoded` and click `Download certificate`. 
 
@@ -180,7 +181,7 @@ This will give you the certificate(public key) for FreeRADIUS, you have the priv
 
 To do so use the website where we were ealier; 
 
- http://<fqdn of the NDES server>/CertSrv/
+ http://<ServerDNSName>/CertSrv/
 
 Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
 
@@ -231,7 +232,7 @@ For example:
     ocsp {
         enable = yes
         override_cert_url = yes
-        url = "http://<fqdn of the ndes server>/ocsp"
+        url = "http://<ServerDNSName or IP>/ocsp"
     }
 
 Restart radiusd to regenerate the new configuration files and enable EAP-TLS using your CA signed certificates:
@@ -249,7 +250,7 @@ Fill out the form for a PKI provider according to your Certificate of Authority 
 
 image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
-For the url it will be http://<fqdn of the server>/CertSrv/mscep if you use our configuration.
+For the url it will be http://<ServerDNSName>/CertSrv/mscep if you use our configuration.
 
 image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
 
@@ -291,7 +292,8 @@ image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",al
 
 Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
-For instance if the file content is:
+
+Certificate file example:
 
 ----
 ----- BEGIN CERTIFICATE -----
@@ -302,6 +304,8 @@ zxcvbnmqwertyuiop78
 
 Copy everything between the BEGIN and END lines, but not the lines themselves.
 Repeat this operation for the certificate key and intermediate certificate if any.
+
+Private key file example:
 
 ----
 ----- BEGIN PRIVATE KEY -----
@@ -342,28 +346,28 @@ This a way to do the procedure of enrollment manually, mainly use for debugging 
 
 First you need to generate a request and its private key via mkrequest. Go in the folder were sscep is installed, it should be /usr/local/scep
 
- cd /usr/local/scep
+ # cd /usr/local/scep
 
 And launch the command to generate the request
 
- ./mkrequest -email user@example.com
+ # ./mkrequest -email user@example.com
 
 This will create 2 files in your current directory, local.csr and local.key.
 
 Now you need to obtain the CA and some specific certificates from the PKI.
 
- sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/File-to-create
+ # sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/File-to-create
 
 Now you need to use the "CEP encryption" certificate and the "Enrollment agent" one. Both were obtained when doing the getca. You can open certificates you just download to verifiy which one is which. X in the next command is the number of the file, you should have at least three certificate with the same name and a different number at the end. e.g. MyFile-0, MyFile-1 etc..
 
 To display the content of a certificate use the following: 
 
- openssl x509 -in path/file-created-X -text
+ # openssl x509 -in path/file-created-X -text
 
 In the display look out for `X509v3 extensions:`, for the scep enroll we will use the "CEP Enryption" as an arugment for -e and the "Enrollement agent" as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
  
- sscep enroll -c path/Enrollment-Agent-Certificate -e path/CEP-Encryption-Certificate -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
+ # sscep enroll -c path/Enrollment-Agent-Certificate -e path/CEP-Encryption-Certificate -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
 To verify your certificate against the OCSP you can use the following openssl command:
 
- openssl ocsp -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/ocsp
+ # openssl ocsp -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/ocsp
