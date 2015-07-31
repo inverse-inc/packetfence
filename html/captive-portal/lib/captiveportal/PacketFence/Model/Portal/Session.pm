@@ -16,6 +16,7 @@ use pf::web::constants;
 use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
+use List::MoreUtils qw(any);
 
 =head1 NAME
 
@@ -159,7 +160,7 @@ sub _build_destinationUrl {
 
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the portal profile
-    if ($host ~~ @portal_hosts) {
+    if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL since it points to the captive portal");
         return $self->profile->getRedirectURL;
     }
