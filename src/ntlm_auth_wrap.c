@@ -253,7 +253,22 @@ void send_statsd(const struct arguments args , int status, double elapsed)
 //  connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
     char *buf;
     char hostname[MAX_STR_LENGTH];
-    gethostname(hostname, sizeof(hostname));
+    char tmphostname[MAX_STR_LENGTH];
+
+    gethostname(tmphostname, sizeof(tmphostname));
+
+    char c;
+    int i=0;
+    while ( c != '\0' ) {
+        c =  tmphostname[i];
+        if ( c == '.' ) { 
+            hostname[i] = '_';
+        } 
+        else {
+            hostname[i] = c;
+        }
+        i++;
+    }
 
     asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
 
