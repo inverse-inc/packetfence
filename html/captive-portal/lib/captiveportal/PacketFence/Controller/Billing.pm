@@ -223,7 +223,8 @@ sub processTransaction : Private {
 
     # Transactions informations
     my $tier = $session->{'tier'};
-    my $pid  = $c->session->{'username'};
+    my $pid  = $session->{'username'};
+    my $billing = $session->{billing};
 
     # Adding person (using modify in case person already exists)
     person_modify(
@@ -233,7 +234,7 @@ sub processTransaction : Private {
             'email'     => lc($session->{'email'}),
             'notes'     => 'billing engine activation - ' . $tier->{id},
             'portal'    => $profile->getName,
-            'source'    => 'billing',
+            'source'    => $billing->id,
         )
     );
 
