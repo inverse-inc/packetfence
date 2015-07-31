@@ -31,6 +31,7 @@ use strict;
 use warnings;
 
 use Net::SNMP;
+use Try::Tiny;
 
 use base ('pf::Switch::Nortel');
 
@@ -52,6 +53,45 @@ TODO: This list is incomplete
 
 =cut
 
+sub supportsWiredMacAuth { return $SNMP::TRUE; }
+sub supportsWiredDot1x { return $SNMP::TRUE }
+sub supportsRadiusVoip { return $SNMP::TRUE }
+
+sub _identifyConnectionType {
+    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    unless( defined($nas_port_type) ){
+        $logger->info("Request type is not set. On Nortel this means it's MAC AUTH");
+        return $WIRED_MAC_AUTH;
+    }
+    
+    # if we're not overiding, we call the parent method
+    return $this->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+
+}
+
+sub parseRequest {
+    my ($this, $radius_request) = @_;
+    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'}) || clean_mac($radius_request->{'User-Name'});
+    my $user_name = $radius_request->{'User-Name'};
+    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
+    my $port = $radius_request->{'NAS-Port'};
+    my $eap_type = 0;
+    if (exists($radius_request->{'EAP-Type'})) {
+        $eap_type = $radius_request->{'EAP-Type'};
+    }
+    my $nas_port_id;
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
+}
+
+
+sub getVoipVsa {
+    return {};
+}
 
 sub parseTrap {
     my ( $self, $trapString ) = @_;
@@ -325,24 +365,6 @@ sub getPhonesLLDPAtIfIndex {
 
 
 
-=head2 parseRequest
-
-Redefinition of pf::Switch::parseRequest due to client mac being parsed from User-Name rather than Calling-Station-Id
-
-=cut
-
-sub parseRequest {
-    my ( $self, $radius_request ) = @_;
-    my $client_mac      = clean_mac($radius_request->{'User-Name'});
-    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
-    my $port            = $radius_request->{'NAS-Port'};
-    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
-    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
-}
-
 =head2 deauthenticateMac
 
 Actual implementation.
@@ -476,17 +498,17 @@ sub radiusDisconnect {
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $acctsessionid = node_accounting_current_sessionid($mac);
         my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
+        my $time = time;
 
         # Standard Attributes
         my $attributes_ref = {
-            #'Calling-Station-Id' => $mac,
+            'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
+            'Event-Timestamp' => $time,
         };
 
         # merging additional attributes provided by caller to the standard attributes
