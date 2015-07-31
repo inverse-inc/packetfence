@@ -406,7 +406,7 @@ sub getType {
             $type .= ($interface->{type} =~ /portal/i) ? ',portal' : '';
         }
     }
-    
+
     # we rewrite inline to inlinel2 for backwwards compatibility
     $type =~ s/inline$/inlinel2/;
     return $type;
@@ -439,8 +439,8 @@ sub setType {
     else {
         # Update pf.conf
         $logger->debug("Updating or creating $interface interface");
-        
-        
+
+
         $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
@@ -564,7 +564,6 @@ sub _listInterfaces {
     my ($self, $ifname) = @_;
 
     my @interfaces_list = ();
-    my @domains = keys %ConfigDomain;
 
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
@@ -603,7 +602,7 @@ sub _listInterfaces {
                 }
             }
             # we add it to the interfaces if it's not a virtual interface for the domains
-            push(@interfaces_list, $interface) unless($interface->{name} ~~ @domains);
+            push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
         }
     }
 
