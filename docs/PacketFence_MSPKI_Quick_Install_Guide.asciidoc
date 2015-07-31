@@ -135,6 +135,9 @@ Once created, right click the revocation configuration and select `Edit properti
 
 Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. In this menu type the "http://" then insert "<ServerDNSName>" and type "/ocsp", the line you add should look like the following: `http://<ServerDNSName>/ocsp`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
+By default OCSP has a two days delay to refresh his CRL information. Which mean if you revoke a certificate on MSPKI, it will take two days before FreeRADIUS detect the certificate as revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager` > `Roles` > `Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the the value of: `Set CRL status to Expiring when expiring in:` to your convenience.
+
+
 RADIUS Certificate generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
