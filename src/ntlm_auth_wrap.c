@@ -250,13 +250,13 @@ void send_statsd(const struct arguments args , int status, double elapsed)
             args.port, strerror(err));
     }
 
-//  connect(sockfd, ailist->ai_addr, ailist->ai_addrlen);
     char *buf;
     char hostname[MAX_STR_LENGTH];
     char tmphostname[MAX_STR_LENGTH];
 
     gethostname(tmphostname, sizeof(tmphostname));
 
+    // escape the dots in the hostname. StatsD uses dots as namespace sep.
     char c;
     int i=0;
     while ( c != '\0' ) {
