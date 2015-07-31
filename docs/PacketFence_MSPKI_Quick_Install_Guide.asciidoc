@@ -45,7 +45,7 @@ Configuring Network Device Enrollement Service (NDES)
 
 NOTE: In this guide you will see a lot of use of <ServerDNSName>, most of the MSPKI services requires in their configuration to use the FQDN of the server and not his IP.
 
-Our main activity in the deployment of ADCS is to configure Network Enrollement Device Service (NDES) which will allow us to exchange certificate with the MS PKI server via the protocol Simple Certificate Exchange Protocol (SCEP).
+Our main activity in the deployment of ADCS is to configure Network Enrollement Device Service (NDES) which will allow us to exchange certificate with the MS PKI server via Simple Certificate Exchange Protocol (SCEP).
 
 Every configuration change has to be done by an account with administrative privileges.
 
@@ -144,13 +144,9 @@ As for RADIUS authentication we will need to generate a certificate for FreeRADI
 
 To generate the RADIUS certificate the template `WebServer` will be used.
 
-The idea now is to create the request (.CSR), a private key from the PacketFence server and submit the CSR to the NDES server. Connect to PacketFence via ssh and type the following in the CLI to generate the private key:
+The idea now is to create the request (.CSR), a private key from the PacketFence server and submit the CSR to the NDES server. Connect to PacketFence via ssh and type the following in the CLI to generate the CSR and sign it with the private key:
 
- openssl genrsa -out ~/fqdn.server.key 2048
-
-Then we will generate the CSR and sign it with our private key:
-
- openssl req -new -sha256 -key ~/fqdn.server.key -out ~/fqdn.server.csr
+ openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
 
 You will be prompt for some information, here is an example of a valid configuration.
 
@@ -356,11 +352,12 @@ Now you need to use the "CEP encryption" certificate and the "Enrollment agent" 
 
 To display the content of a certificate use the following: 
 
- # openssl x509 -in path/file-created-X -text
+ # openssl x509 -in path/MyFile-0 -text
+ # openssl x509 -in path/MyFile-1 -text
 
 In the display look out for `X509v3 extensions:`, for the scep enroll we will use the "CEP Enryption" as an arugment for -e and the "Enrollement agent" as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
  
- # sscep enroll -c path/Enrollment-Agent-Certificate -e path/CEP-Encryption-Certificate -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
+ # sscep enroll -c path/MyFile-0 -e path/MyFile-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
 To verify your certificate against the OCSP you can use the following openssl command:
 
