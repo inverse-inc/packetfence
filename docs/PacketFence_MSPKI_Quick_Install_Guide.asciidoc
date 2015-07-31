@@ -321,6 +321,8 @@ Passthroughs required for Android
 
 Android devices require passthroughs to be created to allow them to fetch the configuration application from the Play Store.
 
+IMPORTANT: Passthroughs will vary depending on the location where your google account was created. You will need to add some extra passthroughs for the store of your country. In the section debug there is an how to determine which address you need to add.
+
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
 
 ----
@@ -328,6 +330,9 @@ passthrough=enabled
 passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
   *.googleapis.com,*.android.clients.google.com,*.gvt1.com
 ----
+
+Step 3: Appendix
+~~~~~~~~~~~~~~~~
 
 Debugging MSPKI integration with PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -362,3 +367,12 @@ In the display look out for `X509v3 extensions:`, for the scep enroll we will us
 To verify your certificate against the OCSP you can use the following openssl command:
 
  # openssl ocsp -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/ocsp
+
+Debugging Android passthroughs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you need to add domains to passthroughs we advise to capture the traffic coming from the device which cannot access the Google Play. To do this you can use tcpdump for instance, collect the IP address of the device then run the following in PacketFence CLI:
+
+ tcpdump -i eth1.registration -n dst port 53 and src host @IP_Device
+
+This will output any DNS requests from the device to PacketFence. You will need to find *google* related domain and add them to your passthroughs list.
