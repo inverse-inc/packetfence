@@ -435,7 +435,7 @@ sub commitCluster {
         namespace => $self->pfconfigNamespace,
         conf_file => $self->configFile,
     );
-    my $result = $apiclient->notify('expire_cluster', %data );
+    my $result = $apiclient->call('expire_cluster', %data );
     unless($result){
         get_logger->error("Couldn't contact API to expire the configuration.");
     }
