@@ -33,6 +33,8 @@ raddb/radiusd.conf
 raddb/sql.conf
 raddb/proxy.conf.inc
 raddb/clients.conf.inc
+raddb/sites-available/packetfence
+raddb/sites-available/packetfence-tunnel
 conf/adminroles.conf
 conf/pki_provider.conf
 conf/authentication.conf
