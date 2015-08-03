@@ -80,18 +80,6 @@ sub match_in_subclass {
     return $username;
 }
 
-=head2 authenticate
-
-=cut
-
-sub authenticate {
-    my ($self, $username, $password) = @_;
-    if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
-        return ($TRUE, $AUTH_SUCCESS_MSG);
-    }
-    return ($FALSE, $INVALID_EMAIL_MSG);
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
