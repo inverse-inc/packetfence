@@ -74,13 +74,13 @@ sub match_in_subclass {
     return $params->{'username'};
 }
 
-=head2 additionalMandatoryFields
+=head2 mandatoryFields
 
 Additional mandatory fields for SMS source
 
 =cut
 
-sub additionalMandatoryFields {
+sub mandatoryFields {
     return qw(email phone mobileprovider);
 }
 

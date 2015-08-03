@@ -238,13 +238,13 @@ Setup any resouces need for matching
 
 sub preMatchProcessing { }
 
-=head2 additionalMandatoryFields
+=head2 mandatoryFields
 
 Return the list of mandatory for this source
 
 =cut
 
-sub additionalMandatoryFields {}
+sub mandatoryFields {}
 
 =head1 AUTHOR
 
