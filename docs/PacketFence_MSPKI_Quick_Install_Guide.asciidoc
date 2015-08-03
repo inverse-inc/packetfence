@@ -135,7 +135,7 @@ Once created, right click the revocation configuration and select `Edit properti
 
 Verify that your OCSP is in the settings of the CA. Right click your CA, chose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` chose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<fqdn of ndes server>/ocsp`, if you do not have it, add it via the button `Add...`. In this menu type the "http://" then insert "<ServerDNSName>" and type "/ocsp", the line you add should look like the following: `http://<ServerDNSName>/ocsp`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
-By default OCSP has a two days delay to refresh his CRL information. Which mean if you revoke a certificate on MSPKI, it will take two days before FreeRADIUS detect the certificate as revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager` > `Roles` > `Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the the value of: `Set CRL status to Expiring when expiring in:` to your convenience.
+By default OCSP has a two days delay to refresh his CRL information. Which mean if you revoke a certificate on MSPKI, it will take two days before PacketFence detect the certificate as revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager` > `Roles` > `Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the the value of: `Set CRL status to Expiring when expiring in:` to your convenience.
 
 
 RADIUS Certificate generation
@@ -143,7 +143,7 @@ RADIUS Certificate generation
 
 Using the PKI of Microsft include that all your certificates will be deliver by the root CA of the PKI. The public key of this certificate is necessary on PacketFence. 
 
-As for RADIUS authentication we will need to generate a certificate for FreeRADIUS in PacketFence.
+As for RADIUS authentication we will need to generate a certificate for PacketFence.
 
 To generate the RADIUS certificate the template `WebServer` will be used.
 
@@ -170,7 +170,7 @@ Display the content of the .csr file and open a web browser, reach the following
 
 You can now submit a request. Click `Request a certificate`, select `advanced certificate request`. Paste the content of your CSR file and select the template `Web Server`. Click `Submit`. On this page select `Base 64 encoded` and click `Download certificate`. 
 
-This will give you the certificate(public key) for FreeRADIUS, you have the private key from the openssl genrsa command and now we need to download the CA.
+This will give you the certificate(public key) for PacketFence, you have the private key from the openssl genrsa command and now we need to download the CA.
 
 To do so use the website where we were ealier; 
 
