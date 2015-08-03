@@ -484,7 +484,7 @@ sub findScan {
 
 =item getFieldsForSources
 
-Get all the mandatory fields from sources provided
+Get the combined mandatory field from the profile and the sources provided
 
 =cut
 
@@ -495,10 +495,10 @@ sub getFieldsForSources {
     if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
         @fields = @{$self->getCustomFields};
     }
-    my @additionalMandatoryFields = map {$_->mandatoryFields()} @sources;
+    my @mandatoryFields = map {$_->mandatoryFields()} @sources;
 
     # Combine the profile and the source mandatory fields
-    push @fields, @additionalMandatoryFields;
+    push @fields, @mandatoryFields;
     # Make sure mandatory fields are unique
     return uniq @fields;
 }

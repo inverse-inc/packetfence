@@ -56,7 +56,7 @@ sub match_in_subclass {
 
 =head2 mandatoryFields
 
-Additional mandatory fields for Sponsor source
+List of mandatory fields for this source
 
 =cut
 
