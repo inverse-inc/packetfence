@@ -240,7 +240,7 @@ sub preMatchProcessing { }
 
 =head2 mandatoryFields
 
-Return the list of mandatory for this source
+List of mandatory fields for this source
 
 =cut
 

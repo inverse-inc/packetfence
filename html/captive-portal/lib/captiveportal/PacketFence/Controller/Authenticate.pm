@@ -625,7 +625,6 @@ sub validateMandatoryFields : Private {
     my ( $error_code, @error_args );
 
     my $source = getAuthenticationSource($session->{source_id});
-    # Portal profile based custom fields
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;

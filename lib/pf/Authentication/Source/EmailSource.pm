@@ -57,7 +57,7 @@ sub match_in_subclass {
 
 =head2 mandatoryFields
 
-Additional mandatory fields Email Source
+List of mandatory fields for this source
 
 =cut
 
