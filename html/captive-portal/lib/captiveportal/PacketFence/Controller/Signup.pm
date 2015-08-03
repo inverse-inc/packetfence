@@ -582,7 +582,7 @@ sub validateMandatoryFields : Private {
 
     # Getting the source object
     my $source = $profile->getSourceByType($source_type);
-    my @mandatory_fields = $profile->getManadoryFieldsForSources($source);
+    my @mandatory_fields = $profile->getMandatoryFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 
@@ -640,7 +640,7 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    my @mandatory_fields = $profile->getManadoryFieldsForSources(@sources);
+    my @mandatory_fields = $profile->getMandatoryFieldsForSources(@sources);
 
     $c->stash( mandatory_fields => \@mandatory_fields );
 

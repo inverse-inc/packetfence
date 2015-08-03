@@ -54,13 +54,13 @@ sub match_in_subclass {
     return $params->{'username'};
 }
 
-=head2 additionalMandatoryFields
+=head2 mandatoryFields
 
 Additional mandatory fields for Sponsor source
 
 =cut
 
-sub additionalMandatoryFields {
+sub mandatoryFields {
     return qw(email sponsor_email);
 }
 
