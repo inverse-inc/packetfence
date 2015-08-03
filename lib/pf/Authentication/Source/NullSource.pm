@@ -22,7 +22,7 @@ use pf::util;
 
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'exclusive');
+has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
