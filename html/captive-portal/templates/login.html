@@ -61,11 +61,11 @@ $(document).ready(function() {
           [%# User / Pass %]
           [% UNLESS no_username %]
           <div class="input">
-            <span>[% IF null_source %][% i18n("Email") %] [% ELSE %] [% i18n("Username") %][% END %]</span>
+            <span>[% i18n("Username") %]</span>
 	    <input class="field" name="username" id="username" type="text" autocorrect="off" autocapitalize="off" value="[% username %]" />
           </div>
           [% END %]
-          [% UNLESS null_source || no_password %]
+          [% UNLESS no_password %]
           <div class="input">
             <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
           </div>
@@ -112,7 +112,7 @@ $(document).ready(function() {
           </div>
           [% END %]
 
-            [% IF guest_allowed && !null_source -%]
+            [% IF guest_allowed -%]
           <div class="input">
             <div class="separator"><div class="or_separator">or</div></div>
               <a href="[% URL_SIGNUP %]?destination_url=[% destination_url %]">[% i18n("Sign up") %]</a>
