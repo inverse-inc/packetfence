@@ -511,20 +511,20 @@ sub findScan {
     return undef;
 }
 
-=item getManadoryFieldsForSources
+=item getMandatoryFieldsForSources
 
-Get all the mandatory fields need for sources provides
+Get all the mandatory fields from sources provided
 
 =cut
 
-sub getManadoryFieldsForSources {
+sub getMandatoryFieldsForSources {
     my ($self, @sources) = @_;
     my @mandatory_fields;
     my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
     if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
         @mandatory_fields = @{$self->getCustomFields};
     }
-    my @additionalMandatoryFields = map {$_->additionalMandatoryFields()} @sources;
+    my @additionalMandatoryFields = map {$_->mandatoryFields()} @sources;
 
     # Combine the profile and the source mandatory fields
     push @mandatory_fields, @additionalMandatoryFields;
