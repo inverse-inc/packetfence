@@ -242,6 +242,7 @@ sub authenticate {
 
     $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
 
+    my $message;
     foreach my $current_source (@sources) {
         my ($result, $message);
         $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
@@ -255,8 +256,8 @@ sub authenticate {
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
-    return ($FALSE, 'Wrong username or password.');
+    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
+    return ($FALSE, $message ? $message : 'Wrong username or password.');
 }
 
 =item match
