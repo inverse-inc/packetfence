@@ -570,7 +570,7 @@ sub showLogin : Private {
     my $guestModes = $profile->getGuestModes;
     my $guest_allowed =
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
-      $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
+      $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR, $SELFREG_MODE_NULL;
     my @sources = $profile->getInternalSources;
     my $request = $c->request;
     if ( $c->has_errors ) {
