@@ -20,6 +20,10 @@ Tested on ex4200 running on JUNOS 13.2
 VoIP devices will use the defined voiceVlan but in untagged mode.
 A computer and a phone in the same port can still be on two different VLANs since Juniper supports multiple VLANs per port.
 
+=head2 VSTP and RADIUS dynamic VLAN assignment
+
+Currently, these two technologies cannot be enabled at the same time on the ports and VLANs on which PacketFence is enabled.
+
 =cut
 
 use strict;
