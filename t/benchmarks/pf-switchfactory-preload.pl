@@ -33,21 +33,12 @@ pf::SwitchFactory::preLoadModules() if $ARGV[0];
 my @SWITCHES = (keys %pf::SwitchFactory::SwitchConfig);
 
 timethese(
-    0,
+    1,
     {   "Preloaded" => sub {
             foreach my $key (@SWITCHES) {
                 my $switch = pf::SwitchFactory->instantiate($key);
             }
           },
-        "Direct" => sub {
-            foreach my $key (@SWITCHES) {
-                my $module = 'pf::Switch';
-                if ($key ne 'default') {
-                    $module .= "::" .  $pf::SwitchFactory::SwitchConfig{$key}{type};
-                }
-                my $switch = $module->new ( id => $key ,%{ $pf::SwitchFactory::SwitchConfig{$key} });
-            }
-          }
     }
 );
 
