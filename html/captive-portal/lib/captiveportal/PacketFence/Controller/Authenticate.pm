@@ -593,7 +593,7 @@ sub showLogin : Private {
         guest_allowed   => $guest_allowed,
     );
 
-    my @mandatory_fields = $profile->getMandatoryFieldsForSources(@sources);
+    my @mandatory_fields = $profile->getFieldsForSources(@sources);
 
     $c->stash( mandatory_fields => \@mandatory_fields );
 }
@@ -626,7 +626,7 @@ sub validateMandatoryFields : Private {
 
     my $source = getAuthenticationSource($session->{source_id});
     # Portal profile based custom fields
-    my @mandatory_fields = $profile->getMandatoryFieldsForSources($source);
+    my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
 

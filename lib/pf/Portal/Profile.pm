@@ -511,13 +511,13 @@ sub findScan {
     return undef;
 }
 
-=item getMandatoryFieldsForSources
+=item getFieldsForSources
 
 Get all the mandatory fields from sources provided
 
 =cut
 
-sub getMandatoryFieldsForSources {
+sub getFieldsForSources {
     my ($self, @sources) = @_;
     my @mandatory_fields;
     my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
