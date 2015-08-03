@@ -73,18 +73,6 @@ sub match_in_subclass {
     return $username;
 }
 
-=head2 authenticate
-
-=cut
-
-sub authenticate {
-    my ($self, $username, $password) = @_;
-    if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
-        return ($TRUE, 'Successful authentication using null source.');
-    }
-    return ($FALSE, 'Invalid email address provided.');
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
