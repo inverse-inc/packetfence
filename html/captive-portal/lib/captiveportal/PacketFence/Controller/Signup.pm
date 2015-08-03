@@ -135,6 +135,9 @@ sub doSelfRegistration : Private {
     } elsif ( $request->param('by_sms')
         && $profile->guestModeAllowed($SELFREG_MODE_SMS) ) {
         $c->detach('doSmsSelfRegistration');
+    } elsif ( $request->param('by_null')
+        && $profile->guestModeAllowed($SELFREG_MODE_NULL) ) {
+        $c->detach('doNullSelfRegistration');
     }
     $self->validationError( $c, $GUEST::ERROR_INVALID_FORM );
     return;
@@ -421,6 +424,35 @@ sub doSmsSelfRegistration : Private {
 
 }    # SMS
 
+=head2 doNullSelfRegistration
+
+=cut
+
+sub doNullSelfRegistration : Private {
+    my ($self, $c) = @_;
+    my $profile = $c->profile;
+    my %info;
+    my $null_type = pf::Authentication::Source::NullSource->getDefaultOfType;
+    my $source = $profile->getSourceByType($null_type) || $profile->getSourceByTypeForChained($null_type);
+    my $username;
+    if($source->email_required) {
+        $username = $c->session->{email};
+    }
+    $username //= $default_pid;
+    $info{'pid'} = $username;
+    $c->stash->{pid} = $username;
+    $c->stash->{info} = \%info;
+    use Data::Dumper;$c->log->info("FUCK $username $default_pid");
+    $c->session(
+        "username"     => $username,
+        "source_id"    => $source->id,
+        "source_match" => undef
+    );
+    $c->forward('Authenticate' => 'postAuthentication');
+    $c->forward( 'CaptivePortal' => 'webNodeRegister', [$c->stash->{info}->{pid}, %{$c->stash->{info}}] );
+    $c->forward( 'CaptivePortal' => 'endPortalSession' );
+}
+
 sub checkGuestModes : Private {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
@@ -552,13 +584,12 @@ TODO: documention
 
 sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
-    my $logger = get_logger();
+    my $logger = $c->log;
 
     my ( $error_code, @error_args );
 
     my $request = $c->request;
     my $profile = $c->profile;
-
     my $source;
     # we use the fields of the chained source if needed
     if($c->session->{chained_source}){
@@ -573,6 +604,7 @@ sub validateMandatoryFields : Private {
         $source_type = 'sms' if $request->param('by_sms');
         $source_type = 'sponsoremail' if $request->param('by_sponsor');
         $source = $profile->getSourceByType($source_type);
+        $source_type = 'null' if $request->param('by_null');
     }
 
     $logger->info("Validating mandatory and custom fields for '".$source->id."' based self-registration");
@@ -581,8 +613,7 @@ sub validateMandatoryFields : Private {
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
-
-    if (@missing_fields) {
+    if (@mandatory_fields && @missing_fields) {
         $error_code = $GUEST::ERROR_MISSING_MANDATORY_FIELDS;
         @error_args = ( join( ", ", map { i18n($_) } @missing_fields ) );
     } elsif ( exists $mandatory_fields{email}
@@ -667,6 +698,7 @@ sub allowedGuestModes {
             sms_guest_allowed       => is_in_list($SELFREG_MODE_SMS,     $guestModes),
             email_guest_allowed     => is_in_list($SELFREG_MODE_EMAIL,   $guestModes),
             sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $guestModes),
+            null_guest_allowed      => is_in_list($SELFREG_MODE_NULL,    $guestModes),
         };
     }
     return %$modes;
