@@ -231,11 +231,6 @@ sub preLoadModules {
     unless (@MODULES) {
         require pf::Switch;
         @MODULES        = __PACKAGE__->modules;
-        %TYPE_TO_MODULE = map {
-            my $type = $_;
-            $type =~ s/^pf::Switch:://;
-            $type => $_
-        } grep {$_->can('description')} @MODULES;
         buildTypeToModuleMap();
         buildVendorsList();
     }
