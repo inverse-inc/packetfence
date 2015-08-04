@@ -1,18 +1,18 @@
 =head1 NAME
 
-engine pf test
+Tests for pf::condition::all
 
 =cut
 
 =head1 DESCRIPTION
 
-engine pf test script
+Tests for pf::condition::all
 
 =cut
 
 use strict;
 use warnings;
-#
+
 use lib '/usr/local/pf/lib';
 use Test::More tests => 4;
 

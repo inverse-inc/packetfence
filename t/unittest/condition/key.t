@@ -1,12 +1,12 @@
 =head1 NAME
 
-profile/filter/value.t
+Tests for pf::condition::key
 
 =cut
 
 =head1 DESCRIPTION
 
-value
+Tests for pf::condition::key
 
 =cut
 
@@ -21,6 +21,7 @@ BEGIN {
 use Test::More tests => 7;                      # last test to print
 
 use Test::NoWarnings;
+use pf::condition::equals;
 
 use_ok("pf::condition::key");
 

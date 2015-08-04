@@ -1,12 +1,12 @@
 =head1 NAME
 
-profile/filter/equal.t
+Tests for pf::condition::equals
 
 =cut
 
 =head1 DESCRIPTION
 
-equal
+Tests for pf::condition::equals
 
 =cut
 

@@ -1,18 +1,18 @@
 =head1 NAME
 
-example pf test
+Test for the pf::Portal::ProfileFactory
 
 =cut
 
 =head1 DESCRIPTION
 
-example pf test script
+Test for the pf::Portal::ProfileFactory
 
 =cut
 
 use strict;
 use warnings;
-#
+
 use lib '/usr/local/pf/lib';
 
 use Test::More tests => 16;

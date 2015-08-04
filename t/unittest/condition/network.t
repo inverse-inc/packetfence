@@ -1,12 +1,12 @@
 =head1 NAME
 
-profile/filter/value.t
+Tests for pf::condition::network
 
 =cut
 
 =head1 DESCRIPTION
 
-value
+Tests for pf::condition::network
 
 =cut
 

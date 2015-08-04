@@ -1,12 +1,12 @@
 =head1 NAME
 
-engine pf test
+Tests for pf::condition::any
 
 =cut
 
 =head1 DESCRIPTION
 
-engine pf test script
+Tests for pf::condition::any
 
 =cut
 

@@ -1,10 +1,12 @@
 =head1 NAME
 
-profile/filter/matches.t
+Tests for pf::condition::matches
 
 =cut
 
 =head1 DESCRIPTION
+
+Tests for pf::condition::matches
 
 =cut
 
@@ -20,7 +22,7 @@ use Test::More tests => 6;                      # last test to print
 
 use Test::NoWarnings;
 
-use_ok("pf::condition::key");
+use_ok("pf::condition::matches");
 
 my $filter = new_ok ( "pf::condition::matches", [value => '^test.*'],"Test regex based filter");
 
