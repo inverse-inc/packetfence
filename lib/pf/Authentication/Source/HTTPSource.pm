@@ -30,20 +30,6 @@ has 'password' => ( isa => 'Maybe[Str]', is => 'rw', default => undef );
 has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 
-# How and where to connect to the API
-Readonly our $API_PROTO => 'http';
-Readonly our $API_HOST => '127.0.0.1';
-Readonly our $API_PORT => '10000';
-
-# If your API uses HTTP basic authentication, set these to the username/password
-Readonly our $API_USERNAME => undef;
-Readonly our $API_PASSWORD => undef;
-
-# These are the two URLs necessary for this module to work
-# See the authenticate and match subroutines for the expected replies
-Readonly our $AUTHENTICATION_URL => '/authenticate.php';
-Readonly our $AUTHORIZATION_URL => '/authorize.php';
-
 =head1 METHODS
 
 =head2 _post_curl
@@ -56,14 +42,14 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger;
 
-    $uri = $API_PROTO."://".$API_HOST.":".$API_PORT.$uri;
+    $uri = $self->protocol."://".$self->host.":".$self->port.$uri;
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
 
-    if(defined($API_USERNAME) && defined($API_PASSWORD)){
-        $curl->setopt(CURLOPT_USERNAME, $API_USERNAME);
-        $curl->setopt(CURLOPT_PASSWORD, $API_PASSWORD);
+    if($self->username && $self->password){
+        $curl->setopt(CURLOPT_USERNAME, $self->username);
+        $curl->setopt(CURLOPT_PASSWORD, $self->password);
     }
 
     my $response_body = '';
@@ -139,7 +125,7 @@ Example response hash :
 sub authenticate {
     my ( $self, $username, $password ) = @_;
 
-    my $uri = $AUTHENTICATION_URL;
+    my $uri = $self->authentication_url;
 
     my $post_fields = encode_params(username => $username, password => $password);
 
@@ -156,7 +142,7 @@ sub authenticate {
     }
     else {
         my $curl_error = $curl->errbuf;
-        get_logger->error("Could get proper reply for authentication request to $API_HOST. Server replied with $response_body. Curl error : $curl_error");
+        get_logger->error("Could get proper reply for authentication request to ".$self->host.". Server replied with $response_body. Curl error : $curl_error");
         return ($FALSE, 'Unable to contact authentication server.');
     }
 
@@ -184,7 +170,7 @@ sub match {
     my ($self, $params) = @_;
     my $common_attributes = $self->common_attributes();
 
-    my $uri = $AUTHORIZATION_URL;
+    my $uri = $self->authorization_url;
 
     my $result;
     my $post_fields = encode_params(%{$params});
@@ -195,7 +181,7 @@ sub match {
     }
     else {
         my $curl_error = $curl->errbuf;
-        get_logger->error("Could get proper reply for authorization request to $API_HOST. Server replied with $response_body. Curl error : $curl_error");
+        get_logger->error("Could get proper reply for authorization request to ".$self->host.". Server replied with $response_body. Curl error : $curl_error");
         return undef;
     }
 
