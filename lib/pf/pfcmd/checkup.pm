@@ -34,6 +34,7 @@ use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
 use pf::file_paths;
+use pf::factory::condition::profile;
 
 use lib $conf_dir;
 
@@ -1015,6 +1016,12 @@ sub portal_profiles {
         foreach my $key ( keys %$data ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
+            if ($key eq 'filter') {
+                foreach my $filter (@{$data->{filter}}) {
+                    add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile' please update to newer format 'type:data'" )
+                        unless $filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX;
+                }
+            }
         }
 
         my %external;
@@ -1109,7 +1116,7 @@ sub valid_certs {
     unless(-e "$install_dir/raddb/eap.conf" || -e "$install_dir/conf/radiusd/eap.conf"){
         add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
         return;
-    }   
+    }
 
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
