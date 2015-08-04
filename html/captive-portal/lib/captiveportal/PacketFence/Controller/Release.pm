@@ -36,7 +36,7 @@ sub index : Path : Args(0) {
     } else {
         $c->stash(
             timer         => $Config{'trapping'}{'redirtimer'},
-            redirect_url  => $Config{'trapping'}{'redirecturl'},
+            redirect_url  => $c->portalSession->destinationUrl,
             initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
             retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
             external_ip => $Config{'captive_portal'}{'network_detection_ip'},
@@ -45,9 +45,9 @@ sub index : Path : Args(0) {
         );
 
         # override destination_url if we enabled the always_use_redirecturl option
-        if ( isenabled( $Config{'trapping'}{'always_use_redirecturl'} ) ) {
+        if ( isenabled( $c->profile->{'_always_use_redirecturl'} ) ) {
             $c->stash->{'destination_url'} =
-              $Config{'trapping'}{'redirecturl'};
+              $c->portalSession->destinationUrl;
         }
         $c->stash->{template} = 'release.html';
         $c->detach;

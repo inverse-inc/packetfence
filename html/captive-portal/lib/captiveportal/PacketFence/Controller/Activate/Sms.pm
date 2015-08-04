@@ -95,8 +95,8 @@ sub index : Path : Args(0) {
             $logger->warn( "No active sms source for profile "
                   . $profile->getName
                   . ", redirecting to "
-                  . $Config{'trapping'}{'redirecturl'} );
-            $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+                  . $c->portalSession->destinationUrl );
+            $c->response->redirect( $c->portalSession->destinationUrl );
         }
     } elsif ( $request->param("action_confirm") ) {
         $c->forward('showSmsConfirmation');

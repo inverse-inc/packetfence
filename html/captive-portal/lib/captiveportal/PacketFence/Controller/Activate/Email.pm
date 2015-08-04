@@ -92,8 +92,8 @@ sub code : Path : Args(1) {
     } else {
 
         $logger->info( "User has nothing to do here, redirecting to "
-              . $Config{'trapping'}{'redirecturl'} );
-        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+              . $c->portalSession->destinationUrl );
+        $c->response->redirect( $c->portalSession->destinationUrl );
     }
 }
 
@@ -207,8 +207,8 @@ sub doEmailRegistration : Private {
         $logger->warn( "No active email source for profile "
               . $profile->getName
               . ", redirecting to "
-              . $Config{'trapping'}{'redirecturl'} );
-        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+              . $c->portalSession->destinationUrl );
+        $c->response->redirect( $c->portalSession->destinationUrl );
     }
 }
 
@@ -364,8 +364,8 @@ sub doSponsorRegistration : Private {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
               . ", redirecting to "
-              . $Config{'trapping'}{'redirecturl'} );
-        $c->response->redirect( $Config{'trapping'}{'redirecturl'} );
+              . $c->portalSession->destinationUrl );
+        $c->response->redirect( $c->portalSession->destinationUrl );
     }
 }
 
