@@ -79,7 +79,6 @@ sub build {
 
 
     my $engine = pf::filter_engine->new({ filters => \@filters });
-    #use Data::Dumper;print Dumper $engine;
 
     return $engine;
 }

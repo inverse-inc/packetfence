@@ -2,7 +2,7 @@ package pfappserver::Model::Config::Pfdetect;
 
 =head1 NAME
 
-pfappserver::Model::Config::Pfdetect add documentation
+pfappserver::Model::Config::Pfdetect
 
 =cut
 

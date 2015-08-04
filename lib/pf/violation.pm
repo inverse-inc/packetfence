@@ -429,7 +429,6 @@ sub violation_add {
     violation_clear_warnings();
     violation_clear_errors();
 
-    #print Dumper(%data);
     #defaults
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
@@ -620,8 +619,8 @@ sub violation_trigger {
     }
 
     my $info = info_for_violation_engine($mac,$type,$tid);
-    use Data::Dumper; 
-    $logger->info("Infos for violation engine : ".Dumper($info));
+    
+    $logger->debug(sub { use Data::Dumper; "Infos for violation engine : ".Dumper($info) });
     my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;

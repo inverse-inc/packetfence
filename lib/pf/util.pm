@@ -1104,9 +1104,6 @@ sub send_email {
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
     $options{ENCODING} = "utf8";
     
-    use Data::Dumper;
-    $logger->info(Dumper(\%info));
-
     my $import_succesfull = try { require MIME::Lite::TT; };
     if (!$import_succesfull) {
         $logger->error(

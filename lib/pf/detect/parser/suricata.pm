@@ -1,7 +1,7 @@
 package pf::detect::parser::suricata;
 =head1 NAME
 
-pf::detect::parser::suricata add documentation
+pf::detect::parser::suricata
 
 =cut
 

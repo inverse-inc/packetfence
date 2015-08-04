@@ -47,7 +47,7 @@ has_field 'type' =>
              help => 'The parser to use for the alert pipe' },
   );
 
-=head2 options_roles
+=head2 options_parsers
 
 =cut
 
