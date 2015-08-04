@@ -32,7 +32,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'realm'           => {type => 'equals',        key  => 'realm'},
     'ssid'            => {type => 'equals',        key  => 'last_ssid'},
     'switch'          => {type => 'equals',        key  => 'last_switch'},
-    'switch_port'     => {type => 'key_couple', key1 => 'last_switch', key2 => 'last_port'},
+    'switch_port'     => {type => 'couple_equals', key1 => 'last_switch', key2 => 'last_port'},
     'uri'             => {type => 'equals',        key  => 'last_uri'},
     'vlan'            => {type => 'equals',        key  => 'last_vlan'},
 );
@@ -50,7 +50,7 @@ sub instantiate {
     my $condition;
     my ($type,$data) = $class->getData(@args);
     if ($data) {
-        if($type eq 'key_couple'){
+        if($type eq 'couple_equals'){
             my ($value1, $value2) = split(/-/, $data->{value});
             my $cond1 = pf::condition::key->new(key => $data->{key1}, condition => pf::condition::equals->new(value => $value1));
             my $cond2 = pf::condition::key->new(key => $data->{key2}, condition => pf::condition::equals->new(value => $value2));
