@@ -23,6 +23,8 @@ use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::constants::Portal::Profile;
 use pf::filter_engine::profile;
+use pf::factory::condition::profile;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,12 +32,12 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'resource::ProfileFilterEngine' ];
+    $self->{child_resources} = [ 'resource::ProfileFilterEngine', 'resource::UriFilters' ];
 }
 
 sub build_child {
     my ($self) = @_;
-
+    my @uri_filters;
     my %Profiles_Config = %{ $self->{cfg} };
     $self->cleanup_whitespaces( \%Profiles_Config );
 
@@ -61,8 +63,14 @@ sub build_child {
             if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
         $profile->{block_interval} = normalize_time( $profile->{block_interval}
                 || $pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE );
+        foreach my $filter (@{$profile->{filter}}) {
+            if ($filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX) {
+                push @uri_filters,$3 if $1 eq 'uri';
+            }
+        }
     }
-
+    @uri_filters = uniq @uri_filters;
+    $self->{uri_filters} = \@uri_filters;
     $self->{engine_profile} = pf::filter_engine::profile->new({ ordered_ids => \@profiles, config => \%Profiles_Config });
 
     return \%Profiles_Config;
