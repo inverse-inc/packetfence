@@ -261,8 +261,7 @@ sub match {
     }
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
-    }
-    else {
+    } else {
         my $source = getAuthenticationSource($source_id);
         if (defined $source) {
             @sources = ($source);
@@ -275,8 +274,7 @@ sub match {
             my $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
 
             # Return the value only if the action matches
-            my $found_action =
-              first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
+            my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
             if (defined $found_action) {
                 $logger->debug( sub { "[" . $source->id . "] Returning '" . $found_action->value . "' for action $action for username " . $params->{'username'} });
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
