@@ -131,9 +131,9 @@ sub cert_process : Private {
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
 
-=head2 validate_form
+=head2 process_form
 
-Validate informations input by the user
+Process form information inputed by the user
 
 =cut
 
