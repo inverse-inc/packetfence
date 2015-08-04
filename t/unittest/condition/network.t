@@ -19,21 +19,25 @@ BEGIN {
 }
 use NetAddr::IP;
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 9;                      # last test to print
 
 use Test::NoWarnings;
 
 use_ok("pf::condition::network");
 
-my $filter = new_ok ( "pf::condition::network", [key => 'last_ip', value => '192.168.1.0/24'   ],"Test network based filter");
+my $filter = new_ok ( "pf::condition::network", [ value => '192.168.1.0/24'   ],"Test network based filter");
 
-ok($filter->match({ last_ip => '192.168.1.1' }),"filter matches");
+ok($filter->match('192.168.1.1' ),"filter matches");
 
-ok(!$filter->match({ last_ip => '192.168.2.1' }),"filter does not match");
+ok(!$filter->match('192.168.2.1'),"filter does not match");
 
-ok(!$filter->match({ }),"last_ip not found does not match");
+ok(!$filter->match( undef ),"last_ip undefined does not match");
 
-ok(!$filter->match({ last_ip => undef }),"last_ip undefined does not match");
+ok(!$filter->match( '' ),"empty string does not match");
+
+ok(!$filter->match( 'invalid ip' ),"invalid ip address string does not match");
+
+ok(!$filter->match( 0 ),"invalid ip address number does not match");
 
 
 

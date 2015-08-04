@@ -40,10 +40,15 @@ match the last ip to see if it is in defined network
 =cut
 
 sub match {
-    my ($self,$data) = @_;
-    my $ip = $data;
+    my ($self,$ip) = @_;
+    return 0 unless defined $ip;
+    my $ip_addr;
+    eval {
+        $ip_addr = NetAddr::IP->new($ip);
+    };
+    return 0 unless defined $ip_addr;
     my $network = NetAddr::IP->new($self->value);
-    return  $network->contains(NetAddr::IP->new($ip));
+    return  $network->contains( $ip_addr );
 }
 
 =head1 AUTHOR
