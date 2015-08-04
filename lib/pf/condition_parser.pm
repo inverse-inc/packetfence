@@ -81,8 +81,8 @@ Handle an 'expr' expression
 =cut
 
 sub _parse_expr {
-# EXPR = OR || OR
-# EXPR = OR
+    # EXPR = OR || OR
+    # EXPR = OR
     my @expr;
     push @expr, _parse_or();
     while (/\G\s*\|{1,2}/gc) {
@@ -101,8 +101,8 @@ Handle an 'or' expression
 =cut
 
 sub _parse_or {
-# OR   = FACT && FACT
-# OR   = FACT
+    # OR   = FACT && FACT
+    # OR   = FACT
     my @expr;
     push @expr, _parse_fact();
     while (/\G\s*\&{1,2}/gc) {
@@ -121,8 +121,8 @@ Handle a 'fact' expression
 =cut
 
 sub _parse_fact {
-# FACT = '(' EXPR ')'
-# FACT = /a-zA-Z0-9_/+
+    # FACT = '(' EXPR ')'
+    # FACT = /a-zA-Z0-9_/+
     my $pos = pos();
 
     #Check if it is a sub expression ()
