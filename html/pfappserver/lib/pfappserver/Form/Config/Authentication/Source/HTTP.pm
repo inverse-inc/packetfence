@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Authentication::Source::HTTP;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::LDAP - Web form for a LDAP user source
+pfappserver::Form::Config::Authentication::Source::HTTP - Web form for a HTTP user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a LDAP user source.
+Form definition to create or update a HTTP user source.
 
 =cut
 
