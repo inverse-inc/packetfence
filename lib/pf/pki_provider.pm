@@ -62,7 +62,7 @@ sub _build_ca_cert {
     return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
 }
 
-=head2 _build_ca_cert
+=head2 _build_server_cert
 
 Builds an X509 object the server_cert_path
 
