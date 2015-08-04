@@ -74,6 +74,16 @@ sub match_in_subclass {
     return $params->{'username'};
 }
 
+=head2 mandatoryFields
+
+List of mandatory fields for this source
+
+=cut
+
+sub mandatoryFields {
+    return qw(email phone mobileprovider);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

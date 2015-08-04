@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use List::Util qw(first);
-use List::MoreUtils qw(all none any);
+use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::log;
@@ -186,35 +186,6 @@ sub getSources {
 
 *sources = \&getSources;
 
-=item getMandatoryFields
-
-Returns the mandatory fields for the profile depending on the authentication sources configured
-
-=cut
-
-sub getMandatoryFields {
-    my ( $self ) = @_;
-
-    my %mandatory_fields = ();
-
-    # Email self-registration requires some mandatory fields
-    $mandatory_fields{'email'} = [ 'email' ] if $self->getSourceByType('email') || $self->getSourceByTypeForChained('email');
-
-    # SMS self-registration requires some mandatory fields
-    $mandatory_fields{'sms'} = [ 'email', 'phone', 'mobileprovider' ] if $self->getSourceByType('sms') || $self->getSourceByTypeForChained('sms');
-
-    # Sponsor email self-registration requires some mandatory fields
-    $mandatory_fields{'sponsoremail'} = [ 'email', 'sponsor_email' ] if $self->getSourceByType('sponsoremail') || $self->getSourceByTypeForChained('sponsoremail');
-
-    # Temp array of mandatory fields to match current workflow
-    # TODO: Remove this with self-registration flow rework
-    # 2015.05.12 - dwuelfrath@inverse.ca
-    $mandatory_fields{'temp_current_portal'} = [ 'email', 'phone', 'mobileprovider', 'sponsor_email' ];
-
-    return \%mandatory_fields;
-}
-
-*mandatoryFields = \&getMandatoryFields;
 
 =item getCustomFields
 
@@ -510,6 +481,28 @@ sub findScan {
     }
     return undef;
 }
+
+=item getFieldsForSources
+
+Get the combined mandatory field from the profile and the sources provided
+
+=cut
+
+sub getFieldsForSources {
+    my ($self, @sources) = @_;
+    my @fields;
+    my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
+    if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
+        @fields = @{$self->getCustomFields};
+    }
+    my @mandatoryFields = map {$_->mandatoryFields()} @sources;
+
+    # Combine the profile and the source mandatory fields
+    push @fields, @mandatoryFields;
+    # Make sure mandatory fields are unique
+    return uniq @fields;
+}
+
 
 =back
 
