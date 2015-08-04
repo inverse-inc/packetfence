@@ -129,7 +129,7 @@ sub server_cn {
         return $cn;
     }
     else {
-        get_logger->error("cannot find cn of ca certificate at ".$self->server_cert_path);
+        get_logger->error("cannot find cn of server certificate at ".$self->server_cert_path);
     }
 }
 
