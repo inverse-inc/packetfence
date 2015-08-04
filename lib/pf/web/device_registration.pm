@@ -29,9 +29,6 @@ use pf::authentication;
 use pf::Authentication::constants;
 use List::MoreUtils qw(any);
 
-Readonly our $DEVICE_LOGIN_TEMPLATE   => 'device-login.html';
-Readonly our $DEVICE_LANDING_TEMPLATE => 'device-landing.html';
-Readonly our $DEVICE_REGISTRATION_TEMPLATE => 'device-registration.html';
 Readonly our @DEVICE_OUI => _load_file_into_array($allowed_device_oui_file);
 Readonly our @DEVICE_TYPES => _load_file_into_array($allowed_device_types_file);
 

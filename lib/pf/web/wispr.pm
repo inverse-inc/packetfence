@@ -106,7 +106,6 @@ sub handler {
     }
 
     # obtain node information provided by authentication module. We need to get the role (category here)
-    # as web_node_register() might not work if we've reached the limit
     my $value = &pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
 
     $logger->warn("Got role $value for username $pid");

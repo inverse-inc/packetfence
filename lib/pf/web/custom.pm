@@ -66,34 +66,6 @@ To set the particular session variable use the following:
 
 =cut
 
-#*pf::web::web_node_register = sub {
-#    my ( $portalSession, $pid, %info ) = @_;
-#    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-#
-#    # First blast of portalSession object consumption
-#    my $cgi = $portalSession->getCgi();
-#    my $session = $portalSession->getSession();
-#    my $mac = $portalSession->getClientMac();
-#
-#    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
-#        pf::web::generate_error_page(
-#            $portalSession, 
-#            i18n("You have reached the maximum number of devices you are able to register with this username.")
-#        );  
-#        exit(0);
-#    }  
-#
-#    if ($session->param('usercategory') eq 'guest') {
-#        $logger->info("registering a guest with mac: $mac");
-#        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d 00:00:01", localtime(time + $GUEST_SESSION_DURATION)); 
-#        $info{'category'} = "guest";
-#    }
-#
-#    # we are good, push the registration
-#    return _sanitize_and_register($session, $mac, $pid, %info);
-#};
-
-
 =item inject variables for templates
 
 Here's an example to make variables accessible to the templates globally.
