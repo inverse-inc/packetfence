@@ -111,13 +111,13 @@ sub raw_ca_cert_string {
     return $self->_raw_cert_string($self->ca_cert);
 }
 
-=head2 raw_ca_cert_string
+=head2 raw_server_cert_string
 
 Get the server certificate content minus the ascii armor
 
 =cut
 
-sub raw_server_cert {
+sub raw_server_cert_string {
     my ($self) = @_;
     return $self->_raw_cert_string($self->server_cert);
 }
