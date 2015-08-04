@@ -22,9 +22,6 @@ use pf::condition::any;
 use pf::condition::all;
 use pf::condition::true;
 
-#has ordered_ids => (is => 'ro', isa => 'ArrayRef', required => 1);
-#has config      => (is => 'ro', isa => 'HashRef',  required => 1);
-
 sub BUILDARGS {
     my ($self,$args)      = @_;
     my $config      = $args->{config};
