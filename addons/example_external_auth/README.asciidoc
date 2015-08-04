@@ -10,7 +10,7 @@ LoadModule php5_module modules/libphp5.so
 </FilesMatch>
 
 <VirtualHost *:10000>
-    DocumentRoot /usr/local/pf/addons/external_auth
+    DocumentRoot /usr/local/pf/addons/example_external_auth
 </VirtualHost>
 ```
 
