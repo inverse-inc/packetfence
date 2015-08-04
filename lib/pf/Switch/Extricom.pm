@@ -122,7 +122,8 @@ sub connectWrite {
             -authprotocol => $this->{_SNMPAuthProtocolWrite},
             -authpassword => $this->{_SNMPAuthPasswordWrite},
             -privprotocol => $this->{_SNMPPrivProtocolWrite},
-            -privpassword => $this->{_SNMPPrivPasswordWrite}
+            -privpassword => $this->{_SNMPPrivPasswordWrite},
+            -maxmsgsize => 4096
         );
     } else {
         ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
@@ -130,7 +131,8 @@ sub connectWrite {
             -version   => $this->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
-            -community => $this->{_SNMPCommunityWrite}
+            -community => $this->{_SNMPCommunityWrite},
+            -maxmsgsize => 4096
         );
     }
     if ( !defined( $this->{_sessionWrite} ) ) {

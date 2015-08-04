@@ -221,6 +221,7 @@ sub parseTrap {
                         -version   => $this->{_SNMPVersion},
                         -retries   => 1,
                         -timeout   => 2,
+                        -maxmsgsize => 4096,
                         -community => $this->{_SNMPCommunityRead} . '@'
                             . $currentVlan
                         );
@@ -696,6 +697,7 @@ sub getMacBridgePortHash {
             -version   => $this->{_SNMPVersion},
             -retries   => 1,
             -timeout   => 2,
+            -maxmsgsize => 4096,
             -community => $this->{_SNMPCommunityRead} . '@' . $vlan
         );
 
@@ -794,6 +796,7 @@ sub getIfIndexForThisMac {
                 -version   => $this->{_SNMPVersion},
                 -retries   => 1,
                 -timeout   => 2,
+                -maxmsgsize => 4096,
                 -community => $this->{_SNMPCommunityRead} . '@' . $vlan
                 );
 
@@ -874,6 +877,7 @@ sub isMacInAddressTableAtIfIndex {
             -version   => $this->{_SNMPVersion},
             -retries   => 1,
             -timeout   => 2,
+            -maxmsgsize => 4096,
             -community => $this->{_SNMPCommunityRead} . '@' . $vlan
         );
 
@@ -1262,6 +1266,7 @@ sub getAllMacs {
                     -version   => $this->{_SNMPVersion},
                     -retries   => 1,
                     -timeout   => 2,
+                    -maxmsgsize => 4096,
                     -community => $this->{_SNMPCommunityRead} . '@' . $vlan
                     );
 
