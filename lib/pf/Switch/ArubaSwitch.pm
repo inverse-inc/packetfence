@@ -238,7 +238,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");

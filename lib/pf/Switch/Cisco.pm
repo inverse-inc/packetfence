@@ -1544,7 +1544,7 @@ sub _radiusBounceMac {
         my $connection_info = {
             nas_ip => $self->{'_controllerIp'} || $self->{'_ip'},
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         $response = perform_coa( $connection_info,
