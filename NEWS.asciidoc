@@ -20,6 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
+* Cleanup in web libs (pf::web, pf::web::*) to remode dead code from CGI captive-portal
 
 
 Bug Fixes
