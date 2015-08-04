@@ -32,6 +32,14 @@ has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 
 =head1 METHODS
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $FALSE }
+
 =head2 _post_curl
 
 Method used to build a basic curl object
@@ -230,6 +238,7 @@ sub match {
 
     return undef;
 }
+
 
 =head1 AUTHOR
 

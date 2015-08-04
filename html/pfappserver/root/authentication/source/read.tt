@@ -21,7 +21,7 @@
         [% form.field('id').render | none %]
         [% form.field('description').render | none %]
         [% INCLUDE "authentication/source/type/${source.type}.tt" %]
-        [% IF source.type != 'Chained' && source.type != 'HTTP' %]
+        [% IF source.has_authentication_rules %]
             [% IF source.id %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]
         [% END %]
 

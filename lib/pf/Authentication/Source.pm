@@ -23,6 +23,14 @@ has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $TRUE }
+
 =head2 add_rule
 
 =cut
