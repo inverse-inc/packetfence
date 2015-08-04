@@ -40,6 +40,8 @@ use pf::trigger;
 use pf::util;
 use pf::services::util;
 use pf::violation;
+use pf::factory::detect::parser;
+use pf::client;
 
 # initialization
 # --------------
@@ -94,49 +96,21 @@ if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
     $logger->info("listening on $snortpipe");
 }
 
-while (<$snortpipe_fh>) {
+my $parser_type = $Config{trapping}{detection_parser} || $Config{trapping}{detection_engine};
 
+my $parser = pf::factory::detect::parser->new($parser_type);
+
+my $client = pf::client->getClient();
+
+while (<$snortpipe_fh>) {
     $logger->info("alert received: $_");
-    if ( $_
-        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
-        )
-    {
-        $date  = $1;
-        $sid   = $2;
-        $descr = $3;
-        $srcip = $4;
-        $dstip = $6;
-    } elsif ( $_
-        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
-        )
-    {
-        $date  = $1;
-        $sid   = $portscan_sid;
-        $srcip = $3;
-        $descr = "PORTSCAN";
-    } elsif ( $_
-        =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
-        )
-    {
-        $date  = $1;
-        $sid   = $portscan_sid;
-        $srcip = $3;
-        $descr = "PORTSCAN";
-    } else {
+    my $data = $parser->parse($_);
+    unless($data) {
         $logger->warn("unknown input: $_ ");
         next;
     }
+    $client->notify( event_add => ($data->{date}, $data->{srcip}, "detect", $data->{sid} || $portscan_sid));
 
-    $srcmac = pf::iplog::ip2mac($srcip);
-
-    if ($srcmac) {
-
-        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-        violation_trigger($srcmac, $sid, "detect", ( ip => $srcip ));
-    } else {
-        $logger->warn(
-            "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
-    }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
 }
