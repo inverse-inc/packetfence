@@ -122,11 +122,8 @@ The server should reply with two attributes in a JSON response
 result should be 1 for success, 0 for failure
 message should be the reason it succeeded or failed
 
-Example response hash :
-{
-  result => 1,
-  message => "Valid username and password",
-}
+Example JSON response :
+{"result":1,"message":"Valid username and password"}
 
 =cut
 
@@ -163,14 +160,8 @@ The CustomSource class overrides the match method of the Source parent class.
 
 The actions are defined by the API through it's JSON response.
 
-Sample response hash, note that not all are necessary, only send back what you need.
-{
-  access_duration => '1D',
-  access_level => 'ALL',
-  sponsor => 1,
-  unregdate => '2030-01-01',
-  category => 'default'
-}
+Sample JSON response, note that not all attributes are necessary, only send back what you need.
+{"access_duration":"1D","access_level":"ALL","sponsor":1,"unregdate":"2030-01-01","category":"default"}
 
 =cut
 
