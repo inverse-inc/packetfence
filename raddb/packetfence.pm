@@ -174,6 +174,7 @@ sub post_auth {
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
         } else {
             $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
+            &radiusd::radlog($RADIUS::L_INFO, "There was an error contacting the server during the RPC request.");
             return server_error_handler();
         }
 

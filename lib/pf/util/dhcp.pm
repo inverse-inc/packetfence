@@ -301,7 +301,10 @@ sub make_pcap_filter {
     #listen to all if no types are provided
     return "udp and (port 67 or port 68 or port 767)" unless @types;
     for my $type (@types) {
-       die "Unknown message type $type" unless exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type};
+        unless (exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type}) {
+            get_logger->error("Unknown message type $type" );
+            return "udp and (port 67 or port 68 or port 767)";
+        }
     }
     my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
     return "(port 67 or port 68 or port 767) and ( $type_filter )";

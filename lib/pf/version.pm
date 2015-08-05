@@ -114,9 +114,10 @@ i.e: PacketFence X.Y.Z
 
 sub version_get_release {
     my ( $pfrelease_fh, $release );
-    open( $pfrelease_fh, '<', "$conf_dir/pf-release" )
-        || get_logger->logdie("Unable to open $conf_dir/pf-release: $!");
-
+    unless (open( $pfrelease_fh, '<', "$conf_dir/pf-release" )){
+        get_logger->error("Unable to open $conf_dir/pf-release: $!");
+        return undef;
+    }
     $release = <$pfrelease_fh>;
     close($pfrelease_fh);
     chomp($release);

@@ -45,11 +45,10 @@ sub send_rpc_request {
         if($response_code == 200) {
             $response = Data::MessagePack->unpack($response_body);
         } else {
-            die "An error occured while processing the MessagePack request return code ($response_code)";
+            return undef;
         }
     } else {
-        my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
-        die $msg;
+        return undef;
     }
 
     return $response->[3];
@@ -80,39 +79,6 @@ sub build_msgpack_request {
     my $request = [0,0,$function,[%$hash]];
     return Data::MessagePack->pack($request);
 }
-
-sub send_msgpack_notification {
-    use bytes;
-    my ($server,$port,$function,$data) = @_;
-    my $response;
-
-    my $curl = _curlSetup("http://${server}:${port}");
-    my $request = build_msgpack_notification($function,$data);
-    my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
-    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-
-    # Starts the actual request
-    my $curl_return_code = $curl->perform;
-
-    # Looking at the results...
-    if ( $curl_return_code != 0 ) {
-        my $msg = "An error occured while sending a MessagePack request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
-        die $msg;
-    }
-
-    return;
-}
-
-
-
-sub build_msgpack_notification {
-    my ($function,$hash) = @_;
-    my $request = [2,$function,[%$hash]];
-    return Data::MessagePack->pack($request);
-}
-
 
 =head1 AUTHOR
 

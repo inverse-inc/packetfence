@@ -16,6 +16,7 @@ Loads and instantiates profile filters
 
 use strict;
 use warnings;
+use pf::log;
 use Module::Pluggable
   search_path => [qw(pf::profile::filter)],
 
@@ -52,9 +53,15 @@ sub getModuleName {
     my ($class, $data) = @_;
     my $mainClass = $class->factory_for;
     my $type      = $data->{type};
-    die "type is not defined" unless defined $type;
+    unless(defined $type) {
+        get_logger->error("Type is not defined");
+        return undef;
+    }
     my $subclass = "${mainClass}::${type}";
-    die "$type is not a valid type" unless any {$_ eq $subclass} @MODULES;
+    unless (any {$_ eq $subclass} @MODULES){
+        get_logger->error("Type $type is not valid");
+        return undef;
+    }
     $subclass;
 }
 

@@ -16,6 +16,7 @@ The factory for creating pfconfig::cached based objects
 
 use strict;
 use warnings;
+use pf::log;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
@@ -39,7 +40,8 @@ sub new {
         return $object;
     }
     else {
-        die "$type is not a valid type";
+        get_logger->error("$type is not a valid type");
+        return undef;
     }
 }
 

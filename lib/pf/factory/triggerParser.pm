@@ -32,11 +32,19 @@ sub new {
 }
 
 sub getModuleName {
-    my ($class,$type) = @_;
+    my ($class, $data) = @_;
     my $mainClass = $class->factory_for;
+    my $type      = $data->{type};
+    unless(defined $type) {
+        get_logger->error("Type is not defined");
+        return undef;
+    }
     my $subclass = "${mainClass}::${type}";
-    die "Invalid trigger type $type" unless any { $_ eq $subclass  } @MODULES;
-    return $subclass;
+    unless (any {$_ eq $subclass} @MODULES){
+        get_logger->error("Type $type is not valid");
+        return undef;
+    }
+    $subclass;
 }
 
 =head1 AUTHOR
