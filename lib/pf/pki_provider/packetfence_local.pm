@@ -15,6 +15,7 @@ PacketFence Local (packetfence_local) is a local "PKI" provider allowing a local
 use strict;
 use warnings;
 
+use Crypt::OpenSSL::PKCS12;
 use Moo;
 
 use pf::constants;
@@ -62,7 +63,8 @@ sub get_bundle {
     my ($self,$args) = @_;
     my $logger = get_logger();
 
-    return Crypt::OpenSSL::X509->new_from_file($self->client_cert_path);
+    my $pkcs12 = Crypt::OpenSSL::PKCS12->new;
+    return $pkcs12->create_as_string($self->client_cert_path, $self->client_key_path, $args->{'certificate_pwd'});
 }
 
 =head1 AUTHOR
