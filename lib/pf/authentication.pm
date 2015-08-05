@@ -256,7 +256,7 @@ sub match {
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
     if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
-        $logger->warn("Calling match with an invalid '$action'");
+        $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
     }
     if (ref($source_id) eq 'ARRAY') {
