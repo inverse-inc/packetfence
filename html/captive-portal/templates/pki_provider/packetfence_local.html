@@ -28,10 +28,7 @@
             <span>[% i18n("Password") %]</span>
             <input class="field" name="certificate_pwd" type="text" autocorrect="off" autocapitalize="off" value="[% certificate_pwd | html %]" />
 
-            [% UNLESS certificate_email %]
-            <span>[% i18n("E-mail") %]</span>
-            <input class="field" name="certificate_email" type="text" value="[% certificate_email | html %]" />
-            [% END %]
+            <input type="hidden" name="certificate_email" value="not_needed" />
           </div>
 
           [% submit %]
