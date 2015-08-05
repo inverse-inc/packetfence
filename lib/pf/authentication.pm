@@ -24,6 +24,7 @@ use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
+use pf::Authentication::constants;
 
 use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
@@ -245,12 +246,19 @@ If source_id_ref is defined then it will be set to the matching source_id
 
 =cut
 
+our %ACTION_VALUE_FILTERS = (
+    $Actions::SET_ACCESS_DURATION => \&pf::config::access_duration,
+    $Actions::SET_UNREG_DATE => \&pf::config::dynamic_unreg_date,
+);
+
 sub match {
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
-
-    $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
-
+    $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+    if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
+        $logger->warn("Calling match with an invalid '$action'");
+        return undef;
+    }
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     } else {
@@ -262,17 +270,23 @@ sub match {
     foreach my $source (@sources) {
         $actions = $source->match($params);
         next unless defined $actions;
-        if (defined $action ) {
+        if (defined $action) {
+            my $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
+
             # Return the value only if the action matches
-            my $found_action = first { $_->type eq $action } @{$actions};
+            my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
             if (defined $found_action) {
-                $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
+                $logger->debug( sub { "[" . $source->id . "] Returning '" . $found_action->value . "' for action $action for username " . $params->{'username'} });
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-                return $found_action->value
+                my $value = $found_action->value;
+                my $type  = $found_action->type;
+                $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+                return $value;
             }
+
             #Setting action to undef to avoid the wrong actions to be returned
             $actions = undef;
-            $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
+            $logger->debug( sub { "[" . $source->id . "] Params don't match rules for action $action for parameters " . join(", ", map {"$_ => $params->{$_}"} keys %$params) });
             next;
         }
         #Store the source id

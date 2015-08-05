@@ -150,18 +150,8 @@ sub registerNode : Private {
                 $role = &pf::authentication::match( $source_id, $params , $Actions::SET_ROLE);
                 $logger->debug("Gaming devices role is $role (from username $pid)");
             }
-            # If an access duration is defined, use it to compute the unregistration date;
-            # otherwise, use the unregdate when defined.
-            my $unregdate =
-              &pf::authentication::match( $source_id, $params, $Actions::SET_ACCESS_DURATION );
-            if ( defined $unregdate ) {
-                $unregdate = pf::config::access_duration($unregdate);
-                $logger->debug("Computed unreg date from access duration: $unregdate");
-            } else {
-                $unregdate =
-                  &pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE );
-                $unregdate = pf::config::dynamic_unreg_date($unregdate);
-            }
+
+            my $unregdate = &pf::authentication::match( $source_id, $params, $Actions::SET_UNREG_DATE);
             if ( defined $unregdate ) {
                 $logger->debug("Got unregdate $unregdate for username $pid");
                 $info{unregdate} = $unregdate;

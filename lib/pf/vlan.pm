@@ -616,15 +616,8 @@ sub getNodeInfoForAutoReg {
         if (!defined($role)) {
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         }
-        my $value = &pf::authentication::match([@sources], $params, $Actions::SET_ACCESS_DURATION);
-        if (defined $value) {
-            $logger->trace("No unregdate found - computing it from access duration");
-            $value = access_duration($value);
-        }
-        else {
-            $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
-            $value = pf::config::dynamic_unreg_date($value);
-        }
+        my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+
         if (defined $value) {
             $node_info{'unregdate'} = $value;
             if (defined $role) {

@@ -115,22 +115,12 @@ sub handler {
         %info = (%info, (category => $value));
     }
 
-    $value = &pf::authentication::match($source_id, $params, $Actions::SET_ACCESS_DURATION);
-
+    $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
     if (defined $value) {
-        $logger->trace("No unregdate found - computing it from access duration");
-        $value = access_duration($value);
-    }
-    else {
-        $logger->trace("Unregdate found, we use it right away");
-        $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
-    }
-
-    $logger->trace("Got unregdate $value for username $pid");
-
-    if (defined $value) {
+        $logger->trace("Got unregdate $value for username $pid");
         %info = (%info, (unregdate => $value));
     }
+
     $r->pnotes->{info}=\%info;
     $template->process( "response_wispr.tt", $stash, \$response ) || $logger->error($template->error());
     $r->content_type('text/xml');

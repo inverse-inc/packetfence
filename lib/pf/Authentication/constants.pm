@@ -120,6 +120,16 @@ Readonly::Array our @ACTIONS =>
    $MARK_AS_SPONSOR,
   );
 
+Readonly::Hash our %ALLOWED_ACTIONS => (
+    $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
+    $SET_ACCESS_LEVEL => {$SET_ACCESS_LEVEL => 1},
+    $SET_ROLE         => {$SET_ROLE         => 1},
+    $SET_UNREG_DATE   => {
+        $SET_UNREG_DATE      => 1,
+        $SET_ACCESS_DURATION => 1,
+    }
+);
+
 =back
 
 =head1 AUTHOR
