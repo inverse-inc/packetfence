@@ -50,7 +50,7 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger;
 
-    $uri = $self->protocol."://".$self->host.":".$self->port.$uri;
+    $uri = $self->protocol."://".$self->host.":".$self->port."/".$uri;
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
