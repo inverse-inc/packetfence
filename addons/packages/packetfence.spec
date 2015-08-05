@@ -121,6 +121,7 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
+requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
