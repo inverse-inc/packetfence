@@ -79,9 +79,8 @@ sub field_list {
             };
             $type eq 'merged_list' && do {
                 delete $field->{element_attr}->{placeholder};
-                $field->{tags}  = { before_element => \&defaults_list,
-              defaults => $defaults->{$name} },
-
+                $field->{tags}->{before_element} = \&defaults_list;
+                $field->{tags}->{defaults} = $defaults->{$name};
                 $field->{type} = 'TextArea';
                 $field->{element_class} = ['input-xxlarge'];
                 last;
