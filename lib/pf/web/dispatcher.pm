@@ -67,6 +67,19 @@ sub handler {
     my $result = $filter->test($r);
     return $result if $result;
 
+    # Proxy passthrough
+    if ( (($hostname.$uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
+      || ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
+        $logger->info("URI '$uri' (URL: $url) match proxy passthrough configuration.");
+        return proxy_redirect($r);
+    }
+
+    # Captive-portal detection mecanism bypass
+    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
+        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
+        return proxy_redirect($r);
+    }
+
     # Captive-portal static resources
     # We don't want to continue in dispatcher in this case and we simply serve it
     # - Images
@@ -112,19 +125,6 @@ sub handler {
         #Send the current URI to catalyst with the pnotes
         $r->pnotes(last_uri => $uri);
         return Apache2::Const::DECLINED;
-    }
-
-    # Proxy passthrough
-    if ( (($hostname.$uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
-      || ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
-        $logger->info("URI '$uri' (URL: $url) match proxy passthrough configuration.");
-        return proxy_redirect($r);
-    }
-
-    # Captive-portal detection mecanism bypass
-    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
-        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
-        return proxy_redirect($r);
     }
 
     # Redirect everything else to the captive-portal URL
