@@ -11,8 +11,11 @@ pfconfig - Serves configuration through a socket
 pfconfig [options]
 
  Options:
-   -d     Daemonize
-   -h     Help
+   -d                 Daemonize
+   -h                 Help
+   -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
+   -n NAME            The name of process as reported in ps - default pfconfig
+   -p NAME            The prefix of pidfile - defaults to the name
 
 =cut
 
@@ -45,10 +48,20 @@ use Errno qw(EINTR);
 $pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
-our $PROGRAM_NAME = $0 = "pfconfig";
+my %args = (
+    s => $pfconfig::constants::SOCKET_PATH,
+    #Name of the process
+    n => "pfconfig",
+);
+
+getopts( 'dhs:n:p:', \%args );
+
+$args{p} //= $args{n};
+
+our $PROGRAM_NAME = $0 = $args{n};
 
 
-my $socket_path = $pfconfig::constants::SOCKET_PATH;
+my $socket_path = $args{s};
 unlink($socket_path);
 
 #Ensure that the file permissions of the socket is correct 0770
@@ -68,8 +81,6 @@ $cache->preload_all();
 
 my $encoder = Sereal::Encoder->new;
 
-my %args;
-getopts( 'dh', \%args );
 
 my $logger = pfconfig::log::get_logger;
 
