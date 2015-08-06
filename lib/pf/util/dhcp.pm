@@ -19,14 +19,30 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter);
+    @EXPORT = qw(decompose_dhcp decompose_dhcpv6 decode_dhcpv6 decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter);
     @EXPORT_OK = qw();
 }
 
+use constant SOLICIT             => 1;
+use constant ADVERTISE           => 2;
+use constant REQUEST             => 3;
+use constant CONFIRM             => 4;
+use constant RENEW               => 5;
+use constant REBIND              => 6;
+use constant REPLY               => 7;
+use constant RELEASE             => 8;
+use constant DECLINE             => 9;
+use constant RECONFIGURE         => 10;
+use constant INFORMATION_REQUEST => 11;
+use constant RELAY_FORW          => 12;
+use constant RELAY_REPL          => 13;
+
 use NetPacket::Ethernet;
 use NetPacket::IP;
+use NetPacket::IPv6;
 use NetPacket::UDP;
 use Readonly;
+use bytes;
 
 use pf::util qw(int2ip clean_mac);
 
@@ -65,7 +81,7 @@ Readonly my %MESSAGE_TYPE_TO_STRING => reverse %MESSAGE_TYPE;
 
 =item decompose_dhcp
 
-Parses a raw Ethernet frame and decompose it into layers and 
+Parses a raw Ethernet frame and decompose it into layers and
 returns every layer as objects (l2, l3, l4) or hashref (dhcp).
 
 =cut
@@ -77,6 +93,24 @@ sub decompose_dhcp {
     my $l3 = NetPacket::IP->decode($l2->{'data'});
     my $l4 = NetPacket::UDP->decode($l3->{'data'});
     my $dhcp = decode_dhcp($l4->{'data'});
+
+    return ($l2, $l3, $l4, $dhcp);
+}
+
+=item decompose_dhcpv6
+
+Parses a raw Ethernet frame and decompose it into layers and
+returns every layer as objects (l2, l3, l4) or hashref (dhcp).
+
+=cut
+
+sub decompose_dhcpv6 {
+    my ($raw_packet) = @_;
+
+    my $l2 = NetPacket::Ethernet->decode($raw_packet);
+    my $l3 = NetPacket::IPv6->decode($l2->{'data'});
+    my $l4 = NetPacket::UDP->decode($l3->{'data'});
+    my $dhcp = decode_dhcpv6($l4->{'data'});
 
     return ($l2, $l3, $l4, $dhcp);
 }
@@ -95,7 +129,7 @@ sub decode_dhcp {
 
     # DHCP data (order _is_ important)
     my @keys = (
-        'op', 'htype', 'hlen', 'hops', 'xid', 'secs', 'dflags', 
+        'op', 'htype', 'hlen', 'hops', 'xid', 'secs', 'dflags',
         'ciaddr', 'yiaddr', 'siaddr', 'giaddr', 'chaddr', 'sname', 'file'
     );
 
@@ -112,6 +146,31 @@ sub decode_dhcp {
     decode_dhcp_options($dhcp_ref, @options);
 
     return $dhcp_ref;
+}
+
+sub decode_dhcpv6_options {
+    my ($option_data) = @_;
+    my @options;
+    while (defined $option_data && length $option_data > 0) {
+        (my $option, my $option_length, my $rest) = unpack("n n a*", $option_data);
+        print "option $option length \n";
+        print "length of rest ", length $rest, "\n";
+        my $data = substr($rest, 0 , $option_length);
+        $option_data = substr($rest, $option_length);
+        push @options, $option, $data;
+    }
+    return \@options;
+}
+
+sub decode_dhcpv6 {
+    my ($data) = @_;
+    my ($type, $rest) = unpack("Ca*", $data);
+    if ($type == RELAY_REPL || $type == RELAY_FORW) {
+        my ($hop, $link, $peer, $options) = unpack("C a16 a16 a*", $rest);
+        return {type => $type , hop => $hop, 'link' => $link, 'peer' => $peer , options => decode_dhcpv6_options($options)};
+    }
+    my ($tid, $option) = unpack("a3 n/a*", $rest);
+    return {type => $type, options => decode_dhcpv6_options($option), tid => $tid};
 }
 
 =item decode_dhcp_options
@@ -179,9 +238,9 @@ sub decode_dhcp_options {
     # pack in scalar strings ascii options
     foreach my $option (@ascii_options) {
         if ( exists( $dhcp_ref->{'options'}->{$option} ) ) {
-            $dhcp_ref->{'options'}->{$option} = join( "", @{ $dhcp_ref->{'options'}->{$option} } ); 
+            $dhcp_ref->{'options'}->{$option} = join( "", @{ $dhcp_ref->{'options'}->{$option} } );
         }
-    } 
+    }
 
     # pack IPv4 in dotted notation
     foreach my $option (@ipv4_options) {
@@ -270,7 +329,7 @@ sub _decode_dhcp_option82 {
     }
 
     # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
-    $dhcp_ref->{'options'}{'82'} = { 
+    $dhcp_ref->{'options'}{'82'} = {
         '_raw' => $dhcp_ref->{'options'}{'82'},
         '_subopts' => \%sub_opt_82,
     };
