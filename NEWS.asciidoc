@@ -21,6 +21,7 @@ New Features
 Enhancements
 ++++++++++++
 * Cleanup in web libs (pf::web, pf::web::*) to remode dead code from CGI captive-portal
+* Added merged_list configuration type which is the result of a configuration list merge between pf.conf.defaults and pf.conf (#598)
 
 Bug Fixes
 +++++++++
