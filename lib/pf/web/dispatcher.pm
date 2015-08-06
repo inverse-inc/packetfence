@@ -74,13 +74,13 @@ sub handler {
     # - ...
     # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
-        $logger->info("URI '$uri' (URL: $url) is a captive-portal static resource");
+        $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
         return Apache2::Const::DECLINED;
     }
 
     # Captive-portal resource | RELEASE
     if ( $uri =~ /$WEB::URL_RELEASE/o ) {
-        $logger->info("URI '$uri' (URL: $url) is a RELEASE request");
+        $logger->debug("URI '$uri' (URL: $url) is a RELEASE request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
         return Apache2::Const::OK;
@@ -88,7 +88,7 @@ sub handler {
 
     # Captive-portal resource | WISPr
     if ( $uri =~ /$WEB::URL_WISPR/o ) {
-        $logger->info("URI '$uri' (URL: $url) is a WISPr request");
+        $logger->debug("URI '$uri' (URL: $url) is a WISPr request");
         $r->handler('modperl');
         $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         return Apache2::Const::OK;
@@ -101,7 +101,7 @@ sub handler {
     # - Portal profile filters are handled by Catalyst
     # See L<pf::web::constants::CAPTIVE_PORTAL_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_RESOURCES/o ) {
-        $logger->info("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
+        $logger->debug("URI '$uri' (URL: $url) is properly handled and should now continue to the captive-portal / Catalyst");
         return Apache2::Const::DECLINED;
     }
 
