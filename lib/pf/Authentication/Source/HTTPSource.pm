@@ -156,7 +156,7 @@ sub authenticate {
 
 =head2 match
 
-The CustomSource class overrides the match method of the Source parent class.
+The HTTPSource class overrides the match method of the Source parent class.
 
 The actions are defined by the API through it's JSON response.
 
