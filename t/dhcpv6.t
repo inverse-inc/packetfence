@@ -16,7 +16,7 @@ x
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::util::dhcp;
+use pf::util::dhcpv6;
 use Net::Pcap qw(pcap_open_offline pcap_loop);
 use bytes;
 
