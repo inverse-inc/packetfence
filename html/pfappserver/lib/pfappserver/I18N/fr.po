@@ -2067,10 +2067,6 @@ msgid ""
 " be automagically created."
 msgstr "Hôte où est exécuté le moteur d'analyse. Pour des raisons de performance, nous vous recommandons d'exécuter le moteur d'analyse sur un autre serveur. Une règle d'autorisation de pare-feu sera automatiquement créé."
 
-# conf/documentation.conf (monitoring.statsd_host)
-msgid "Host to which StatsD metrics are sent."
-msgstr "Hôte auquel les paramètres StatsD sont envoyés."
-
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
 msgstr "Hôte auquel les métriques de graphite sont envoyées"
@@ -3660,10 +3656,6 @@ msgstr "Port du service"
 # conf/documentation.conf (ports.soap)
 msgid "Port of the soap webservice."
 msgstr "Port du service web SOAP."
-
-# conf/documentation.conf (monitoring.statsd_port)
-msgid "Port on the StatsD host to which metrics are sent."
-msgstr "Port sur l'hôte StatsD à laquelle les paramètres sont envoyés."
 
 # conf/documentation.conf (monitoring.graphite_port)
 msgid "Port on the graphite host to which metrics are sent."
@@ -7101,14 +7093,6 @@ msgstr "hôte graphite"
 # conf/documentation.conf
 msgid "monitoring.graphite_port"
 msgstr "port de connection de graphite"
-
-# conf/documentation.conf
-msgid "monitoring.statsd_host"
-msgstr "Hôte StatsD de Supervision "
-
-# conf/documentation.conf
-msgid "monitoring.statsd_port"
-msgstr "StatsD port de supervision"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"

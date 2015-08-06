@@ -1973,10 +1973,6 @@ msgstr ""
 msgid "Host the scanning engine is running on.  For performance reasons, we recommend running the scanning engine on a remote server. A passthrough will be automagically created."
 msgstr ""
 
-# conf/documentation.conf (monitoring.statsd_host)
-msgid "Host to which StatsD metrics are sent."
-msgstr "Host to which StatsD metrics are sent."
-
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
 msgstr "Host to which graphite metrics are sent."
@@ -3528,10 +3524,6 @@ msgstr ""
 
 # conf/documentation.conf (ports.soap)
 msgid "Port of the soap webservice."
-msgstr ""
-
-# conf/documentation.conf (monitoring.statsd_port)
-msgid "Port on the StatsD host to which metrics are sent."
 msgstr ""
 
 # conf/documentation.conf (monitoring.graphite_port)
@@ -6919,14 +6911,6 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "monitoring.graphite_port"
-msgstr ""
-
-# conf/documentation.conf
-msgid "monitoring.statsd_host"
-msgstr ""
-
-# conf/documentation.conf
-msgid "monitoring.statsd_port"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm

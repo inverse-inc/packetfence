@@ -32,13 +32,6 @@ sub generateConfig {
     my %tags;
     $tags{'template'}      = "$conf_dir/monitoring/statsd_config.js";
     $tags{'pid_file'}      = "$install_dir/var/run/statsd.pid";
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'statsd_port'}   = "$Config{'monitoring'}{'statsd_port'}";
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/statsd_config.js", '//' );
 }

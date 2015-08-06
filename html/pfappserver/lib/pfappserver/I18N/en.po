@@ -5170,14 +5170,6 @@ msgstr "Username"
 msgid "monitoring"
 msgstr "Monitoring"
 
-# conf/documentation.conf
-msgid "monitoring.statsd_host"
-msgstr "StatsD host"
-
-# conf/documentation.conf
-msgid "monitoring.statsd_port"
-msgstr "StatsD port"
-
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"
 msgstr ""

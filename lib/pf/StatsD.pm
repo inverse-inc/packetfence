@@ -39,8 +39,8 @@ initStatsd();
 # we override new to add a "hostname" attribute.
 sub new {
     my ( $class, $host, $port, $sample_rate ) = @_;
-    $host = 'localhost' unless defined $host;
-    $port = 8125        unless defined $port;
+    $host = $STATSD_HOST unless defined $host;
+    $port = $STATSD_PORT unless defined $port;
     my $hostname = hostname; 
     $hostname =~ s/\Q$GRAPHITE_DELIMITER\E/_/g; # replace dots with underscores 
 
