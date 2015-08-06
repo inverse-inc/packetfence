@@ -149,15 +149,15 @@ sub decode_dhcp {
 }
 
 sub decode_dhcpv6_options {
-    my ($option_data) = @_;
+    my ($rest) = @_;
     my @options;
-    while (defined $option_data && length $option_data > 0) {
-        (my $option, my $option_length, my $rest) = unpack("n n a*", $option_data);
-        print "option $option length \n";
-        print "length of rest ", length $rest, "\n";
-        my $data = substr($rest, 0 , $option_length);
-        $option_data = substr($rest, $option_length);
-        push @options, $option, $data;
+    while ( $rest && length $rest > 0) {
+        my ($type, $data);
+        ($type, $data, $rest) = unpack("n n/a* a*", $rest);
+        if ($type == 9) {
+            $data = decode_dhcpv6($data);
+        }
+        push @options, $type, $data;
     }
     return \@options;
 }
@@ -169,8 +169,8 @@ sub decode_dhcpv6 {
         my ($hop, $link, $peer, $options) = unpack("C a16 a16 a*", $rest);
         return {type => $type , hop => $hop, 'link' => $link, 'peer' => $peer , options => decode_dhcpv6_options($options)};
     }
-    my ($tid, $option) = unpack("a3 n/a*", $rest);
-    return {type => $type, options => decode_dhcpv6_options($option), tid => $tid};
+    my ($tid, $options) = unpack("a3 a*", $rest);
+    return {type => $type, options => decode_dhcpv6_options($options), tid => $tid};
 }
 
 =item decode_dhcp_options
