@@ -116,26 +116,26 @@ The use of SCEP with PacketFence also require a change in the IIS configuration.
 
 Navigate to `Server Manager -> Web(IIS)`, expand `Default web site` then select `CertSrv -> mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
 
-Online Certificate Status Protocol (ocsp)
+Online Certificate Status Protocol (OCSP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the configuration of ocsp, the following changes are necessary.
+For the configuration of OCSP, the following changes are necessary.
 
-First we need to allow the use of the template `ocspResponseSigning` by the server, to do so navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select `ocspResponseSigning`.
+First we need to allow the use of the template `OCSPResponseSigning` by the server, to do so navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select `OCSPResponseSigning`.
 
-After the installation of ocsp we need to create a Revocation Configuration.
+After the installation of OCSP we need to create a Revocation Configuration.
 
 To create the Revocation Configuration navigate to `Server Manager -> Roles -> Active Directory Certificate Services` and expand `OnlineResponder`. Then expand `YourServerName`, right click on Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
 
-Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an ocsp signing certificate` is selected, then choose the default template of ocsp which is `ocspResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to ocsp.
+Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the `Signing` tab, then select `Enable NONCE extension support` then click `OK`.
 
-Make sure that your ocsp server appear in the CA settings. Right click your CA, choose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` choose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<ServerDNSName>/ocsp`. 
+Make sure that your OCSP server appear in the CA settings. Right click your CA, choose `Properties`. Navigate to the tab `Extension`, in the drop down list `Select extension` choose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<ServerDNSName>/OCSP`. 
 
-If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/ocsp`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(ocsp) extension` is selected.
+If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/OCSP`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
-By default ocsp has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager -> Roles -> Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
+By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager -> Roles -> Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
 
 
 RADIUS Certificate generation
@@ -218,14 +218,14 @@ E.g.
  certificate_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.pem
  CA_file = %%install_dir%%/conf/ssl/tls_certs/MyCA.pem
 
-Certificate revocation checks also have to be configured in the `ocsp` block.
+Certificate revocation checks also have to be configured in the `OCSP` block.
 
 For example: 
 
-    ocsp {
+    OCSP {
         enable = yes
         override_cert_url = yes
-        url = "http://<MSPKI ServerDNSName or IP>/ocsp"
+        url = "http://<MSPKI ServerDNSName or IP>/OCSP"
     }
 
 Restart radiusd to regenerate the new configuration files and enable EAP-TLS using your CA signed certificates:
@@ -362,9 +362,9 @@ In the output search for `X509v3 extensions:`. When using the scep enroll comman
  
  # sscep enroll -c path/MyFile-0 -e path/MyFile-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
-To verify your certificate against the ocsp you can use the following openssl command:
+To verify your certificate against the OCSP you can use the following openssl command:
 
- # openssl ocsp -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/ocsp
+ # openssl OCSP -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/OCSP
 
 Debugging Android passthroughs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
