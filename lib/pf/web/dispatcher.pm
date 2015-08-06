@@ -204,7 +204,9 @@ sub html_redirect {
 
     $r->headers_out->set('Location' => $stash->{portal_url});
     $r->content_type('text/html');
-    $r->no_cache(1);
+    $r->err_headers_out->add('Cache-Control' => "no-cache, no-store, must-revalidate");
+    $r->err_headers_out->add('Pragma' => "no-cache");
+    $r->err_headers_out->add('Expire' => '10');
     $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
 
     return Apache2::Const::HTTP_MOVED_TEMPORARILY;
