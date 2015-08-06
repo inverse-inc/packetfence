@@ -16,8 +16,6 @@ use warnings;
 
 use Readonly;
 
-use pf::config;
-
 =head1 SUBROUTINES
 
 =over
@@ -52,7 +50,10 @@ sub to_hash {
 
 package WEB;
 
-use pf::config;
+our %Config_Pf;
+tie %Config_Pf, 'pfconfig::cached_hash', 'config::Pf';
+our @Profile_Filters;
+tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 =head2 URLs
 
@@ -207,7 +208,7 @@ Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtend
 
 =cut
 
-my @captive_portal_detection_mecanism_urls = split(/\s*,\s*/,$Config{'captive_portal'}{'detection_mecanism_urls'});
+my @captive_portal_detection_mecanism_urls = split(/\s*,\s*/,$Config_Pf{'captive_portal'}{'detection_mecanism_urls'});
 foreach ( @captive_portal_detection_mecanism_urls ) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
 my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
 if ( defined($captive_portal_detection_mecanism_urls) ) {
@@ -240,7 +241,7 @@ Return a regex that would match all the portal profile uri: filter
 
 sub _clean_urls_match_filter {
     local $_;
-    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @pf::config::Profile_Filters;
+    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @Profile_Filters;
 }
 
 =item _clean_urls_match_mod_perl
@@ -309,4 +310,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-
