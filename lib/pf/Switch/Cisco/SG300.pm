@@ -47,7 +47,7 @@ sub description { 'Cisco SG300' }
 =head2 getVoipVsa
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
-For now it returns the voiceVlan untagged since Juniper supports multiple untagged VLAN in the same interface
+For now it returns the voiceVlan untagged since Cisco supports multiple untagged VLAN in the same interface
 
 =cut
 
@@ -84,7 +84,7 @@ sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this)); 
 
-    $logger->warn("Found $NAS_port for ifindex");
+    $logger->debug("Found $NAS_port for ifindex");
 
     return $NAS_port;
 }
