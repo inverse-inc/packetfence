@@ -36,9 +36,11 @@ BEGIN {
 
 Parses a string to a structure for building filters and conditions
 
-    my $array = parse_condition_string('(a || b) && (c || d)');
+    my ($array,$msg) = parse_condition_string('(a || b) && (c || d)');
 
-Where $array would be structure
+On success
+
+$array will be the following structure
 
     $array = [
               'AND',
@@ -58,20 +60,27 @@ Where $array would be structure
               ]
             ];
 
-If an invalid string is passed then it will die
+$msg will be an empty string
+
+If an invalid string is passed then the array will be undef and $msg will have have the error message
 
 =cut
 
 sub parse_condition_string {
     local $_ = shift;
-    my $expr = _parse_expr();
+    my $expr = eval {_parse_expr()};
+    if ($@) {
+        return (undef, $@);
+    }
 
     #Reduce whitespace
     /\G\s*/gc;
 
     #Check if there are any thing left
-    die "Unexpected data at " . pos if /\G./gc;
-    return $expr;
+    if (/\G./gc) {
+        return (undef, "Unexpected data at " . pos);
+    }
+    return ($expr, '');
 }
 
 =head2 _parse_expr

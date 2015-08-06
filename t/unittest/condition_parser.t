@@ -66,12 +66,14 @@ for my $test (@INVALID_STRINGS) {
 
 sub test_valid_string {
     my ($string, $expected) = @_;
-    is_deeply($expected, parse_condition_string($string), "Check if '$string' is valid");
+    my ($array,$msg) = parse_condition_string($string);
+    is_deeply($array, $expected, "Check if '$string' is valid");
 }
 
 sub test_invalid_string {
     my ($string) = @_;
-    dies_ok(sub {parse_condition_string($string)}, "Check if '$string' invalid");
+    my ($array,$msg) = parse_condition_string($string);
+    is(undef,$array, "Check if '$string' invalid");
 }
 
 =head1 AUTHOR
