@@ -18,6 +18,7 @@ use base qw(Exporter);
 our @EXPORT_OK = qw(@VALID_TRIGGER_TYPES);
 use Module::Pluggable search_path => 'pf::triggerParser', 'sub_name' => 'modules' , 'require' => 1, except => qr/^pf::triggerParser::roles/;
 use List::MoreUtils qw(any);
+use pf::log;
 
 our @MODULES = __PACKAGE__->modules;
 

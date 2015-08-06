@@ -20,6 +20,7 @@ use Module::Pluggable search_path => 'pf::scan', sub_name => 'modules' , require
 use List::MoreUtils qw(any);
 use pf::scan;
 use pf::config;
+use pf::log;
 
 our @MODULES = __PACKAGE__->modules;
 

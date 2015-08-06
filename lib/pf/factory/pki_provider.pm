@@ -18,6 +18,7 @@ use warnings;
 use Module::Pluggable search_path => 'pf::pki_provider', sub_name => 'modules' , require => 1;
 use List::MoreUtils qw(any);
 use pf::config;
+use pf::log;
 
 our @MODULES = __PACKAGE__->modules;
 

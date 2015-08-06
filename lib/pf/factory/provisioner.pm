@@ -18,6 +18,7 @@ use Module::Pluggable search_path => 'pf::provisioner', sub_name => 'modules' , 
 use List::MoreUtils qw(any);
 use pf::provisioner;
 use pf::config;
+use pf::log;
 
 our @MODULES = __PACKAGE__->modules;
 
