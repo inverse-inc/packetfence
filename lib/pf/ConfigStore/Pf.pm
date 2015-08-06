@@ -87,6 +87,14 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
             }
+        } elsif ( $type eq 'merged_list' ) { 
+            my $value = $data->{$key};
+            if ($value ne $defaults->{$key}) {
+                $data->{$key} = join("\n", split( /\s*,\s*/, $value));
+            }
+            else {
+                $data->{$key} = undef;
+            }
         } elsif ($type eq 'text_with_editable_default') {
             my $value = $data->{$key};
             $data->{$key} = $defaults->{$key} unless $value;
@@ -108,7 +116,7 @@ sub cleanupBeforeCommit {
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
             my $type = $doc->{type} || "text";
-            if($type eq 'list') {
+            if($type eq 'list' || $type eq 'merged_list' ) {
                 my $value = $assignment->{$key};
                 $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
             }

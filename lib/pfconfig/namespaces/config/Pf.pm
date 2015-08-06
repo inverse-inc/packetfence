@@ -23,6 +23,7 @@ use pfconfig::log;
 use pf::file_paths;
 use pf::util;
 use JSON;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -110,31 +111,18 @@ sub build_child {
     }
 
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
-    if ( isenabled( $Config{'trapping'}{'passthrough'} ) ) {
-        $Config{trapping}{proxy_passthroughs} = [
-            split( /\s*,\s*/, $Config{trapping}{proxy_passthroughs} || '' ),
-            qw(
-                crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
-                crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
-                crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
-                ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
-                )
-        ];
+
+    # We're looking for the merged_list configurations and we merge the default value with
+    # the user defined value
+    while( my( $key, $value ) = each %Doc_Config ){
+        if(defined($value->{type}) && $value->{type} eq "merged_list"){
+            my ($category, $attribute) = split /\./, $key;
+            my $additionnal = $Config{$category}{$attribute} || '';
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $additionnal ) ];
+            $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
+        }
     }
-    else {
-        $Config{trapping}{proxy_passthroughs} = [
-            qw(
-                crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
-                crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
-                crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
-                ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                ocsp.verisign.com ctldl.windowsupdate.com crl.globalsign.net pki.google.com
-                www.microsoft.com crl.godaddy.com ocsp.godaddy.com certificates.godaddy.com
-                )
-        ];
-    }
+
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
