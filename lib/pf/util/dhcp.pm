@@ -23,19 +23,39 @@ BEGIN {
     @EXPORT_OK = qw();
 }
 
-use constant SOLICIT             => 1;
-use constant ADVERTISE           => 2;
-use constant REQUEST             => 3;
-use constant CONFIRM             => 4;
-use constant RENEW               => 5;
-use constant REBIND              => 6;
-use constant REPLY               => 7;
-use constant RELEASE             => 8;
-use constant DECLINE             => 9;
-use constant RECONFIGURE         => 10;
-use constant INFORMATION_REQUEST => 11;
-use constant RELAY_FORW          => 12;
-use constant RELAY_REPL          => 13;
+use constant SOLICIT              => 1;
+use constant ADVERTISE            => 2;
+use constant REQUEST              => 3;
+use constant CONFIRM              => 4;
+use constant RENEW                => 5;
+use constant REBIND               => 6;
+use constant REPLY                => 7;
+use constant RELEASE              => 8;
+use constant DECLINE              => 9;
+use constant RECONFIGURE          => 10;
+use constant INFORMATION_REQUEST  => 11;
+use constant RELAY_FORW           => 12;
+use constant RELAY_REPL           => 13;
+
+use constant OPTION_CLIENTID      => 1;
+use constant OPTION_SERVERID      => 2;
+use constant OPTION_IA_NA         => 3;
+use constant OPTION_IA_TA         => 4;
+use constant OPTION_IAADDR        => 5;
+use constant OPTION_ORO           => 6;
+use constant OPTION_PREFERENCE    => 7;
+use constant OPTION_ELAPSED_TIME  => 8;
+use constant OPTION_RELAY_MSG     => 9;
+use constant OPTION_AUTH          => 11;
+use constant OPTION_UNICAST       => 12;
+use constant OPTION_STATUS_CODE   => 13;
+use constant OPTION_RAPID_COMMIT  => 14;
+use constant OPTION_USER_CLASS    => 15;
+use constant OPTION_VENDOR_CLASS  => 16;
+use constant OPTION_VENDOR_OPTS   => 17;
+use constant OPTION_INTERFACE_ID  => 18;
+use constant OPTION_RECONF_MSG    => 19;
+use constant OPTION_RECONF_ACCEPT => 20;
 
 use NetPacket::Ethernet;
 use NetPacket::IP;
