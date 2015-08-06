@@ -48,15 +48,17 @@ sub index : Path : Args(0) {
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
 
-    my $provisioner = $c->profile->findProvisioner($mac);
-    my $pki_provider = $provisioner->getPkiProvider();
-    my $pki_provider_name = ref($pki_provider);
-    $pki_provider_name =~ s#^.*:##;
-
     unless(defined($c->session->{username})){
         $c->log->warn("$mac tried to access the TLS profile page without being authenticated.");
         $c->response->redirect('/authenticate');
         $c->detach();
+    }
+
+    my $provisioner = $c->profile->findProvisioner($mac);
+    if ( $provisioner ) {
+        my $pki_provider = $provisioner->getPkiProvider();
+        my $pki_provider_name = ref($pki_provider);
+        $pki_provider_name =~ s#^.*:##;
     }
 
     unless ( $provisioner && $pki_provider ) {
