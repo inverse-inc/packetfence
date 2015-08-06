@@ -25,6 +25,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Fix case where status page links would be pointing to the wrong protocol
+* set_unreg_date and set_access_duration actions now have the same priority when matching rule and actions (#816)
 
 Version 5.3.0 released on 2015-07-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
