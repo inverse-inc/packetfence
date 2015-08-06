@@ -53,7 +53,7 @@ has 'client_key_path' => ( is => 'rw' );
 
 =head1 METHOD(S)
 
-=head2 get_bindle
+=head2 get_bundle
 
 Get the certificate bundle using the provided client certificate/key path
 
