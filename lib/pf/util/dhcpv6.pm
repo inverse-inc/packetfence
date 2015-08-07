@@ -63,6 +63,8 @@ use constant OPTION_RECONF_MSG    => 19;
 use constant OPTION_RECONF_ACCEPT => 20;
 use constant OPTION_DNS_SERVERS   => 23;
 use constant OPTION_DOMAIN_LIST   => 24;
+use constant OPTION_IA_PD         => 25;
+use constant OPTION_IAPREFIX      => 26;
 use constant OPTION_CLIENT_FQDN   => 39;
 
 
@@ -90,6 +92,8 @@ our %OPTIONS_FILTER = (
     OPTION_RECONF_ACCEPT() => \&_zero_length_option,
     OPTION_DNS_SERVERS()   => \&_parse_dns_server,
     OPTION_DOMAIN_LIST()   => \&_parse_domain_list,
+    OPTION_IA_PD()         => \&_parse_ia_pd,
+    OPTION_IAPREFIX()      => \&_parse_ia_prefix,
     OPTION_CLIENT_FQDN()   => \&_parse_client_fqdn,
 
 );
@@ -126,8 +130,11 @@ sub decode_dhcpv6_options {
         my ($type, $data);
         ($type, $data, $rest) = unpack("n n/a* a*", $rest);
         if( exists $OPTIONS_FILTER{$type} ) {
-            %option = %{$OPTIONS_FILTER{$type}->($data)};
+            my $option_data = $OPTIONS_FILTER{$type}->($data);
+            #Copy all the data into the option hash
+            %option = %$option_data;
         } else {
+            #No filter then you get it raw
             $option{option_raw_data} = $data;
         }
         $option{option_type} = $type;
@@ -150,16 +157,15 @@ sub decode_dhcpv6 {
 
     #Check for relay type of messages
     if ($type == RELAY_REPL || $type == RELAY_FORW) {
-        my ($hop, @link, @peer, $options);
 
-        # Get hop (1 byte) , link ipv6 addr (16 bytes or 4 32 bit numbers) , peer ipv6 addr (16 bytes or 4 32 bit numbers),
+        # Get hop (1 byte) , link ipv6 addr (16 bytes) , peer ipv6 addr (16 bytes),
         # and the options (the rest of the packet)
-        ($hop, @link[0 .. 3], @peer[0 .. 3], $options) = unpack("C N4 N4 a*", $rest);
+        my ($hop, $link, $peer, $options) = unpack("C a16 a16 a*", $rest);
         return {
             'msg_type'    => $type,
             'hop'     => $hop,
-            'link'    => NetPacket::IPv6::int_to_hexstr(@link),
-            'peer'    => NetPacket::IPv6::int_to_hexstr(@peer),
+            'link'    => _parse_ipv6_addr($link),
+            'peer'    => _parse_ipv6_addr($peer),
             'options' => decode_dhcpv6_options($options)
         };
     }
@@ -167,6 +173,12 @@ sub decode_dhcpv6 {
     # Get the trans id (3 bytes) and the options (the rest of the packet)
     my ($tid, $options) = unpack("a3 a*", $rest);
     return {msg_type => $type, options => decode_dhcpv6_options($options), tid => $tid};
+}
+
+sub _parse_ipv6_addr {
+    my ($data) = @_;
+    my @ints = unpack("N4", $data);
+    return NetPacket::IPv6::int_to_hexstr(@ints);
 }
 
 =head2 _zero_length_option
@@ -262,10 +274,9 @@ sub _parse_ia_ta {
 
 sub _parse_iaaddr {
     my ($data) = @_;
-    my (@addr, $preferred_lifetime, $valid_lifetime, $options);
-    (@addr[0 .. 3], $preferred_lifetime, $valid_lifetime, $options) = unpack("N4 N N a*", $data);
+    my ($addr, $preferred_lifetime, $valid_lifetime, $options)  = unpack("a16 N N a*", $data);
     return {
-        addr               => NetPacket::IPv6::int_to_hexstr(@addr),
+        addr               => _parse_ipv6_addr($addr),
         preferred_lifetime => $preferred_lifetime,
         valid_lifetime     => $valid_lifetime,
         options            => decode_dhcpv6_options($options)
@@ -322,8 +333,7 @@ sub _parse_auth {
 
 sub _parse_unicast {
     my ($data) = @_;
-    my @addr = unpack("N4", $data);
-    return {'server_address' => NetPacket::IPv6::int_to_hexstr(@addr)};
+    return {'server_address' => _parse_ipv6_addr($data)};
 }
 
 =head2 _parse_status_code
@@ -391,7 +401,7 @@ sub _parse_reconf_msg {
 sub _parse_dns_server {
     my ($data) = @_;
     my (@servers) = unpack("(a16)*", $data);
-    @servers = map {NetPacket::IPv6::int_to_hexstr(unpack("N4", $_))} @servers;
+    @servers = map { _parse_ipv6_addr($_) } @servers;
     return {servers => \@servers};
 }
 
@@ -403,6 +413,32 @@ sub _parse_domain_list {
     my ($data) = @_;
     my (@domains) = unpack("Z*", $data);
     return { domains => \@domains};
+}
+
+=head2 _parse_ia_pd
+
+=cut
+
+sub _parse_ia_pd {
+    my ($data) = @_;
+    my ($iaid,$t1,$t2,$options) = unpack("a4 N N a*", $data);
+    return {iaid => $iaid, t1 => $t1, t2 => $t2,options => decode_dhcpv6_options($options)};
+}
+
+=head2 _parse_ia_prefix
+
+=cut
+
+sub _parse_ia_prefix {
+    my ($data) = @_;
+    my ($preferred_lifetime, $valid_lifetime, $prefix_length, $prefix, $options) = unpack("N N C a16 a*", $data);
+    return {
+        preferred_lifetime => $preferred_lifetime,
+        valid_lifetime     => $valid_lifetime,
+        prefix_length      => $prefix_length,
+        prefix             => _parse_ipv6_addr($prefix),
+        options            => decode_dhcpv6_options($options)
+    };
 }
 
 =head2 _parse_client_fqdn
