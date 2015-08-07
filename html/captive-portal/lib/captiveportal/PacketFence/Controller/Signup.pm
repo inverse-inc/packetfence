@@ -435,7 +435,7 @@ sub doNullSelfRegistration : Private {
     my $null_type = pf::Authentication::Source::NullSource->getDefaultOfType;
     my $source = $profile->getSourceByType($null_type) || $profile->getSourceByTypeForChained($null_type);
     my $username;
-    if($source->email_required) {
+    if(isenabled($source->email_required)) {
         $username = $c->session->{email};
     }
     $username //= $default_pid;
