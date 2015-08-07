@@ -65,6 +65,9 @@ use constant OPTION_DNS_SERVERS   => 23;
 use constant OPTION_DOMAIN_LIST   => 24;
 use constant OPTION_CLIENT_FQDN   => 39;
 
+
+## The parser maps for the options
+##
 our %OPTIONS_FILTER = (
     OPTION_CLIENTID()      => \&_parse_duid,
     OPTION_SERVERID()      => \&_parse_duid,
@@ -132,6 +135,12 @@ sub decode_dhcpv6_options {
     }
     return \@options;
 }
+
+=head2 decode_dhcpv6
+
+Decodes the dhcpv6 packet into a hash representation
+
+=cut
 
 sub decode_dhcpv6 {
     my ($data) = @_;
