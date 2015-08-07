@@ -6,7 +6,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::Oauth2'; }
 
 before auth_provider => sub {
     my ($self, $c) = @_;
-    pf::survey::save_survey_session($c->session, $c->request);
+    pf::survey::survey_save_from_session($c->session, $c->request);
 };
 
 =head1 NAME
