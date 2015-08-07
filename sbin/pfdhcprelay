@@ -1,0 +1,135 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use IO::Socket::INET;
+use Net::DHCP::Packet;
+use Net::RawIP;
+use Net::Frame::Layer::IPv4 qw(:consts);
+use Net::Write::Layer qw(:constants);
+use Net::Frame::Layer::UDP;
+use Net::Write::Layer2;
+use Net::Write::Layer3;
+use Net::Frame::Simple;
+use Net::Frame::Device;
+
+use Net::PcapUtils;
+use Net::DHCP::Packet;
+use NetPacket::Ethernet qw(:strip);
+use NetPacket::IP;
+use NetPacket::UDP;
+
+use Net::DHCP::Constants;
+
+       
+sub socket_listen {
+    while (1) {
+
+        my $sock = IO::Socket::INET->new(
+          LocalPort => 67, 
+          Proto => "udp", 
+          Reuse => 1,
+    #      Broadcast => 1,
+          )
+           or die "socket: $@";
+
+        setsockopt($sock, SOL_SOCKET, SO_BROADCAST, 1);
+
+        $sock->accept();
+        $sock->recv(my $newmsg, 1024);
+
+        next unless($newmsg);
+
+        print "PACKET IN !\n";
+        print "REMOTE PORT : ".$sock->peerport()."\n";
+        print "REMOTE HOST : ".$sock->peerhost()."\n";
+
+
+        my $dhcp_packet = Net::DHCP::Packet->new($newmsg);
+        $dhcp_packet->giaddr("172.21.156.1");
+
+
+        $sock->close();
+
+        my $out_sock = IO::Socket::INET->new(
+                LocalAddr => "172.21.156.1",
+                PeerHost => "10.0.0.6", 
+                LocalPort => 67,
+                PeerPort => 67, 
+                Proto => "udp", 
+                Reuse => 1,
+                )
+            or die "socket: $@";
+
+
+        $out_sock->send($dhcp_packet->serialize());
+        $out_sock->accept();
+        $out_sock->recv(my $reply, 10);
+    #
+    #    print "PACKET BACK !\n";
+    #    print "REMOTE PORT : ".$out_sock->peerport()."\n";
+    #    print "REMOTE HOST : ".$out_sock->peerhost()."\n";
+
+       
+
+    }
+}
+
+sub process_pkt {
+  my($user, $hdr, $pkt) = @_;
+
+
+  my $eth = NetPacket::Ethernet->decode($pkt);
+  my $ip_packet = NetPacket::IP->decode($eth->{data});
+  my $udp_packet = NetPacket::UDP->decode($ip_packet->{data});
+  my $dhcp_packet = Net::DHCP::Packet->new($udp_packet->{data});
+
+  print STDERR "Packet IN (".$dhcp_packet->op.") from $ip_packet->{src_ip}! \n";
+
+  if($ip_packet->{src_ip} eq "0.0.0.0"){
+      my $out_sock = IO::Socket::INET->new(
+              LocalAddr => "172.21.156.1",
+              PeerHost => "10.0.0.6", 
+              LocalPort => 67,
+              PeerPort => 67, 
+              Proto => "udp", 
+              Reuse => 1,
+              )
+          or die "socket: $@";
+  
+      $dhcp_packet->giaddr("172.21.156.1");
+
+      $out_sock->send($dhcp_packet->serialize());
+  }
+  elsif ($ip_packet->{src_ip} eq "172.21.156.1"){
+    print "Doing fuck all because we sent the packet";
+  }
+  else {
+      my $out_sock = IO::Socket::INET->new(
+              LocalAddr => "172.21.156.1",
+              PeerHost => "255.255.255.255", 
+              LocalPort => 67,
+              PeerPort => 68, 
+              Proto => "udp", 
+              Broadcast => 1,
+              Reuse => 1,
+              )
+          or die "socket: $@";  
+      
+      print "This is DNS : ".$dhcp_packet->addOptionValue(DHO_DOMAIN_NAME_SERVERS, "8.8.8.8");
+
+#      print $dhcp_packet->toString();
+
+      $out_sock->send($dhcp_packet->serialize());
+  }
+
+
+}
+
+sub pcap_listen {
+
+    Net::PcapUtils::loop(\&process_pkt, DEV => 'eth1.156', SNAPLEN => 1500, FILTER => 'udp port 67 or 68');
+}
+
+pcap_listen();
