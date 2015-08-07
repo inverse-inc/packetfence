@@ -25,7 +25,7 @@
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add PKI Provider') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
               [% FOREACH type IN types.keys.sort -%]
-                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l("${types.$type.description}") %]</a></li>
+                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% types.$type.description %]</a></li>
               [% END -%]
             </ul>
           </div>
