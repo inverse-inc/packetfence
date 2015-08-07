@@ -37,7 +37,7 @@ our $survey_db_prepared = 0;
 # the hash if required
 our $survey_statements = {};
 
-our @SURVEY_ADD_VALUES = ( qw(survey_value email) );
+our @SURVEY_FIELDS = ( qw(survey_value email) );
 
 sub survey_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::survey');
@@ -51,7 +51,7 @@ sub survey_db_prepare {
 
 sub survey_add {
     my (%survey) = @_;
-    db_query_execute(SURVEY, $survey_statements, 'survey_add_sql',@survey{@SURVEY_ADD_VALUES})
+    db_query_execute(SURVEY, $survey_statements, 'survey_add_sql',@survey{@SURVEY_FIELDS})
         || return (0);
     return (1);
 }
@@ -63,6 +63,15 @@ sub survey_save_request_into_session {
         if(defined $value) {
             $session->{$field} = $value;
         }
+    }
+}
+
+sub survey_add_from_session {
+    my ($session) = @_;
+    if(defined $session->{survey_value}) {
+        my %data;
+        @data{@SURVEY_FIELDS} = @{$session}{@SURVEY_FIELDS};
+        survey_add(%data);
     }
 }
 
