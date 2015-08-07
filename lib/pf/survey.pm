@@ -56,7 +56,7 @@ sub survey_add {
     return (1);
 }
 
-sub survey_save_from_session {
+sub survey_save_request_into_session {
     my ($session, $request) = @_;
     foreach my $field (qw(survey_value)) {
         my $value = $request->param($field);

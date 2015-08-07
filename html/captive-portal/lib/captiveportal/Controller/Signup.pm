@@ -12,7 +12,7 @@ Saving the survey_value into the session
 
 before doNullSelfRegistration => sub {
     my ($self, $c) = @_;
-    pf::survey::survey_save_from_session($c->session, $c->request);
+    pf::survey::survey_save_request_into_session($c->session, $c->request);
 };
 
 =head1 NAME
