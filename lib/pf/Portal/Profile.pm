@@ -387,6 +387,7 @@ sub guestRegistrationOnly {
        pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default => undef,
        pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default => undef,
        pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
+       pf::Authentication::Source::NullSource->meta->get_attribute('type')->default => undef,
       );
 
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
