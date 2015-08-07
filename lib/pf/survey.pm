@@ -56,6 +56,16 @@ sub survey_add {
     return (1);
 }
 
+sub save_suvery_session {
+    my ($session, $request) = @_;
+    foreach my $field (qw(survey_value)) {
+        my $value = $request->param($field);
+        if(defined $value) {
+            $session->{$field} = $value;
+        }
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

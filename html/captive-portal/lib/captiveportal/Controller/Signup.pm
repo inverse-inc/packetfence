@@ -1,7 +1,19 @@
 package captiveportal::Controller::Signup;
 use Moose;
+use pf::survey;
 
 BEGIN { extends 'captiveportal::PacketFence::Controller::Signup'; }
+
+=head2 before doNullSelfRegistration
+
+Saving the survey_value into the session
+
+=cut
+
+before doNullSelfRegistration => sub {
+    my ($self, $c) = @_;
+    pf::survey::save_suvery_session($c->session, $c->request);
+};
 
 =head1 NAME
 
