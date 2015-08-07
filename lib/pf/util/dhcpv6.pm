@@ -50,7 +50,7 @@ use constant OPTION_ORO          => 6;
 use constant OPTION_PREFERENCE   => 7;
 use constant OPTION_ELAPSED_TIME => 8;
 use constant OPTION_RELAY_MSG    => 9;
-### There is no option with the value of 10
+### 10 is unassigned
 use constant OPTION_AUTH          => 11;
 use constant OPTION_UNICAST       => 12;
 use constant OPTION_STATUS_CODE   => 13;
@@ -109,14 +109,26 @@ sub decompose_dhcpv6 {
     return ($l2, $l3, $l4, $dhcp);
 }
 
+=head2 decode_dhcpv6_options
+
+Decoded the dhcpv6 options into an array of hashes
+
+=cut
+
 sub decode_dhcpv6_options {
     my ($rest) = @_;
     my @options;
     while ($rest && length $rest > 0) {
+        my %option;
         my ($type, $data);
         ($type, $data, $rest) = unpack("n n/a* a*", $rest);
-        $data = $OPTIONS_FILTER{$type}->($data) if exists $OPTIONS_FILTER{$type};
-        push @options, {type => $type, data => $data};
+        if( exists $OPTIONS_FILTER{$type} ) {
+            %option = %{$OPTIONS_FILTER{$type}->($data)};
+        } else {
+            $option{option_raw_data} = $data;
+        }
+        $option{option_type} = $type;
+        push @options, \%option;
     }
     return \@options;
 }
@@ -135,7 +147,7 @@ sub decode_dhcpv6 {
         # and the options (the rest of the packet)
         ($hop, @link[0 .. 3], @peer[0 .. 3], $options) = unpack("C N4 N4 a*", $rest);
         return {
-            'type'    => $type,
+            'msg_type'    => $type,
             'hop'     => $hop,
             'link'    => NetPacket::IPv6::int_to_hexstr(@link),
             'peer'    => NetPacket::IPv6::int_to_hexstr(@peer),
@@ -145,16 +157,62 @@ sub decode_dhcpv6 {
 
     # Get the trans id (3 bytes) and the options (the rest of the packet)
     my ($tid, $options) = unpack("a3 a*", $rest);
-    return {type => $type, options => decode_dhcpv6_options($options), tid => $tid};
+    return {msg_type => $type, options => decode_dhcpv6_options($options), tid => $tid};
 }
 
 =head2 _zero_length_option
 
-For options that have zero length just return undef
+For options that have zero length just return an empty hash
 
 =cut
 
-sub _zero_length_option {undef}
+sub _zero_length_option { {} }
+
+our %DUID_FILTERS = (
+    1 => \&_parse_duid_type1,
+    2 => \&_parse_duid_type2,
+    3 => \&_parse_duid_type3,
+    4 => \&_parse_duid_type4,
+);
+
+=head2 _parse_duid_type1
+
+=cut
+
+sub _parse_duid_type1 {
+    my ($type, $data) = @_;
+    my ($hardware_type, $time,$addr) = unpack("n N a*", $data);
+    return {duid_type => $type, hardware_type => $hardware_type, 'time' => $time, addr => $addr};
+}
+
+=head2 _parse_duid_type2
+
+=cut
+
+sub _parse_duid_type2 {
+    my ($type, $data) = @_;
+    my ($enterprise_number, $id) = unpack("N a*", $data);
+    return {duid_type => $type, enterprise_number => $enterprise_number, id => $id};
+}
+
+=head2 _parse_duid_type3
+
+=cut
+
+sub _parse_duid_type3 {
+    my ($type, $data) = @_;
+    my ($hardware_type, $addr) = unpack("n a*", $data);
+    return {duid_type => $type, hardware_type => $hardware_type, addr => $addr};
+}
+
+=head2 _parse_duid_type4
+
+=cut
+
+sub _parse_duid_type4 {
+    my ($type, $data) = @_;
+    return {duid_type => $type, uuid => $data};
+}
 
 =head2 _parse_duid
 
@@ -164,7 +222,9 @@ Parse a duid
 
 sub _parse_duid {
     my ($data) = @_;
-    return $data;
+    my ($type, $rest) = unpack("n a*",$data);
+    return $DUID_FILTERS{$type}->($type, $rest) if exists $DUID_FILTERS{$type};
+    return { duid_type => $type, duid_raw_data => $data};
 }
 
 =head2 _parse_ia_na
@@ -174,7 +234,7 @@ sub _parse_duid {
 sub _parse_ia_na {
     my ($data) = @_;
     my ($iaid, $t1, $t2, $options) = unpack("a4 N N a*", $data);
-    return {iaid => $iaid, t1 => $t1, t2 => $t2, options => $options};
+    return {iaid => $iaid, t1 => $t1, t2 => $t2, options => decode_dhcpv6_options($options)};
 }
 
 =head2 _parse_ia_ta
@@ -184,7 +244,7 @@ sub _parse_ia_na {
 sub _parse_ia_ta {
     my ($data) = @_;
     my ($iaid, $options) = unpack("a4 a*", $data);
-    return {iaid => $iaid, options => $options};
+    return {iaid => $iaid, options => decode_dhcpv6_options($options)};
 }
 
 =head2 _parse_iaaddr
@@ -199,7 +259,7 @@ sub _parse_iaaddr {
         addr               => NetPacket::IPv6::int_to_hexstr(@addr),
         preferred_lifetime => $preferred_lifetime,
         valid_lifetime     => $valid_lifetime,
-        options            => $options
+        options            => decode_dhcpv6_options($options)
     };
 }
 
@@ -282,8 +342,9 @@ sub _parse_user_class {
 
 sub _parse_vendor_class {
     my ($data) = @_;
-    my ($enterprise_number, $vdata) = unpack("N a*", $data);
-    return {enterprise_number => $enterprise_number, data => $vdata};
+    my ($enterprise_number, @vdata) = unpack("N (n/a*)*", $data);
+
+    return {enterprise_number => $enterprise_number, data => \@vdata};
 }
 
 =head2 _parse_vendor_opts
