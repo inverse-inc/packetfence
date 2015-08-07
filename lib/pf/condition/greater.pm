@@ -1,7 +1,7 @@
 package pf::condition::greater;
 =head1 NAME
 
-pf::condition::greater add documentation
+pf::condition::greater
 
 =cut
 

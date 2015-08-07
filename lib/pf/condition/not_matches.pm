@@ -1,7 +1,7 @@
 package pf::condition::not_matches;
 =head1 NAME
 
-pf::condition::not_matches add documentation
+pf::condition::not_matches
 
 =cut
 

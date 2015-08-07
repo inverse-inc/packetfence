@@ -1,7 +1,7 @@
 package pf::condition::network;
 =head1 NAME
 
-pf::condition::network - network filter for profiles
+pf::condition::network - check if a value is inside a network
 
 =cut
 

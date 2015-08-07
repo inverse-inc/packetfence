@@ -1,7 +1,7 @@
 package pf::pftest::profile_filter;
 =head1 NAME
 
-pf::pftest::profile_filter add documentation
+pf::pftest::profile_filter
 
 =cut
 

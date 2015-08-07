@@ -256,7 +256,6 @@ Return a regex that would match all the portal profile uri: filter
 =cut
 
 sub _clean_urls_match_filter {
-    # REMOVE ME !!!!!! TEMP FIX WHILE JAMES FIXES THIS
     return @uri_filters;
 }
 

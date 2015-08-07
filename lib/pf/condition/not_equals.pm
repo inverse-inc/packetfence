@@ -1,7 +1,7 @@
 package pf::condition::not_equals;
 =head1 NAME
 
-pf::condition::not_equals add documentation
+pf::condition::not_equals
 
 =cut
 

@@ -1,7 +1,7 @@
 package pf::condition::any;
 =head1 NAME
 
-pf::condition::any add documentation
+pf::condition::any
 
 =cut
 

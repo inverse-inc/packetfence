@@ -2,7 +2,7 @@ package pf::filter;
 
 =head1 NAME
 
-pf::filter add documentation
+pf::filter
 
 =cut
 
@@ -54,7 +54,8 @@ sub match {
 }
 
 sub get_answer {
-    return $_[0]->answer;
+    my ($self) = @_;
+    return $self->answer;
 }
 
 =head1 AUTHOR

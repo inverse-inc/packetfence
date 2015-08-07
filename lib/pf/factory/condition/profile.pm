@@ -1,7 +1,7 @@
 package pf::factory::condition::profile;
 =head1 NAME
 
-pf::factory::condition::profile add documentation
+pf::factory::condition::profile
 
 =cut
 
@@ -25,7 +25,7 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
-    'network'         => {type => 'network',    key  => 'last_ip'},
+    'network'         => {type => 'network',       key  => 'last_ip'},
     'node_role'       => {type => 'equals',        key  => 'category'},
     'connection_type' => {type => 'equals',        key  => 'last_connection_type'},
     'port'            => {type => 'equals',        key  => 'last_port'},

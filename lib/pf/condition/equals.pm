@@ -1,7 +1,7 @@
 package pf::condition::equals;
 =head1 NAME
 
-pf::condition::equals add documentation
+pf::condition::equals
 
 =cut
 

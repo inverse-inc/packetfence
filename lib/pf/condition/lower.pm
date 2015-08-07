@@ -1,7 +1,7 @@
 package pf::condition::lower;
 =head1 NAME
 
-pf::condition::lower add documentation
+pf::condition::lower
 
 =cut
 

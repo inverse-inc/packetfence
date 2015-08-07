@@ -1,7 +1,7 @@
 package pf::condition::key;
 =head1 NAME
 
-pf::condition::key add documentation
+pf::condition::key
 
 =cut
 

@@ -1,7 +1,7 @@
 package pf::condition::matches;
 =head1 NAME
 
-pf::condition::matches add documentation
+pf::condition::matches
 
 =cut
 

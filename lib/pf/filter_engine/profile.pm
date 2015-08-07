@@ -2,7 +2,7 @@ package pf::filter_engine::profile;
 
 =head1 NAME
 
-pf::filter_engine::profile add documentation
+pf::filter_engine::profile
 
 =cut
 

@@ -1,7 +1,7 @@
 package pfconfig::namespaces::resource::ProfileFilterEngine;
 =head1 NAME
 
-pfconfig::namespaces::resource::ProfileFilterEngine add documentation
+pfconfig::namespaces::resource::ProfileFilterEngine
 
 =cut
 
@@ -21,11 +21,8 @@ use base 'pfconfig::namespaces::resource';
 
 sub build {
     my ($self) = @_;
-
     my $config_profiles = pfconfig::namespaces::config::Profiles->new( $self->{cache} );
     my %Profiles_Config = %{ $config_profiles->build };
-    #use Data::Dumper;print Dumper $config_profiles->{engine_profile};
-
     return $config_profiles->{engine_profile};
 }
 
