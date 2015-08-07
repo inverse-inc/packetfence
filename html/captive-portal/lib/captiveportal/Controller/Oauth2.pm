@@ -1,7 +1,13 @@
 package captiveportal::Controller::Oauth2;
 use Moose;
+use pf::survey;
 
 BEGIN { extends 'captiveportal::PacketFence::Controller::Oauth2'; }
+
+before auth_provider => sub {
+    my ($self, $c) = @_;
+    pf::survey::save_survey_session($c->session, $c->request);
+};
 
 =head1 NAME
 
