@@ -23,6 +23,8 @@ our @MODULES = __PACKAGE__->modules;
 
 our @TYPES = map { /^pf::pki_provider::(.*)$/ ; $1 } @MODULES;
 
+our %DESC = map { my $t = $_; $t =~ s#^.*:##; $t => $_->description; } @MODULES;
+
 sub factory_for { 'pf::pki_provider' }
 
 =head2 new
@@ -59,17 +61,6 @@ sub getModuleName {
     die "type is not defined for $name" unless defined $type;
     die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
-}
-
-=head2 getModuleDescription
-
-Get the sub module description
-
-=cut
-
-sub getModuleDescription {
-    my ( $class, $name ) = @_;
-    return "pf::pki_provider::$name"->description;
 }
 
 =head1 AUTHOR
