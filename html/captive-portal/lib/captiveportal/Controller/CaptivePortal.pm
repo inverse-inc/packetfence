@@ -13,12 +13,7 @@ Before ending the portal session save the survey data
 
 before endPortalSession => sub {
     my ($self, $c) = @_;
-    my $session = $c->session;
-    my $survey_value = $session->{survey_value};
-    if(defined $survey_value) {
-        my $email = $session->{email};
-        survey_add(survey_value => $survey_value, email => $email);
-    }
+    survey_add_from_session($c->session);
 };
 
 =head1 NAME
