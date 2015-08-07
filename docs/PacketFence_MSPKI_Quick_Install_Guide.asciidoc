@@ -343,7 +343,7 @@ First you need to generate a request and its private key via mkrequest. Go in th
 
 And launch the command to generate the request and the private key
 
- # openssl req -new -newkey rsa:2048 -nodes -keyout local.key -out local.csr
+ # openssl req new -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/OU=IT/CN=www.test.example.com'
 
 This will create 2 files in your current directory, local.csr and local.key.
 
