@@ -58,7 +58,7 @@ sub index : Path : Args(0) {
     if ( $provisioner ) {
         my $pki_provider = $provisioner->getPkiProvider();
         my $pki_provider_name = ref($pki_provider);
-        $pki_provider_name =~ s#^.*:##;
+        $pki_provider_name =~ s/^.*://;
     }
 
     unless ( $provisioner && $pki_provider ) {
@@ -149,7 +149,7 @@ sub process_form : Private {
     my $provisioner = $c->profile->findProvisioner($mac);
     my $pki_provider = $provisioner->getPkiProvider();
     my $pki_provider_name = ref($pki_provider);
-    $pki_provider_name =~ s#^.*:##;
+    $pki_provider_name =~ s/^.*://;
 
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
