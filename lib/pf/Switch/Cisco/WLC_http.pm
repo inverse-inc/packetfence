@@ -177,6 +177,10 @@ sub returnRadiusAccessAccept {
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => $vlan,
         };
+        
+        # Delete the username when doing 802.1x as the WLC trusts this more than what's in the request
+        # and we want to see the original username in the WLC
+        delete $radius_reply_ref->{'User-Name'};
 
         $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
     }
