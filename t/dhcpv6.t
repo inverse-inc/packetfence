@@ -3,13 +3,13 @@
 
 =head1 NAME
 
-x -
+t/dhcpv6.t - test script for parsing dhcpv6 packets
 
 =cut
 
 =head1 DESCRIPTION
 
-x
+test script for parsing dhcpv6 packets
 
 =cut
 
@@ -26,15 +26,18 @@ my $err      = '';
 my $pcap = pcap_open_offline($filename, \$err)
   or die "Can't read '$filename': $err\n";
 
-our $count;
+our $count = 1;
 my $data = \$count;
+use Data::Dumper;
 
 my $value = pcap_loop($pcap, -1, \&process_packet, $data);
 
 sub process_packet {
     my ($user_data, $header, $packet) = @_;
     my ($eth_obj, $ip_obj, $udp_obj, $dhcp) = decompose_dhcpv6($packet);
+    $dhcp->{count} = $$user_data;
     $$user_data++;
+#    print Dumper $dhcp;
 }
 
 =head1 AUTHOR
