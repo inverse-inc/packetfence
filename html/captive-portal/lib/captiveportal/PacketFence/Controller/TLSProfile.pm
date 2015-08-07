@@ -54,10 +54,11 @@ sub index : Path : Args(0) {
         $c->detach();
     }
 
-    my $provisioner = $c->profile->findProvisioner($mac);
+    my ( $provisioner, $pki_provider, $pki_provider_name );
+    $provisioner = $c->profile->findProvisioner($mac);
     if ( $provisioner ) {
-        my $pki_provider = $provisioner->getPkiProvider();
-        my $pki_provider_name = ref($pki_provider);
+        $pki_provider = $provisioner->getPkiProvider();
+        $pki_provider_name = ref($pki_provider);
         $pki_provider_name =~ s/^.*://;
     }
 
