@@ -80,6 +80,18 @@ sub match_in_subclass {
     return $username;
 }
 
+=head2 mandatoryFields
+
+=cut
+
+sub mandatoryFields {
+    my ($self) = @_;
+    if (isenabled($self->email_required)) {
+        return (qw(email));
+    }
+    return ();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
