@@ -1,18 +1,13 @@
 #!/usr/bin/perl
 
+use lib '/usr/local/pf/lib';
+
 use strict;
 use warnings;
 
 use IO::Socket::INET;
 use Net::DHCP::Packet;
-use Net::RawIP;
-use Net::Frame::Layer::IPv4 qw(:consts);
-use Net::Write::Layer qw(:constants);
-use Net::Frame::Layer::UDP;
-use Net::Write::Layer2;
-use Net::Write::Layer3;
-use Net::Frame::Simple;
-use Net::Frame::Device;
+use Net::DHCP::Constants;
 
 use Net::PcapUtils;
 use Net::DHCP::Packet;
@@ -20,77 +15,43 @@ use NetPacket::Ethernet qw(:strip);
 use NetPacket::IP;
 use NetPacket::UDP;
 
-use Net::DHCP::Constants;
+use pf::util;
+use pf::node;
+
+our $PEER_IP = "172.21.158.7";
+our $RELAY_IP = "172.20.20.109";
+our $DHCP_IP = "10.0.0.16";
+
+# We bind the 67
+my $client_sock = IO::Socket::INET->new(
+        LocalAddr => "0.0.0.0",
+        LocalPort => 67,
+        Proto => "udp", 
+        Broadcast => 1,
+        Reuse => 1,
+        )
+    or die "socket: $@";  
 
        
-sub socket_listen {
-    while (1) {
-
-        my $sock = IO::Socket::INET->new(
-          LocalPort => 67, 
-          Proto => "udp", 
-          Reuse => 1,
-    #      Broadcast => 1,
-          )
-           or die "socket: $@";
-
-        setsockopt($sock, SOL_SOCKET, SO_BROADCAST, 1);
-
-        $sock->accept();
-        $sock->recv(my $newmsg, 1024);
-
-        next unless($newmsg);
-
-        print "PACKET IN !\n";
-        print "REMOTE PORT : ".$sock->peerport()."\n";
-        print "REMOTE HOST : ".$sock->peerhost()."\n";
-
-
-        my $dhcp_packet = Net::DHCP::Packet->new($newmsg);
-        $dhcp_packet->giaddr("172.21.156.1");
-
-
-        $sock->close();
-
-        my $out_sock = IO::Socket::INET->new(
-                LocalAddr => "172.21.156.1",
-                PeerHost => "10.0.0.6", 
-                LocalPort => 67,
-                PeerPort => 67, 
-                Proto => "udp", 
-                Reuse => 1,
-                )
-            or die "socket: $@";
-
-
-        $out_sock->send($dhcp_packet->serialize());
-        $out_sock->accept();
-        $out_sock->recv(my $reply, 10);
-    #
-    #    print "PACKET BACK !\n";
-    #    print "REMOTE PORT : ".$out_sock->peerport()."\n";
-    #    print "REMOTE HOST : ".$out_sock->peerhost()."\n";
-
-       
-
-    }
-}
-
 sub process_pkt {
   my($user, $hdr, $pkt) = @_;
 
+  print "-------------------------\n";
 
   my $eth = NetPacket::Ethernet->decode($pkt);
   my $ip_packet = NetPacket::IP->decode($eth->{data});
   my $udp_packet = NetPacket::UDP->decode($ip_packet->{data});
   my $dhcp_packet = Net::DHCP::Packet->new($udp_packet->{data});
 
-  print STDERR "Packet IN (".$dhcp_packet->op.") from $ip_packet->{src_ip}! \n";
+  my $client_mac = clean_mac(substr($dhcp_packet->chaddr(),0,12));
 
-  if($ip_packet->{src_ip} eq "0.0.0.0"){
+  print "Packet IN (".$dhcp_packet->op.") from $ip_packet->{src_ip}! for client $client_mac\n";
+
+  if($ip_packet->{src_ip} eq $PEER_IP){
+      print "REQUEST from relay for client $client_mac \n";
       my $out_sock = IO::Socket::INET->new(
-              LocalAddr => "172.21.156.1",
-              PeerHost => "10.0.0.6", 
+              LocalAddr => $RELAY_IP,
+              PeerHost => $DHCP_IP, 
               LocalPort => 67,
               PeerPort => 67, 
               Proto => "udp", 
@@ -98,26 +59,44 @@ sub process_pkt {
               )
           or die "socket: $@";
   
-      $dhcp_packet->giaddr("172.21.156.1");
+      $dhcp_packet->giaddr("172.21.158.1");
+      
+      replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, $DHCP_IP);
 
       $out_sock->send($dhcp_packet->serialize());
   }
-  elsif ($ip_packet->{src_ip} eq "172.21.156.1"){
-    print "Doing fuck all because we sent the packet";
+  elsif ($ip_packet->{src_ip} eq $RELAY_IP){
+    print "Not acting on packet because we sent the packet \n";
+  }
+  elsif ($dhcp_packet->op eq 1 && $ip_packet->{src_ip} eq $DHCP_IP){
+    print "Not acting on packet because we're seeing the request on the DHCP server \n";
   }
   else {
+      print "REPLY from server for client $client_mac \n";
       my $out_sock = IO::Socket::INET->new(
-              LocalAddr => "172.21.156.1",
-              PeerHost => "255.255.255.255", 
+              LocalAddr => $RELAY_IP,
+              PeerHost => $PEER_IP, 
               LocalPort => 67,
-              PeerPort => 68, 
+              PeerPort => 67, 
               Proto => "udp", 
               Broadcast => 1,
               Reuse => 1,
               )
           or die "socket: $@";  
+
+      $dhcp_packet->siaddr($RELAY_IP);
+      $dhcp_packet->giaddr($PEER_IP);
       
-      print "This is DNS : ".$dhcp_packet->addOptionValue(DHO_DOMAIN_NAME_SERVERS, "8.8.8.8");
+      my $node_attributes = node_attributes($client_mac);
+
+      replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, "172.20.20.109");
+
+      if($node_attributes->{status} eq "unreg"){
+          replace_option($dhcp_packet, 58, 15);
+          replace_option($dhcp_packet, 59, 30);
+          replace_option($dhcp_packet, DHO_DHCP_LEASE_TIME, 30);
+          replace_option($dhcp_packet, DHO_DOMAIN_NAME_SERVERS, $RELAY_IP);
+      }
 
 #      print $dhcp_packet->toString();
 
@@ -127,9 +106,38 @@ sub process_pkt {
 
 }
 
-sub pcap_listen {
+sub replace_option {
+    my ($dhcp_packet, $option_id, $new_value, $is_raw) = @_;
+    $is_raw = defined($is_raw) ? 1 : 0;
+    my @options;
+    foreach my $key ( @{ $dhcp_packet->{options_order} } ) {
+        push @options, {option => $key, raw_value => $dhcp_packet->getOptionRaw($key)};
+    }
 
-    Net::PcapUtils::loop(\&process_pkt, DEV => 'eth1.156', SNAPLEN => 1500, FILTER => 'udp port 67 or 68');
+    for my $option_info ( @options ) {
+        $dhcp_packet->removeOption($option_info->{option});
+    }     
+
+
+    for my $option_info ( @options ) {
+        if($option_info->{option} eq $option_id){
+            if($is_raw){
+                $dhcp_packet->addOptionRaw($option_id, $new_value);
+            }
+            else {
+                $dhcp_packet->addOptionValue($option_id, $new_value);
+            }
+        }
+        else {
+            $dhcp_packet->addOptionRaw($option_info->{option}, $option_info->{raw_value});
+        }
+    }
+
+
+}
+
+sub pcap_listen {
+    Net::PcapUtils::loop(\&process_pkt, DEV => 'eth0', SNAPLEN => 1500, FILTER => 'udp port 67 or 68 or 767');
 }
 
 pcap_listen();
