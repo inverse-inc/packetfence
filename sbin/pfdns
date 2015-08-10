@@ -105,10 +105,12 @@ foreach my $interface ( @{$cs->readAllIds} ) {
     my $full_interface = "interface $interface";
     my $ip = $Config{$full_interface}{'vip'} || $Config{$full_interface}{'ip'};
     if ( 
-        defined ($Config{$full_interface}{'enforcement'}) && 
+        (defined ($Config{$full_interface}{'enforcement'}) && 
         ( 
           ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) 
           || is_type_inline($Config{$full_interface}{'enforcement'}) 
+        )
+        || $Config{$full_interface}{'type'} =~ /management/
         ) 
     ){
         # if cluster is enabled we return the VIP when queried on the server interface
@@ -136,6 +138,7 @@ foreach my $network ( keys %ConfigNetworks ) {
         }
     }
 }
+
 
 populate_ipset_cache($IPSET_SESSION);
 
@@ -177,6 +180,7 @@ sub response_handler {
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
+    return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
 }
 
 sub regzone {
