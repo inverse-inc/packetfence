@@ -32,6 +32,11 @@ use constant NODE => 'node';
 Readonly::Scalar our $STATUS_REGISTERED => 'reg';
 Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
 Readonly::Scalar our $STATUS_PENDING => 'pending';
+Readonly::Hash our %ALLOW_STATUS => (
+    $STATUS_REGISTERED   => 1,
+    $STATUS_UNREGISTERED => 1,
+    $STATUS_PENDING      => 1,
+);
 
 BEGIN {
     use Exporter ();
@@ -458,6 +463,7 @@ sub node_add {
     {
         $data{$field} = "" if ( !defined $data{$field} );
     }
+    $data{status} = _cleanup_status_value($data{status});
     if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
         $data{regdate} = mysql_date();
     }
@@ -500,6 +506,22 @@ sub node_add_simple {
     } else {
         return (1);
     }
+}
+
+=item _cleanup_status_value
+
+Cleans the status value to make sure that a valid status is being set
+
+=cut
+
+sub _cleanup_status_value {
+    my ($status) = @_;
+    unless ( defined $status && exists $ALLOW_STATUS{$status} ) {
+        my $logger = get_logger();
+        $logger->warn("The status was set to " . (defined $status ? $status : "'undef'") . " changing it $STATUS_UNREGISTERED" );
+        $status = $STATUS_UNREGISTERED;
+    }
+    return $status;
 }
 
 =item node_attributes
@@ -816,6 +838,8 @@ sub node_modify {
     if (!defined($data{'autoreg'}) && (!defined($existing->{autoreg}) || $existing->{autoreg} ne 'yes' )) {
         $existing->{autoreg} = 'no';
     }
+
+    $existing->{'status'} = _cleanup_status_value($existing->{'status'});
 
     my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
     my $new_status = $existing->{'status'};
