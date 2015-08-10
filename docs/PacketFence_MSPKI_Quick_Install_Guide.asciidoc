@@ -36,14 +36,14 @@ For the integration with PacketFence, the following subroles need to be installe
 * Network Device Enrollment Service
 * Online Responder
 
-Before you start the configuration, a hotfix is necessary due to a Microsoft issue. After restarting the ADCS service, the server cannot enroll new certificate with the error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
+Before you start the configuration, a hotfix is necessary due to a Microsoft issue. After restarting the ADCS service, the server cannot enroll new certificate and display the following error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
 
 Communication between the MSPKI and PacketFence will be using port 80 with the following configuration.
 
 Configuring Network Device Enrollment Service (NDES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Our main activity in the deployment of ADCS will be to configure Network Enrollment Device Service (NDES). This subrole will allow us to exchange certificate with the MS PKI server via Simple Certificate Exchange Protocol (SCEP).
+For the deployment of ADCS you will need to configure Network Enrollment Device Service (NDES). This subrole will allow us to exchange certificate with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
 
 Every configuration change has to be done by an account with administrative privileges.
 
@@ -91,7 +91,7 @@ To duplicate the template, you need to navigate through `Server Manager -> Roles
 
 Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, otherwise the requested CN will be overwritten by NDES.
 
-To allow NDES to use this template you need to navigate to `Server Manager -> Roles -> Active Directory Certificates Services` > expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
+To allow NDES to use this template you need to navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
 
 Now that you choose the template to deliver you need to configure it in the registry.
 
@@ -107,7 +107,7 @@ You should have a list of three keys entries:
 
 Replace each value with your newly created template. The default value should be `IPSECIntermediateOffline`.
 
-You now need to reboot the NDES server to apply changes to the registry.
+At this point, you need to reboot the NDES server to apply changes to the registry.
 
 IIS configuration
 ^^^^^^^^^^^^^^^^^
@@ -141,13 +141,13 @@ By default OCSP has a two days delay to refresh it's CRL information. Which mean
 RADIUS Certificate generation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using the PKI of Microsoft include that all your certificates will be deliver by the root CA of the PKI. The public key of this certificate is necessary on PacketFence. 
+Using the PKI of Microsoft include that all your certificates will be deliver by the root CA of MSPKI. The public key of this certificate is necessary on PacketFence. 
 
 As for RADIUS authentication you will need to generate a certificate for PacketFence.
 
 To generate the RADIUS certificate, the template `WebServer` will be used.
 
-The next step is to create the request (.CSR), a private key from the PacketFence server and submit the CSR to the NDES server. Connect to PacketFence via ssh and type the following in the CLI to generate the CSR and sign it with the private key:
+The next step is to create the request (CSR), a private key from the PacketFence server and submit the CSR to the NDES server. Connect to PacketFence via ssh and type the following in the CLI to generate the CSR and sign it with the private key:
 
  openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
 
@@ -172,7 +172,7 @@ When reaching the website, click `Request a certificate`, select `advanced certi
 
 This will give you the certificate (public key) for PacketFence.
 
-Now download the CA file by reaching hte following url in your browser: 
+Now download the CA file by reaching the following url in your browser: 
 
  http://<ServerDNSName>/CertSrv/
 
@@ -296,15 +296,6 @@ zxcvbnmqwertyuiop78
 Copy everything between the BEGIN and END lines, but not the lines themselves.
 Repeat this operation for the certificate key and intermediate certificate.
 
-Private key file example:
-
-----
------ BEGIN PRIVATE KEY -----
-1234567890asdfghjkl
-zxcvbnmqwertyuiop78
------ END PRIVATE KEY -----
-----
-
 
 Portal Profiles Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -337,11 +328,7 @@ Debugging MSPKI integration with PacketFence
 
 This a way to do the procedure of enrollment manually, mainly for debugging purposes.
 
-First you need to generate a request and its private key via mkrequest. Go in the folder were sscep is installed, it should be /usr/local/scep
-
- # cd /usr/local/scep
-
-And launch the command to generate the request and the private key
+First you need to generate a request and its private key via the openssl command. Type the following command in PacketFence CLI
 
  # openssl req new -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/OU=IT/CN=www.test.example.com'
 
@@ -349,18 +336,18 @@ This will create 2 files in your current directory, local.csr and local.key.
 
 Now you need to obtain the CA and some specific certificates from the PKI.
 
- # sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/File-to-create
+ # sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/MyCA
 
-Now you need to use the "CEP encryption" certificate and the "Enrollment agent". Both were obtained when doing the getca. You should have at least three certificate with the same name and a different number at the end. e.g. MyFile-0, MyFile-1, etc.
+Now you need to use the "CEP encryption" certificate and the "Enrollment agent". Both were obtained when doing the getca. You should have at least three certificates with the same name and a different number at the end. e.g. MyCA-0, MyCA-1, etc.
 
 To display the content of a certificate use the following command: 
 
- # openssl x509 -in path/MyFile-0 -text
- # openssl x509 -in path/MyFile-1 -text
+ # openssl x509 -in path/MyCA-0 -text
+ # openssl x509 -in path/MyCA-1 -text
 
-In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Enryption" as an arugment for -e and the "Enrollment agent" as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
+In the output search for `X509v3 extensions:`. When using the scep enroll command you will need the "CEP Enryption" certificate as an arugment for -e and the "Enrollment agent" certificate as an argument for -c. -d is use for the debug output. -l is the local file where your certificate will be save.
  
- # sscep enroll -c path/MyFile-0 -e path/MyFile-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
+ # sscep enroll -c path/MyCA-0 -e path/MyCA-1 -k path/local.key -r path/local.csr -l path/MyCert.crt -S sha1 -u http://<ServerDNSName>/CertSrv/mscep/ -d 
 
 To verify your certificate against the OCSP you can use the following openssl command:
 
