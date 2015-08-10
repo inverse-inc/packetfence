@@ -37,14 +37,14 @@ our $survey_db_prepared = 0;
 # the hash if required
 our $survey_statements = {};
 
-our @SURVEY_FIELDS = ( qw(survey_value email) );
+our @SURVEY_FIELDS = ( qw(survey_value email age gender origin) );
 
 sub survey_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::survey');
     $logger->debug("Preparing pf::survey database queries");
 
     $survey_statements->{'survey_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into survey(survey_value,email) values(?,?) ]);
+        qq[ insert into survey(survey_value,email,age,gender,origin) values(?,?,?,?,?) ]);
 
     $survey_db_prepared = 1;
 }
