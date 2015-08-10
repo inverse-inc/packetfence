@@ -4,6 +4,22 @@ use pf::survey;
 
 BEGIN { extends 'captiveportal::PacketFence::Controller::Signup'; }
 
+=head2 before index
+
+Redirects to the oauth provider
+
+=cut
+
+before index => sub {
+    my ($self, $c) = @_;
+    my $request = $c->request;
+    if($request->param("by_facebook")) {
+        $c->detach(Oauth2 => 'auth_provider',[qw(facebook)]);
+    } elsif($request->param("by_twitter")) {
+        $c->detach(Oauth2 => 'auth_provider',[qw(twitter)]);
+    }
+};
+
 =head2 before doNullSelfRegistration
 
 Saving the survey_value into the session
