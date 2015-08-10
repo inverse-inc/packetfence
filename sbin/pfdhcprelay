@@ -19,6 +19,7 @@ use pf::util;
 use pf::node;
 
 our $PEER_IP = "172.21.158.7";
+our $DUMMY_IP = "172.21.158.4";
 our $RELAY_IP = "172.20.20.109";
 our $DHCP_IP = "10.0.0.16";
 
@@ -59,7 +60,7 @@ sub process_pkt {
               )
           or die "socket: $@";
   
-      $dhcp_packet->giaddr("172.21.158.1");
+      $dhcp_packet->giaddr($DUMMY_IP);
       
       replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, $DHCP_IP);
 
@@ -89,7 +90,7 @@ sub process_pkt {
       
       my $node_attributes = node_attributes($client_mac);
 
-      replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, "172.20.20.109");
+      replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, $RELAY_IP);
 
       if($node_attributes->{status} eq "unreg"){
           replace_option($dhcp_packet, 58, 15);
