@@ -1123,7 +1123,7 @@ sub valid_certs {
         add_problem($WARN, "Cannot find the Apache certificate in your configuration.");
     }
 
-    my $radius_conf = ( -e "$install_dir/raddb/eap.conf" ) ? read_file("$install_dir/raddb/eap.conf") : read_file("$install_dir/conf/radiusd/eap.conf");
+    my $radius_conf = read_file("$install_dir/raddb/eap.conf");
 
     if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
         $radius_crt = $1;
