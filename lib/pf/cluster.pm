@@ -26,6 +26,7 @@ use NetAddr::IP;
 use Socket;
 use pf::file_paths;
 use pf::util;
+use pf::constants;
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -208,6 +209,39 @@ sub members_ips {
     }
     my %data = map { $_->{host} => $_->{"interface $interface"}->{ip} } @cluster_servers;
     return \%data;
+}
+
+=head2 sync_file
+
+Sync files through all members of a cluster
+
+=cut
+
+sub sync_files {
+    my ($files, %options) = @_;
+    my $asynchronous = $options{async};
+    require pf::api::jsonrpcclient;
+    foreach my $server (@cluster_servers){
+        next if($server->{host} eq $host_id);
+        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        foreach my $file (@$files){
+            eval {
+                pf::log::get_logger->info("Synching file : $file on $server->{host}");
+                my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
+                my $result;
+                unless($asynchronous){
+                    ($result) = $apiclient->call( 'distant_download_configfile', %data );
+                }
+                else {
+                    ($result) = $apiclient->notify( 'distant_download_configfile', %data );
+                }
+            };
+            if($@){
+              pf::log::get_logger->error("Failed to sync file : $file . $@");
+            }
+        }
+    }
+
 }
 
 =head1 AUTHOR
