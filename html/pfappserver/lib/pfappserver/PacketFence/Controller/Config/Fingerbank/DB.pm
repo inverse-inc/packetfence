@@ -15,6 +15,7 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use fingerbank::DB;
+use pf::fingerbank;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -30,6 +31,8 @@ sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     $c->stash->{current_view} = 'JSON';
 
     my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
+
+    pf::fingerbank::sync_upstream_db();
 
     $c->stash->{status_msg} = $status_msg;
     $c->response->status($status);

@@ -20,6 +20,9 @@ use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 use fingerbank::Query;
+use fingerbank::FilePath;
+use pf::cluster;
+use pf::constants;
 
 use pf::api::jsonrpcclient;
 use pf::error qw(is_error);
@@ -227,6 +230,18 @@ sub is_a {
 
     # Unknown (we were not able to match)
     return "unknown";
+}
+
+sub sync_configuration {
+    pf::cluster::sync_files([$fingerbank::FilePath::CONF_FILE]);
+}
+
+sub sync_local_db {
+    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+}
+
+sub sync_upstream_db {
+    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
 }
 
 =head1 AUTHOR

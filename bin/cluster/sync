@@ -29,6 +29,7 @@ use pf::config::cached;
 use pfconfig::constants;
 use pf::file_paths;
 use pf::cluster;
+use fingerbank::FilePath;
 
 my ($master_server, $as_master, $api_user, $api_password);
 GetOptions (
@@ -62,7 +63,7 @@ foreach my $store (@tmp_stores){
     push @stores, $store;
 }
 
-my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", "/usr/local/fingerbank/conf/fingerbank.conf");
+my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE, $fingerbank::FilePath::UPSTREAM_DB_FILE);
 
 open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
   or print "WARN : Couldn't open the list of additionnal files to sync.";
