@@ -18,12 +18,18 @@ use NetPacket::UDP;
 use pf::util;
 use pf::node;
 
+# What is the IP address of the production relay agent
 our $PEER_IP = "172.21.158.7";
+# We need a dummy IP in the network for the DHCP replies
+# They need to go nowhere
 our $DUMMY_IP = "172.21.158.4";
+# This is our relay IP, who we are
 our $RELAY_IP = "172.20.20.109";
+# What is the DHCP server to relay to
 our $DHCP_IP = "10.0.0.16";
 
-# We bind the 67
+# We bind the 67 even if we don't really listen to it since we use libpcap
+# If we don't then, the clients will get ICMP unreachable when trying to contact us
 my $client_sock = IO::Socket::INET->new(
         LocalAddr => "0.0.0.0",
         LocalPort => 67,
@@ -60,8 +66,14 @@ sub process_pkt {
               )
           or die "socket: $@";
   
+      # We add the dummy IP in the relay address
+      # The DHCP server will return it there (so nowhere)
+      # But the reflector will send it to us
       $dhcp_packet->giaddr($DUMMY_IP);
       
+      # If the DHCP server option is there we need to replace it by the
+      # real DHCP server IP, otherwise he won't know he is authoritative 
+      # on this packet
       replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, $DHCP_IP);
 
       $out_sock->send($dhcp_packet->serialize());
@@ -85,14 +97,19 @@ sub process_pkt {
               )
           or die "socket: $@";  
 
+      # We are the next server
       $dhcp_packet->siaddr($RELAY_IP);
+      # We set the relay back to the first relay
       $dhcp_packet->giaddr($PEER_IP);
       
       my $node_attributes = node_attributes($client_mac);
 
+      # We make ourselves the DHCP server so release/renew will go through us
       replace_option($dhcp_packet, DHO_DHCP_SERVER_IDENTIFIER, $RELAY_IP);
 
       if($node_attributes->{status} eq "unreg"){
+          # When unreg, we set the lease time to 30 seconds with a 15 seconds renew
+          # We also point the DNS to PacketFence so the user sees the portal
           replace_option($dhcp_packet, 58, 15);
           replace_option($dhcp_packet, 59, 30);
           replace_option($dhcp_packet, DHO_DHCP_LEASE_TIME, 30);
@@ -111,15 +128,19 @@ sub replace_option {
     my ($dhcp_packet, $option_id, $new_value, $is_raw) = @_;
     $is_raw = defined($is_raw) ? 1 : 0;
     my @options;
+
+    # We first fetch all the options and their order
     foreach my $key ( @{ $dhcp_packet->{options_order} } ) {
         push @options, {option => $key, raw_value => $dhcp_packet->getOptionRaw($key)};
     }
 
+    # We remove them all
+    # NOTE : they can't be removed in the loop above as the library skips options due to that
     for my $option_info ( @options ) {
         $dhcp_packet->removeOption($option_info->{option});
     }     
 
-
+    # We re-add every option in order, replacing the one we want to replace when we see it
     for my $option_info ( @options ) {
         if($option_info->{option} eq $option_id){
             if($is_raw){
@@ -138,6 +159,7 @@ sub replace_option {
 }
 
 sub pcap_listen {
+    # 67 and 68 DHCP client and server, and 767 for the udp reflector on the remote DHCP server
     Net::PcapUtils::loop(\&process_pkt, DEV => 'eth0', SNAPLEN => 1500, FILTER => 'udp port 67 or 68 or 767');
 }
 
