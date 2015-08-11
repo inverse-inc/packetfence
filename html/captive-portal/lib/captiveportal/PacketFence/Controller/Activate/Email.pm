@@ -144,6 +144,11 @@ sub doEmailRegistration : Private {
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
             my %info;
+
+            # Setting access timeout and role (category) dynamically
+            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
+
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
