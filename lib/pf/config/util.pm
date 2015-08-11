@@ -34,6 +34,7 @@ use Try::Tiny;
 use pf::file_paths;
 use pf::util;
 use pf::log;
+use pf::authentication;
 
 BEGIN {
   use Exporter ();
@@ -49,6 +50,7 @@ BEGIN {
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
+    get_user_sources
   );
 }
 
@@ -375,6 +377,31 @@ sub portal_hosts {
     push @hosts, $fqdn; 
     return @hosts;
 }
+
+
+sub get_user_sources {
+    my ($profile, $username, $realm) = @_;
+
+    my $realm_source;
+    if(exists $ConfigRealm{$realm}){
+        if(my $source = $ConfigRealm{$realm}{source}){
+            get_logger->info("Found auth source $source for realm $realm.");
+            $realm_source = pf::authentication::getAuthenticationSource($source);
+        }
+    }
+
+    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+
+    if( $realm_source && any { $_ eq $realm_source} @sources ){
+        get_logger->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
+        return ($realm_source);
+    }
+
+    return @sources;
+
+}
+
+
 
 =back
 

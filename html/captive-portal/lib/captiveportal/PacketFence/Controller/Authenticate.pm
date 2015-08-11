@@ -504,10 +504,13 @@ sub authenticationLogin : Private {
     }
     $c->stash( profile => $profile );
 
-    my @sources = $self->getSources($c);
 
     my $username = _clean_username($request->param("username"));
+    my $realm;
+    ($username, $realm) = $self->strip_username($c,$username);
     my $password = $request->param("password");
+
+    my @sources = $self->getSources($c, $username, $realm);
 
     if(isenabled($profile->reuseDot1xCredentials)) {
         my $mac       = $portalSession->clientMac;
@@ -542,6 +545,16 @@ sub authenticationLogin : Private {
     }
 }
 
+sub strip_username {
+    my ($self,$c,$username) = @_;
+    if($username && $username =~ /(.*)@(.*)/){
+        #(username, realm)
+        $c->log->info("Found username containing a realm ($username). Stripped username : $1, Realm : $2.");
+        return ($1, $2);
+    }
+    return ($username);
+}
+
 =head2 getSources
 
 Return the source to use to login
@@ -549,10 +562,18 @@ Return the source to use to login
 =cut
 
 sub getSources : Private {
-    my ($self,$c) = @_;
+    my ($self,$c,$stripped_username,$realm) = @_;
     my @sources;
     my $use_local_source = $c->stash->{use_local_source};
     my $profile = $c->stash->{profile};
+
+    my $realm_source;
+    if(exists $ConfigRealm{$realm}){
+        if(my $source = $ConfigRealm{$realm}{source}){
+            $c->log->info("Found auth source $source for realm $realm.");
+            $realm_source = pf::authentication::getAuthenticationSource($source);
+        }
+    }
 
     if ($use_local_source) {
         @sources = pf::authentication::getAuthenticationSource('local');
@@ -565,6 +586,12 @@ sub getSources : Private {
                 ( $profile->getInternalSources, $profile->getExclusiveSources );
         }
     }
+
+    if( $realm_source && any { $_ eq $realm_source} @sources ){
+        $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
+        return ($realm_source);
+    }
+
     return @sources;
 }
 
