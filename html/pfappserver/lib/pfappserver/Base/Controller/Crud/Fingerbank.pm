@@ -20,6 +20,7 @@ use namespace::autoclean;
 use Log::Log4perl qw(get_logger);
 use HTML::FormHandler::Params;
 use fingerbank::Config;
+use pf::fingerbank;
 
 with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [qw(list)] };
 with 'pfappserver::Base::Controller::Crud::Pagination';
@@ -47,6 +48,20 @@ sub action_defaults {
         index  => { Path => undef, Args => 0 },
     );
 }
+
+after [qw(create update clone)] => sub {
+    my ($self, $c) = @_;
+    if ((is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
+        pf::fingerbank::sync_local_db();
+    }
+};
+
+after [qw(remove)] => sub {
+    my ($self, $c) = @_;
+    $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
+    pf::fingerbank::sync_local_db();
+};
 
 =head2 scope
 
