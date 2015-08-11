@@ -308,7 +308,7 @@ Passthroughs required for Android
 Android devices require passthroughs to be created to allow them to fetch the configuration application from the Google Play Store.
 
 IMPORTANT: Passthroughs will vary depending on the location where your Google account was created. You will need to add some extra passthroughs for the store of your country. In the section debug there is a how-to determine which address you need to add.
-Google 
+
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
 
 ----
