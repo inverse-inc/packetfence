@@ -5,6 +5,13 @@ use lib '/usr/local/pf/lib';
 use strict;
 use warnings;
 
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log(service => 'pfdhcprelay');
+}
+
 use Readonly;
 use Switch;
 
@@ -20,7 +27,6 @@ use NetPacket::UDP;
 
 use pf::util;
 use pf::node;
-use pf::log;
 
 # What is the IP address of the production relay agent
 our $PEER_IP = "172.21.158.7";
