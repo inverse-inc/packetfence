@@ -143,6 +143,17 @@ sub doEmailRegistration : Private {
         # On-site email guests self-registration
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
+
+            # Setting access timeout and role (category) dynamically
+            my $expiration = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION );
+            if ( defined $expiration ) {
+                $expiration = pf::config::access_duration($expiration);
+            } else {
+                $expiration = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_UNREG_DATE );
+            }
+
+            my $category = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
+
             my %info;
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
@@ -154,15 +165,15 @@ sub doEmailRegistration : Private {
             # FIXME
             node_modify(
                 $node_mac,
-                (   'unregdate' => $c->stash->{info}->{unregdate},
+                (   'unregdate' => $expiration,
                     'status'    => 'reg',
-                    'category'  => $c->stash->{info}->{category},
+                    'category'  => $category,
                 )
             );
 
             $c->stash(
                 template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $c->stash->{info}{unregdate}
+                expiration => $expiration,
             );
         }
 
