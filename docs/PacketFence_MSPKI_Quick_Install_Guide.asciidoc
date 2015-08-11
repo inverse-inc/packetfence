@@ -28,7 +28,7 @@ Installation
 Step 1: Install Active Directory Certificate Service (ADCS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Entreprise. The installation of ADCS is not covered by this guide, see the Microsoft white paper about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
+NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Entreprise. The installation of ADCS is not covered by this guide, refer to the Microsoft white paper about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
 For the integration with PacketFence, the following subroles need to be installed in ADCS:
 
@@ -36,21 +36,21 @@ For the integration with PacketFence, the following subroles need to be installe
 * Network Device Enrollment Service
 * Online Responder
 
-Before you start the configuration, a hotfix is necessary due to a Microsoft issue. After restarting the ADCS service, the server cannot enroll new certificate and display the following error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
+Before you start the configuration, a hotfix is necessary due to a Microsoft issue. After restarting the ADCS service, the server cannot enroll new certificates and display the following error message: "The RPC Server is unavailable". The hotfix is available here: https://support.microsoft.com/en-us/kb/2633200
 
 Communication between the MSPKI and PacketFence will be using port 80.
 
 Configuring Network Device Enrollment Service (NDES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the deployment of ADCS you will need to configure Network Enrollment Device Service (NDES). This subrole will allow us to exchange certificate with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
+For the deployment of ADCS you will need to configure Network Enrollment Device Service (NDES). This subrole will allow us to exchange certificates with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
 
 Every configuration change has to be done by an account with administrative privileges.
 
 Challenge Password
 ^^^^^^^^^^^^^^^^^^
 
-MSCEP includes by default a challenge password, which is unique and dynamically generated for each device which wants to enroll. In a BYOD deployment, this can be a barrier as a user cannot register a device by himself without the intervention of an administrator. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollment system.
+Microsoft SCEP (MSCEP) includes by default a challenge password, which is unique and dynamically generated for each device which wants to enroll. In a BYOD deployment, this can be a barrier as a user cannot register a device by himself without the intervention of an administrator. Since we use NDES with PacketFence, our security to obtain a certificate would be the credentials necessary to access the enrollment system.
 
 To disable the challenge password you need to modifiy the following key in the Windows registry. 
 
@@ -89,11 +89,11 @@ To duplicate the template, you need to navigate through `Server Manager -> Roles
 
 Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, otherwise the requested CN will be overwritten by NDES.
 
-To allow NDES to use this template you need to navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
+To allow NDES to use this template you need to navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
 
 Now that you choose the template to deliver you need to configure it in the registry.
 
-To access the registry editor, press `Start` and type `regedit` in the search bar.
+To access the registry editor, press `Start` and type `regedit`.
 
 While in the registry navigate to `Computer -> HKEY_LOCAL_MACHINE -> SOFTWARE -> Microsoft -> Cryptography -> MSCEP`.
 
@@ -103,7 +103,7 @@ You should have a list of three keys entries:
 * GeneralPurposeTemplate,
 * SignatureTemplate.
 
-Replace each value with your newly created template. The default value should be `IPSECIntermediateOffline`.
+The default value should be `IPSECIntermediateOffline`. Replace each value with your newly created template name.
 
 At this point, you need to reboot the NDES server to apply changes to the registry.
 
@@ -119,19 +119,19 @@ Online Certificate Status Protocol (OCSP)
 
 For the configuration of OCSP, the following changes are necessary.
 
-First we need to allow the use of the template `OCSPResponseSigning` by the server, to do so navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `YourServerName`, right click `Certificate template` and choose `New template to issue`, in the list select `OCSPResponseSigning`.
+First we need to allow the use of the template `OCSPResponseSigning` by the server, to do so navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select `OCSPResponseSigning`.
 
 After the installation of OCSP we need to create a Revocation Configuration.
 
-To create the Revocation Configuration navigate to `Server Manager -> Roles -> Active Directory Certificate Services` and expand `OnlineResponder`. Then expand `YourServerName`, right click on Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
+To create the Revocation Configuration navigate to `Server Manager -> Roles -> Active Directory Certificate Services` and expand `OnlineResponder: <ServerDNSName>`. Right click Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
 
-Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the drop down list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
+Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the dropdown list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
 
 Once created, right click the revocation configuration and select `Edit properties`, go to the `Signing` tab, then select `Enable NONCE extension support` then click `OK`.
 
 Make sure that your OCSP server appears in the CA settings. Right click your CA, choose `Properties`. Navigate to the tab `Extension`, in the dropdown list `Select extension` choose `Authority Information Access (AIA)`. Make sure that you have the following in the list of locations: `http://<ServerDNSName>/OCSP`. 
 
-If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/OCSP`, then validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
+If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/OCSP`, validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
 By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager -> Roles -> Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
 
@@ -162,17 +162,13 @@ No fields are mandatory other than the CN.
 
 Once you have your CSR you will submit it to the NDES server.
 
-To submit the request you need to copy the content of the request (CSR) on the MSPKI enrollment website. The URL to input the request will be:
-
- http://<ServerDNSName>/CertSrv/
+To submit the request you need to copy the content of the request (CSR) on the MSPKI enrollment website. The URL to input the request will be: `http://<ServerDNSName>/CertSrv/`.
 
 When reaching the website, click `Request a certificate`, select `advanced certificate request`. Paste the content of your CSR file and select the template `Web Server`. Click `Submit`. On this page select `Base 64 encoded` and click `Download certificate`. 
 
 This will give you the certificate (public key) for PacketFence.
 
-Now download the CA file by reaching the following url in your browser: 
-
- http://<ServerDNSName>/CertSrv/
+Now download the CA file by reaching the following URL in your browser: `http://<ServerDNSName>/CertSrv/`.
 
 Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
 
@@ -188,7 +184,7 @@ It is recommended to create a separate directory to separate EAP-TLS certificate
 
  # mkdir /usr/local/pf/conf/ssl/tls_certs/
 
-RADIUS EAP-TLS authentication requires three files, the CA certificate, the server certificate and the private key.
+RADIUS EAP-TLS authentication requires three files, the CA certificate, the server certificate and the server private key.
 
 Copy those files in your newly created folder:
 
@@ -196,14 +192,14 @@ Copy those files in your newly created folder:
 * Certificate for RADIUS (obtained from the submitted CSR)
 * CA Certificate (downloaded from the NDES website)
 
-Ensure that the files are readable by `pf`: 
+Ensure that the files are readable by the user `pf`: 
 
  # chown pf:pf /usr/local/pf/conf/ssl/tls_certs/*
  
 RADIUS EAP-TLS and MSPKI
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to use the certificates generated by the PKI, edit the radius EAP configuration file.
+In order to use the certificates generated by the MSPKI, edit the radius EAP configuration file.
 
 Edit `/usr/local/pf/conf/radiusd/eap.conf` and replace the following lines with references to your new certificates in the `tls` configuration block:
 
@@ -212,11 +208,11 @@ Edit `/usr/local/pf/conf/radiusd/eap.conf` and replace the following lines with 
 
 E.g.
 
- private_key_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.key
- certificate_file = %%install_dir%%/conf/ssl/tls_certs/YourCert.pem
+ private_key_file = %%install_dir%%/conf/ssl/tls_certs/server.key
+ certificate_file = %%install_dir%%/conf/ssl/tls_certs/server.pem
  CA_file = %%install_dir%%/conf/ssl/tls_certs/MyCA.pem
 
-Certificate revocation checks also have to be configured in the `OCSP` block.
+Certificate revocation checks have to be configured in the `OCSP` sub-block of `tls`.
 
 For example: 
 
@@ -235,24 +231,21 @@ PacketFence PKI provider configuration
 
 Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration -> Users`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
-Add a new PKI provider and select MSPKI.
+Add a new PKI provider and select SCEP.
 
 Fill out the form for a PKI provider according to your Certificate of Authority configuration.
 
 image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
-For the URL it will be http://<ServerDNSName>/CertSrv/mscep if you use our configuration.
+For the URL it will be `http://<ServerDNSName>/CertSrv/mscep`.
 
 image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 The "Server cert path" and "CA cert path" both need to be absolute (e.g. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path).
 
 The "Common name attribute" field defines how the certificate will be generated and what type of "ownership" will associate the certificate to the connection.
-If you select 'MAC address', a certificate will be generated for the device itself using the MAC address as the identifier.
-If you select 'Username', a certificate will be generated for the user using his login name on the authentication backend.
-
-This means that revoking the certificate for a username based certificate will block all the devices that this user registered.
-If you generate the certificates using the MAC address, revoking a certificate will block only that device.
+If you select 'MAC address', a certificate will be generated using the MAC address as the identifier.
+If you select 'Username', a certificate will be generated using his login name on the authentication backend.
 
 Provisioners configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -294,6 +287,12 @@ zxcvbnmqwertyuiop78
 Copy everything between the BEGIN and END lines, but not the lines themselves.
 Repeat this operation for the certificate key and intermediate certificate.
 
+----
+----- BEGIN PRIVATE KEY -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END PRIVATE KEY -----
+----
 
 Portal Profiles Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -306,10 +305,10 @@ If no portal profile is defined, configure the "default" profile to use the prov
 Passthroughs required for Android
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Android devices require passthroughs to be created to allow them to fetch the configuration application from the Play Store.
+Android devices require passthroughs to be created to allow them to fetch the configuration application from the Google Play Store.
 
 IMPORTANT: Passthroughs will vary depending on the location where your Google account was created. You will need to add some extra passthroughs for the store of your country. In the section debug there is a how-to determine which address you need to add.
-
+Google 
 Add the following to the "Trapping" section of the Configuration tab in the PacketFence GUI.
 
 ----
@@ -324,15 +323,15 @@ Step 3: Appendix
 Debugging MSPKI integration with PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This a way to do the procedure of enrollment manually, mainly for debugging purposes.
+This is a way to do the procedure of enrollment manually, mainly for debugging purposes.
 
 First you need to generate a request and its private key via the openssl command. Type the following command in PacketFence CLI
 
- # openssl req new -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/OU=IT/CN=www.test.example.com'
+ # openssl req new -newkey rsa:2048 -nodes -keyout local.key -out local.csr -subj '/C=CA/ST=QC/L=Montreal/O=Inverse/OU=IT/CN=www.test.example.com'
 
 This will create 2 files in your current directory, local.csr and local.key.
 
-Now you need to obtain the CA and some specific certificates from the PKI.
+Now you need to obtain the CA and some specific certificates from the MSPKI.
 
  # sscep getca -u http://<ServerDNSName>/CertSrv/mscep/ -c path/MyCA
 
