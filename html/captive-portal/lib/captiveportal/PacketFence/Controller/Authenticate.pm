@@ -591,8 +591,10 @@ sub getSources : Private {
         $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
-
-    return @sources;
+    else {
+        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
+        return @sources;
+    }
 }
 
 sub showLogin : Private {
