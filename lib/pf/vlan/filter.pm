@@ -8,7 +8,7 @@ pf::vlan::filter - handle the authorization rules on the vlan attribution
 
 =head1 DESCRIPTION
 
-pf::vlan::filter deny, rewrite role based on rules. 
+pf::vlan::filter deny, rewrite role based on rules.
 
 =cut
 
@@ -20,9 +20,8 @@ use Time::Period;
 use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
-our (%ConfigVlanFilters);
+tie our %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
 
-readVlanFiltersFile();
 
 =head1 SUBROUTINES
 
@@ -310,13 +309,6 @@ sub time_parser {
     }
 }
 
-=item readVlanFiltersFile - vlan_filters.conf
-
-=cut
-
-sub readVlanFiltersFile {
-  tie %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
-}
 
 =back
 
