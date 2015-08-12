@@ -15,9 +15,11 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
+use pf::authentication;
 use pf::util;
 
 has domains => ( is => 'rw');
+has sources => ( is => 'rw');
 
 ## Definition
 has_field 'id' =>
@@ -50,6 +52,20 @@ has_field 'domain' =>
              help => 'The domain to use for the authentication in that realm' },
   );
 
+has_field 'source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'Source',
+   options_method => \&options_sources,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a source'},
+   tags => { after_element => \&help,
+             help => 'The authentication source to use in that realm.<br/>(Must also be defined in the portal profile)' },
+  );
+
+
+
 =head2 options_roles
 
 =cut
@@ -58,6 +74,17 @@ sub options_domains {
     my $self = shift;
     my @domains = map { $_->{id} => $_->{id} } @{$self->form->domains} if ($self->form->domains);
     return @domains;
+}
+
+=head2 options_sources
+
+=cut
+
+sub options_sources {
+    my $self = shift;
+    my @sources = map { $_->id => $_->id } @{$self->form->sources} if ($self->form->sources);
+    unshift @sources, ("" => "");
+    return @sources;
 }
 
 =head2 ACCEPT_CONTEXT
@@ -69,7 +96,7 @@ To automatically add the context to the Form
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my (undef, $domains) = $c->model('Config::Domain')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, @args);
+    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, sources => pf::authentication::getInternalAuthenticationSources(), @args);
 }
 
 
