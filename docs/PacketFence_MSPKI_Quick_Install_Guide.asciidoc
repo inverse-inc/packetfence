@@ -241,7 +241,7 @@ For the URL it will be `http://<ServerDNSName>/CertSrv/mscep`.
 
 image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
 
-The "Server cert path" and "CA cert path" both need to be absolute (e.g. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path).
+The "Server cert path" and "CA cert path" both need to be absolute (e.g. `/usr/local/pf/conf/ssl/tls_certs/MyCA.pem` is an absolute path).
 
 The "Common name attribute" field defines how the certificate will be generated and what type of "ownership" will associate the certificate to the connection.
 If you select 'MAC address', a certificate will be generated using the MAC address as the identifier.
@@ -317,11 +317,11 @@ passthroughs=*.ggpht.com,*.googleusercontent.com,android.clients.google.com,
   *.googleapis.com,*.android.clients.google.com,*.gvt1.com
 ----
 
-Step 3: Appendix
-~~~~~~~~~~~~~~~~
+Appendix
+--------
 
 Debugging MSPKI integration with PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is a way to do the procedure of enrollment manually, mainly for debugging purposes.
 
@@ -351,7 +351,7 @@ To verify your certificate against the OCSP you can use the following openssl co
  # openssl OCSP -issuer path/CA-Certificate -cert path/Certificate-to-verify -text -url http://<ServerDNSName>/OCSP
 
 Debugging Android passthroughs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you need to add domains to passthroughs, we advise you to capture the traffic coming from the device which cannot access the Google Play Store. To do this you can use tcpdump for instance, collect the IP address of the device then run the following in PacketFence CLI:
 
