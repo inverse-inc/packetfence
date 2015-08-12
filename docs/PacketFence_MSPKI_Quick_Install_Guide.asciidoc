@@ -56,7 +56,7 @@ To disable the challenge password you need to modifiy the following key in the W
 
 Click `Start` and enter `regedit`.
 
-Navigate to `Computer -> HKEY_LOCAL_MACHINE -> SOFTWARE -> Microsoft -> Cryptography -> MSCEP -> EnforcePassword`.
+Navigate to `Computer->HKEY_LOCAL_MACHINE->SOFTWARE->Microsoft->Cryptography->MSCEP->EnforcePassword`.
 
 Change the value of `EnforcePassword` to `0` (default is `1`).
 
@@ -85,17 +85,17 @@ image::docs/images/scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory K
 
 The next step is to duplicate a template where those `Key Usage`, and `Enhanced Key Usage` are already configured. We advise to duplicate the template `User` and change the necessary settings.
 
-To duplicate the template, you need to navigate through `Server Manager -> Roles -> Active Directory Certificates Services -> Certificate templates`. Now right click the template `User` and select `Duplicate this template`.
+To duplicate the template, you need to navigate through `Server Manager->Roles->Active Directory Certificates Services->Certificate templates`. Now right click the template `User` and select `Duplicate this template`.
 
 Once duplicated, right click your new template, go to `Properties`. Navigate to the tab `Subject Name`. Make sure to select `Supplied in the request` over `Built from information in Active Directory`, otherwise the requested CN will be overwritten by NDES.
 
-To allow NDES to use this template you need to navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
+To allow NDES to use this template you need to navigate to `Server Manager->Roles->Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select your newly created template.
 
 Now that you choose the template to deliver you need to configure it in the registry.
 
 To access the registry editor, press `Start` and type `regedit`.
 
-While in the registry navigate to `Computer -> HKEY_LOCAL_MACHINE -> SOFTWARE -> Microsoft -> Cryptography -> MSCEP`.
+While in the registry navigate to `Computer->HKEY_LOCAL_MACHINE->SOFTWARE->Microsoft->Cryptography->MSCEP`.
 
 You should have a list of three keys entries: 
 
@@ -112,18 +112,18 @@ IIS configuration
 
 The use of SCEP with PacketFence also require a change in the IIS configuration.
 
-Navigate to `Server Manager -> Web(IIS)`, expand `Default web site` then select `CertSrv -> mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
+Navigate to `Server Manager->Web(IIS)`, expand `Default web site` then select `CertSrv->mscep`. Select `Authentication`, and double click `Anonymous Authentication`. Make sure that `Application pool identity` is selected.
 
 Online Certificate Status Protocol (OCSP)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For the configuration of OCSP, the following changes are necessary.
 
-First we need to allow the use of the template `OCSPResponseSigning` by the server, to do so navigate to `Server Manager -> Roles -> Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select `OCSPResponseSigning`.
+First we need to allow the use of the template `OCSPResponseSigning` by the server, to do so navigate to `Server Manager->Roles->Active Directory Certificates Services`, expand `<ServerDNSName>`, right click `Certificate template` and choose `New template to issue`, in the list select `OCSPResponseSigning`.
 
 After the installation of OCSP we need to create a Revocation Configuration.
 
-To create the Revocation Configuration navigate to `Server Manager -> Roles -> Active Directory Certificate Services` and expand `OnlineResponder: <ServerDNSName>`. Right click Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
+To create the Revocation Configuration navigate to `Server Manager->Roles->Active Directory Certificate Services` and expand `OnlineResponder: <ServerDNSName>`. Right click Revocation Configuration, select `Add Revocation Configuration`, click `Next`, choose a name for your configuration and click `Next`. 
 
 Choose `Select a certificate for an existing entreprise CA`, click `Next`. Click `Browse` and find your entreprise CA in the list, select it, click `OK` and then `Next`. Choose `Automatically select a signing certificate`, make sure `Auto-Enroll for an OCSP signing certificate` is selected, then choose the default template of OCSP which is `OCSPResponseSigning` in the dropdown list next to `Certificate Template:`. You need to add providers only if you wish to use a CRL in addition to OCSP.
 
@@ -133,7 +133,7 @@ Make sure that your OCSP server appears in the CA settings. Right click your CA,
 
 If you do not have it, add it via the button `Add...`. In this menu type the `http://` then insert `<ServerDNSName>` and type `/OCSP`, validate by clicking `OK`. Also verify that `Include in the online certificate status protocol(OCSP) extension` is selected.
 
-By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager -> Roles -> Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
+By default OCSP has a two days delay to refresh it's CRL information. Which means if you revoke a certificate on MSPKI, it will take two days before PacketFence detects the certificate is revoked. If this delay is too long for your needs, you can change it on the NDES server. To do so, navigate to `Server Manager->Roles->Active Directory Certificate Service` and right click `Entreprise PKI`, in the menu select `Options...`. The delay can be changed by modifying the value of `Set CRL status to Expiring when expiring in:` to your convenience.
 
 
 RADIUS Certificate generation
@@ -229,7 +229,7 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 PacketFence PKI provider configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration -> Users`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
+Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration->Users`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
 Add a new PKI provider and select SCEP.
 
@@ -252,7 +252,7 @@ Provisioners configuration
 
 Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
 
-Provisioners are configured in the PacketFence administration GUI under `Configuration -> Users -> Provisioners`.
+Provisioners are configured in the PacketFence administration GUI under `Configuration->Users->Provisioners`.
 
 Add a new provisioner for each of the classes of devices to be supported amongst Android, Apple Devices and Windows.
 Fill out the form, choosing a different Provisioning Id per provisioner.
@@ -299,7 +299,7 @@ Portal Profiles Configuration
 
 Provisioners have to be enabled on the Portal Profiles configuration in the PacketFence GUI.
 
-Under `Configuration -> Main -> Portal Profiles`, select each of the provisioners created above which should be active for the profile.
+Under `Configuration->Main->Portal Profiles`, select each of the provisioners created above which should be active for the profile.
 If no portal profile is defined, configure the "default" profile to use the provisioners created.
 
 Passthroughs required for Android
