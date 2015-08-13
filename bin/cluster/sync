@@ -6,8 +6,19 @@ Script to synchronize cluster either as the master node or as a slave node
 
 =head1 SYNOPSIS
 
-bin/cluster/sync --as-master to push out the configuration to the other nodes
-bin/cluster/sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password> to sync the configuration from a master server to this server
+  To push out the configuration to the other nodes :
+   sync --as-master 
+
+  Options : 
+   --file : use with --as-master to push out only a single file
+   --with-fingerbank-db : use with --as-master to push the Fingerbank 
+                          database during the sync (can be long) 
+
+  To sync the configuration from a master server to this server :
+   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password> 
+
+Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
+
 
 =head1 DESCRIPTION
 
@@ -31,6 +42,7 @@ use pf::file_paths;
 use pf::cluster;
 use fingerbank::FilePath;
 use pf::log;
+use Pod::Usage;
 
 BEGIN {
   use Log::Log4perl;
@@ -45,7 +57,7 @@ BEGIN {
   Log::Log4perl::init(\$log_conf);
 }
 
-my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file);
+my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file, $help);
 GetOptions (
     "from=s"   => \$master_server, 
     "api-user=s" => \$api_user,
@@ -53,7 +65,12 @@ GetOptions (
     "as-master" => \$as_master,
     "with-fingerbank-db" => \$with_fingerbank_db,
     "file=s" => \$file,
+    "h" => \$help,
 ); 
+
+if($help){
+  pod2usage( -verbose => 1 );
+}
 
 unless($master_server || $as_master){
     get_logger->error("You should either set --from or --as-master");
@@ -81,13 +98,16 @@ foreach my $store (@tmp_stores){
 
 my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
 
-open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
-  or get_logger->warn("Couldn't open the list of additionnal files to sync.");
-while (my $row = <$fh>) {
-    chomp $row;
-    push @files, $row;
+if (-e '/usr/local/pf/conf/cluster-files.txt') {
+    open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
+      or get_logger->warn("Couldn't open the list of additionnal files to sync."); 
+
+    while (my $row = <$fh>) {
+        chomp $row;
+        push @files, $row;
+    }
+    close($fh);
 }
-close($fh);
 
 if($as_master){
     if($file){
