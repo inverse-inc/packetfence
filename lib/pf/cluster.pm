@@ -211,7 +211,7 @@ sub members_ips {
     return \%data;
 }
 
-=head2 sync_file
+=head2 sync_files
 
 Sync files through all members of a cluster
 
@@ -243,6 +243,36 @@ sub sync_files {
     }
 
 }
+
+=head2 sync_storages
+
+Sync a storage through all members of a cluster
+
+=cut
+
+sub sync_storages {
+    my ($stores, %options) = @_;
+    require pf::api::jsonrpcclient;
+    my $apiclient = pf::api::jsonrpcclient->new();
+    foreach my $store (@$stores){
+        eval {
+            print "Synching storage : $store\n";
+            my $cs = $store->new;
+            my $pfconfig_namespace = $cs->pfconfigNamespace;
+            my $config_file = $cs->configFile;
+            my %data = (
+                namespace => $pfconfig_namespace,
+                conf_file => $config_file,          
+            );
+            my ($result) = $apiclient->call( 'expire_cluster', %data );
+        };
+        if($@){
+            print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
+        }
+    }
+}
+
+
 
 =head1 AUTHOR
 
