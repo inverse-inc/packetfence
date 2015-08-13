@@ -25,6 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $vlan_filters_config_file;
+    $self->{child_resources} = [ 'resource::VlanFilterEngineScopes'];
 }
 
 sub build_child {
@@ -37,8 +38,6 @@ sub build_child {
     return \%tmp_cfg;
 
 }
-
-=back
 
 =head1 AUTHOR
 
