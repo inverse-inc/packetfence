@@ -26,7 +26,7 @@ has value => (
 
 sub match {
     my ($self, $args) = @_;
-    return inPeriod(time(),$self->value);
+    return inPeriod(time(),$self->value) > 0;
 }
 
 =head1 AUTHOR
