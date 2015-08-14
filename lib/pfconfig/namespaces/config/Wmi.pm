@@ -37,6 +37,7 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg){
         $self->cleanup_after_read($key, $tmp_cfg{$key});
+        $self->cleanup_whitespaces( \%tmp_cfg );
     }
 
     return \%tmp_cfg;
