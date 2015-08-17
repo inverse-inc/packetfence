@@ -199,32 +199,6 @@ sub isVoIPEnabled {
     return ( $self->{_VoIPEnabled} == 1 );
 }
 
-=item returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation to send vsa in the radius reponse.
-
-It's optional, but we can force the 802.1x authentication by sending Foundry-MAC-Authent-needs-802.1x at 1.
-Disabled by default.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-
-    # VLAN enforcement
-    my $radius_reply_ref = {
-        #'Foundry-MAC-Authent-needs-802.1x' => $TRUE,
-        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-        'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $vlan,
-    };
-
-
-    $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
-}
-
 =back
 
 =head1 AUTHOR

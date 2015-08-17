@@ -2829,11 +2829,17 @@ sub returnRadiusAccessAccept {
     my $radius_reply_ref = {};
     my $role = "";
     if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
+        if(defined($vlan) && $vlan ne "" && $vlan ne 0){
+            $logger->info("[$mac] (".$self->{'_id'}.") Added VLAN $vlan to the returned RADIUS reply");
+            $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => $vlan,
+            };
+        }
+        else {
+            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
+        }
     }
 
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
@@ -2842,9 +2848,12 @@ sub returnRadiusAccessAccept {
             $role = $self->getRoleByName($user_role);
         }
         if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                $self->returnRoleAttributes(),
+            }
             $logger->info(
-                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
         }
         else {
@@ -2852,8 +2861,12 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan ".( defined($role) ? "and role $role" : "" ));
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role);
 }
 
 =item deauthTechniques

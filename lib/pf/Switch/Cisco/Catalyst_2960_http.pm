@@ -114,75 +114,35 @@ sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $radius_reply_ref = {};
+    my @super_reply = @{$this->SUPER::returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
 
-    # If we're doing 802.1x then instead of doing web auth, we'll do classic VLAN isolation
-    # This allows to have different VLANs for the roles
-    if ($connection_type == $WIRED_802_1X){
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    my $role = $this->getRoleByName($user_role);
+    if(defined($role) && $role ne ""){
+        my $node_info = node_view($mac);
+        my $violation = pf::violation::violation_view_top($mac);
+        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
+            my (%session_id);
+            pf::web::util::session(\%session_id,undef,6);
+            $session_id{client_mac} = $mac;
+            $session_id{wlan} = $ssid;
+            $session_id{switch_id} = $this->{_id};
+            pf::locationlog::locationlog_set_session($mac, $session_id{_session_id});
+            my $redirect_url = $this->{'_portalURL'}."/cep$session_id{_session_id}";
+            $logger->info("[$mac] Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+      
+            # remove the role if any as we push the redirection ACL along with it's role
+            delete $radius_reply_ref->{$this->returnRoleAttribute()};
+        }
     }
 
-    # TODO this is experimental
-    try {
-
-        my $role = $this->getRoleByName($user_role);
-        # Roles are configured and the user should have one
-        if (defined($role)) {
-            my $node_info = node_view($mac);
-            if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
-                $radius_reply_ref = {
-                    'User-Name' => $mac,
-                    $this->returnRoleAttribute => $role,
-                };
-            }
-            else {
-                my (%session_id);
-                pf::web::util::session(\%session_id,undef,6);
-                $session_id{client_mac} = $mac;
-                $session_id{wlan} = $ssid;
-                $session_id{switch_id} = $this->{_id};
-                pf::locationlog::locationlog_set_session($mac, $session_id{_session_id});
-                $radius_reply_ref = {
-                    'User-Name' => $mac,
-                    'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
-                };
-            }
-            $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with Role: $role");
-        }
-
-
-        # if Roles aren't configured, return VLAN information
-        else {
-
-            $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => $vlan,
-            };
-
-            $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
-        }
-
-    }
-    catch {
-        chomp($_);
-        $logger->debug(
-            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
-            . "Exception: $_"
-        );
-
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-    };
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
