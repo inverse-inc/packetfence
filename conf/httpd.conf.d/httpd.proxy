@@ -180,7 +180,7 @@ push @{ $VirtualHost{'*:444'} }, gen_conf(
     ProxyRequests     => 'off',
     ProxyPreserveHost => 'on',
     ProxyVia          => 'off',
-    LogLevel          => 'debug',
+    LogLevel          => 'error',
     ErrorLog          => $install_dir.'/logs/httpd.proxy.reverse.error',
     CustomLog         => $install_dir.'/logs/httpd.proxy.reverse.access combined',
 );
