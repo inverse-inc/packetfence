@@ -2851,7 +2851,7 @@ sub returnRadiusAccessAccept {
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes(),
-            }
+            };
             $logger->info(
                 "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
