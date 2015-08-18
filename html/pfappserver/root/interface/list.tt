@@ -1,3 +1,5 @@
+
+
       <div class="modal fade hide" id="modalEditInterface"></div>
       <form id="interfaces" name="interfaces" class="form">
         <table class="table">
@@ -12,6 +14,19 @@
             </tr>
           </thead>
           <tbody>
+
+          [% FOREACH network IN seen_networks.keys %]
+            [% IF seen_networks.$network.size > 1 %]
+              <tr>
+                <td colspan="6" class="alert alert-warning">
+                  WARNING : You have configured multiple interfaces ([% seen_networks.$network.join(", ") %]) in the same network. Their type was changed to be the same. <br/>
+                  Note that registration, isolation and management networks have to be in three distinct networks.
+                </td>
+              </tr>
+            [% END %]
+          [% END %]
+
+
            [% FOREACH i IN interfaces.keys.sort %]
             <tr>
               <td><div class="switch switch-mini"><input type="checkbox" id="[% i | html %]" name="[% i | html %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>

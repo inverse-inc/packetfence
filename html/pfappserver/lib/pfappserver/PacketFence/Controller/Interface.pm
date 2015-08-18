@@ -77,6 +77,9 @@ sub list :Local :Args(0) :AdminRole('INTERFACES_READ') {
     my ( $self, $c ) = @_;
 
     $c->stash->{interfaces} = $c->model('Interface')->get('all');
+
+    $c->stash->{seen_networks} = $c->model('Interface')->sort_interfaces_by_network($c->stash->{interfaces});
+
 }
 
 

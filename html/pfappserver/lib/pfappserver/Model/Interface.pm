@@ -746,6 +746,25 @@ sub getEnforcement {
     return $enforcement;
 }
 
+sub sort_interfaces_by_network {
+    my ($self, $interfaces) = @_;
+    my $seen_networks = {};
+    while(my ($int, $cfg) = each %$interfaces){
+        my $network = $cfg->{network};
+        next unless($network);
+        if(exists $seen_networks->{$network}){
+            push @{$seen_networks->{$network}}, $int;
+        }
+        else {
+            $seen_networks->{$network} = [$int];
+        }
+    }
+
+    return $seen_networks;
+}
+
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.
