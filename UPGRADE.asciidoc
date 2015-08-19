@@ -98,7 +98,7 @@ db_host=127.0.0.1
 New 'portal' interface type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are using web-auth enforcement (external captive-portal), you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
+If you are using email registration, web-auth enforcement (external captive-portal), device registration feature, or anything that would require to access the captive portal from outside the registration/isolation VLANs, you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
 
 In `conf/pf.conf` :
 
