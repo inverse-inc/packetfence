@@ -151,7 +151,8 @@ sub checkForViolation : Private {
     my $mac           = $portalSession->clientMac;
     my $logger        = $c->log;
     my $violation = violation_view_top($mac);
-    if ($violation) {
+    use Data::Dumper; $c->log->info(Dumper($violation));
+    if (defined($violation) && $violation) {
 
         $c->stash->{'user_agent'} = $c->request->user_agent;
         my $request = $c->req;

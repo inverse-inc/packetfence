@@ -228,7 +228,7 @@ sub oauth2Result : Path : Args(1) {
                         # github doesn't provide email by default
                         $pid = $json_text->{login}.'@github';
                     } elsif ($provider eq 'facebook'){
-                        $pid = $json_text->{name}.'@facebook';
+                        $pid = $json_text->{email};
                     }
                     $logger->info("OAuth2 successfull, register and release for username $pid");
                     $source->lookup_from_provider_info($pid, $json_text);

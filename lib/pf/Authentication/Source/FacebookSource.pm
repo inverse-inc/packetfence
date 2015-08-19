@@ -22,7 +22,7 @@ has 'site' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com'
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/access_token');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com/me');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com/me?fields=id,name,email,first_name,last_name');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/facebook');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.facebook.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
@@ -36,7 +36,7 @@ Lookup the person information from the authentication hash received during the O
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
 
-    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name} );
+    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name}, email => $info->{email} );
 }
 
 =head1 AUTHOR
