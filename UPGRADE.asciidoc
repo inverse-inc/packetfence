@@ -16,9 +16,6 @@ Once the additionnal steps are completed, make sure you restart packetfence-conf
   service packetfence-config restart
   service packetfence restart
 
-Also, make sure to reload configuration
-
-  /usr/local/pf/bin/pfcmd configreload hard
 
 General Upgrade tips
 ^^^^^^^^^^^^^^^^^^^^
