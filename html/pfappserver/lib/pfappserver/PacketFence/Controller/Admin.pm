@@ -163,7 +163,8 @@ Administrator controller dispatcher
 sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{'pf_release'} = $c->model('Admin')->pf_release();
+    $c->stash->{'pf_release'}       = $c->model('Admin')->pf_release();
+    $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
 =head2 status
