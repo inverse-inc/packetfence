@@ -260,6 +260,8 @@ Realm configuration
 Realm are now managed by Freeradius server so if your users authenticate with a username like username@acme.com then add the realm acme.com
 in the Radius Realms configuration menu and in your Active Directory source select 'Use stripped username'.
 
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.6.0).
+
 Upgrading from a version prior to 4.5.0
 ---------------------------------------
 
@@ -278,6 +280,8 @@ Violation configuration
 A new parameter 'delay_by' has been introduced in the violation configuration. Make sure to add the following to the 'defaults' section of 'conf/violations.conf' to avoid any problem.
 
 delay_by=0s
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.5.0).
 
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
@@ -298,6 +302,8 @@ The serialization of the objects in the cache changed, making all the previous c
 With PacketFence completely stopped do :
 
   rm -fr /usr/local/pf/var/cache/*
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.4.0).
 
 Upgrading from a version prior to 4.3.0
 ---------------------------------------
