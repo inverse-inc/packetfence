@@ -112,6 +112,8 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
+PerlLoadModule pf::WebAPI::InitHandler
+PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.

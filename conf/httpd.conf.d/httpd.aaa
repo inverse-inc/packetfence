@@ -73,6 +73,8 @@ PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/aaa_modperl_require.pl
 PerlLoadModule pf::WebAPI
+PerlLoadModule pf::WebAPI::InitHandler
+PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 
 AcceptMutex posixsem
 SSLMutex posixsem
