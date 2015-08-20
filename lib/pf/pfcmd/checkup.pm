@@ -124,6 +124,7 @@ sub sanity_check {
     billing() if ( isenabled($Config{'registration'}{'billing_engine'}) );
 
     database();
+    omapi();
     network();
     fingerbank();
     inline() if (is_inline_enforcement_enabled());
@@ -363,6 +364,18 @@ sub scan_openvas {
     if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
         add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
                 "scan.openvas_reportformatid field in pf.conf");
+    }
+}
+
+=item omapi
+
+Validation related to the OMAPI configuration
+
+=cut
+
+sub omapi {
+    if ( pf::config::is_omapi_enabled && !pf::config::is_omapi_configured ) {
+        add_problem( $WARN, "OMAPI is enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
     }
 }
 

@@ -830,6 +830,23 @@ sub is_omapi_enabled {
     return $FALSE;
 }
 
+=item is_omapi_configured
+
+Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_base64) are present before configuring it
+
+=cut
+
+sub is_omapi_configured {
+    return $FALSE unless is_omapi_enabled;
+
+    if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
+        return $TRUE;
+    }
+
+    $logger->warn("OMAPI is enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
+    return $FALSE;
+}
+
 =item configreload
 
 Reload the config
