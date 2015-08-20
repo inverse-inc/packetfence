@@ -17,6 +17,7 @@ use warnings;
 use Apache2::RequestRec ();
 use pf::config::cached;
 use pf::StatsD;
+use pf::db;
 
 use Apache2::Const -compile => 'OK';
 
@@ -40,6 +41,11 @@ sub child_init {
     return Apache2::Const::OK;
 }
 
+sub post_config {
+    my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    db_disconnect();
+    return Apache2::Const::OK;
+}
 
 =head1 AUTHOR
 
