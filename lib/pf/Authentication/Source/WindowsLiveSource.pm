@@ -35,7 +35,7 @@ Lookup the person information from the authentication hash received during the O
 
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
-    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name} );
+    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name}, email => $info->{emails}->{account} );
 }
 
 =head1 AUTHOR

@@ -215,6 +215,7 @@ sub oauth2Result : Path : Args(1) {
                     $pid = $response->content() ;
                     # remove the quotes
                     $pid =~ s/"//g;
+                    $source->lookup_from_provider_info($pid, {email => $pid});
                 }
                 else{
                     # Grab JSON content
