@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 5.3.0\n"
+"Project-Id-Version: 5.3.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-07-13 21:05-0400\n"
+"PO-Revision-Date: 2015-08-19 16:56-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -3215,6 +3215,10 @@ msgstr ""
 msgid "PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes."
 msgstr ""
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "PacketFence version"
+msgstr ""
+
 # pf::firewallsso (Firewall SSO)
 msgid "PaloAlto"
 msgstr "PaloAlto Networks"
@@ -4388,6 +4392,7 @@ msgid "Semicolon"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
+# html/pfappserver/root/admin/wrapper.tt
 msgid "Server"
 msgstr ""
 

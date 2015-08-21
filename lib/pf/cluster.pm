@@ -74,6 +74,16 @@ sub is_management {
 
 }
 
+=head2 get_host_id
+
+Returns the current host id (hostname)
+
+=cut
+
+sub get_host_id {
+    return $host_id;
+}
+
 =head2 current_server
 
 Returns the cluster config for this server

@@ -51,6 +51,17 @@ sub fingerbank_version {
     return $version;
 }
 
+=head2 server_hostname
+
+Returns the server hostname on which PacketFence is actually running
+
+=cut
+
+sub server_hostname {
+    my ( $self ) = @_;
+    return pf::cluster::get_host_id();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
