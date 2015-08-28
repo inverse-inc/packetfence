@@ -15,7 +15,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::MockModule;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
@@ -116,6 +116,9 @@ my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => ''
 my $filter = new pf::vlan::filter;
 my ($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
 is($role, 'registration', "obtain registration role for the device");
+
+($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'TEST');
+is($role, 'registration2', "obtain registration role for the device");
 
 #($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
 #is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
