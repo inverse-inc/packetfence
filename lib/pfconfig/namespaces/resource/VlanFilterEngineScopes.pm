@@ -28,9 +28,7 @@ sub build {
     my $config_profiles   = pfconfig::namespaces::config::VlanFilters->new($self->{cache});
     my %VlanFiltersConfig = %{$config_profiles->build};
     $self->{prebuilt_conditions} = {};
-    my %VlanFilterEngineScopes;
-    my @filter_data;
-    my %filters_scopes;
+    my (%VlanFilterEngineScopes, @filter_data, %filters_scopes);
     foreach my $rule (sort keys %VlanFiltersConfig) {
         my $data = $VlanFiltersConfig{$rule};
         if ($rule =~ /^\w+:(.*)$/) {
@@ -54,12 +52,10 @@ sub build {
 
 sub build_filter {
     my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
-    my $filter = pf::filter->new(
-        {   answer    => $data,
-            condition => $self->build_filter_condition($parsed_conditions)
-        }
-    );
-    push @{$filters_scopes->{$data->{scope}}}, $filter;
+    push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
+        answer    => $data,
+        condition => $self->build_filter_condition($parsed_conditions)
+    });
 }
 
 sub build_filter_condition {
