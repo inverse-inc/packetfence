@@ -89,7 +89,7 @@ sub dispatchAction {
 
     my $param = $self->evalParam($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'},%{$$param});
+    $apiclient->notify($rule->{'action'},%{$param});
 }
 
 =item evalParam
@@ -109,7 +109,7 @@ sub evalParam {
         my @param_unit = split('=',$param);
         $return = { %$return, @param_unit };
     }
-    return \$return;
+    return $return;
 }
 
 =back
