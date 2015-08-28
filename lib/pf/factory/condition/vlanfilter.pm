@@ -14,11 +14,11 @@ pf::factory::condition::vlanfilter
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
+use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules', require => 1;
 
 our @MODULES;
 
-sub factory_for {'pf::condition'};
+sub factory_for {'pf::condition'}
 
 our %VLAN_FILTER_TYPE_TO_CONDITION_TYPE = (
     'is'        => 'pf::condition::equals',
@@ -36,7 +36,7 @@ our %VLAN_FILTER_KEY_TYPES = (
 
 sub modules {
     my ($class) = @_;
-    unless(@MODULES) {
+    unless (@MODULES) {
         @MODULES = $class->_modules;
     }
     return @MODULES;
@@ -57,8 +57,8 @@ sub instantiate {
     my $sub_condition;
     if (exists $VLAN_FILTER_KEY_TYPES{$filter}) {
         $sub_condition = pf::condition::key->new({
-                key       => $data->{attribute},
-                condition => _build_sub_condition($data)
+            key       => $data->{attribute},
+            condition => _build_sub_condition($data)
         });
     }
     else {
@@ -66,17 +66,15 @@ sub instantiate {
     }
 
     return pf::condition::key->new({
-        key => $filter,
+        key       => $filter,
         condition => $sub_condition,
     });
 }
 
 sub _build_sub_condition {
     my ($data) = @_;
-    my $condition_class;
-    $condition_class = $VLAN_FILTER_TYPE_TO_CONDITION_TYPE{$data->{operator}};
-    return $condition_class->new({value => $data->{value}}) if $condition_class;
-    return undef;
+    my $condition_class = $VLAN_FILTER_TYPE_TO_CONDITION_TYPE{$data->{operator}};
+    return $condition_class ? $condition_class->new({value => $data->{value}}) : undef;
 }
 
 =head1 AUTHOR
