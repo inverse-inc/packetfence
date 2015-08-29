@@ -7078,43 +7078,43 @@ msgid "pf::pki_provider::packetfence_pki"
 msgstr "PacketFence PKI"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::connection_type"
+msgid "profile.filter.connection_type"
 msgstr "Connection Type"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::network"
+msgid "profile.filter.network"
 msgstr "Network"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::node_role"
+msgid "profile.filter.node_role"
 msgstr "Node role"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::port"
+msgid "profile.filter.port"
 msgstr "Port"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::realm"
+msgid "profile.filter.realm"
 msgstr "Realm"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::ssid"
+msgid "profile.filter.ssid"
 msgstr "SSID"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::switch"
+msgid "profile.filter.switch"
 msgstr "Switch"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::switch_port"
+msgid "profile.filter.switch_port"
 msgstr "Switch Port"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::uri"
+msgid "profile.filter.uri"
 msgstr "URI"
 
 # pf::condition::profile (Portal Profile Filters)
-msgid "pf::condition::profile::vlan"
+msgid "profile.filter.vlan"
 msgstr "VLAN"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
