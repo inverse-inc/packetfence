@@ -223,7 +223,7 @@ sub processTransaction : Private {
     # Transactions informations
     my $tier = $session->{'tier'};
     my $pid  = $session->{'username'};
-    my $billing = $session->{billing};
+    my $billing = $c->stash->{billing};
 
     # Adding person (using modify in case person already exists)
     person_modify(
