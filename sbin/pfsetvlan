@@ -54,6 +54,7 @@ use constant {
 use lib INSTALL_DIR . '/lib';
 
 use pf::CHI;
+use pf::db;
 use pf::constants;
 use pf::config;
 use pf::floatingdevice::custom;
@@ -165,8 +166,10 @@ foreach my $switch_id ( grep { $_ ne 'default' } keys %{ pf::SwitchFactory->conf
     $switch_locker{$switch_id} = &share( {} );
 }
 
+db_disconnect();
 add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
 add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
+db_connect();
 
 sub add_new_threads_to_list {
     my ($thread_function,$count) = @_;
