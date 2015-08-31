@@ -18,6 +18,8 @@ use Apache2::RequestRec ();
 use pf::config::cached;
 use pf::StatsD;
 use pf::db;
+use pf::CHI;
+use Cache::Memcached;
 
 use Apache2::Const -compile => 'OK';
 
@@ -30,6 +32,8 @@ sub handler {
 =head2 child_init
 
 Initialize the child process
+Reestablish connections to global connections
+Refresh any configurations
 
 =cut
 
@@ -37,13 +41,24 @@ sub child_init {
     my ($child_pool, $s) = @_;
     #Avoid child processes having the same random seed
     srand();
+    db_connect();
     pf::StatsD->initStatsd;
     return Apache2::Const::OK;
 }
 
+=head2 post_config
+
+Cleaning before forking child processes
+Close connections to avoid any sharing of sockets
+
+=cut
+
 sub post_config {
     my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    pf::StatsD->closeStatsd;
     db_disconnect();
+    pf::CHI->clear_memoized_cache_objects;
+    Cache::Memcached->disconnect_all;
     return Apache2::Const::OK;
 }
 
