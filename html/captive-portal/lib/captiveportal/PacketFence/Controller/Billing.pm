@@ -17,7 +17,6 @@ use pf::config::util;
 use pf::violation;
 use pf::person;
 use pf::web;
-use pf::web::billing 1.00;
 use List::Util qw(first);
 
 BEGIN {extends 'captiveportal::Base::Controller';}
