@@ -47,7 +47,7 @@ sub index : Path : Args(0) {
     my $portalSession = $c->portalSession;
     if ( $request->param("pin") ) {
         $logger->info("Entering guest authentication by SMS");
-        my ( $auth_return, $err ) = $self->sms_validation($c);
+        my ( $auth_return, $err, $activation_record ) = $self->sms_validation($c);
         if ( $auth_return != 1 ) {
             $c->stash(
                 txt_auth_error => i18n_format( $GUEST::ERRORS{$err} ) );
@@ -57,7 +57,7 @@ sub index : Path : Args(0) {
         my $profile = $c->profile;
         my %info;
         $logger->info("Valid PIN -- Registering user");
-        my $pid = $c->session->{"guest_pid"} || "default";
+        my $pid = $activation_record->{pid} || "default";
         my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
         my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
@@ -137,8 +137,8 @@ sub sms_validation {
             utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach(Signup => 'index');
         }
-        if (pf::activation::validate_code($pin)) {
-            return ($TRUE, 0);
+        if (my $record = pf::activation::validate_code($pin)) {
+            return ($TRUE, 0, $record);
         }
         else {
             return ($FALSE, $GUEST::ERROR_INVALID_PIN);
