@@ -7137,10 +7137,6 @@ msgid "production"
 msgstr "Production"
 
 # profile.filter (Portal Profile Filters)
-msgid "profile.filter.ap"
-msgstr "AP"
-
-# profile.filter (Portal Profile Filters)
 msgid "profile.filter.connection_type"
 msgstr "Connection Type"
 
