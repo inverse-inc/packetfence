@@ -146,9 +146,10 @@ sub _parse_cmp {
             my $b;
             if (/\G\s*([a-zA-Z0-9_]+)/gc) {
                 $b = $1;
-            } elsif (/\G\s*"((?:[^"]|\")+)"/gc) {
+            } elsif (/\G\s*"((?:[^"]|\"|\\)+)"/gc) {
                 $b = $1;
                 $b =~ s/\\"/"/g;
+                $b =~ s/\\\\/\\/g;
             }
             if (defined $b) {
                 return [$op,$a,$b];
