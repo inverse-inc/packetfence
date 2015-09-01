@@ -14,8 +14,11 @@ Parses the following BNF
 
 EXPR = OR || OR
 EXPR = OR
-OR   = FACT && FACT
-OR   = FACT
+OR   = CMP && CMP
+OR   = CMP
+CMP  = ID OP ID
+CMP  = FACT
+OP   = '==' | '!=' | '=~' | '!~'
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
@@ -118,14 +121,35 @@ sub _parse_or {
     # OR   = FACT && FACT
     # OR   = FACT
     my @expr;
-    push @expr, _parse_fact();
+    push @expr, _parse_cmp();
     while (/\G\s*\&{1,2}/gc) {
-        push @expr, _parse_fact();
+        push @expr, _parse_cmp();
     }
 
     #collapse into a single element if there is only one
     return $expr[0] if @expr == 1;
     return ['AND', @expr];
+}
+
+=head2 _parse_cmp
+
+=cut
+
+sub _parse_cmp {
+    # CMP  = ID OP ID
+    # CMP  = FACT
+    my $old_pos = pos();
+    if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
+        my $a = $1;
+        if (/\G\s*(==|!=|=~|!~)/gc) {
+            my $op = $1;
+            if (/\G\s*([a-zA-Z0-9_]+)/gc) {
+                return [$op,$a,$1];
+            }
+        }
+    }
+    pos() = $old_pos;
+    return _parse_fact();
 }
 
 =head2 _parse_fact
