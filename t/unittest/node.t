@@ -23,7 +23,7 @@ BEGIN {
 }
 
 use pf::node;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 #This test will running last
 use Test::NoWarnings;
