@@ -373,8 +373,8 @@ sub extract_modules {
     @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort map { "pf::condition::profile::$_" }  sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
-    const('pf::condition::profile', 'Portal Profile Filters', \@values);
+    @values = sort map { "profile.filter." . $_ } keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
+    const('profile.filter', 'Portal Profile Filters', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 5.3.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-08-19 16:56-0400\n"
+"PO-Revision-Date: 2015-09-01 10:49-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -7077,46 +7077,6 @@ msgstr "pending"
 msgid "pf::pki_provider::packetfence_pki"
 msgstr "PacketFence PKI"
 
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.connection_type"
-msgstr "Connection Type"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.network"
-msgstr "Network"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.node_role"
-msgstr "Node role"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.port"
-msgstr "Port"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.realm"
-msgstr "Realm"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.ssid"
-msgstr "SSID"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.switch"
-msgstr "Switch"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.switch_port"
-msgstr "Switch Port"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.uri"
-msgstr "URI"
-
-# pf::condition::profile (Portal Profile Filters)
-msgid "profile.filter.vlan"
-msgstr "VLAN"
-
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "pfcmd_vlan"
 msgstr ""
@@ -7175,6 +7135,50 @@ msgstr ""
 # pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.ap"
+msgstr "AP"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.connection_type"
+msgstr "Connection Type"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.network"
+msgstr "Network"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.node_role"
+msgstr "Node role"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.port"
+msgstr "Port"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.realm"
+msgstr "Realm"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.ssid"
+msgstr "SSID"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.switch"
+msgstr "Switch"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.switch_port"
+msgstr "Switch Port"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.uri"
+msgstr "URI"
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.vlan"
+msgstr "VLAN"
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "provisioner"
