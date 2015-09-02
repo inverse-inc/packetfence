@@ -15,17 +15,7 @@
         <form method="post" action="[% post_uri %]">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
-          <div class="input">
-            <span>[% i18n("Firstname") %]</span>
-            <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
-
-            <span>[% i18n("Lastname") %]</span>
-            <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
-          </div>
-
-        [% skipFields = {firstname => undef, lastname => undef} %]
         [% FOREACH field IN mandatory_fields %]
-        [%- NEXT IF skipFields.exists(field) -%]
           <div class="input">
             [% IF (field == 'mobileprovider') %]
               <span>[% i18n("Phone Provider") %]</span>
