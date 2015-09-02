@@ -34,13 +34,15 @@ sub BUILDARGS {
         my $profile = $config->{$id};
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
         my $condition;
-        if ( defined( $profile->{filter_match_style} ) && $profile->{filter_match_style} eq 'all') {
+        #If there is only one condition no need to wrap it in an any or all condition
+        if (@conditions == 1) {
+            $condition = $conditions[0];
+        } elsif (defined($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
             $condition = pf::condition::all->new({conditions => \@conditions});
-        }
-        else {
+        } else {
             $condition = pf::condition::any->new({conditions => \@conditions});
         }
-        push @filters,pf::filter->new({answer => $id, condition => $condition});
+        push @filters, pf::filter->new({answer => $id, condition => $condition});
     }
 
     #If all else fails use the default
