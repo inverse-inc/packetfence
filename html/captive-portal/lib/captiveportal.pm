@@ -112,6 +112,8 @@ sub loadCustomStatic {
           INSTALL_DIR."/html/profile-templates/".$_ 
     } keys %Profiles_Config;
 
+    use Data::Dumper;
+    $c->log->info(Dumper(\@dirs));
     return \@dirs;
    
 }
