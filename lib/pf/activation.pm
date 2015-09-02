@@ -579,7 +579,7 @@ sub sms_activation_create_send {
       }
     }
 
-    return ($success, $err);
+    return ($success, $err, $activation_code);
 }
 
 =head2 send_sms -
