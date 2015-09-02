@@ -41,7 +41,6 @@ BEGIN {
 
 use captiveportal::Role::Request;
 use pf::config::cached;
-use pf::config;
 use pf::file_paths;
 use pf::CHI;
 use CHI::Driver::SubNamespace;
@@ -105,17 +104,12 @@ before handle_request => sub {
 
 sub loadCustomStatic {
     my ($c)           = @_;
-
-    my @dirs = map { 
-        $_ eq "default" ? 
-          INSTALL_DIR."/html/templates" :  
-          INSTALL_DIR."/html/profile-templates/".$_ 
-    } keys %Profiles_Config;
-
-    use Data::Dumper;
-    $c->log->info(Dumper(\@dirs));
-    return \@dirs;
-   
+    my $dirs          = [];
+    my $portalSession = $c->portalSession;
+    if ($portalSession) {
+        $dirs = $portalSession->templateIncludePath;
+    }
+    return $dirs;
 }
 
 =head2 user_cache
