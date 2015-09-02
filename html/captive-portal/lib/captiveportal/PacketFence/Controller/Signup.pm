@@ -406,7 +406,7 @@ sub doSmsSelfRegistration : Private {
     $session->{source_match} = undef;
     $c->forward(Authenticate => 'setRole');
 
-    my ( $auth_return, $err, $errargs_ref ) =
+    my ( $auth_return, $err, $code ) =
       pf::activation::sms_activation_create_send( $mac, $pid, $phone, $profile->getName, $mobileprovider );
 
     unless ($auth_return) {
@@ -415,6 +415,7 @@ sub doSmsSelfRegistration : Private {
 
     # set node in pending mode with the appropriate role
     $info{'status'} = $pf::node::STATUS_PENDING;
+    $info{'unregdate'} = pf::activation::view_by_code($code)->{expiration};
     node_modify( $portalSession->clientMac(), %info );
     $c->detach( 'Activate::Sms' => 'showSmsConfirmation' );
 
