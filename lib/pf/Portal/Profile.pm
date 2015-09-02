@@ -453,30 +453,45 @@ return the first scan that match the device
 
 sub findScan {
     my ($self, $mac, $node_attributes) = @_;
+    my $scanners = $self->getScans;
+    return undef unless defined $scanners;
     my $logger = get_logger();
-    $node_attributes ||= node_attributes($mac);
-    my $device_type = $node_attributes->{'device_type'} || '';
-    my $fingerprint = pf::fingerbank::is_a($device_type);
-    if (defined($self->getScans)) {
-        foreach my $scan (split(',',$self->getScans)) {
-            my $scan_config = $pf::config::ConfigScan{$scan};
-            my @categories = split(',',$scan_config->{'categories'});
-            # if there are no oses and no categories defined for the scan then select it
-            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar(@categories) ) {
+    foreach my $scan (split(',', $scanners)) {
+        my $scan_config = $pf::config::ConfigScan{$scan};
+        my @categories  = split(',', $scan_config->{'categories'});
+        my $oses        = $scan_config->{'oses'};
+
+        # if there are no oses and no categories defined for the scan then select it
+        if (!scalar(@$oses) && !scalar(@categories)) {
+            return $scan_config;
+        }
+        $node_attributes ||= node_attributes($mac);
+
+        # if there are an os and a category defined
+        if (scalar(@$oses) && scalar(@categories)) {
+            my $device_type = $node_attributes->{'device_type'} || '';
+            my $fingerprint = pf::fingerbank::is_a($device_type);
+            if ((grep {$fingerprint =~ $_} @$oses) && (grep {$_ eq $node_attributes->{'category'}} @categories)) {
                 return $scan_config;
-            # if there are an os and a category defined
-            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@categories) ) {
-                if ( (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
-                    return $scan_config;
-                }
-            # if there are an os or a category
-            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@categories) ) {
-                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) ) {
-                    return $scan_config;
-                } elsif (scalar(@categories) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
-                    return $scan_config;
-                }
             }
+            # Check next scan config
+            next;
+        }
+
+        # if there is only an os
+        if (scalar(@$oses)) {
+            my $device_type = $node_attributes->{'device_type'} || '';
+            my $fingerprint = pf::fingerbank::is_a($device_type);
+            if (grep {$fingerprint =~ $_} @$oses) {
+                return $scan_config;
+            }
+            # Check next scan config
+            next;
+        }
+
+        # if there is only a category
+        if (grep {$_ eq $node_attributes->{'category'}} @categories) {
+            return $scan_config;
         }
     }
     return undef;
