@@ -49,7 +49,10 @@ sub generate_radiusd_sitesconf {
     parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
 
 
-    if(keys %ConfigDomain){
+    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
+        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
+    }
+    elsif(keys %ConfigDomain){
         $tags{'multi_domain'} = 'packetfence-multi-domain';
     }
     else {

@@ -851,6 +851,12 @@ hash_passwords=bcrypt
 # The cost factor to apply to the password hashing if applicable.
 # Currently only applies to bcrypt.
 hashing_cost=8
+#
+# advanced.disable_pf_domain_auth
+#
+# Disables authentification on the domains defined in PacketFence
+# This will make it so the authentication only happens on the domain binded to the OS.
+disable_pf_domain_auth=disabled
 
 [omapi]
 #
