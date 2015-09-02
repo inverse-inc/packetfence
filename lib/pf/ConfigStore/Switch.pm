@@ -27,6 +27,8 @@ sub configFile {$switches_config_file}
 
 sub pfconfigNamespace {'config::Switch'}
 
+sub default_section { 'default' }
+
 our ( $switches_cached_config, %SwitchConfig );
 our @EXPORT = qw(%SwitchConfig);
 use pf::freeradius;

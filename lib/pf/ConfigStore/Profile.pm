@@ -29,6 +29,8 @@ sub configFile { $profiles_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}
 
+sub default_section { 'default' }
+
 =head2 remove
 
 Delete an existing item

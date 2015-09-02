@@ -24,6 +24,8 @@ sub configFile { $violations_config_file }
 
 sub pfconfigNamespace { 'config::Violations' }
 
+sub default_section { 'defaults' }
+
 =head1 Methods
 
 =head2 remove
