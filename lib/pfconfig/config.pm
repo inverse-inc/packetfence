@@ -39,6 +39,13 @@ sub section {
     return $self->{cfg}{$name};
 }
 
+sub element {
+    my ( $self, $section_name, $element_name ) = @_;
+    if(my $section = $self->section($section_name)){
+        return $section->{$element_name};
+    }
+}
+
 =back
 
 =head1 AUTHOR
