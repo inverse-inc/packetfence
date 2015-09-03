@@ -36,7 +36,6 @@ use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
 use pfconfig::timeme;
-use Switch;
 use List::MoreUtils qw(first_index);
 use File::Basename qw(basename);
 use Getopt::Std;
@@ -116,6 +115,19 @@ my $daemonize = $args{d};
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
+our %DISPATCH = (
+    'expire'             => \&expire,
+    'element'            => \&get_element,
+    'hash_element'       => \&get_hash_element,
+    'keys'               => \&get_keys,
+    'next_key'           => \&get_next_key,
+    'key_exists'         => \&get_key_exists,
+    'array_element'      => \&get_array_element,
+    'array_size'         => \&get_array_size,
+    'array_index_exists' => \&get_array_index_exists,
+    'sleep'              => \&server_sleep,
+);
+
 while($RUNNING) {
     my $socket;
     my $line;
@@ -138,19 +150,12 @@ while($RUNNING) {
             # where
             #  - line = 'config' return the whole config hash
             #  - line = 'config;value' return the value in the config hash
-
-            switch ($query->{method}) {
-                case 'expire' { expire($query, $socket) }
-                case 'element' { get_element($query, $socket) }
-                case 'hash_element' { get_hash_element($query, $socket) }
-                case 'keys' { get_keys($query, $socket) }
-                case 'next_key' { get_next_key($query, $socket) }
-                case 'key_exists' { get_key_exists($query, $socket) }
-                case 'array_element' { get_array_element($query, $socket) }
-                case 'array_size' { get_array_size($query, $socket) }
-                case 'array_index_exists' { get_array_index_exists($query, $socket) }
-                case 'sleep' { sleep(10) }
-                else { print STDERR "Unknown method $query->{method}"; print "undef" }
+            my $method = $query->{method};
+            if (exists $DISPATCH{$method}) {
+                $DISPATCH{$method}->($query, $socket);
+            } else {
+                print STDERR "Unknown method $query->{method}";
+                print "undef";
             }
         }
     };
@@ -368,6 +373,16 @@ sub send_output {
         print $socket "$data";
     }
 }
+
+=head2 server_sleep
+
+=cut
+
+sub server_sleep {
+    my ($query, $socket) = @_;
+    sleep 10;
+}
+
 
 =head2 normal_sighandler
 

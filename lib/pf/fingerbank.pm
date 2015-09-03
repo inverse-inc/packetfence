@@ -13,8 +13,6 @@ Methods to interact with Fingerbank librairy
 use strict;
 use warnings;
 
-use Switch;
-
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
@@ -103,33 +101,27 @@ sub _trigger_violations {
 
     foreach my $trigger_type ( @fingerbank_based_violation_triggers ) {
         my $trigger_data;
-        switch ( $trigger_type ) {
-            case 'Device' {
-                next if !$query_result->{'device'}{'id'};
-                $trigger_data = $query_result->{'device'}{'id'};
-            }
-
-            case 'MAC_Vendor' {
-                next if !$mac;
-                my $mac_oui = $mac;
-                $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
-                $mac_oui = lc($mac_oui);            # Lowercasing
-                $mac_oui = substr($mac_oui, 0, 6);  # Only keep first 6 characters (OUI)
-                my $trigger_query;
-                $trigger_query->{'mac'} = $mac_oui;
-                my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
-                next if is_error($status);
-                $trigger_data = $result->id;
-            }
-
-            else {
-                next if !$query_args->{lc($trigger_type)};
-                my $trigger_query;
-                $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
-                my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
-                next if is_error($status);
-                $trigger_data = $result->id;
-            }
+        if ($trigger_type eq 'Device') {
+            next if !$query_result->{'device'}{'id'};
+            $trigger_data = $query_result->{'device'}{'id'};
+        } elsif ($trigger_type eq 'MAC_Vendor') {
+            next if !$mac;
+            my $mac_oui = $mac;
+            $mac_oui =~ s/[:|\s|-]//g;    # Removing separators
+            $mac_oui = lc($mac_oui);              # Lowercasing
+            $mac_oui = substr($mac_oui, 0, 6);    # Only keep first 6 characters (OUI)
+            my $trigger_query;
+            $trigger_query->{'mac'} = $mac_oui;
+            my ($status, $result) = "fingerbank::Model::$trigger_type"->find([$trigger_query, {columns => ['id']}]);
+            next if is_error($status);
+            $trigger_data = $result->id;
+        } else {
+            next if !$query_args->{lc($trigger_type)};
+            my $trigger_query;
+            $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
+            my ($status, $result) = "fingerbank::Model::$trigger_type"->find([$trigger_query, {columns => ['id']}]);
+            next if is_error($status);
+            $trigger_data = $result->id;
         }
 
         next if !$trigger_data;

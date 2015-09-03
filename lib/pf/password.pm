@@ -37,7 +37,6 @@ use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
-use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
@@ -453,12 +452,11 @@ sub _check_password {
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
 
-    switch ($hash_string) {
-        case /^$bcrypt_re/ { return _check_bcrypt(@_) }
+    if (/^$bcrypt_re/) {
+        return _check_bcrypt(@_);
+    } else {
         # I am leaving room for additional cases (NT hashes, md5 etc.)
-        else {
-            return $plaintext eq $hash_string ? $TRUE : $FALSE;
-        }
+        return $plaintext eq $hash_string ? $TRUE : $FALSE;
     }
 }
 
@@ -478,15 +476,15 @@ sub password_get_hash_type {
 }
 
 sub _hash_password {
-    my ( $plaintext, %params ) = @_;
+    my ($plaintext, %params) = @_;
     my $logger = pf::log::get_logger;
-
-    switch ( $params{"algorithm"} ) {
-        case /$PLAINTEXT/ { return $plaintext }
-        case /$BCRYPT/    { return bcrypt( $plaintext, %params ) }
-        else {
-            $logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
-        }
+    my $algorithm = $params{"algorithm"};
+    if ($algorithm =~ /$PLAINTEXT/) {
+        return $plaintext;
+    } elsif ($algorithm =~ /$BCRYPT/) {
+        return bcrypt($plaintext, %params);
+    } else {
+        $logger->error("Unsupported hash algorithm " . $params{"algorithm"});
     }
 }
 

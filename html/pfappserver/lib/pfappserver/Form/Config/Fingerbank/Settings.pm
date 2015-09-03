@@ -11,7 +11,6 @@ Form definition to modify Fingerbank configuration
 =cut
 
 use HTML::FormHandler::Moose;
-use Switch;
 
 use fingerbank::Config;
 
@@ -46,13 +45,12 @@ sub field_list {
             };
 
             my $type = $field_doc->{type};
-            switch ( $type ) {
-                case "toggle" {
-                    $field->{type} = 'Toggle';
-                    $field->{checkbox_value} = 'enabled';
-                    $field->{unchecked_value} = 'disabled';
-                }
-                else { $field->{type} = 'Text'; }
+            if ($type eq 'toggle') {
+                $field->{type}            = 'Toggle';
+                $field->{checkbox_value}  = 'enabled';
+                $field->{unchecked_value} = 'disabled';
+            } else {
+                $field->{type} = 'Text';
             }
 
             push ( @$list, $field_name => $field );
