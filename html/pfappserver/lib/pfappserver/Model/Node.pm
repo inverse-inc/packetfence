@@ -774,7 +774,7 @@ sub bulkApplyRole {
             $count++;
         }
     }
-    return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
+    return ($STATUS::OK, ["Role was changed to $name for [_1] node(s)", $count]);
 }
 
 =head2 bulkApplyBypassRole
