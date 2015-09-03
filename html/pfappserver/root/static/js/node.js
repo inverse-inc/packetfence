@@ -233,10 +233,14 @@ NodeView.prototype.createNode = function(e) {
             var body = $(this).contents().find('body');
             // We received JSON
             var data = $.parseJSON(body.text());
-            if (data.status < 300)
+            if (data.status < 300){
                 showPermanentSuccess(form, data.status_msg);
-            else
+                // We also empty the MAC field for when creating single nodes
+                $('#mac').val('');
+            }
+            else {
                 showPermanentError(form, data.status_msg);
+            }
         });
     }
     else {
