@@ -1,5 +1,5 @@
 [general]
-childs=2
+children=2
 
 [mysql]
 host=localhost

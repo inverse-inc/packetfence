@@ -134,11 +134,11 @@ my $configuration = pfconfig::config->new;
 our $PARENT_PID = $$;
 my %CHILDREN;
 my $IS_CHILD = 0;
-my $CHILDS_TO_START = $configuration->element('general', 'childs') || 2;
+my $CHILDREN_TO_START = $configuration->element('general', 'children') || 2;
 
-sub start_childs {
+sub start_children {
     my $i = 1;
-    while($i <= $CHILDS_TO_START){
+    while($i <= $CHILDREN_TO_START){
         run_child($i);
         $i++;
     }
@@ -211,7 +211,7 @@ sub is_parent_alive {
     kill (0,$PARENT_PID)
 }
 
-start_childs();
+start_children();
 while($RUNNING){
     sleep 1;
     foreach my $pid (keys %CHILDREN){
