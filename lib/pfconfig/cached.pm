@@ -36,6 +36,7 @@ use pfconfig::timeme;
 use pfconfig::log;
 use pfconfig::util;
 use pfconfig::constants;
+use pfconfig::undef_element;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
@@ -142,6 +143,29 @@ sub set_in_subcache {
     $self->{_subcache}    = {}   unless $self->{_subcache};
     $self->{_subcache}{$key} = $result;
 
+}
+
+sub compute_from_subcache {
+    my ($self, $key, $on_miss) = @_;
+
+    my $subcache_value = $self->get_from_subcache($key);
+    if(defined($subcache_value) && ref($subcache_value) eq "pfconfig::undef_element"){
+        return undef;
+    }
+    elsif(defined($subcache_value)){
+        return $subcache_value;
+    }
+
+    my $result = $on_miss->();
+    if(defined($result)){
+        $self->set_in_subcache($key,$result);
+    }
+    else {
+        $self->set_in_subcache($key, pfconfig::undef_element->new);
+    }
+
+    return $result;
+    
 }
 
 =head2 _get_from_socket
