@@ -20,7 +20,7 @@ use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
 use File::Basename qw(basename);
-use POSIX qw(:signal_h pause :sys_wait_h);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
 use Pod::Usage;
 use Fcntl qw(:flock);
 
@@ -60,6 +60,7 @@ our @TASKS_RUN;
 our $ALARM_RECV = 0;
 
 my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+my $old_child_sigaction = POSIX::SigAction->new;
 
 POSIX::sigaction(
     &POSIX::SIGALRM,
@@ -93,7 +94,8 @@ POSIX::sigaction(
     &POSIX::SIGCHLD,
     POSIX::SigAction->new(
         'child_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
+    ),
+    $old_child_sigaction
 ) or die("pfmon could not set SIGCHLD handler: $!");
 
 POSIX::sigaction(
@@ -155,12 +157,6 @@ exit(0);
 =cut
 
 sub registertasks  {
-#    register_task(
-#        'iplog cleanup','iplog_cleanup_interval',sub {
-#            pf::iplog::cleanup( $Config{'expire'}{'iplog'} ,$Config{maintenance}{iplog_cleanup_batch},$Config{maintenance}{iplog_cleanup_timeout})
-#              if ( $Config{'expire'}{'iplog'} );
-#        }
-#    );
     register_task(
         'locationlog cleanup','locationlog_cleanup_interval',sub {
             locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch},$Config{maintenance}{locationlog_cleanup_timeout})
@@ -247,7 +243,6 @@ signal children and waits for them to exit process
 sub kill_and_wait_for_children {
     my ($signal,$waittime) = @_;
     signal_children($signal);
-    my $not_done = 1;
     $ALARM_RECV = 0;
     alarm $waittime;
     while (((keys %CHILDREN) != 0 ) && !$ALARM_RECV) {
@@ -318,10 +313,13 @@ run all runtasks
 
 sub runtasks {
     db_disconnect();
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK,$mask);
     while(@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
+    sigprocmask(SIG_UNBLOCK,$mask);
 }
 
 =head2 runtask
@@ -336,7 +334,10 @@ sub runtask {
     if($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
-        $SIG{CHLD} = "DEFAULT";
+        POSIX::sigaction(
+            &POSIX::SIGCHLD,
+            $old_child_sigaction,
+        ) or die("pfmon could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
         _runtask(@$task);
     } else {
@@ -415,6 +416,7 @@ waits for signals
 sub waitforit {
     while($running) {
         pause;
+        $logger->info("Awake from pause");
         runtasks();
     }
 }
