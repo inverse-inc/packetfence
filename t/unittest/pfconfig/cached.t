@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 =head1 NAME
 
 pfconfig::cached
@@ -23,6 +24,7 @@ use Test::NoWarnings;
 
 use_ok("pfconfig::cached");
 use_ok("pfconfig::manager");
+use_ok("pfconfig::util");
 
 my $cached_test = pfconfig::cached->new();
 $cached_test->{_namespace} = 'testing';
@@ -56,6 +58,53 @@ $cached_test->set_in_subcache('dinde', 'dindo');
 
 is('dindo', $cached_test->get_from_subcache('dinde'),
     "Subcache values can be changed");
+
+$manager->touch_cache('testing');
+
+# test compute_from_subcache with a value
+
+my $hits = 0;
+
+is('turkey', $cached_test->compute_from_subcache('dinde', sub { $hits++ ; return 'turkey' }),
+    "Computing a value works");
+
+is(1, $hits,
+    "Computing an uncomputed value increments the hits");
+
+is('turkey', $cached_test->compute_from_subcache('dinde', sub { $hits++ ; return 'turkey' }),
+    "Re-Computing a value works");
+
+is('turkey', $cached_test->compute_from_subcache('dinde', sub { $hits++ ; return 'turkied' }),
+    "Re-Computing a value with a different sub while it's not expired gives subcache");
+
+is(1, $hits,
+    "Recomputing an computed value doesn't increments the hits");
+ 
+$manager->touch_cache('testing');
+
+is('turkied', $cached_test->compute_from_subcache('dinde', sub { $hits++ ; return 'turkied' }),
+    "Computing a value works with a different sub after it's expired works");
+
+is(2, $hits,
+    "Recomputing an expired value increments the hits");
+
+$manager->touch_cache('testing');
+
+# test compute_from_subcache with the undef handling
+
+$hits = 0;
+
+is(undef, $cached_test->compute_from_subcache('dinde', sub { $hits++; return undef }),
+    "Computing undef should return undef");
+
+is(1, $hits,
+    "Computing an uncomputed value increments the hits");
+
+is(undef, $cached_test->compute_from_subcache('dinde', sub { $hits++; return undef}),
+    "Computing undef should return undef even when already computed");
+
+is(1, $hits,
+    "Recomputing an computed value doesn't increments the hits when computing undef");
  
 =head1 AUTHOR
 
