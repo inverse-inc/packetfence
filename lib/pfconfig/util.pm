@@ -30,6 +30,11 @@ our @EXPORT_OK = qw(
 
 sub fetch_socket {
     my ($socket, $payload) = @_;
+    
+    # The line below will log any request to pfconfig for debugging purposes
+    # As the logging cost even in trace is high, it's commented out
+    #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
+
     # we ask the cachemaster for our namespaced key
     print $socket "$payload\n";
 
