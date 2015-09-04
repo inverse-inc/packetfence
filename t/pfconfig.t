@@ -7,7 +7,19 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+    `cp $pf::file_paths::switches_config_file $pf::file_paths::switches_config_file.tmp`;
+    $pf::file_paths::switches_config_file = "$pf::file_paths::switches_config_file.tmp";
+
+    use pfconfig::manager;
+    my $manager = pfconfig::manager->new;
+    $manager->expire('config::Switch');
+    
     use pf::log;
+}
+
+END {
+    `rm $pf::file_paths::switches_config_file`;
 }
 
 use Test::More;
@@ -28,7 +40,7 @@ my $manager = pfconfig::manager->new;
 
 # switches conf config file
 my %switches_conf_file;
-tie %switches_conf_file, 'Config::IniFiles', ( -file => '/usr/local/pf/conf/switches.conf' );
+tie %switches_conf_file, 'Config::IniFiles', ( -file => $pf::file_paths::switches_config_file );
 
 #####
 # Test resource expiration with resource dependencies
