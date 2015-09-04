@@ -111,11 +111,11 @@ sub keys {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my @keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
-        return @{ $self->_get_from_socket( $self->{_namespace}, "keys" ) };
+    my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "keys" );
     });
 
-    return @keys;
+    return @$keys;
 }
 
 =head2 FIRSTKEY
@@ -219,9 +219,11 @@ Call it using tied(%hash)->search('result', 'success')
 
 sub search {
     my ($self, $field, $value ) = @_;
-    return $self->compute_from_subcache("__PFCONFIG_HASH_SEARCH_${field}_${value}__", sub {
-        return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+    my $elements = $self->compute_from_subcache("__PFCONFIG_HASH_SEARCH_${field}_${value}__", sub {
+        my @elements = grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+        return \@elements;
     });
+    return @$elements;
 }
 
 =back
