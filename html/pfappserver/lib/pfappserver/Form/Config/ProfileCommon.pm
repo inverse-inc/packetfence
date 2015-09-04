@@ -63,7 +63,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/, message => 'An invalid character in profile id. The profile id can only contain alphanumeric characters, dashes, period and or underscores' } ],
   );
 
 =head2 description
