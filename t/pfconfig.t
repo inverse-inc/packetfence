@@ -95,6 +95,47 @@ ok(exists($switches{"127.0.0.1"}), "127.0.0.1 switch exists");
 ok(!exists($switches{zammit}), "zammit switch doesn't exists");
 
 ##
+# Test keys and KEYS
+
+my $SWITCH_COUNT = 21;
+
+my @keys = tied(%SwitchConfig)->keys();
+
+is(@keys, $SWITCH_COUNT,
+    "Right number of keys returned");
+
+is(ref(\@keys), 'ARRAY',
+    "Type of hash keys is ARRAY");
+
+@keys = keys %SwitchConfig;
+
+is(@keys, $SWITCH_COUNT,
+    "Right number of keys returned");
+
+is(ref(\@keys), 'ARRAY',
+    "Type of hash keys is ARRAY");
+
+##
+# Test values
+my @values = tied(%SwitchConfig)->values();
+
+is(@values, $SWITCH_COUNT,
+    "Right number of values returned");
+
+is(ref(\@values), 'ARRAY',
+    "Type of hash values is ARRAY");
+
+##
+# Test search
+my @search = tied(%SwitchConfig)->search("type", "Aruba");
+is(@search, 4, 
+    "Search yielded the right amount of data");
+foreach my $element (@search){
+    is($element->{type}, "Aruba",
+        "Type of searched element is right");
+}
+
+##
 # Test undefined values
 
 ok(!defined($default_switch{zammit}), 'Undefined switch comes up as undefined');
