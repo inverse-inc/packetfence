@@ -189,9 +189,8 @@ sub touch_cache {
         close($fh);
     }
     if ( -e $filename ) {
-        sysopen( my $fh, $filename, O_RDWR | O_CREAT );
-        POSIX::2008::futimens( fileno $fh );
-        close($fh);
+        my $command = 'touch --date=@'.time.' '.$filename;
+        `$command`;
     }
     my ( undef, undef, $uid, $gid ) = getpwnam('pf');
     chown( $uid, $gid, $filename );
