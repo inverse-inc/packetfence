@@ -452,7 +452,7 @@ sub _check_password {
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
 
-    if (/^$bcrypt_re/) {
+    if ($hash_string =~ /^$bcrypt_re/) {
         return _check_bcrypt(@_);
     } else {
         # I am leaving room for additional cases (NT hashes, md5 etc.)
