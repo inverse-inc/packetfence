@@ -90,7 +90,7 @@ if($as_master){
             my ($result) = $apiclient->call( 'expire_cluster', %data );
         };
         if($@){
-            print STDERR "Failed to sync store : $store \n";
+            print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
         }
     }
 
