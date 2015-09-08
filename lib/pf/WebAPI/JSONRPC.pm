@@ -90,7 +90,6 @@ sub handler {
             });
             $logger->error($@);
             $status_code = Apache2::Const::HTTP_INTERNAL_SERVER_ERROR;
-            $r->print($response_content);
         } else {
             $status_code = Apache2::Const::HTTP_OK;
         }
