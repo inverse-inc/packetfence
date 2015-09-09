@@ -189,7 +189,7 @@ sub touch_cache {
         close($fh);
     }
     if ( -e $filename ) {
-        my $command = 'touch --date=@'.time.' '.$filename;
+        my $command = 'touch --date=@'.time.' '."'".$filename."'";
         `$command`;
     }
     my ( undef, undef, $uid, $gid ) = getpwnam('pf');
