@@ -18,7 +18,7 @@ BEGIN {
     use PfFilePaths;
 }
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 21;                      # last test to print
 
 use Test::NoWarnings;
 
