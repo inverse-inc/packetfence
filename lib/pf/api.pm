@@ -480,9 +480,9 @@ sub notify_configfile_changed : Public {
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
 
-    pf::util::pf_run("sudo /usr/local/pf/bin/pfcmd fixpermissions file $postdata{conf_file}");
-    open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing.'";
     eval {
+        pf::util::pf_run("sudo /usr/local/pf/bin/pfcmd fixpermissions file $postdata{conf_file}");
+        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing.'";
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
         print $fh $result;
@@ -495,6 +495,7 @@ sub notify_configfile_changed : Public {
     };
     if($@){
         $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
+        die $@;
     }
 
     return 1;
