@@ -480,7 +480,8 @@ sub notify_configfile_changed : Public {
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
 
-    open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing. This is excessively bad. Run '/usr/local/pf/bin/pfcmd fixpermissions'";
+    pf::util::pf_run("sudo /usr/local/pf/bin/pfcmd fixpermissions file $postdata{conf_file}");
+    open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing.'";
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
