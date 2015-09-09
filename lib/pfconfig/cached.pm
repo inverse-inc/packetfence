@@ -34,9 +34,8 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
 use pfconfig::timeme;
 use pfconfig::log;
-use pfconfig::util;
+use pfconfig::util qw($undef_element);
 use pfconfig::constants;
-use pfconfig::undef_element;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
@@ -167,7 +166,7 @@ sub compute_from_subcache {
         $self->set_in_subcache($key,$result);
     }
     else {
-        $self->set_in_subcache($key, pfconfig::undef_element->new);
+        $self->set_in_subcache($key, $undef_element);
     }
 
     return $result;

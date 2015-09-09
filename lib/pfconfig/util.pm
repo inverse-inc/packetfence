@@ -19,14 +19,19 @@ use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::constants;
+use pfconfig::undef_element;
 use pfconfig::log;
 use pfconfig::constants;
 use IO::Socket::UNIX;
 use Sereal::Decoder;
+use Readonly;
 
 our @EXPORT_OK = qw(
     is_type_inline
+    $undef_element
 );
+
+Readonly our $undef_element => pfconfig::undef_element->new;
 
 sub fetch_socket {
     my ($socket, $payload) = @_;
