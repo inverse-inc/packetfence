@@ -388,6 +388,25 @@ sub trigger_violation : Public {
     return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
 }
 
+=head2 release_all_violations
+
+Release all violations for a node
+
+=cut
+
+sub release_all_violations : Public {
+    my ($class, $mac) = @_;
+    my $logger = pf::log::get_logger;
+    die "Missing MAC address" unless($mac);
+    my $closed_violation = 0;
+    foreach my $violation (pf::violation::violation_view_open($mac)){
+        $logger->info("Releasing violation $violation->{vid} for $mac though release_all_violations");
+        pf::violation::violation_force_close($mac,$violation->{vid});
+        $closed_violation = 1;
+    } 
+    return $closed_violation;
+}
+
 
 =head2 add_node
 
