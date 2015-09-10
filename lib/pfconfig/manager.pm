@@ -113,11 +113,19 @@ sub add_namespace_to_overlay {
     $self->{cache}->set('_namespace_overlay', $namespaces);
 }
 
-sub overlayed_namespaces {
+sub is_overlayed_namespace {
     my ($self, $base_namespace) = @_;
     if($base_namespace =~ /.*\(.+\)/){
-        return ();
+        return 1;
     }
+    return 0;
+}
+
+sub overlayed_namespaces {
+    my ($self, $base_namespace) = @_;
+
+    return () if $self->is_overlayed_namespace($base_namespace);
+
     my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
     my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
     my @overlayed_namespaces;
@@ -306,6 +314,10 @@ Expire a namespace in the cache and rebuild it
 If the namespace has child resources, it expires them too.
 Will expire the memory cache after building
 
+If expiring an overlayed namespace, it doesn't expire it's child resources as it's considered as a final resource to not duplicate expiration during it's associated namespace.
+
+To fully expire a namespace with it's child resources and overlayed namespaces, the non-overlayed namespace must be passed to expire
+
 =cut
 
 sub expire {
@@ -321,19 +333,21 @@ sub expire {
         $self->cache_resource($what);
     }
 
-    my $namespace = $self->get_namespace($what);
-    if ( $namespace->{child_resources} ) {
-        foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
-            $logger->info("Expiring child resource $child_resource. Master resource is $what");
-            $self->expire($child_resource, $light);
+    unless($self->is_overlayed_namespace($what)){
+        my $namespace = $self->get_namespace($what);
+        if ( $namespace->{child_resources} ) {
+            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
+                $logger->info("Expiring child resource $child_resource. Master resource is $what");
+                $self->expire($child_resource, $light);
+            }
         }
-    }
 
-    # expire overlayed namespaces
-    my @overlayed_namespaces = $self->overlayed_namespaces($what);
-    foreach my $namespace (@overlayed_namespaces){
-        $logger->info("Expiring overlayed resource from base resource $what.");
-        $self->expire($namespace, $light);
+        # expire overlayed namespaces
+        my @overlayed_namespaces = $self->overlayed_namespaces($what);
+        foreach my $namespace (@overlayed_namespaces){
+            $logger->info("Expiring overlayed resource from base resource $what.");
+            $self->expire($namespace, $light);
+        }
     }
 }
 
@@ -346,6 +360,13 @@ Has an ignore list declared below
 
 sub list_namespaces {
     my ( $self, $what ) = @_;
+
+    my $static_namespaces = $self->list_static_namespaces();
+    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
+    return (@$static_namespaces, @$overlayed_namespaces);
+}
+
+sub list_static_namespaces {
     my @skip = ( 'config', 'resource', 'config::template', );
     my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
     my @modules;
@@ -368,8 +389,25 @@ sub list_namespaces {
         $namespace_dir
     );
     @modules = sort @modules;
-    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
-    return (@modules, @$overlayed_namespaces);
+    return \@modules;
+}
+
+sub list_top_namespaces {
+    my ( $self ) = @_;
+    my $static_namespaces = $self->list_static_namespaces();
+    my @children;
+    my @top_level_namespaces;
+
+    foreach my $namespace (@$static_namespaces){
+        my $o = $self->get_namespace($namespace);
+        push @children, @{$o->{child_resources}} if $o->{child_resources};
+    }
+
+    foreach my $namespace (@$static_namespaces){
+        push @top_level_namespaces, $namespace unless any { $_ eq $namespace } @children;
+    }
+    
+    return @top_level_namespaces;
 }
 
 =head2 preload_all
@@ -399,7 +437,7 @@ Method that expires all the namespaces defined by list_namespaces
 sub expire_all {
     my ($self, $light) = @_;
     my $logger = pfconfig::log::get_logger;
-    my @namespaces = $self->list_namespaces;
+    my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
         if(defined($light) && $light){
             $logger->info("Light expiring $namespace");
