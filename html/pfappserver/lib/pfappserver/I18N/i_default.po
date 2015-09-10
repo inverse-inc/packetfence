@@ -5885,6 +5885,10 @@ msgstr "Shared KEY"
 msgid "active_active.virtual_router_id"
 msgstr "Virtual Router ID"
 
+# conf/documentation.conf
+msgid "active_active.switch_dhcpd_roles"
+msgstr "Switch dhcpd roles"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
