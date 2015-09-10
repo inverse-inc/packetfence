@@ -397,6 +397,7 @@ Release all violations for a node
 sub release_all_violations : Public {
     my ($class, $mac) = @_;
     my $logger = pf::log::get_logger;
+    $mac = pf::util::clean_mac($mac);
     die "Missing MAC address" unless($mac);
     my $closed_violation = 0;
     foreach my $violation (pf::violation::violation_view_open($mac)){
