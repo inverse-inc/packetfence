@@ -23,9 +23,9 @@ our @MODULES = __PACKAGE__->modules;
 
 our @TYPES = map { /^pf::pki_provider::(.*)$/ ; $1 } @MODULES;
 
-our %DESC = map { my $t = $_; $t =~ s/^.*://; $t => $_->description; } @MODULES;
 
 sub factory_for { 'pf::pki_provider' }
+our %DESC = map { my $type = $_; $type =~ s/^.*://; $type => $_->module_description || $_ } @MODULES;
 
 =head2 new
 

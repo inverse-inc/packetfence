@@ -23,7 +23,7 @@ use pf::log;
 
 extends 'pf::pki_provider';
 
-sub description { 'PacketFence Local' }
+sub module_description { 'PacketFence Local' }
 
 =head1 ATTRIBUTE(S)
 

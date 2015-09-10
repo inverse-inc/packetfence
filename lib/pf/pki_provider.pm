@@ -29,6 +29,16 @@ has cn_attribute => (is => 'rw');
 
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
+=head2 module_description
+
+Returns the module description
+
+Parent returns empty so that the factory use the own child module name if not defined in child module
+
+=cut
+
+sub module_description { '' }
+
 =head2 get_bundle
 
 Get the certificate bundle from the pki

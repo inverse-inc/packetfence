@@ -23,7 +23,7 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
-sub description { 'PacketFence PKI' }
+sub module_description { 'PacketFence PKI' }
 
 =head2 host
 
