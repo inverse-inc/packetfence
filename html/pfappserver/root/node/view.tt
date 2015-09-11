@@ -151,6 +151,7 @@
                     <th>[% l('Switch/AP') %]</th>
                     <th>[% l('Connection Type') %]</th>
                     <th>[% l('Connection Sub Type') %]</th>
+                    <th>[% l('Username') %]</th>
                     <th>[% l('Start') %]</th>
                     <th>[% l('End') %]</th>
                   </tr>
@@ -165,6 +166,7 @@
                       [% l(item.connection_sub_type) %]
                     [% END %]
                     </td>
+                    <td>[% item.dot1x_username | html %]</td>
                     <td>[% item.start_time | html %]</td>
                     <td>[% item.end_time | html %]</td>
                   </tr>
