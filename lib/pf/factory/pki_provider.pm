@@ -8,23 +8,24 @@ pf::factory::pki_provider
 
 =head1 DESCRIPTION
 
-pf::factory::pki_provider
 The factory for pki providers
 
 =cut
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::pki_provider', sub_name => 'modules' , require => 1;
+
 use List::MoreUtils qw(any);
+use Module::Pluggable search_path => 'pf::pki_provider', sub_name => 'modules' , require => 1;
+
 use pf::config;
+
+sub factory_for { 'pf::pki_provider' }
 
 our @MODULES = __PACKAGE__->modules;
 
 our @TYPES = map { /^pf::pki_provider::(.*)$/ ; $1 } @MODULES;
 
-
-sub factory_for { 'pf::pki_provider' }
 our %MODULES;
 foreach ( @MODULES ) {
     my $type = $_;
