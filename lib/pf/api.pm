@@ -38,6 +38,7 @@ use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
 use JSON;
+use File::Slurp;
 use pf::file_paths;
 
 use List::MoreUtils qw(uniq);
@@ -409,7 +410,7 @@ sub release_all_violations : Public {
         else {
             $logger->error("Cannot close violation $violation->{vid} for $mac");
         }
-    } 
+    }
     return $closed_violation;
 }
 
@@ -506,13 +507,9 @@ sub notify_configfile_changed : Public {
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
 
     eval {
-        pf::util::pf_run("sudo /usr/local/pf/bin/pfcmd fixpermissions file $postdata{conf_file}");
-        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing.'";
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
-        print $fh $result;
-        close($fh);
-        use pf::config::cached;
+        _safe_file_update($postdata{conf_file}, $result);
         pf::config::cached::updateCacheControl();
         pf::config::cached::ReloadConfigs(1);
 
@@ -532,7 +529,6 @@ sub download_configfile : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
-    use File::Slurp;
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
 
@@ -549,13 +545,32 @@ sub distant_download_configfile : Public {
     my %data = ( conf_file => $file );
     my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
     my ($result) = $apiclient->call( 'download_configfile', %data );
-    open(my $fh, '>', $file);
-    print $fh $result;
-    close($fh);
-    `chown pf.pf $file`;
-
+    _safe_file_update($file, $result);
     return 1;
+}
 
+=head2 _safe_file_update
+
+This safely modifies the contents of a file using a rename
+
+=cut
+
+sub _safe_file_update {
+    my ($file, $contents) = @_;
+    my ($volume, $dir, $filename) = File::Spec->splitpath($file);
+    $dir = '.' if $dir eq '';
+    # Creates a new file in the same directory to ensure it is on the same filesystem
+    my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    syswrite $temp, $contents;
+    $temp->flush;
+    close $temp;
+    unless( rename ($temp->filename, $file) ) {
+        my $logger = pf::log::get_logger;
+        $logger->error("cannot save contents to $file '$!'");
+        die "cannot save contents to $file";
+    }
+    $temp->unlink_on_destroy(0);
+    `chown pf.pf $file`;
 }
 
 sub expire_cluster : Public {
@@ -602,7 +617,7 @@ sub expire_cluster : Public {
             next;
         }
     }
-    
+
     if(@failed){
         die "Failed to sync configuration on server(s) ".join(',',@failed);
     }
