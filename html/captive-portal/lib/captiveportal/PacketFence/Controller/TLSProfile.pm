@@ -54,12 +54,11 @@ sub index : Path : Args(0) {
         $c->detach();
     }
 
-    my ( $provisioner, $pki_provider, $pki_provider_name );
+    my ( $provisioner, $pki_provider, $pki_provider_type );
     $provisioner = $c->profile->findProvisioner($mac);
     if ( $provisioner ) {
         $pki_provider = $provisioner->getPkiProvider();
-        $pki_provider_name = ref($pki_provider);
-        $pki_provider_name =~ s/^.*://;
+        $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
     }
 
     unless ( $provisioner && $pki_provider ) {
@@ -84,7 +83,7 @@ sub index : Path : Args(0) {
 
     $c->stash(
         certificate_pwd     => word(4,6),
-        template            => "pki_provider/$pki_provider_name.html",
+        template            => "pki_provider/$pki_provider_type.html",
     );
     $c->detach();
 }
@@ -149,14 +148,13 @@ sub process_form : Private {
     my $passwd = $c->request->param('certificate_pwd');
     my $provisioner = $c->profile->findProvisioner($mac);
     my $pki_provider = $provisioner->getPkiProvider();
-    my $pki_provider_name = ref($pki_provider);
-    $pki_provider_name =~ s/^.*://;
+    my $pki_provider_type = $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
 
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => "pki_provider/$pki_provider_name.html",
+            template            => "pki_provider/$pki_provider_type.html",
         );
         $c->detach();
     }
@@ -172,7 +170,7 @@ sub process_form : Private {
         $c->stash(txt_validation_error => 'No e-mail given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => "pki_provider/$pki_provider_name.html",
+            template            => "pki_provider/$pki_provider_type.html",
         );
         $c->detach();
     }

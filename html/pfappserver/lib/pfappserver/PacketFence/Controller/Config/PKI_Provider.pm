@@ -52,9 +52,10 @@ sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
     my %pki_providers = ();
-    foreach my $type ( @pf::factory::pki_provider::TYPES ) {
+    foreach my $module ( keys %pf::factory::pki_provider::MODULES ) {
+        my $type = $pf::factory::pki_provider::MODULES{$module}{'type'};
         $pki_providers{$type}{'type'} = $type;
-        $pki_providers{$type}{'description'} = $pf::factory::pki_provider::DESC{$type};
+        $pki_providers{$type}{'description'} = $pf::factory::pki_provider::MODULES{$module}{'description'};
     }
     $c->stash->{types} = \%pki_providers;
 
