@@ -50,7 +50,7 @@ sub test {
     my ($self, $scope, $switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    foreach my $rule ( sort { $a <=> $b} keys %ConfigVlanFilters ) {
+    foreach my $rule ( keys %ConfigVlanFilters ) {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
             if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
