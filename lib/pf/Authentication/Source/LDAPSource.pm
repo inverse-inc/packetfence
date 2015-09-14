@@ -13,6 +13,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
+use Readonly;
 
 use Net::LDAP;
 use Net::LDAPS;
@@ -28,6 +29,18 @@ use constant {
     SSL => "ssl",
     TLS => "starttls",
 };
+
+Readonly our %ATTRIBUTES_MAP => (
+  'firstname'   => "givenName",
+  'lastname'    => "sn",
+  'address'     => "physicalDeliveryOfficeName",
+  'telephone'   => "telephoneNumber",
+  'email'       => "mail",
+  'work_phone'  => "homePhone",
+  'cell_phone'  => "mobile",
+  'company'     => "company",
+  'title'       => "title",
+);
 
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
@@ -449,8 +462,8 @@ sub bind_with_credentials {
 
 =cut
 
-sub search_attributes {
-    my ($self, $pid) = @_;
+sub search_attributes_in_subclass {
+    my ($self, $username) = @_;
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
@@ -464,18 +477,26 @@ sub search_attributes {
     }
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
-                  filter => "($self->{'usernameattribute'}=$pid)"
+                  filter => "($self->{'usernameattribute'}=$username)"
     );
     my $entry = $searchresult->entry();
     $connection->unbind();
 
     if (!$entry) {
-        $logger->warn("Unable to locate PID '$pid'");
+        $logger->warn("Unable to locate user '$username'");
     }
     else {
-         $logger->info("PID: '$pid' found in the directory");
+         $logger->info("User: '$username' found in the directory");
     }
-    return $entry;
+    
+    my $info = {};
+    foreach my $attr (keys %ATTRIBUTES_MAP){
+        if(defined($entry->get_value($ATTRIBUTES_MAP{$attr}))){
+            $info->{$attr} = $entry->get_value($ATTRIBUTES_MAP{$attr});
+        }
+    }
+
+    return $info;
 }
 
 =head2 postMatchProcessing

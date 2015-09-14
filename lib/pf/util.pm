@@ -62,6 +62,7 @@ BEGIN {
         is_prod_interface
         valid_ip_range
         cert_has_expired
+        strip_username
     );
 }
 
@@ -1009,6 +1010,25 @@ sub cert_has_expired {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
+}
+
+=item strip_username
+
+Will strip a username matching pattern user@realm or \\realm\user
+
+Returns ($user,$realm) if found or ($user) if not matching any realm pattern
+
+=cut
+
+sub strip_username {
+    my ($username) = @_;
+    if($username =~ /(.*)\@(.*)/){
+        return ($1,$2);
+    }
+    elsif($username =~ /\\\\(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    return $username;
 }
 
 =back
