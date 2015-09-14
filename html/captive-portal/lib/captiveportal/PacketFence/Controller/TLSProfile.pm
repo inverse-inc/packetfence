@@ -148,7 +148,7 @@ sub process_form : Private {
     my $passwd = $c->request->param('certificate_pwd');
     my $provisioner = $c->profile->findProvisioner($mac);
     my $pki_provider = $provisioner->getPkiProvider();
-    my $pki_provider_type = $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
+    my $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
 
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
