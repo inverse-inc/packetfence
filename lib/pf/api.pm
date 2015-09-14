@@ -509,7 +509,7 @@ sub notify_configfile_changed : Public {
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
-        _safe_file_update($postdata{conf_file}, $result);
+        pf::util::safe_file_update($postdata{conf_file}, $result);
         pf::config::cached::updateCacheControl();
         pf::config::cached::ReloadConfigs(1);
 
@@ -545,32 +545,8 @@ sub distant_download_configfile : Public {
     my %data = ( conf_file => $file );
     my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
     my ($result) = $apiclient->call( 'download_configfile', %data );
-    _safe_file_update($file, $result);
+    pf::util::safe_file_update($file, $result);
     return 1;
-}
-
-=head2 _safe_file_update
-
-This safely modifies the contents of a file using a rename
-
-=cut
-
-sub _safe_file_update {
-    my ($file, $contents) = @_;
-    my ($volume, $dir, $filename) = File::Spec->splitpath($file);
-    $dir = '.' if $dir eq '';
-    # Creates a new file in the same directory to ensure it is on the same filesystem
-    my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
-    syswrite $temp, $contents;
-    $temp->flush;
-    close $temp;
-    unless( rename ($temp->filename, $file) ) {
-        my $logger = pf::log::get_logger;
-        $logger->error("cannot save contents to $file '$!'");
-        die "cannot save contents to $file";
-    }
-    $temp->unlink_on_destroy(0);
-    `chown pf.pf $file`;
 }
 
 sub expire_cluster : Public {
