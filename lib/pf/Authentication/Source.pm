@@ -13,6 +13,7 @@ We must at least always have one rule defined, the fallback one.
 use pf::config;
 use pf::constants;
 use Moose;
+use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
@@ -238,8 +239,24 @@ sub match_condition {
 =cut
 
 sub search_attributes {
+    my ($self,$username) = @_;
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-    $logger->debug("Search_attributes is not supported on this source.");
+    my $realm;
+    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
+    return $self->search_attributes_in_subclass($username);
+}
+
+=head2 search_attributes_in_subclass
+
+Search for the attributes of a user
+
+Returns a hashref that will be injected in pf::person::modify or 0 ($FALSE) if it fails
+
+=cut
+
+sub search_attributes_in_subclass {
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $logger->debug("search_attributes_in_subclass is not supported on this source.");
     return $FALSE;
 }
 

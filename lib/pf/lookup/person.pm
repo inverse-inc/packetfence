@@ -20,6 +20,8 @@ use warnings;
 use Net::LDAP;
 
 use pf::person;
+use pf::util;
+use pf::authentication;
 
 sub lookup_person {
     my ($pid,$source_id) = @_;
@@ -29,28 +31,17 @@ sub lookup_person {
        $logger->info("Unable to locate the source $source_id");
        return "Unable to locate the source $source_id!\n";
     } 
-    
+
     unless (person_exist($pid)) {
         return "Person $pid is not a registered user!\n";
     }
-    my $result = $source->search_attributes($pid);
-    if (!$result) {
-       $logger->info("Unable to locate PID in LDAP '$pid'");
-       return "Unable to locate PID in LDAP '$pid'!\n";
+    my $person = $source->search_attributes($pid);
+    if (!$person) {
+       $logger->info("Cannot search attributes for user '$pid'");
+       return "Cannot search attributes for user '$pid'!\n";
     } 
-    # prepare to modify person's entry based on info found
-    my %person;
-    $person{'firstname'} = $result->get_value("givenName") if (defined($result->get_value("givenName")));
-    $person{'lastname'} = $result->get_value("sn") if (defined($result->get_value("sn")));
-    $person{'address'} = $result->get_value("physicalDeliveryOfficeName") if (defined($result->get_value("physicalDeliveryOfficeName")));
-    $person{'telephone'} = $result->get_value("telephoneNumber") if (defined($result->get_value("telephoneNumber")));
-    $person{'email'} = $result->get_value("mail") if (defined($result->get_value("mail")));
-    $person{'work_phone'} = $result->get_value("homePhone") if (defined($result->get_value("homePhone")));
-    $person{'cell_phone'} = $result->get_value("mobile") if (defined($result->get_value("mobile")));
-    $person{'company'} = $result->get_value("company") if (defined($result->get_value("company")));
-    $person{'title'} = $result->get_value("title") if (defined($result->get_value("title")));
-    
-    person_modify($pid, %person) if (%person);
+   
+    person_modify($pid, %$person);
 }
 
 =head1 AUTHOR
