@@ -29,7 +29,7 @@ sub build {
     my %VlanFiltersConfig = %{$config_profiles->build};
     $self->{prebuilt_conditions} = {};
     my (%VlanFilterEngineScopes, @filter_data, %filters_scopes);
-    foreach my $rule (sort keys %VlanFiltersConfig) {
+    foreach my $rule (@{$config_profiles->{ordered_sections}}) {
         my $data = $VlanFiltersConfig{$rule};
         if ($rule =~ /^\w+:(.*)$/) {
             my ($parsed_conditions, $msg) = parse_condition_string($1);
