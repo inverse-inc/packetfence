@@ -111,7 +111,8 @@ Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
-Requires: perl(Config::IniFiles) < 2.88
+Requires: perl(Config::IniFiles) >= 2.88
+Requires: perl-Scalar-List-Utils >= 1.42
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
@@ -313,7 +314,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(SOAP::Lite)
+Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(SOAP::Lite)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -328,7 +329,7 @@ server.
 
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached::libmemcached)
+Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
