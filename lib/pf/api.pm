@@ -20,6 +20,7 @@ use pf::log();
 use pf::authentication();
 use pf::Authentication::constants;
 use pf::config();
+use pf::config::util();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
@@ -927,6 +928,39 @@ sub throw : Public {
     die "This will always die\n";
 }
 
+=head2 detect_computername_change
+
+Will determine if a hostname has changed from what is currently stored in the DB
+Will alert the administrator if it changed
+
+=cut
+
+sub detect_computername_change : Public {
+    my ( $class, $mac, $new_computername ) = @_;
+    my $logger = pf::log::get_logger;
+    my $node_attributes = pf::node::node_attributes($mac);
+
+    if(defined($node_attributes->{computername}) && $node_attributes->{computername}){
+        if($node_attributes->{computername} ne $new_computername){
+            $logger->warn(
+              "[$mac]Computername change detected ".
+              "( ".$node_attributes->{computername}." -> $new_computername ).".
+              "Possible MAC spoofing.");
+
+            my %message;
+            $message{'subject'} = "Device $mac has changed hostname !";
+            $message{'message'} .= "Owner: " . $node_attributes->{'pid'} . "\n";
+            $message{'message'} .= "Previous hostname: " . $node_attributes->{'computername'} . "\n";
+            $message{'message'} .= "New hostname: " . $new_computername . "\n";
+            $message{'message'} .= "Node notes: " . $node_attributes->{'notes'} . "\n";
+
+            pf::config::util::pfmailer(%message);
+
+            return 1;
+        }
+    }
+    return 0;
+}
 
 =head1 AUTHOR
 
