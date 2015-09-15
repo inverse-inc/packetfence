@@ -192,8 +192,8 @@ sub html_redirect {
     }
 
     my $stash = {
-        'portal_url' => $portal_url->unparse(),,
-        'wispr_url' => $wispr_url->unparse(),,
+        'portal_url' => $portal_url->unparse(),
+        'wispr_url' => $wispr_url->unparse(),
     };
 
     my $response = '';
