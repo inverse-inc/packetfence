@@ -131,6 +131,10 @@ Readonly::Hash our %CAPTIVE_PORTAL_STATIC_ALIASES => (
 
 =item CAPTIVE_PORTAL_RESOURCES
 
+Web portal resources that needs to be served by the captive-portal Catalyst Engine.
+
+All URLs defined using constants starting with 'URL' are considered a web portal resource
+
 =cut
 
 my @captive_portal_resources = _captive_portal_resources_parser();
@@ -139,6 +143,10 @@ my $captive_portal_resources = join('|', @captive_portal_resources);
 Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $captive_portal_resources ) /xo; # eXtended pattern, compile Once
 
 =item CAPTIVE_PORTAL_STATIC_RESOURCES
+
+Web portal static resources that needs to be served by Apached without further processing.
+
+All URLs matching one of the 'CAPTIVE_PORTAL_STATIC_ALIASES' path are considered a web portal static resource
 
 =cut
 
@@ -205,6 +213,12 @@ my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
 =item CAPTIVE_PORTAL_DETECTION_MECANISM_URLS
+
+Build a regex that detects if the request is a captive portal detection mecanism request.
+
+Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+
+Using configuration values from 'captive_portal.detection_mecanism_urls'.
 
 =cut
 
