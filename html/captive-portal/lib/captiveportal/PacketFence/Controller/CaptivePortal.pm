@@ -354,7 +354,7 @@ sub unknownState : Private {
         }
 
     }
-    $self->showError( $c, "Your network should be enabled within a minute or two. If it is not reboot your computer.");
+    $self->showError( $c, "Hang tight, it's taking some extra time to enable your network access. Take that opportunity to pour some yellow mustard onto that delicious turkey sandwich of yours while we're rebooting the server to see if that change anything.");
 }
 
 
