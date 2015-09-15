@@ -179,14 +179,12 @@ Generate the omapi section if it is defined
 =cut
 
 sub omapi_section {
-    my $omapi_section = $Config{omapi};
-
     return '# OMAPI is not enabled on this server' unless pf::config::is_omapi_enabled;
     return '# OMAPI is enabled on this server but no key configured' unless pf::config::is_omapi_configured;
 
-    my $port        = $omapi_section->{port};
-    my $key_name    = $omapi_section->{key_name};
-    my $key_base64  = $omapi_section->{key_base64};
+    my $port        = $Config{'omapi'}{'port'};
+    my $key_name    = $Config{'omapi'}{'key_name'};
+    my $key_base64  = $Config{'omapi'}{'key_base64'};
 
     my $section = <<EOT;
 # OMAPI for IP <-> MAC lookup
