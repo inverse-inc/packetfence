@@ -497,7 +497,7 @@ sub getNormalVlan {
     }
     $vlan = $switch->getVlanByName($role);
     my $vlanpool = new pf::vlan::pool;
-    $vlan = $vlanpool->getVlanPool($vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    $vlan = $vlanpool->getVlanPool($vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $role);
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan, $role);
 }

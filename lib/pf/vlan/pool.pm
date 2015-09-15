@@ -44,13 +44,13 @@ sub new {
 }
 
 sub getVlanPool {
-    my ($self, $vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ($self, $vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $role) = @_;
     my $logger =  pf::log::get_logger();
 
     return $vlan if $self->rangeValidator($vlan);
     my $range = Number::Range->new($vlan);
 
-    $vlan = $self->getRoundRobin($mac, $node_info, $range);
+    $vlan = $self->getRoundRobin($mac, $role, $range);
     return $vlan;
 }
 
@@ -87,7 +87,7 @@ Return the vlan id based on round robin
 =cut
 
 sub getRoundRobin {
-    my ($self, $mac, $node_info, $range) = @_;
+    my ($self, $mac, $role, $range) = @_;
     my $logger =  pf::log::get_logger();
 
     my $vlan_count = $range->size;
@@ -96,7 +96,7 @@ sub getRoundRobin {
         $logger->debug("NODE LAST VLAN ".$node_info_complete->{'last_vlan'});
         return ($node_info_complete->{'last_vlan'});
     }
-    my $last_reg_mac = node_last_reg_non_inline_on_category($mac, $node_info->{'category'});
+    my $last_reg_mac = node_last_reg_non_inline_on_category($mac, $role);
     my @array = $range->range;
 
     if (defined($last_reg_mac) && $last_reg_mac ne '') {
