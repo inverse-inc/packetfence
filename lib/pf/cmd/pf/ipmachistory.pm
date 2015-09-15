@@ -30,11 +30,7 @@ sub parseArgs {
         require pf::iplog;
         import pf::iplog;
         my ($function,%params);
-        if ($key =~ /^(\d{1,3}\.){3}\d{1,3}$/ ) {
-            $function = \&iplog_history_ip;
-        } else {
-            $function = \&iplog_history_mac;
-        }
+        $function = \&iplog_history;
         $params{'start_time'} = str2time( $start_time) if defined $start_time;
         $params{'end_time'} = str2time( $end_time) if defined $end_time;
         $self->{params} = \%params;
