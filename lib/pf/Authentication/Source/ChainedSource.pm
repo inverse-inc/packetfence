@@ -34,6 +34,14 @@ has '+unique' => (default => 1 );
 has chained_authentication_source => ( is => 'rw', required => 1 );
 has authentication_source => ( is => 'rw', required => 1 );
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $FALSE }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.

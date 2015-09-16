@@ -308,7 +308,7 @@ sub setupMatchParams : Private {
     my $portalSession = $c->portalSession;
     my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
-    my $params = { username => $pid };
+    my $params = { username => $pid, mac => $mac };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
