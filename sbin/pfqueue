@@ -39,7 +39,8 @@ use pf::file_paths;
 use pf::util;
 use pf::services::util;
 use pf::factory::task;
-use Sereal::Decoder;
+use pf::Sereal qw($DECODER);
+use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::db;
 use Config::IniFiles;
 use pf::constants::pfqueue
