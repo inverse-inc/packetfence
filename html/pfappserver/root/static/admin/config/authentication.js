@@ -220,6 +220,27 @@ $(function() { // DOM ready
         return false;
     });
 
+    /* Update available and configured actions when selecting a rule class */
+    $('#section').on('change', '#class', function(event) {
+        var that = $(this);
+        var table = $('#ruleActions');
+
+        table.find('tr').siblings(':not(.hidden)').remove();
+
+        var row_model = table.children('tbody').children('.hidden').first();
+        if (that.find(':selected').attr('value') == 'administration') {
+            row_model.find('option[data-rule-class="administration"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="authentication"]').addClass('hidden');
+        } else if (that.find(':selected').attr('value') == 'authentication') {
+            row_model.find('option[data-rule-class="authentication"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="administration"]').addClass('hidden');
+        }
+
+        table.trigger("addrow");
+        table.find('tr').find('[href="#delete"]').addClass('hidden');
+
+    });
+
     /* Initial creation of a rule condition when no condition is defined */
     $('body').on('click', '#ruleConditionsEmpty [href="#add"]', function(event) {
         $('#ruleConditions').trigger("addrow");

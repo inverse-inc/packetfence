@@ -41,6 +41,16 @@ sub available_attributes {
   return $self->common_attributes();
 }
 
+=head2 available_rule_classes
+
+Return all possible rule classes for a source. This method can be overloaded in a subclass to limit the available rule classes.
+
+=cut
+
+sub available_rule_classes {
+    return \@Rules::CLASSES;
+}
+
 =head2 available_actions
 
 Return all possible actions for a source. This method can be overloaded in a subclass to limit the available actions.
@@ -50,7 +60,8 @@ Defined in pf::Authentication::constants.
 =cut
 
 sub available_actions {
-    return \@Actions::ACTIONS;
+    my @actions = map( { @$_ } values %Actions::ACTIONS);
+    return \@actions;
 }
 
 =head2 common_attributes
@@ -144,6 +155,7 @@ sub match {
     $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
+        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
         my @matching_conditions = ();
         my @own_conditions = ();
 

@@ -7,6 +7,7 @@
                 <tr>
                   <th></th>
                   <th>[% l('Name') %]</th>
+                  <th>[% l('Class') %]</th>
                   <th>[% l('Description') %]</th>
                   <th></th>
                 </tr>
@@ -16,6 +17,7 @@
                 <tr class="sourceRule">
                   <td class="sort-handle">[% loop.index + 1 %]</td>
                   <td>[% rule.field('id').render | none %]<a href="[% c.uri_for(c.controller('Config::Authentication::Source').action_for('rule_read'), [ source.id, rule.field('id').value ]) %]">[% rule.field('id').value %]</a></td>
+                  <td>[% rule.field('class').value %]</td>
                   <td>[% rule.field('description').value %]</td>
                   <td class="action">
                     <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>

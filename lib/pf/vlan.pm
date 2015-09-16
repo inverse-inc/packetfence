@@ -460,6 +460,7 @@ sub getNormalVlan {
                 connection_type => connection_type_to_str($connection_type),
                 SSID => $ssid,
                 stripped_user_name => $stripped_user,
+                rule_class => $Rules::AUTH,
             };
             my $source;
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
@@ -608,6 +609,7 @@ sub getNodeInfoForAutoReg {
             connection_type => connection_type_to_str($conn_type),
             SSID => $ssid,
             stripped_user_name => $stripped_user,
+            rule_class => $Rules::AUTH,
         };
 
         my $source;

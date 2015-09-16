@@ -10,8 +10,23 @@ pf::Authentication::Action
 
 use Moose;
 
-has 'type' => (isa => 'Str', is => 'rw', required => 1);
+use List::MoreUtils qw(any);
+use List::Util qw(first);
+
+has 'type'  => (isa => 'Str', is => 'rw', required => 1);
+has 'class' => (isa => 'Str', is => 'rw', default => $Rules::AUTH);
 has 'value' => (isa => 'Str', is => 'rw', required => 0);
+
+=head2 getRuleClassForAction
+
+Returns the rule class for an action
+
+=cut
+
+sub getRuleClassForAction {
+    my ( $self, $action ) = @_;
+    return first { any { $_ eq $action } @{$Actions::ACTIONS{$_}} } keys %Actions::ACTIONS;
+}
 
 =head1 AUTHOR
 

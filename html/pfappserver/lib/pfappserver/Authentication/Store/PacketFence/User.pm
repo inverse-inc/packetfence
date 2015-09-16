@@ -43,10 +43,10 @@ sub check_password {
   my ($self, $password) = @_;
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-  my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password, @{$internal_sources});
+  my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
 
   if ($result) {
-      my $value = &pf::authentication::match($source_id, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
+      my $value = &pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
       $self->_roles([split /\s*,\s*/,$value]) if defined $value;
       return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
   }

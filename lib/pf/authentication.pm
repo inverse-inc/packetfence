@@ -32,6 +32,7 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
+use Clone qw(clone);
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -127,9 +128,6 @@ sub newAuthenticationSource {
     return $source;
 }
 
-
-
-
 =item getAuthenticationSource
 
 Return an instance of pf::Authentication::Source::* for the given id
@@ -173,7 +171,6 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
-
 # =head2 source_for_user
 
 # =cut
@@ -210,29 +207,55 @@ authentication sources are used.
 =cut
 
 sub authenticate {
-    my ($username, $password, @sources) = @_;
+    my ( $params, @sources ) = @_;
 
+    my $username = $params->{'username'};
+    my $password = $params->{'password'};
+
+    # Make sure there's a username and a password otherwise, there's nothing to authenticate with
+    if ( !$username || !$password ) {
+        $logger->warn("Tried to authenticate without a username / password");
+        return( $FALSE, "Invalid username or password" );
+    }
+
+    # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
-    my $display_username = (defined $username) ? $username : "(undefined)";
 
-    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
+    my $cloned_sources = clone(\@sources);
+
+    # If a rule class is defined, we filter out authentication sources rules that doesn't match it
+    if ( defined($params->{'rule_class'}) ) {
+        foreach my $source ( @$cloned_sources ) {
+            my @rules = ();
+            foreach my $rule ( @{ $source->{'rules'} } ) {
+                push (@rules, $rule) if $rule->{'class'} eq $params->{'rule_class'};
+            }
+            if ( @rules ) {
+                @{$source->{'rules'}} = ();
+                push (@{$source->{'rules'}}, @rules);
+                push (@sources, $source);
+            }
+        }
+    }
+
+    $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
 
     foreach my $current_source (@sources) {
         my ($result, $message);
-        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
+        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
     return ($FALSE, 'Wrong username or password.');
 }
 

@@ -128,7 +128,7 @@ sub options_actions {
     }
     else {
         $actions_ref = $classname->available_actions();
-        @actions = map { $_ => $self->_localize($_) } @{$actions_ref};
+        @actions = map { { value => $_, label => $self->_localize($_), attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } } } @{$actions_ref};
     }
 
     return @actions;
