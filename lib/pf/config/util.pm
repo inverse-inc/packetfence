@@ -171,7 +171,8 @@ sub send_email {
         To          =>  $email,
         Cc          =>  $data->{'cc'} || '',
         Subject     =>  $subject,
-        Template    =>  "emails-$template.txt.tt",
+        Template    =>  "emails-$template.html",
+        'Content-Type' => 'text/html; charset="utf-8"',
         TmplOptions =>  \%options,
         TmplParams  =>  $data,
     );
