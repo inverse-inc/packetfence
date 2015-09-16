@@ -837,13 +837,13 @@ Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_bas
 =cut
 
 sub is_omapi_configured {
-    return $FALSE unless is_omapi_enabled;
+    return $FALSE unless $Config{'omapi'}{'host'} eq "localhost";
 
     if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
         return $TRUE;
     }
 
-    $logger->warn("OMAPI is enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
+    $logger->warn("OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
     return $FALSE;
 }
 

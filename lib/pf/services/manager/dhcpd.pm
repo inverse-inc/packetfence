@@ -179,8 +179,8 @@ Generate the omapi section if it is defined
 =cut
 
 sub omapi_section {
-    return '# OMAPI is not enabled on this server' unless pf::config::is_omapi_enabled;
-    return '# OMAPI is enabled on this server but no key configured' unless pf::config::is_omapi_configured;
+    return '# OMAPI is not enabled on this server' unless $Config{'omapi'}{'host'} eq "localhost";
+    return '# OMAPI is enabled on this server but missing configuration parameter(s)' unless pf::config::is_omapi_configured;
 
     my $port        = $Config{'omapi'}{'port'};
     my $key_name    = $Config{'omapi'}{'key_name'};
