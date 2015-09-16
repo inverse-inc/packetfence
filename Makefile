@@ -73,6 +73,9 @@ conf/ssl/server.crt:
 	-keyout /usr/local/pf/conf/ssl/server.key \
 	-nodes -config /usr/local/pf/conf/openssl.cnf
 
+conf/pf_omapi_key:
+	echo $$(date) $$HOSTNAME | base64 > /usr/local/pf/conf/pf_omapi_key
+
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
@@ -137,4 +140,4 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
-devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions
