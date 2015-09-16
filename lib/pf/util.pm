@@ -1025,6 +1025,9 @@ sub strip_username {
     if($username =~ /(.*)\@(.*)/){
         return ($1,$2);
     }
+    elsif($username =~ /(.*)\%(.*)/){
+        return ($1,$2);
+    }
     elsif($username =~ /\\\\(.*)\\(.*)/) {
         return ($2,$1);
     }
