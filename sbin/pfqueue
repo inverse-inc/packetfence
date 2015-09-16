@@ -45,7 +45,7 @@ use Config::IniFiles;
 use pf::constants::pfqueue
   qw($QUEUE_DELAYED_ZSET $QUEUE_DELAYED_QUEUE $QUEUE_DELAYED_HASH $QUEUE_PREFIX $QUEUE_DYNAMIC_PREFIX);
 
-our $config = Config::IniFiles->new(-file => "$install_dir/conf/services/pfqueue.conf");
+our $config = Config::IniFiles->new(-file => "$install_dir/conf/services.conf");
 
 # initialization
 # --------------
@@ -126,9 +126,9 @@ exit(0);
 =cut
 
 sub registertasks {
-    foreach my $section ($config->GroupMembers('queue')) {
-        my $queue = $section;
-        $queue =~ s/^queue +//;
+    foreach my $section ($config->GroupMembers('pfqueue')) {
+        my $name = $section;
+        next unless $name =~ s/^pfqueue queue +//;
         my $type = $config->val($section, 'type', 'simple');
         if ($type eq 'simple') {
             my $worker = $config->val($section, 'workers', 10);
