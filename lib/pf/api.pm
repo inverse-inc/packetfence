@@ -402,8 +402,12 @@ sub release_all_violations : Public {
     my $closed_violation = 0;
     foreach my $violation (pf::violation::violation_view_open($mac)){
         $logger->info("Releasing violation $violation->{vid} for $mac though release_all_violations");
-        pf::violation::violation_force_close($mac,$violation->{vid});
-        $closed_violation = 1;
+        if(pf::violation::violation_force_close($mac,$violation->{vid})){
+            $closed_violation += 1;
+        }
+        else {
+            $logger->error("Cannot close violation $violation->{vid} for $mac");
+        }
     } 
     return $closed_violation;
 }
