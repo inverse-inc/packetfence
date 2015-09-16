@@ -148,7 +148,7 @@ sub registertasks {
         if ($type eq 'simple') {
             my $worker = $config->val($section, 'workers', 10);
             foreach (1 .. $worker) {
-                register_task("queue/$queue", "queue/$queue", \&process_queue);
+                register_task("Queue:$name",\&process_queue, "Queue:$name");
             }
         }
         elsif ($type eq 'delayed') {
@@ -251,14 +251,14 @@ the task to is ran in a loop until it is finished
 =cut
 
 sub _runtask {
-    my ($id, $queue, $task) = @_;
+    my ($id, $task, $parameters) = @_;
     $0 = "pfqueue - $id";
     my $redis = Redis::Fast->new(sock => "$var_dir/run/redis.sock");
     while ($running) {
         pf::config::cached::ReloadConfigs();
         eval {
             #reload all cached configs before running the task
-            $task->($redis, $queue);
+            $task->($redis, $parameters);
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
@@ -292,8 +292,8 @@ registers the task to run
 =cut
 
 sub register_task {
-    my ($taskId, $parameter, $function) = @_;
-    push @REGISTERED_TASKS, [$taskId, $parameter, $function];
+    my ($taskId, $function, $parameters) = @_;
+    push @REGISTERED_TASKS, [$taskId, $function, $parameters];
 
 }
 
