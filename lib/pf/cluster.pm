@@ -133,9 +133,17 @@ Compute whether or not this node is the primary DHCP server in the cluster
 =cut
 
 sub is_dhcpd_primary {
+    my $primary;
     if(scalar(@cluster_servers) > 1){
-        # the non-management node is the primary
-        return cluster_index() == 1 ? 1 : 0;
+        require pf::config;
+        if(isenabled($pf::config::Config{active_active}{switch_dhcpd_roles})){
+            # the management node is the primary
+            return cluster_index() == 0 ? 1 : 0;
+        }
+        else {
+            # the non-management node is the primary
+            return cluster_index() == 1 ? 1 : 0;
+        }
     }
     else {
         # the server is alone so it's the primary

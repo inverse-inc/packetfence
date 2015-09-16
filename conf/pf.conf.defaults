@@ -1093,6 +1093,11 @@ password=1234
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 virtual_router_id=50
+#
+# active_active.switch_dhcpd_roles
+#
+# Switch dhcpd roles so that server #1 will be primary and server #2 secondary
+switch_dhcpd_roles=disabled
 
 [monitoring]
 #
