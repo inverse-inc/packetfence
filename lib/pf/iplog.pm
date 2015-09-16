@@ -676,7 +676,7 @@ return undef if omapi is disabled
 
 sub _get_omapi_client {
     my ($self) = @_;
-    return unless pf::config::is_omapi_enabled;
+    return unless pf::config::is_omapi_lookup_enabled;
 
     return pf::OMAPI->new( $Config{omapi} );
 }

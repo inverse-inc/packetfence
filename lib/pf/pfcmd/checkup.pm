@@ -374,7 +374,7 @@ Validation related to the OMAPI configuration
 =cut
 
 sub omapi {
-    if ( pf::config::is_omapi_enabled && !pf::config::is_omapi_configured ) {
+    if ( pf::config::is_omapi_lookup_enabled && !pf::config::is_omapi_configured ) {
         add_problem( $WARN, "OMAPI is enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
     }
 }

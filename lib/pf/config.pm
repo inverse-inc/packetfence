@@ -816,13 +816,13 @@ sub is_in_list {
     return $FALSE;
 }
 
-=item is_omapi_enabled
+=item is_omapi_lookup_enabled
 
 Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
 
 =cut
 
-sub is_omapi_enabled {
+sub is_omapi_lookup_enabled {
     if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
         return $TRUE;
     }
