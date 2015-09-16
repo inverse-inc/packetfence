@@ -1,25 +1,25 @@
-package pf::factory::worker;
-
+package pf::task::log;
 =head1 NAME
 
-pf::factory::worker
+pf::task::log add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::worker
+pf::task::log
 
 =cut
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::worker', sub_name => 'modules' , require => 1;
-use List::MoreUtils qw(any);
+use base 'pf::task';
+use pf::log;
 
-our @MODULES = __PACKAGE__->modules;
-
-sub factory_for { 'pf::worker' }
+sub doTask {
+    my ($self) = @_;
+    get_logger->info(@{$self->{args}});
+}
 
 =head1 AUTHOR
 
@@ -49,4 +49,3 @@ USA.
 =cut
 
 1;
-

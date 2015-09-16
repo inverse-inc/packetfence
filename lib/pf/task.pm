@@ -1,39 +1,44 @@
-package pf::worker;
+package pf::task;
 =head1 NAME
 
-pf::worker - Parent class for pfqueue worker
-
-=cut
+pf::task - Parent class for pfqueue worker
 
 =head1 DESCRIPTION
 
-pf::worker
+pf::task
 
 =cut
 
 use strict;
 use warnings;
+use Data::UUID;
 
-
+my $GENERATOR = Data::UUID->new;
 
 =head2 new
 
-The worker is a blessed array ref to speed up serlization speed and data access
+The constructor
 
 =cut
 
 sub new {
-    my ($proto,@args) = @_;
+    my ($proto, @args) = @_;
     my $class = ref($proto) || $proto;
-    return bless \@args,$class;
+    return bless {args => \@args}, $class;
 }
 
-=head2 work
+=head2 doTask
+
+The function to override to perform a task
 
 =cut
 
-sub work {
+sub doTask {
     die "";
+}
+
+sub generateId {
+   "Task:" . $GENERATOR->create_str
 }
 
 

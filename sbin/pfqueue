@@ -38,7 +38,7 @@ BEGIN {
 use pf::file_paths;
 use pf::util;
 use pf::services::util;
-use pf::factory::worker;
+use pf::factory::task;
 use Sereal::Decoder;
 use pf::db;
 use Config::IniFiles;
@@ -293,7 +293,7 @@ sub process_queue {
     if ($queue) {
         my $item;
         $DECODER->decode($item_data, $item);
-        if (blessed $item && $item->can("work")) {
+        if (blessed $item && $item->can("doTask")) {
             eval {$item->work();};
             if ($@) {
                 get_logger->error($@);

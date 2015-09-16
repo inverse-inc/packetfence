@@ -1,24 +1,36 @@
-package pf::worker::log;
+package pf::task::api;
+
 =head1 NAME
 
-pf::worker::log add documentation
+pf::task::api
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::worker::log
+pf::task::api
 
 =cut
 
 use strict;
 use warnings;
-use base 'pf::worker';
+use base 'pf::task';
 use pf::log;
+use threads;
+use pf::api;
 
-sub work {
+sub doTask {
     my ($self) = @_;
-    get_logger->info(@$self);
+    my ($method, @args) = @{$self->{args}};
+    my $logger = get_logger();
+    if (pf::api->isPublic($method)) {
+        eval {pf::api->$method(@args);};
+        if ($@) {
+            $logger->error($@);
+        }
+    } else {
+        $logger->error("Invalid method given");
+    }
 }
 
 =head1 AUTHOR

@@ -1,38 +1,25 @@
-package pf::worker::api;
+package pf::factory::task;
+
 =head1 NAME
 
-pf::worker::api
+pf::factory::task
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::worker::api
+pf::factory::task
 
 =cut
 
 use strict;
 use warnings;
-use base 'pf::worker';
-use pf::log;
-use threads;
-use pf::api;
+use Module::Pluggable search_path => 'pf::task', sub_name => 'modules' , require => 1;
+use List::MoreUtils qw(any);
 
-sub work {
-    my ($self) = @_;
-    my ($method,@args) = @$self;
-    my $logger = get_logger();
-    if(pf::api->isPublic($method)) {
-        eval {
-            pf::api->$method(@args);
-        };
-        if($@) {
-            $logger->error($@);
-        }
-    } else {
-        $logger->error("Invalid method given");
-    }
-}
+our @MODULES = __PACKAGE__->modules;
+
+sub factory_for { 'pf::task' }
 
 =head1 AUTHOR
 

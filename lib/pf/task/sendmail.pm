@@ -1,28 +1,28 @@
-package pf::worker::sendmail;
+package pf::task::sendmail;
 =head1 NAME
 
-pf::worker::sendmail add documentation
+pf::task::sendmail add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::worker::sendmail
+pf::task::sendmail
 
 =cut
 
 use strict;
 use warnings;
-use base 'pf::worker';
+use base 'pf::task';
 use POSIX;
 use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;
 
-sub work {
+sub doTask {
     my ($self) = @_;
-    my %data = @$self;
+    my %data = @{$self->{args}};
     my $logger     = get_logger();
     my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
