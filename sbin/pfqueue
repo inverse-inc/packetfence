@@ -111,6 +111,7 @@ our $running = 1;
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
+Log::Log4perl::MDC->put( 'tid', $$ );
 
 my $redis = Redis::Fast->new(sock => "$var_dir/run/redis.sock");
 ($LUA_DELAY_JOBS_MOVE_SHA1) = $redis->script('LOAD',$LUA_DELAY_JOBS_MOVE);
@@ -234,6 +235,7 @@ sub runtask {
         $CHILDREN{$pid} = $task;
     }
     elsif ($pid == 0) {
+        Log::Log4perl::MDC->put( 'tid', $$ );
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         _runtask(@$task);
