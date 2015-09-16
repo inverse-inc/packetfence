@@ -172,10 +172,12 @@ sub parse_request {
         # Do we know who the client is?
         my $mac;
         unless ($mac = $rq->{"Calling-Station-Id"}) {
-            die "No Calling-Station-Id specified";
+            $self->{logger}->error("No Calling-Station-Id specified");
+            return undef;
         }
         unless (defined ($self->{mac_address} = clean_mac($mac))) {
-            die "Couldn't parse Calling-Station-Id $mac";
+            $self->{logger}->error("Couldn't parse Calling-Station-Id $mac");
+            return undef;
         }
 
         # Build up a client description
@@ -196,7 +198,8 @@ sub parse_request {
 
         my $id;
         unless ($id = $rq->{"SoH-MS-Correlation-Id"}) {
-            die "No correlation id specified";
+            $self->{logger}->error("no correlation id specified");
+            return undef;
         }
         push @extra, "id: $id";
 
@@ -207,7 +210,9 @@ sub parse_request {
         # Parse the actual health status
         my $status = $rq->{"SoH-MS-Windows-Health-Status"};
         unless (ref $status eq 'ARRAY' && @$status) {
-            die "SoH-MS-Windows-Health-Status didn't contain a health status";
+            $self->{logger}->error("SoH-MS-Windows-Health-Status didn't contain a health status");
+            return undef;
+
         }
 
         # Each line looks like: class status [word|attr=val]...
@@ -258,7 +263,8 @@ sub parse_request {
         }
 
         unless (%ok) {
-            die "Couldn't parse any SoH-MS-Windows-Health-Status lines";
+            $self->{logger}->error("Couldn't parse any SoH-MS-Windows-Health-Status lines");
+            return undef;
         }
 
         $self->{status} = \%ok;
@@ -571,8 +577,15 @@ sub _identify_os {
     my $major = $rq->{"SoH-MS-Machine-OS-version"};
     my $minor = $rq->{"SoH-MS-Machine-OS-release"};
 
-    die "No operating system vendor specified" unless $vendor;
-    die "No operating system version specified" unless $major;
+    unless($vendor){
+        $self->{logger}->error("No operating system vendor specified");
+        return undef;
+    }
+    unless($major){
+        $self->{logger}->error("No operating system version specified");
+        return undef;
+    }
+
 
     my $os;
     unless ($vendor eq 'Microsoft') {

@@ -191,7 +191,10 @@ sub inline_accounting_maintenance {
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = get_db_handle();
-        $dbh->begin_work or $logger->logdie("Can't enable database transactions: " . $dbh->errstr);
+        unless($dbh->begin_work){
+            $logger->error("Can't enable database transactions: " . $dbh->errstr);
+            return undef;
+        }
 
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
@@ -211,7 +214,10 @@ sub inline_accounting_maintenance {
         # Commit database transaction
         unless ($dbh->commit) {
             $logger->error("Error while committing database transaction: " . $dbh->errstr);
-            $dbh->rollback or $logger->logdie("Can't rollback database transaction: " . $dbh->errstr);
+            unless($dbh->rollback){
+                $logger->error("Can't rollback database transaction: " . $dbh->errstr);
+                return undef;
+            }
         }
     }
 
