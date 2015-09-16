@@ -88,7 +88,7 @@ frontend portal-http-mgmt
         default_backend portal-mgmt-backend
 
 frontend portal-https-mgmt
-        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend portal-mgmt-backend
 
@@ -118,7 +118,7 @@ frontend portal-http-$cluster_ip
         default_backend $cluster_ip-backend
 
 frontend portal-https-$cluster_ip
-        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend $cluster_ip-backend
 

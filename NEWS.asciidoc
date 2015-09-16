@@ -26,6 +26,7 @@ Enhancements
 * Improve error message in the profile managment page
 * Aruba Controllers now support RADIUS MAC authentication and dot1x.
 * 'person' attributes lookup
+* HAproxy TLS configuration has been restricted to modern ciphers.
 
 Bug Fixes
 +++++++++
