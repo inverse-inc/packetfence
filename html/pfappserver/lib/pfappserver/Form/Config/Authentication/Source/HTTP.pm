@@ -63,12 +63,16 @@ has_field 'authentication_url' =>
    type => 'Text',
    label => 'Authentication URL',
    required => 1,
+   tags => { after_element => \&help,
+             help => 'Note : The URL is always prefixed by a slash (/)' },
   );
 has_field 'authorization_url' =>
   (
    type => 'Text',
    label => 'Authorization URL',
    required => 1,
+   tags => { after_element => \&help,
+             help => 'Note : The URL is always prefixed by a slash (/)' },
   );
 =head1 COPYRIGHT
 
