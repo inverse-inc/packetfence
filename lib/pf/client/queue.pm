@@ -21,6 +21,8 @@ use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
 
+our $DEFAULT_EXPIRATION = 300;
+
 has redis => (
     is      => 'rw',
     builder => 1,
@@ -49,12 +51,17 @@ sub _build_redis {
 }
 
 sub submit {
-    my ($self, $queue, @workers) = @_;
-    if(@workers) {
-        die "Not submitting a pf::worker" unless all {$_->isa("pf::worker")} @workers;
-        my @encoded_data = map {sereal_encode_with_object($ENCODER, $_)} @workers;
-        $self->redis->lpush($queue, @encoded_data);
-    }
+    my ($self, $queue, $task, $expire_in) = @_;
+    $expire_in //= $DEFAULT_EXPIRATION;
+    my $id    = $task->generateId();
+    my $redis = $self->redis;
+    # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
+    $redis->multi(sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, $task), expire => $expire_in, sub {});
+    $redis->expire($id, $expire_in, sub {});
+    $redis->lpush("Queue:$queue", $id, sub {});
+    $redis->exec(sub {});
+    $redis->wait_all_responses();
 }
 
 =head1 AUTHOR
