@@ -386,7 +386,16 @@ sub getNormalVlan {
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $start = Time::HiRes::gettimeofday();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+
+    my $options = {};
+    $options->{'last_connection_type'} = connection_type_to_str($connection_type) if (defined( $connection_type));
+    $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
+    $options->{'last_port'}            = $ifIndex if (defined($ifIndex));
+    $options->{'last_ssid'}            = $ssid if (defined($ssid));
+    $options->{'last_dot1x_username'}  = $user_name if (defined($user_name));
+    $options->{'realm'}                = $realm if (defined($realm));
+
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
 
     my ($vlan, $role, $result);
 
@@ -560,7 +569,7 @@ sub getNodeInfoForAutoReg {
     my $start = Time::HiRes::gettimeofday();
 
     #define the current connection value to instantiate the correct portal
-    my $options;
+    my $options = {};
     $options->{'last_connection_type'} = connection_type_to_str($conn_type) if (defined($conn_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $switch_port if (defined($switch_port));
