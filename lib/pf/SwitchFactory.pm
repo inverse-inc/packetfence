@@ -17,11 +17,11 @@ use strict;
 use warnings;
 
 use Carp;
-use UNIVERSAL::require;
 use pf::log;
 use pf::util;
 use pf::freeradius;
 use pf::file_paths;
+use Module::Load;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
@@ -35,6 +35,16 @@ our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 my @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
+
+#Loading all the switch modules ahead of time
+use Module::Pluggable
+  search_path => [qw(pf::Switch)],
+  'require' => 1,
+  sub_name    => 'modules';
+
+our @MODULES;
+our %TYPE_TO_MODULE;
+our %VENDORS;
 
 =head1 METHODS
 
@@ -116,7 +126,6 @@ sub instantiate {
         my $switch = $switch_overlay_cache->get($switch_mac) || {};
         my $controllerIp = $switchRequest->{controllerIp};
         if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
-#            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
             $switch_overlay_cache->set(
                 $switch_mac,
                 {
@@ -133,27 +142,27 @@ sub instantiate {
     # find the module to instantiate
     $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     });
-    my $type;
+    my ($module, $type);
     pfconfig::timeme::timeme('type import', sub {
+    $type = $switch_data->{'type'};
     if ($requestedSwitch ne 'default') {
-        $type = "pf::Switch::" . $switch_data->{'type'};
+        $module = getModule($type);
     } else {
-        $type = "pf::Switch";
+        $module = "pf::Switch";
     }
-    $type = untaint_chain($type);
-    # load the module to instantiate
-    if ( !(eval "$type->require()" ) ) {
+    unless ($module) {
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
-            . "Either the type is unknown or the perl module has compilation errors. "
-            . "Read the following message for details: $@");
+                  . "The type is unknown or the perl module has compilation errors. ");
         return 0;
     }
+    $module = untaint_chain($module);
     });
+    # load the module to instantiate
 
     my $result;
     pfconfig::timeme::timeme('creating', sub {
-    $logger->debug("creating new $type object");
-    $result = $type->new(
+    $logger->debug("creating new $module object");
+    $result = $module->new(
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
@@ -168,6 +177,79 @@ sub instantiate {
 sub config {
     my %temp = %SwitchConfig;
     return \%temp;
+}
+
+=item getModule
+
+Get the module from the type
+
+=cut
+
+sub getModule {
+    my ($type) = @_;
+    unless(exists $TYPE_TO_MODULE{$type}) {
+        my $module = "pf::Switch::$type";
+        eval {
+            load($module);
+        };
+        if($@) {
+            get_logger->error("Failed to load module $module: @_");
+            return undef;
+        }
+        $TYPE_TO_MODULE{$type} = $module;
+    }
+    return $TYPE_TO_MODULE{$type};
+}
+
+=item buildVendorsList
+
+Build the vendor list
+
+=cut
+
+sub buildVendorsList {
+    for my $module (@MODULES) {
+        my $switch = $module;
+        $switch =~ s/^pf::Switch:://;
+        my @p = split /::/, $switch;
+        my $vendor = shift @p;
+        #Include only concrete classes indictated by the existence of the description method
+        if ($module->can('description')) {
+            $VENDORS{$vendor} = {} unless ($VENDORS{$vendor});
+            $VENDORS{$vendor}->{$switch} = $module->description;
+        }
+    }
+}
+
+=item preLoadModules
+
+pre load modules
+
+=cut
+
+sub preLoadModules {
+    unless (@MODULES) {
+        require pf::Switch;
+        @MODULES        = __PACKAGE__->modules;
+        buildTypeToModuleMap();
+        buildVendorsList();
+    }
+}
+
+=item buildTypeToModuleMap
+
+builds the type to module map
+
+=cut
+
+sub buildTypeToModuleMap {
+    %TYPE_TO_MODULE = map {
+        my $type = $_;
+        $type =~ s/^pf::Switch:://;
+        $type => $_
+      }
+      #Include only concrete classes indictated by the existence of the description method
+      grep { $_->can('description') } @MODULES;
 }
 
 =back

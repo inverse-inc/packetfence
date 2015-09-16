@@ -41,6 +41,9 @@ use pf::pfdns::constants;
 use pf::CHI;
 use pf::ConfigStore::Interface;
 use pf::cluster;
+use pf::SwitchFactory;
+
+pf::SwitchFactory::preLoadModules();
 
 # initialization
 # --------------
@@ -104,12 +107,12 @@ my $cs = pf::ConfigStore::Interface->new;
 foreach my $interface ( @{$cs->readAllIds} ) {
     my $full_interface = "interface $interface";
     my $ip = $Config{$full_interface}{'vip'} || $Config{$full_interface}{'ip'};
-    if ( 
-        defined ($Config{$full_interface}{'enforcement'}) && 
-        ( 
-          ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) 
-          || is_type_inline($Config{$full_interface}{'enforcement'}) 
-        ) 
+    if (
+        defined ($Config{$full_interface}{'enforcement'}) &&
+        (
+          ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN)
+          || is_type_inline($Config{$full_interface}{'enforcement'})
+        )
     ){
         # if cluster is enabled we return the VIP when queried on the server interface
         # we also listen on the VIP in case it's needed

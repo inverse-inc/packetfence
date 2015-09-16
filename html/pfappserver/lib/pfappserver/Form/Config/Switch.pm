@@ -19,6 +19,7 @@ use File::Spec::Functions;
 
 use pf::config;
 use pf::Switch::constants;
+use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
 
@@ -582,36 +583,17 @@ sub build_block_list {
 
 =head2 options_type
 
-Dynamically extract the descriptions from the various SNMP modules.
+Extract the descriptions from the various Switch modules.
 
 =cut
 
 sub options_type {
     my $self = shift;
 
-    my %paths = ();
-    my $wanted = sub {
-        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/Switch\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
-            $pack =~ s/\//::/g; $switch =~ s/\//::/g;
-
-            # Parent folder is the vendor name
-            my @p = split /::/, $switch;
-            my $vendor = shift @p;
-
-            # Only switch types with a 'description' subroutine are displayed
-            require $module;
-            if ($pack->can('description')) {
-                $paths{$vendor} = {} unless ($paths{$vendor});
-                $paths{$vendor}->{$switch} = $pack->description;
-            }
-        }
-    };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/Switch"));
-
     # Sort vendors and switches for display
     my @modules;
-    foreach my $vendor (sort keys %paths) {
-        my @switches = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
+    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
+        my @switches = map {{ value => $_, label => $pf::SwitchFactory::VENDORS{$vendor}->{$_} }} sort keys %{$pf::SwitchFactory::VENDORS{$vendor}};
         push @modules, { group => $vendor,
                          options => \@switches };
     }

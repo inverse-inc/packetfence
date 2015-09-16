@@ -64,12 +64,16 @@ use pf::node;
 use pf::Switch 2.00;
 use pf::Switch::constants;
 use pf::SwitchFactory;
+
 use pf::traplog;
 use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
+
+pf::SwitchFactory::preLoadModules();
+
 use threads;
 use threads::shared;
 $thread = 1;

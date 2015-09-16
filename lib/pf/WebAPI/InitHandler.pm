@@ -20,6 +20,7 @@ use pf::StatsD;
 use pf::db;
 use pf::CHI;
 use Cache::Memcached;
+use pf::SwitchFactory();
 
 use Apache2::Const -compile => 'OK';
 
@@ -59,6 +60,7 @@ sub post_config {
     db_disconnect();
     pf::CHI->clear_memoized_cache_objects;
     Cache::Memcached->disconnect_all;
+    pf::SwitchFactory::preLoadModules();
     return Apache2::Const::OK;
 }
 

@@ -40,6 +40,9 @@ use pf::trigger;
 use pf::util;
 use pf::services::util;
 use pf::violation;
+use pf::SwitchFactory;
+
+pf::SwitchFactory::preLoadModules();
 
 # initialization
 # --------------
