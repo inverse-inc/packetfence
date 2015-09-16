@@ -482,9 +482,10 @@ sub notify_configfile_changed : Public {
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
 
     eval {
+        pf::util::pf_run("sudo /usr/local/pf/bin/pfcmd fixpermissions file $postdata{conf_file}");
+        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing.'";
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
-        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing. This is excessively bad. Run '/usr/local/pf/bin/pfcmd fixpermissions'";
         print $fh $result;
         close($fh);
         use pf::config::cached;
@@ -495,6 +496,7 @@ sub notify_configfile_changed : Public {
     };
     if($@){
         $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
+        die $@;
     }
 
     return 1;
@@ -543,6 +545,7 @@ sub expire_cluster : Public {
     $postdata{light} = 0;
     expire($class, %postdata);
 
+    my @failed;
     foreach my $server (@cluster_servers){
         next if($host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
@@ -555,7 +558,9 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@")
+            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@");
+            push @failed, $server->{host};
+            next;
         }
 
         %data = (
@@ -568,9 +573,16 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@")
+            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@");
+            push @failed, $server->{host};
+            next;
         }
     }
+    
+    if(@failed){
+        die "Failed to sync configuration on server(s) ".join(',',@failed);
+    }
+
     return 1;
 }
 

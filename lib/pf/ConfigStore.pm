@@ -406,7 +406,9 @@ sub commit {
         $self->rollback();
     }
 
-    $self->commitPfconfig;
+    if($result){
+        ($result,$error) = $self->commitPfconfig;
+    }
 
     return ($result, $error);
 }
@@ -416,7 +418,12 @@ sub commitPfconfig {
 
     if(defined($self->pfconfigNamespace)){
         if($cluster_enabled){
-            $self->commitCluster();
+            eval {
+                $self->commitCluster();
+            };
+            if($@){
+                return (undef, "Could not synchronize cluster ($@).");
+            }
         }
         else {
             my $manager = pfconfig::manager->new;
@@ -426,6 +433,7 @@ sub commitPfconfig {
     else{
         get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
     }
+    return (1,"OK");
 }
 
 sub commitCluster {

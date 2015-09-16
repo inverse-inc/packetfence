@@ -15,9 +15,19 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 
+=head2 default_action
+
+The default action to make when none is specified
+Defaults to no action
+
+=cut
+
+sub default_action { undef }
+
 sub parseArgs {
     my ($self) = @_;
     my ($action,@args) = $self->args;
+    $action = $self->default_action if(!defined($action) && defined($self->default_action));
     if($self->is_valid_action($action)) {
         $self->{action} = $action;
         return $self->_parseArgs(@args);
@@ -53,6 +63,7 @@ sub action_args {
     my ($self) = @_;
     return @{ $self->{action_args} || []  }
 }
+
 
 =head1 AUTHOR
 
