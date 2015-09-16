@@ -1268,7 +1268,7 @@ May be sometimes usefull for custom
 
 sub node_last_reg_non_inline_on_category {
     my ($mac, $category) = @_;
-    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_non_inline_on_category_sql', $category) || return (0);
+    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_non_inline_on_category_sql', $mac, $category) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
     return ($val);
