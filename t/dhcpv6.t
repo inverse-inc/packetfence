@@ -21,7 +21,6 @@ use Net::Pcap qw(pcap_open_offline pcap_loop);
 use bytes;
 
 my $filename = '/usr/local/pf/t/data/dhcpv6cap.pcapng';
-#my $filename = '/usr/local/pf/t/data/dhcpv6-sample-2.pcap';
 my $err      = '';
 
 my $pcap = pcap_open_offline($filename, \$err)
@@ -29,7 +28,6 @@ my $pcap = pcap_open_offline($filename, \$err)
 
 our $count = 1;
 my $data = \$count;
-use Data::Dumper;
 
 my $value = pcap_loop($pcap, -1, \&process_packet, $data);
 
@@ -38,7 +36,6 @@ sub process_packet {
     my ($eth_obj, $ip_obj, $udp_obj, $dhcp) = decompose_dhcpv6($packet);
     $dhcp->{count} = $$user_data;
     $$user_data++;
-#    print Dumper $dhcp;
 }
 
 =head1 AUTHOR
