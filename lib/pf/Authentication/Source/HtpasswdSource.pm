@@ -59,7 +59,7 @@ sub authenticate {
         return ($FALSE, 'Invalid login or password');
     }
 
-    return ($TRUE, 'Successful authentication using htpasswd file.');
+    return ($TRUE, 'Authentication successful.');
 }
 
 =head2 match_in_subclass

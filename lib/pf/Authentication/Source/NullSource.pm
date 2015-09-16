@@ -86,7 +86,7 @@ sub match_in_subclass {
 sub authenticate {
     my ($self, $username, $password) = @_;
     if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
-        return ($TRUE, 'Successful authentication using null source.');
+        return ($TRUE, 'Authentication successful.');
     }
     return ($FALSE, 'Invalid email address provided.');
 }

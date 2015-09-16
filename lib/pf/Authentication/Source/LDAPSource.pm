@@ -114,7 +114,7 @@ sub authenticate {
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
-  return ($TRUE, 'Authentication successful using LDAP');
+  return ($TRUE, 'Authentication successful');
 }
 
 

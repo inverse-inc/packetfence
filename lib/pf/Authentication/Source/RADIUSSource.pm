@@ -52,7 +52,7 @@ sub authenticate {
      if ($radius->get_error() eq 'ENONE') {
 
        if ($result) {
-        return ($TRUE, 'Successful authentication using RADIUS.');
+        return ($TRUE, 'Authentication successful.');
       } else {
         return ($FALSE, 'Invalid login or password');
        }

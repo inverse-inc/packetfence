@@ -44,10 +44,10 @@ sub authenticate {
    my $result = pf::password::validate_password($username, $password);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
-     return ($TRUE, 'Successful authentication using SQL');
+     return ($TRUE, 'Authentication successful.');
    }
 
-   return ($FALSE, 'Unable to authenticate successfully using SQL.');
+   return ($FALSE, 'Invalid login or password');
  }
 
 =head2 match
