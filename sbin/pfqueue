@@ -152,8 +152,16 @@ sub registertasks {
             }
         }
         elsif ($type eq 'delayed') {
-            my $submit_queue = $config->val($section, 'submit_queue');
-            register_task("delayed/$submit_queue", "queue/$submit_queue", \&process_delayed_jobs);
+            my $queue = $config->val($section, 'queue', 100);
+            my $delayed_queue = "Delayed:$queue";
+            my $submit_queue = "Queue:$queue";
+            my $parameters = [
+                $delayed_queue,
+                $submit_queue,
+                $config->val($section, 'batch', 100),
+                $config->val($section, 'sleep', 100) * 1000,
+            ];
+            register_task("Delayed:$queue", \&process_delayed_jobs, $parameters );
         }
     }
 }
