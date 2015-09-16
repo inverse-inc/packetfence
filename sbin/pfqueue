@@ -56,7 +56,17 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
-our $DECODER    = Sereal::Decoder->new;
+# EVAL LUA_DELAY_JOBS_MOVE 2 DELAY_ZSET JOB_QUEUE TIMESTAMP BATCH
+our $LUA_DELAY_JOBS_MOVE =<<EOS ;
+    local task_ids = redis.call("ZRANGEBYSCORE",KEYS[1],0,ARGV[1],'LIMIT',0,ARGV[2]);
+    if table.getn(task_ids) > 0 then
+        redis.call("LPUSH",KEYS[2],unpack(task_ids));
+        redis.call("ZREM",KEYS[1],unpack(task_ids));
+    end
+EOS
+
+our $LUA_DELAY_JOBS_MOVE_SHA1;
+
 
 my $logger = Log::Log4perl->get_logger($PROGRAM_NAME);
 
@@ -101,6 +111,9 @@ our $running = 1;
 daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 
+my $redis = Redis::Fast->new(sock => "$var_dir/run/redis.sock");
+($LUA_DELAY_JOBS_MOVE_SHA1) = $redis->script('LOAD',$LUA_DELAY_JOBS_MOVE);
+$redis->quit;
 registertasks();
 runtasks();
 waitforit();
@@ -289,44 +302,43 @@ Process queue
 
 sub process_queue {
     my ($redis, $queue_name) = @_;
-    my ($queue, $item_data) = $redis->brpop($queue_name, 1);
+    my ($queue, $task_id) = $redis->brpop($queue_name, 1);
     if ($queue) {
-        my $item;
-        $DECODER->decode($item_data, $item);
-        if (blessed $item && $item->can("doTask")) {
-            eval {$item->work();};
+        my $data = $redis->hget($task_id, 'data');
+        if($data) {
+            eval {
+                sereal_decode_with_object($DECODER, $data, my $item);
+                if (blessed $item && $item->can("doTask")) {
+                    eval {$item->doTask();};
+                } else {
+                    get_logger->error("Invalid object stored in queue");
+                }
+            };
             if ($@) {
                 get_logger->error($@);
             }
+        } else {
+                get_logger->error("Invalid task id $task_id provided");
         }
+        $redis->del($task_id);
     }
 }
 
 sub process_delayed_jobs {
-    my ($redis, $queue_name) = @_;
+    my ($redis, $options) = @_;
+    my ($delay_queue,$submit_queue,$batch,$sleep) = @$options;
+    eval {
 
-    #Getting the current time from the redis service
-    my ($seconds, $micro) = $redis->time;
-    my $time_milli = $seconds * 1000 + int($micro / 1000);
-
-    #Get the first job within our time range
-    my @jobs = $redis->zrangebyscore($QUEUE_DELAYED_ZSET, 0, $time_milli, 'LIMIT', 0, 1);
-    while (@jobs) {
-
-        #All values should
-        my @data = grep {defined $_} $redis->hmget($QUEUE_DELAYED_HASH, @jobs);
-        if (@data) {
-            $redis->lpush($queue_name, @data, sub { });
-            $redis->zrem($QUEUE_DELAYED_ZSET, @jobs, sub { });
-            $redis->hdel($QUEUE_DELAYED_HASH, @jobs, sub { });
-            $redis->lpop($QUEUE_DELAYED_QUEUE, @jobs, sub { });
-            $redis->wait_all_responses();
-        }
-        @jobs = $redis->zrangebyscore($QUEUE_DELAYED_ZSET, 0, $time_milli, 'LIMIT', 0, 1);
+        #Getting the current time from the redis service
+        my ($seconds, $micro) = $redis->time;
+        my $time_milli = $seconds * 1000 + int($micro / 1000);
+        $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $delay_queue, $submit_queue, $time_milli, $batch);
+    };
+    if ($@) {
+        $logger->error("Error running task : $@");
     }
-
-    #Wait for another item to be placed into the helper queue
-    my ($queue, $item_data) = $redis->brpop($QUEUE_DELAYED_QUEUE, 1);
+    # Sleep for 10 milliseconds
+    usleep($sleep);
 }
 
 =head2 waitforit

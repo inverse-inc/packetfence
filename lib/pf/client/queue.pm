@@ -64,6 +64,25 @@ sub submit {
     $redis->wait_all_responses();
 }
 
+sub submit_delayed {
+    my ($self, $queue, $task, $delay, $expire_in) = @_;
+    $expire_in //= $DEFAULT_EXPIRATION;
+    my $id    = $task->generateId();
+    my $redis = $self->redis;
+    #Getting the current time from the redis service
+    my ($seconds, $micro) = $redis->time;
+    my $time_milli = $seconds * 1000 + int($micro / 1000);
+    $time_milli += $delay;
+    # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
+    $redis->multi(sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, $task), expire => $expire_in, sub {});
+    $redis->expire($id, $expire_in, sub {});
+    $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
+    $redis->exec(sub {});
+    $redis->wait_all_responses();
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
