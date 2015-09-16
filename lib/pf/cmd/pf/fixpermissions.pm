@@ -34,6 +34,12 @@ use File::Spec::Functions qw(catfile);
 
 sub default_action { 'all' }
 
+=head2 action_all
+
+Fix the permissions on pf and fingerbank files
+
+=cut
+
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
@@ -61,6 +67,14 @@ sub parse_file {
     }
     return 1;
 }
+
+=head2 action_file
+
+Apply the permission fix on specific(s) file(s)
+Will determine the user to set rights to depending on the destination directory
+Doesn't work outside /usr/local/pf and /usr/local/fingerbank
+
+=cut
 
 sub action_file {
     my ($self) = @_;
