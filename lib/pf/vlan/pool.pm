@@ -43,14 +43,14 @@ sub new {
     return $this;
 }
 
-sub getVlanPool {
-    my ($self, $vlan, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $role) = @_;
+sub getVlanFromPool {
+    my ($self, $pool_args) = @_;
     my $logger =  pf::log::get_logger();
 
-    return $vlan if $self->rangeValidator($vlan);
-    my $range = Number::Range->new($vlan);
+    return $pool_args->{'vlan'} if $self->rangeValidator($pool_args->{'vlan'});
+    my $range = Number::Range->new($pool_args->{'vlan'});
 
-    $vlan = $self->getRoundRobin($mac, $role, $range);
+    $vlan = $self->getRoundRobin($pool_args->{'mac'}, $pool_args->{'role'}, $range);
     return $vlan;
 }
 
@@ -82,7 +82,9 @@ sub rangeValidator {
 
 =head2 getRoundRobin
 
-Return the vlan id based on round robin
+Return the vlan id based on the last registered device + 1
+First test if the last_vlan of the device is in the range then use it
+Else get the last registered device vlan and add + 1 (+1 in the range)
 
 =cut
 
