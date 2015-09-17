@@ -15,10 +15,11 @@ use strict;
 use warnings;
 use base 'pf::task';
 use pf::log;
+our $logger = get_logger();
 
 sub doTask {
     my ($self) = @_;
-    get_logger->info(@{$self->{args}});
+    $logger->info(@{$self->{args}});
 }
 
 =head1 AUTHOR
