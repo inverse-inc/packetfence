@@ -124,10 +124,10 @@ sub post_auth {
         if (defined($RAD_REQUEST{'User-Name'})) {
             $mac = clean_mac($RAD_REQUEST{'User-Name'});
             if ( length($mac) != 17 ) {
-               $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+               $mac = _extract_mac_from_calling_station_id()
             }
         } else {
-            $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+            $mac = _extract_mac_from_calling_station_id()
         }
         my $port = $RAD_REQUEST{'NAS-Port'};
 
@@ -208,6 +208,23 @@ sub post_auth {
     $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
     return $radius_return_code;
 }
+
+=item * _extract_mac_from_calling_station_id
+
+Extracts the MAC address from the calling station ID.
+
+Handles the case where the Calling-Station-Id is sent twice in the request (thus creating an array)
+
+=cut
+
+sub _extract_mac_from_calling_station_id {
+    my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+    if(ref($RAD_REQUEST{'Calling-Station-Id'}) eq 'ARRAY'){
+        $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'}[0]);
+    }
+    return $mac;
+}
+
 
 =item * server_error_handler
 
