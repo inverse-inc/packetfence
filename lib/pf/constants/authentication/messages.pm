@@ -1,29 +1,29 @@
-package pf::constants::authentication;
+package pf::constants::authentication::messages;
 
 =head1 NAME
 
-pf::constants::authentication - constants for authentication object
+pf::constants::authentication::messages - constants for authentication object result messages
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::authentication
+pf::constants::authentication::messages
 
 =cut
 
 use strict;
 use warnings;
+use Readonly;
+use base qw(Exporter);
+our @EXPORT = qw(
+  $COMMUNICATION_ERROR_MSG $AUTH_FAIL_MSG $AUTH_SUCCESS_MSG $INVALID_EMAIL_MSG
+);
 
-use Module::Pluggable
-  'search_path' => [qw(pf::Authentication::Source)],
-  'sub_name'    => 'sources',
-  'require'     => 1,
-  ;
-
-our @SOURCES = __PACKAGE__->sources();
-
-our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
+Readonly our $COMMUNICATION_ERROR_MSG => 'Unable to validate credentials at the moment';
+Readonly our $AUTH_FAIL_MSG => 'Invalid login or password';
+Readonly our $AUTH_SUCCESS_MSG => 'Authentication successful.';
+Readonly our $INVALID_EMAIL_MSG => 'Invalid e-mail address';
 
 =head1 AUTHOR
 
