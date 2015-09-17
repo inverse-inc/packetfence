@@ -43,8 +43,6 @@ use pf::Sereal qw($DECODER);
 use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::db;
 use Config::IniFiles;
-use pf::constants::pfqueue
-  qw($QUEUE_DELAYED_ZSET $QUEUE_DELAYED_QUEUE $QUEUE_DELAYED_HASH $QUEUE_PREFIX $QUEUE_DYNAMIC_PREFIX);
 
 our $config = Config::IniFiles->new(-file => "$install_dir/conf/services.conf");
 
