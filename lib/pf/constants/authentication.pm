@@ -26,6 +26,15 @@ our @SOURCES = __PACKAGE__->sources();
 our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 
 
+=head2 Messages
+
+Replies for authentication success/error
+
+=cut
+
+Readonly our $INVALID_CREDENTIALS => ;
+Readonly our $AUTH_SUCESS
+
 
 =head1 AUTHOR
 

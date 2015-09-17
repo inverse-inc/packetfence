@@ -10,6 +10,7 @@ pf::Authentication::Source::RADIUSSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 
 use Authen::Radius;
 
@@ -52,16 +53,16 @@ sub authenticate {
      if ($radius->get_error() eq 'ENONE') {
 
        if ($result) {
-        return ($TRUE, 'Authentication successful.');
+        return ($TRUE, $AUTH_SUCCESS_MSG);
       } else {
-        return ($FALSE, 'Invalid login or password');
+        return ($FALSE, $AUTH_FAIL_MSG);
        }
      }
    }
 
    $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error() );
 
-   return ($FALSE, 'Unable to authenticate successfully using RADIUS.');
+   return ($FALSE, $COMMUNICATION_ERROR_MSG);
  }
 
 =head2 match_in_subclass

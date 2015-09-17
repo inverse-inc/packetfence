@@ -9,6 +9,7 @@ pf::Authentication::Source::EmailSource
 =cut
 
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 
 use Moose;
 extends 'pf::Authentication::Source';

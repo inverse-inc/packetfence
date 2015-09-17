@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moose;
 use pf::constants;
+use pf::constants::authentication::messages;
 use pf::config;
 use Email::Valid;
 use pf::util;
@@ -86,9 +87,9 @@ sub match_in_subclass {
 sub authenticate {
     my ($self, $username, $password) = @_;
     if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
-        return ($TRUE, 'Authentication successful.');
+        return ($TRUE, $AUTH_SUCCESS_MSG);
     }
-    return ($FALSE, 'Invalid email address provided.');
+    return ($FALSE, $INVALID_EMAIL_MSG);
 }
 
 =head1 AUTHOR
