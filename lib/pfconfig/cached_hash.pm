@@ -89,17 +89,12 @@ sub FETCH {
         return undef;
     }
 
-    my $subcache_value;
-    $subcache_value = $self->get_from_subcache($key);
-    return $subcache_value if defined($subcache_value);
-
     return $self->{_internal_elements}{$key} if defined( $self->{_internal_elements}{$key} );
 
-    my $result;
-    my $reply = $self->_get_from_socket("$self->{_namespace};$key");
-    $result = defined($reply) ? $reply->{element} : undef;
-
-    $self->set_in_subcache( $key, $result );
+    my $result = $self->compute_from_subcache($key, sub {
+        my $reply = $self->_get_from_socket("$self->{_namespace};$key");
+        my $result = defined($reply) ? $reply->{element} : undef;
+    });
 
     return $result;
 }
@@ -116,9 +111,11 @@ sub keys {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my @keys = @{ $self->_get_from_socket( $self->{_namespace}, "keys" ) };
+    my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "keys" );
+    });
 
-    return @keys;
+    return @$keys;
 }
 
 =head2 FIRSTKEY
@@ -131,8 +128,11 @@ Proxies to pfconfig
 sub FIRSTKEY {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
-    my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
-    return $first_key ? $first_key->{next_key} : undef;
+
+    return $self->compute_from_subcache("__PFCONFIG_FIRST_KEY__", sub {
+        my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
+        return $first_key ? $first_key->{next_key} : undef;
+    });
 }
 
 =head2 FIRSTKEY
@@ -145,7 +145,10 @@ Proxies to pfconfig
 sub NEXTKEY {
     my ( $self, $last_key ) = @_;
     my $logger = pfconfig::log::get_logger;
-    return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
+
+    return $self->compute_from_subcache("__PFCONFIG_NEXT_KEY_${last_key}__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
+    });
 }
 
 =head2 STORE
@@ -174,7 +177,9 @@ Proxies to pfconfig
 sub EXISTS {
     my ( $self, $key ) = @_;
     my @keys = $self->keys;
-    return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
+    return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
+    });
 }
 
 =head2 values
@@ -214,7 +219,11 @@ Call it using tied(%hash)->search('result', 'success')
 
 sub search {
     my ($self, $field, $value ) = @_;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+    my $elements = $self->compute_from_subcache("__PFCONFIG_HASH_SEARCH_${field}_${value}__", sub {
+        my @elements = grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+        return \@elements;
+    });
+    return @$elements;
 }
 
 =back

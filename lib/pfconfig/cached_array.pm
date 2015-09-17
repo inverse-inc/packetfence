@@ -82,13 +82,11 @@ sub FETCH {
     my ( $self, $index ) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my $subcache_value = $self->get_from_subcache($index);
-    return $subcache_value if defined($subcache_value);
-
-    my $reply = $self->_get_from_socket("$self->{_namespace};$index");
-    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
-
-    $self->set_in_subcache( $index, $result );
+    my $result = $self->compute_from_subcache($index, sub {
+      my $reply = $self->_get_from_socket("$self->{_namespace};$index");
+      my $result = defined($reply) ? $reply->{element} : undef;
+      return $result;
+    });
 
     return $result;
 
@@ -105,7 +103,9 @@ sub FETCHSIZE {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my $result = $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
+    my $result = $self->compute_from_subcache("__PFCONFIG_ARRAY_SIZE__", sub {
+      return $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
+    });
 
     return $result;
 }
@@ -120,8 +120,10 @@ Proxies the call to pfconfig
 sub EXISTS {
     my ( $self, $index ) = @_;
 
-    return $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) )
+    return $self->compute_from_subcache("__PFCONFIG_ARRAY_EXISTS_${index}__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) )
         ->{result};
+    });
 }
 
 =back

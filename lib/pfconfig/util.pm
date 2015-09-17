@@ -19,17 +19,27 @@ use warnings;
 use base qw(Exporter);
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::constants;
+use pfconfig::undef_element;
 use pfconfig::log;
 use pfconfig::constants;
 use IO::Socket::UNIX;
 use Sereal::Decoder;
+use Readonly;
 
 our @EXPORT_OK = qw(
     is_type_inline
+    $undef_element
 );
+
+Readonly our $undef_element => pfconfig::undef_element->new;
 
 sub fetch_socket {
     my ($socket, $payload) = @_;
+    
+    # The line below will log any request to pfconfig for debugging purposes
+    # As the logging cost even in trace is high, it's commented out
+    #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
+
     # we ask the cachemaster for our namespaced key
     print $socket "$payload\n";
 
@@ -40,9 +50,6 @@ sub fetch_socket {
     # under some conditions we are receiving multiple lines.
     # this under here should now fix it
     use bytes;
-    # if the fix above doesn't fix it, then multi-line handling is done
-    # through the following lines
-    pfconfig::log::get_logger->trace("pfconfig has $count lines for us");
     my $line;
     my $line_read = 0;
     my $response  = '';

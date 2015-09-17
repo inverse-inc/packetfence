@@ -34,7 +34,7 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON;
 use pfconfig::timeme;
 use pfconfig::log;
-use pfconfig::util;
+use pfconfig::util qw($undef_element);
 use pfconfig::constants;
 use Sereal::Encoder;
 use Sereal::Decoder;
@@ -142,6 +142,35 @@ sub set_in_subcache {
     $self->{_subcache}    = {}   unless $self->{_subcache};
     $self->{_subcache}{$key} = $result;
 
+}
+
+=head2 compute_from_subcache
+
+Get an element of the subcache or compute it's value and store it in the subcache
+
+=cut
+
+sub compute_from_subcache {
+    my ($self, $key, $on_miss) = @_;
+
+    my $subcache_value = $self->get_from_subcache($key);
+    if(defined($subcache_value) && ref($subcache_value) eq "pfconfig::undef_element"){
+        return undef;
+    }
+    elsif(defined($subcache_value)){
+        return $subcache_value;
+    }
+
+    my $result = $on_miss->();
+    if(defined($result)){
+        $self->set_in_subcache($key,$result);
+    }
+    else {
+        $self->set_in_subcache($key, $undef_element);
+    }
+
+    return $result;
+    
 }
 
 =head2 _get_from_socket
