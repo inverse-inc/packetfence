@@ -234,7 +234,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
             nas_port => '1700',
         };
 
@@ -291,7 +291,7 @@ sub radiusDisconnect {
             $connection_info = {
                 nas_ip => $send_disconnect_to,
                 secret => $self->{'_radiusSecret'},
-                LocalAddr => $management_network->tag('vip'),
+                LocalAddr => $self->deauth_source_ip(),
                 nas_port => '3799',
             };
             $response = perform_disconnect($connection_info, $attributes_ref);

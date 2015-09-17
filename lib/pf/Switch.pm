@@ -27,6 +27,7 @@ use pf::constants;
 use pf::config;
 use pf::locationlog;
 use pf::node;
+use pf::cluster;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
 use pf::roles::custom $ROLE_API_LEVEL;
@@ -2775,7 +2776,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
@@ -3089,6 +3090,25 @@ sub enableMABByIfIndex {
     $logger->error("This function is unimplemented.");
     return 0;
 }
+
+=item deauth_source_ip
+
+Computes which IP should be used as source IP address for the deauthentication
+
+Takes into account the active/active clustering and centralized deauth
+
+=cut
+
+sub deauth_source_ip {
+    my ($self) = @_;
+    if($cluster_enabled){
+        return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
+    }
+    else {
+        return $management_network->tag('vip');
+    }
+}
+
 
 =back
 

@@ -80,14 +80,13 @@ AcceptMutex posixsem
 SSLMutex posixsem
 <Perl>
 use pf::config qw();
+use pf::cluster qw();
 
 
 my $PfConfig = \%pf::config::Config;
 my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
-my $host;
-
 $PidFile = $install_dir.'/var/run/httpd.webservices.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
@@ -133,36 +132,46 @@ $ErrorLog = $install_dir.'/logs/httpd.webservices.error';
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'soap'}";
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-        $host = $management_network->{'Tvip'};
-    } else {
-        $host = $management_network->{'Tip'};
-    }
-    @Listen =  ("127.0.0.1:".$PfConfig->{'ports'}{'soap'},$host.":".$PfConfig->{'ports'}{'soap'});
-
+    my @hosts;
+    @Listen =  ("127.0.0.1:".$PfConfig->{'ports'}{'soap'});
     push (@NameVirtualHost,"127.0.0.1:".$PfConfig->{'ports'}{'soap'});
-    push (@NameVirtualHost,$host.":".$PfConfig->{'ports'}{'soap'});
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        push(@hosts, $management_network->{'Tvip'});
+        push (@Listen, $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'soap'});
+    } else {
+        push(@hosts, $management_network->{'Tip'});
+        push (@Listen, $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'soap'});
+    }
+
+
+    if($pf::cluster::cluster_enabled){
+        push (@Listen, pf::cluster::management_cluster_ip().":".$PfConfig->{'ports'}{'soap'});
+        push (@NameVirtualHost,pf::cluster::management_cluster_ip().":".$PfConfig->{'ports'}{'soap'});
+        push (@hosts, pf::cluster::management_cluster_ip());
+    }
 
     #Generate Virtualhost for management interface (ssl enabled and auth enabled)
-    push @{ $VirtualHost{$host.":".$PfConfig->{'ports'}{'soap'}} },
-        {
-             ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
-             DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-             ErrorLog            => $install_dir.'/logs/httpd.webservices.error',
-             CustomLog           => $install_dir.'/logs/httpd.webservices.access combined',
-             SSLEngine           => 'on',
-             Include             => $var_dir.'/conf/ssl-certificates.conf',
-             Location     => {
-                  "/" => {
-                      SetHandler          => 'modperl',
-                      PerlResponseHandler => 'pf::WebAPI',
-                      PerlAuthenHandler   => 'pf::WebAPI::AuthenHandler',
-                      AuthName            => "PacketFence_Authentication",
-                      AuthType            => 'Basic',
-                      require             => 'valid-user',
-                  },
-             },
-       };
+    foreach my $host (@hosts){
+        push @{ $VirtualHost{$host.":".$PfConfig->{'ports'}{'soap'}} },
+            {
+                 ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+                 DocumentRoot        => $install_dir.'/html/pfappserver/lib',
+                 ErrorLog            => $install_dir.'/logs/httpd.webservices.error',
+                 CustomLog           => $install_dir.'/logs/httpd.webservices.access combined',
+                 SSLEngine           => 'on',
+                 Include             => $var_dir.'/conf/ssl-certificates.conf',
+                 Location     => {
+                      "/" => {
+                          SetHandler          => 'modperl',
+                          PerlResponseHandler => 'pf::WebAPI',
+                          PerlAuthenHandler   => 'pf::WebAPI::AuthenHandler',
+                          AuthName            => "PacketFence_Authentication",
+                          AuthType            => 'Basic',
+                          require             => 'valid-user',
+                      },
+                 },
+           };
+      }
 
 
 } else {
