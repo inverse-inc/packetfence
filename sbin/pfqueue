@@ -57,9 +57,15 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
+
+#
+# This lua script gets all the job id from a zset with a timestamp less the one passed
+# Then push all the job ids the work queue
+# It is called like the following
 # EVAL LUA_DELAY_JOBS_MOVE 2 DELAY_ZSET JOB_QUEUE TIMESTAMP BATCH
+#
 our $LUA_DELAY_JOBS_MOVE =<<EOS ;
-    local task_ids = redis.call("ZRANGEBYSCORE",KEYS[1],0,ARGV[1],'LIMIT',0,ARGV[2]);
+    local task_ids = redis.call("ZRANGEBYSCORE",KEYS[1],'-inf',ARGV[1],'LIMIT',0,ARGV[2]);
     if table.getn(task_ids) > 0 then
         redis.call("LPUSH",KEYS[2],unpack(task_ids));
         redis.call("ZREM",KEYS[1],unpack(task_ids));
@@ -144,24 +150,24 @@ sub registertasks {
     foreach my $section ($config->GroupMembers('pfqueue')) {
         my $name = $section;
         next unless $name =~ s/^pfqueue queue +//;
-        my $type = $config->val($section, 'type', 'simple');
-        if ($type eq 'simple') {
-            my $worker = $config->val($section, 'workers', 10);
-            foreach (1 .. $worker) {
-                register_task("Queue:$name",\&process_queue, "Queue:$name");
-            }
+        my $worker = $config->val($section, 'workers', 10);
+        foreach (1 .. $worker) {
+            register_task("Queue:$name",\&process_queue, "Queue:$name");
         }
-        elsif ($type eq 'delayed') {
-            my $queue = $config->val($section, 'queue', 100);
-            my $delayed_queue = "Delayed:$queue";
-            my $submit_queue = "Queue:$queue";
+        my $has_delayed_queue = $config->val($section, 'has_delayed_queue', 0);
+        if ($has_delayed_queue) {
+            my $delayed_queue = "Delayed:$name";
+            my $submit_queue = "Queue:$name";
             my $parameters = [
                 $delayed_queue,
                 $submit_queue,
-                $config->val($section, 'batch', 100),
-                $config->val($section, 'sleep', 100) * 1000,
+                $config->val($section, 'delayed_queue_batch', 100),
+                $config->val($section, 'delayed_queue_sleep', 100) * 1000,
             ];
-            register_task("Delayed:$queue", \&process_delayed_jobs, $parameters );
+            my $delayed_queue_workers = $config->val($section, 'delayed_queue_workers', 1);
+            for(1 .. $delayed_queue_workers) {
+                register_task($delayed_queue, \&process_delayed_jobs, $parameters );
+            }
         }
     }
 }
