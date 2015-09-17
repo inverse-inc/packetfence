@@ -1093,6 +1093,11 @@ password=1234
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 virtual_router_id=50
+#
+# active_active.dns_on_vip_only
+#
+# Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster.
+dns_on_vip_only=disabled
 
 [monitoring]
 #
