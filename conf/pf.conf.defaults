@@ -1102,7 +1102,7 @@ dns_on_vip_only=disabled
 # active_active.centralized_deauth
 #
 # Centralize the deauthentication to the management node of the cluster.
-centralized_deauth=disabled
+centralized_deauth=enabled
 
 [monitoring]
 #
