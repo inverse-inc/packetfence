@@ -50,7 +50,7 @@ sub getVlanFromPool {
     return $pool_args->{'vlan'} if $self->rangeValidator($pool_args->{'vlan'});
     my $range = Number::Range->new($pool_args->{'vlan'});
 
-    $vlan = $self->getRoundRobin($pool_args->{'mac'}, $pool_args->{'role'}, $range);
+    my $vlan = $self->getRoundRobin($pool_args->{'mac'}, $pool_args->{'role'}, $range);
     return $vlan;
 }
 
