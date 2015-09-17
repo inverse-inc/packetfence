@@ -17,6 +17,12 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 
+=head2 match
+
+Match if the argument is not defined
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
     return !defined($arg);
@@ -50,4 +56,3 @@ USA.
 =cut
 
 1;
-

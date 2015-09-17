@@ -15,6 +15,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 key
+
+The key to match in the hash
+
+=cut
 
 has key => (
     is => 'ro',
@@ -22,16 +29,29 @@ has key => (
     isa  => 'Str',
 );
 
+=head2 condition
+
+The sub condition to match
+
+=cut
+
 has condition => (
     is => 'ro',
     required => 1,
     isa => 'pf::condition',
 );
 
+=head2 match
+
+Match a sub condition using the value in a hash
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
+    return $FALSE unless defined $arg && ref ($arg) eq 'HASH';
     my $key = $self->key;
-    return 0 unless exists $arg->{$key} && defined (my $value = $arg->{$key});
+    return $FALSE unless exists $arg->{$key};
     return $self->condition->match($arg->{$key});
 }
 

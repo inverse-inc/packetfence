@@ -1,4 +1,5 @@
 package pf::condition::network;
+
 =head1 NAME
 
 pf::condition::network - check if a value is inside a network
@@ -16,7 +17,10 @@ use warnings;
 use Moose;
 extends 'pf::condition';
 use NetAddr::IP;
-use Scalar::Util 'blessed';
+use pf::log;
+use pf::constants;
+
+our $logger = get_logger();
 
 =head1 ATTRIBUTES
 
@@ -27,9 +31,9 @@ The IP network to match against
 =cut
 
 has 'value' => (
-    is => 'ro',
+    is       => 'ro',
+    required => 1,
 );
-
 
 =head1 METHODS
 
@@ -40,15 +44,19 @@ match the last ip to see if it is in defined network
 =cut
 
 sub match {
-    my ($self,$ip) = @_;
-    return 0 unless defined $ip;
-    my $ip_addr;
-    eval {
-        $ip_addr = NetAddr::IP->new($ip);
-    };
-    return 0 unless defined $ip_addr;
+    my ($self, $ip) = @_;
+    return $FALSE unless defined $ip;
+    my $ip_addr = NetAddr::IP->new($ip);
+    unless (defined $ip_addr) {
+        $logger->log("'$ip' is not a valid ip address or range");
+        return $FALSE;
+    }
     my $network = NetAddr::IP->new($self->value);
-    return  $network->contains( $ip_addr );
+    unless (defined $network) {
+        $logger->log("'$network' is not a valid ip address or range");
+        return $FALSE;
+    }
+    return $network->contains($ip_addr);
 }
 
 =head1 AUTHOR
@@ -79,4 +87,3 @@ USA.
 =cut
 
 1;
-

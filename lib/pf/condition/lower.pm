@@ -1,4 +1,5 @@
 package pf::condition::lower;
+
 =head1 NAME
 
 pf::condition::lower
@@ -15,6 +16,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value to compare agianst
+
+=cut
 
 has value => (
     is => 'ro',
@@ -22,9 +30,15 @@ has value => (
     isa  => 'Str',
 );
 
+=head2 match
+
+Matches if the arguement is less than
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
-    return 0 if(!defined($arg));
+    return $FALSE if(!defined($arg));
     return $arg < $self->value;
 }
 
@@ -56,4 +70,3 @@ USA.
 =cut
 
 1;
-

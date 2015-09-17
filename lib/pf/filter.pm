@@ -53,6 +53,12 @@ sub match {
     return $self->condition->match($arg);
 }
 
+=head2 get_answer
+
+Returns the answer
+
+=cut
+
 sub get_answer {
     my ($self) = @_;
     return $self->answer;

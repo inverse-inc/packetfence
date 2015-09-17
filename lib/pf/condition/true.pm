@@ -15,8 +15,15 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
 
-sub match { 1 }
+=head2 match
+
+Always return true
+
+=cut
+
+sub match { $TRUE }
 
 =head1 AUTHOR
 

@@ -17,6 +17,12 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 
+=head2 match
+
+Match defined arguements
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
     return defined($arg);

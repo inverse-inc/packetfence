@@ -17,6 +17,12 @@ use Moose;
 extends qw(pf::condition);
 use List::MoreUtils qw(all);
 
+=head2 conditions
+
+The sub conditions to match
+
+=cut
+
 has conditions => (
     traits  => ['Array'],
     isa     => 'ArrayRef[pf::condition]',

@@ -1,4 +1,5 @@
 package pf::condition::matches;
+
 =head1 NAME
 
 pf::condition::matches
@@ -15,6 +16,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value to match agianst
+
+=cut
 
 has value => (
     is => 'ro',
@@ -22,11 +30,17 @@ has value => (
     isa  => 'Str',
 );
 
+=head2 match
+
+Match if argument matches the value
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
-    my $regex = $self->value;
+    my $match = $self->value;
     return 0 if(!defined($arg));
-    return $arg =~ /$regex/;
+    return $arg =~ /\Q$match\E/;
 }
 
 =head1 AUTHOR

@@ -15,6 +15,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value to match against
+
+=cut
 
 has value => (
     is => 'ro',
@@ -22,11 +29,17 @@ has value => (
     isa  => 'Str',
 );
 
+=head2 match
+
+Matches if the argument does not match the value
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
-    my $regex = $self->value;
-    return 0 if(!defined($arg));
-    return $arg !~ /$regex/;
+    my $match = $self->value;
+    return $FALSE if(!defined($arg));
+    return $arg !~ /\Q$match\E/;
 }
 
 =head1 AUTHOR

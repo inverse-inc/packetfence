@@ -15,6 +15,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value match against
+
+=cut
 
 has value => (
     is => 'ro',
@@ -22,9 +29,15 @@ has value => (
     isa  => 'Str',
 );
 
+=head2 match
+
+Check is the $arg equals the valu
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
-    return 0 if(!defined($arg));
+    return $FALSE if(!defined($arg));
     return $arg eq $self->value;
 }
 

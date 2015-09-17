@@ -15,6 +15,13 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value to match against
+
+=cut
 
 has value => (
     is => 'ro',
@@ -22,9 +29,15 @@ has value => (
     isa  => 'Str',
 );
 
+=head2 match
+
+Match a numeric greater than
+
+=cut
+
 sub match {
     my ($self,$arg) = @_;
-    return 0 if(!defined($arg));
+    return $FALSE if(!defined($arg));
     return $arg > $self->value;
 }
 
@@ -56,4 +69,3 @@ USA.
 =cut
 
 1;
-
