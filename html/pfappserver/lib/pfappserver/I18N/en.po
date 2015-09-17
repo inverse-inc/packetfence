@@ -3828,6 +3828,10 @@ msgid "advanced.hashing_cost"
 msgstr "Database passwords hashing cost factor" 
 
 # conf/documentation.conf
+msgid "advanced.disable_pf_domain_auth"
+msgstr "Disable 802.1x authentication on PF domains" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 

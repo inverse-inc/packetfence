@@ -3,7 +3,7 @@ server packetfence-tunnel {
 authorize {	
         suffix
         ntdomain
-        packetfence-multi-domain
+        %%multi_domain%%
         eap {
                 ok = return
         }

@@ -851,6 +851,11 @@ hash_passwords=bcrypt
 # The cost factor to apply to the password hashing if applicable.
 # Currently only applies to bcrypt.
 hashing_cost=8
+#
+# advanced.disable_pf_domain_auth
+#
+# Disable Active-Directory domain configuration from within PacketFence
+disable_pf_domain_auth=disabled
 
 [omapi]
 #

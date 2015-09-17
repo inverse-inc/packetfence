@@ -49,6 +49,15 @@ sub generate_radiusd_sitesconf {
     parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
 
 
+    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
+        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
+    }
+    elsif(keys %ConfigDomain){
+        $tags{'multi_domain'} = 'packetfence-multi-domain';
+    }
+    else {
+        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
+    }
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 
