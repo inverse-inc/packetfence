@@ -3999,22 +3999,22 @@ Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > I
 Web authentication
 ^^^^^^^^^^^^^^^^^^
 
-In order to use PacketFence as an external captive portal for web authentication, you will to configure first your radius authentication and accounting server (see steps above).
+In order to use PacketFence as an external captive portal for web authentication, you will to configure first your RADIUS authentication and accounting server (see steps above).
 
 [float]
 Hotspot configuration
 +++++++++++++++++++++
 
-Then you will need to configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section *Configure->Hotspot Services->Create New*
+Configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section *Configure->Hotspot Services->Create New*
 
 image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotsport Service"]
 
  1 - Name of your Hotspot service
- 2 - Login Page: Url of Packetfence management interface (http://192.168.1.5)
- 3 - Start Page: redirect to the follwing URL: http://192.168.1.5
- 4 - Authentication Server: Select the Packetfence authentication radius server (default port 1812)
- 5 - Accounting Server: Select the Packetfence accounting radius server (default 1813)
- 6 - Click on the Walled Garden and authorize the IP of packetfence management interface
+ 2 - Login Page: Url of Packetfence portal interface (http://192.168.1.5)
+ 3 - Start Page: redirect to the following URL: http://192.168.1.5
+ 4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
+ 5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)
+ 6 - Click on the Walled Garden and authorize the IP of PacketFence management interface
 
 Save your configuration.
 
@@ -4039,11 +4039,11 @@ Save your configuration.
 PacketFence configuration
 +++++++++++++++++++++++++
 
-On the ZoneDirector configuration in PacketFence, you will need to speficy -1 as the registration vlan in order to display the captive portal to the end device. 
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration vlan in order to display the captive portal to the end device. 
 
-You will need to desactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
+You will need to deactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
 
-The captive portal needs to listen on the management interface, so you will need to add 'portal' to the interface type of the management interface in /usr/local/pf/conf/pf.conf
+The captive portal needs to listen on the management interface, so you will need to add the portal daemon to the management interface under *Configuration->Interfaces->Management Interface*
 
 
 Example:
@@ -4053,7 +4053,7 @@ Example:
  type=management,portal
  mask=255.255.255.0
 
-To apply the configuration, restart packetfence with the command: service packetfence restart
+To apply the configuration, restart PacketFence using the following command: service packetfence restart
 
 Trapeze
 ~~~~~~~
