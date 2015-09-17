@@ -244,7 +244,7 @@ sub authenticate {
 
     my $message;
     foreach my $current_source (@sources) {
-        my ($result, $message);
+        my $result;
         $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
