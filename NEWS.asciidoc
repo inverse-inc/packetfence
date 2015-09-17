@@ -23,6 +23,7 @@ Enhancements
 * Cleanup in web libs (pf::web, pf::web::*) to remode dead code from CGI captive-portal
 * Added merged_list configuration type which is the result of a configuration list merge between pf.conf.defaults and pf.conf (#598)
 * RADIUS Diffie-Hellman key size has been increased to 2048 bits to prevent attacks such as Logjam.
+* Improve error message in the profile managment page
 
 Bug Fixes
 +++++++++
