@@ -12,7 +12,7 @@ Tests for pf::condition::any
 
 use strict;
 use warnings;
-#
+
 use lib '/usr/local/pf/lib';
 use Test::More tests => 4;
 
