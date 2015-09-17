@@ -66,9 +66,11 @@ has_field 'id' =>
    apply => [
        {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
            message =>
-             'An invalid character in profile id. The profile id can only contain alphanumeric characters, dashes, period and or underscores'
+             'The profile id is invalid. A profile id can only contain alphanumeric characters, dashes, period and or underscores'
        }
    ],
+   tags => { after_element => \&help,
+             help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );
 
 =head2 description
