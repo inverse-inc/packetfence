@@ -71,8 +71,17 @@ sub survey_add_from_session {
     if(defined $session->{survey_value}) {
         my %data;
         @data{@SURVEY_FIELDS} = @{$session}{@SURVEY_FIELDS};
+        survery_add_from_oauth_response(\%data, $session->{oauth_response} ) if $session->{oauth_response};
         survey_add(%data);
     }
+}
+
+sub survery_add_from_oauth_response {
+    my ($data, $oauth_response) = @_;
+    $data->{email} = $oauth_response->{email} if $oauth_response->{email};
+    $data->{gender} = $oauth_response->{gender} if $oauth_response->{gender};
+    $data->{age} = $oauth_response->{birthday} if $oauth_response->{birthday};
+    $data->{origin} = $oauth_response->{locale} if $oauth_response->{locale};
 }
 
 =head1 AUTHOR
