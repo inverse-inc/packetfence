@@ -114,7 +114,7 @@ sub oauth2_client {
                 #access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'},
                 redirect_uri => $source->{'redirect_url'},
-                token_scheme => $token_scheme, 
+                token_scheme => $token_scheme,
           );
         }
         else {
@@ -158,7 +158,7 @@ sub oauth2Result : Path : Args(1) {
     eval {
         if ($provider eq 'twitter') {
             my $oauth_token = $request->query_params->{oauth_token};
-            my $oauth_verifier = $request->query_params->{oauth_verifier}; 
+            my $oauth_verifier = $request->query_params->{oauth_verifier};
             $logger->info("Got token $oauth_token and verifier $oauth_verifier to finish authorization with Twitter");
             $token = $self->oauth2_client($c, $provider)->get_access_token($oauth_token, $oauth_verifier);
         }
@@ -201,9 +201,9 @@ sub oauth2Result : Path : Args(1) {
         $type = pf::Authentication::Source::TwitterSource->meta->get_attribute(
             'type')->default;
     }
-    
+
     my $source = $profile->getSourceByType($type);
-    if ($source) { 
+    if ($source) {
         # in twitter, the username comes with the access token through our homemade lib
         if ($provider eq 'twitter') {
             $pid = $token->{username}.'@twitter';
@@ -211,7 +211,7 @@ sub oauth2Result : Path : Args(1) {
         else {
             # request a JSON response
             my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
-            $response = $token->get($source->{'protected_resource_url'}, $h ); 
+            $response = $token->get($source->{'protected_resource_url'}, $h );
             if ($response->is_success) {
                 if ($provider eq 'linkedin'){
                     # response is sent as "email@example.com" with quotes
@@ -234,7 +234,8 @@ sub oauth2Result : Path : Args(1) {
                     }
                     $logger->info("OAuth2 successfull, register and release for username $pid");
                     $source->lookup_from_provider_info($pid, $json_text);
-                }         
+                    $c->session->{oauth_response} = $json_text;
+                }
             } else {
                 $logger->info(
                     "OAuth2: failed to validate the token, redireting to login page"
@@ -249,7 +250,7 @@ sub oauth2Result : Path : Args(1) {
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->session->{source_match} = undef;
-        $c->stash->{info}=\%info; 
+        $c->stash->{info}=\%info;
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
         $c->forward('Authenticate' => 'postAuthentication');
         $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
