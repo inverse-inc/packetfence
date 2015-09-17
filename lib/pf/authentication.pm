@@ -256,7 +256,7 @@ sub authenticate {
         }
     }
 
-    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
     return ($FALSE, $message ? $message : $AUTH_FAIL_MSG);
 }
 
