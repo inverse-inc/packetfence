@@ -54,8 +54,7 @@ use pfconfig::cached_hash;
 
 our %Config_Pf;
 tie %Config_Pf, 'pfconfig::cached_hash', 'config::Pf';
-
-tie our @uri_filters, 'pfconfig::cached_array', 'resource::UriFilters';
+tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 
 =head2 URLs
 

@@ -1,13 +1,14 @@
-package pfconfig::namespaces::resource::UriFilters;
+package pfconfig::namespaces::resource::URI_Filters;
+
 =head1 NAME
 
-pfconfig::namespaces::resource::UriFilters
+pfconfig::namespaces::resource::URI_Filters
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::UriFilters
+pfconfig::namespaces::resource::URI_Filters
 
 =cut
 

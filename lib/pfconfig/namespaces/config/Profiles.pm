@@ -32,7 +32,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
-    $self->{child_resources} = [ 'resource::ProfileFilterEngine', 'resource::UriFilters' ];
+    $self->{child_resources} = [ 'resource::ProfileFilterEngine', 'resource::URI_Filters' ];
 }
 
 sub build_child {
