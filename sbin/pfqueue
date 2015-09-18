@@ -323,8 +323,10 @@ sub process_queue {
         if($data) {
             eval {
                 sereal_decode_with_object($DECODER, $data, my $item);
-                if (blessed $item && $item->can("doTask")) {
-                    eval {$item->doTask();};
+                if (ref ($item) eq 'ARRAY' ) {
+                    my $type = $item->[0];
+                    my $args = $item->[1];
+                    "pf::task::$type"->doTask($args);
                 } else {
                     get_logger->error("Invalid object stored in queue");
                 }

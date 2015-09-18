@@ -18,8 +18,8 @@ use pf::log;
 our $logger = get_logger();
 
 sub doTask {
-    my ($self) = @_;
-    $logger->info(@{$self->{args}});
+    my ($self, $args) = @_;
+    $logger->info(@$args);
 }
 
 =head1 AUTHOR

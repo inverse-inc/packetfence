@@ -1,4 +1,5 @@
 package pf::task::sendmail;
+
 =head1 NAME
 
 pf::task::sendmail add documentation
@@ -19,11 +20,11 @@ use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;
+my $logger     = get_logger();
 
 sub doTask {
-    my ($self) = @_;
-    my %data = @{$self->{args}};
-    my $logger     = get_logger();
+    my ($self, $args) = @_;
+    my %data = @$args;
     my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
     my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -79,4 +80,3 @@ USA.
 =cut
 
 1;
-

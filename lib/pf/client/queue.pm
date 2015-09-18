@@ -20,6 +20,7 @@ use pf::file_paths;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
+use pf::task;
 
 our $DEFAULT_EXPIRATION = 300;
 
@@ -51,13 +52,13 @@ sub _build_redis {
 }
 
 sub submit {
-    my ($self, $queue, $task, $expire_in) = @_;
+    my ($self, $queue, $task_type, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
-    my $id    = $task->generateId();
+    my $id    = pf::task->generateId();
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, $task), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->lpush("Queue:$queue", $id, sub {});
     $redis->exec(sub {});
@@ -65,9 +66,9 @@ sub submit {
 }
 
 sub submit_delayed {
-    my ($self, $queue, $task, $delay, $expire_in) = @_;
+    my ($self, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
-    my $id    = $task->generateId();
+    my $id    = pf::task->generateId();
     my $redis = $self->redis;
     #Getting the current time from the redis service
     my ($seconds, $micro) = $redis->time;
@@ -75,7 +76,7 @@ sub submit_delayed {
     $time_milli += $delay;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, $task), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
     $redis->exec(sub {});

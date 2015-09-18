@@ -18,11 +18,11 @@ use base 'pf::task';
 use pf::log;
 use threads;
 use pf::api;
+my $logger = get_logger();
 
 sub doTask {
-    my ($self) = @_;
-    my ($method, @args) = @{$self->{args}};
-    my $logger = get_logger();
+    my ($self, $args) = @_;
+    my ($method, @args) = @$args;
     if (pf::api->isPublic($method)) {
         eval {pf::api->$method(@args);};
         if ($@) {
