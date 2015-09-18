@@ -32,7 +32,7 @@ use strict;
 use warnings;
 
 #use Cache::BDB;
-use Cache::Memcached;
+use Cache::Memcached::libmemcached;
 use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
@@ -405,7 +405,7 @@ sub list_top_namespaces {
     foreach my $namespace (@$static_namespaces){
         push @top_level_namespaces, $namespace unless any { $_ eq $namespace } @children;
     }
-    
+
     return @top_level_namespaces;
 }
 
