@@ -281,6 +281,14 @@ sub accounting {
         if($isStop){
             #handle radius floating devices
             $this->_handleAccountingFloatingDevices($switch, $mac, $port);
+            #unreg on disconnect
+            use Data::Dumper;
+            my $node_info = node_view($mac);
+            $logger->info('My node view'. Dumper($node_info));
+            if ($node_info->{'last_ssid'} eq 'aa-t'){
+                use pf::api;
+                pf::api::deregister_node($node_info);
+            }
         }
 
         # On accounting stop/update, check the usage duration of the node
