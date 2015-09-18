@@ -35,7 +35,7 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'resource::ProfileFilterEngine';
+tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
 
 sub instantiate {
     my ( $self, $mac, $options ) = @_;

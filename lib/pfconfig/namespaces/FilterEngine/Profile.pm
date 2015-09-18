@@ -1,13 +1,13 @@
-package pfconfig::namespaces::resource::ProfileFilterEngine;
+package pfconfig::namespaces::FilterEngine::Profile;
 =head1 NAME
 
-pfconfig::namespaces::resource::ProfileFilterEngine
+pfconfig::namespaces::FilterEngine::Profile
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::ProfileFilterEngine
+pfconfig::namespaces::FilterEngine::Profile
 
 =cut
 
