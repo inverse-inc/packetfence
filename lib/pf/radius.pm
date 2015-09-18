@@ -286,8 +286,11 @@ sub accounting {
             my $node_info = node_view($mac);
             $logger->info('My node view'. Dumper($node_info));
             if ($node_info->{'last_ssid'} eq 'aa-t'){
-                use pf::api;
-                pf::api::deregister_node($node_info);
+                use pf::api::jsonrpcclient;
+                my $apiclient = pf::api::jsonrpcclient->new;
+                my %options;
+                $options{'mac'} = $node_info->{'mac'};
+                $apiclient->notify('deregister_node', %options );
             }
         }
 
