@@ -1,18 +1,18 @@
 =head1 NAME
 
-engine pf test
+pf::filter_engine - test for pf::filter_engine
 
 =cut
 
 =head1 DESCRIPTION
 
-engine pf test script
+test for pf::filter_engine
 
 =cut
 
 use strict;
 use warnings;
-#
+
 use lib '/usr/local/pf/lib';
 use Test::More tests => 4;
 
@@ -90,5 +90,3 @@ USA.
 =cut
 
 1;
-
-
