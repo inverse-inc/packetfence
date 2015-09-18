@@ -11,7 +11,7 @@ pftest <cmd> [options]
  Commands
   authentication              | checks authentication sources
   mysql                       | runs the mysql tuner
-  iplogs_not_closed           | checks if there are multiple iplog entries opened
+  profile_filter              | checks which profile will be used for a mac
 
 Please view "pftest.pl help <command>" for details on each option
 

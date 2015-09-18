@@ -20,6 +20,8 @@ use List::MoreUtils qw(any);
 
 our @MODULES;
 
+__PACKAGE__->modules;
+
 sub factory_for {'pf::condition'};
 
 my $DEFAULT_CONDITION = 'key';
