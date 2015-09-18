@@ -21,7 +21,7 @@ has_field 'host' =>
    type => 'Text',
    label => 'Host',
    element_class => ['input-small'],
-   element_attr => {'placeholder' => default => pf::Authentication::Source::HTTPSource->meta->get_attribute('host')->default},
+   element_attr => {'placeholder' => pf::Authentication::Source::HTTPSource->meta->get_attribute('host')->default},
    default => pf::Authentication::Source::HTTPSource->meta->get_attribute('host')->default,
   );
 has_field 'port' =>
