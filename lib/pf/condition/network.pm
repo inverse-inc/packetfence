@@ -46,14 +46,15 @@ match the last ip to see if it is in defined network
 sub match {
     my ($self, $ip) = @_;
     return $FALSE unless defined $ip;
-    my $ip_addr = NetAddr::IP->new($ip);
+
+    my $ip_addr = eval { NetAddr::IP->new($ip) };
     unless (defined $ip_addr) {
-        $logger->log("'$ip' is not a valid ip address or range");
+        $logger->info("'$ip' is not a valid ip address or range");
         return $FALSE;
     }
-    my $network = NetAddr::IP->new($self->value);
+    my $network = eval { NetAddr::IP->new($self->value) };
     unless (defined $network) {
-        $logger->log("'$network' is not a valid ip address or range");
+        $logger->info("'$network' is not a valid ip address or range");
         return $FALSE;
     }
     return $network->contains($ip_addr);
