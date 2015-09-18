@@ -76,16 +76,10 @@ sub getModuleName {
 
 sub getData {
     my ($class, $filter) = @_;
-    my ($type, $value);
     #Split parse the filter by type and value
-    if ($filter =~ $PROFILE_FILTER_REGEX ) {
-        $type  = $1;
-        $value = $3;
-    } else {
-        #If there is no type defined to support older filters (3.5.0)
-        $type  = $DEFAULT_TYPE;
-        $value = $filter;
-    }
+    die "Filter '$filter' is invalid  please update to newer format 'type:data'"
+        unless $filter =~ $PROFILE_FILTER_REGEX;
+    my ($type, $value) = ($1, $3);
     #make a copy to avoid modifing the orginal data
     die "Profile filter type '$type' is not supported" unless exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type};
     my %args = %{$PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type}};
