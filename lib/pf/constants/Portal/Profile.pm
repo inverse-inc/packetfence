@@ -14,8 +14,17 @@ pf::constants::Portal::Profile
 
 use strict;
 use warnings;
+use base qw(Exporter);
+
+our @EXPORT_OK = qw(
+    $BLOCK_INTERVAL_DEFAULT_VALUE
+    $DEFAULT_PROFILE
+    $MATCH_STYLE_ALL
+);
 
 our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
+our $DEFAULT_PROFILE = 'default';
+our $MATCH_STYLE_ALL = 'all';
 
 =head1 AUTHOR
 

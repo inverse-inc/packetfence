@@ -21,6 +21,7 @@ use pf::factory::condition::profile;
 use pf::condition::any;
 use pf::condition::all;
 use pf::condition::true;
+use pf::constants::Portal::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
 
 sub BUILDARGS {
     my ($self,$args)      = @_;
@@ -30,14 +31,14 @@ sub BUILDARGS {
     foreach my $id (@$ordered_ids) {
 
         #Skip the default profile since it will be last
-        next if $id eq 'default';
+        next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
         my $condition;
         #If there is only one condition no need to wrap it in an any or all condition
         if (@conditions == 1) {
             $condition = $conditions[0];
-        } elsif (defined($profile->{filter_match_style}) && $profile->{filter_match_style} eq 'all') {
+        } elsif (defined($profile->{filter_match_style}) && $profile->{filter_match_style} eq $MATCH_STYLE_ALL) {
             $condition = pf::condition::all->new({conditions => \@conditions});
         } else {
             $condition = pf::condition::any->new({conditions => \@conditions});
@@ -46,7 +47,7 @@ sub BUILDARGS {
     }
 
     #If all else fails use the default
-    push @filters, pf::filter->new({answer => 'default', condition => pf::condition::true->new});
+    push @filters, pf::filter->new({answer => $DEFAULT_PROFILE, condition => pf::condition::true->new});
     return { filters => \@filters };
 }
 
