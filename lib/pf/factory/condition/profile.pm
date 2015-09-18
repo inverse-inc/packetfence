@@ -80,8 +80,8 @@ sub getData {
     die "Filter '$filter' is invalid  please update to newer format 'type:data'"
         unless $filter =~ $PROFILE_FILTER_REGEX;
     my ($type, $value) = ($1, $3);
-    #make a copy to avoid modifing the orginal data
     die "Profile filter type '$type' is not supported" unless exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type};
+    #make a copy to avoid modifing the original data
     my %args = %{$PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type}};
     my $condition_type = delete $args{type};
     $args{value} = $value;
