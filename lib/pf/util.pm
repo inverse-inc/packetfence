@@ -29,6 +29,7 @@ use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
 use NetAddr::IP;
+use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
 
@@ -475,8 +476,8 @@ fix the file permissions of the files
 =cut
 
 sub fix_file_permissions {
-    my (@files) = @_;
-    qx(chown pf.pf @files);
+    my ($file) = @_;
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
 }
 
 sub parse_template {
