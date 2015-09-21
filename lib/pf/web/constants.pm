@@ -16,8 +16,6 @@ use warnings;
 
 use Readonly;
 
-use pf::config;
-
 =head1 SUBROUTINES
 
 =over
@@ -52,6 +50,10 @@ sub to_hash {
 
 package WEB;
 
+our %Config_Pf;
+tie %Config_Pf, 'pfconfig::cached_hash', 'config::Pf';
+our @Profile_Filters;
+tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 =head2 URLs
 
@@ -64,6 +66,7 @@ Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/pay';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
+Readonly::Scalar our $URL_WISPR                 => '/wispr';
 Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
@@ -86,7 +89,6 @@ Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
 Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
-Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 
@@ -121,46 +123,37 @@ Apache config.
 
 =cut
 
-Readonly::Hash our %STATIC_CONTENT_ALIASES => (
-    '/common/' => '/html/common/',
-    '/content/' => '/html/captive-portal/content/',
-    '/favicon.ico' => '/html/common/favicon.ico',
+Readonly::Hash our %CAPTIVE_PORTAL_STATIC_ALIASES => (
+    '/common/'      => '/html/common/',
+    '/content/'     => '/html/captive-portal/content/',
+    '/favicon.ico'  => '/html/common/favicon.ico',
 );
 
-=item ALLOWED_RESOURCES
+=item CAPTIVE_PORTAL_RESOURCES
 
-Build a regex that will decide what is considered a local ressource
-(allowed to Apache's further processing).
+Web portal resources that needs to be served by the captive-portal Catalyst Engine.
 
-URL ending with / will only be anchored at the beginning (^/path/) otherwise
-an ending anchor is also installed (^/file$).
-
-Anything else should be redirected. This happens in L<pf::web::dispatcher>.
+All URLs defined using constants starting with 'URL' are considered a web portal resource
 
 =cut
 
-my @components = ( keys %STATIC_CONTENT_ALIASES, _clean_urls_match() );
-# add $ to non-slash ending URLs
-foreach (@components) { s{([^/])$}{$1\$} };
-my $allow = join('|', @components);
-Readonly::Scalar our $ALLOWED_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
+my @captive_portal_resources = _captive_portal_resources_parser();
+foreach ( @captive_portal_resources ) { s{([^/])$}{$1\$} }; # add $ to non-slash ending URLs
+my $captive_portal_resources = join('|', @captive_portal_resources);
+Readonly::Scalar our $CAPTIVE_PORTAL_RESOURCES => qr/ ^(?: $captive_portal_resources ) /xo; # eXtended pattern, compile Once
 
-=item ALLOWED_RESOURCES_MOD_PERL
+=item CAPTIVE_PORTAL_STATIC_RESOURCES
 
-Build a regex that will decide what is considered as a mod_perl ressource
-(allowed to Apache's further processing).
+Web portal static resources that needs to be served by Apached without further processing.
 
-URL ending with / will only be anchored at the beginning (^/path/) otherwise
-an ending anchor is also installed (^/file$).
-
-Anything else should be redirected. This happens in L<pf::web::dispatcher>.
+All URLs matching one of the 'CAPTIVE_PORTAL_STATIC_ALIASES' path are considered a web portal static resource
 
 =cut
 
-my @components_mod_perl =  _clean_urls_match_mod_perl();
-foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
-my $allow_mod_perl = join('|', @components_mod_perl);
-Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
+my @captive_portal_static_ressources = keys %CAPTIVE_PORTAL_STATIC_ALIASES;
+foreach ( @captive_portal_static_ressources ) { s{([^/])$}{$1\$} }; # add $ to non-slash ending URLs
+my $captive_portal_static_resources = join('|', @captive_portal_static_ressources);
+Readonly::Scalar our $CAPTIVE_PORTAL_STATIC_RESOURCES => qr/ ^(?: $captive_portal_static_resources ) /xo; # eXtended pattern, compile Once
 
 =item LOCALES
 
@@ -219,34 +212,37 @@ foreach (@components_url) { s{([^/])$}{$1\$} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
-=item _clean_urls_match
+=item CAPTIVE_PORTAL_DETECTION_MECANISM_URLS
+
+Build a regex that detects if the request is a captive portal detection mecanism request.
+
+Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+
+Using configuration values from 'captive_portal.detection_mecanism_urls'.
+
+=cut
+
+my @captive_portal_detection_mecanism_urls = split(/\s*,\s*/,$Config_Pf{'captive_portal'}{'detection_mecanism_urls'});
+foreach ( @captive_portal_detection_mecanism_urls ) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
+my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
+if ( defined($captive_portal_detection_mecanism_urls) ) {
+    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_MECANISM_URLS => qr/ ^(?: $captive_portal_detection_mecanism_urls ) /xo; # eXtended pattern, compile Once
+} else {
+    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_MECANISM_URLS => '';
+}
+
+=item _captive_portal_resources_parser
 
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
 
-sub _clean_urls_match {
+sub _captive_portal_resources_parser {
     my %consts = pf::web::constants::to_hash();
     my @urls;
     foreach (keys %consts) {
         # keep only constants matching ^URL
         push @urls, $consts{$_} if (/^URL/);
-    }
-    return (@urls);
-}
-
-=item _clean_urls_match_mod_perl
-
-Return a regex that would match all the captive portal allowed clean URLs
-
-=cut
-
-sub _clean_urls_match_mod_perl {
-    my %consts = pf::web::constants::to_hash();
-    my @urls;
-    foreach (keys %consts) {
-        # keep only constants matching ^URL
-        push @urls, $consts{$_} if (/^MOD_PERL/);
     }
     return (@urls);
 }
@@ -259,7 +255,7 @@ Return a regex that would match all the portal profile uri: filter
 
 sub _clean_urls_match_filter {
     local $_;
-    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @pf::config::Profile_Filters;
+    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @Profile_Filters;
 }
 
 =item _clean_urls_match_mod_perl
@@ -328,4 +324,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

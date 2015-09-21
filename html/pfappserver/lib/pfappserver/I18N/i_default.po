@@ -618,6 +618,10 @@ msgstr ""
 msgid "Bypass VLAN"
 msgstr "Bypass VLAN"
 
+# conf/documentation.conf (captive_portal.detection_mecanism_bypass)
+msgid "Bypass the captive-portal detection mecanism of some browsers / end-points by proxying the detection request."
+msgstr ""
+
 # conf/documentation.conf (billing.mirapay_currency options)
 msgid "CAD"
 msgstr ""
@@ -882,6 +886,10 @@ msgstr ""
 
 # conf/documentation.conf (trapping.whitelist)
 msgid "Comma-delimited list of MAC addresses that are immune to isolation. In inline Level 2 enforcement, the firewall is opened for them as if they were registered. This <i>feature</i> will probably be reworked in the future."
+msgstr ""
+
+# conf/documentation.conf (captive_portal.detection_mecanism_urls)
+msgid "Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mecanism."
 msgstr ""
 
 # conf/documentation.conf (trapping.passthroughs)
@@ -6074,6 +6082,14 @@ msgid "captive_portal"
 msgstr "Captive portal"
 
 # conf/documentation.conf
+msgid "captive_portal.detection_mecanism_bypass"
+msgstr "Captive Portal detection mecanism bypass"
+
+# conf/documentation.conf
+msgid "captive_portal.detection_mecanism_urls"
+msgstr "Captive Portal detection mecanism URLs"
+
+# conf/documentation.conf
 msgid "captive_portal.image_path"
 msgstr "IMG path"
 
@@ -6266,6 +6282,7 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
@@ -6352,6 +6369,7 @@ msgstr "Send email"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)

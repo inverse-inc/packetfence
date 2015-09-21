@@ -74,7 +74,7 @@ sub generateConfig {
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
         if ( $proxy =~ /^\// ) {
-            if ( $proxy !~ /$WEB::ALLOWED_RESOURCES/ ) {
+            if ( ($proxy !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/) && ($proxy !~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/) ) {
                 push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
                 push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
                 $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
@@ -194,7 +194,7 @@ Automatically generates Apache's Alias statements so the captive portal works.
 sub _generate_aliases {
     my $aliases = "";
     my ($path, $filesystem);
-    while (($path, $filesystem) = each %WEB::STATIC_CONTENT_ALIASES) {
+    while (($path, $filesystem) = each %WEB::CAPTIVE_PORTAL_STATIC_ALIASES) {
         $aliases .= "Alias $path $install_dir$filesystem\n";
     }
     return $aliases;
