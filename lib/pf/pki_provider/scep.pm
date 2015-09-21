@@ -29,7 +29,7 @@ use pf::log;
 
 =head2 host
 
-The host of the SCEP pki service
+The host of the SCEP PKI service
 
 =cut
 
@@ -37,7 +37,7 @@ has host => ( is => 'rw', default => "127.0.0.1" );
 
 =head2 port
 
-The port of the SCEP pki service
+The port of the SCEP PKI service
 
 =cut
 
@@ -45,7 +45,7 @@ has port => ( is => 'rw', default => 80 );
 
 =head2 proto
 
-The proto of the SCEP pki service
+The proto of the SCEP PKI service
 
 =cut
 
@@ -53,7 +53,7 @@ has proto => ( is => 'rw', default => "http" );
 
 =head2 username
 
-The username to connect to the SCEP pki service
+The username to connect to the SCEP PKI service
 
 =cut
 
@@ -61,7 +61,7 @@ has username => ( is => 'rw' );
 
 =head2 url
 
-The URL of the SCEP service
+The URL of the SCEP PKI service
 
 =cut
 
@@ -69,7 +69,7 @@ has url => ( is => 'rw' );
 
 =head2 password
 
-The password to connect to the SCEP pki service
+The password to connect to the SCEP PKI service
 
 =cut
 
@@ -83,14 +83,20 @@ A custom subject to override the built subject from attributes
 
 has custom_subject => ( is => 'rw' );
 
+=head2 module_description
+
+=cut
+
+sub module_description { 'SCEP PKI' }
+
 =head2 get_cert
 
-Get the certificate from the SCEP pki service
+Get the certificate from the SCEP PKI service
 sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d
 
 =cut
 
-sub get_cert {
+sub get_bundle {
     my ($self,$args) = @_;
     my $logger = get_logger();
     my $temp_dir = File::Tempdir->new;
@@ -172,14 +178,8 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
-    $logger->warn("Calling a revoke on a pki provider that does not support it");
+    $logger->warn("Calling a revoke on a PKI provider that does not support it");
 }
-
-=head2 module_description
-
-=cut
-
-sub module_description { 'SCEP PKI' }
 
 =head1 AUTHOR
 
