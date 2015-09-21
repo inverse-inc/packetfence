@@ -11,6 +11,7 @@ pf::Authentication::Source::SQLSource
 use pf::constants qw($TRUE $FALSE);
 use pf::password;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::Authentication::Action;
 use pf::Authentication::Source;
 
@@ -44,10 +45,10 @@ sub authenticate {
    my $result = pf::password::validate_password($username, $password);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
-     return ($TRUE, 'Successful authentication using SQL');
+     return ($TRUE, $AUTH_SUCCESS_MSG);
    }
 
-   return ($FALSE, 'Unable to authenticate successfully using SQL.');
+   return ($FALSE, $AUTH_FAIL_MSG);
  }
 
 =head2 match

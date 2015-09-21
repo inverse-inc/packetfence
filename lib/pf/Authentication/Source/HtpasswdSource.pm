@@ -10,6 +10,7 @@ pf::Authentication::Source::HtpasswdSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::Authentication::Source;
 use pf::util;
 
@@ -49,17 +50,17 @@ sub authenticate {
 
     if (! -r $password_file) {
         $logger->error("unable to read password file '$password_file'");
-        return ($FALSE, 'Unable to validate credentials at the moment');
+        return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
 
     my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
     if ( (!defined($htpasswd->htCheckPassword($username, $password)))
          or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
 
-        return ($FALSE, 'Invalid login or password');
+        return ($FALSE, $AUTH_FAIL_MSG);
     }
 
-    return ($TRUE, 'Successful authentication using htpasswd file.');
+    return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 =head2 match_in_subclass

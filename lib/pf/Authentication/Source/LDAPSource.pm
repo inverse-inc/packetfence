@@ -9,6 +9,7 @@ pf::Authentication::Source::LDAPSource
 =cut
 
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::authentication::messages;
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::CHI;
@@ -77,13 +78,13 @@ sub authenticate {
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (!defined($connection)) {
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
   my $result = $self->bind_with_credentials($connection);
 
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   my $filter = "($self->{'usernameattribute'}=$username)";
@@ -95,15 +96,15 @@ sub authenticate {
   );
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Invalid login or password');
+    return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
-    return ($FALSE, 'Invalid login or password');
+    return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   my $user = $result->entry(0);
@@ -112,11 +113,11 @@ sub authenticate {
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Invalid login or password');
+    return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
-  return ($TRUE, 'Authentication successful using LDAP');
+  return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 
@@ -456,13 +457,13 @@ sub search_attributes {
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
-      return ($FALSE, 'Unable to connect to the LDAP Server');
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-      return ($FALSE, 'Unable to validate credentials at the moment');
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
