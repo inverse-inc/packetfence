@@ -8,7 +8,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use PfFilePaths;
 }
-use Test::More tests => 30;
+use Test::More tests => 37;
 use Test::NoWarnings;
 
 BEGIN {
@@ -16,6 +16,22 @@ BEGIN {
     use_ok('pf::config::util');
     use_ok('pf::util::apache');
 }
+
+my @info = ("lzammit","turkeycorp");
+is_deeply(\@info, [strip_username('lzammit@turkeycorp')],
+  'Splitting username with @ works');
+is_deeply(\@info, [strip_username('lzammit%turkeycorp')],
+  'Splitting username with % works');
+is_deeply(\@info, [strip_username('turkeycorp\\lzammit')],
+  'Splitting username with middle backslash works');
+is_deeply(\@info, [strip_username('\\\\turkeycorp\\lzammit')],
+  'Splitting username with double prefix backslash and middle backslash works');
+is_deeply('lzammit', strip_username('lzammit'),
+  'Splitting username without realm returns username');
+is_deeply("lzammit&turkeycorp", strip_username('lzammit&turkeycorp'),
+  'Splitting username with invalid realm separator returns username');
+is_deeply(undef, strip_username(undef),
+  'Splitting username undef returns undef');
 
 # clean_mac
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
@@ -79,7 +95,6 @@ is_deeply(\@return,
 
 @return = pf::util::apache::url_parser('invalid://url$.com');
 ok(!@return, "Passed invalid URL expecting undef");
-
 
 # TODO add more tests, we should test:
 #  - all methods ;)

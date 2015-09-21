@@ -65,6 +65,7 @@ BEGIN {
         cert_has_expired
         safe_file_update
         fix_file_permissions
+        strip_username
     );
 }
 
@@ -1047,6 +1048,37 @@ sub cert_has_expired {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
+}
+
+=item strip_username
+
+Will strip a username matching pattern user@realm or \\realm\user
+
+Returns ($user,$realm) if found or ($user) if not matching any realm pattern
+
+=cut
+
+sub strip_username {
+    my ($username) = @_;
+    return $username unless(defined($username));
+
+    # user@domain
+    if($username =~ /(.*)\@(.*)/){
+        return ($1,$2);
+    }
+    # user%domain
+    elsif($username =~ /(.*)\%(.*)/){
+        return ($1,$2);
+    }
+    # \\domain\user
+    elsif($username =~ /\\\\(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    # domain\user
+    elsif($username =~ /(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    return $username;
 }
 
 =back
