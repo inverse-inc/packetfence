@@ -458,10 +458,6 @@ sub send_email {
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
 
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-    $options{ENCODING} = "utf8";
-
     my $import_succesfull = try { require MIME::Lite::TT; };
     if (!$import_succesfull) {
         $logger->error(
@@ -470,6 +466,11 @@ sub send_email {
         );
         return $FALSE;
     }
+
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$conf_dir/templates/",
+        ENCODING        => 'utf8',
+    );
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
@@ -477,10 +478,11 @@ sub send_email {
         Cc          =>  $info{'cc'},
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
+        TmplOptions =>  \%TmplOptions,
         TmplParams  =>  \%info,
+        TmplUpgrade =>  1,
     );
+    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
 
     my $result = 0;
     try {

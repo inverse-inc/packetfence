@@ -124,6 +124,11 @@ sub send_template_email {
         );
         return $FALSE;
     }
+
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$conf_dir/templates/",
+        ENCODING        => 'utf8',
+    );
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
@@ -131,11 +136,11 @@ sub send_template_email {
         Cc          =>  $info->{'cc'},
         Subject     =>  encode("MIME-Header", $subject),
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
+        TmplOptions =>  \%TmplOptions,
         TmplParams  =>  $info,
         TmplUpgrade =>  1,
     );
+    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
 
     $msg->send('smtp', $smtpserver, Timeout => 20)
         or $logger->warn("problem sending guest registration email");
