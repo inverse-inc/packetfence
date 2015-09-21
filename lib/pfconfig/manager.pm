@@ -31,8 +31,6 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
-#use Cache::BDB;
-use Cache::Memcached::libmemcached;
 use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
