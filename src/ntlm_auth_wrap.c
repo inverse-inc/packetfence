@@ -242,12 +242,14 @@ void send_statsd(const struct arguments args , int status, double elapsed)
     hint.ai_next = NULL;
     if ((err = getaddrinfo(args.host, args.port, &hint, &ailist)) != 0) {
         sprintf("getaddrinfo error: %s", gai_strerror(err));
+        return;
     } 
 
     if ((sockfd = socket(ailist->ai_family, SOCK_DGRAM, 0)) < 0) {
         err = errno;
         fprintf(stderr, "cannot contact %s:%s: %s\n", args.host,
             args.port, strerror(err));
+        return;
     }
 
     char *buf;
@@ -282,6 +284,7 @@ void send_statsd(const struct arguments args , int status, double elapsed)
         asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
         sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
     }
+    close(sockfd);
 }
 
 double howlong(struct timeval t1)
@@ -293,20 +296,6 @@ double howlong(struct timeval t1)
     elapsed += (end.tv_usec - t1.tv_usec) / 1000.0; // us to ms
 
     return elapsed;
-}
-
-void
-log_timeouts(int argc, char **argv, const struct arguments args,
-         struct timeval start)
-{
-    double elapsed;
-    elapsed = howlong(start);
-    if (args.log)
-        log_result(argc, argv, args, SIGTERM, elapsed,
-               getpid());
-
-    if (!args.nostatsd)
-        send_statsd(args, SIGTERM, elapsed);
 }
 
 // We set a handler for the TERM signal.
@@ -416,8 +405,13 @@ char **argv, **envp;
     if (!arguments.nostatsd)
         send_statsd(arguments, status, elapsed);
 
-    if (WIFEXITED(status)) exit(WEXITSTATUS(status));
-    status == SIGTERM ? 
-        exit(SIGTERM) :
+    if (WIFEXITED(status)) { 
+        exit(WEXITSTATUS(status));
+    } 
+    else if ( status == SIGTERM ) { 
+        exit(SIGTERM);
+    } 
+    else { 
         exit(1); // Just in case the child exited abnormally.
+    } 
 }
