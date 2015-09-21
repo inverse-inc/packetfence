@@ -6,8 +6,8 @@ pf::cmd::pf::fixpermissions add documentation
 =head1 SYNOPSIS
 
  pfcmd fixpermissions <command>
- 
- Commands : 
+
+ Commands :
   all                             | executes a fix on the permissions on all PF files
   file file1 [file2, file3, ...]  | executes a fix on the permissions on a list of files (absolute paths)
     (File(s) must exist and located in /usr/local/pf or /usr/local/fingerbank)
@@ -87,7 +87,7 @@ sub action_file {
 
     foreach my $file (@files){
         $file = untaint_chain($file);
-        
+
         my $user;
         if($file =~ /\/usr\/local\/pf\//){
             $user = 'pf';
@@ -99,10 +99,11 @@ sub action_file {
             print STDERR "Cannot compute user from directory \n";
             return $EXIT_FAILURE;
         }
-        _changeFilesToOwner('fingerbank',$file);
+        _changeFilesToOwner($user,$file);
+        chmod 0660, $file;
         print "Fixed permissions on file $file \n";
     }
-  
+
     return $EXIT_SUCCESS;
 }
 

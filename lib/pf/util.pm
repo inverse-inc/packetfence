@@ -29,6 +29,7 @@ use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
 use NetAddr::IP;
+use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
 
@@ -62,6 +63,8 @@ BEGIN {
         is_prod_interface
         valid_ip_range
         cert_has_expired
+        safe_file_update
+        fix_file_permissions
     );
 }
 
@@ -442,6 +445,41 @@ sub readpid {
     }
 }
 
+=item safe_file_update($file, $content)
+
+This safely modifies the contents of a file using a rename
+
+=cut
+
+sub safe_file_update {
+    my ($file, $contents) = @_;
+    my ($volume, $dir, $filename) = File::Spec->splitpath($file);
+    $dir = '.' if $dir eq '';
+    # Creates a new file in the same directory to ensure it is on the same filesystem
+    my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    syswrite $temp, $contents;
+    $temp->flush;
+    close $temp;
+    unless( rename ($temp->filename, $file) ) {
+        my $logger = pf::log::get_logger;
+        $logger->error("cannot save contents to $file '$!'");
+        die "cannot save contents to $file";
+    }
+    $temp->unlink_on_destroy(0);
+    fix_file_permissions($file);
+}
+
+=item fix_file_permissions(@files)
+
+fix the file permissions of the files
+
+=cut
+
+sub fix_file_permissions {
+    my ($file) = @_;
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
+}
+
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
     my $logger = get_logger();
@@ -718,7 +756,7 @@ with code 1, 2 or 3 without reporting it as an error.
 sub pf_run {
     my ($command, %options) = @_;
     my $logger = get_logger();
-    
+
     # REVIEW AND DISCUSS THIS ! IS IT OK TO DO THIS ?
     # IMO yes.
     # Also this comment needs to be removed before the merge
@@ -753,7 +791,7 @@ sub pf_run {
 
     my $loggable_command = $command;
     if(defined($options{log_strip})){
-        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g; 
+        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g;
     }
     # died with an OS problem
     if ($CHILD_ERROR == -1) {
@@ -966,7 +1004,7 @@ sub normalize_time {
 
 Used to search for an element in a hash that has a specific value in one of it's field
 
-Ex : 
+Ex :
 my %h = {
   'test' => {'result' => '2'},
   'test2' => {'result' => 'success'}
