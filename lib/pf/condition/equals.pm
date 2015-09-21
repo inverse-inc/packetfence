@@ -31,7 +31,7 @@ has value => (
 
 =head2 match
 
-Check is the $arg equals the valu
+Check is the $arg equals the value
 
 =cut
 
