@@ -242,7 +242,8 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->session->{gateway} = $c->model('Config::System')->getDefaultGateway if (!defined($c->session->{gateway}));
 
         my $interfaces_ref = $c->model('Interface')->get('all');
-        $c->stash(interfaces => $interfaces_ref);
+        $c->stash->{interfaces} = $interfaces_ref;
+        $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
 }
 
