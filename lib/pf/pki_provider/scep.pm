@@ -29,7 +29,7 @@ use pf::log;
 
 =head2 host
 
-The host of the scep pki service
+The host of the SCEP pki service
 
 =cut
 
@@ -37,7 +37,7 @@ has host => ( is => 'rw', default => "127.0.0.1" );
 
 =head2 port
 
-The port of the scep pki service
+The port of the SCEP pki service
 
 =cut
 
@@ -45,7 +45,7 @@ has port => ( is => 'rw', default => 80 );
 
 =head2 proto
 
-The proto of the scep pki service
+The proto of the SCEP pki service
 
 =cut
 
@@ -53,7 +53,7 @@ has proto => ( is => 'rw', default => "http" );
 
 =head2 username
 
-The username to connect to the scep pki service
+The username to connect to the SCEP pki service
 
 =cut
 
@@ -61,7 +61,7 @@ has username => ( is => 'rw' );
 
 =head2 url
 
-The url of the sscep service
+The URL of the SCEP service
 
 =cut
 
@@ -69,7 +69,7 @@ has url => ( is => 'rw' );
 
 =head2 password
 
-The password to connect to the scep pki service
+The password to connect to the SCEP pki service
 
 =cut
 
@@ -77,7 +77,7 @@ has password => ( is => 'rw' );
 
 =head2 custom_subject
 
-A custom subject to
+A custom subject to override the built subject from attributes
 
 =cut
 
@@ -85,7 +85,7 @@ has custom_subject => ( is => 'rw' );
 
 =head2 get_cert
 
-Get the certificate from the scep pki service
+Get the certificate from the SCEP pki service
 sscep enroll -c AD2008-0 -e AD2008-1 -k local.key -r local.csr -l cert.crt -S sha1 -u 'http://10.0.0.16/certsrv/mscep/' -d
 
 =cut
@@ -146,7 +146,7 @@ sub make_request {
 
 =head2 subject_string
 
-Builds the subject string to send to the scep provider
+Builds the subject string to send to the SCEP provider
 
 =cut
 
@@ -172,6 +172,7 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
+    $logger->warn("Calling a revoke on a pki provider that does not support it");
 }
 
 =head2 module_description
