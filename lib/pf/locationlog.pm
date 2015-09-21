@@ -508,7 +508,7 @@ sub locationlog_synchronize {
             # there was no locationlog open we must insert a new one
             $mustInsert = 1;
 
-        } elsif (($locationlog_switchport[0]->{vlan} != $vlan) # vlan changed
+        } elsif (($locationlog_switchport[0]->{vlan} ne $vlan) # vlan changed
             || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))) { # or MAC changed
 
             # close entries of same voip status
@@ -577,7 +577,7 @@ sub _is_locationlog_accurate {
     # did something changed
     my $vlanChanged = '0';
     if (defined($vlan)) {
-        $vlanChanged = ($locationlog_mac->{'vlan'} != $vlan);
+        $vlanChanged = ($locationlog_mac->{'vlan'} ne $vlan);
     }
     my $switchChanged = ($locationlog_mac->{'switch'} ne $switch);
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
