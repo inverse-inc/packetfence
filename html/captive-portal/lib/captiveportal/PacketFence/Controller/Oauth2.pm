@@ -215,20 +215,16 @@ sub oauth2Result : Path : Args(1) {
                     $pid = $response->content() ;
                     # remove the quotes
                     $pid =~ s/"//g;
+                    $source->lookup_from_provider_info($pid, {email => $pid});
                 }
                 else{
                     # Grab JSON content
                     my $json      = new JSON;
                     my $json_text = $json->decode($response->content());
-                    if ($provider eq 'google') {
-                        $pid = $json_text->{email};
-                    } elsif ($provider eq 'windowslive'){
+                    if ($provider eq 'windowslive'){
                         $pid = $json_text->{emails}->{account};
-                    } elsif ($provider eq 'github'){
-                        # github doesn't provide email by default
-                        $pid = $json_text->{login}.'@github';
-                    } elsif ($provider eq 'facebook'){
-                        $pid = $json_text->{name}.'@facebook';
+                    } else {
+                        $pid = $json_text->{email};
                     }
                     $logger->info("OAuth2 successfull, register and release for username $pid");
                     $source->lookup_from_provider_info($pid, $json_text);
