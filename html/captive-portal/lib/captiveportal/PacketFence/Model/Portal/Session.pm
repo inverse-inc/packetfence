@@ -182,6 +182,7 @@ sub _build_clientIp {
         my $session_ip = $self->dispatcherSession->{_client_ip};
         if(defined($session_ip)){
             $logger->info("Detected external portal client. Using the IP $session_ip address in it's session.");
+            Log::Log4perl::MDC->put( 'ip', $session_ip );
             return $session_ip;
         }
         else{
@@ -200,6 +201,7 @@ sub _build_clientIp {
     # if this is NOT from one of the expected proxy IPs return the IP
     if ( ( !$proxied_lookup{$directly_connected_ip} )
         && !( $directly_connected_ip ne '127.0.0.1' ) ) {
+        Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
         return $directly_connected_ip;
     }
 
@@ -208,21 +210,26 @@ sub _build_clientIp {
     # behind a proxy?
     if ( defined($forwarded_for) ) {
         my @proxied_ip = split( ',', $forwarded_for );
+        my $ip = $proxied_ip[0];
         $logger->debug(
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
-              . "Returning: $proxied_ip[0] according to HTTP Headers" );
-        return $proxied_ip[0];
+              . "Returning: $ip according to HTTP Headers" );
+        Log::Log4perl::MDC->put( 'ip', $ip);
+        return $ip;
     }
 
     $logger->debug(
         "Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers"
-    );
+
+     );
+    Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
     return $directly_connected_ip;
 }
 
 sub _build_clientMac {
     my ($self) = @_;
     my $clientIp = $self->clientIp;
+    my $mac;
     if (defined $clientIp) {
         $clientIp = clean_ip($clientIp);
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
@@ -235,12 +242,14 @@ sub _build_clientMac {
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
                 pf::iplog::open($ip->addr(), $fake_mac);
-                return $fake_mac;
+                $mac = $fake_mac;
+                last;
             }
         }
-        return pf::iplog::ip2mac( $clientIp );
+        $mac = pf::iplog::ip2mac( $clientIp ) unless defined $mac;
     }
-    return undef;
+    Log::Log4perl::MDC->put( 'mac',  defined $mac ? $mac : 'unknown' );
+    return $mac;
 }
 
 sub _build_profile {
