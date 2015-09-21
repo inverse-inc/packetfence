@@ -26,7 +26,7 @@ use pf::config::util;
 use pf::web;
 use Apache::Session::Generate::MD5;
 use Apache::Session::Flex;
-use Cache::Memcached;
+use Cache::Memcached::libmemcached;
 
 BEGIN {
     use Exporter ();
@@ -233,7 +233,7 @@ get memcached object
 sub get_memcached_connection {
     my ( $mc ) = @_;
     my $memd;
-    $memd = Cache::Memcached->new(
+    $memd = Cache::Memcached::libmemcached->new(
         servers => $mc,
         debug => 0,
         compress_threshold => 10_000,
@@ -250,7 +250,7 @@ get information stored in memcached
 sub get_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
-    $memd = Cache::Memcached->new(
+    $memd = Cache::Memcached::libmemcached->new(
         servers => $mc,
         debug => 0,
         compress_threshold => 10_000,
@@ -267,7 +267,7 @@ set information into memcached
 sub set_memcached {
     my ( $key, $value, $exptime, $mc ) = @_;
     my $memd;
-    $memd = Cache::Memcached->new(
+    $memd = Cache::Memcached::libmemcached->new(
         servers => $mc,
         debug => 0,
         compress_threshold => 10_000,
@@ -291,7 +291,7 @@ get information stored in memcached
 sub del_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
-    $memd = Cache::Memcached->new(
+    $memd = Cache::Memcached::libmemcached->new(
         servers => $mc,
         debug => 0,
         compress_threshold => 10_000,

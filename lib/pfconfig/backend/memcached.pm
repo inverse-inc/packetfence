@@ -18,14 +18,12 @@ use strict;
 use warnings;
 
 use base 'pfconfig::backend';
-use Cache::Memcached;
+use Cache::Memcached::libmemcached;
 
 sub init {
     my ($self) = @_;
-    $self->{cache} = new Cache::Memcached { 'servers' => ['127.0.0.1:11211'] };
+    $self->{cache} = new Cache::Memcached::libmemcached { 'servers' => ['127.0.0.1:11211'] };
 }
-
-=back
 
 =head1 AUTHOR
 
