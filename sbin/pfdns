@@ -25,6 +25,7 @@ use POSIX qw(:signal_h);
 use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
+use Net::DNS::Resolver;
 
 BEGIN {
     # log4perl init
@@ -140,6 +141,8 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
+tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
+
 populate_ipset_cache($IPSET_SESSION);
 
 my $ns = new Net::DNS::Nameserver(
@@ -214,13 +217,29 @@ sub regzone {
             push @ans, $rr;
             $rcode = "NOERROR";
         } else {
-            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
-            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
-            my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
-            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
-            push @ans, $rr;
-            push @ans, $rr2;
-            $rcode = "NOERROR";
+            #Check if the answer already exist
+            my ($ttl, $rdata);
+            my $query = $CHI_CACHE->get($qname);
+            if ($query) {
+                foreach my $rr ($query->answer) {
+                    next unless $rr->type eq "A";
+                    $rdata= $rr->address;
+                    push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
+                }
+                if(@ans) {
+                    $rcode = "NOERROR";
+                } else {
+                    $rcode = "NXDOMAIN";
+                }
+            } else {
+                my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+                my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+                my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+                my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
+                push @ans, $rr;
+                push @ans, $rr2;
+                $rcode = "NOERROR";
+            }
         }
     } elsif ($qtype eq "NS") {
         my $rr = new Net::DNS::RR(
@@ -230,6 +249,24 @@ sub regzone {
         );
         push @ans, $rr;
         $rcode = "NOERROR";
+    } elsif ($qtype eq "SRV") {
+        #Handle SRV record to be able to contact Active Directory in the reg vlan
+        $rcode = "NXDOMAIN";
+        foreach my $key ( keys %domain_dns_servers ) {
+            if ($qname =~ /(.*)_msdcs.$key/i) {
+                my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
+                my $reply = $resolver->search($qname, $qtype);
+                foreach my $answer ($reply->answer) {
+                    my $query = $CHI_CACHE->compute($answer->target, sub { $resolver->search($answer->target, 'A') });
+                    if ($query) {
+                        get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
+                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
+                    }
+                }
+                $rcode = "NOERROR";
+                push @ans, $reply->answer;
+            }
+        }
     } else{
         $rcode = "NXDOMAIN";
     }
@@ -360,4 +397,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-

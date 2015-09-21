@@ -1,47 +1,41 @@
-package pfconfig::namespaces::config::Domain;
+package pfconfig::namespaces::resource::domain_dns_servers;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Domain
+pfconfig::namespaces::resource::domain_dns_servers
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Domain
+pfconfig::namespaces::resource::domain_dns_servers
 
-This module creates the configuration hash associated to domain.conf
+This module create an associative hash between a domain and it's DNS server
 
 =cut
 
-
 use strict;
 use warnings;
+use pf::util;
 
-use pfconfig::namespaces::config;
-use Data::Dumper;
-use pfconfig::log;
-use pf::file_paths;
-
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $domain_config_file;
-    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
+
+    # we depend on the switch configuration object (russian doll style)
+    $self->{domains} = $self->{cache}->get_cache('config::Domain');
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
-
-    my %tmp_cfg = %{$self->{cfg}}; 
-
-    $self->{cfg} = \%tmp_cfg;
-
-    return \%tmp_cfg;
-
+    my %ConfigDomain = %{$self->{domains}};
+    my %domain_dns_servers;
+    foreach my $key ( keys %ConfigDomain ) {
+        $domain_dns_servers{$ConfigDomain{$key}->{dns_name}} = $ConfigDomain{$key}->{dns_server} if (isenabled($ConfigDomain{$key}->{registration}));
+    }
+    return \%domain_dns_servers;
 }
-
 
 =back
 
