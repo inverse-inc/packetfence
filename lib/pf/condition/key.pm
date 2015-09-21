@@ -1,54 +1,60 @@
-package pf::profile::filter::network;
+package pf::condition::key;
 =head1 NAME
 
-pf::profile::filter::network - network filter for profiles
+pf::condition::key
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::network
+pf::condition::key
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::profile::filter';
-use NetAddr::IP;
-use Scalar::Util 'blessed';
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-=head1 ATTRIBUTES
+=head2 key
 
-=head2 value
-
-The NetAddr::IP network to match against
+The key to match in the hash
 
 =cut
 
-has '+value' => (
-    coerce   => sub {
-        # create the object if the attribute can't run()
-        blessed($_[0]) && $_[0]->isa('NetAddr::IP')
-          ? $_[0]
-          : NetAddr::IP->new($_[0])
-    },
+has key => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
 );
 
-=head1 METHODS
+=head2 condition
+
+The sub condition to match
+
+=cut
+
+has condition => (
+    is => 'ro',
+    required => 1,
+    isa => 'pf::condition',
+);
 
 =head2 match
 
-match the last ip to see if it is in defined network
+Match a sub condition using the value in a hash
 
 =cut
 
 sub match {
-    my ($self,$data) = @_;
-    my $last_ip = $data->{last_ip} if exists $data->{last_ip};
-    return defined $last_ip && $self->value->contains(NetAddr::IP->new($last_ip));
+    my ($self,$arg) = @_;
+    return $FALSE unless defined $arg && ref ($arg) eq 'HASH';
+    my $key = $self->key;
+    return $FALSE unless exists $arg->{$key};
+    return $self->condition->match($arg->{$key});
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

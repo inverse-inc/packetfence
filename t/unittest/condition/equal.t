@@ -1,10 +1,12 @@
 =head1 NAME
 
-t/profile/filter/all.t
+Tests for pf::condition::equals
+
+=cut
 
 =head1 DESCRIPTION
 
-Test for pf::profile::filter::all module
+Tests for pf::condition::equals
 
 =cut
 
@@ -16,23 +18,20 @@ BEGIN {
     use PfFilePaths;
 }
 
-use Test::More tests => 9;                      # last test to print
+use Test::More tests => 6;                      # last test to print
 
 use Test::NoWarnings;
 
-use_ok("pf::profile::filter::all");
-use_ok("pf::profile::filter::key");
+use_ok("pf::condition::equals");
 
-my $filter_key1 = new_ok ( "pf::profile::filter::key", [profile => 'Test', value => 'test1', key => 'test1' ],"Test value based filter");
-my $filter_key2 = new_ok ( "pf::profile::filter::key", [profile => 'Test', value => 'test2', key => 'test2' ],"Test value based filter");
-my $filter = new_ok ( "pf::profile::filter::all", [profile => 'Test', value => [$filter_key1,$filter_key2], ],"Test all profile filter");
+my $filter = new_ok ( "pf::condition::equals", [value => 'test'],"Test pf::condition::equals constructor");
 
-ok($filter->match({ test1 => 'test1', test2 => 'test2'}),"all filter matches");
+ok($filter->match('test'),"filter matches");
 
-ok(!$filter->match({ test1 => 'test', test2 => 'test'}),"no filter matches");
- 
-ok(!$filter->match({ test2 => 'test2'}),"fails to match when only one filter matches");
- 
+ok(!$filter->match('wrong_test'),"equal does not match filter");
+
+ok(!$filter->match(undef ),"equal undef does not match filter");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

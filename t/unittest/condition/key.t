@@ -1,12 +1,12 @@
 =head1 NAME
 
-profile/filter/value.t
+Tests for pf::condition::key
 
 =cut
 
 =head1 DESCRIPTION
 
-value
+Tests for pf::condition::key
 
 =cut
 
@@ -21,19 +21,20 @@ BEGIN {
 use Test::More tests => 7;                      # last test to print
 
 use Test::NoWarnings;
+use pf::condition::equals;
 
-use_ok("pf::profile::filter::key");
+use_ok("pf::condition::key");
 
-my $filter = new_ok ( "pf::profile::filter::key", [profile => 'Test', value => 'test', type => 'test', key => 'test' ],"Test value based filter");
+my $filter = new_ok ( "pf::condition::key", [profile => 'Test', condition => pf::condition::equals->new(value => 'test'), type => 'test', key => 'test' ],"Test value based filter");
 
 ok($filter->match({ test => 'test'}),"filter matches");
- 
+
 ok(!$filter->match({ test_not_there => 'test'}),"value not found filter does not match matches");
- 
+
 ok(!$filter->match({ test => 'wrong_test'}),"value does not match filter");
- 
+
 ok(!$filter->match({ test => undef }),"value undef does not match filter");
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

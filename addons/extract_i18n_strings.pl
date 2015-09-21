@@ -21,7 +21,7 @@ use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
 use pf::factory::firewallsso;
-use pf::factory::profile::filter;
+use pf::factory::condition::profile;
 use pf::factory::triggerParser;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
@@ -373,8 +373,8 @@ sub extract_modules {
     @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort @pf::factory::profile::filter::MODULES;
-    const('pf::filter', 'Portal Profile Filters', \@values);
+    @values = sort map { "profile.filter." . $_ } keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
+    const('profile.filter', 'Portal Profile Filters', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);

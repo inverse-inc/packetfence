@@ -1,30 +1,29 @@
-package pf::profile::filter::connection_type;
+package pf::condition::false;
 =head1 NAME
 
-pf::profile::filter::connection_type - Class for connection_type
+pf::condition::false
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::connection_type
+pf::condition::false
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::profile::filter::key';
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-=head1 ATTRIBUTES
+=head2 match
 
-=head2 key
-
-Setting the key to connection_type
+Always false
 
 =cut
 
-has '+key' => ( default => sub { 'last_connection_type' } );
+sub match { $FALSE }
 
 =head1 AUTHOR
 
@@ -54,3 +53,4 @@ USA.
 =cut
 
 1;
+

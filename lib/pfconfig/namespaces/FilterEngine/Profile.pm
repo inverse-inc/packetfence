@@ -1,46 +1,31 @@
-package pf::profile::filter::key;
+package pfconfig::namespaces::FilterEngine::Profile;
 =head1 NAME
 
-pf::profile::filter::key add documentation
+pfconfig::namespaces::FilterEngine::Profile
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::key
+pfconfig::namespaces::FilterEngine::Profile
 
 =cut
 
 use strict;
 use warnings;
+use pfconfig::namespaces::config;
+use pfconfig::namespaces::config::Profiles;
+use pf::factory::condition::profile;
 
-use Moo;
-extends 'pf::profile::filter';
+use base 'pfconfig::namespaces::resource';
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-The key of the value in the data hash
-
-=cut
-
-has key => ( is => 'ro', required => 1 );
-
-=head1 METHODS
-
-=head2 match
-
-Matches value based off key in provided hash 
-
-=cut
-
-sub match {
-    my ($self,$data) = @_;
-    my $key = $self->key;
-    return exists $data->{$key} && defined $data->{$key} && $data->{$key} eq $self->value;
+sub build {
+    my ($self) = @_;
+    my $config_profiles = pfconfig::namespaces::config::Profiles->new( $self->{cache} );
+    my %Profiles_Config = %{ $config_profiles->build };
+    return $config_profiles->{engine_profile};
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -69,4 +54,3 @@ USA.
 =cut
 
 1;
-

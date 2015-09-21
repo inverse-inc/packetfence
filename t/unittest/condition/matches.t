@@ -1,33 +1,36 @@
-package pf::profile::filter::vlan;
 =head1 NAME
 
-pf::profile::filter::vlan proflie filter for vlan
+Tests for pf::condition::matches
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::vlan
-
-Profile filter that matches the vlan of the node
+Tests for pf::condition::matches
 
 =cut
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
 
-use Moo;
-extends 'pf::profile::filter::key';
+use Test::More tests => 6;                      # last test to print
 
-=head1 ATTRIBUTES
+use Test::NoWarnings;
 
-=head2 key
+use_ok("pf::condition::matches");
 
-Setting the key to last_vlan
+my $filter = new_ok ( "pf::condition::matches", [value => 'test'],"Test regex based filter");
 
-=cut
+ok($filter->match('testing123'),"filter matches");
 
-has '+key' => ( default => sub { 'last_vlan' } );
+ok(!$filter->match('desting'),"filter does not match matches");
+
+ok(!$filter->match(undef),"value undef does not match filter");
 
 =head1 AUTHOR
 
@@ -57,4 +60,5 @@ USA.
 =cut
 
 1;
+
 

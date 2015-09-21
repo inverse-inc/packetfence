@@ -1,30 +1,33 @@
-package pf::constants::Portal::Profile;
+package pfconfig::namespaces::resource::URI_Filters;
 
 =head1 NAME
 
-pf::constants::Portal::Profile - constants for Portal::Profile object
+pfconfig::namespaces::resource::URI_Filters
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::Portal::Profile
+pfconfig::namespaces::resource::URI_Filters
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
+use pfconfig::namespaces::config;
+use pfconfig::namespaces::config::Profiles;
+use pf::factory::condition::profile;
 
-our @EXPORT_OK = qw(
-    $BLOCK_INTERVAL_DEFAULT_VALUE
-    $DEFAULT_PROFILE
-    $MATCH_STYLE_ALL
-);
+use base 'pfconfig::namespaces::resource';
 
-our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
-our $DEFAULT_PROFILE = 'default';
-our $MATCH_STYLE_ALL = 'all';
+sub build {
+    my ($self) = @_;
+
+    my $config_profiles = pfconfig::namespaces::config::Profiles->new( $self->{cache} );
+    my %Profiles_Config = %{ $config_profiles->build };
+
+    return $config_profiles->{uri_filters};
+}
 
 =head1 AUTHOR
 
@@ -54,4 +57,3 @@ USA.
 =cut
 
 1;
-

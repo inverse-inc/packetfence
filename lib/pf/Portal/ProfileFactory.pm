@@ -23,6 +23,9 @@ use pf::config;
 use pf::node;
 use pf::authentication;
 use pf::Portal::Profile;
+use pf::filter_engine::profile;
+use pf::factory::condition::profile;
+use pfconfig::cached_scalar;
 use List::Util qw(first);
 
 =head1 SUBROUTINES
@@ -33,6 +36,8 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
+tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -41,13 +46,11 @@ sub instantiate {
         $logger->trace("Instantiate profile ".$options->{'portal'});
         return $self->_from_profile($options->{'portal'});
     }
-    # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
-    # and try to match a portal profile using the previously fetched filters.
-    # If no match, we instantiate the default portal profile.
+
     my $node_info = node_view($mac) || {};
-    $node_info = { %$node_info, %$options } ;
-    my $filter = first { $_->match($node_info) } @Profile_Filters;
-    my $profile_name = $filter ? $filter->profile : 'default';
+    $node_info = {%$node_info, %$options};
+
+    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
     $logger->trace("Instantiate profile $profile_name");
     return $self->_from_profile($profile_name);
 }

@@ -18,7 +18,7 @@ extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 
 use pf::config;
-use pf::factory::profile::filter;
+use pf::factory::condition::profile;
 
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
@@ -70,7 +70,8 @@ sub filter_deflate {
 sub options_type {
     my $self = shift;
     local $_;
-    return map { /([^:]+)$/; { value => $1, label => $self->_localize($_) } } sort @pf::factory::profile::filter::MODULES;
+    return map {{value => $1, label => $self->_localize("profile.filter.$_")}}
+      sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
 }
 
 =head1 COPYRIGHT

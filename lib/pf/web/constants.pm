@@ -49,11 +49,12 @@ sub to_hash {
 =cut
 
 package WEB;
+use pfconfig::cached_array;
+use pfconfig::cached_hash;
 
 our %Config_Pf;
 tie %Config_Pf, 'pfconfig::cached_hash', 'config::Pf';
-our @Profile_Filters;
-tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
+tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 
 =head2 URLs
 
@@ -254,8 +255,7 @@ Return a regex that would match all the portal profile uri: filter
 =cut
 
 sub _clean_urls_match_filter {
-    local $_;
-    return map { $_->value } grep { $_->isa('pf::profile::filter::uri') } @Profile_Filters;
+    return @uri_filters;
 }
 
 =item _clean_urls_match_mod_perl

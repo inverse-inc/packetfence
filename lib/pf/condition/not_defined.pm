@@ -1,30 +1,32 @@
-package pf::constants::Portal::Profile;
+package pf::condition::not_defined;
 
 =head1 NAME
 
-pf::constants::Portal::Profile - constants for Portal::Profile object
+pf::condition::not_defined
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::Portal::Profile
+pf::condition::not_defined
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
+use Moose;
+extends qw(pf::condition);
 
-our @EXPORT_OK = qw(
-    $BLOCK_INTERVAL_DEFAULT_VALUE
-    $DEFAULT_PROFILE
-    $MATCH_STYLE_ALL
-);
+=head2 match
 
-our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
-our $DEFAULT_PROFILE = 'default';
-our $MATCH_STYLE_ALL = 'all';
+Match if the argument is not defined
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return !defined($arg);
+}
 
 =head1 AUTHOR
 
@@ -54,4 +56,3 @@ USA.
 =cut
 
 1;
-

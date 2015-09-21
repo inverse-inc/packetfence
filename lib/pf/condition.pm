@@ -1,30 +1,19 @@
-package pf::constants::Portal::Profile;
-
+package pf::condition;
 =head1 NAME
 
-pf::constants::Portal::Profile - constants for Portal::Profile object
+pf::condition The base class for pf::condition
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::Portal::Profile
+pf::condition
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
-
-our @EXPORT_OK = qw(
-    $BLOCK_INTERVAL_DEFAULT_VALUE
-    $DEFAULT_PROFILE
-    $MATCH_STYLE_ALL
-);
-
-our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
-our $DEFAULT_PROFILE = 'default';
-our $MATCH_STYLE_ALL = 'all';
+use Moose;
 
 =head1 AUTHOR
 

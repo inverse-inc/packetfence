@@ -41,9 +41,6 @@ use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
 use DateTime;
-use pf::factory::profile::filter;
-use pf::profile::filter;
-use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
 use pf::cluster;
 use pf::constants::config qw(

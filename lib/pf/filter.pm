@@ -1,30 +1,68 @@
-package pf::constants::Portal::Profile;
+package pf::filter;
 
 =head1 NAME
 
-pf::constants::Portal::Profile - constants for Portal::Profile object
+pf::filter
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::Portal::Profile
+pf::filter
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
+use Moose;
 
-our @EXPORT_OK = qw(
-    $BLOCK_INTERVAL_DEFAULT_VALUE
-    $DEFAULT_PROFILE
-    $MATCH_STYLE_ALL
+=head1 ATTRIBUTES
+
+=head2 conditions
+
+The conditions of the filter
+
+=cut
+
+has condition => (
+    is => 'ro',
+    isa => 'pf::condition',
 );
 
-our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
-our $DEFAULT_PROFILE = 'default';
-our $MATCH_STYLE_ALL = 'all';
+=head2 answer
+
+The answer of the filter
+
+=cut
+
+has answer => (
+   is => 'ro',
+   required => 1,
+);
+
+=head1 METHODS
+
+=head2 match
+
+Test to see if the condition of the filter matches
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $self->condition->match($arg);
+}
+
+=head2 get_answer
+
+Returns the answer
+
+=cut
+
+sub get_answer {
+    my ($self) = @_;
+    return $self->answer;
+}
 
 =head1 AUTHOR
 

@@ -1,33 +1,45 @@
-package pf::profile::filter::realm;
 =head1 NAME
 
-pf::profile::filter::realm proflie filter for realm
+Tests for pf::condition::network
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::realm
-
-Profile filter that matches the realm of the radius connection
+Tests for pf::condition::network
 
 =cut
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+}
+use NetAddr::IP;
 
-use Moo;
-extends 'pf::profile::filter::key';
+use Test::More tests => 9;                      # last test to print
 
-=head1 ATTRIBUTES
+use Test::NoWarnings;
 
-=head2 key
+use_ok("pf::condition::network");
 
-Setting the key to realm
+my $filter = new_ok ( "pf::condition::network", [ value => '192.168.1.0/24'   ],"Test network based filter");
 
-=cut
+ok($filter->match('192.168.1.1' ),"filter matches");
 
-has '+key' => ( default => sub { 'realm' } );
+ok(!$filter->match('192.168.2.1'),"filter does not match");
+
+ok(!$filter->match( undef ),"last_ip undefined does not match");
+
+ok(!$filter->match( '' ),"empty string does not match");
+
+ok(!$filter->match( 'invalid ip' ),"invalid ip address string does not match");
+
+ok(!$filter->match( 0 ),"invalid ip address number does not match");
+
+
 
 =head1 AUTHOR
 
@@ -57,4 +69,5 @@ USA.
 =cut
 
 1;
+
 

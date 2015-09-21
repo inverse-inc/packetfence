@@ -1,33 +1,46 @@
-package pf::profile::filter::uri;
+package pf::condition::lower;
+
 =head1 NAME
 
-pf::profile::filter::uri proflie filter for uri
+pf::condition::lower
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::uri
-
-Profile filter that matches the uri of the node
+pf::condition::lower
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-use Moo;
-extends 'pf::profile::filter::key';
+=head2 value
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-Setting the key to last_uri
+The value to compare against
 
 =cut
 
-has '+key' => ( default => sub { 'last_uri' } );
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Matches if the argument is less than
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $FALSE if(!defined($arg));
+    return $arg < $self->value;
+}
 
 =head1 AUTHOR
 
@@ -57,4 +70,3 @@ USA.
 =cut
 
 1;
-

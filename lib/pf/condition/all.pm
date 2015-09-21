@@ -1,33 +1,52 @@
-package pf::profile::filter::port;
+package pf::condition::all;
 =head1 NAME
 
-pf::profile::filter::port proflie filter for ssid
+pf::condition::all
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::port
-
-Profile filter that matches the port of the node
+pf::condition::all
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use List::MoreUtils qw(all);
 
-use Moo;
-extends 'pf::profile::filter::key';
+=head2 conditions
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-Setting the key to last_port
+The sub conditions to match
 
 =cut
 
-has '+key' => ( default => sub { 'last_port' } );
+has conditions => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[pf::condition]',
+    default => sub {[]},
+    handles => {
+        all_conditions        => 'elements',
+        add_condition         => 'push',
+        count_conditions      => 'count',
+        has_conditions        => 'count',
+        no_conditions         => 'is_empty',
+    },
+);
+
+=head2 match
+
+Matches all the sub conditions
+
+=cut
+
+sub match {
+    my ($self, $arg) = @_;
+    return all { $_->match($arg) } $self->all_conditions;
+}
+
 
 =head1 AUTHOR
 

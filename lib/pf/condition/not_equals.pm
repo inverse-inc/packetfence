@@ -1,30 +1,45 @@
-package pf::profile::filter::node_role;
+package pf::condition::not_equals;
 =head1 NAME
 
-pf::profile::filter::node_role - Class for node_role
+pf::condition::not_equals
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::node_role
+pf::condition::not_equals
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::profile::filter::key';
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-=head1 ATTRIBUTES
+=head2 value
 
-=head2 key
-
-Setting the key to node_role
+The value to compare against
 
 =cut
 
-has '+key' => ( default => sub { 'category' } );
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Match if the argument if not equal to the value
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $FALSE if(!defined($arg));
+    return $arg ne $self->value;
+}
 
 =head1 AUTHOR
 
@@ -54,3 +69,4 @@ USA.
 =cut
 
 1;
+

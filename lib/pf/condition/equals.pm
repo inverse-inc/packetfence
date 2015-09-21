@@ -1,45 +1,46 @@
+package pf::condition::equals;
 =head1 NAME
 
-profile/filter/value.t
+pf::condition::equals
 
 =cut
 
 =head1 DESCRIPTION
 
-value
+pf::condition::equals
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
-BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
+
+=head2 value
+
+The value match against
+
+=cut
+
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Check is the $arg equals the value
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $FALSE if(!defined($arg));
+    return $arg eq $self->value;
 }
-use NetAddr::IP;
 
-use Test::More tests => 9;                      # last test to print
-
-use Test::NoWarnings;
-
-use_ok("pf::profile::filter::network");
-
-my $filter = new_ok ( "pf::profile::filter::network", [profile => 'Test', value => NetAddr::IP->new('192.168.1.0/24')   ],"Test network based filter");
-
-ok($filter->match({ last_ip => '192.168.1.1' }),"filter matches");
- 
-ok(!$filter->match({ last_ip => '192.168.2.1' }),"filter does not match");
- 
-ok(!$filter->match({ }),"last_ip not found does not match");
- 
-ok(!$filter->match({ last_ip => undef }),"last_ip undefined does not match");
-
-$filter = new_ok ( "pf::profile::filter::network", [profile => 'Test', value => '192.168.2.0/24'   ],"Test coercion");
-
-isa_ok($filter->value,'NetAddr::IP','Test coercion');
-
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -68,5 +69,4 @@ USA.
 =cut
 
 1;
-
 

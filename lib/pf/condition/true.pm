@@ -1,36 +1,29 @@
-package pf::profile::filter::all;
+package pf::condition::true;
 =head1 NAME
 
-pf::profile::filter::all - Class for profile::filter::all
+pf::condition::true
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::all
-
-This is an internal filter to match sub filters
+pf::condition::true
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::profile::filter';
-use List::MoreUtils qw(all);
-
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
 =head2 match
 
-Matches all sub filters
+Always return true
 
 =cut
 
-sub match {
-    my ($self,$data) = @_;
-    return all { $_->match($data) } @{$self->value};
-}
-
+sub match { $TRUE }
 
 =head1 AUTHOR
 
@@ -60,3 +53,4 @@ USA.
 =cut
 
 1;
+

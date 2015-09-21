@@ -1,33 +1,45 @@
-package pf::profile::filter::ssid;
+package pf::condition::greater;
 =head1 NAME
 
-pf::profile::filter::ssid proflie filter for ssid
+pf::condition::greater
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::ssid
-
-Profile filter that matches the ssid of the node
+pf::condition::greater
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-use Moo;
-extends 'pf::profile::filter::key';
+=head2 value
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-Setting the key to last_ssid
+The value to match against
 
 =cut
 
-has '+key' => ( default => sub { 'last_ssid' } );
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Match a numeric greater than
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $FALSE if(!defined($arg));
+    return $arg > $self->value;
+}
 
 =head1 AUTHOR
 
@@ -57,4 +69,3 @@ USA.
 =cut
 
 1;
-

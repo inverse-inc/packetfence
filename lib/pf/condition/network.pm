@@ -1,80 +1,64 @@
-package pf::profile::filter::key_couple;
+package pf::condition::network;
+
 =head1 NAME
 
-pf::profile::filter::key_couple add documentation
+pf::condition::network - check if a value is inside a network
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::key_couple
+pf::condition::network
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends 'pf::condition';
+use NetAddr::IP;
+use pf::log;
+use pf::constants;
 
-use Moo;
-extends 'pf::profile::filter';
-
+our $logger = get_logger();
 
 =head1 ATTRIBUTES
 
-=head2 key
-
-The key of the value in the data hash
-
-=cut
-
-has key => ( is => 'ro', required => 1 );
-
-has key2 => ( is => 'ro', required => 1 );
-
-
-=head2 data1/data2
-
-The data1 and data2
-
-=cut
-
-has [qw(data1 data2)] => ( is => 'rw' );
-
 =head2 value
 
-add a trigger to the value
+The IP network to match against
 
 =cut
 
-has '+value' => ( trigger => 1 );
+has 'value' => (
+    is       => 'ro',
+    required => 1,
+);
 
 =head1 METHODS
 
 =head2 match
 
-Matches value based off key in provided hash 
+match the last ip to see if it is in defined network
 
 =cut
 
 sub match {
-    my ($self,$data) = @_;
-    my $key = $self->key;
-    my $key2 = $self->key2;
-    return exists $data->{$key} && $data->{$key2} && defined $data->{$key} && $data->{$key} eq $self->data1 && defined $data->{$key2} && $data->{$key2} eq $self->data2;
+    my ($self, $ip) = @_;
+    return $FALSE unless defined $ip;
+
+    my $ip_addr = eval { NetAddr::IP->new($ip) };
+    unless (defined $ip_addr) {
+        $logger->info("'$ip' is not a valid ip address or range");
+        return $FALSE;
+    }
+    my $network = eval { NetAddr::IP->new($self->value) };
+    unless (defined $network) {
+        $logger->info("'$network' is not a valid ip address or range");
+        return $FALSE;
+    }
+    return $network->contains($ip_addr);
 }
- 
-=head2 _trigger_value
-
-Set data1 and data2 from the value
-
-=cut
-
-sub _trigger_value {
-    my ($self) = @_;
-    my ($data1,$data2) = split(/-/,$self->value);
-    $self->data1($data1);
-    $self->data2($data2);
-}
-
 
 =head1 AUTHOR
 

@@ -1,41 +1,51 @@
-package pf::profile::filter::switch_port;
+package pf::condition::any;
 =head1 NAME
 
-pf::profile::filter::switch_port proflie filter for switch-port couple
+pf::condition::any
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::switch_port
-
-Profile filter that matches the switch-port couple of the node
+pf::condition::any
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use List::MoreUtils qw(any);
 
-use Moo;
-extends 'pf::profile::filter::key_couple';
+=head2 conditions
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-Setting the key to last_switch
+The sub conditions to match
 
 =cut
 
-has '+key' => ( default => sub { 'last_switch' } );
+has conditions => (
+    traits  => ['Array'],
+    isa     => 'ArrayRef[pf::condition]',
+    default => sub {[]},
+    handles => {
+        all_conditions        => 'elements',
+        add_condition         => 'push',
+        count_conditions      => 'count',
+        has_conditions        => 'count',
+        no_conditions         => 'is_empty',
+    },
+);
 
-=head2 key2
+=head2 match
 
-Setting the key2 to last_port
+Matches any the sub conditions
 
 =cut
 
-has '+key2' => ( default => sub { 'last_port' } );
+sub match {
+    my ($self, $arg) = @_;
+    return any { $_->match($arg) } $self->all_conditions;
+}
 
 
 =head1 AUTHOR

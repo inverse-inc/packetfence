@@ -1,33 +1,46 @@
-package pf::profile::filter::switch;
+package pf::condition::not_matches;
 =head1 NAME
 
-pf::profile::filter::switch proflie filter for switch
+pf::condition::not_matches
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::profile::filter::switch
-
-Profile filter that matches the switch of the node
+pf::condition::not_matches
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-use Moo;
-extends 'pf::profile::filter::key';
+=head2 value
 
-=head1 ATTRIBUTES
-
-=head2 key
-
-Setting the key to last_switch
+The value to match against
 
 =cut
 
-has '+key' => ( default => sub { 'last_switch' } );
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Matches if the argument does not match the value
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    my $match = $self->value;
+    return $FALSE if(!defined($arg));
+    return $arg !~ /\Q$match\E/;
+}
 
 =head1 AUTHOR
 

@@ -1,43 +1,47 @@
-package pfconfig::namespaces::resource::Profile_Filters;
+package pf::condition::matches;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::Profile_Filters
+pf::condition::matches
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::Profile_Filters
+pf::condition::matches
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
+use pf::constants;
 
-use pf::profile::filter;
-use pf::factory::profile::filter;
-use pf::constants::Portal::Profile;
-use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::Profiles;
+=head2 value
 
-use base 'pfconfig::namespaces::resource';
+The value to match against
 
-sub init {
-    my ($self) = @_;
+=cut
+
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Match if argument matches the value
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    my $match = $self->value;
+    return 0 if(!defined($arg));
+    return $arg =~ /\Q$match\E/;
 }
-
-sub build {
-    my ($self) = @_;
-
-    my $config_profiles = pfconfig::namespaces::config::Profiles->new( $self->{cache} );
-    my %Profiles_Config = %{ $config_profiles->build };
-    my @Profile_Filters = @{ $config_profiles->{profile_filters} };
-
-    return \@Profile_Filters;
-}
-
-=back
 
 =head1 AUTHOR
 
@@ -67,8 +71,4 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
 
