@@ -585,6 +585,8 @@ Then, we add a rule:
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
+NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'Configuration->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
+
 External API authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

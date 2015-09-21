@@ -18,6 +18,8 @@ use Net::LDAP;
 use Net::LDAPS;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
+use pf::config;
+use List::MoreUtils qw(uniq);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -53,8 +55,8 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
-    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox", "description", "groupMembership");
+  my @attributes = @{$Config{advanced}->{ldap_attributes}};
+  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {

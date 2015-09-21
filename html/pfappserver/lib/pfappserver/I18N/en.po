@@ -3832,6 +3832,10 @@ msgid "advanced.disable_pf_domain_auth"
 msgstr "Disable 802.1x authentication on PF domains" 
 
 # conf/documentation.conf
+msgid "advanced.ldap_attributes"
+msgstr "LDAP attributes" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
