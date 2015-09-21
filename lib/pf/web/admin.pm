@@ -27,6 +27,7 @@ use Data::Dumper;
 
 use APR::URI;
 use Log::Log4perl;
+use List::MoreUtils qw(uniq);
 
 use pf::config;
 use pf::util;
@@ -159,10 +160,11 @@ Proxy request to the captive portal
 sub proxy_portal {
     my ($self, $r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my @interfaces = uniq (@internal_nets, @portal_ints );
     my $s = $r->server;
     if ($r->uri =~ /portal_preview\/(.*)/) {
          $r->headers_in->{'X-Forwarded-For'} = $management_network->{'Tip'}; 
-         my $interface = $internal_nets[0];
+         my $interface = $interfaces[0];
          $r->set_handlers(PerlResponseHandler => []);
          $r->add_output_filter(\&rewrite);
          my $referef = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
