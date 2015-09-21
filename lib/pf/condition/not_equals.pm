@@ -31,7 +31,7 @@ has value => (
 
 =head2 match
 
-Match if the arguement if not equal to the value
+Match if the argument if not equal to the value
 
 =cut
 

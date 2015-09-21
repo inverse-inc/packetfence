@@ -32,7 +32,7 @@ has value => (
 
 =head2 match
 
-Matches if the arguement is less than
+Matches if the argument is less than
 
 =cut
 

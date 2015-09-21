@@ -19,7 +19,7 @@ extends qw(pf::condition);
 
 =head2 match
 
-Match defined arguements
+Match defined arguments
 
 =cut
 
