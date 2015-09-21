@@ -1060,13 +1060,22 @@ Returns ($user,$realm) if found or ($user) if not matching any realm pattern
 
 sub strip_username {
     my ($username) = @_;
+    return $username unless(defined($username));
+
+    # user@domain
     if($username =~ /(.*)\@(.*)/){
         return ($1,$2);
     }
+    # user%domain
     elsif($username =~ /(.*)\%(.*)/){
         return ($1,$2);
     }
+    # \\domain\user
     elsif($username =~ /\\\\(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    # domain\user
+    elsif($username =~ /(.*)\\(.*)/) {
         return ($2,$1);
     }
     return $username;
