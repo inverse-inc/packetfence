@@ -219,6 +219,8 @@ sub add_fake_profile_data {
     my ($self, $c) = @_;
     $c->stash(
         logo        => $Config{'general'}{'logo'},
+        client_mac  => '00:11:22:33:44:55',
+        client_ip   => '1.2.3.4',
         username    => 'mcrispin',
         last_port   => '4097',
         last_vlan   => '102',
@@ -226,8 +228,6 @@ sub add_fake_profile_data {
         last_switch => '10.0.0.4',
         dhcp_fingerprint      => '1,28,2,3,15,6,119,12,44,47,26,121,42',
         last_connection_type  => 'Wireless-802.11-EAP',
-        list_help_info        => [{ name => $c->loc('IP'), value => '10.0.0.123' },
-                               { name => $c->loc('MAC'), value => 'c8:bc:c8:ce:65:e1' }]
     );
 
 }

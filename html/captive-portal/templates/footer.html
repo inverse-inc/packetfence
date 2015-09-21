@@ -5,9 +5,8 @@
       <img src="/content/images/help.png" alt="Help" />
       <p>[% i18n("help: provide info") %]</p>
       <ul>
-        [%  FOREACH txt_help_info IN list_help_info %]
-          <li>[% txt_help_info.name %]: [% txt_help_info.value %]</li>
-        [%  END %]
+        <li>[% i18n("IP") %]: [% client_ip %]</li>
+        <li>[% i18n("MAC") %]: [% client_mac %]</li>
       </ul>
       [%- END %]
     </div>
