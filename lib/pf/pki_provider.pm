@@ -29,6 +29,47 @@ has cn_attribute => (is => 'rw');
 
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
+=head2 country
+
+What country to use for the certificate
+
+=cut
+
+has country => ( is => 'rw' );
+
+=head2 state
+
+What state to use for the certificate
+
+=cut
+
+has state => ( is => 'rw' );
+
+=head2 locality
+
+What locality to use for the certificate
+
+=cut
+
+has locality => ( is => 'rw' );
+
+=head2 organization
+
+What organization to use for the certificate
+
+=cut
+
+has organization => ( is => 'rw' );
+
+=head2 organizational_unit
+
+What organizational_unit to use for the certificate
+
+=cut
+
+has organizational_unit => ( is => 'rw' );
+
+
 =head2 module_description
 
 Returns the module description
