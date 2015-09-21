@@ -24,6 +24,7 @@ Enhancements
 * Added merged_list configuration type which is the result of a configuration list merge between pf.conf.defaults and pf.conf (#598)
 * RADIUS Diffie-Hellman key size has been increased to 2048 bits to prevent attacks such as Logjam.
 * Improve error message in the profile managment page
+* Aruba Controllers now support RADIUS MAC authentication and dot1x.
 
 Bug Fixes
 +++++++++
