@@ -70,8 +70,8 @@ sub filter_deflate {
 sub options_type {
     my $self = shift;
     local $_;
-    return map { /^profile\.filter\.(.*)$/;{ value => $1, label => $self->_localize($_)} }
-        map { "profile.filter.$_" } sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
+    return map {{value => $1, label => $self->_localize("profile.filter.$_")}}
+      sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
 }
 
 =head1 COPYRIGHT
