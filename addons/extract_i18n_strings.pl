@@ -23,7 +23,6 @@ use pf::factory::provisioner;
 use pf::factory::firewallsso;
 use pf::factory::profile::filter;
 use pf::factory::triggerParser;
-use pf::factory::pki_provider;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
@@ -376,9 +375,6 @@ sub extract_modules {
 
     @values = sort @pf::factory::profile::filter::MODULES;
     const('pf::filter', 'Portal Profile Filters', \@values);
-
-    @values = sort @pf::factory::pki_provider::MODULES;
-    const('pf::pki_provider', 'PKI Providers', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);

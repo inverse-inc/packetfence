@@ -23,6 +23,8 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
+sub module_description { 'PacketFence PKI' }
+
 =head2 host
 
 The host of the packetfence_pki pki service
@@ -130,13 +132,13 @@ sub _post_curl {
 
 }
 
-=head2 get_cert
+=head2 get_bundle
 
-Get the certificate from the packetfence_pki pki service
+Get the certificate bundle from the packetfence_pki pki service
 
 =cut
 
-sub get_cert {
+sub get_bundle {
     my ($self,$args) = @_;
     my $logger = get_logger();
 

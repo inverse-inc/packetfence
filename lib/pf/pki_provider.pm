@@ -29,14 +29,24 @@ has cn_attribute => (is => 'rw');
 
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
-=head2 get_cert
+=head2 module_description
 
-Get the certificate from the pki
+Returns the module description
+
+Parent returns empty so that the factory use the own child module name if not defined in child module
 
 =cut
 
-sub get_cert {
-    get_logger->error("get_cert is not implemented for this PKI provider. Certificate generation will fail.");
+sub module_description { '' }
+
+=head2 get_bundle
+
+Get the certificate bundle from the pki
+
+=cut
+
+sub get_bundle {
+    get_logger->error("get_bundle is not implemented for this PKI provider. Certificate generation will fail.");
     return $FALSE;
 }
 
@@ -62,7 +72,7 @@ sub _build_ca_cert {
     return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
 }
 
-=head2 _build_ca_cert
+=head2 _build_server_cert
 
 Builds an X509 object the server_cert_path
 
@@ -111,13 +121,13 @@ sub raw_ca_cert_string {
     return $self->_raw_cert_string($self->ca_cert);
 }
 
-=head2 raw_ca_cert_string
+=head2 raw_server_cert_string
 
 Get the server certificate content minus the ascii armor
 
 =cut
 
-sub raw_server_cert {
+sub raw_server_cert_string {
     my ($self) = @_;
     return $self->_raw_cert_string($self->server_cert);
 }
@@ -129,7 +139,7 @@ sub server_cn {
         return $cn;
     }
     else {
-        get_logger->error("cannot find cn of ca certificate at ".$self->server_cert_path);
+        get_logger->error("cannot find cn of server certificate at ".$self->server_cert_path);
     }
 }
 
