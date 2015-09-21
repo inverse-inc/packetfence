@@ -126,7 +126,6 @@ requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Crypt::OpenSSL::X509)
 requires: perl(Crypt::OpenSSL::RSA)
 requires: perl(Crypt::OpenSSL::PKCS10)
-requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
