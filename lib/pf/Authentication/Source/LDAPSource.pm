@@ -99,7 +99,7 @@ sub authenticate {
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, $AUTH_FAIL_MSG);
