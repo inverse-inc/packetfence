@@ -746,13 +746,13 @@ sub getEnforcement {
     return $enforcement;
 }
 
-=head2 sort_interfaces_by_network
+=head2 map_interface_to_networks
 
 Will create a hash that maps which interfaces are tied to which network
 
 =cut
 
-sub sort_interfaces_by_network {
+sub map_interface_to_networks {
     my ($self, $interfaces) = @_;
     my $seen_networks = {};
     while(my ($int, $cfg) = each %$interfaces){

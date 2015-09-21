@@ -243,7 +243,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 
         my $interfaces_ref = $c->model('Interface')->get('all');
         $c->stash->{interfaces} = $interfaces_ref;
-        $c->stash->{seen_networks} = $c->model('Interface')->sort_interfaces_by_network($c->stash->{interfaces});
+        $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
 }
 
