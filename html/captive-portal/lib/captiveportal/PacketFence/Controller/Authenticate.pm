@@ -573,8 +573,7 @@ sub showLogin : Private {
     $c->stash(
         template        => 'login.html',
         username        => $request->param_encoded("username") ,
-        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ) 
-                            || is_in_list( $SELFREG_MODE_KICKBOX, $guestModes ),
+        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ) || is_in_list( $SELFREG_MODE_KICKBOX, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => $profile->noUsernameNeeded,

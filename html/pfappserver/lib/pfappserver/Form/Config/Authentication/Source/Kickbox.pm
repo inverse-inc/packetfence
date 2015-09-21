@@ -2,13 +2,13 @@ package pfappserver::Form::Config::Authentication::Source::Kickbox;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::Kickbox add documentation
+pfappserver::Form::Config::Authentication::Source::Kickbox
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Authentication::Source::Kickbox
+Form definition to create or update a Kickbox user source.
 
 =cut
 

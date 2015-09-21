@@ -2,13 +2,13 @@ package pf::Authentication::Source::KickboxSource;
 
 =head1 NAME
 
-pf::Authentication::Source::NullSource add documentation
+pf::Authentication::Source::KickboxSource
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Authentication::Source::NullSource
+Model definition for a Kickbox authentication source
 
 =cut
 
