@@ -20,7 +20,7 @@ use pf::constants;
 
 =head2 value
 
-The value to compare agianst
+The value to compare against
 
 =cut
 
