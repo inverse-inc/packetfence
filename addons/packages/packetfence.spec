@@ -589,6 +589,10 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
 fi
 
+# Create OMAPI key
+if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
+    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
+fi
 
 for service in snortd httpd snmptrapd memcached portreserve
 do

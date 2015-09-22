@@ -126,6 +126,13 @@ sub build_child {
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
+    # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
+    if ( $Config{omapi}{key_base64} eq '' ) {
+        open FILE, "<" . $conf_dir . "/pf_omapi_key";
+        $Config{omapi}{key_base64} = do { local $/; <FILE> };
+        $Config{omapi}{key_base64}=~ s/\R//g;
+    }
+
     return \%Config;
 
 }
