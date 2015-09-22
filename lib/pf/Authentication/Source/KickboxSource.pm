@@ -25,6 +25,7 @@ use pf::log;
 use URI::Escape::XS qw(uri_escape);
 use List::MoreUtils qw(any);
 use Email::Valid;
+use pf::error qw(is_success);
 
 extends 'pf::Authentication::Source::NullSource';
 
@@ -68,7 +69,7 @@ sub authenticate {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ($curl_return_code == 0 && $response_code == 200) {
+    if ($curl_return_code == 0 && is_success($response_code)) {
         my $info = decode_json($response_body);
         if( any {$_ eq $info->{result}} @ACCEPTABLE_RESULTS){
             $logger->info("$info->{result} is acceptable for e-mail address $username. Considering as valid.");
