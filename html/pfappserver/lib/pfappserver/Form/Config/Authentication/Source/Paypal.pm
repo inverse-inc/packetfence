@@ -15,37 +15,38 @@ pfappserver::Form::Config:::Authentication::Source::Paypal
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
+use pf::Authentication::Source::PaypalSource;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+with 'pfappserver::Base::Form::Role::Help';
 
-has_field host => (
-    type => 'Select',
-    options => [{label => 'api.paypal.com', value => 'api.paypal.com'}, {label => 'api.sandbox.paypal.com', value => 'api.sandbox.paypal.com',}],
-    default => 'api.sandbox.paypal.com',
-);
-
-has_field proto => (
-    type => 'Select',
-    options => [{label => 'http', value => 'https'}, {label => 'https', value => 'https',}],
-    default => 'https',
-);
-
-has_field port => (
-    type => 'Integer',
-    default => 443,
-);
-
-has_field client_id => (
-    type => 'Text',
+has_field button_text =>
+  (
+    type => 'TextArea',
     required => 1,
-);
+    element_class => ['input-xxlarge'],
+  );
 
-has_field client_secret => (
-    type => 'Text',
-    required => 1,
-);
+has_field identity_token =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::PaypalEncryptionSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::PaypalEncryptionSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
+
 
 has_block definition => (
-    render_list => [qw(host proto port client_id client_secret currency)]
+    render_list => [qw(button_text currency domains)]
 );
 
 =head1 AUTHOR
