@@ -42,6 +42,8 @@ our (
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     #oui.txt variables
     $oui_file, $oui_url,
+    #DHCP OMAPI key file
+    $pf_omapi_key_file,
     #profiles.conf variables
     $profiles_config_file, %Profiles_Config,
     #Other configuraton files variables
@@ -86,6 +88,7 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
+        $pf_omapi_key_file
         $profiles_config_file %Profiles_Config
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
@@ -129,14 +132,15 @@ $domains_chroot_dir = catdir( "/chroots");
 
 $pfcmd_binary   = catfile($bin_dir, "pfcmd");
 
-$oui_file        = catfile($conf_dir, "oui.txt");
-$pf_doc_file     = catfile($conf_dir, "documentation.conf");
-$oauth_ip_file   = catfile($conf_dir, "oauth2-ips.conf");
-$ui_config_file  = catfile($conf_dir, "ui.conf");
-$pf_config_file  = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_file
-$pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
-$chi_config_file = catfile($conf_dir, "chi.conf");
-$log_config_file = catfile($conf_dir, "log.conf");
+$oui_file           = catfile($conf_dir, "oui.txt");
+$pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
+$pf_doc_file        = catfile($conf_dir, "documentation.conf");
+$oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");
+$ui_config_file     = catfile($conf_dir, "ui.conf");
+$pf_config_file     = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_file
+$pf_default_file    = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
+$chi_config_file    = catfile($conf_dir, "chi.conf");
+$log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 

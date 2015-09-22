@@ -19,6 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Config::IniFiles;
+use File::Slurp qw(read_file);
 use pfconfig::log;
 use pf::file_paths;
 use pf::util;
@@ -127,10 +128,9 @@ sub build_child {
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
     # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
-    if ( $Config{omapi}{key_base64} eq '' ) {
-        open FILE, "<" . $conf_dir . "/pf_omapi_key";
-        $Config{omapi}{key_base64} = do { local $/; <FILE> };
-        $Config{omapi}{key_base64}=~ s/\R//g;
+    if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
+        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);        
+        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any cariage return
     }
 
     return \%Config;
