@@ -20,6 +20,7 @@ use warnings;
 use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
 use pf::util;
 use pf::log;
 use pf::node;
@@ -375,7 +376,7 @@ Check if the profile needs no password
 
 sub noPasswordNeeded {
     my ($self) = @_;
-    return isenabled($self->reuseDot1xCredentials) || any { $_ eq 'null' } @{ $self->getGuestModes };
+    return isenabled($self->reuseDot1xCredentials) || any { $_ eq $SELFREG_MODE_NULL || $_ eq $SELFREG_MODE_KICKBOX } @{ $self->getGuestModes };
 }
 
 =item noUsernameNeeded

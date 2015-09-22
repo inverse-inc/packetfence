@@ -14,6 +14,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any uniq);
 use pf::config;
 use pf::person qw(person_modify);
+use Email::Valid;
 
 our @PERSON_FIELDS = grep {
     $_ ne 'pid'
@@ -232,6 +233,12 @@ sub postAuthentication : Private {
     if ( !pf::person::person_exist($pid) ) {
         person_add($pid);
     }
+
+    # if PID is a valid e-mail we add it to the appropriate field
+    if(Email::Valid->address($pid)){
+        person_modify($pid, email => $pid);
+    }
+
     node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
@@ -573,7 +580,7 @@ sub showLogin : Private {
     $c->stash(
         template        => 'login.html',
         username        => $request->param_encoded("username") ,
-        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ),
+        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ) || is_in_list( $SELFREG_MODE_KICKBOX, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => $profile->noUsernameNeeded,
