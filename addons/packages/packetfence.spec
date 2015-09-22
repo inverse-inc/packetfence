@@ -448,7 +448,7 @@ cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
-mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/
+mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
 rmdir addons/pfdetect_remote/sbin
 rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
@@ -735,8 +735,8 @@ fi
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
 %dir                    %{_sysconfdir}/logrotate.d
-%dir                    %{_sysconfdir}/sudoers.d
-%config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence.sudoers
+%dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
+%config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
