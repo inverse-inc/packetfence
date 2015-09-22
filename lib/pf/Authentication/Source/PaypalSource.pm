@@ -22,7 +22,10 @@ use pf::log;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
-use List::Util qw(first);
+use List::Util qw(first pairmap);
+use URI::Escape qw(uri_escape uri_unescape);
+use HTTP::Status qw(is_success);
+use IPC::Open2;
 
 extends 'pf::Authentication::Source::BillingSource';
 
@@ -34,70 +37,143 @@ extends 'pf::Authentication::Source::BillingSource';
 
 has '+class' => (default => 'billing');
 
-has '+type' => (default => 'Paypal');
+has '+type' => (default => 'PaypalEncryption');
 
-has 'host' => (is => 'rw', default => 'api.sandbox.paypal.com');
+has 'button_text' => ( isa => 'Str', is => 'rw', required => 1);
 
-has 'proto' => (is => 'rw', default => 'https');
+has 'identity_token' => ( isa => 'Str', is => 'rw', required => 1);
 
-has 'port' => (is => 'rw', default => 443);
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.paypal.com,*.paypalobjects.com');
 
-has 'client_id' => (is => 'rw', required => 1);
+has 'certid' => ( isa => 'Str', is => 'rw', required => 1);
 
-has 'client_secret' => (is => 'rw', required => 1);
+has 'cert_file' => ( isa => 'Str', is => 'rw', required => 1);
 
-has 'payment_method' => (is => 'rw', default => 'paypal');
+has 'key_file' => ( isa => 'Str', is => 'rw', required => 1);
 
-=head2 curl
+has 'paypal_cert_file' => ( isa => 'Str', is => 'rw', required => 1);
 
-  Creates a curl object to connect to the rpc server
+has 'email_address' => (isa => 'Str', is => 'rw', required => 1);
+
+=head2 prepare_payment
+
+Prepare the payment from paypal
 
 =cut
 
-sub curl {
-    my ($self, $function) = @_;
-    my $curl = WWW::Curl::Easy->new;
-    $curl->setopt(CURLOPT_HEADER,               0);
-    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
-    $curl->setopt(CURLOPT_NOSIGNAL,             1);
-    $curl->setopt(CURLOPT_HTTPHEADER, ['Accept: application/json', 'Accept-Language: en_US']);
-    if ($self->proto eq 'https') {
+sub prepare_payment {
+    my ($self, $session, $tier, $params, $path) = @_;
+    return {
+        encrypted => $self->encrypt_form($session, $tier, $params),
+    };
+}
 
-        # Removed SSL verification
-        $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
-        $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
-        $curl->setopt(CURLOPT_USERNAME,       $self->client_id);
-        $curl->setopt(CURLOPT_PASSWORD,       $self->client_secret);
+=head2 encrypt_form
+
+
+=cut
+
+sub encrypt_form {
+    my ($self, $session, $tier, $params) = @_;
+    my $cert_file = $self->cert_file;
+    my $key_file = $self->key_file;
+    my $paypal_cert_file = $self->paypal_cert_file;
+    my $cmd = "/usr/bin/openssl smime -sign -signer $cert_file "
+          . "-inkey $key_file -outform der -nodetach -binary "
+          . "| /usr/bin/openssl smime -encrypt -des3 -binary -outform pem "
+          . "$paypal_cert_file";
+    my $pid = open2(my $reader, my $writer,$cmd) || die "Error encrypting form data\n";
+    my %params = (
+        cmd => '_donations',
+        currency_code => $self->currency,
+        amount => $tier->{price},
+        item_name => $tier->{name},
+        item_number => $tier->{id},
+        cancel_return => $self->cancel_url,
+        'return' => $self->verify_url,
+        notify_url => $self->verify_url,
+        business => $self->email_address,
+    );
+
+    # Write our parameters that we need to be encrypted to the openssl
+    # process.
+    while (my ($key, $value) =  each %params) {
+        print $writer "$key=$value\n";
     }
-    return $curl;
+    # close the writer file-handle
+    close($writer);
+
+    # read in the lines from openssl
+    my @lines = <$reader>;
+
+    # close the reader file-handle which probably closes the openssl processes
+    close($reader);
+    waitpid($pid,0);
+
+    # combine them into one variable
+    my $encrypted = join('', @lines);
+    return $encrypted;
 }
 
-=head2 url
+=head2 verify
 
-  The url to the rpc message to
+Verify the payment from paypal
+http://192.168.56.101/billing/PaypalEncryption/verify?tx=91R50174XG355921T&st=Completed&amt=12%2e00&cc=USD&cm=&item_number=&sig=JZROGcx8t8Sgb0mFxteT1EfSK5FIQkBbmHr%2fMDpCswUpoMIj%2bTTv0SEh4DNATwoTPDVjAEt7lGqP14JwqmJ2Z2bepK0nZl2BqChrXwmPipFCrtVARAS83U3LOEvXaB5t0aFBfYS0oJSt2FDdOP2ISr4F7%2fzX9dSHjaFOWsHkJlw%3d
 
 =cut
 
-sub base_url {
-    my ($self) = @_;
-    my $proto  = $self->proto;
-    my $host   = $self->host;
-    my $port   = $self->port;
-    return "${proto}://${host}:${port}";
-}
+=head2 verify
 
-=head2 _send_json
-
-send json data
+Verify the payment from paypal
 
 =cut
 
-sub _send_json {
-    my ($self, $curl, $path, $object) = @_;
-    $self->_set_url($curl, $path);
-    my $data = encode_json $object;
-    $self->_set_body($curl, $data);
-    return $self->_do_request($curl);
+sub verify {
+    my ($self, $session, $parameters, $path) = @_;
+    my $txn    = $parameters->{tx};
+    my $identity_token = $self->identity_token;
+    unless (defined $txn ) {
+        die "Invalid parameters provided";
+    }
+    my ($status, $response) = $self->_notify_synch($txn);
+    if (is_success($status)) {
+        my %data = (response => $response);
+        return \%data;
+    } else {
+        $self->handle_error($status, $response);
+        die "Error communicating with Paypal";
+    }
+}
+
+=head2 cancel
+
+Not implemented
+
+=cut
+
+sub cancel {
+    my ($self, $session, $parameters, $path) = @_;
+    return {};
+}
+
+=head2 _do_request
+
+Send the request and return the status code and body
+
+=cut
+
+sub _do_request {
+    my ($self, $curl) = @_;
+    my $response_body;
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+    my $curl_return_code = $curl->perform;
+    if ($curl_return_code == 0) {
+        my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+        return ($response_code, $response_body);
+    }
+    else {
+        die "Error send request: " . $curl->errbuf;
+    }
 }
 
 =head2 _set_body
@@ -119,176 +195,45 @@ Set the url for the curl object
 =cut
 
 sub _set_url {
-    my ($self, $curl, $path) = @_;
-    my $base_url = $self->base_url;
-    $path =~ s#^\/##;
-    my $url = "$base_url/$path";
+    my ($self, $curl, $url) = @_;
     $curl->setopt(CURLOPT_URL, $url);
 }
 
-=head2 get_token
+=head2 curl
 
-Get a new token from paypal
+  Creates a curl object to connect to the rpc server
 
 =cut
 
-sub get_token {
-    my ($self)        = @_;
-    my $curl          = $self->curl;
-    $self->_set_body($curl, "grant_type=client_credentials");
-    $self->_set_url($curl, "v1/oauth2/token");
+sub curl {
+    my ($self, $function) = @_;
+    my $curl = WWW::Curl::Easy->new;
+    $curl->setopt(CURLOPT_HEADER,               0);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL,             1);
+    return $curl;
+}
+
+sub _build_query {
+    my (@params) = @_;
+    my $query = join("&", pairmap {"$a=" . uri_escape($b)} @params );
+    return $query;
+}
+
+sub _notify_synch {
+    my ($self, $txn) = @_;
+    my $curl = $self->curl;
+    $self->_set_body($curl, _build_query(tx => $txn, at => $self->identity_token, cmd => '_notify-synch'));
+    $self->_set_url($curl, 'https://www.sandbox.paypal.com/cgi-bin/webscr');
     my ($code, $response) = $self->_do_request($curl);
-    return $response->{access_token};
-}
-
-=head2 new_payment
-
-Create a new payment on the Paypal system
-
-=cut
-
-sub new_payment {
-    my ($self, $access_token, $payment_info) = @_;
-    my $curl = $self->curl;
-    $curl->setopt(CURLOPT_HTTPHEADER, ["Content-Type: application/json", "Authorization: Bearer $access_token"]);
-    return $self->_send_json($curl, "v1/payments/payment", $payment_info);
-}
-
-=head2 _do_request
-
-Send the request and return the status code and body
-
-=cut
-
-sub _do_request {
-    my ($self, $curl) = @_;
-    my $response_body;
-    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-    my $curl_return_code = $curl->perform;
-    if ($curl_return_code == 0) {
-        my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        my $response      = decode_json($response_body);
-        return ($response_code, $response);
+    if (is_success($code)) {
+        my ($status, @params) = split(/\n/, $response);
+        my %response = map {my ($k, $v) = split('=', $_); uri_unescape($k), uri_unescape($v)} @params;
+        $response{STATUS} = $status;
+        return ($code, \%response);
+    } else {
+        die "Error communicationg with paypal";
     }
-    else {
-        die "Error send request: " . $curl->errbuf;
-    }
-}
-
-=head2 prepare_payment
-
-Prepare the payment from paypal
-
-=cut
-
-sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
-    my $logger = get_logger();
-    my $total  = sprintf("%.2f", $tier->{price});
-    my %payment   = (
-        intent        => 'sale',
-        redirect_urls => {
-            "return_url" => $self->verify_url,
-            "cancel_url" => $self->cancel_url,
-        },
-        "payer"        => {"payment_method" => $self->payment_method, payer_info => {}},
-        "transactions" => [
-            {   "amount"    => {"total" => $total, "currency" => $self->currency},
-                description => $tier->{description},
-                item_list   => {
-                    items => [
-                        {   quantity    => 1,
-                            name        => $tier->{name},
-                            description => $tier->{description},
-                            price       => $tier->{price},
-                            currency    => $self->currency,
-                            sku         => $tier->{id}
-                        }
-                    ]
-                }
-            }
-        ]
-    );
-    my $token = $self->get_token;
-    $logger->debug(sub {"Token for getting new payment $token"});
-    my ($status, $response) = $self->new_payment($token, \%payment);
-    if (is_success($status)) {
-        $session->{access_token} = $token;
-        my %data = (response => $response);
-        $data{approval_url} = first {$_->{rel} eq "approval_url"} @{$response->{links}};
-        return \%data;
-    }
-    else {
-        $self->handle_error($status, $response);
-        die "Error communicating with Paypal";
-    }
-}
-
-=head2 verify
-
-Verify the payment from paypal
-
-=cut
-
-sub verify {
-    my ($self, $session, $parameters, $path) = @_;
-    my $paymentId    = $parameters->{paymentId};
-    my $payerID      = $parameters->{PayerID};
-    my $access_token = $session->{access_token};
-    unless (defined $access_token && defined $paymentId && defined $payerID) {
-        die "Invalid parameters provided";
-    }
-    my ($status, $response) = $self->execute_payment($access_token, $paymentId, $payerID);
-    if (is_success($status)) {
-        my %data = (response => $response);
-        return \%data;
-    }
-    else {
-        $self->handle_error($status, $response);
-        die "Error communicating with Paypal";
-    }
-}
-
-=head2 execute_payment
-
-Make the payment live on the paypal system
-
-=cut
-
-sub execute_payment {
-    my ($self, $access_token, $paymentId, $payerID) = @_;
-    my $curl = $self->curl;
-    $curl->setopt(CURLOPT_HTTPHEADER, ["Content-Type: application/json", "Authorization: Bearer $access_token"]);
-    return $self->_send_json($curl, "v1/payments/payment/$paymentId/execute/", {payer_id => $payerID});
-}
-
-=head2 handle_error
-
-Handle the error from payapl
-
-=cut
-
-sub handle_error {
-    my ($self, $status, $error) = @_;
-    my $logger = get_logger();
-    my $msg =
-        "Error communicating with Paypal $status\n"
-      . ($error->{name} ? "Error Name:  $error->{name}\n" : "")
-      . ($error->{message} ? "Error Message: $error->{message}\n" : "")
-      . ($error->{information_link} ? "Error Information Link: $error->{information_link}\n" : "")
-      . ($error->{details} ? "Error Details: $error->{details}\n" : "");
-    $logger->error($msg);
-}
-
-=head2 cancel
-
-Not implemented
-
-=cut
-
-sub cancel {
-    my ($self, $session, $parameters, $path) = @_;
-    return {};
 }
 
 =head1 AUTHOR
