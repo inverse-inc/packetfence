@@ -286,8 +286,7 @@ sub match {
     }
 
     # Calling 'match' with empty/invalid rule class. Using default
-    my %rule_classes = map { $_ => 1 } @Rules::CLASSES;
-    if ( (!defined($params->{'rule_class'})) || (!exists($rule_classes{$params->{'rule_class'}})) ) {
+    if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
         $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
     }

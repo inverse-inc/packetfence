@@ -46,6 +46,8 @@ Readonly::Array our @CLASSES => (
     $AUTH,
     $ADMIN,
 );
+Readonly::Hash our %CLASSES => map { $_ => 1 } @Rules::CLASSES;
+
 
 =back
 
