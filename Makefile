@@ -74,7 +74,7 @@ conf/ssl/server.crt:
 	-nodes -config /usr/local/pf/conf/openssl.cnf
 
 conf/pf_omapi_key:
-	echo $$(date) $$HOSTNAME | base64 > /usr/local/pf/conf/pf_omapi_key
+	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@

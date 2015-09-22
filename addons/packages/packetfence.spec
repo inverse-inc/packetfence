@@ -585,7 +585,7 @@ fi
 
 # Create OMAPI key
 if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
-    echo $(date) $HOSTNAME | base64 > /usr/local/pf/conf/pf_omapi_key
+    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
 fi
 
 for service in snortd httpd snmptrapd memcached portreserve
