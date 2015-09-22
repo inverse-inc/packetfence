@@ -876,6 +876,13 @@ disable_pf_domain_auth=disabled
 #
 # List of LDAP attributes that can be used in the sources configuration
 ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
+#
+# advanced.additionnal_radiusd_virtual_servers
+#
+# Comma delimited list of IP:port on which to start a radiusd virtual server. 
+# Each has to be defined in /usr/local/pf/conf/radiusd/radiusd.conf
+additionnal_radiusd_virtual_servers=
+
 
 [omapi]
 #

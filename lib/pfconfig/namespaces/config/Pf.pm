@@ -133,6 +133,9 @@ sub build_child {
         $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 
+    $Config{advanced}{additionnal_radiusd_virtual_servers} 
+        = [split( /\s*,\s*/, $Config{advanced}{additionnal_radiusd_virtual_servers} || '' )];
+
     return \%Config;
 
 }

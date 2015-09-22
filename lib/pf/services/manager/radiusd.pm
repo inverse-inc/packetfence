@@ -19,192 +19,47 @@ use pf::config;
 use Moo;
 use NetAddr::IP;
 use pf::cluster;
+use pf::services::manager::radiusd_child;
 
-extends 'pf::services::manager';
+extends 'pf::services::manager::submanager';
+
+has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
 has '+name' => ( default => sub { 'radiusd' } );
 
 has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
-sub generateConfig {
-    my ($self,$quick) = @_;
-    generate_radiusd_mainconf();
-    generate_radiusd_eapconf();
-    generate_radiusd_sqlconf();
-    generate_radiusd_sitesconf();
-    generate_radiusd_proxy();
-    generate_radiusd_cluster();
-}
+sub _build_radiusdManagers {
+    my ($self) = @_;
 
-=head2 generate_radiusd_sitesconf
-
-Generates the packetfence and packetfence-tunnel configuration file
-
-=cut
-
-sub generate_radiusd_sitesconf {
-    my %tags;
-
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
-
-
-    if(isenabled($Config{advanced}{disable_pf_domain_auth})){
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
+    my @listens;
+    if($cluster_enabled){
+        push @listens, untaint_chain(pf::cluster::management_cluster_ip()).":1812";
+        push @listens, untaint_chain(pf::cluster::current_server->{management_ip}).":1812";
     }
-    elsif(keys %ConfigDomain){
-        $tags{'multi_domain'} = 'packetfence-multi-domain';
-    }
-    else {
-        $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
-    }
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+    push @listens, map {untaint_chain($_)} @{$Config{advanced}{additionnal_radiusd_virtual_servers}};
 
+    my @managers = map {
+        my $int = $_;
+        my ($ip,$port) = split(':',$int);
+        my $launcher = $self->launcher;
+        my $name = $self->name . "-" . $int;
+        $name =~ s/:/-/g;
+
+        pf::services::manager::radiusd_child->new ({
+            executable => $self->executable,
+            name => $name,
+            launcher => $self->launcher . " -n $name -i $ip -p $port",
+            forceManaged => $self->isManaged,
+        })
+    } @listens;
+    return \@managers;
 }
 
 
-=head2 generate_radiusd_mainconf
-
-Generates the radiusd.conf configuration file
-
-=cut
-
-sub generate_radiusd_mainconf {
-    my %tags;
-
-    $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
-    $tags{'install_dir'} = $install_dir;
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
-    $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
-    $tags{'rpc_user'} = $Config{webservices}{user} || "''";
-    $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
-    $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
-    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
-
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
-}
-
-=head2 generate_radiusd_eapconf
-
-Generates the eap.conf configuration file
-
-=cut
-
-sub generate_radiusd_eapconf {
-   my %tags;
-
-   $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
-   $tags{'install_dir'} = $install_dir;
-
-   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/eap.conf" );
-}
-
-=head2 generate_radiusd_sqlconf
-
-Generates the sql.conf configuration file
-
-=cut
-
-sub generate_radiusd_sqlconf {
-   my %tags;
-
-   $tags{'template'}    = "$conf_dir/radiusd/sql.conf";
-   $tags{'install_dir'} = $install_dir;
-   $tags{'db_host'} = $Config{'database'}{'host'};
-   $tags{'db_port'} = $Config{'database'}{'port'};
-   $tags{'db_database'} = $Config{'database'}{'db'};
-   $tags{'db_username'} = $Config{'database'}{'user'};
-   $tags{'db_password'} = $Config{'database'}{'pass'};
-
-   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
-}
-
-=head2 generate_radiusd_proxy
-
-Generates the proxy.conf.inc configuration file
-
-=cut
-
-sub generate_radiusd_proxy {
-    my %tags;
-
-    $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
-    $tags{'install_dir'} = $install_dir;
-    $tags{'config'} = '';
-
-    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
-        my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
-        $tags{'config'} .= <<"EOT";
-realm $realm {
-$options
-}
-
-EOT
-    }
-    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
-}
-
-=head2 generate_radiusd_cluster
-
-Generates the load balancer configuration
-
-=cut
-
-sub generate_radiusd_cluster {
-    my %tags;
-
-    my $int = $management_network->{'Tint'};
-    my $cfg = $Config{"interface $int"};
-
-    $tags{'members'} = '';
-    $tags{'config'} ='';
-
-    if ($cluster_enabled) {
-        $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
-        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
-        my @radius_backend = values %{pf::cluster::members_ips($int)};
-        my $i = 0;
-        foreach my $radius_back (@radius_backend) {
-            $tags{'members'} .= <<"EOT";
-home_server pf$i.cluster {
-        type = auth+acct
-        ipaddr = $radius_back
-        port = 1812
-        secret = testing1234
-
-        response_window = 6
-        status_check = status-server
-        revive_interval = 120
-        check_interval = 30
-        num_answers_to_alive = 3
-}
-EOT
-            $tags{'home_server'} .= <<"EOT";
-        home_server =  pf$i.cluster
-EOT
-            $i++;
-        }
-        parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
-    } else {
-        my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
-        unlink($file);
-    }
-    $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
-    my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
-    my $net = $ip->network();
-    if ($pf::cluster::cluster_enabled) {
-        $tags{'config'} .= <<"EOT";
-client $net {
-        secret = testing1234
-        shortname = pf
-}
-EOT
-    } else {
-        $tags{'config'} = '';
-    }
-    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+sub managers {
+    my ($self) = @_;
+    return @{$self->radiusdManagers};
 }
 
 
