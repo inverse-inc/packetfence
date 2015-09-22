@@ -284,6 +284,14 @@ sub match {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
     }
+
+    # Calling 'match' without specifying a rule class. Using default
+    my %rule_classes = map { $_ => 1 } @Rules::CLASSES;
+    if ( (!defined($params->{'rule_class'})) || (!exists($rule_classes{$params->{'rule_class'}})) ) {
+        $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
+        $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
+    }
+
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     } else {
