@@ -27,6 +27,7 @@ Enhancements
 * Aruba Controllers now support RADIUS MAC authentication and dot1x.
 * 'person' attributes lookup
 * HAProxy TLS configuration has been restricted to modern ciphers.
+* Added Kickbox.io authentication source which can allow a new Null type source with e-mail validation
 
 Bug Fixes
 +++++++++
