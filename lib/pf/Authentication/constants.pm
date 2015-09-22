@@ -140,6 +140,15 @@ Readonly::Hash our %ACTIONS => (
     $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
 );
 
+Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
+    $SET_ROLE            => $Rules::AUTH,
+    $SET_UNREG_DATE      => $Rules::AUTH,
+    $SET_ACCESS_DURATION => $Rules::AUTH,
+
+    $SET_ACCESS_LEVEL    => $Rules::ADMIN,
+    $MARK_AS_SPONSOR     => $Rules::ADMIN,
+);
+
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
     $SET_ACCESS_LEVEL => {$SET_ACCESS_LEVEL => 1},
