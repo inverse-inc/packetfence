@@ -130,7 +130,7 @@ sub build_child {
     # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
     if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
         $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);        
-        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any cariage return
+        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 
     return \%Config;
