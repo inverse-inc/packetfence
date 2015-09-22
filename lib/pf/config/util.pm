@@ -156,9 +156,6 @@ sub send_email {
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
 
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-
     try {
         require MIME::Lite::TT;
     } catch {
@@ -166,16 +163,23 @@ sub send_email {
                        "Are you sure you have MIME::Lite::TT installed?");
         return $FALSE;
     };
+
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$conf_dir/templates/",
+        ENCODING        => 'utf8',
+    );
+    utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $data->{'from'},
         To          =>  $email,
         Cc          =>  $data->{'cc'} || '',
         Subject     =>  $subject,
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
+        TmplOptions =>  \%TmplOptions,
         TmplParams  =>  $data,
+        TmplUpgrade =>  1,
     );
+    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
 
     my $result = 0;
     try {
