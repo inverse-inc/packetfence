@@ -41,11 +41,11 @@ sub generateConfig {
 
 sub _generateConfig {
     my ($self,$quick) = @_;
-    generate_radiusd_mainconf();
-    generate_radiusd_eapconf();
-    generate_radiusd_sqlconf();
-    generate_radiusd_sitesconf();
-    generate_radiusd_proxy();
+    $self->generate_radiusd_mainconf();
+    $self->generate_radiusd_eapconf();
+    $self->generate_radiusd_sqlconf();
+    $self->generate_radiusd_sitesconf();
+    $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster();
 }
 
@@ -81,6 +81,7 @@ Generates the radiusd.conf configuration file
 =cut
 
 sub generate_radiusd_mainconf {
+    my ($self) = @_;
     my %tags;
 
     $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
@@ -92,8 +93,10 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+    $tags{'pidFile'} = "$var_dir/run/radiusd.pid";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/aaa.conf", "$install_dir/raddb/aaa.conf" );
 }
 
 =head2 generate_radiusd_eapconf
@@ -210,7 +213,7 @@ EOT
     %tags = ();
     $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
     $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
-    $tags{'pidFile'} = $self->pidFile;
+    $tags{'pidFile'} = "$var_dir/run/radiusd-load_balancer.pid";
     parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
 }
 

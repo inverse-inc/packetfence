@@ -36,11 +36,11 @@ sub _build_radiusdManagers {
     if($cluster_enabled){
         my $cluster_ip = pf::cluster::management_cluster_ip();
         $listens->{load_balancer} = {
-          launcher => $self->launcher . " -n load_balancer -i $cluster_ip -p 1812"
+          launcher => $self->launcher . " -n load_balancer"
         };
     }
     $listens->{AAA} = {
-      launcher => $self->launcher
+      launcher => $self->launcher . " -n aaa"
     };
 
     my @managers = map {
