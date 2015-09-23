@@ -32,27 +32,31 @@ has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 sub _build_radiusdManagers {
     my ($self) = @_;
 
-    my @listens;
+    my $listens = {};
     if($cluster_enabled){
-        push @listens, untaint_chain(pf::cluster::management_cluster_ip()).":1812";
-        push @listens, untaint_chain(pf::cluster::current_server->{management_ip}).":1812";
+        my $cluster_ip = pf::cluster::management_cluster_ip();
+        $listens->{load_balancer} = {
+          launcher => $self->launcher . " -n load_balancer -i $cluster_ip -p 1812"
+        };
     }
-    push @listens, map {untaint_chain($_)} @{$Config{advanced}{additionnal_radiusd_virtual_servers}};
+    $listens->{AAA} = {
+      launcher => $self->launcher
+    };
 
     my @managers = map {
-        my $int = $_;
-        my ($ip,$port) = split(':',$int);
+        my $id = $_;
         my $launcher = $self->launcher;
-        my $name = $self->name . "-" . $int;
-        $name =~ s/:/-/g;
+        my $name = $id eq "AAA" ? $self->name : untaint_chain($self->name . "-" . $id);
 
         pf::services::manager::radiusd_child->new ({
             executable => $self->executable,
             name => $name,
-            launcher => $self->launcher . " -n $name -i $ip -p $port",
+            launcher => $listens->{$id}->{launcher},
             forceManaged => $self->isManaged,
+            options => $listens->{$id},
         })
-    } @listens;
+    } keys %$listens;
+
     return \@managers;
 }
 

@@ -25,6 +25,8 @@ use NetAddr::IP;
 use pf::cluster;
 extends 'pf::services::manager';
 
+has options => (is => 'rw');
+
 our $CONFIG_GENERATED = 0;
 
 sub generateConfig {
@@ -35,8 +37,6 @@ sub generateConfig {
 
         $CONFIG_GENERATED = 1;
     }
-
-    $self->generate_radiusd_child();
 }
 
 sub _generateConfig {
@@ -46,16 +46,9 @@ sub _generateConfig {
     generate_radiusd_sqlconf();
     generate_radiusd_sitesconf();
     generate_radiusd_proxy();
-    generate_radiusd_cluster();
+    $self->generate_radiusd_cluster();
 }
 
-sub generate_radiusd_child {
-    my ($self) = @_;
-    my %tags;
-    $tags{'template'}    = "$conf_dir/raddb/".$self->name.".conf";
-    $tags{'pidFile'}     = $self->pidFile;
-    parse_template( \%tags, "$conf_dir/radiusd/child.conf", "$install_dir/raddb/".$self->name.".conf");
-}
 
 =head2 generate_radiusd_sitesconf
 Generates the packetfence and packetfence-tunnel configuration file
@@ -161,6 +154,7 @@ Generates the load balancer configuration
 =cut
 
 sub generate_radiusd_cluster {
+    my ($self) = @_;
     my %tags;
 
     my $int = $management_network->{'Tint'};
@@ -212,6 +206,12 @@ EOT
         $tags{'config'} = '';
     }
     parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+
+    %tags = ();
+    $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
+    $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+    $tags{'pidFile'} = $self->pidFile;
+    parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
 }
 
 =head1 AUTHOR
