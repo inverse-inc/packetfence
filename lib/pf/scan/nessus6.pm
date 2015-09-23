@@ -43,7 +43,7 @@ sub new {
     my ( $class, %data ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("Instantiating a new pf::scan::nessus scanning object");
+    $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
     my $this = bless {
             '_id'          => undef,
@@ -90,26 +90,26 @@ sub startScan {
     my $scanner_name        = $this->{_scannername};
     my $format              = $this->{_format};
 
-    my $n = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port);
-    $n->create_session(username => $user, password => $pass);
+    my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port);
+    $nessus->create_session(username => $user, password => $pass);
     
     # Verify nessus policy ID on the server, nessus remote scanner id, set scan name and launch the scan
     
-    my $polid = $n->get_policy_id(name => $nessus_clientpolicy);
-    if ($polid eq "") {
+    my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
+    if ($policy_id eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
         return 1;
     }
     
-    my $scannerid = $n->get_scanner_id(name => $scanner_name);
-    if ($scannerid eq ""){
-    	$logger->warn("Nessus scanner name doesn't exist ".$scannerid);
-    	return 1;
-    }  
+    my $scanner_id = $nessus->get_scanner_id(name => $scanner_name);
+    if ($scanner_id eq ""){
+        $logger->warn("Nessus scanner name doesn't exist ".$scanner_id);
+        return 1;
+    }
     
     #This is neccesary because the way of the new nessus API works, if the scan fails most likely
     # is in this function.
-    my $policy_uuid = $n->get_template_id( name => 'custom', type => 'scan');
+    my $policy_uuid = $nessus->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
     	$logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
     	return 1;
@@ -117,22 +117,22 @@ sub startScan {
     
       
     #Create the scan into the Nessus web server with the name pf-hostaddr-policyname
-    my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
-    my $scanid = $n->create_scan(
-    	uuid => $policy_uuid,
-	settings => {
-		text_targets => $hostaddr,
-		name => $scanname,
-		scanner_id => $scannerid,
-		policy_id => $polid
-	}
+    my $scan_name = "pf-".$hostaddr."-".$nessus_clientpolicy;
+    my $scan_id = $nessus->create_scan(
+        uuid => $policy_uuid,
+        settings => {
+            text_targets => $hostaddr,
+            name => $scan_name,
+            scanner_id => $scanner_id,
+            policy_id => $policy_id
+        }
     );
-    if ( $scanid eq "") {
+    if ( $scan_id eq "") {
         $logger->warn("Failled to create the scan");
         return 1;
     }
     
-    $n->launch_scan(scan_id => $scanid->{id});
+    $nessus->launch_scan(scan_id => $scan_id->{id});
     
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
@@ -141,7 +141,7 @@ sub startScan {
    
     # Wait the scan to finish
     my $counter = 0;
-    while ($n->get_scan_status(scan_id => $scanid->{id}) ne 'completed') {
+    while ($nessus->get_scan_status(scan_id => $scan_id->{id}) ne 'completed') {
         if ($counter > 3600) {
             $logger->info("Nessus scan is older than 1 hour ...");
             return 1;
@@ -152,14 +152,14 @@ sub startScan {
     }
     
     # Get the report
-    my $file_id = $n->export_scan(scan_id => $scanid->{id}, format => $format);
-    while ($n->get_scan_export_status(scan_id => $scanid->{id},file_id => $file_id) ne 'ready') {
+    my $file_id = $nessus->export_scan(scan_id => $scan_id->{id}, format => $format);
+    while ($nessus->get_scan_export_status(scan_id => $scan_id->{id},file_id => $file_id) ne 'ready') {
         sleep 2;
     }
-    $this->{'_report'} = $n->download_scan(scan_id => $scanid->{id}, file_id => $file_id);
+    $this->{'_report'} = $nessus->download_scan(scan_id => $scan_id->{id}, file_id => $file_id);
     # Remove report on the server and logout from nessus
-    $n->delete_scan(scan_id => $scanid->{id});
-    $n->DESTROY;
+    $nessus->delete_scan(scan_id => $scan_id->{id});
+    $nessus->DESTROY;
 
     pf::scan::parse_scan_report($this);
 }

@@ -968,7 +968,7 @@ sub reevaluate_access : Public {
 
     my $logger = pf::log::get_logger();
 
-     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
+    pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
 =head1 AUTHOR
