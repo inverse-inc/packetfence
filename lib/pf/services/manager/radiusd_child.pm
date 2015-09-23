@@ -116,7 +116,8 @@ sub generate_radiusd_authconf {
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
     $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    $tags{'pidFile'} = "$var_dir/run/radiusd.pid";
+    $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
 }
 
@@ -125,7 +126,8 @@ sub generate_radiusd_acctconf {
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
     $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    $tags{'pidFile'} = "$var_dir/run/radiusd-acct.pid";
+    $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
 }
 
@@ -244,7 +246,8 @@ EOT
     %tags = ();
     $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
     $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
-    $tags{'pidFile'} = "$var_dir/run/radiusd-load_balancer.pid";
+    $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
     parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
 }
 
