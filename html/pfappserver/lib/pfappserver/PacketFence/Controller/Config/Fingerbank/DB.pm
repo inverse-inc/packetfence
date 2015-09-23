@@ -30,7 +30,7 @@ sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my $apiclient = pf::api::jsonrpcclient->new;
+    my $apiclient = pf::client::getClient();
     $apiclient->notify('fingerbank_update_upstream_db');
 
     $c->stash->{status_msg} = $c->loc("Fingerbank upstream DB update request successfully dispatched");
@@ -47,7 +47,7 @@ sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my $apiclient = pf::api::jsonrpcclient->new;
+    my $apiclient = pf::client::getClient();
     $apiclient->notify('fingerbank_submit_unmatched');
 
     $c->stash->{status_msg} = $c->loc("Submit unknown/unmatched fingerprints to Fingerbank request successfully dispatched");
