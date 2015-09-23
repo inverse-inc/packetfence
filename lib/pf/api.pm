@@ -919,8 +919,6 @@ sub fingerbank_update_upstream_db : Public {
     pf::fingerbank::sync_upstream_db();
 
     pf::config::util::pfmailer(( subject => 'Fingerbank - Update upstream DB status', message => $status_msg ));
-
-    return;
 }
 
 =head2 fingerbank_submit_unmatched
@@ -933,8 +931,6 @@ sub fingerbank_submit_unmatched : Public {
     my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
 
     pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
-
-    return;
 }
 
 =head1 AUTHOR
