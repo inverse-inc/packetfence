@@ -1175,7 +1175,11 @@ sub valid_certs {
         if($@){
             add_problem($WARN, "Cannot open the following certificate $radius_crt")
         }   
-    }   
+    } 
+    else { 
+        # not a problem per se, we just warn you
+        print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
+    } 
 } 
 
 =back
