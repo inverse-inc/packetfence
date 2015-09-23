@@ -14,8 +14,8 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use fingerbank::DB;
-use pf::fingerbank;
+
+use pf::api::jsonrpcclient;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -30,12 +30,10 @@ sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
+    my $apiclient = pf::api::jsonrpcclient->new;
+    $apiclient->notify('fingerbank_update_upstream_db');
 
-    pf::fingerbank::sync_upstream_db();
-
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc("Fingerbank upstream DB update request successfully dispatched");
 }
 
 =head2 submit
@@ -49,10 +47,10 @@ sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
+    my $apiclient = pf::api::jsonrpcclient->new;
+    $apiclient->notify('fingerbank_submit_unmatched');
 
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc("Submit unknown/unmatched fingerprints to Fingerbank request successfully dispatched");
 }
 
 =head1 AUTHOR
