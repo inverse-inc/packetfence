@@ -19,13 +19,6 @@ use pf::Authentication::Source::PaypalSource;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field button_text =>
-  (
-    type => 'TextArea',
-    required => 1,
-    element_class => ['input-xxlarge'],
-  );
-
 has_field identity_token =>
   (
    type => 'Text',
@@ -37,16 +30,45 @@ has_field 'domains' =>
    type => 'Text',
    label => 'Authorized domains',
    required => 1,
-   default => pf::Authentication::Source::PaypalEncryptionSource->meta->get_attribute('domains')->default,
-   element_attr => {'placeholder' => pf::Authentication::Source::PaypalEncryptionSource->meta->get_attribute('domains')->default},
+   default => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
+has_field cert_id =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field cert_file =>
+  (
+   type => 'Path',
+   required => 1,
+  );
+
+has_field key_file =>
+  (
+   type => 'Path',
+   required => 1,
+  );
+
+has_field paypal_cert_file =>
+  (
+   type => 'Path',
+   required => 1,
+  );
+
+has_field email_address =>
+  (
+   type => 'Text',
+   required => 1,
+  );
 
 has_block definition => (
-    render_list => [qw(button_text currency domains)]
+    render_list => [qw(identity_token cert_id currency domains email_address cert_file key_file paypal_cert_file)]
 );
 
 =head1 AUTHOR
