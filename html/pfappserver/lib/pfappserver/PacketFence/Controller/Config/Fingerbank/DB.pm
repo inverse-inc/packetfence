@@ -33,7 +33,7 @@ sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     my $apiclient = pf::client::getClient();
     $apiclient->notify('fingerbank_update_upstream_db');
 
-    $c->stash->{status_msg} = $c->loc("Fingerbank upstream DB update request successfully dispatched");
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status");
 }
 
 =head2 submit
@@ -50,7 +50,7 @@ sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
     my $apiclient = pf::client::getClient();
     $apiclient->notify('fingerbank_submit_unmatched');
 
-    $c->stash->{status_msg} = $c->loc("Submit unknown/unmatched fingerprints to Fingerbank request successfully dispatched");
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status");
 }
 
 =head1 AUTHOR
