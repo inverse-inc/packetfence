@@ -78,6 +78,7 @@ conf/allowed_device_oui.txt
 conf/apache_filters.conf
 conf/firewall_sso.conf
 conf/vlan_filters.conf
+conf/pf_omapi_key
 html/captive-portal/captive_portal.conf
 conf/pfdetect_remote.conf
 conf/pfarp_remote.conf
