@@ -68,7 +68,7 @@ has_field email_address =>
   );
 
 has_block definition => (
-    render_list => [qw(identity_token cert_id currency domains email_address cert_file key_file paypal_cert_file)]
+    render_list => [qw(identity_token cert_id domains email_address cert_file key_file paypal_cert_file currency test_mode)]
 );
 
 =head1 AUTHOR
@@ -99,4 +99,3 @@ USA.
 =cut
 
 1;
-

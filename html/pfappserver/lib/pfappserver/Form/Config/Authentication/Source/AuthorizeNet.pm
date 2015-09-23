@@ -28,7 +28,7 @@ has_field transaction_key => (
 );
 
 has_block definition => (
-    render_list => [qw(api_login_id transaction_key currency)]
+    render_list => [qw(api_login_id transaction_key currency test_mode)]
 );
 
 =head1 AUTHOR
@@ -59,4 +59,3 @@ USA.
 =cut
 
 1;
-

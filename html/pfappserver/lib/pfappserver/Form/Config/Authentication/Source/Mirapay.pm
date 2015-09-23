@@ -34,7 +34,7 @@ has_field merchant_id => (
 );
 
 has_block definition => (
-    render_list => [qw(base_url shared_secret merchant_id)]
+    render_list => [qw(base_url shared_secret merchant_id currency test_mode)]
 );
 
 
@@ -66,4 +66,3 @@ USA.
 =cut
 
 1;
-
