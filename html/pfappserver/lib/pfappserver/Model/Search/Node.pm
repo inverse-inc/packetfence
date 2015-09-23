@@ -146,7 +146,6 @@ sub make_builder {
                             },
                             '=',
                             \"( SELECT `ip` FROM `iplog` WHERE `mac` = `node`.`mac`
-                                AND ( `iplog`.`end_time` = '0000-00-00 00:00:00' OR `iplog`.`end_time` > NOW() )
                                         ORDER BY `start_time` DESC LIMIT 1 )"
                         ]
                     ],
