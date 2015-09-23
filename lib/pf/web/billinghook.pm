@@ -24,7 +24,8 @@ use Apache2::RequestIO();
 use Apache2::RequestRec();
 use pf::log;
 use pf::authentication qw(getAuthenticationSource);
-use pf::billing::hook;
+use pf::billing::custom_hook;
+use HTTP::Status qw(:constants);
 
 my $logger = get_logger();
 
@@ -34,7 +35,15 @@ sub handler {
     if ($source) {
         my $content = get_content($r);
         $logger->trace(sub {"The content of is " . $content});
-        my $status = pf::billing::hook::handler_hook($source, $r->headers_in, $content);
+        my $headers = $r->headers_in;
+        my $status = HTTP_OK;
+        eval {
+            $status = $source->handle_hook($headers, $content);
+            pf::billing::custom_hook::handler_hook($source, $r->headers_in, $content);
+        };
+        if ($@) {
+            $logger->error($@);
+        }
         $r->status($status);
     }
     return Apache2::Const::OK;
@@ -103,4 +112,3 @@ USA.
 =cut
 
 1;
-
