@@ -37,15 +37,13 @@ extends 'pf::Authentication::Source::BillingSource';
 
 has '+class' => (default => 'billing');
 
-has '+type' => (default => 'PaypalEncryption');
-
-has 'button_text' => ( isa => 'Str', is => 'rw', required => 1);
+has '+type' => (default => 'Paypal');
 
 has 'identity_token' => ( isa => 'Str', is => 'rw', required => 1);
 
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.paypal.com,*.paypalobjects.com');
 
-has 'certid' => ( isa => 'Str', is => 'rw', required => 1);
+has 'cert_id' => ( isa => 'Str', is => 'rw', required => 1);
 
 has 'cert_file' => ( isa => 'Str', is => 'rw', required => 1);
 
@@ -78,14 +76,15 @@ sub encrypt_form {
     my $cert_file = $self->cert_file;
     my $key_file = $self->key_file;
     my $paypal_cert_file = $self->paypal_cert_file;
-    my $cmd = "/usr/bin/openssl smime -sign -signer $cert_file "
-          . "-inkey $key_file -outform der -nodetach -binary "
+    my $cmd = "/usr/bin/openssl smime -sign -signer \"$cert_file\" "
+          . "-inkey \"$key_file\" -outform der -nodetach -binary "
           . "| /usr/bin/openssl smime -encrypt -des3 -binary -outform pem "
-          . "$paypal_cert_file";
+          . "\"$paypal_cert_file\"";
     my $pid = open2(my $reader, my $writer,$cmd) || die "Error encrypting form data\n";
     my %params = (
         cmd => '_donations',
         currency_code => $self->currency,
+        cert_id => $self->cert_id,
         amount => $tier->{price},
         item_name => $tier->{name},
         item_number => $tier->{id},
