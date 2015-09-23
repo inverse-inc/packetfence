@@ -1,14 +1,14 @@
-package pf::billing::hook;
+package pf::billing::custom_hook;
 
 =head1 NAME
 
-pf::billing::hook - billing hook
+pf::billing::custom_hook - billing hook
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::billing::hook is where to hook into httpd callbacks from billing providers
+pf::billing::custom_hook is where to hook into httpd callbacks from billing providers
 
 =cut
 
