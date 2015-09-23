@@ -53,6 +53,8 @@ Generate the configuration files for radiusd processes
 sub _generateConfig {
     my ($self,$quick) = @_;
     $self->generate_radiusd_mainconf();
+    $self->generate_radiusd_authconf();
+    $self->generate_radiusd_acctconf();
     $self->generate_radiusd_eapconf();
     $self->generate_radiusd_sqlconf();
     $self->generate_radiusd_sitesconf();
@@ -104,11 +106,29 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
-    $tags{'pidFile'} = "$var_dir/run/radiusd.pid";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
-    parse_template( \%tags, "$conf_dir/radiusd/aaa.conf", "$install_dir/raddb/aaa.conf" );
 }
+
+
+sub generate_radiusd_authconf {
+    my ($self) = @_;
+    my %tags;
+    $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'pidFile'} = "$var_dir/run/radiusd.pid";
+    parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
+}
+
+sub generate_radiusd_acctconf {
+    my ($self) = @_;
+    my %tags;
+    $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'pidFile'} = "$var_dir/run/radiusd-acct.pid";
+    parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
+}
+
 
 =head2 generate_radiusd_eapconf
 Generates the eap.conf configuration file

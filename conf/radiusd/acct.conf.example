@@ -1,0 +1,13 @@
+
+pidfile = %%pidFile%%
+
+$INCLUDE radiusd.conf
+
+listen {
+        ipaddr = %%management_ip%%
+        port = 0
+        type = acct
+        virtual_server = packetfence
+}
+
+

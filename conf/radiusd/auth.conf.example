@@ -10,11 +10,3 @@ listen {
         virtual_server = packetfence
 }
 
-listen {
-        ipaddr = %%management_ip%%
-        port = 0
-        type = acct
-        virtual_server = packetfence
-}
-
-

@@ -39,14 +39,17 @@ sub _build_radiusdManagers {
           launcher => $self->launcher . " -n load_balancer"
         };
     }
-    $listens->{AAA} = {
-      launcher => $self->launcher . " -n aaa"
+    $listens->{auth} = {
+      launcher => $self->launcher . " -n auth"
+    };
+    $listens->{acct} = {
+      launcher => $self->launcher . " -n acct"
     };
 
     my @managers = map {
         my $id = $_;
         my $launcher = $self->launcher;
-        my $name = $id eq "AAA" ? $self->name : untaint_chain($self->name . "-" . $id);
+        my $name = $id eq "auth" ? $self->name : untaint_chain($self->name . "-" . $id);
 
         pf::services::manager::radiusd_child->new ({
             executable => $self->executable,
