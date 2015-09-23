@@ -62,7 +62,7 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso);
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
 our %DEFAULT_CONFIG = (
