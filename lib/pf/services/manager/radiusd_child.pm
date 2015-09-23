@@ -1,17 +1,16 @@
 package pf::services::manager::radiusd_child;
 =head1 NAME
 
-pf::services::manager::winbindd_child 
+pf::services::manager::radiusd_child 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::winbindd_child
+pf::services::manager::radiusd_child
 
-Used to create the childs of the submanager winbindd
-The first manager will create the namespaces for all winbindd processes through the global variable.
-
+Used to create the childs of the submanager radiusd
+The first manager will create the config for all radiusd processes through the global variable.
 
 =cut
 
@@ -29,6 +28,12 @@ has options => (is => 'rw');
 
 our $CONFIG_GENERATED = 0;
 
+=head2 generateConfig
+
+Generate the configuration for ALL radiusd childs
+Executed once for ALL processes
+
+=cut
 sub generateConfig {
     my ($self, $quick) = @_;
  
@@ -38,6 +43,12 @@ sub generateConfig {
         $CONFIG_GENERATED = 1;
     }
 }
+
+=head2 _generateConfig
+
+Generate the configuration files for radiusd processes
+
+=cut
 
 sub _generateConfig {
     my ($self,$quick) = @_;
