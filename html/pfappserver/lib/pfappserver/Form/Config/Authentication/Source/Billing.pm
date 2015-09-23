@@ -18,8 +18,9 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 
 has_field currency => (
-    type => 'Text',
+    type => 'Select',
     default => 'USD',
+    options_method => \&options_currency,
 );
 
 has_field 'create_local_account' => (
@@ -41,6 +42,25 @@ has_field test_mode => (
     default => 1,
 );
 
+=head2 options_currency
+
+Currencies options for the a billing sources
+
+=cut
+
+sub options_currency {
+    my ($field) = @_;
+    my $form = $field->form;
+    map {{value => $_, label => $_}} $form->currencies;
+}
+
+=head2 currencies
+
+The list of currencies for the billing source
+
+=cut
+
+sub currencies { qw(USD CAD) }
 
 # Form fields
 

@@ -47,7 +47,7 @@ has_field 'style' => (
 );
 
 has_block definition => (
-    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style test_mode)]
+    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style currency test_mode)]
 );
 
 sub options_failed_payment_role {
@@ -92,4 +92,3 @@ USA.
 =cut
 
 1;
-
