@@ -132,10 +132,10 @@ sub hasId {
     my $config = $self->configStore;
     if ( $config->hasId($id) ) {
         $status = HTTP_OK;
-        $status_msg = ["[_1] exists",$id];
+        $status_msg = ["Section [_1] exists in the configuration",$id];
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = ["[_1] does not exists",$id];
+        $status_msg = ["Section [_1] does not exist in the configuration",$id];
     }
     return ($status,$status_msg);
 }
@@ -151,7 +151,7 @@ sub read {
     my ($status,$result) = $self->hasId($id);
     if(is_success($status)) {
         unless ($result =  $self->configStore->read($id,$self->idKey) ) {
-            $result = ["error reading [_1]",$id];
+            $result = ["error reading [_1] from the configuration",$id];
             $status =  HTTP_PRECONDITION_FAILED;
         }
     }
@@ -170,10 +170,10 @@ sub update {
     if(is_success($status)) {
         delete $assignments->{$self->idKey};
         if ($self->configStore->update($id,$assignments)) {
-            $status_msg = ["[_1] successfully modified",$id];
+            $status_msg = ["Section [_1] successfully modified in the configuration",$id];
         } else {
             $status = HTTP_INTERNAL_SERVER_ERROR;
-            $status_msg = ["error modifying [_1]",$id];
+            $status_msg = ["Error modifying section [_1] in the configuration",$id];
         }
     }
     return ($status, $status_msg);
@@ -192,9 +192,9 @@ sub create {
     delete $assignments->{$self->idKey};
     my $config = $self->configStore;
     if ($config->create($id,$assignments)) {
-        $status_msg = ["[_1] successfully created",$id];
+        $status_msg = ["Section [_1] successfully created in the configuration",$id];
     } else {
-        $status_msg = ["[_1] already exists",$id];
+        $status_msg = ["Section [_1] already exists in the configuration",$id];
         $status =  HTTP_PRECONDITION_FAILED;
     }
     return ($status, $status_msg);
@@ -224,10 +224,10 @@ sub remove {
     my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
         unless($self->configStore->remove($id)) {
-            $status_msg = ["error removing [_1]",$id];
+            $status_msg = ["Error removing section [_1] from the configuration",$id];
             $status =  HTTP_PRECONDITION_FAILED;
         } else {
-            $status_msg = ["removed [_1]",$id];
+            $status_msg = ["Removed section [_1] from the configuration",$id];
         }
     }
     return ($status, $status_msg);
@@ -245,9 +245,9 @@ sub copy {
     my $config = $self->configStore;
     if ( $config->copy($from,$to) ) {
         $status = HTTP_OK;
-        $status_msg = ['"[_1]" successfully copied to [_2]',$from,$to];
+        $status_msg = ['Section [_1] successfully copied to [_2] in the configuration',$from,$to];
     } else {
-        $status_msg = ['"[_]" already exists',$to];
+        $status_msg = ['Section [_1] already exists in the configuration',$to];
         $status = HTTP_PRECONDITION_FAILED;
     }
     return ($status, $status_msg);
@@ -262,11 +262,11 @@ sub renameItem {
     my ($status,$status_msg);
     my $config = $self->configStore;
     if ( $config->renameItem($old,$new) ) {
-        $status_msg = ["[_1] successfully renamed to [_2]",$old,$new];
+        $status_msg = ["Section [_1] successfully renamed to [_2] in the configuration",$old,$new];
         $status = HTTP_OK;
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = ["[_1] does not exists",$old];
+        $status_msg = ["Section [_1] does not exist in the configuration",$old];
     }
     return ($status,$status_msg);
 }
@@ -285,10 +285,10 @@ sub sortItems {
     my @sections = map {$_->{$idKey} } @$items;
     if ( $config->sortItems(\@sections)) {
         $status = HTTP_OK;
-        $status_msg = "Items re-sorted successfully";
+        $status_msg = "Items re-sorted successfully in the configuration";
     } else {
         $status = HTTP_BAD_REQUEST;
-        $status_msg = "Items cannot be resorted";
+        $status_msg = "Items cannot be resorted in the configuration";
     }
 
     return ($status,$status_msg);
@@ -304,7 +304,7 @@ sub commit {
     my ($result,$error) = $self->configStore->commit();
     if($result) {
         $status = HTTP_OK;
-        $status_msg = "Changes successfully commited";
+        $status_msg = "Changes successfully commited in the configuration";
     }
     else {
         $status = HTTP_INTERNAL_SERVER_ERROR;
