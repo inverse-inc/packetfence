@@ -92,7 +92,7 @@ Requires: mod_perl, mod_qos
 requires: libapreq2
 Requires: dhcp
 Requires: memcached
-Requires: freeradius >= 2.2.5-3, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
+Requires: freeradius = 2.2.8-34, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -110,7 +110,7 @@ Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
-Requires: perl(Config::IniFiles) >= 2.40
+Requires: perl(Config::IniFiles) < 2.8
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
