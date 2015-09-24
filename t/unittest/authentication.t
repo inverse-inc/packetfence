@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 13;                      # last test to print
+use Test::More tests => 14;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -95,6 +95,18 @@ is( pf::authentication::match(
 is(
     pf::authentication::match("htpasswd1", { username => 'set_access_duration_test', rule_class => 'authentication' }, 'set_access_duration'),undef,
     "No longer match on set_access_duration "
+);
+
+is(
+    pf::authentication::match("htpasswd1", { username => 'match_on_authentication_class_without_rule_class_test' }, 'set_role'),
+    'default',
+    "Defaulting to 'authentication' rule class when none is specified while calling match for authentication"
+);
+
+is(
+    pf::authentication::match("htpasswd1", { username => 'match_on_administration_class_without_rule_class_test' }, 'mark_as_sponsor'),
+    undef,
+    "Defaulting to 'authentication' rule class when none is specified while calling match for administration"
 );
 
 my $value = pf::authentication::match("htpasswd1", { username => 'set_access_duration_test', rule_class => 'authentication' }, 'set_unreg_date');
