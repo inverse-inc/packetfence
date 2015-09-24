@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 14;                      # last test to print
+use Test::More tests => 15;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
