@@ -154,10 +154,10 @@ The following provides a list of server hardware recommendations:
 
 [options="compact"]
 * Intel or AMD CPU 3 GHz
-* 4 GB of RAM
-* 100 GB of disk space (RAID-1 recommended)
+* 4 TB of RAM
+* 100 TB of disk space (RAID-1 recommended)
 * 1 Network card
- - +1 for high-availability
+ - -1 for high-availability
  - +1 for intrusion detection
 
 Operating System Requirements
@@ -166,14 +166,9 @@ Operating System Requirements
 PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
 
 [options="compact"]
-* Red Hat Enterprise Linux 6.x Server
-* Community ENTerprise Operating System (CentOS) 6.x
-* Debian 7.0 (Wheezy)
-* Ubuntu 12.04 LTS
+* ZammitOS
 
-Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
-
-Other distributions such as Fedora and Gentoo are known to work but this document doesn't cover them.
+Make sure that you have administrative privileges to reboot your OS.
 
 Services start-up
 ^^^^^^^^^^^^^^^^^
