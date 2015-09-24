@@ -30,7 +30,11 @@ has '+launcher' => (
         if($cluster_enabled){
           my $cluster_management_ip = pf::cluster::management_cluster_ip();
           my $management_ip = pf::cluster::current_server()->{management_ip};
-          "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff3.pid -W10 -O $install_dir/var/run/collectd-unixsock -f 'not host $cluster_management_ip and (udp port 1812 or 1813 or 1814 or 3799) and ((not host $management_ip and (udp dst port 1812 or 1813 or 1814 or 3799)) or (src host $management_ip and dst host $management_ip))'";
+          # We don't count requests/answers to the VIP
+          # We don't count outbound resquests from the mgmt IP
+          # We count outbound answers from the mgmt IP
+          # We count requests/answers from the mgmt IP to the mgmt IP (local proxy)
+          "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff3.pid -W10 -O $install_dir/var/run/collectd-unixsock -f 'not host $cluster_management_ip and ((not src host $management_ip and (udp dst port 1812 or 1813)) or (src host $management_ip and (not udp dst port 1812 or 1813)) or (src host $management_ip and dst host $management_ip))'";
         }
         else {
           "sudo %1\$s -d $install_dir/raddb/ -D $install_dir/raddb/ -q -P $install_dir/var/run/radsniff3.pid -W10 -O $install_dir/var/run/collectd-unixsock -i $management_network->{Tint}";
