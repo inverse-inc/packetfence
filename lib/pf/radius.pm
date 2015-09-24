@@ -289,7 +289,7 @@ sub accounting {
             my $regdate = $node_info->{'regdate'};
             $logger->info('My regdate' . Dumper($regdate));
             my $convertregdate = str2time($regdate);
-            my $interval = 45;
+            my $interval = $Config{'advanced'}{'unreg_onstop_timing'};
             my $limitunreg = $convertregdate + $interval;
             $logger->info('My limit unreg' . Dumper($limitunreg));
             if ($node_info->{'last_ssid'} eq 'aa-t' && $time > $limitunreg){
