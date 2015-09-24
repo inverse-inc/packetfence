@@ -478,6 +478,14 @@ sub locationlog_synchronize {
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
                 $mac, $connection_type, $connection_sub_type, $user_name, $ssid)) {
 
+                #If the last connection was inline then make sure to clean ipset
+                if ( ( (str_to_connection_type($locationlog_mac->{connection_type}) & $pf::config::INLINE) == $pf::config::INLINE ) && !($connection_type && ($connection_type & $pf::config::INLINE) == $pf::config::INLINE) ) {
+                    $logger->debug("Unmark node in ipset session since the connection type changed from inline to something else");
+                    my $inline = new pf::inline::custom();
+                    my $mark = $inline->{_technique}->get_mangle_mark_for_mac($mac);
+                    $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
+                }
+
                 $logger->debug("closing old locationlog entry because something about this node changed");
                 db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
                     || return (0);
