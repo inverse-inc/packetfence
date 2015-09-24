@@ -20,6 +20,7 @@ use Catalyst::Runtime 5.80;
 
 use Catalyst qw/
   ConfigLoader
+  -Debug
   Static::Simple
   I18N
   Authentication

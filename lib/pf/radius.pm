@@ -284,8 +284,14 @@ sub accounting {
             #unreg on disconnect
             use Data::Dumper;
             my $node_info = node_view($mac);
-            $logger->info('My node view'. Dumper($node_info));
-            if ($node_info->{'last_ssid'} eq 'aa-t'){
+            my $time = time();
+            my $regdate = $node_info->{'regdate'};
+            $logger->info('My regdate' . Dumper($regdate));
+            my $convertregdate = str2time($regdate);
+            my $interval = 45;
+            my $limitunreg = $convertregdate + $interval;
+            $logger->info('My limit unreg' . Dumper($limitunreg));
+            if ($node_info->{'last_ssid'} eq 'aa-t' && $time > $limitunreg){
                 use pf::api::jsonrpcclient;
                 my $apiclient = pf::api::jsonrpcclient->new;
                 my %options;
