@@ -6,9 +6,9 @@
 <!-- Remove submit button after the form submitted
      so we avoid double submitting -->
 <script type="text/javascript">
-document.observe("dom:loaded", function() {
-  $('billing_form').observe('submit', function(e) { 
-    $('billing_footer').update("[% i18n("Please wait. Processing payment...") %]");
+$(document).ready(function() {
+  $('#billing_form').on('submit', function(e) {
+    $('#billing_footer').html("[% i18n("Please wait. Processing payment...") %]");
   });
 });
 </script>
