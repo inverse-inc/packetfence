@@ -809,6 +809,7 @@ sub trigger_scan : Public {
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         # get violation id
         my $vid = $top_violation->{'vid'};
+        return if not defined $vid;
         sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
