@@ -283,6 +283,7 @@ sub accounting {
             $this->_handleAccountingFloatingDevices($switch, $mac, $port);
             #unreg on disconnect
             use Data::Dumper;
+            use Date::Parse;
             my $node_info = node_view($mac);
             my $time = time();
             my $regdate = $node_info->{'regdate'};
