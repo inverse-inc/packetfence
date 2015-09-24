@@ -139,7 +139,7 @@ sub registerNode : Private {
             my $session = $c->session;
             my $source_id = $session->{source_id};
             my %info;
-            my $params = { username => $pid, rule_class => $Rules::AUTH };
+            my $params = { username => $pid };
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =

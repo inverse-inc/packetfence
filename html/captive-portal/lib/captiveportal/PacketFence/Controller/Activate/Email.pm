@@ -188,7 +188,7 @@ sub doEmailRegistration : Private {
 
             # we create a password using the actions from
             # the email authentication source;
-            my $actions = &pf::authentication::match( $source->{id}, { $auth_params, 'rule_class' => $Rules::AUTH } );
+            my $actions = &pf::authentication::match( $source->{id}, $auth_params );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -348,7 +348,7 @@ sub doSponsorRegistration : Private {
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-            my $actions = &pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid, rule_class => $Rules::AUTH } );
+            my $actions = &pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 

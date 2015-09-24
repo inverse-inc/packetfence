@@ -301,7 +301,7 @@ sub doSponsorSelfRegistration : Private {
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match( $source->{id}, { $auth_params, 'rule_class' => $Rules::AUTH }, $Actions::SET_UNREG_DATE);
+    $info{'unregdate'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
 
     # set node in pending mode
     $info{'status'} = $pf::node::STATUS_PENDING;

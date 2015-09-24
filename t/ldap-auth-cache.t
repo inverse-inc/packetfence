@@ -167,16 +167,16 @@ my $params = { username => 'bob'};
 
 is(0,SHM::getCount(),"No search was done");
 
-my @action = pf::authentication::match([$source], { $params, 'rule_class' => $Rules::AUTH }, $Actions::SET_ROLE);
+my @action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
 is(SHM::getCount(),1,"The search was done the first time");
 
-@action = pf::authentication::match([$source], { $params, 'rule_class' => $Rules::AUTH }, $Actions::SET_ROLE);
+@action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
 
 is(SHM::getCount(),1,"The search was done only once");
 
 $source->cache_match(0);
 
-@action = pf::authentication::match([$source], { $params, 'rule_class' => $Rules::AUTH }, $Actions::SET_ROLE);
+@action = pf::authentication::match([$source], $params, $Actions::SET_ROLE);
 
 is(SHM::getCount(),2,"The search was done a second time");
 
