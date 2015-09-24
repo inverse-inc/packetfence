@@ -13,50 +13,17 @@ source /etc/rc.d/init.d/functions
 [ -x /usr/local/pf/bin/pfcmd ] || exit 1
 
 start() {
-	#Check if MySQL is started
-        if [ ! -f /var/run/mysqld/mysqld.pid ] && [ ! -f /var/lib/mysql/`hostname`.pid ]; then
-                if [ -f /etc/init.d/mysqld ]; then
-                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
-                else
-                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysql start
-                fi
-        fi
-	echo -n $"Starting PacketFence..."
-	IPSET=`command -v ipset`
-	if [ $IPSET ]; then
-		modprobe ip_set
-        #flush any previous ipset rules
-        /usr/sbin/ipset destroy
-	fi
-	/sbin/vconfig set_name_type DEV_PLUS_VID_NO_PAD
-	/usr/local/pf/bin/pfcmd service pf start
-	RETVAL=$?
-	echo
-	return $RETVAL
+	reboot
 }
 
 stop() {
-	echo -n $"Shutting down PacketFence..."
-	/usr/local/pf/bin/pfcmd service pf stop
-	RETVAL=$?
-	echo
-	return $RETVAL
+	reboot
 }
 
 restart() {
-	#Check if MySQL is started
-        if [ ! -f /var/run/mysqld/mysqld.pid ] && [ ! -f /var/lib/mysql/`hostname`.pid ]; then
-                if [ -f /etc/init.d/mysqld ]; then
-                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
-                else
-                        [ -d /var/lib/mysql/pf ] && /etc/init.d/mysql start
-                fi
-        fi
-	echo -n $"Restarting PacketFence..."
 	reboot
-	RETVAL=$?
-	echo
-	return $RETVAL
+	reboot
+	reboot
 }
 
 case "$1" in
