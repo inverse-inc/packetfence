@@ -78,7 +78,7 @@ sub _fields_expanded {
     return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners scans);
 }
 
-=head2 _Section
+=head2 _Sections
 
 Exclude sections with spaces
 
