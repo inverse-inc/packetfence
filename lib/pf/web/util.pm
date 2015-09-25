@@ -353,6 +353,29 @@ sub getcookie {
     }
 }
 
+=item build_captive_portal_detection_mecanisms_regex
+
+Build a regex that detects if the request is a captive portal detection mecanism request.
+
+Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+
+Using configuration values from 'captive_portal.detection_mecanism_urls'.
+
+=cut
+
+sub build_captive_portal_detection_mecanisms_regex {
+    my @captive_portal_detection_mecanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
+
+    foreach ( @captive_portal_detection_mecanism_urls ) { s{([^/])$}{$1\$} };
+
+    my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
+    if ( defined($captive_portal_detection_mecanism_urls) ) {
+        return qr/ ^(?: $captive_portal_detection_mecanism_urls ) /x; # eXtended pattern
+    } else {
+        return '';
+    }    
+}
+
 =item is_certificate_self_signed
 
 Check if configured SSL certificate is self-signed

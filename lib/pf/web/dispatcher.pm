@@ -74,10 +74,17 @@ sub handler {
         return proxy_redirect($r);
     }
 
-    # Captive-portal detection mecanism bypass
-    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
+    # Captive-portal detection mecanism
+    # Ability to bypass captive-portal detection mecanism
+    my $captive_portal_detection_mecanism_urls = pf::web::util::build_captive_portal_detection_mecanisms_regex;
+    if ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
         $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
         return proxy_redirect($r);
+    }
+    # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mecanism and having a self-signed SSL certificate
+    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) && pf::web::util::is_certificate_self_signed ) {
+        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having a self-signed SSL certificate. Using HTTP instead of HTTPS");
+        return html_redirect($r, { secure => $FALSE });
     }
 
     # Captive-portal static resources
@@ -162,19 +169,13 @@ sub html_redirect {
     my $url = $r->construct_url;
 
     # Keeping destination URL unless it is the captive-portal itself or some sort of captive-portal detection URLs
-    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o) && ($user_agent !~ /CaptiveNetworkSupport/s) ) {
+    my $captive_portal_detection_mecanism_urls = pf::web::util::build_captive_portal_detection_mecanisms_regex;
+    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$captive_portal_detection_mecanism_urls/o) && ($user_agent !~ /CaptiveNetworkSupport/s) ) {
         $destination_url = Apache2::Util::escape_path($url,$r->pool);
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
     }
         
-    # Enforcing HTTP (not HTTPS) when dealing with captive-portal detection mecanism
-    if ( ($url =~ /$WEB::CAPTIVE_PORTAL_DETECTION_MECANISM_URLS/o) || ($user_agent =~ /CaptiveNetworkSupport/s) ) {
-        $proto = $HTTP;
-        $logger->info("We are dealing with a device with captive portal detection capabilities. " .
-            "We are using HTTP rather than HTTPS to avoid SSL certificate related errors");
-    }
-
     # Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
     my $portal_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/captive-portal");
     $portal_url->query("destination_url=$destination_url&".$r->args);
