@@ -19,13 +19,15 @@ use pf::config qw($FALSE $TRUE $default_pid $fqdn);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
-use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::XS;
 use List::Util qw(first pairmap);
 use URI::Escape qw(uri_escape uri_unescape);
-use HTTP::Status qw(is_success);
+use HTTP::Status qw(is_success :constants);
 use IPC::Open2;
+
+our $PAYPAL_SANDBOX_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
+our $PAYPAL_URL = 'https://www.paypal.com/cgi-bin/webscr';
 
 extends 'pf::Authentication::Source::BillingSource';
 
@@ -52,6 +54,8 @@ has 'key_file' => ( isa => 'Str', is => 'rw', required => 1);
 has 'paypal_cert_file' => ( isa => 'Str', is => 'rw', required => 1);
 
 has 'email_address' => (isa => 'Str', is => 'rw', required => 1);
+
+has 'payment_type' => (isa => 'Str', is => 'rw', required => 1);
 
 =head2 prepare_payment
 
@@ -82,7 +86,7 @@ sub encrypt_form {
           . "\"$paypal_cert_file\"";
     my $pid = open2(my $reader, my $writer,$cmd) || die "Error encrypting form data\n";
     my %params = (
-        cmd => '_donations',
+        cmd => $self->payment_type,
         currency_code => $self->currency,
         cert_id => $self->cert_id,
         amount => $tier->{price},
@@ -136,23 +140,16 @@ sub verify {
     }
     my ($status, $response) = $self->_notify_synch($txn);
     if (is_success($status)) {
-        my %data = (response => $response);
-        return \%data;
+        if ($response->{STATUS} eq 'SUCCESS') {
+            my %data = (response => $response);
+            return \%data;
+        } else {
+            die "Invalid transaction";
+        }
     } else {
         $self->handle_error($status, $response);
         die "Error communicating with Paypal";
     }
-}
-
-=head2 cancel
-
-Not implemented
-
-=cut
-
-sub cancel {
-    my ($self, $session, $parameters, $path) = @_;
-    return {};
 }
 
 =head2 _do_request
@@ -164,6 +161,7 @@ Send the request and return the status code and body
 sub _do_request {
     my ($self, $curl) = @_;
     my $response_body;
+    $self->_set_url($curl, $self->_get_paypal_url);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     my $curl_return_code = $curl->perform;
     if ($curl_return_code == 0) {
@@ -200,7 +198,7 @@ sub _set_url {
 
 =head2 curl
 
-  Creates a curl object to connect to the rpc server
+Creates a curl object to connect to the rpc server
 
 =cut
 
@@ -213,17 +211,28 @@ sub curl {
     return $curl;
 }
 
+=head2 _build_query
+
+Build a query string from a list of parameters
+
+=cut
+
 sub _build_query {
     my (@params) = @_;
     my $query = join("&", pairmap {"$a=" . uri_escape($b)} @params );
     return $query;
 }
 
+=head2 _notify_synch
+
+Calls the notify-synch command
+
+=cut
+
 sub _notify_synch {
     my ($self, $txn) = @_;
     my $curl = $self->curl;
     $self->_set_body($curl, _build_query(tx => $txn, at => $self->identity_token, cmd => '_notify-synch'));
-    $self->_set_url($curl, 'https://www.sandbox.paypal.com/cgi-bin/webscr');
     my ($code, $response) = $self->_do_request($curl);
     if (is_success($code)) {
         my ($status, @params) = split(/\n/, $response);
@@ -233,6 +242,52 @@ sub _notify_synch {
     } else {
         die "Error communicationg with paypal";
     }
+}
+
+=head2 _notify_validate
+
+Validate a notify message
+
+=cut
+
+sub _notify_validate {
+    my ($self, $query) = @_;
+    my $curl = $self->curl;
+    $self->_set_body($curl, "cmd=_notify-validate&" . $query);
+    my ($code, $response) = $self->_do_request($curl);
+    if (is_success($code)) {
+        return ($code, $response);
+    } else {
+        die "Error communicationg with paypal";
+    }
+}
+
+=head2 _get_paypal_url
+
+Get the paypal url to use
+
+=cut
+
+sub _get_paypal_url {
+    my ($self) = @_;
+    return $self->test_mode ? $PAYPAL_SANDBOX_URL : $PAYPAL_URL;
+}
+
+=head2 handle_hook
+
+Handle hook
+
+=cut
+
+sub handle_hook {
+    my ($self, $headers, $content) = @_;
+    my ($status, $response) = $self->_notify_validate($content);
+    if (is_success($status)) {
+        if ($response eq 'VERIFIED') {
+        } else {
+        }
+    }
+    return HTTP_OK;
 }
 
 =head1 AUTHOR
