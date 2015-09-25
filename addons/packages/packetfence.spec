@@ -110,7 +110,7 @@ Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
-Requires: perl(Config::IniFiles) < 2.8
+Requires: perl(Config::IniFiles) < 2.88
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
