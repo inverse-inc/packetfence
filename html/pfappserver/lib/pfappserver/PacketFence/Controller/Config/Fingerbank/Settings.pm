@@ -87,6 +87,7 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     my $logger = pf::log::get_logger;
 
     $c->forward('check_for_api_key');
+    $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
     my ( $status, $status_msg ) = HTTP_OK;
     my $form = $c->form("Config::Fingerbank::Settings");
@@ -125,6 +126,17 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
         );
     }
 
+    $c->response->status($status);
+}
+
+sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+
+    my ( $status, $status_msg ) = fingerbank::Config::update_p0f_map();
+
+    $c->stash->{status_msg} = $status_msg;
     $c->response->status($status);
 }
 
