@@ -46,18 +46,21 @@ has_field cert_id =>
 has_field cert_file =>
   (
    type => 'Path',
+   element_class => ['input-xlarge'],
    required => 1,
   );
 
 has_field key_file =>
   (
    type => 'Path',
+   element_class => ['input-xlarge'],
    required => 1,
   );
 
 has_field paypal_cert_file =>
   (
    type => 'Path',
+   element_class => ['input-xlarge'],
    required => 1,
   );
 
@@ -65,6 +68,14 @@ has_field email_address =>
   (
    type => 'Text',
    required => 1,
+  );
+
+has_field payment_type =>
+  (
+   type     => 'Submit',
+   required => 1,
+   default  => '_xclick',
+   options  => [{value => '_xclick', label => 'Buy Now'}, {value => '_donations', label => 'Donations'}]
   );
 
 has_block definition => (
