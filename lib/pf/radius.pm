@@ -289,7 +289,8 @@ sub accounting {
             my $convertregdate = str2time($regdate);
             my $interval = $Config{'advanced'}{'unreg_onstop_timing'};
             my $limitunreg = $convertregdate + $interval;
-            if ($node_info->{'last_ssid'} eq 'aa-t' && $time > $limitunreg){
+            my $unreg_ssid = $Config{'advanced'}{'unreg_onstop_ssid'};
+            if ($node_info->{'last_ssid'} eq $unreg_ssid && $time > $limitunreg){
                 use pf::api::jsonrpcclient;
                 my $apiclient = pf::api::jsonrpcclient->new;
                 my %options;
