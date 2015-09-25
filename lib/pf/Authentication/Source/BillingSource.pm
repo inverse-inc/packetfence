@@ -107,6 +107,49 @@ sub _build_base_path {
     return $base_path;
 }
 
+=head2 prepare_payment
+
+Prepare payment to display payments
+
+=cut
+
+sub prepare_payment {
+    my ($self, $session, $tier, $params, $path) = @_;
+    return {};
+}
+
+=head2 verify
+
+Verify the payment
+
+=cut
+
+sub verify {
+    my ($self, $session, $parameters, $path) = @_;
+    return {};
+}
+
+=head2 cancel
+
+Cancel the payment
+
+=cut
+
+sub cancel {
+    my ($self, $session, $parameters, $path) = @_;
+    return {};
+}
+
+=head2 handle_hook
+
+Handle hook from billing provider
+
+=cut
+
+sub handle_hook {
+    my ($self) = @_;
+    return ;
+}
 
 =head1 AUTHOR
 
