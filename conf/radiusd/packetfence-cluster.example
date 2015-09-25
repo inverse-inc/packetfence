@@ -16,7 +16,7 @@ listen {
 
 #  Put all of the servers into a pool.
 home_server_pool pf_pool.cluster {
-        type = client-port-balance
+        type = keyed-balance
 
 %%home_server%%
 
@@ -44,6 +44,7 @@ server pf.cluster {
 
         authorize {
                 update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "packetfence"
                 }
                 if(!NAS-IP-Address){
