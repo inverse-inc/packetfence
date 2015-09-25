@@ -260,7 +260,7 @@ sub hook {
         }
         return $status;
     }
-    $logger->warn("Unsupport type $type recieved");
+    $logger->warn("Unsupported type $type recieved");
     return $self->handle_event($headers, $object);
 }
 
