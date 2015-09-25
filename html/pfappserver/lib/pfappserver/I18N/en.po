@@ -3837,11 +3837,11 @@ msgstr "LDAP attributes"
 
 # conf/documentation.conf
 msgid "advanced.unreg_onstop_ssid"
-msgstr "SSID for the unreg on stop" 
+msgstr "SSID to use" 
 
 # conf/documentation.conf
 msgid "advanced.unreg_onstop_timing"
-msgstr "Waiting timing before doing the unreg" 
+msgstr "Waiting timing" 
 
 # conf/documentation.conf
 msgid "alerting"
