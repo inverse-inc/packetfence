@@ -290,14 +290,22 @@ sub accounting {
             my $interval = $Config{'advanced'}{'unreg_onstop_timing'};
             my $limitunreg = $convertregdate + $interval;
             my $unreg_ssid = $Config{'advanced'}{'unreg_onstop_ssid'};
-            if ($node_info->{'last_ssid'} eq $unreg_ssid && $time > $limitunreg){
+            my $filter = new pf::vlan::filter;
+            use Data::Dumper;
+            my $switch = pf::SwitchFactory->instantiate($node_info->{'last_switch'});
+            my $ssid = $node_info->{'last_ssid'};
+            my $connection_type = $node_info->{'last_connection_type'};
+            my $ifIndex = $node_info->{'last_port'};
+            my ($result,$role) = $filter->test('UnregOnDisconnect',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+            if ( $result && $role eq "default" && $time > $limitunreg) {
                 use pf::api::jsonrpcclient;
                 my $apiclient = pf::api::jsonrpcclient->new;
                 my %options;
                 $options{'mac'} = $node_info->{'mac'};
                 $apiclient->notify('deregister_node', %options );
-                $logger->info("Unregistered node $mac since we receive an account stop request.");
-            }
+                $logger->info("Unregistered node [$mac] since we receive an account stop request.");
+                $logger->info('TEST LOGIN' . Dumper($result, $role));
+            }   
         }
 
         # On accounting stop/update, check the usage duration of the node
