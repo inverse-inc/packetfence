@@ -37,6 +37,7 @@ use pfconfig::util;
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
+use fingerbank::DB;
 use JSON;
 use File::Slurp;
 use pf::file_paths;
@@ -905,6 +906,31 @@ sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
 
     return (pf::fingerbank::process($args));
+}
+
+=head2 fingerbank_update_upstream_db
+
+=cut
+
+sub fingerbank_update_upstream_db : Public {
+    my ( $class ) = @_;
+
+    my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
+    pf::fingerbank::sync_upstream_db();
+
+    pf::config::util::pfmailer(( subject => 'Fingerbank - Update upstream DB status', message => $status_msg ));
+}
+
+=head2 fingerbank_submit_unmatched
+
+=cut
+
+sub fingerbank_submit_unmatched : Public {
+    my ( $class ) = @_;
+
+    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
+
+    pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
 }
 
 =head1 AUTHOR
