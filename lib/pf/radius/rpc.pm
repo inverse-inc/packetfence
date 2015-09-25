@@ -15,7 +15,6 @@ pf::radius::rpc
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use WWW::Curl::Easy;
 use Data::MessagePack;
 
