@@ -169,7 +169,7 @@ sub billing_update_status {
 
     db_query_execute(BILLING, $billing_statements, 'billing_update_sql', $status, $id )
         || return;
-    return ;
+    return 1;
 }
 
 
