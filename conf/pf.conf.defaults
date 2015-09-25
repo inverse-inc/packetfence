@@ -874,12 +874,12 @@ ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,member
 #
 # advanced.unreg_onstop_timing
 #
-# Define the wait timing before unreg node when receiving an accounting stop request.
+# Define the wait timing before unregister a node when receiving an accounting stop request.
 unreg_onstop_timing=30
 #
 # advanced.unreg_onstop_ssid
 #
-# Define the ssid on which apply the unreg node when receiving an accounting stop request.
+# Define the ssid on which apply the unregister node when receiving an accounting stop request.
 unreg_onstop_ssid=guest-ssid
 
 [omapi]
