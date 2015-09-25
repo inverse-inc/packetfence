@@ -1,6 +1,6 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone)
+# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone, UnregOnDisconnect)
 # CAUTION: The IsPhone scope is only available on RADIUS based switches
 #
 # Make a simple rule like this:
