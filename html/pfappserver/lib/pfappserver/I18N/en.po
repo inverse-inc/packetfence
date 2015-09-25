@@ -3836,11 +3836,11 @@ msgid "advanced.ldap_attributes"
 msgstr "LDAP attributes" 
 
 # conf/documentation.conf
-msgid "advanced.unreg_onstop_ssid"
-msgstr "SSID to use" 
+msgid "advanced.unreg_on_disconnect_role"
+msgstr "Role affected" 
 
 # conf/documentation.conf
-msgid "advanced.unreg_onstop_timing"
+msgid "advanced.unreg_on_disconnect_timing"
 msgstr "Waiting timing" 
 
 # conf/documentation.conf
