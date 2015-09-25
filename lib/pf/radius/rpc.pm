@@ -82,10 +82,9 @@ sub build_msgpack_request {
 
 sub send_msgpack_notification {
     use bytes;
-    my ($server,$port,$function,$data) = @_;
+    my ($config,$function,$data) = @_;
     my $response;
-
-    my $curl = _curlSetup("http://${server}:${port}");
+    my $curl = _curlSetup($config,$function);
     my $request = build_msgpack_notification($function,$data);
     my $response_body;
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
