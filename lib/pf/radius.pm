@@ -282,22 +282,20 @@ sub accounting {
             #handle radius floating devices
             $this->_handleAccountingFloatingDevices($switch, $mac, $port);
             #unreg on disconnect
-            use Data::Dumper;
             use Date::Parse;
             my $node_info = node_view($mac);
             my $time = time();
             my $regdate = $node_info->{'regdate'};
-            $logger->info('My regdate' . Dumper($regdate));
             my $convertregdate = str2time($regdate);
             my $interval = $Config{'advanced'}{'unreg_onstop_timing'};
             my $limitunreg = $convertregdate + $interval;
-            $logger->info('My limit unreg' . Dumper($limitunreg));
             if ($node_info->{'last_ssid'} eq 'aa-t' && $time > $limitunreg){
                 use pf::api::jsonrpcclient;
                 my $apiclient = pf::api::jsonrpcclient->new;
                 my %options;
                 $options{'mac'} = $node_info->{'mac'};
                 $apiclient->notify('deregister_node', %options );
+                $logger->info("Unregistred node $mac since we receive his stop accounting request.");
             }
         }
 
