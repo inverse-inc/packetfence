@@ -67,6 +67,7 @@ sub reloadConfiguration {
     $logger->info("reloading PacketFence configuration");
 
     my $status = pfconfig::manager->new->expire_all;
+    pf::config::configreload(1);
 
     $logger->info("done reloading PacketFence configuration");
     return $TRUE;
