@@ -63,6 +63,7 @@ our (
     $realm_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
+    $ssl_configuration_file,
     $domain_config_file,
     $scan_config_file,
     $wmi_config_file,
@@ -107,6 +108,7 @@ BEGIN {
         $realm_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
+        $ssl_configuration_file
         $domain_config_file
         $scan_config_file
         $wmi_config_file
@@ -166,6 +168,7 @@ $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
 $server_pem = catfile($conf_dir,"ssl/server.pem");
+$ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $wmi_config_file = catfile($conf_dir,"wmi.conf");
