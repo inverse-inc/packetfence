@@ -296,7 +296,7 @@ sub accounting {
                 my %options;
                 $options{'mac'} = $node_info->{'mac'};
                 $apiclient->notify('deregister_node', %options );
-                $logger->info("Unregistred node $mac since we receive his stop accounting request.");
+                $logger->info("Unregistered node $mac since we receive an account stop request.");
             }
         }
 
