@@ -138,12 +138,19 @@ sub handler {
 =cut
 
 sub html_redirect {
-    my ($r) = @_;
+    my ($r, $params) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     $logger->debug("hitting html_redirect with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
+    $logger->debug(sub { "'html_redirect' called with the following parameters: " . join(", ", map { "$_ => $params->{$_}" } keys %$params) }) if defined($params);
 
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    my $proto;
+    if ( defined($params->{'secure'}) && $params->{'secure'} ne "" ) {
+        $proto = isenabled($params->{'secure'}) ? $HTTPS : $HTTP;
+    } else {
+        $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    }
+
     my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
     my $user_agent = $r->headers_in->{'User-Agent'};
 
