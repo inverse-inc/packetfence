@@ -263,6 +263,28 @@ sub getExclusiveSources {
     return $self->getSourcesByClass( 'exclusive' );
 }
 
+=item getBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getBillingSources {
+    my ($self) = @_;
+    return $self->getSourcesByClass( 'billing' );
+}
+
+=item getChainedBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getChainedBillingSources {
+    my ($self) = @_;
+    return $self->getSourceByClassForChained('billing');
+}
+
 =item getSourcesByClass
 
 Returns the sources for that match the class
@@ -312,6 +334,18 @@ sub getSourceByTypeForChained {
     return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
 }
 
+=item getSourceByClassForChained
+
+Returns the source object for the requested source class for chained sources in the current captive portal profile.
+
+=cut
+
+sub getSourceByClassForChained {
+    my ($self, $class) = @_;
+    return unless $class;
+    return grep {$_->class eq $class} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
+}
+
 =item guestRegistrationOnly
 
 Returns true if the profile only uses "sign-in" authentication sources (SMS, email or sponsor).
@@ -333,6 +367,19 @@ sub guestRegistrationOnly {
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
     return $result;
+}
+
+=head2 billingOnly
+
+Check if the profile only has billing sources
+
+=cut
+
+sub billingOnly {
+    my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if (@sources == 0);
+    return all { $_->class eq 'billing' } @sources;
 }
 
 =item guestModeAllowed
@@ -519,6 +566,35 @@ sub getFieldsForSources {
     return uniq @fields;
 }
 
+=item tiers attribute
+
+=cut
+
+sub tiers {
+    my ($self) = @_;
+    $self->{_tiers}
+}
+
+sub findTier {
+    my ($self, $tier_id) = @_;
+    return first { $_->{id} eq $tier_id } @{$self->tiers};
+}
+
+=head2 isBillingEnabled
+
+Check to see if the profile has billing enabled
+
+=cut
+
+sub isBillingEnabled {
+    my ($self) = @_;
+    return 0 unless defined $self->{_tiers} && @{$self->{_tiers}};
+    return 1 if scalar $self->getBillingSources;
+    my ($chained) = grep {$_->type eq 'Chained'} $self->getSourcesAsObjects;
+    return 0 unless defined $chained;
+    my $billing = pf::authentication::getAuthenticationSource($chained->chained_authentication_source);
+    return defined $billing && $billing->class eq 'billing';
+}
 
 =back
 

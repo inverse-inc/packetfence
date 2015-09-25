@@ -1,4 +1,6 @@
 <h2></h2>
+  <div class="modal modal-large fade hide" id="modalItem">
+  </div>
 [%-  tab =  c.req.param('tab') || 'settings' -%]
 <div id="portal_profile_read">
   <div class="modal fade hide" id="saveProfile">
@@ -32,6 +34,9 @@
         <li [% IF tab == 'captive-portal' %]class="active" [% END %]>
           <a href="#captive-portal" data-toggle="tab">[% l('Captive Portal') %]</a>
         </li>
+        <li [% IF tab == 'billing-tiers' %]class="active" [% END %]>
+          <a href="#billing-tiers" data-toggle="tab">[% l('Billing Tiers') %]</a>
+        </li>
         <li>
           <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
@@ -42,12 +47,9 @@
       <div class="tab-pane fade in [% 'active' IF tab == 'captive-portal' %]" id="captive-portal">
         [% INCLUDE 'config/profile/captive-portal-settings.tt' tab='settings' %]
       </div>
-      [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
-      <div class="form-actions">
-        <a data-modal="saveProfile" data-modal-content="[% id | html %]" class="btn btn-primary call-modal-confirm-form">[% l('Save') %]</a>
-        <button type="reset" class="btn">[% l('Reset') %]</button>
+      <div class="tab-pane fade in [% 'active' IF tab == 'billing-tiers' %]" id="billing-tiers">
+        [% INCLUDE 'config/profile/billing-tiers.tt' tab='billing-tiers' %]
       </div>
-      [%- END %]
     </div>
   </form>
 

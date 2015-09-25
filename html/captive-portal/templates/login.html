@@ -116,6 +116,13 @@ document.observe("dom:loaded", function() {
           </div>
           [% END %]
 
+          [% IF billing_sources.size %]
+          <div class="input">
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/billing/">[% i18n("Pay for Access") %] </a>
+          </div>
+          [% END %]
+
             [% IF guest_allowed && !null_source -%]
           <div class="input">
             <div class="separator"><div class="or_separator">or</div></div>

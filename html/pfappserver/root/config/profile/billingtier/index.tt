@@ -1,0 +1,32 @@
+      <div class="modal modal-large fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteAdminRoles">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Admin Role') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this admin role?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Admin Roles') %]</h2>
+
+      <p>[% l('Define roles with specific access rights to the Web administration interface. Roles are assigned to users depending on their authentication source.') %]</p>
+
+      [% INCLUDE config/profile/billingtier/list.tt %]
+
+      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
+        <i class="icon-unlock icon-large"></i><p>[% l('No role defined') %]</p>
+      </div>
+
+      [%- IF can_access("ADMIN_ROLES_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add admin role') %]</a>
+      </div>
+      [%- END %]

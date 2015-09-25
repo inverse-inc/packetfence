@@ -1,0 +1,2 @@
+  [% SET billing_tiers = item.billing_tiers %]
+  [% INCLUDE config/profile/billingtier/list.tt %]

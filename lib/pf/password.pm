@@ -55,6 +55,10 @@ Readonly our $AUTH_FAILED_EXPIRED       => 2;
 Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
 Readonly our $PLAINTEXT                 => 'plaintext';
 Readonly our $BCRYPT                    => 'bcrypt';
+Readonly our @ACTION_FIELDS => qw(
+  valid_from expiration
+  access_duration access_level category sponsor unregdate
+);    # respect the prepared statement placeholders order
 
 # Expiration time in seconds
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
@@ -353,7 +357,7 @@ sub _update_field_for_action {
         $data->{$field} = $values[0]->{value};
     }
     else {
-        $data->{$field} = $default;
+        $data->{$field} = $default unless exists $data->{$field};
     }
 }
 
@@ -366,11 +370,7 @@ Modify the password actions
 sub modify_actions {
     my ( $password, $actions ) = @_;
     my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
-    my @ACTION_FIELDS = qw(
-        valid_from expiration
-        access_duration access_level category sponsor unregdate
-        );    # respect the prepared statement placeholders order
-    delete @{$password}{@ACTION_FIELDS};
+#    delete @{$password}{@ACTION_FIELDS};
     _update_from_actions( $password, $actions );
     my $pid   = $password->{pid};
     my $query = db_query_execute(
@@ -378,6 +378,28 @@ sub modify_actions {
         $password_statements,
         'password_modify_actions_sql',
         @{$password}{@ACTION_FIELDS}, $pid
+    );
+    my $rows = $query->rows;
+    $logger->info("pid $pid modified") if $rows;
+    return ($rows);
+}
+
+sub modify_attributes {
+    my ($pid, %data) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $existing = view($pid);
+    if (!$existing) {
+        $logger->error("modify of non-existent password entry $pid attempted");
+        return (0);
+    }
+    foreach my $item ( keys(%data) ) {
+        $existing->{$item} = $data{$item};
+    }
+    my $query = db_query_execute(
+        PASSWORD,
+        $password_statements,
+        'password_modify_actions_sql',
+        @{$existing}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
     $logger->info("pid $pid modified") if $rows;

@@ -52,7 +52,7 @@ Get the available chained authentication source options
 
 sub options_chained_authentication_source {
     my ($self) = @_;
-    return map_sources_to_options( grep { exists $ALLOWED_CHAINED_SOURCES{$_->type} }  @{pf::authentication::getExternalAuthenticationSources()} );
+    return map_sources_to_options( grep { exists $ALLOWED_CHAINED_SOURCES{$_->type} || $_->class eq 'billing' }  @{pf::authentication::getAllAuthenticationSources()}  );
 }
 
 =head2 options_authentication_source

@@ -40,17 +40,30 @@ sub build_child {
     my @uri_filters;
     my %Profiles_Config = %{ $self->{cfg} };
     $self->cleanup_whitespaces( \%Profiles_Config );
+    my $ordered_sections = $self->{ordered_sections};
+    my @tiers_sections = grep {/\s+/ } @$ordered_sections;
+    my %tiers;
+    @tiers{@tiers_sections} = delete @Profiles_Config{@tiers_sections};
+    foreach my $tier_id (@tiers_sections) {
+        my $tier = $tiers{$tier_id};
+        if($tier_id =~ /([^ ]+) billing_tier ([^\s]+)/) {
+            my $profile_id = $1;
+            if (exists $Profiles_Config{$profile_id} ) {
+                my @fields = qw(name access_duration destination_url category price description);
+                my %new_tier = (id => $2);
+                @new_tier{@fields} = @{$tier}{@fields};
+                push @{$Profiles_Config{$1}{tiers}},\%new_tier;
+            }
+        }
+    }
+    my @profiles = grep { exists $Profiles_Config{$_} }  @$ordered_sections;
 
+
+    my $config_guest_modes = pfconfig::namespaces::resource::guest_self_registration->new( $self->{cache} );
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
         foreach my $field (qw(locale mandatory_fields custom_fields_authentication_sources sources filter provisioners)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
         }
-    }
-
-    my @profiles = @{ $self->{ordered_sections} };
-
-    my $config_guest_modes = pfconfig::namespaces::resource::guest_self_registration->new( $self->{cache} );
-    while ( my ( $id, $profile ) = each %Profiles_Config ) {
         my $guest_modes = $config_guest_modes->_guest_modes_from_sources( $profile->{sources} );
         $profile->{guest_modes} = @$guest_modes ? join( ',', @$guest_modes ) : '';
     }

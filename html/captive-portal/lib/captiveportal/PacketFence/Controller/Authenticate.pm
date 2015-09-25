@@ -262,11 +262,15 @@ sub checkIfChainedAuth : Private {
     my $source_id = $c->session->{source_id};
     my $source = getAuthenticationSource($source_id);
     #if not chained then leave
-    return unless $source->type eq 'Chained';
+    return unless $source && $source->type eq 'Chained';
+    $c->session->{chained_source} = $source_id;
     my $chainedSource = $source->getChainedAuthenticationSourceObject();
     if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
         $self->setAllowedGuestModes($c,$chainedSource);
         $c->detach(Signup => 'showSelfRegistrationPage');
+    }
+    elsif ($chainedSource->class eq 'billing') {
+        $c->detach(Billing => 'index');
     }
 }
 
@@ -392,9 +396,8 @@ sub createLocalAccount : Private {
 
     # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
     my $action = pf::Authentication::Action->new({
-        type    => $Actions::SET_UNREG_DATE, 
+        type    => $Actions::SET_UNREG_DATE,
         value   => $c->session->{unregdate},
-        class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
     });
     # Hack alert: We may already have a "SET_UNREG_DATE" action in the array and since the way the authentication framework is working is by going
     # through the actions on a first hit match, we want to make sure the unregistration date we computed (because we are taking care of the access duration,
@@ -473,7 +476,9 @@ sub validateLogin : Private {
             $self->showError($c,'You need to accept the terms before proceeding any further.');
             $c->detach('showLogin');
         }
+        $c->stash->{aup_signed} = $aup_signed;
     } else {
+        $c->stash->{txt_validation_error} = "No username or password given";
         $c->detach('showLogin');
     }
 }
@@ -518,6 +523,7 @@ sub authenticationLogin : Private {
             "username"  => $username,
             "source_id" => $sources[0]->id,
             "source_match" => \@sources,
+            "aup_signed" => $c->stash->{aup_signed}
         );
     } else {
         # validate login and password
@@ -529,6 +535,7 @@ sub authenticationLogin : Private {
                 "username"  => $username // $default_pid,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
+                "aup_signed" => $c->stash->{aup_signed}
             );
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
@@ -572,6 +579,7 @@ sub showLogin : Private {
       any { is_in_list( $_, $guestModes ) } $SELFREG_MODE_EMAIL,
       $SELFREG_MODE_SMS, $SELFREG_MODE_SPONSOR;
     my @sources = $profile->getInternalSources;
+    my @billing = $profile->getBillingSources;
     my $request = $c->request;
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -590,6 +598,7 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         guest_allowed   => $guest_allowed,
+        billing_sources => \@billing,
     );
 
     my @mandatory_fields = $profile->getFieldsForSources(@sources);

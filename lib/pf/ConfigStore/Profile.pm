@@ -17,6 +17,7 @@ use namespace::autoclean;
 use pf::file_paths;
 
 use pf::ConfigStore;
+use pf::ConfigStore::Group;
 
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ValidGenericID';
@@ -54,6 +55,8 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
+    my $config = pf::ConfigStore::Group->new({group => "$id billing_tier", cachedConfig => $self->cachedConfig, use_default_paramaters => 0});
+    $profile->{billing_tiers} = $config->readAll('id');
 }
 
 =head2 cleanupBeforeCommit
@@ -73,6 +76,17 @@ sub cleanupBeforeCommit {
 
 sub _fields_expanded {
     return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners scans);
+}
+
+=head2 _Sections
+
+Exclude sections with spaces
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return  grep { !/\s+/ } $self->cachedConfig->Sections();
 }
 
 __PACKAGE__->meta->make_immutable;
