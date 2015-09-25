@@ -98,10 +98,8 @@ sub confirm : Local : Args(0) {
     my ($self, $c) = @_;
     $c->forward('validate');
     my $billing = $c->stash->{billing};
-    my $data;
-    eval {
-        $data =
-          $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->path);
+    my $data = eval {
+          $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->path)
     };
     if ($@) {
         $c->log->error($@);
@@ -165,8 +163,8 @@ sub validate : Private {
         "username"  => $email,
         "tier"      => $tier,
     );
-    $c->session(%temp);
-    $c->stash(%temp);
+    $c->session(\%temp);
+    $c->stash(\%temp);
 }
 
 =head2 cancel
