@@ -58,7 +58,7 @@ sub handler {
     my $url = $r->construct_url;
     my $user_agent = $r->headers_in->{'User-Agent'};
 
-    $logger->trace("hitting handler with URI '$uri' (URL: $url)");
+    $logger->debug("hitting handler with URI '$uri' (URL: $url)");
 
     # Apache filtering
     # Filters out requests based on different filters to avoid further/unnecessary processing
