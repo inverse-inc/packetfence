@@ -74,7 +74,7 @@ sub index : Path : Args(0) {
     my $source_id = $c->session->{source_id};
     my $source = getAuthenticationSource($source_id);
     my $attributes = $source->search_attributes($c->session->{username});
-    my $certificate_email = $attributes ? $attributes->get_value('mail') : $FALSE;
+    my $certificate_email = $attributes ? $attributes->{'email'} : $FALSE;
 
     if( $certificate_email ) {
         $c->session->{certificate_email} = $certificate_email;
