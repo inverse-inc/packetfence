@@ -571,7 +571,8 @@ sub getFieldsForSources {
 =cut
 
 sub tiers {
-    $_[0]->{_tiers}
+    my ($self) = @_;
+    $self->{_tiers}
 }
 
 sub findTier {
