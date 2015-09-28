@@ -16,13 +16,13 @@ SET @SUBMINOR_VERSION = 0;
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
--- Updating to current version
---
-
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
---
 -- Change 'node' table 'pid' column default value
 --
 
 ALTER TABLE node MODIFY pid VARCHAR(255) NOT NULL DEFAULT 'default';
+
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
