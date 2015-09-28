@@ -82,7 +82,8 @@ sub handler {
         return proxy_redirect($r);
     }
     # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mecanism and having a self-signed SSL certificate
-    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) && pf::web::util::is_certificate_self_signed ) {
+    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) 
+      && isenabled($Config{'captive_portal'}{'secure_redirect'}) && pf::web::util::is_certificate_self_signed ) {
         $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having a self-signed SSL certificate. Using HTTP instead of HTTPS");
         return html_redirect($r, { secure => $FALSE });
     }
