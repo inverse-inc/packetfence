@@ -53,7 +53,7 @@ var SwitchView = function(options) {
     options.parent.on('submit', 'form[name="modalSwitch"]', update);
 
     // Delete the switch
-    var delete_s = $.proxy(this.deleteSwitch, this);
+    var delete_s = $.proxy(this.deleteConfirm, this);
     options.parent.on('click', '#switches [href$="/delete"]', delete_s);
 
     // Disable the uplinks field when 'dynamic uplinks' is checked
@@ -395,18 +395,30 @@ SwitchView.prototype.resetSearch = function(e) {
     return true;
 };
 
-SwitchView.prototype.deleteSwitch = function(e) {
+SwitchView.prototype.deleteConfirm = function(e) {
     e.preventDefault();
+    var that = this;
 
     var btn = $(e.target);
     var row = btn.closest('tr');
     var url = btn.attr('href');
-    this.switches.get({
-        url: url,
-        success: function(data) {
-            showSuccess($('#switches'), data.status_msg);
-            row.fadeOut('slow', function() { $(this).remove(); });
-        },
-        errorSibling: $('#switches')
+    var modal = $('#deleteSwitch');
+    var confirm_link = modal.find('a.btn-primary').first();
+    confirm_link.off('click');
+    confirm_link.click(function() {
+        that.switches.get({
+            url: url,
+            success: function(data) {
+                showSuccess($('#switches'), data.status_msg);
+                row.fadeOut('slow', function() { $(this).remove(); });
+            },
+            always : function() {
+                modal.modal('hide');
+            },
+            errorSibling: $('#switches')
+        });
+        return false;
     });
+    modal.modal({ show: true });
+    return false;
 };
