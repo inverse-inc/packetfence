@@ -124,10 +124,13 @@ sub action_add {
     my ($self) = @_;
     my $mac = $self->{mac};
     if (node_exist($mac)) {
+        print STDOUT "Node '$mac' already exists\n";
         return $EXIT_FAILURE;
     }
     my ($result) = node_add($mac,%{$self->{params}});
-    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
+    return $EXIT_SUCCESS if $result == 1;
+    print STDOUT "Unable to add node '$mac'\n";
+    return $EXIT_FAILURE;
 }
 
 =head2 parse_add
@@ -139,7 +142,7 @@ parse and validate the arguments for 'pfcmd node add' command
 sub parse_add {
     my ($self,$mac,@args) = @_;
     unless (valid_mac($mac)) {
-        print STDERR "invalid mac $mac";
+        print STDERR "invalid mac $mac\n";
         return;
     }
     $self->{mac} = $mac;
@@ -203,7 +206,9 @@ sub action_edit {
         return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
-    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
+    return $EXIT_SUCCESS if $result == 1;
+    print STDOUT "Unable to modify node '$mac'\n";
+    return $EXIT_FAILURE;
 }
 
 =head2 parse_edit
@@ -227,6 +232,7 @@ sub action_delete {
     my ($self) = @_;
     my ($mac) = $self->action_args;
     unless (node_exist($mac)) {
+        print STDERR "node '$mac' does not exist\n";
         return $EXIT_FAILURE;
     }
     my $r = node_delete($mac);
