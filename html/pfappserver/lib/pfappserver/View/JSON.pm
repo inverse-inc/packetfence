@@ -3,6 +3,21 @@ package pfappserver::View::JSON;
 use strict;
 use base 'Catalyst::View::JSON';
 
+=head2 process
+
+Override the content type for IE
+
+=cut
+
+sub process {
+    my ($self, $c) = @_;
+    $self->SUPER::process($c);
+    if( my $content_type = $c->stash->{json_view_content_type}) {
+        my $encoding = $self->encoding || 'utf-8';
+        $c->res->content_type("$content_type; charset=$encoding");
+    }
+};
+
 =head1 NAME
 
 pfappserver::View::JSON - Catalyst JSON View
