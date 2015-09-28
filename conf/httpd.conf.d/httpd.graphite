@@ -101,8 +101,8 @@ $KeepAliveTimeout = "10";
 $KeepAlive = "On";
 $MaxKeepAliveRequests = "100";
 
-$MaxClients = "2";
-$StartServers = "1";
+$MaxClients = "8";
+$StartServers = "2";
 $MinSpareServers = "1";
 $MaxSpareServers = "1";
 
