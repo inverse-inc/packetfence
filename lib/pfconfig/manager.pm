@@ -260,8 +260,6 @@ sub post_process_element {
         foreach my $key (@keys){
             $copy{$key} = $element->{$key};
         }
-        use Data::Dumper;
-        pfconfig::log::get_logger->info(Dumper(\%copy));
         return \%copy;
     }
     return $element;
