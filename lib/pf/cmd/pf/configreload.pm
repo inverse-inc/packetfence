@@ -43,7 +43,7 @@ sub configreload {
     my ($self,$force)  = @_;
     require pf::config;
     pf::config::configreload($force);
-    return 0;
+    return $EXIT_SUCCESS;
 }
 
 =head1 AUTHOR
