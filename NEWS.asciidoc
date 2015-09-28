@@ -29,6 +29,8 @@ Enhancements
 * HAProxy TLS configuration has been restricted to modern ciphers.
 * Added Kickbox.io authentication source which can allow a new Null type source with e-mail validation
 * Detecting when using a self-signed SSL certificate for device with captive-portal detection mecanisms
+* httpd.portal serves static content directly (without going through Catalyst engine)
+* Changed verbosity of, a bit to verbose, logging statements in ip <-> mac discovery
 
 Bug Fixes
 +++++++++
