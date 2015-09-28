@@ -5,6 +5,7 @@
     <body>
         <h1>Moved</h1>
         <p>The document has moved <a href="[% portal_url %]">here</a>.</p>
+        [% IF is_wispr_redirection_enabled %]
         <!--
         <?xml version="1.0" encoding="UTF-8"?>
         <WISPAccessGatewayParam
@@ -22,5 +23,6 @@
             </Redirect>
         </WISPAccessGatewayParam>
         -->
+        [% END %]
     </body>
 </html>
