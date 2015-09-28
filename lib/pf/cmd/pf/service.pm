@@ -69,7 +69,7 @@ use pf::config;
 use pf::config::util;
 use pf::util;
 use pf::constants;
-use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use constant {
@@ -178,7 +178,7 @@ sub checkup {
     # if there is a fatal problem, exit with status 255
     foreach my $entry (@problems) {
         if (!$ignore_checkup && $entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
-            exit(255);
+            exit($EXIT_FATAL);
         }
     }
 
