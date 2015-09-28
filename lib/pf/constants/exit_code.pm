@@ -17,7 +17,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
-our @EXPORT_OK = qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED);
+our @EXPORT_OK = qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 
 =head1 EXIT CODES
 
@@ -44,6 +44,14 @@ General failure
 =cut
 
 Readonly::Scalar our $EXIT_SERVICES_NOT_STARTED => 3;
+
+=head2 $EXIT_FATAL
+
+fatal error
+
+=cut
+
+Readonly::Scalar our $EXIT_FATAL => 255;
 
 =head1 AUTHOR
 
