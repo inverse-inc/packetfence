@@ -172,6 +172,8 @@ my @internal_nets = @pf::config::internal_nets;
 my @portal_ints = @pf::config::portal_ints;
 my $vhost;
 
+$SetEnvIf = "User-Agent collectd is_collectd";
+
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
@@ -288,7 +290,7 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
          Include => "${var_dir}/conf/captive-portal-common.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
@@ -326,7 +328,7 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
          Include => "${var_dir}/conf/captive-portal-common.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
@@ -379,7 +381,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
         DocumentRoot => "${install_dir}/html/captive-portal/lib",
         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
         Location     => {
             "/modstatus" => {
                 SetHandler => 'server-status',
