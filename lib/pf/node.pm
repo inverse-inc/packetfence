@@ -437,6 +437,25 @@ sub node_delete {
     return (1);
 }
 
+our %DEFAULT_NODE_VALUES = (
+    'autoreg'          => 'no',
+    'bypass_vlan'      => '',
+    'computername'     => '',
+    'detect_date'      => '0000-00-00 00:00:00',
+    'dhcp_fingerprint' => '',
+    'last_arp'         => '0000-00-00 00:00:00',
+    'last_dhcp'        => '0000-00-00 00:00:00',
+    'lastskip'         => '0000-00-00 00:00:00',
+    'notes'            => '',
+    'pid'              => 'admin',
+    'regdate'          => '0000-00-00 00:00:00',
+    'sessionid'        => '',
+    'status'           => $STATUS_UNREGISTERED,
+    'unregdate'        => '0000-00-00 00:00:00',
+    'user_agent'       => '',
+    'voip'             => 'no',
+);
+
 #
 # clean input parameters and add to node table
 #
@@ -453,15 +472,9 @@ sub node_add {
         return (2);
     }
 
-    foreach my $field (
-        'pid',      'voip',        'bypass_vlan',
-        'status',   'detect_date', 'regdate',      'unregdate',
-        'lastskip', 'user_agent',  'computername', 'dhcp_fingerprint',
-        'last_arp', 'last_dhcp',   'notes',        'autoreg',
-        'sessionid'
-        )
+    foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
-        $data{$field} = "" if ( !defined $data{$field} );
+        $data{$field} = $DEFAULT_NODE_VALUES{$field} if ( !defined $data{$field} );
     }
     $data{status} = _cleanup_status_value($data{status});
     if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
