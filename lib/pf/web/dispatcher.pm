@@ -88,6 +88,7 @@ sub handler {
     # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
         $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
+        $r->set_handlers( PerlResponseHandler => ['pf::web::static'] );
         return Apache2::Const::DECLINED;
     }
 
