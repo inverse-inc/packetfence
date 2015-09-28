@@ -215,14 +215,14 @@ sub ip2mac {
     if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
         $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
         $mac = _ip2mac_omapi($ip);
-        $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
+        $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($mac) {
         $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'iplog' table");
         $mac = _ip2mac_sql($ip);
-        $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
+        $logger->debug("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
     }
 
     if ( !$mac ) {
@@ -284,14 +284,14 @@ sub mac2ip {
     if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
         $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
         $ip = _mac2ip_omapi($mac);
-        $logger->info("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
+        $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($ip) {
         $logger->debug("Trying to match IP address to MAC '$mac' using SQL 'iplog' table");
         $ip = _mac2ip_sql($mac);
-        $logger->info("Matched MAC '$mac' to IP address '$ip' using SQL 'iplog' table") if $ip;
+        $logger->debug("Matched MAC '$mac' to IP address '$ip' using SQL 'iplog' table") if $ip;
     }
 
     if ( !$ip ) {
