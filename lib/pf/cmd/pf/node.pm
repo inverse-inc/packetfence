@@ -33,6 +33,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::node;
 use pf::util;
 use pf::log;
+use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 my $pid_re = qr{(?:
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
@@ -133,6 +134,24 @@ sub action_add {
     return $EXIT_FAILURE;
 }
 
+
+=head2 _validate_attributes
+
+checks to see if the status is valid
+
+=cut
+
+sub _validate_attributes {
+    my ($self, $attributes) = @_;
+    my $status = $attributes->{status};
+    if ( defined $status && !exists $pf::node::ALLOW_STATUS{$status}) {
+        print "status of '$status' is invalid\n";
+        return $FALSE;
+    }
+    return $TRUE;
+}
+
+
 =head2 parse_add
 
 parse and validate the arguments for 'pfcmd node add' command
@@ -143,10 +162,19 @@ sub parse_add {
     my ($self,$mac,@args) = @_;
     unless (valid_mac($mac)) {
         print STDERR "invalid mac $mac\n";
-        return;
+        return $FALSE;
     }
     $self->{mac} = $mac;
-    return $self->_parse_attributes(@args);
+    unless ($self->_parse_attributes(@args)) {
+        print STDERR "problem with parsing node attributes\n";
+        return $FALSE;
+    }
+    unless ($self->_validate_attributes($self->{params})) {
+        print STDERR "invalid attributes provided\n";
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 =head2 action_count
