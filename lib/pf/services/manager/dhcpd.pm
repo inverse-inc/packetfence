@@ -132,7 +132,7 @@ EOT
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$domain";
+  option domain-name "$net{'domain-name'}";
   option domain-name-servers $dns;
   pool {
 EOT
@@ -154,7 +154,7 @@ EOT
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$domain";
+  option domain-name "$net{'domain-name'}";
   option domain-name-servers $net{'dns'};
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
