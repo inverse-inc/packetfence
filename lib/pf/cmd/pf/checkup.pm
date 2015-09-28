@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use pf::services;
 use pf::constants;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_FATAL);
 use pf::pfcmd::checkup;
 use base qw(pf::cmd);
 sub _run {
@@ -33,14 +33,14 @@ sub _run {
     # if there is a fatal problem, exit with status 255
     foreach my $entry (@problems) {
         if ($entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
-            exit(255);
+            return $EXIT_FATAL;
         }
     }
 
     if (@problems) {
-        return $TRUE;
+        return $EXIT_FAILURE;
     } else {
-        return $FALSE;
+        return $EXIT_SUCCESS;
     }
 }
 
