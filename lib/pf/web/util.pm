@@ -21,12 +21,14 @@ use warnings;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 use pf::config;
+use pf::file_paths;
 use pf::util;
 use pf::config::util;
 use pf::web;
 use Apache::Session::Generate::MD5;
 use Apache::Session::Flex;
 use Cache::Memcached::libmemcached;
+use File::Slurp;
 
 BEGIN {
     use Exporter ();
@@ -349,6 +351,71 @@ sub getcookie {
     else {
         return $FALSE;
     }
+}
+
+=item build_captive_portal_detection_mecanisms_regex
+
+Build a regex that detects if the request is a captive portal detection mecanism request.
+
+Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+
+Using configuration values from 'captive_portal.detection_mecanism_urls'.
+
+=cut
+
+sub build_captive_portal_detection_mecanisms_regex {
+    my @captive_portal_detection_mecanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
+
+    foreach ( @captive_portal_detection_mecanism_urls ) { s{([^/])$}{$1\$} };
+
+    my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
+    if ( defined($captive_portal_detection_mecanism_urls) ) {
+        return qr/ ^(?: $captive_portal_detection_mecanism_urls ) /x; # eXtended pattern
+    } else {
+        return '';
+    }    
+}
+
+=item is_certificate_self_signed
+
+Check if configured SSL certificate is self-signed
+
+=cut
+
+sub is_certificate_self_signed {
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+    unless ( -e $ssl_configuration_file ) {
+        $logger->warn("Unable to read the SSL certificate file '$ssl_configuration_file', assuming self-signed");
+        return $TRUE;
+    }
+
+    my $httpd_ssl_conf = read_file($ssl_configuration_file);
+    my $httpd_ssl_crt;
+
+    if ( $httpd_ssl_conf =~ /SSLCertificateFile\s*(.*)\s*/ ) {
+        $httpd_ssl_crt = $1;
+    } else {
+        $logger->warn("Cannot find the SSL certificate in configuration from file '$ssl_configuration_file', assuming self-signed");
+        return $TRUE;
+    }
+
+    my $self_signed;
+    eval {
+        if ( cert_is_self_signed($httpd_ssl_crt) ) {
+            $logger->debug("SSL certificate '$httpd_ssl_crt' from file '$ssl_configuration_file' is self-signed");
+            $self_signed = $TRUE;
+        } else {
+            $logger->debug("SSL certificate '$httpd_ssl_crt' from file '$ssl_configuration_file' is not self-signed");
+            $self_signed = $FALSE;
+        }
+    };
+    if ($@) {
+        $logger->warn("Unable to open SSL certificate '$httpd_ssl_crt' from file '$ssl_configuration_file', assuming self-signed");
+        return $TRUE;
+    }
+
+    return $self_signed;
 }
 
 =back

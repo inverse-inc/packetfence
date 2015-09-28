@@ -50,10 +50,7 @@ sub to_hash {
 
 package WEB;
 use pfconfig::cached_array;
-use pfconfig::cached_hash;
 
-our %Config_Pf;
-tie %Config_Pf, 'pfconfig::cached_hash', 'config::Pf';
 tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 
 =head2 URLs
@@ -212,25 +209,6 @@ my @components_url =  _clean_urls_match_ext_url();
 foreach (@components_url) { s{([^/])$}{$1\$} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
-
-=item CAPTIVE_PORTAL_DETECTION_MECANISM_URLS
-
-Build a regex that detects if the request is a captive portal detection mecanism request.
-
-Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
-
-Using configuration values from 'captive_portal.detection_mecanism_urls'.
-
-=cut
-
-my @captive_portal_detection_mecanism_urls = split(/\s*,\s*/,$Config_Pf{'captive_portal'}{'detection_mecanism_urls'});
-foreach ( @captive_portal_detection_mecanism_urls ) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
-my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
-if ( defined($captive_portal_detection_mecanism_urls) ) {
-    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_MECANISM_URLS => qr/ ^(?: $captive_portal_detection_mecanism_urls ) /xo; # eXtended pattern, compile Once
-} else {
-    Readonly::Scalar our $CAPTIVE_PORTAL_DETECTION_MECANISM_URLS => '';
-}
 
 =item _captive_portal_resources_parser
 

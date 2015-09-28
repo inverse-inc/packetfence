@@ -63,6 +63,7 @@ BEGIN {
         is_prod_interface
         valid_ip_range
         cert_has_expired
+        cert_is_self_signed
         safe_file_update
         fix_file_permissions
         strip_username
@@ -1048,6 +1049,19 @@ sub cert_has_expired {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
+}
+
+=item cert_is_self_signed
+
+Check if a certicate is self-signed
+
+=cut
+
+sub cert_is_self_signed {
+    my ($path) = @_;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $self_signed = $cert->is_selfsigned;
+    return $self_signed;
 }
 
 =item strip_username
