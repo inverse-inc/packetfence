@@ -207,7 +207,7 @@ sub create :Local : AdminRole('NODES_CREATE') {
         $c->stash->{status} = $status;
         $c->stash->{status_msg} = $message; # TODO: localize error message
         $c->stash->{current_view} = 'JSON';
-        # Since we are posting to an iframe if the content type is not plain text the browser will try and download it
+        # Since we are posting to an iframe if the content type is not plain text some browsers (IE 8/9) will try and download it
         $c->stash->{json_view_content_type} = 'text/plain';
     }
     else {
