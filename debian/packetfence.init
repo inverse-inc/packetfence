@@ -93,7 +93,7 @@ do_stop()
 		# Many daemons don't delete their pidfiles when they exit.
 		rm -f $PIDFILE
 	else
-		log_daemon_msg "Stoping $1"
+		log_daemon_msg "Stopping $1"
 		$DAEMON service $1 stop;
 		RETVAL=$?
 	fi
