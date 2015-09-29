@@ -227,9 +227,6 @@ sub get_cache {
         # raw memory is expired but cache is not
         if ($cached) {
             $logger->debug("Getting $what from cache backend");
-            # inflates the element if necessary
-            $cached = $self->post_process_element($cached);
-
             $self->{memory}->{$what}       = $cached;
             $self->{memorized_at}->{$what} = time;
             return $cached;
@@ -277,6 +274,8 @@ sub cache_resource {
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
+    # inflates the element if necessary
+    $result = $self->post_process_element($result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
