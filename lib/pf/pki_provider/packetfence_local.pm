@@ -67,6 +67,27 @@ sub get_bundle {
     return $pkcs12->create_as_string($self->client_cert_path, $self->client_key_path, $args->{'certificate_pwd'});
 }
 
+=head2 user_cn
+
+Get the user CN.
+
+In the current case, user CN should be certificate CN
+
+=cut
+
+sub user_cn {
+    my ( $self ) = @_;
+
+    my $cert = Crypt::OpenSSL::X509->new_from_file($self->client_cert_path);
+    if($cert->subject =~ /CN=(.*?),/g){
+        return $1;
+    }
+    else {
+        get_logger->error("Cannot find CN of client certificate at ".$self->client_cert_path);
+        return undef;
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

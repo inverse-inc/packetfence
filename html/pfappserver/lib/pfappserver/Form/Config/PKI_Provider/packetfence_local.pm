@@ -51,17 +51,6 @@ has_field 'client_key_path' => (
     },
 );
 
-has_field 'cn_attribute' => (
-    type     => 'Select',
-    label    => 'Common Name Attribute',
-    options  => [ { label => 'MAC address', value => 'mac' }, { label => 'Username', value => 'pid' } ],
-    default  => 'pid',
-    tags     => { 
-        after_element   => \&help,
-        help            => 'Defines what attribute of the node to use as the common name during the certificate generation',
-    },
-);
-
 has_field 'ca_cert_path' => (
     type        => 'Path',
     label       => 'CA cert path',
@@ -83,7 +72,7 @@ has_field 'server_cert_path' => (
 );
 
 has_block 'definition' => (
-    render_list => [ qw(type client_cert_path client_key_path cn_attribute ca_cert_path server_cert_path) ],
+    render_list => [ qw(type client_cert_path client_key_path ca_cert_path server_cert_path) ],
 );
 
 =head1 AUTHOR
