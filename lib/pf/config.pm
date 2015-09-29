@@ -89,6 +89,8 @@ our (
     %Config,
 #network.conf variables
     %ConfigNetworks,
+# authentication.conf vaiables
+    %ConfigAuthentication,
 #oauth2 variables
     %ConfigOAuth,
 #documentation.conf variables
@@ -133,7 +135,7 @@ BEGIN {
         $MAC $PORT $SSID $ALWAYS
         %Default_Config
         %Config
-        %ConfigNetworks %ConfigOAuth
+        %ConfigNetworks %ConfigAuthentication %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_VID $thread $fqdn $reverse_fqdn
@@ -213,6 +215,7 @@ tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
+tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';

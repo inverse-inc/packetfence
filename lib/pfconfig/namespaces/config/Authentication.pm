@@ -124,6 +124,7 @@ sub build_child {
     my %resources;
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
+    $resources{authentication_config}  = \%cfg; 
 
     return \%resources;
 
