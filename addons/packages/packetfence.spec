@@ -292,7 +292,7 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
-Requires: fingerbank >= 1.0.3
+Requires: fingerbank >= 1.0.4
 Requires: perl(File::Tempdir)
 
 %description -n %{real_name}
