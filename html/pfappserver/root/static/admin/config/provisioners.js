@@ -77,7 +77,7 @@ ProvisionerView.prototype.togglePkiProvider = function(e) {
     var security_type = $('#security_type option:selected').text();
     var eap_type = $('#eap_type option:selected').text();
     var pki_input = $('#pki_provider').closest('.control-group');
-    if (security_type == "WPA2" && (eap_type == "EAP-TLS" || eap_type == "EAP-TTLS") ) {
+    if (security_type == "WPA2" && eap_type == "EAP-TLS") {
         pki_input.show();
     }
     else {
