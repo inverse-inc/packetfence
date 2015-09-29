@@ -366,8 +366,6 @@ sub get_array_element {
 
     my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
 
-    $logger->info("GOT FROM CACHE : ".Dumper($elem));
-
     # if we want an index we handle it here
     if(defined($keys[1])){
         my $sub_elem = $$elem[$keys[1]];

@@ -96,6 +96,7 @@ sub handler {
     # See L<pf::web::constants::CAPTIVE_PORTAL_STATIC_RESOURCES>
     if ( $uri =~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/o ) {
         $logger->debug("URI '$uri' (URL: $url) is a captive-portal static resource");
+        $r->set_handlers( PerlResponseHandler => ['pf::web::static'] );
         return Apache2::Const::DECLINED;
     }
 
@@ -201,8 +202,9 @@ sub html_redirect {
     }
 
     my $stash = {
-        'portal_url' => $portal_url->unparse(),
-        'wispr_url' => $wispr_url->unparse(),
+        'portal_url'    => $portal_url->unparse(),
+        'wispr_url'     => $wispr_url->unparse(),
+        'is_wispr_redirection_enabled'  => isenabled($Config{'captive_portal'}{'wispr_redirection'}) ? $TRUE : $FALSE,
     };
 
     my $response = '';

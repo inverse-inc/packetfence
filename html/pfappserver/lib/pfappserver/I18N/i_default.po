@@ -6142,6 +6142,10 @@ msgstr "Secure redirect"
 msgid "captive_portal.status_only_on_production"
 msgstr "Status URI only on production network"
 
+# conf/documentation.conf
+msgid "captive_portal.wispr_redirection"
+msgstr "WISPr redirection capabilities"
+
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "cell_phone"

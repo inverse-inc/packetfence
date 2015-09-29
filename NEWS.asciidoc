@@ -31,6 +31,7 @@ Enhancements
 * Detecting when using a self-signed SSL certificate for device with captive-portal detection mecanisms
 * httpd.portal serves static content directly (without going through Catalyst engine)
 * Changed verbosity of, a bit to verbose, logging statements in ip <-> mac discovery
+* Introduction of a new configuration parameter (captive_portal.wispr_redirection) to allow enabling/disabling captive-portal WISPr redirection capabilities
 
 Bug Fixes
 +++++++++

@@ -120,7 +120,7 @@ sub get_bundle {
 
     my $email = $args->{'certificate_email'};
     my $cn = $args->{'certificate_cn'};
-    my $organisation = $self->organisation;
+    my $organisation = $self->organization;
     my $state = $self->state;
     my $profile = $self->profile;
     my $country = $self->country;

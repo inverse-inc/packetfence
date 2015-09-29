@@ -45,6 +45,7 @@ use POSIX;
 use POSIX::2008;
 use JSON;
 use List::MoreUtils qw(first_index);
+use Tie::IxHash;
 
 =head2 config_builder
 
@@ -226,6 +227,9 @@ sub get_cache {
         # raw memory is expired but cache is not
         if ($cached) {
             $logger->debug("Getting $what from cache backend");
+            # inflates the element if necessary
+            $cached = $self->post_process_element($cached);
+
             $self->{memory}->{$what}       = $cached;
             $self->{memorized_at}->{$what} = time;
             return $cached;
@@ -238,6 +242,27 @@ sub get_cache {
         }
     }
 
+}
+
+=head2 post_process_element
+
+Post processes an element fetched from the cache backend
+For now, it is used only to transform non-ordered hashes into ordered ones so forked processes have the same ordering of the keys
+
+=cut
+
+sub post_process_element {
+    my ($self, $element) = @_;
+    if(ref($element) eq 'HASH'){
+        tie my %copy, 'Tie::IxHash';
+        my @keys = keys(%$element);
+        @keys = sort(@keys);
+        foreach my $key (@keys){
+            $copy{$key} = $element->{$key};
+        }
+        return \%copy;
+    }
+    return $element;
 }
 
 =head2 cache_resource

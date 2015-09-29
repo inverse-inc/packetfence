@@ -223,6 +223,9 @@ sub oauth2Result : Path : Args(1) {
                     my $json_text = $json->decode($response->content());
                     if ($provider eq 'windowslive'){
                         $pid = $json_text->{emails}->{account};
+                    } elsif ($provider eq 'github') {
+                        # The user can decide to not display his e-mail. In that case we use the username and suffix @github
+                        $pid = $json_text->{email} || $json_text->{login}.'@github';
                     } else {
                         $pid = $json_text->{email};
                     }
