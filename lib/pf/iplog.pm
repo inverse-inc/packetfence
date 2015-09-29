@@ -19,8 +19,6 @@ use warnings;
 use Date::Parse;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use IO::Interface::Simple;
-use Time::Local;
 
 use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
@@ -82,15 +80,15 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_history_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
-                FROM iplog 
-                WHERE ip = ? 
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog
+                WHERE ip = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
-                FROM iplog_history 
-                WHERE ip = ? 
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog_history
+                WHERE ip = ?
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
     );
@@ -101,13 +99,13 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
+                FROM iplog
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog_history 
+                FROM iplog_history
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
@@ -119,14 +117,14 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
-                WHERE mac = ? 
+                FROM iplog
+                WHERE mac = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog_history 
-                WHERE mac = ? 
+                FROM iplog_history
+                WHERE mac = ?
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
     );
@@ -137,7 +135,7 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
+                FROM iplog
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
@@ -361,17 +359,17 @@ sub _history_by_ip {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
             $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
         );
-    } 
+    }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
             $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
         );
-    } 
+    }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
@@ -393,14 +391,14 @@ sub _history_by_mac {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
             $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
         );
-    } 
+    }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
             $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
         );
     }
@@ -435,7 +433,7 @@ sub view {
 
 Consult the 'iplog' SQL table for a given IP address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::view> 
+Not meant to be used outside of this class. Refer to L<pf::iplog::view>
 
 =cut
 
@@ -585,7 +583,7 @@ sub open {
 
 Insert a new 'iplog' table entry.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::open> 
+Not meant to be used outside of this class. Refer to L<pf::iplog::open>
 
 =cut
 
@@ -697,7 +695,7 @@ sub _lookup_cached_omapi {
             my $data = _get_lease_from_omapi($type, $id);
             return unless $data && $data->{op} == 3;
             #Do not return if the lease is expired
-            return if $data->{obj}->{ends} < timegm( localtime()  );
+            return if $data->{obj}->{ends} < time;
             return $data;
         }
     );
@@ -733,7 +731,7 @@ sub _expire_lease {
     my ($cache_object) = @_;
     my $lease = $cache_object->value;
     return 1 unless defined $lease && defined $lease->{obj}->{ends};
-    return $lease->{obj}->{ends} < timegm( localtime()  );
+    return $lease->{obj}->{ends} < time;
 }
 
 =head1 AUTHOR
