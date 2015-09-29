@@ -1,8 +1,8 @@
-# logrotate file for packetfence
+# logrotate file for PacketFence
 
 /usr/local/pf/logs/*log {
-    weekly
-    rotate 52
+    daily
+    rotate 90
     missingok
     compress
     create 640 pf pf
@@ -11,8 +11,8 @@
 
 
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
-    weekly
-    rotate 52
+    daily
+    rotate 90
     missingok
     compress
     create 640 pf pf
