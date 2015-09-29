@@ -1,6 +1,3 @@
-[general]
-children=2
-
 [mysql]
 host=localhost
 user=pf

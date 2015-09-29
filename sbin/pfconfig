@@ -128,100 +128,44 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
+while($RUNNING) {
+    my $socket;
+    my $line;
+    eval {
+        $socket = $listner->accept();
+        #Check if a signal was caught
+        unless (defined $socket || $! == EINTR) {
+            die("Can't accept connection: $!\n");
+        }
+        if($socket) {
+            chomp( $line = <$socket> );
 
-my $configuration = pfconfig::config->new;
+            if($line eq "exit") {exit}
 
-our $PARENT_PID = $$;
-my %CHILDREN;
-my $IS_CHILD = 0;
-my $CHILDREN_TO_START = $configuration->element('general', 'children') || 2;
+            my $query = decode_json($line);
+            #use Data::Dumper;
+            #print Dumper($query);
 
-sub start_children {
-    my $i = 1;
-    while($i <= $CHILDREN_TO_START){
-        run_child($i);
-        $i++;
-    }
-}
-
-sub run_child {
-    my ($id) = @_;
-    my $pid = fork();
-    if($pid) {
-        $CHILDREN{$pid} = $id;
-        $SIG{CHLD} = "IGNORE";
-    } elsif ($pid == 0) {
-        $SIG{CHLD} = "DEFAULT";
-        $IS_CHILD = 1;
-        _run_child($id);
-    } else {
-    }
-}
-
-sub _run_child {
-    my ($id) = @_;
-    $0 = "pfconfig - ".$id;
-    while($RUNNING) {
-        my $socket;
-        my $line;
-        eval {
-            $socket = $listner->accept();
-            #Check if a signal was caught
-            unless (defined $socket || $! == EINTR) {
-                die("Can't accept connection: $!\n");
+            # we support hash namespaced queries
+            # where
+            #  - line = 'config' return the whole config hash
+            #  - line = 'config;value' return the value in the config hash
+            my $method = $query->{method};
+            if (exists $DISPATCH{$method}) {
+                $DISPATCH{$method}->($query, $socket);
+            } else {
+                print STDERR "Unknown method $query->{method}";
+                print "undef";
             }
-            if($socket) {
-                chomp( $line = <$socket> );
-
-                if($line eq "exit") {exit}
-
-                my $query = decode_json($line);
-                #use Data::Dumper;
-                #print Dumper($query);
-
-                # we support hash namespaced queries
-                # where
-                #  - line = 'config' return the whole config hash
-                #  - line = 'config;value' return the value in the config hash
-
-                my $method = $query->{method};
-                if (exists $DISPATCH{$method}) {
-                    $DISPATCH{$method}->($query, $socket);
-                } else {
-                    print STDERR "Unknown method $query->{method}";
-                    print "undef";
-                }
-            }
-        };
-        if($@){
-            print STDERR "$line : $@";
-            send_output("undef", $socket) if $socket;
         }
-        #Stop running if parent is no longer alive
-        unless(is_parent_alive()) {
-            $logger->error("Parent is no longer running shutting down");
-            $RUNNING = 0;
-        }
-    }
-
-    $logger->info("Stop running");
-}
-
-sub is_parent_alive {
-    kill (0,$PARENT_PID)
-}
-
-start_children();
-while($RUNNING){
-    sleep 1;
-    foreach my $pid (keys %CHILDREN){
-        unless(kill(0,$pid)){
-            $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
-            run_child($CHILDREN{$pid});
-            delete $CHILDREN{$pid};
-        }
+    };
+    if($@){
+        print STDERR "$line : $@";
+        send_output("undef", $socket) if $socket;
     }
 }
+
+$logger->info("Stop running\n");
 
 END {
     if ( !$args{h} ) {
@@ -445,10 +389,6 @@ the signal handler to shutdown the service
 =cut
 
 sub normal_sighandler {
-    foreach my $pid (keys %CHILDREN){
-        kill(SIGKILL, $pid);
-    }
-    deletepid();
     $RUNNING = 0;
 }
 
