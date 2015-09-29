@@ -38,7 +38,7 @@ Readonly our %ATTRIBUTES_MAP => (
   'lastname'    => "sn",
   'address'     => "physicalDeliveryOfficeName",
   'telephone'   => "telephoneNumber",
-  'email'       => "mail",
+  'email'       => "mailLocalAddress|mailAlternateAddress|mail",
   'work_phone'  => "homePhone",
   'cell_phone'  => "mobile",
   'company'     => "company",
@@ -493,9 +493,11 @@ sub search_attributes_in_subclass {
     }
     
     my $info = {};
-    foreach my $attr (keys %ATTRIBUTES_MAP){
-        if(defined($entry->get_value($ATTRIBUTES_MAP{$attr}))){
-            $info->{$attr} = $entry->get_value($ATTRIBUTES_MAP{$attr});
+    foreach my $attrs (keys %ATTRIBUTES_MAP){
+        foreach my $attr (split('\|',$ATTRIBUTES_MAP{$attrs})) {
+            if(defined($entry->get_value($attr))){
+                $info->{$attrs} = $entry->get_value($attr);
+            }
         }
     }
 
