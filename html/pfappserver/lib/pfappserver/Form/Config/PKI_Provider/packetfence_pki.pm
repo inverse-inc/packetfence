@@ -108,12 +108,12 @@ has_field 'state' => (
     },
 );
 
-has_field 'organisation' => (
+has_field 'organization' => (
     type    => 'Text',
-    label   => 'Organisation',
+    label   => 'Organization',
     tags    => {
         after_element   => \&help,
-        help            => 'Organisation for the certificate',
+        help            => 'Organization for the certificate',
     },
 );
 
@@ -159,7 +159,7 @@ has_field 'revoke_on_unregistration' => (
 );
 
 has_block 'definition' => (
-    render_list => [ qw(type proto host port username password profile country state organisation cn_attribute revoke_on_unregistration ca_cert_path server_cert_path) ],
+    render_list => [ qw(type proto host port username password profile country state organization cn_attribute revoke_on_unregistration ca_cert_path server_cert_path) ],
 );
 
 =head1 AUTHOR
