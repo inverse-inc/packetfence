@@ -215,7 +215,7 @@ tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
-tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config';
+tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';

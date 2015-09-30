@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::authentication_config;
+package pfconfig::namespaces::resource::authentication_config_hash;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::authentication_config
+pfconfig::namespaces::resource::authentication_config_hash
 
 =cut
 
 =head1 DESCRIPTION
 
-Authentication resource to get authentication sources config
+Authentication resource to get authentication sources config builded hash
 
 =cut
 
@@ -25,7 +25,7 @@ sub init {
 sub build {
     my ($self) = @_;
 
-    return $self->{_authentication_config}->{authentication_config};
+    return $self->{_authentication_config}->{authentication_config_hash};
 }
 
 =back
