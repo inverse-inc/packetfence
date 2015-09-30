@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
@@ -110,6 +110,9 @@ ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})),
     "call setVlanByName with a vlan that doesn't exist in switches.conf");
 
 ok(defined($switch->setVlanByName(1001, 'customVlan1', {})),
+    "call setVlanByName with a vlan that exists but with a non-numeric value");
+
+ok(defined($switch->setVlanByName(1001, 'custom1Vlan', {})),
     "call setVlanByName with a vlan that exists but with a non-numeric value");
 
 ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})),

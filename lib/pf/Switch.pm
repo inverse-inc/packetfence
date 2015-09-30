@@ -581,7 +581,7 @@ sub setVlan {
     # VLAN -1 handling
     # TODO at some point we should create a new blackhole / blacklist API
     # it would take advantage of per-switch features
-    if (looks_like_number($newVlan) &&  $newVlan == -1) {
+    if ( $newVlan eq "-1") {
         $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
         $newVlan = $macDetectionVlan;
     }
