@@ -126,6 +126,7 @@ sub sanity_check {
 
     database();
     omapi();
+    authentication();
     network();
     fingerbank();
     inline() if (is_inline_enforcement_enabled());
@@ -377,6 +378,35 @@ Validation related to the OMAPI configuration
 sub omapi {
     if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
         add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
+    }
+}
+
+sub authentication {
+    authentication_rules_classes();
+}
+
+sub authentication_rules_classes {
+    foreach my $authentication_source_id ( keys %ConfigAuthentication ) {
+        next if !$ConfigAuthentication{$authentication_source_id}{'rules'};
+
+        my $authentication_source = $ConfigAuthentication{$authentication_source_id};
+        my $rules = $authentication_source->{'rules'};
+        foreach my $rule_id ( keys %$rules ) {
+            my $rule = $authentication_source->{'rules'}->{$rule_id};
+
+            # Check if rule class is configured
+            add_problem( $WARN, "Rule '$rule_id' does not have any configured class. Defaulting to 'authentication'" ) if !$rule->{'class'};
+            next if !$rule->{'class'};
+
+            # Check if configured rule action(s) is/are allowed based on the configured class
+            my $actions = $rule->{'actions'};
+            my %allowed_actions = map { $_ => 1 } @{ $Actions::ACTIONS{$rule->{'class'}} };
+            foreach my $action_id ( keys %$actions ) {
+                my $action = $rule->{'actions'}->{$action_id};
+                $action = substr($action, 0, index($action, '='));
+                add_problem( $WARN, "Action '$action_id' of rule '$rule_id' is not part of the '" . $rule->{'class'} . "' rule class allowed actions. It will be ignored." ) if !exists($allowed_actions{$action});
+            }
+        }
     }
 }
 
