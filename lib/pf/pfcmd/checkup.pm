@@ -398,6 +398,11 @@ sub authentication_rules_classes {
             add_problem( $WARN, "Rule '$rule_id' does not have any configured class. Defaulting to 'authentication'" ) if !$rule->{'class'};
             next if !$rule->{'class'};
 
+            # Check if rule class is allowed on this type of authentication source
+            my $authenticationSourceObject = pf::authentication::getAuthenticationSource($authentication_source_id);
+            my %available_rule_classes =  map { $_ => 1 } @{ $authenticationSourceObject->available_rule_classes };
+            add_problem( $WARN, "Rule class '" . $rule->{'class'} . "' is not allowed on a '" . $authentication_source->{'type'} . "' source type. It will be ignored." ) if !exists($available_rule_classes{$rule->{'class'}});
+
             # Check if configured rule action(s) is/are allowed based on the configured class
             my $actions = $rule->{'actions'};
             my %allowed_actions = map { $_ => 1 } @{ $Actions::ACTIONS{$rule->{'class'}} };
