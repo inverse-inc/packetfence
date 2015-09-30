@@ -59,9 +59,19 @@ sub description { 'Ruckus Wireless Controllers' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $FALSE; }
 sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+
+=item supportsWebFormRegistration
+
+Will be activated only if HTTP is selected as a deauth method
+
+=cut
+
+sub supportsWebFormRegistration { 
+    my ($self) = @_;
+    return $self->{_deauthMethod} eq $SNMP::HTTP;
+}
 
 =item getVersion
 
