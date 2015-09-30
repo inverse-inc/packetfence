@@ -43,7 +43,7 @@ sub instantiate {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $options ||= {};
     if (defined($options->{'portal'})) {
-        $logger->trace("Instantiate profile ".$options->{'portal'});
+        $logger->info("Instantiate profile ".$options->{'portal'});
         return $self->_from_profile($options->{'portal'});
     }
 
@@ -51,7 +51,7 @@ sub instantiate {
     $node_info = {%$node_info, %$options};
 
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
-    $logger->trace("Instantiate profile $profile_name");
+    $logger->info("Instantiate profile $profile_name");
     return $self->_from_profile($profile_name);
 }
 
