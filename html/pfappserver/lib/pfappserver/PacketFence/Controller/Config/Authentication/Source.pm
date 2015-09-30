@@ -59,6 +59,7 @@ sub create :Local :Args(1) :AdminRole('USERS_SOURCES_CREATE') {
         $c->forward('update');
         if(is_success($c->response->status)) {
             $c->response->location( $c->pf_hash_for($self->action_for('read'), [$c->stash->{source}->{id}]));
+            $self->object($c, $c->stash->{source}->{id});
         }
     }
     else {
