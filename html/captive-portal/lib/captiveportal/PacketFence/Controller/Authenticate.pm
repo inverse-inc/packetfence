@@ -244,11 +244,11 @@ sub postAuthentication : Private {
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
-    $c->log->info("Just finished seting the node up");
+    $c->log->trace("Just finished seting the node up");
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
-    $c->log->info("Passed by the provisioning");
+    $c->log->trace("Passed by the provisioning");
 }
 
 =head2 checkIfChainedAuth
