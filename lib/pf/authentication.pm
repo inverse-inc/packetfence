@@ -213,12 +213,6 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
-    # Make sure there's a username and a password otherwise, there's nothing to authenticate with
-    if ( !$username || !$password ) {
-        $logger->warn("Tried to authenticate without a username / password");
-        return( $FALSE, "Invalid username or password" );
-    }
-
     # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
