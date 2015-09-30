@@ -51,7 +51,7 @@ sub build_child {
     my %authentication_config_hash = ();
     foreach my $source_id ( @{ $self->{ordered_sections} } ) {
 
-        my $current_source_config = $cfg{$source_id};
+        my $current_source_config = { %{$cfg{$source_id}} };
 
         # We skip groups from our ini files
         if ( $source_id =~ m/\s/ ) {
