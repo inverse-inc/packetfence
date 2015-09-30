@@ -404,17 +404,11 @@ sub getNormalVlan {
         $logger->info("[$mac] Triggering provisioner check");
         violation_trigger($mac, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
     }
-    else{
-        $logger->info("[$mac] Can't find provisioner");
-    }
 
     my $scan = $profile->findScan($mac,$node_info);
     if (defined($scan) && isenabled($scan->{'post_registration'})) {
         $logger->info("[$mac] Triggering scan check");
         violation_add( $mac, $POST_SCAN_VID );
-    }
-    else{
-        $logger->info("[$mac] Can't find scan engine");
     }
 
     $vlan = _check_bypass($mac, $node_info, $switch);
@@ -497,7 +491,7 @@ sub getNormalVlan {
     }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
-        $logger->info("[$mac] Username was defined \"$user_name\" - returning user based role '$role'");
+        $logger->info("[$mac] Username was defined \"$user_name\" - returning role '$role'");
     # Otherwise, we return the node based role matched with the node MAC address
     } else {
         $role = $node_info->{'category'};
