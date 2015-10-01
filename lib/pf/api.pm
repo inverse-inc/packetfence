@@ -933,6 +933,17 @@ sub fingerbank_submit_unmatched : Public {
     pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
 }
 
+=head2 throw
+
+TODO: documention
+
+=cut
+
+sub throw : Public {
+    die "This will always die\n";
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
