@@ -78,6 +78,7 @@ BEGIN {
         node_search
         $STATUS_REGISTERED
         node_last_reg
+        node_last_reg_non_inline_on_category
     );
 }
 
@@ -376,6 +377,12 @@ sub node_db_prepare {
         UPDATE node SET bandwidth_balance = COALESCE(bandwidth_balance, 0) + ?
         WHERE mac = ?
     ]);
+
+    $node_statements->{'node_last_reg_non_inline_on_category_sql'} = get_db_handle()->prepare(qq [
+        SELECT node.mac FROM node
+            RIGHT JOIN locationlog on node.mac=locationlog.mac
+            RIGHT JOIN node_category USING (category_id)
+        WHERE node.mac != ? AND node.status="reg" AND node_category.name = ?  AND locationlog.connection_type != "Inline" and locationlog.end_time is NULL order by node.regdate DESC LIMIT 1 ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -1289,6 +1296,20 @@ sub node_last_reg {
     return ($val);
 }
 
+=item node_last_reg_non_inline_on_category
+
+Return the last mac that has been register in a specific category
+May be sometimes usefull for custom
+
+=cut
+
+sub node_last_reg_non_inline_on_category {
+    my ($mac, $category) = @_;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_non_inline_on_category_sql', $mac, $category) || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
 
 =back
 

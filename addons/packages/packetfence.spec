@@ -287,6 +287,8 @@ Requires: perl(Test::Pod), perl(Test::Pod::Coverage), perl(Test::Exception)
 Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
+# required for vlan pool
+Requires: perl(Number::Range)
 # For managing the number of connections per device
 Requires: mod_qos
 Requires: %{real_name}-config = %{ver}

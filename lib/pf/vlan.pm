@@ -31,6 +31,7 @@ use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
 use pf::vlan::filter;
+use pf::vlan::pool;
 use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
@@ -498,6 +499,22 @@ sub getNormalVlan {
         $logger->info("[$mac] Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
     $vlan = $switch->getVlanByName($role);
+    my $vlanpool = new pf::vlan::pool;
+
+    my $pool_args = {
+        vlan => $vlan,
+        switch => $switch,
+        ifIndex => $ifIndex,
+        mac => $mac,
+        node_info => $node_info,
+        connection_type => $connection_type,
+        user_name => $user_name,
+        ssid => $ssid,
+        radius_request => $radius_request,
+        role => $role,
+    };
+    $vlan = $vlanpool->getVlanFromPool($pool_args);
+
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return ($vlan, $role);
 }
