@@ -137,6 +137,18 @@ $(function() { // DOM ready
                     $('#id').focus();
                 });
                 modal.modal({ shown: true });
+
+                var rule_class = $('#class');
+                var actions_table = $('#ruleActions');
+                var action_row = actions_table.children('tbody').children('tr');
+                if (rule_class.find(':selected').attr('value') == 'administration') {
+                    action_row.find('option[data-rule-class="administration"]').removeClass('hidden');
+                    action_row.find('option[data-rule-class="authentication"]').addClass('hidden');
+                } else if (rule_class.find(':selected').attr('value') == 'authentication') {
+                    action_row.find('option[data-rule-class="authentication"]').removeClass('hidden');
+                    action_row.find('option[data-rule-class="administration"]').addClass('hidden');
+                }
+
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
