@@ -19,7 +19,6 @@ use pf::log;
 use Apache2::RequestIO;
 use Apache2::RequestRec;
 use Apache2::Response;
-use Apache2::Log;
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use List::MoreUtils qw(any);
