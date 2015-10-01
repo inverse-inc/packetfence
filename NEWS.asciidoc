@@ -32,7 +32,7 @@ Enhancements
 * Improved error message in the profile management page
 * Allow precise error messages from the authentication source when providing invalid credentials on the captive portal
 * Aruba WiFi controllers now support wired RADIUS MAC authentication and 802.1X
-* Added Kickbox.io authentication source which can allow a new Null type source with e-mail validation
+* Added Kickbox.io authentication source which can allow a new Null type source with email validation
 * Now redirecting to HTTP for devices that do not support self-signed certificates on the captive portal if needed
 * httpd.portal now serves static content directly (without going through Catalyst engine)
 * Introduction of a new configuration parameter (captive_portal.wispr_redirection) to allow enabling/disabling captive-portal WISPr redirection capabilities
