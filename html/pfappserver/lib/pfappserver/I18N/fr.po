@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-06-15 20:27+0000\n"
-"Last-Translator: lzammit <lzammit@inverse.ca>\n"
-"Language-Team: French (http://www.transifex.com/p/packetfence/language/fr/)\n"
+"PO-Revision-Date: 2015-10-01 18:16+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
+"Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -631,7 +631,7 @@ msgstr "DN de connexion"
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Block Interval"
-msgstr "Bloc d´intervale"
+msgstr "Bloc d´intervalle"
 
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
@@ -2067,9 +2067,13 @@ msgid ""
 " be automagically created."
 msgstr "Hôte où est exécuté le moteur d'analyse. Pour des raisons de performance, nous vous recommandons d'exécuter le moteur d'analyse sur un autre serveur. Une règle d'autorisation de pare-feu sera automatiquement créé."
 
+# conf/documentation.conf (monitoring.statsd_host)
+msgid "Host to which StatsD metrics are sent."
+msgstr "Hôte sur lequel les paramètres StatsD sont envoyés."
+
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
-msgstr "Hôte auquel les métriques de graphite sont envoyées"
+msgstr "Hôte sur lequel les métriques de graphite sont envoyées"
 
 # conf/documentation.conf (general.hostname)
 msgid ""
@@ -2368,7 +2372,7 @@ msgstr "Sources Interne"
 
 # conf/documentation.conf (maintenance.ldap_auth_cache_cleanup_interval)
 msgid "Interval at which Packetfence purges the ldap_auth cache"
-msgstr "Intervale à auquel Packetfence va purger le cache ldap_auth"
+msgstr "Intervalle à laquelle Packetfence va purger le cache ldap_auth"
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "Interval at which Packetfence runs accounting maintenance"
@@ -2406,7 +2410,7 @@ msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des no
 msgid ""
 "Interval at which Packetfence runs the polling enforcement on the "
 "provisioners."
-msgstr "Intervalle auquel PacketFence exécute l'enforcement sur les provisionners."
+msgstr "Intervalle a laquelle PacketFence exécute l'enforcement sur les provisionners."
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "Interval at which Packetfence runs traplog cleanup"
@@ -2815,7 +2819,7 @@ msgstr "Modifier le mot de passe"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Monitoring"
-msgstr "Surveillance"
+msgstr "Supervision"
 
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
@@ -3657,9 +3661,13 @@ msgstr "Port du service"
 msgid "Port of the soap webservice."
 msgstr "Port du service web SOAP."
 
+# conf/documentation.conf (monitoring.statsd_port)
+msgid "Port on the StatsD host to which metrics are sent."
+msgstr "Port sur l'hôte StatsD à laquelle les paramètres sont envoyés."
+
 # conf/documentation.conf (monitoring.graphite_port)
 msgid "Port on the graphite host to which metrics are sent."
-msgstr "Port auquel les métriques graphite sont envoyées"
+msgstr "Port sur lequel les métriques graphite sont envoyées"
 
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
@@ -4466,7 +4474,7 @@ msgstr "Mot de passe"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Secret Passphrase"
-msgstr "Phrase secrète"
+msgstr "Secret partagé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
@@ -6794,7 +6802,7 @@ msgstr "Redirection de ports"
 
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
-msgstr "Réautentifier le noeud"
+msgstr "Réauthentifier le noeud"
 
 # conf/documentation.conf (interface.enforcement options)
 msgid "inlinel2"
@@ -6910,7 +6918,7 @@ msgstr "magenta"
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "mail"
-msgstr "Envoyer un courriel"
+msgstr "mail"
 
 # html/pfappserver/root/user/view.tt
 msgid "mail_btn"
@@ -6979,7 +6987,7 @@ msgstr "Intervalle de maintenance des noeuds"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr "Intervale de temps pour appliquer la conformité des appareils"
+msgstr "Intervalle de temps pour appliquer la conformité des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
@@ -6991,7 +6999,7 @@ msgstr "Nombre maximum de violation traitées simultanément"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_interval"
-msgstr "Intervale de maintenance"
+msgstr "Intervalle de maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
@@ -7072,7 +7080,7 @@ msgstr "Opérateur téléphonique"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
-msgstr "surveillance "
+msgstr "supervise"
 
 # conf/documentation.conf
 msgid "monitoring"
@@ -7084,7 +7092,7 @@ msgstr "hôte de la base de donnée"
 
 # conf/documentation.conf
 msgid "monitoring.db_port"
-msgstr "port de connection de la base de données"
+msgstr "port de connexion à la base de données"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_host"
@@ -7092,7 +7100,15 @@ msgstr "hôte graphite"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_port"
-msgstr "port de connection de graphite"
+msgstr "port de connexion de graphite"
+
+# conf/documentation.conf
+msgid "monitoring.statsd_host"
+msgstr "Hôte StatsD de Supervision "
+
+# conf/documentation.conf
+msgid "monitoring.statsd_port"
+msgstr "StatsD port de supervision"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
@@ -7195,7 +7211,7 @@ msgstr "Activer la recherche ip2mac utilisant OMAPI"
 
 # conf/documentation.conf
 msgid "omapi.key_base64"
-msgstr "Clé base64 OMPAI"
+msgstr "Clé base64 OMAPI"
 
 # conf/documentation.conf
 msgid "omapi.key_name"
