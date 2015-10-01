@@ -47,39 +47,43 @@ Please take a minute or two to go through the existing rules for each of the aut
 Authentication sources rules structure is as follow:
 
 * 'authentication' rule class available actions:
- * Set role (set_role)
- * Set access duration (set_access_duration)
- * Set unregistration date (set_unreg_date)
+** Set role (set_role)
+** Set access duration (set_access_duration)
+** Set unregistration date (set_unreg_date)
 * 'administration' rule class available actions:
- * Set access level of Web admin (set_access_level)
- * Mark as sponsor (mark_as_sponsor)
+** Set access level of Web admin (set_access_level)
+** Mark as sponsor (mark_as_sponsor)
 
 Per example, if an existing rule is as follow:
 
- * Name: AllAdmins
- * Class: No class defined since the class attribute is new
- * Conditions: ...
- * Actions:
-  * Set access level of Web admin -> ALL
-  * Set role -> default
-  * Set access duration -> 24H
+* Name: AllAdmins
+* Class: No class defined since the class attribute is new
+* Conditions: ...
+* Actions:
+** Set access level of Web admin -> ALL
+** Set role -> default
+** Set access duration -> 24H
 
 That existing rule will defaulting to the 'authentication' class if none is being set. If that's the case, the first action "Set access level of Web admin" will then be ignored.
 
 To replicate that existing rule with the new classes, you would have to create two separate rules, as follow:
 
- * Name: AllAdmins_admin 
- * Class: administration
- * Conditions: ...
- * Actions:
-  * Set access level of Web admin -> ALL
+Rule for 'administration' purposes
 
- * Name: AllAdmins_auth
- * Class: authentication
- * Conditions: ...
- * Actions:
-  * Set role -> default
-  * Set access duration -> 24H
+* Name: AllAdmins_admin 
+* Class: administration
+* Conditions: ...
+* Actions:
+** Set access level of Web admin -> ALL
+
+Rule for 'authentication' purposes
+
+* Name: AllAdmins_auth
+* Class: authentication
+* Conditions: ...
+* Actions:
+** Set role -> default
+** Set access duration -> 24H
 
 Configuration will be validated on every start / restart so that "bogus" authentication sources / rules can be identified.
 
