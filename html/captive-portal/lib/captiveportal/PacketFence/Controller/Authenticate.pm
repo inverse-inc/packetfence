@@ -3,6 +3,7 @@ package captiveportal::PacketFence::Controller::Authenticate;
 use Moose;
 use namespace::autoclean;
 use pf::constants;
+use pf::constants::eap_type qw($EAP_TLS);
 use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -435,7 +436,7 @@ sub checkIfProvisionIsNeeded : Private {
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
         $c->log->info("Found provisioner " . $provisioner->id . " for $mac");
         my $info = $c->stash->{info};
-        if($provisioner->getPkiProvider) {
+        if($provisioner->getPkiProvider && ($provisioner->{eap_type} eq $EAP_TLS) ) {
             $c->log->info("Detected PKI provider for $mac.");
             $c->session->{info} = $c->stash->{info};
             $c->response->redirect('/tlsprofile');
