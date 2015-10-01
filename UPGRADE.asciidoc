@@ -34,7 +34,7 @@ You can take a backup of the pf directory with the following command:
 
 Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
 
-Upgrading from a version prior to X.Y.Z
+Upgrading from a version prior to 5.4.0
 ---------------------------------------
 
 Authentication sources rules rework
@@ -54,7 +54,7 @@ Authentication sources rules structure is as follow:
 ** Set access level of Web admin (set_access_level)
 ** Mark as sponsor (mark_as_sponsor)
 
-Per example, if an existing rule is as follow:
+For example, if an existing rule is as follow:
 
 * Name: AllAdmins
 * Class: No class defined since the class attribute is new
@@ -64,7 +64,8 @@ Per example, if an existing rule is as follow:
 ** Set role -> default
 ** Set access duration -> 24H
 
-That existing rule will defaulting to the 'authentication' class if none is being set. If that's the case, the first action "Set access level of Web admin" will then be ignored.
+That existing rule will default to the 'authentication' class if none is being set. 
+If that's the case, the first action "Set access level of Web admin" will then be ignored.
 
 To replicate that existing rule with the new classes, you would have to create two separate rules, as follow:
 
@@ -87,7 +88,22 @@ Rule for 'authentication' purposes
 
 Configuration will be validated on every start / restart so that "bogus" authentication sources / rules can be identified.
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+OAuth2 authentication sources changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Facebook API now requires to specify the fields to be defined in the query.
+In all your facebook sources, change the parameter protected_resource_url to https://graph.facebook.com/me?fields=id,name,email,first_name,last_name
+
+Change the parameter scope to user,user:email in all your Github sources as PacketFence is now fetching the email address of the user when registering with Github.
+
+StatsD configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+monitoring.statsd_host and monitoring.statsd_port have been removed from pf.conf. 
+If you have specified a specific host or port, remove them from your configuration and change them in /usr/local/pf/lib/pf/StatsD.pm
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.4.0).
 
 Upgrading from a version prior to 5.3.0
 ---------------------------------------
