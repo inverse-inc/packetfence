@@ -9,6 +9,7 @@ type=Htpasswd
 
 [file1 rule admins]
 description=All admins
+class=administration
 match=all
 action0=set_access_level=ALL
 
@@ -20,6 +21,7 @@ create_local_account=no
 
 [sms rule catchall]
 description=
+class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
@@ -33,6 +35,7 @@ create_local_account=no
 
 [email rule catchall]
 description=
+class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
@@ -45,6 +48,7 @@ create_local_account=no
 
 [sponsor rule catchall]
 description=
+class=authentication
 match=all
 action0=set_role=guest
 action1=set_access_duration=1D
