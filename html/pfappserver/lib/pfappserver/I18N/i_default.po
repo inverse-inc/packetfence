@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 5.3.2\n"
+"Project-Id-Version: 5.4.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-09-01 10:49-0400\n"
+"PO-Revision-Date: 2015-10-01 14:16-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -53,6 +53,10 @@ msgstr ""
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "A profile id can only contain alphanumeric characters, dashes, period and or underscores."
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "ADMIN_ROLES"
 msgstr "Admin Roles"
@@ -86,6 +90,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kickbox.pm
+msgid "API KEY"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Onboard.pm
@@ -124,6 +132,14 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
 msgid "API key to interact with upstream Fingerbank project"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "API password (basic auth)"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "API username (basic auth)"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
@@ -430,6 +446,10 @@ msgstr ""
 msgid "Allow Local Domain"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "Allow on registration"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access durations"
 msgstr ""
@@ -521,6 +541,14 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Auth Protocol Write"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "Authentication URL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "Authorization URL"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -622,6 +650,11 @@ msgstr "Bypass VLAN"
 msgid "Bypass the captive-portal detection mecanism of some browsers / end-points by proxying the detection request."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "CA cert path"
+msgstr ""
+
 # conf/documentation.conf (billing.mirapay_currency options)
 msgid "CAD"
 msgstr ""
@@ -699,6 +732,10 @@ msgstr ""
 msgid "Captive portal"
 msgstr ""
 
+# conf/documentation.conf (active_active.centralized_deauth)
+msgid "Centralize the deauthentication to the management node of the cluster."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 msgid "Change the default key is you have it"
 msgstr ""
@@ -708,7 +745,7 @@ msgid "Check this box if you want the profiles signed"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-msgid "Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate."
+msgid "Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate"
 msgstr ""
 
 # pf::firewallsso (Firewall SSO)
@@ -729,6 +766,11 @@ msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "Choose your enforcement mechanisms"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
+# html/pfappserver/root/authentication/source/rules_read.tt
+msgid "Class"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
@@ -753,6 +795,14 @@ msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "Client Support"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+msgid "Client cert path"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+msgid "Client key path"
 msgstr ""
 
 # html/pfappserver/root/config/adminroles/list.tt
@@ -917,6 +967,9 @@ msgid "Comma-separated list of the switch uplinks"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Common Name Attribute"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Common name Attribute"
 msgstr ""
@@ -1015,6 +1068,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy File"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Country"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -1292,6 +1349,9 @@ msgid "Defined Mandatory Fields will be used with the following Portal Profile b
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Defines what attribute of the node to use as the common name during the certificate generation"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Defines what attribute of the node to use as the common name during the certificate generation."
 msgstr ""
@@ -1535,6 +1595,10 @@ msgstr ""
 msgid "Devices"
 msgstr ""
 
+# conf/documentation.conf (advanced.hash_passwords)
+msgid "Disable Active-Directory domain configuration from within PacketFence"
+msgstr ""
+
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes"
 msgstr ""
@@ -1680,6 +1744,10 @@ msgstr ""
 msgid "Enable or Disable the generation of a pre-built XML mobile configuration profile for iPhone, iPad, or iPod users"
 msgstr ""
 
+# conf/documentation.conf (captive_portal.wispr_redirection)
+msgid "Enable or disable WISPr redirection capabilities on the captive-portal"
+msgstr ""
+
 # conf/documentation.conf (captive_portal.network_detection)
 msgid "Enable the automatic network detection feature for registration auto-redirect"
 msgstr ""
@@ -1700,6 +1768,7 @@ msgstr ""
 msgid "Enabling this allows guests to requests their access in advance. You must take care of opening your external firewall up to PacketFence and make sure your server can send emails properly (generated username/password are sent by email)."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Encryption"
@@ -1966,10 +2035,13 @@ msgstr ""
 msgid "HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/authentication/source/type/AD.tt
+# html/pfappserver/root/authentication/source/type/HTTP.tt
 # html/pfappserver/root/authentication/source/type/LDAP.tt
 # html/pfappserver/root/authentication/source/type/RADIUS.tt
 msgid "Host"
@@ -2174,6 +2246,10 @@ msgstr ""
 msgid "If this option is enabled, the PF system will scan host before the registration."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
+msgid "If this option is enabled, the device will be able to reach the Active Directory from the registration VLAN."
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one."
 msgstr ""
@@ -2321,6 +2397,10 @@ msgstr ""
 msgid "Keep The Same"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kickbox.pm
+msgid "Kickbox.io API key."
+msgstr ""
+
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Languages"
 msgstr ""
@@ -2350,6 +2430,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Limit the number of login attempts. A value of 0 disables the limit."
+msgstr ""
+
+# conf/documentation.conf (advanced.ldap_attributes)
+msgid "List of LDAP attributes that can be used in the sources configuration"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
@@ -2527,7 +2611,6 @@ msgstr ""
 msgid "Longitude/Latitude"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Base/Controller.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
@@ -3003,6 +3086,10 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "Note : The URL is always prefixed by a slash (/)"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3116,9 +3203,10 @@ msgid "Operating Systems"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
-msgid "Organisation for the certificate"
+msgid "Organization"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Organization for the certificate"
 msgstr ""
@@ -3150,11 +3238,13 @@ msgstr ""
 msgid "PKI Provider"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "PKI Provider Name"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "PKI Provider type"
 msgstr ""
@@ -3251,6 +3341,7 @@ msgstr "PaloAlto Networks"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -3308,15 +3399,33 @@ msgid "Past Week"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Path of the CA certificate that will generate your certificates"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+msgid "Path of the CA certificate used to generate client certificate/key combination"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Path of the CA that will generate your certificates"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Path of the RADIUS server authentication certificate"
 msgstr ""
 
 # conf/documentation.conf (provisioning.certificate)
 msgid "Path of the ca certificate"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+msgid "Path of the client cert that will be used to generate the p12"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+msgid "Path of the client key that will be used to generate the p12"
 msgstr ""
 
 # conf/documentation.conf (trapping.wireless_ips_threshold)
@@ -3475,6 +3584,7 @@ msgstr ""
 msgid "Please specify the maximum DHCP lease time."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Please specify the name of the PKI provider"
@@ -3536,8 +3646,10 @@ msgstr ""
 msgid "Please specify the workgroup"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Port"
 msgstr ""
@@ -3655,6 +3767,7 @@ msgstr ""
 msgid "Processing..."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
 msgid "Profile"
@@ -3670,6 +3783,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Profile used for the generation of certificate"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Protocol"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -4349,6 +4466,7 @@ msgid "Scanners"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -4423,6 +4541,11 @@ msgstr ""
 msgid "Server"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "Server cert path"
+msgstr ""
+
 # conf/documentation.conf (database.host)
 msgid "Server the mysql server is running on."
 msgstr ""
@@ -4455,6 +4578,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Set role"
+msgstr ""
+
+# conf/documentation.conf (active_active.dns_on_vip_only)
+msgid "Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
@@ -4729,6 +4856,10 @@ msgid "Starting IP Address"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "State"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "State for the certificate"
 msgstr ""
@@ -4804,6 +4935,14 @@ msgstr ""
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/wrapper.tt
 msgid "Success!"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
+msgid "Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
+msgid "Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status"
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
@@ -4930,10 +5069,6 @@ msgstr ""
 msgid "The certificate for signing profiles"
 msgstr ""
 
-# conf/documentation.conf (advanced.hash_passwords)
-msgid "The cost factor to apply to the password hashing if applicable.Currently only applies to bcrypt."
-msgstr ""
-
 # conf/documentation.conf (billing.mirapay_currency)
 msgid "The currency of the mirapay transactions"
 msgstr ""
@@ -5020,6 +5155,7 @@ msgid "The payment gateway to process the payments"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The permissions the application requests."
@@ -5061,7 +5197,11 @@ msgstr ""
 msgid "The terminal id group for mirapay"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+msgid "The unique ID of the PKI provider"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "The unique id of the PKI provider"
 msgstr ""
@@ -5474,6 +5614,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -5482,6 +5623,7 @@ msgstr ""
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
@@ -5915,20 +6057,20 @@ msgid "active_active"
 msgstr "Active Active"
 
 # conf/documentation.conf
-msgid "active_active.password"
-msgstr "Shared KEY"
-
-# conf/documentation.conf
-msgid "active_active.virtual_router_id"
-msgstr "Virtual Router ID"
+msgid "active_active.centralized_deauth"
+msgstr "Centralized access reevaluation"
 
 # conf/documentation.conf
 msgid "active_active.dns_on_vip_only"
 msgstr "pfdns on VIP only"
 
 # conf/documentation.conf
-msgid "active_active.centralized_deauth"
-msgstr "Centralized access reevaluation"
+msgid "active_active.password"
+msgstr "Shared KEY"
+
+# conf/documentation.conf
+msgid "active_active.virtual_router_id"
+msgstr "Virtual Router ID"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
@@ -5942,6 +6084,10 @@ msgstr "Advanced"
 # conf/documentation.conf
 msgid "advanced.hash_passwords"
 msgstr "Database passwords hashing method"
+
+# conf/documentation.conf
+msgid "advanced.ldap_attributes"
+msgstr ""
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -6044,10 +6190,6 @@ msgstr ""
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
-
-# conf/documentation.conf (advanced.hash_passwords options)
-msgid "bcrypt"
-msgstr ""
 
 # conf/documentation.conf
 msgid "billing"
@@ -6323,10 +6465,14 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# conf/documentation.conf (active_active.centralized_deauth options)
+# conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (advanced.hash_passwords options)
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
+# conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (expire.ldap_auth options)
@@ -6410,10 +6556,14 @@ msgstr "Send email"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# conf/documentation.conf (active_active.centralized_deauth options)
+# conf/documentation.conf (active_active.dns_on_vip_only options)
+# conf/documentation.conf (advanced.hash_passwords options)
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
 # conf/documentation.conf (captive_portal.status_only_on_production options)
+# conf/documentation.conf (captive_portal.wispr_redirection options)
 # conf/documentation.conf (expire.httpd_admin options)
 # conf/documentation.conf (expire.httpd_portal options)
 # conf/documentation.conf (expire.ldap_auth options)
@@ -6626,6 +6776,7 @@ msgstr ""
 msgid "hours"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
@@ -6641,6 +6792,7 @@ msgstr ""
 msgid "httpd listening port for PacketFence Status webservice"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "https"
 msgstr ""
@@ -6905,10 +7057,6 @@ msgstr ""
 msgid "management"
 msgstr "Management"
 
-# pf::Authentication::constants (Actions)
-msgid "mark_as_sponsor"
-msgstr "Mark as sponsor"
-
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
@@ -7114,10 +7262,6 @@ msgstr "Other"
 msgid "pending"
 msgstr "pending"
 
-# pf::pki_provider (PKI Providers)
-msgid "pf::pki_provider::packetfence_pki"
-msgstr "PacketFence PKI"
-
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "pfcmd_vlan"
 msgstr ""
@@ -7129,10 +7273,6 @@ msgstr ""
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 msgid "phonenumber"
-msgstr ""
-
-# conf/documentation.conf (advanced.hash_passwords options)
-msgid "plaintext"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -7176,6 +7316,10 @@ msgstr ""
 # pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
+
+# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+msgid "profile.filter.$_"
+msgstr ""
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.connection_type"
@@ -7574,22 +7718,6 @@ msgstr "Send email"
 msgid "servicewatch.restart"
 msgstr "Restart"
 
-# pf::Authentication::constants (Actions)
-msgid "set_access_duration"
-msgstr "Set access duration"
-
-# pf::Authentication::constants (Actions)
-msgid "set_access_level"
-msgstr "Set access level of Web admin"
-
-# pf::Authentication::constants (Actions)
-msgid "set_role"
-msgstr "Set role"
-
-# pf::Authentication::constants (Actions)
-msgid "set_unreg_date"
-msgstr "Set unregistration date"
-
 # conf/documentation.conf (vlan.trap_limit_action options)
 msgid "shut"
 msgstr ""
@@ -7781,8 +7909,10 @@ msgstr ""
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)
+# pf::Authentication::Source::HTTPSource (available_attributes)
 # pf::Authentication::Source::HtpasswdSource (available_attributes)
 # pf::Authentication::Source::KerberosSource (available_attributes)
+# pf::Authentication::Source::KickboxSource (available_attributes)
 # pf::Authentication::Source::LinkedInSource (available_attributes)
 # pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::OAuthSource (available_attributes)
