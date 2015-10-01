@@ -47,7 +47,7 @@ Enhancements
 * The IPlog can now be updated through RADIUS accounting
 * Devices in the registration VLAN may now be allowed to reach an Active Directory Server
 * Added an option to centralize deauthentication on the management node of an active/active cluster
-* Added the option to use only the management node as the DNS server in Active/Active clustering
+* Added the option to use only the management node as the DNS server in active/active clustering
 * Improved Ruckus ZoneDirector documentation regarding external captive portal
 * pfconfig daemon can now listen on an alternative unix socket
 * Improved handling of updating the /etc/sudoers file in packaging
@@ -59,7 +59,7 @@ Bug Fixes (bug Id is denoted with #id)
 * set_unreg_date and set_access_duration actions now have the same priority when matching rule and actions (#816)
 * Fixes the database query hanging in the captive portal
 * The person attributes lookup will now be made on the stripped username if needed (#888)
-* Active/Active load balancing will now be dispatched based on the Calling-Station-Id attribute.
+* Active/active load balancing will now be dispatched based on the Calling-Station-Id attribute.
 * Fix unaccessible portal preview when no internal network is defined (#790)
 * Fixed a case where the wrong portal profile can be instantiated on the first connection
 * Improved error message in the profile management page (#858) 
@@ -95,7 +95,7 @@ Enhancements
 * Integration of pfconfig commands in bin/pfcmd
 * Added web form registration to Ruckus Controllers
 * Improved database maintenance script to prevent prolonged locking of tables
-* Active/Active mode will now send gratuitous ARPs to update routers when changing master node
+* Active/active mode will now send gratuitous ARPs to update routers when changing master node
 
 
 Bug Fixes
@@ -131,7 +131,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
-* Allow the usage of an external monitoring database when using an Active/Active cluster.
+* Allow the usage of an external monitoring database when using an active/active cluster.
 * Validate that a provisioner is not used before deleting it through the administration interface.
 * Stopped logging database password on schema import failure.
 * Fixed incorrect error message when an external portal authenticated device hits the unknown state.
