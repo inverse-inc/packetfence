@@ -114,6 +114,9 @@ sub call {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code == 200) {
             $response = decode_json($response_body);
+            if(exists($response->{error})){
+                die $response->{error}{message};
+            }
         } else {
             $response = decode_json($response_body);
             die $response->{error}{message};
