@@ -44,6 +44,11 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
+    my $real_id = $self->_formatId($id);
+    my $config = $self->cachedConfig;
+    # Clear the section of any previous values
+    $config->DeleteSection($real_id);
+    $config->AddSection($real_id);
     $self->flatten_list($data, $self->_fields_expanded);
 }
 
