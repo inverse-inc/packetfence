@@ -11,35 +11,69 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
+* PacketFence now supports SCEP integration with Microsoft's Network Enrollment Device Service during the device on-boarding process when using EAP-TLS
+* Improved integration with social media networks (email address lookups from OAuth sources, kickbox.io support, etc.)
+* External HTTP authentication sources support which allows an HTTP-based external API to act as an authentication source to PacketFence
+* Introduced a 'packetfence_local' PKI provider to allow the use of locally generated certificates to be used in a PKI provider / provisionner flow
+* New filtering engine for the portal profiles allowing complex rules to determine which portal will be displayed
+* Added e-mail address lookup for Github and Facebook sources
+* Added the ability to define custom LDAP attributes in the configuration 
+* Add the ability to create "administrative" or "authentication" purposes rules in authentication sources
 * Added support for Cisco SG300 switches
 
 Enhancements
 ++++++++++++
-* Cleanup in web libs (pf::web, pf::web::*) to remode dead code from CGI captive-portal
-* Added merged_list configuration type which is the result of a configuration list merge between pf.conf.defaults and pf.conf (#598)
 * RADIUS Diffie-Hellman key size has been increased to 2048 bits to prevent attacks such as Logjam.
-* Improve error message in the profile managment page
-* Aruba Controllers now support RADIUS MAC authentication and dot1x.
-* 'person' attributes lookup
 * HAProxy TLS configuration has been restricted to modern ciphers.
+* Improve error message in the profile management page
+* Allow precise error messages from the authentication source when providing invalid credentials on the captive portal
+* Aruba Controllers now support RADIUS MAC authentication and dot1x.
 * Added Kickbox.io authentication source which can allow a new Null type source with e-mail validation
-* Detecting when using a self-signed SSL certificate for device with captive-portal detection mecanisms
-* httpd.portal serves static content directly (without going through Catalyst engine)
-* Changed verbosity of, a bit to verbose, logging statements in ip <-> mac discovery
+* Now redirecting to http for devices that do not support self-signed certificates on the captive portal if needed
+* httpd.portal now serves static content directly (without going through Catalyst engine)
 * Introduction of a new configuration parameter (captive_portal.wispr_redirection) to allow enabling/disabling captive-portal WISPr redirection capabilities
+* File transfers through the webservices are now atomic to prevent corruption
+* New web API call to release all violations for a device
+* Added better error message propagation during a cluster synchronization
+* Added additional in-process caching for pfconfig proxied configuration
+* The server hostname is now displayed in the admin info box
+* Added a warning in the configurator when the user is configuring multiple interfaces in the same network
+* Added synchronization of the Fingerbank data in an active/active cluster
+* Client IP and MAC address are now available though direct variables in the captive portal templates
+* The IPlog can now be updated through RADIUS accounting
+* Devices in the registration VLAN may now be allowed to reach an Active Directory Server
+* Added an option to centralize deauthentication on the management node of an active/active cluster
+* Added the option to use only the management node as the DNS server in Active/Active clustering
+* Improved Ruckus ZoneDirector documentation regarding external captive portal
+* pfconfig daemon can now listen on an alternative unix socket
+* Improved handling of updating the /etc/sudoers file in packaging
+* Improved roles handling on AeroHive devices 
 
-Bug Fixes
-+++++++++
-* Fix case where status page links would be pointing to the wrong protocol
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+* Fix case where status page links would be pointing to the wrong protocol (http vs https)
 * set_unreg_date and set_access_duration actions now have the same priority when matching rule and actions (#816)
 * Fixes the database query hanging in the captive portal
 * The person attributes lookup will now be made on the stripped username if needed (#888)
 * Active/Active load balancing will now be dispatched based on the Calling-Station-Id attribute.
+* Fix unaccessible portal preview when no internal network is defined (#790)
+* Fixed a case where the wrong portal profile can be instantiated on the first connection
+* Improved error message in the profile management page (#858) 
+* Do not use the packetfence multi-domain FreeRADIUS module unless there are domains configured in PacketFence (#868)
+* We now handle gracefully switches sending double Calling-Station-Id attributes (#864)
+* Prevent OMAPI from being configured on the DHCP server without a key (#851)
+* Switched to the memcached binary protocol to avoid memcached injection exploit
+* Fixed ipset error if the device switches from one inline network to another 
+* Fixed wrong configuration parameters for redirect url (now a per-profile parameter)
+* Fix bug with validation of mandatory fields causing exceptions in signup
+* Made dhcp point DNS only on cluster IP if passthroughs are enabled in active/active clusters (#820)
+* Defined the maximum message size that SNMP get can return (fixes VOIP LLDP/CDP detection on switch stacks #738)
+
 
 Version 5.3.0 released on 2015-07-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
