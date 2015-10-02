@@ -406,6 +406,18 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
+                'description' => 'NTLM call timing',
+                'vtitle' => 'ms',
+                'target' => 'aliasByNode(stats.timers.*.ntlm_auth.timing.mean_90,2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'NTLM authentication count',
+                'vtitle' => 'failures/s',
+                'target' => 'aliasByNode(stats.timers.*.ntlm_auth.timing.count,2)',
+                'columns' => 1
+               },
+               {
                 'description' => 'Portal Open Connections per server',
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
