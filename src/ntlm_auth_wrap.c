@@ -253,13 +253,14 @@ void send_statsd(const struct arguments args , int status, double elapsed)
     }
 
     char *buf;
-    char hostname[MAX_STR_LENGTH];
-    char tmphostname[MAX_STR_LENGTH];
+    char hostname[MAX_STR_LENGTH] = "";
+    char tmphostname[MAX_STR_LENGTH] = "";
+
 
     gethostname(tmphostname, sizeof(tmphostname));
 
     // escape the dots in the hostname. StatsD uses dots as namespace sep.
-    char c;
+    char c='9'; // just a placeholder to make sure it's initialized
     int i=0;
     while ( c != '\0' ) {
         c =  tmphostname[i];
