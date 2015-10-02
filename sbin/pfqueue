@@ -279,7 +279,7 @@ sub runtask {
 
 =head2 _runtask
 
-the task to is ran in a loop until it is finished
+the task to is run in a loop until it is finished
 
 =cut
 
