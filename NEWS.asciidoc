@@ -16,7 +16,7 @@ Version 5.4.0 released on 2015-10-01
 
 New Features
 ++++++++++++
-* PacketFence now supports SCEP integration with Microsoft's Network Enrollment Device Service during the device on-boarding process when using EAP-TLS
+* PacketFence now supports SCEP integration with Microsoft's Network Device Enrollment Service during the device on-boarding process when using EAP-TLS
 * Improved integration with social media networks (email address lookups from Github and Facebook sources, kickbox.io support, etc.)
 * External HTTP authentication sources support which allows an HTTP-based external API to act as an authentication source to PacketFence
 * Introduced a 'packetfence_local' PKI provider to allow the use of locally generated TLS certificates to be used in a PKI provider / provisionner flow

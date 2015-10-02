@@ -43,7 +43,7 @@ Communication between the MSPKI and PacketFence will be using port 80.
 Configuring Network Device Enrollment Service (NDES)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the deployment of ADCS you will need to configure Network Enrollment Device Service (NDES). This subrole will allow us to exchange certificates with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
+For the deployment of ADCS you will need to configure Network Device Enrollment Service (NDES). This subrole will allow us to exchange certificates with the MSPKI server via Simple Certificate Exchange Protocol (SCEP).
 
 Every configuration change has to be done by an account with administrative privileges.
 
