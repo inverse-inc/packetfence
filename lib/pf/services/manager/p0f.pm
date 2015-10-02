@@ -19,6 +19,7 @@ use pf::util;
 use pf::config;
 use Moo;
 use pf::cluster;
+use fingerbank::Config;
 
 extends 'pf::services::manager';
 
@@ -28,10 +29,11 @@ has '+optional' => ( default => sub {1} );
 has '+launcher' => (
     default => sub {
         my ($self) = @_;
+        my $FingerbankConfig = fingerbank::Config::get_config;
+        my $p0f_map = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
+        my $p0f_sock = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
         my $pid_file = $self->pidFile;
         my $name = $self->name;
-        my $p0f_map = "/usr/local/fingerbank/conf/fingerbank-p0f.fp";
-        my $p0f_sock = "/var/run/p0f.sock";
         "sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";
     }
 );
