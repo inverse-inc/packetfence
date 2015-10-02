@@ -33,7 +33,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'port'                => {type => 'equals',        key  => 'last_port'},
     'realm'               => {type => 'equals',        key  => 'realm'},
     'ssid'                => {type => 'equals',        key  => 'last_ssid'},
-    'switch'              => {type => 'equals',        key  => 'last_switch'},
+    'switch'              => {type => 'exists_in',     key  => 'last_switch'},
     'switch_port'         => {type => 'couple_equals', key1 => 'last_switch', key2 => 'last_port'},
     'uri'                 => {type => 'equals',        key  => 'last_uri'},
     'vlan'                => {type => 'equals',        key  => 'last_vlan'},
@@ -59,6 +59,18 @@ sub instantiate {
             my $cond2 = pf::condition::key->new(key => $data->{key2}, condition => pf::condition::equals->new(value => $value2));
             my $cond_and = pf::condition::all->new(conditions => [$cond1, $cond2]);
             return $cond_and;
+        }
+        elsif($type eq 'exists_in'){
+            my @values = split(/ *; */, $data->{value});
+            my $condition;
+            if (@values == 1) {
+                $condition = pf::condition::equals->new({value => $data->{value}});
+            }
+            else {
+                my %lookup = map { $_ => 1 } @values;
+                $condition = pf::condition::exists_in->new({lookup => \%lookup});
+            }
+            return pf::condition::key->new(key => $data->{key}, condition => $condition);
         }
         else{
             my $subclass = $class->getModuleName($type);

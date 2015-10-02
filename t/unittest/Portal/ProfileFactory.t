@@ -15,7 +15,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 BEGIN {
     #include test libs
@@ -84,6 +84,14 @@ is($profile->getName, "any");
 $profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_ssid => 'ANY'});
 
 is($profile->getName, "any");
+
+$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.4'});
+
+is($profile->getName, "switches");
+
+$profile = pf::Portal::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => '192.168.1.5'});
+
+is($profile->getName, "switches");
 
 =head1 AUTHOR
 
