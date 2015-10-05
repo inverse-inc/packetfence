@@ -27,6 +27,7 @@ use pf::config::util;
 use pf::log;
 use pf::person;
 use pf::password;
+use pf::node;
 
 extends 'pf::Authentication::Source::BillingSource';
 our $logger = get_logger;
@@ -274,22 +275,15 @@ sub handle_customer_subscription_deleted {
     my $customer_id = $object->{data}{object}{customer};
     my ($status, $customer) = $self->get_customer($customer_id);
     my $email = $customer->{email};
-    pf::password::modify_attributes($email, category => 'default');
-    $self->change_node_category_for_person($email, 'default');
+    my $client_mac = $customer->{metadata}{mac_address};
+    node_deregister($client_mac);
+    get_logger->info("Handling subscription deletion for customer $customer->{id}");
     $self->send_mail_for_event(
         $object,
         email   => $customer->{email},
         subject => "Your Subscription has been canceled"
     );
     return 200;
-}
-
-sub change_node_category_for_person {
-    my ($self, $email, $category) = @_;
-    foreach my $node (person_nodes($email)  ) {
-        $node->{category} = $category;
-        node_modify($node->{mac}, %{$node});
-    }
 }
 
 sub send_mail_for_event {
