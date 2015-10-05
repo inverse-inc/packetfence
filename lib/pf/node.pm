@@ -372,6 +372,14 @@ sub node_db_prepare {
         WHERE mac = ?
     ]);
 
+    $node_statements->{'node_mac_by_role_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac FROM node WHERE category_id = ? ORDER BY mac LIMIT ?,?
+    ]);
+
+    $node_statements->{'node_mac_list_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac FROM node ORDER BY mac LIMIT ?,?
+    ]);
+
     $node_db_prepared = 1;
     return 1;
 }
@@ -1252,6 +1260,27 @@ sub node_last_reg {
     return ($val);
 }
 
+=item node_mac_by_role
+
+=cut
+
+sub node_mac_by_role {
+    my ($page_per_num, $page, $role_id) = @_;
+    my $offset = $page * $page_per_num;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_by_role_sql', $role_id, $offset, $page_per_num) || return;
+    return $query->fetchall_arrayref({});
+}
+
+=item node_mac_list
+
+=cut
+
+sub node_mac_list {
+    my ($page_per_num, $page) = @_;
+    my $offset = $page * $page_per_num;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_list_sql', $offset, $page_per_num) || return;
+    return $query->fetchall_arrayref({});
+}
 
 =back
 
@@ -1289,4 +1318,3 @@ USA.
 =cut
 
 1;
-
