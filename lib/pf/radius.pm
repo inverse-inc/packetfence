@@ -156,15 +156,15 @@ sub authorize {
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
+    my $vlan_obj = new pf::vlan::custom();
+
     # Vlan Filter
-    my $filter = new pf::vlan::filter;
     my $node_info = node_attributes($mac);
-    my ($result,$role) = $filter->test('IsPhone',$switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $vlan_obj->filterVlan('IsPhone',$switch, $port, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || ($result != 0);
 
-    my $vlan_obj = new pf::vlan::custom();
     my $autoreg = 0;
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,

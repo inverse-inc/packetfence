@@ -49,67 +49,11 @@ Test all the rules
 =cut
 
 sub test {
-    my ($self, $scope, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    my $args = {
-        node_info       => $node_info,
-        switch          => $switch,
-        ifIndex         => $ifIndex,
-        mac             => $mac,
-        connection_type => $connection_type,
-        username        => $user_name,
-        ssid            => $ssid,
-        owner           => person_view($node_info->{'pid'}),
-        radius_request  => $radius_request,
-    };
+    my ($self, $scope, $args) = @_;
     if (exists $VlanFilterEngineScopes{$scope}) {
-        my $rule = $VlanFilterEngineScopes{$scope}->match_first($args);
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-        }
-        if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
-            my $role = $rule->{'role'};
-            $role =~ s/(\$.*)/$1/gee;
-            my $vlan = $switch->getVlanByName($role);
-            return (1, $role) if ($scope eq 'AutoRegister');
-            return ($vlan, $role);
-        }
-        return (0, 0);
+       return $VlanFilterEngineScopes{$scope}->match_first($args);
     }
-
-}
-
-=item dispatchAction
-
-Return the reference to the function that call the api.
-
-=cut
-
-sub dispatchAction {
-    my ($self, $rule, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-
-    my $param = $self->evalParam($rule->{'action_param'},$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
-    my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'},%{$param});
-}
-
-=item evalParam
-
-evaluate action parameters
-
-=cut
-
-sub evalParam {
-    my ($self, $action_param, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    $action_param =~ s/\s//g;
-    my @params = split(',', $action_param);
-    my $return = {};
-
-    foreach my $param (@params) {
-        $param =~ s/(\$.*)/$1/gee;
-        my @param_unit = split('=',$param);
-        $return = { %$return, @param_unit };
-    }
-    return $return;
+    return undef;
 }
 
 =back

@@ -15,7 +15,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::MockModule;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
@@ -113,11 +113,10 @@ my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => ''
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
 
-my $filter = new pf::vlan::filter;
-my ($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
+my ($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
 is($role, 'registration', "obtain registration role for the device");
 
-($result,$role) = $filter->test('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'TEST');
+($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'TEST');
 is($role, 'registration2', "obtain registration role for the device");
 
 #($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
@@ -160,6 +159,10 @@ is(
     0,
     "do we act on uplink?"
 );
+
+my $results = $vlan_obj->evalParam("key1 = val1, key2 = \$var2 ", {var2 => 'val2'}, "test eval of parameters");
+
+is_deeply({key1 => 'val1', 'key2' => 'val2'}, $results);
 
 =head1 AUTHOR
 
