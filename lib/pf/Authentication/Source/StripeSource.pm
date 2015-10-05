@@ -276,12 +276,13 @@ sub handle_customer_subscription_deleted {
     my ($status, $customer) = $self->get_customer($customer_id);
     my $email = $customer->{email};
     my $client_mac = $customer->{metadata}{mac_address};
-    node_deregister($client_mac);
     get_logger->info("Handling subscription deletion for customer $customer->{id}");
+    node_deregister($client_mac);
     $self->send_mail_for_event(
         $object,
         email   => $customer->{email},
-        subject => "Your Subscription has been canceled"
+        subject => "Your Subscription has been canceled",
+        mac => $client_mac,
     );
     return 200;
 }
