@@ -233,11 +233,7 @@ sub checkIfNeedsToRegister : Private {
     $c->stash(unreg => $unreg,);
     if ($unreg && isenabled($Config{'trapping'}{'registration'})) {
 
-        # Redirect to the billing engine if enabled
-        if (isenabled($portalSession->profile->getBillingEngine)) {
-            $logger->info("[$mac] redirected to billing page on ".$profile->name." portal");
-            $c->detach('Pay' => 'index');
-        } elsif ( $profile->nbregpages > 0 ) {
+        if ( $profile->nbregpages > 0 ) {
             $logger->info(
                 "[$mac] redirected to multi-page registration process on ".$profile->name." portal");
             $c->detach('Authenticate', 'next_page');

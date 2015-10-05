@@ -55,26 +55,16 @@ document.observe("dom:loaded", function() {
 
 <form id="billing_form" name="billing" method="post" action="/billing/confirm">
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
-  [% IF profile.tiers.size %]
+  [% IF profile.billing_tiers.size %]
   [%# TIERS CHOICE %]
   <div class="input">
     <span>[% i18n("Internet Access Package") %]</span>
-    [% FOREACH tier IN profile.tiers %]
+    [% FOREACH tier IN profile.billing_tiers %]
     <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
               value="[% i18n(tier.id) | html %]"/>
     <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>
     <em>[% i18n(tier.description) | html %]</em><br/>
     [% END %]
-  </div>
-  [% END %]
-  [% UNLESS c.session.username %]
-  <div class="input">
-      <span>[% i18n("Firstname") %]</span>
-      <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
-      <span>[% i18n("Lastname") %]</span>
-      <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
-      <span>[% i18n("Email") %]</span>
-      <input class="field" name="email" type="text" value="[% email | html %]" />
   </div>
   [% END %]
 

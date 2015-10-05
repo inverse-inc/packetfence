@@ -39,7 +39,7 @@ Catalyst Controller.
 
 sub begin : Private {
     my ($self, $c) = @_;
-    unless( $c->profile->isBillingEnabled() ) {
+    unless( $c->profile->getBillingSources() ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
     }
@@ -56,12 +56,7 @@ sub source : Chained('/') : PathPart('billing') : CaptureArgs(1) {
     my ($self, $c, $source_id) = @_;
     my $profile = $c->profile;
     my $billing;
-    if($c->session->{chained_source}) {
-        $billing = first {$_->id eq $source_id} $profile->getChainedBillingSources;
-    }
-    else {
-        $billing = first {$_->id eq $source_id} $profile->getBillingSources;
-    }
+    $billing = first {$_->id eq $source_id} $profile->getBillingSources;
     unless ($billing) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL) . "&txt_validation_error=Your session has expired cannot access billing try again");
         $c->detach;
@@ -96,6 +91,7 @@ sub verify : Chained('source') : Args(0) {
 
 sub confirm : Local : Args(0) {
     my ($self, $c) = @_;
+    $c->log->debug("Entering billing confirmation");
     $c->forward('validate');
     my $billing = $c->stash->{billing};
     my $data = eval {
@@ -123,19 +119,9 @@ sub validate : Private {
     } else {
         $self->showError($c, "Invalid billing source for profile");
     }
+
     #Check if the billing source provided is correct
     my $selected_tier = $request->param('tier');
-    my $first_name = $request->param('firstname');
-    my $last_name = $request->param('lastname');
-    my $email;
-    my $person;
-    if($c->session->{username}) {
-        $person = person_view($c->session->{username});
-        $email = $c->session->{username}
-    }
-    else {
-        $email = $request->param('email');
-    }
     unless ($selected_tier) {
         $c->log->error("No Tier selected");
         $c->stash({
@@ -144,7 +130,7 @@ sub validate : Private {
         });
         $c->detach('index');
     }
-    my $tier = $c->profile->findTier($selected_tier);
+    my $tier = $c->profile->getBillingTier($selected_tier);
     unless ($tier) {
         $c->log->error("Selected Tier is invalid");
         $c->stash({
@@ -153,18 +139,9 @@ sub validate : Private {
         });
         $c->detach('index');
     }
-    my $valid_name = ( pf::web::util::is_name_valid($first_name)
-            && pf::web::util::is_name_valid($last_name) );
-    my $valid_email = pf::web::util::is_email_valid($email);
-    my %temp = (
-        "firstname" => $first_name,
-        "lastname"  => $last_name,
-        "email"     => $email,
-        "username"  => $email,
-        "tier"      => $tier,
-    );
-    $c->session(\%temp);
-    $c->stash(\%temp);
+    
+    $c->session(tier => $tier);
+    $c->stash(tier => $tier);
 }
 
 =head2 cancel
@@ -199,9 +176,6 @@ sub cancel : Chained('source') : Args(0) {
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
     my @billing_sources = $c->profile->getBillingSources;
-    unless(@billing_sources) {
-        @billing_sources = $c->profile->getChainedBillingSources;
-    }
     $c->stash(
         billing_sources => \@billing_sources,
         profile => $c->profile,
@@ -223,29 +197,17 @@ sub processTransaction : Private {
     my $pid  = $session->{'username'};
     my $billing = $c->stash->{billing};
 
-    # Adding person (using modify in case person already exists)
-    person_modify(
-        $pid,
-        (   'firstname' => $session->{'firstname'},
-            'lastname'  => $session->{'lastname'},
-            'email'     => lc($session->{'email'}),
-            'notes'     => 'billing engine activation - ' . $tier->{id},
-            'portal'    => $profile->getName,
-            'source'    => $billing->id,
-        )
-    );
-
     # Grab additional infos about the node
     my %info;
     my $access_duration = normalize_time($tier->{'access_duration'});
     $info{'pid'}      = $pid;
-    $info{'category'} = $tier->{'category'};
+    $info{'category'} = $tier->{'role'};
     $info{'unregdate'} =
       POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
-    if ($tier->{'usage_duration'}) {
+    if (isenabled($tier->{'use_time_balance'})) {
         $info{'time_balance'} =
-          normalize_time($tier->{'usage_duration'});
+          normalize_time($tier->{'access_duration'});
 
         # Check if node has some access time left; if so, add it to the new duration
         my $node = node_view($mac);
@@ -279,44 +241,12 @@ sub processTransaction : Private {
     # Register the node
     $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
 
-    my %data = $self->prepareConfirmationInfo($c);
-    # Send confirmation email
-    pf::config::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
-
     # Generate the release page
     # XXX Should be part of the portal profile
 
     $c->forward('CaptivePortal' => 'endPortalSession');
 }
 
-
-=head2 prepareConfirmationInfo
-
-=cut
-
-sub prepareConfirmationInfo {
-    my ( $self, $c) = @_;
-    my $logger = $c->log;
-    my $session = $c->session;
-    my $tier = $session->{tier};
-
-    my %info = ( pf::web::constants::to_hash() );
-
-    $info{'firstname'} = $session->{firstname};
-    $info{'lastname'} = $session->{lastname};
-    $info{'email'} = $session->{email};
-    $info{'tier_name'} = $tier->{'name'};
-    $info{'tier_description'} = $tier->{'description'};
-    $info{'tier_price'} = $tier->{'price'};
-    $info{'hostname'} = $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'};
-    $info{'domain'} = $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'};
-    $info{'subject'} = i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'});
-
-    #Hove to decide about the transacion id
-#    $info{'transaction_id'} = $transaction_infos_ref->{'id'};
-
-    return %info;
-}
 
 
 =head1 AUTHOR
