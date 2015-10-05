@@ -74,6 +74,7 @@ sub verify : Chained('source') : Args(0) {
     my $billing = $c->stash->{billing};
     my $data;
     eval {
+        $c->session(billed_mac => $c->portalSession->clientMac);
         $data = $billing->verify($c->session, $request->parameters, $request->path);
     };
     if ($@) {
