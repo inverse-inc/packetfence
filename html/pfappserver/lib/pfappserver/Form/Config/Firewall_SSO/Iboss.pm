@@ -35,7 +35,7 @@ has_field 'password' =>
    required => 1,
    default => 'XS832CF2A',
    password => 0,
-   messages => { required => 'Change the default key is you have it' },
+   messages => { required => 'Change the default key if you have it' },
   );
 has_field 'port' =>
   (

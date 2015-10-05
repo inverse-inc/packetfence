@@ -15,7 +15,7 @@ Assumptions
 -----------
 
 * You have at least one server with PacketFence 5.4 or later.
-* The server already has a properly configured switch with 802.1X support.
+* The server already has a properly configured switch or access point with 802.1X support.
 * The PacketFence RADIUS server is working in your environment.
 * You have a Microsoft Windows 2008 R2 Entreprise server installed.
 * The PacketFence management IP will be 192.168.1.5.
@@ -28,7 +28,7 @@ Installation
 Step 1: Install Active Directory Certificate Service (ADCS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Entreprise. The installation of ADCS is not covered by this guide, refer to the Microsoft white paper about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
+NOTE: This section will cover the configuration for Active Directory Certificate Services (ADCS) on Microsoft Windows 2008 R2 Entreprise. The installation of ADCS is not covered by this guide, refer to the Microsoft documentation about it for more information (http://social.technet.microsoft.com/wiki/contents/articles/9063.network-device-enrollment-service-ndes-in-active-directory-certificate-services-ad-cs.aspx).
 
 For the integration with PacketFence, the following subroles need to be installed in ADCS:
 
@@ -172,7 +172,7 @@ Now download the CA file by reaching the following URL in your browser: `http://
 
 Click `Download a CA certificate, certificate chain or CRL`, select your CA certificate in the list, select `Base 64` as the encoding method and finaly click `Download CA certificate`.
 
-Copy those files from the location you downloaded them to PacketFence.
+Copy those files to PacketFence.
 
 Step 2: Configuring PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -216,10 +216,10 @@ Certificate revocation checks have to be configured in the `OCSP` sub-block of `
 
 For example: 
 
-    OCSP {
+    ocsp {
         enable = yes
         override_cert_url = yes
-        url = "http://<MSPKI ServerDNSName or IP>/OCSP"
+        url = "http://<MSPKI ServerDNSName or IP>/ocsp"
     }
 
 Restart radiusd to regenerate the new configuration files and enable EAP-TLS using your CA signed certificates:
@@ -229,7 +229,7 @@ Restart radiusd to regenerate the new configuration files and enable EAP-TLS usi
 PacketFence PKI provider configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration->Users`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
+Using the PKI requires configuring the PKI providers section in the PacketFence GUI under `Configuration->Users->PKI Providers`. The provider configuration defines how PacketFence connects to the MSPKI and what information will be sent.
 
 Add a new PKI provider and select SCEP.
 
@@ -238,6 +238,8 @@ Fill out the form for a PKI provider according to your Certificate of Authority 
 image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 For the URL it will be `http://<ServerDNSName>/CertSrv/mscep`.
+
+You do not need any Username/Password combination for this configuration.
 
 image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
 
