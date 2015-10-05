@@ -79,7 +79,7 @@ has_field payment_type =>
   );
 
 has_block definition => (
-    render_list => [qw(identity_token cert_id domains email_address cert_file key_file paypal_cert_file currency test_mode)]
+    render_list => [qw(identity_token cert_id payment_type domains email_address cert_file key_file paypal_cert_file currency test_mode)]
 );
 
 =head1 AUTHOR
