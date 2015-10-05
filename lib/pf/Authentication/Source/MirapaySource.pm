@@ -20,6 +20,7 @@ use pf::log;
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
 use pf::util;
+use List::Util qw(pairmap);
 
 extends 'pf::Authentication::Source::BillingSource';
 
