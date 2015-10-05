@@ -118,6 +118,14 @@ sub handler {
         return Apache2::Const::OK;
     }
 
+    # Billing hooks
+    if ($r->uri =~ m#/hook/billing#) {
+        $logger->trace("Found the hook");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::billinghook'] );
+        return Apache2::Const::DECLINED;
+    }
+
     # Captive-portal resources
     # We don't want to continue in the dispatcher if the requested URI is supposed to reach the captive-portal (Catalyst)
     # - Captive-portal itself
