@@ -26,6 +26,7 @@ use pf::log;
 use pf::node;
 use pf::factory::provisioner;
 use pf::ConfigStore::Scan;
+use pf::config;
 
 =head1 METHODS
 
@@ -133,6 +134,37 @@ sub getBillingEngine {
 }
 
 *billing_engine = \&getBillingEngine;
+
+sub getBillingTiers {
+    my ($self) = @_;
+    my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
+    my @tiers;
+    while(my ($tier_id, $tier) = each %ConfigBillingTiers){
+        if(any { $_ eq $tier_id } @tier_ids){
+            $tier->{id} = $tier_id;
+            push @tiers, $tier;
+        }
+    }
+    return \@tiers;
+}
+
+*billing_tiers = \&getBillingTiers;
+
+sub getBillingTier {
+    my ($self, $id) = @_;
+    return $ConfigBillingTiers{$id};
+}
+
+=item getBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getBillingSources {
+    my ($self) = @_;
+    return $self->getSourcesByClass( 'billing' );
+}
 
 =item getDescripton
 
