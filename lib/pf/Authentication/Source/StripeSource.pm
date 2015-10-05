@@ -239,11 +239,12 @@ sub subscribe_customer {
         source => $token,
         email => $session->{email},
         description => $tier->{description},
+        'metadata[mac_address]' => $session->{billed_mac},
     };
     my ($code, $data) = $self->_send_form($self->curl, "v1/customers", $object);
 }
 
-sub hook {
+sub handle_hook {
     my ($self, $headers, $content) = @_;
     my $object = decode_json $content;
     my $type   = $object->{type};
