@@ -227,8 +227,7 @@ sub getViolationVlan {
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
-    my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $this->filterVlan('ViolationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if ($result) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($result,$role);
@@ -314,7 +313,6 @@ sub getRegistrationVlan {
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
-    my $filter = new pf::vlan::filter;
 
     # trapping on registration is enabled
 
@@ -325,7 +323,7 @@ sub getRegistrationVlan {
 
     if (!defined($node_info)) {
         # Vlan Filter
-        my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, undef, $connection_type, $user_name, $ssid, $radius_request);
+        my ($result,$role) = $this->filterVlan('RegistrationVlan',$switch, $ifIndex, $mac, undef, $connection_type, $user_name, $ssid, $radius_request);
         if ($result) {
             $logger->info("[$mac] doesn't have a node entry; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
@@ -340,7 +338,7 @@ sub getRegistrationVlan {
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         # Vlan Filter
-        my ($result,$role) = $filter->test('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+        my ($result,$role) = $this->filterVlan('RegistrationVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
         if ($result) {
             $logger->info("[$mac] is of status $n_status; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
@@ -427,7 +425,7 @@ sub getNormalVlan {
 
     # Vlan Filter
     my $filter = new pf::vlan::filter;
-    ($result,$role) = $filter->test('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    ($result,$role) = $this->filterVlan('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ($result,$role);
@@ -535,7 +533,7 @@ sub getInlineVlan {
     my $start = Time::HiRes::gettimeofday();
 
     my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $this->filterVlan('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return $result;
@@ -582,7 +580,19 @@ sub getNodeInfoForAutoReg {
     my $filter = new pf::vlan::filter;
     my $node_info = node_attributes($mac);
 
-    my ($result,$role) = $filter->test('NodeInfoForAutoReg',$switch, $switch_port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
+    my $args = {
+        node_info       => $node_info,
+        switch          => $switch,
+        ifIndex         => $switch_port,
+        mac             => $mac,
+        connection_type => $conn_type,
+        username       => $user_name,
+        ssid            => $ssid,
+        owner           => person_view($node_info->{'pid'}),
+        radius_request  => $radius_request
+    };
+    my $rule = $this->filterVlan('NodeInfoForAutoReg', $args);
+    my ($result,$role) = $filter->handleRoleInRule($rule , $args);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -690,8 +700,7 @@ sub shouldAutoRegister {
         return $isPhone;
     }
     my $node_info = node_attributes($mac);
-    my $filter = new pf::vlan::filter;
-    my ($result,$role) = $filter->test('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
+    my ($result,$role) = $this->filterVlan('AutoRegister',$switch, $port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
     if ($result) {
         if ($switch->getVlanByName($role) eq -1) {
             return 0;
@@ -767,6 +776,89 @@ sub _check_bypass {
     else {
         return undef;
     }
+}
+
+
+=head2 filterVlan
+
+Filter the vlan based off vlan filters
+
+=cut
+
+sub filterVlan {
+    my ($self, $scope, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my $filter = new pf::vlan::filter;
+    my $args = {
+        node_info       => $node_info,
+        switch          => $switch,
+        ifIndex         => $ifIndex,
+        mac             => $mac,
+        connection_type => $connection_type,
+        username       => $user_name,
+        ssid            => $ssid,
+        owner           => person_view($node_info->{'pid'}),
+        radius_request  => $radius_request
+    };
+    my $rule = $filter->test($scope, $args);
+    return $self->handleRoleInRule($rule, $args);
+}
+
+=head2 handleRoleInRule
+
+Handles the role update
+
+=cut
+
+sub handleRoleInRule {
+    my ($self, $rule, $args) = @_;
+    if(defined $rule) {
+        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
+            $self->dispatchAction($rule, $args);
+        }
+        my $scope = $rule->{scope};
+        if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
+            my $role = $rule->{'role'};
+            $role =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
+            my $vlan = $args->{switch}->getVlanByName($role);
+            return (1, $role) if ($scope eq 'AutoRegister');
+            return ($vlan, $role);
+        }
+    }
+    return (0, 0);
+}
+
+=head2 dispatchAction
+
+Return the reference to the function that call the api.
+
+=cut
+
+sub dispatchAction {
+    my ($self, $rule, $args);
+
+    my $param = $self->evalParam($rule->{'action_param'}, $args);
+    my $apiclient = pf::api::jsonrpcclient->new;
+    $apiclient->notify($rule->{'action'}, %{$param});
+}
+
+=head2 evalParam
+
+evaluate action parameters
+
+=cut
+
+sub evalParam {
+    my ($self, $action_param, $args) = @_;
+    $action_param =~ s/\s//g;
+    my @params = split(',', $action_param);
+    my $return = {};
+
+    foreach my $param (@params) {
+        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
+        my @param_unit = split('=', $param);
+        $return = {%$return, @param_unit};
+    }
+    return $return;
 }
 
 
