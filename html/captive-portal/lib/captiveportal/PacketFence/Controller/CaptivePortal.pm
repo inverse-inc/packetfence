@@ -244,6 +244,10 @@ sub checkIfNeedsToRegister : Private {
             # Redirect to the guests self registration page if configured to do so
             $logger->info("[$mac] redirected to guests self registration page on ".$profile->name." portal");
             $c->detach('Signup' => 'index');
+        } elsif ($portalSession->profile->billingRegistrationOnly) {
+            # Redirect to the billing self registration page if configured to do so
+            $logger->info("[$mac] redirected to billing self registration page on ".$profile->name." portal");
+            $c->detach('Billing' => 'index');
         } else {
             $logger->info("[$mac] redirected to authentication page on ".$profile->name." portal");
             $c->detach('Authenticate', 'index');

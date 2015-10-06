@@ -367,6 +367,14 @@ sub guestRegistrationOnly {
     return $result;
 }
 
+sub billingRegistrationOnly {
+    my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if(@sources == 0);
+
+    return all { $_->class eq 'billing' } @sources;
+}
+
 =item guestModeAllowed
 
 Verify if the guest mode is allowed for the profile
