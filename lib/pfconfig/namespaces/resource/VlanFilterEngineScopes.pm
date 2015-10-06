@@ -32,13 +32,16 @@ sub build {
     $self->{prebuilt_conditions} = {};
     my (%VlanFilterEngineScopes, @filter_data, %filters_scopes);
     foreach my $rule (@{$config_profiles->{ordered_sections}}) {
+        my $logger = get_logger();
         my $data = $VlanFiltersConfig{$rule};
         if ($rule =~ /^\w+:(.*)$/) {
+            $logger->info("Building rule '$rule'");
             my ($parsed_conditions, $msg) = parse_condition_string($1);
             next unless defined $parsed_conditions;
             push @filter_data, [$parsed_conditions, $data];
         }
         else {
+            $logger->info("Building condition '$rule'");
             $self->{prebuilt_conditions}{$rule} = pf::factory::condition::vlanfilter->instantiate($data);
         }
     }
