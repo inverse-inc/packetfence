@@ -40,6 +40,10 @@ sub build_child {
 
     my %cfg = %{ $self->{cfg} };
 
+    foreach my $key (keys %cfg){
+        $cfg{$key}{id} = $key;
+    }
+
     return \%cfg;
 }
 
