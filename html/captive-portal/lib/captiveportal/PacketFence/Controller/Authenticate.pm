@@ -591,6 +591,7 @@ sub showLogin : Private {
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
+        billing         => (scalar($c->profile->getBillingSources()) > 0),
         guest_allowed   => $guest_allowed,
     );
 
