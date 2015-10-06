@@ -42,6 +42,8 @@ has 'api_login_id' => (is => 'rw', required => 1);
 
 has 'transaction_key' => (is => 'rw', required => 1);
 
+has 'domains' => (is => 'rw', required => 1, default => '*.authorize.net');
+
 =head2 prepare_payment
 
 Prepare the payment from authorize.net

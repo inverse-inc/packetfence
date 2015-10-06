@@ -58,6 +58,8 @@ has 'live_publishable_key' => (is => 'rw', required => 1);
 
 has 'style' => (is => 'rw', default => 'charge');
 
+has 'domains' => (is => 'rw', default => '*.stripe.com');
+
 =head2 url
 
   The url to the rpc message to
