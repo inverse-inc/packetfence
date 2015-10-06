@@ -209,7 +209,7 @@ sub processTransaction : Private {
 
     # Transactions informations
     my $tier = $session->{'tier'};
-    my $pid  = $session->{'username'} || $default_pid;
+    my $pid  = $session->{'email'} || $default_pid;
     my $billing = $c->stash->{billing};
 
     # Grab additional infos about the node
