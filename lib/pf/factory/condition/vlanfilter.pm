@@ -21,10 +21,12 @@ our @MODULES;
 sub factory_for {'pf::condition'}
 
 our %VLAN_FILTER_TYPE_TO_CONDITION_TYPE = (
-    'is'        => 'pf::condition::equals',
-    'is_not'    => 'pf::condition::not_equals',
-    'match'     => 'pf::condition::matches',
-    'match_not' => 'pf::condition::not_matches',
+    'is'          => 'pf::condition::equals',
+    'is_not'      => 'pf::condition::not_equals',
+    'match'       => 'pf::condition::matches',
+    'match_not'   => 'pf::condition::not_matches',
+    'defined'     => 'pf::condition::is_defined',
+    'not_defined' => 'pf::condition::not_defined',
 );
 
 our %VLAN_FILTER_KEY_TYPES = (
