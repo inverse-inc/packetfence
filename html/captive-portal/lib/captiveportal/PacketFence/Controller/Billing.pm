@@ -10,7 +10,6 @@ use pf::config;
 use pf::iplog;
 use pf::node;
 use pf::trigger;
-use pf::person qw(person_modify);
 use pf::Portal::Session;
 use pf::util;
 use pf::config::util;
