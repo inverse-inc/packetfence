@@ -91,11 +91,18 @@ document.observe("dom:loaded", function() {
   [% END %]
 
   [% IF billing_sources.size %]
-  <div class="input">
+    [% add_separator = 0 %]
     [% FOREACH billing IN billing_sources %]
-    <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn">
+    <div class="input">
+      [% IF add_separator %]
+        <div class="separator"><div class="or_separator">or</div></div>
+      [% ELSE %]
+        [% add_separator = 1 %]
+      [% END %]
+      
+      <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn">
+    </div>
     [% END %]
-  </div>
   [% END %]
 
 </form>
