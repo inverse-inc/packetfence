@@ -123,7 +123,7 @@ table.sources {
               [%- IF can_access("WRIX_READ") %]
               [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
-              [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ") %]
+              [%- IF can_access_any("USERS_ROLES_READ","USERS_SOURCES_READ", "PROVISIONING_READ", "PKI_PROVIDER_READ", "BILLING_TIER_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
               [%- IF can_access("USERS_ROLES_READ") %]
               [% pf_section_entry( 'roles', 'Roles') | none %]
@@ -133,6 +133,9 @@ table.sources {
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry('Config::Authentication', 'index', 'Sources') | none %]
+              [%- END %]
+              [%- IF can_access("BILLING_TIER_READ") %]
+              [% list_entry('Config::BillingTiers', 'index', 'Billing tiers') | none %]
               [%- END %]
               [%- IF can_access("PROVISIONING_READ") %]
               [% list_entry('Config::Provisioning', 'index', 'Provisioners') | none %]
