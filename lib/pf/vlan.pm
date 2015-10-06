@@ -424,7 +424,6 @@ sub getNormalVlan {
     $logger->debug("[$mac] Trying to determine VLAN from role.");
 
     # Vlan Filter
-    my $filter = new pf::vlan::filter;
     ($result,$role) = $this->filterVlan('NormalVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
@@ -532,7 +531,6 @@ sub getInlineVlan {
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
 
-    my $filter = new pf::vlan::filter;
     my ($result,$role) = $this->filterVlan('InlineVlan',$switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
     if ( $result ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
@@ -577,22 +575,9 @@ sub getNodeInfoForAutoReg {
     $options->{'realm'}                = $realm if (defined($realm));
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac,$options);
-    my $filter = new pf::vlan::filter;
     my $node_info = node_attributes($mac);
 
-    my $args = {
-        node_info       => $node_info,
-        switch          => $switch,
-        ifIndex         => $switch_port,
-        mac             => $mac,
-        connection_type => $conn_type,
-        username       => $user_name,
-        ssid            => $ssid,
-        owner           => person_view($node_info->{'pid'}),
-        radius_request  => $radius_request
-    };
-    my $rule = $this->filterVlan('NodeInfoForAutoReg', $args);
-    my ($result,$role) = $filter->handleRoleInRule($rule , $args);
+    my ($result, $role) = $this->filterVlan('NodeInfoForAutoReg', $switch, $switch_port, $mac, $node_info, $conn_type, $user_name, $ssid, $radius_request);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -787,7 +772,7 @@ Filter the vlan based off vlan filters
 
 sub filterVlan {
     my ($self, $scope, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    my $filter = new pf::vlan::filter;
+    my $filter = pf::vlan::filter->new;
     my $args = {
         node_info       => $node_info,
         switch          => $switch,
