@@ -15,8 +15,10 @@ pfappserver::Form::Authentication::Source::Stripe
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+use pf::Authentication::Source::StripeSource;
 use pf::log;
+extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+with 'pfappserver::Base::Form::Role::Help';
 
 has 'roles' => (
     is => 'rw',
@@ -49,6 +51,18 @@ has_field 'style' => (
 has_block definition => (
     render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style currency test_mode)]
 );
+
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::StripeSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::StripeSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
 
 sub options_failed_payment_role {
     my $self = shift;

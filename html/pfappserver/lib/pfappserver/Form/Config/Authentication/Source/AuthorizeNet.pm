@@ -15,7 +15,9 @@ pfappserver::Form::Config:::Authentication::Source::AuthorizeNet
 use strict;
 use warnings;
 use HTML::FormHandler::Moose;
+use pf::Authentication::Source::AuthorizeNetSource;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field api_login_id => (
     type => 'Text',
@@ -27,8 +29,20 @@ has_field transaction_key => (
     required => 1,
 );
 
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::AuthorizeNetSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::AuthorizeNetSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
+
 has_block definition => (
-    render_list => [qw(api_login_id transaction_key currency test_mode)]
+    render_list => [qw(api_login_id transaction_key domains currency test_mode)]
 );
 
 =head1 AUTHOR
