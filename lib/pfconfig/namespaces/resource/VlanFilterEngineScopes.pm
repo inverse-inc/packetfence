@@ -14,6 +14,7 @@ pfconfig::namespaces::resource::VlanFilterEngineScopes
 
 use strict;
 use warnings;
+use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::VlanFilters;
 use pf::factory::condition::vlanfilter;
@@ -22,6 +23,7 @@ use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
 
 use base 'pfconfig::namespaces::resource';
+
 
 sub build {
     my ($self)            = @_;
@@ -64,6 +66,9 @@ sub build_filter_condition {
         local $_;
         my ($type, @parsed_conditions) = @$parsed_condition;
         my $conditions = [map {$self->build_filter_condition($_)} @parsed_conditions];
+        if($type eq 'NOT' ) {
+            return pf::condition::not->new({condition => $conditions->[0]});
+        }
         my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
         return $module->new({conditions => $conditions});
     }
