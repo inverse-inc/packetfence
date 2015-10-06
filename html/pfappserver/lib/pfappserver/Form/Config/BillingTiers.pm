@@ -73,6 +73,16 @@ has_field 'access_duration' => (
              help => 'The access duration of the devices that use this tier.' },
 );
 
+has_field 'use_time_balance' => (
+    type             => 'Checkbox',
+    label            => 'Use time balance',
+    checkbox_value   => 'enabled',
+    tags             => { 
+        after_element   => \&help,
+        help            => 'Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.',
+    },
+);
+
 =head2 options_roles
 
 =cut

@@ -15,6 +15,7 @@
         [% form.field('price').render | none %]
         [% form.field('role').render | none %]
         [% form.field('access_duration').render | none %]
+        [% form.field('use_time_balance').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
