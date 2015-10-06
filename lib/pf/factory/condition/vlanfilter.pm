@@ -15,6 +15,7 @@ pf::factory::condition::vlanfilter
 use strict;
 use warnings;
 use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules', require => 1;
+use pf::config::util qw(str_to_connection_type);
 
 our @MODULES;
 
@@ -76,7 +77,8 @@ sub instantiate {
 sub _build_sub_condition {
     my ($data) = @_;
     my $condition_class = $VLAN_FILTER_TYPE_TO_CONDITION_TYPE{$data->{operator}};
-    return $condition_class ? $condition_class->new({value => $data->{value}}) : undef;
+    my $value = $data->{filter} eq 'connection_type' ? str_to_connection_type($data->{value}) : $data->{value};
+    return $condition_class ? $condition_class->new({value => $value}) : undef;
 }
 
 =head1 AUTHOR
