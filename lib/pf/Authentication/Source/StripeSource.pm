@@ -309,6 +309,16 @@ sub can_send_mail_for_event {
     return 1;
 }
 
+=head2 mandatoryFields
+
+List of mandatory fields for this source
+
+=cut
+
+sub mandatoryFields {
+    return qw(email);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
