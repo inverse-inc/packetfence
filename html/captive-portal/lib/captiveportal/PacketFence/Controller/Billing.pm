@@ -61,6 +61,7 @@ sub source : Chained('/') : PathPart('billing') : CaptureArgs(1) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL) . "&txt_validation_error=Your session has expired cannot access billing try again");
         $c->detach;
     }
+    $c->session->{source_id} = $billing->id;
     $c->stash->{billing} = $billing;
 }
 
@@ -114,6 +115,7 @@ sub confirm : Local : Args(0) {
 sub validate : Private {
     my ($self, $c) = @_;
     my $request = $c->request;
+
     my $source_param = first { /^billing_source_/ } $request->param_names;
     if($source_param =~ /^billing_source_(.*)/) {
         $self->source($c, $1);
@@ -141,6 +143,15 @@ sub validate : Private {
         $c->detach('index');
     }
     
+    $c->forward(Authenticate => "validateMandatoryFields", [detach => 0]);
+    if($c->stash->{'txt_validation_error'}){
+        $c->log->error("Invalid mandatory fields");
+        $c->stash({
+            template => 'billing/index.html',
+        });
+        $c->detach('index');
+    }
+
     $c->session(tier => $tier);
     $c->stash(tier => $tier);
 }
@@ -177,6 +188,10 @@ sub cancel : Chained('source') : Args(0) {
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
     my @billing_sources = $c->profile->getBillingSources;
+
+    my @mandatory_fields = $c->profile->getFieldsForSources(@billing_sources);
+    $c->stash( mandatory_fields => \@mandatory_fields );
+
     $c->stash(
         billing_sources => \@billing_sources,
         profile => $c->profile,
