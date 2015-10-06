@@ -55,6 +55,28 @@ document.observe("dom:loaded", function() {
 
 <form id="billing_form" name="billing" method="post" action="/billing/confirm">
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+  [%# AUP %]
+  <div class="input">
+    <div>[% i18n("Acceptable Use Policy") %]</div>
+    <div id="aup">
+      <div class="notmobile">
+        [% INCLUDE aup_text.html %]
+      </div>
+      <div class="mobile">
+        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+      </div>
+    </div>
+    <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
+  </div>
+
+  [% FOREACH field IN mandatory_fields %]
+    <div class="input">
+      <span>[% i18n("$field") %]</span>
+      <input class="field" name="[% field %]" type="text" value="[% c.stash.$field | html %]" /><br/>
+    </div>
+  [% END %]
+
   [% IF profile.billing_tiers.size %]
   [%# TIERS CHOICE %]
   <div class="input">
