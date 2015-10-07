@@ -42,7 +42,7 @@ has_field 'live_publishable_key' => (
 has_field 'style' => (
     type    => 'Select',
     default => 'charge',
-    options => [{label => 'Charge', value => 'charge'}, {label => 'Subscription', value => 'subscription'}]
+    options => [{label => 'Charge', value => 'charge'}, {label => 'Subscription', value => 'subscription'}],
     tags => { after_element => \&help,
               help => 'The type of payment the user will make. Charge is a one time fee, subscription will be arecurring fee.' },
 );
