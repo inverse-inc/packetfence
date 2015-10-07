@@ -21,8 +21,12 @@ use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
 use pf::util;
 use List::Util qw(pairmap);
+use Readonly;
 
 extends 'pf::Authentication::Source::BillingSource';
+
+Readonly::Scalar our $MIRAPAY_ACTION_CODE_APPROVED => 'A';
+Readonly::Scalar our $MIRAPAY_ACTION_CODE_DECLINED => 'D';
 
 =head2 Attributes
 
@@ -56,7 +60,7 @@ Prepare the payment from mirapay
 =cut
 
 sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
+    my ($self, $session, $tier, $params, $uri) = @_;
     my $hash = {
         mirapay_url => $self->mirapay_url,
     };
@@ -70,7 +74,14 @@ Verify the payment from mirapay
 =cut
 
 sub verify {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
+    my $action_code = $parameters->{'ActionCode'};
+    if($MIRAPAY_ACTION_CODE_APPROVED ne $action_code) {
+        die "Transaction declined";
+    }
+    unless ($self->verify_mkey($uri->query)) {
+        die "Invalid transaction provided";
+    }
     return {};
 }
 
@@ -81,7 +92,7 @@ Not implemented
 =cut
 
 sub cancel {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     return {};
 }
 

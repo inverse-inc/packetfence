@@ -52,7 +52,7 @@ Prepare the payment from authorize.net
 =cut
 
 sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
+    my ($self, $session, $tier, $params, $uri) = @_;
     my $hash = {};
     $self->_calculate_fingerpint_hash($hash,$tier);
     return $hash;
@@ -83,7 +83,7 @@ Verify the payment from authorize.net
 =cut
 
 sub verify {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     my $logger = pf::log::get_logger;
     my $md5_validation = md5_hex("supersecret".$self->api_login_id.$parameters->{x_trans_id}.$parameters->{x_amount});
     if(uc($md5_validation) eq $parameters->{x_MD5_Hash}){
@@ -102,7 +102,7 @@ Not implemented
 =cut
 
 sub cancel {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     return {};
 }
 

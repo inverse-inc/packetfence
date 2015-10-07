@@ -77,7 +77,7 @@ sub verify : Chained('source') : Args(0) {
     my $data;
     eval {
         $c->session(billed_mac => $c->portalSession->clientMac);
-        $data = $billing->verify($c->session, $request->parameters, $request->path);
+        $data = $billing->verify($c->session, $request->parameters, $request->uri);
     };
     if ($@) {
         $c->log->error($@);
@@ -112,7 +112,7 @@ sub confirm : Local : Args(0) {
     }
     
     my $data = eval {
-          $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->path)
+          $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->uri)
     };
     if ($@) {
         $c->log->error($@);
@@ -185,7 +185,7 @@ sub cancel : Chained('source') : Args(0) {
     my $billing = $c->stash->{billing};
     my $data;
     eval {
-        $data = $billing->cancel($c->session, $request->parameters, $request->path);
+        $data = $billing->cancel($c->session, $request->parameters, $request->uri);
     };
     if ($@) {
         $c->log->error($@);

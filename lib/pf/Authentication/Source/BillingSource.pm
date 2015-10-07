@@ -114,7 +114,7 @@ Prepare payment to display payments
 =cut
 
 sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
+    my ($self, $session, $tier, $params, $uri) = @_;
     return {};
 }
 
@@ -125,7 +125,7 @@ Verify the payment
 =cut
 
 sub verify {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     return {};
 }
 
@@ -136,7 +136,7 @@ Cancel the payment
 =cut
 
 sub cancel {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     return {};
 }
 

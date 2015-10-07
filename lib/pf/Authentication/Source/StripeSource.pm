@@ -188,7 +188,7 @@ sub _do_request {
 =cut
 
 sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
+    my ($self, $session, $tier, $params, $uri) = @_;
     return {};
 }
 
@@ -219,7 +219,7 @@ sub secret_key {
 }
 
 sub verify {
-    my ($self, $session, $params, $path) = @_;
+    my ($self, $session, $params, $uri) = @_;
     my $token = $params->{stripeToken};
     die "No Token found" unless defined $token;
     my $style = $self->style;

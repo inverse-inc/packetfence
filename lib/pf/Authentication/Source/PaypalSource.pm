@@ -66,7 +66,7 @@ Prepare the payment from paypal
 =cut
 
 sub prepare_payment {
-    my ($self, $session, $tier, $params, $path) = @_;
+    my ($self, $session, $tier, $params, $uri) = @_;
     return {
         encrypted => $self->encrypt_form($session, $tier, $params),
     };
@@ -134,7 +134,7 @@ Verify the payment from paypal
 =cut
 
 sub verify {
-    my ($self, $session, $parameters, $path) = @_;
+    my ($self, $session, $parameters, $uri) = @_;
     my $txn    = $parameters->{tx};
     my $identity_token = $self->identity_token;
     unless (defined $txn ) {
