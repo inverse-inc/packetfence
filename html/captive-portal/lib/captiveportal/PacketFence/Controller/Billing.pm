@@ -47,7 +47,7 @@ sub begin : Private {
 
 =head2 source
 
-The chained billing source
+The billing source to use
 
 =cut
 
@@ -65,6 +65,8 @@ sub source : Chained('/') : PathPart('billing') : CaptureArgs(1) {
 }
 
 =head2 verify
+
+Does the verification process with the billing provider
 
 =cut
 
@@ -88,6 +90,8 @@ sub verify : Chained('source') : Args(0) {
 
 =head2 confirm
 
+Shows a confirm page with a summary of the transaction before the user completes the process with the provider
+
 =cut
 
 sub confirm : Local : Args(0) {
@@ -108,6 +112,8 @@ sub confirm : Local : Args(0) {
 }
 
 =head2 validate
+
+Validate the tier selection and mandatory fields if any
 
 =cut
 
@@ -157,6 +163,8 @@ sub validate : Private {
 
 =head2 cancel
 
+Cancel transaction with billing provider
+
 =cut
 
 sub cancel : Chained('source') : Args(0) {
@@ -182,6 +190,8 @@ sub cancel : Chained('source') : Args(0) {
 
 =head2 index
 
+Index page for the billing to require mandatory fields if any, select a tier and a billing source
+
 =cut
 
 sub index : Path : Args(0) {
@@ -197,6 +207,16 @@ sub index : Path : Args(0) {
         template => 'billing/index.html',
     );
 }
+
+=head2 processTransaction
+
+Manipulations to do after a transaction is completed
+
+Save any informations about the user
+
+Apply the proper access and release the node on the network
+
+=cut
 
 sub processTransaction : Private {
     my ($self, $c) = @_;
@@ -253,12 +273,8 @@ sub processTransaction : Private {
         violation_force_close($mac, $violation->{'vid'});
     }
 
-    # Register the node
+    # Register the node and release it
     $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
-
-    # Generate the release page
-    # XXX Should be part of the portal profile
-
     $c->forward('CaptivePortal' => 'endPortalSession');
 }
 

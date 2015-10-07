@@ -48,6 +48,8 @@ has_field cert_file =>
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
+   tags => { after_element => \&help,
+             help => 'The path to the certificate you submitted to Paypal.' },
   );
 
 has_field key_file =>
@@ -55,6 +57,8 @@ has_field key_file =>
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
+   tags => { after_element => \&help,
+             help => 'The path to the associated key of the certificate you submitted to Paypal.' },
   );
 
 has_field paypal_cert_file =>
@@ -62,12 +66,16 @@ has_field paypal_cert_file =>
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
+   tags => { after_element => \&help,
+             help => 'The path to the Paypal certificate you downloaded.' },
   );
 
 has_field email_address =>
   (
    type => 'Text',
    required => 1,
+   tags => { after_element => \&help,
+             help => 'The email address associated to your paypal account.' },
   );
 
 has_field payment_type =>
@@ -76,6 +84,8 @@ has_field payment_type =>
    required => 1,
    default  => '_xclick',
    options  => [{value => '_xclick', label => 'Buy Now'}, {value => '_donations', label => 'Donations'}]
+   tags => { after_element => \&help,
+             help => 'The type of transactions this source will do (donations or sales).' },
   );
 
 has_block definition => (
