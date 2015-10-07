@@ -1433,6 +1433,8 @@ Once you have submitted it, note it's associated 'Cert ID' as you will need to c
 
 Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
 
+## encrypted payment screen
+
 CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
 
 *Configuring PacketFence*
@@ -1452,6 +1454,49 @@ Where :
 * *Paypal cert file* is the path to the Paypal certificate (/usr/local/pf/conf/ssl/paypal.pem in this example).
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
+
+Stripe
+++++++
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click 'Your account' then 'Account settings'.
+
+Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+## stripe api screen
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
+
+## stripe pf config screen
+
+Where : 
+[options="compact"]
+* *Secret key* is the secret key you got from your Stripe account.
+* *Publishable key* is the secret key you got from your Stripe account.
+* *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using the test key and secret account.
+
+
+Subscription based registration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence supports the subscription based billing with Stripe. 
+
+Billing tier
+++++++++++++
+
+When using subscription based billing, bla bla bla
+
+This means that you should configure it so the user is be granted access to the network for an infinite value (in the billing tier you configure). 
+
+Then Stripe will contact your PacketFence server when the subscription is canceled.
+
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
