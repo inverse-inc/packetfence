@@ -24,6 +24,7 @@ use WWW::Curl::Easy;
 use JSON::XS;
 use List::Util qw(first);
 use Digest::HMAC_MD5 qw(hmac_md5_hex);
+use Digest::MD5 qw(md5_hex);
 use Time::Local;
 
 extends 'pf::Authentication::Source::BillingSource';
@@ -83,6 +84,14 @@ Verify the payment from authorize.net
 
 sub verify {
     my ($self, $session, $parameters, $path) = @_;
+    my $logger = pf::log::get_logger;
+    my $md5_validation = md5_hex("supersecret".$self->api_login_id.$parameters->{x_trans_id}.$parameters->{x_amount});
+    if(uc($md5_validation) eq $parameters->{x_MD5_Hash}){
+        $logger->info("Payment validation succeeded.");
+    }
+    else {
+        die "Payment validation failed.";
+    }
     return {};
 }
 
