@@ -20,9 +20,6 @@ use pf::log;
 extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
-has 'roles' => (
-    is => 'rw',
-);
 # Form fields
 has_field 'test_secret_key' => (
     type => 'Text'
@@ -46,10 +43,8 @@ has_field 'style' => (
     type    => 'Select',
     default => 'charge',
     options => [{label => 'Charge', value => 'charge'}, {label => 'Subscription', value => 'subscription'}]
-);
-
-has_block definition => (
-    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style currency test_mode)]
+    tags => { after_element => \&help,
+              help => 'The type of payment the user will make. Charge is a one time fee, subscription will be arecurring fee.' },
 );
 
 has_field 'domains' =>
@@ -64,19 +59,9 @@ has_field 'domains' =>
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
-sub options_failed_payment_role {
-    my $self = shift;
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
-    return ( @roles);
-    # $self->roles comes from pfappserver::Model::Roles
-}
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
+has_block definition => (
+    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style currency test_mode)]
+);
 
 =head1 AUTHOR
 

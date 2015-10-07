@@ -1,47 +1,5 @@
 [% title = i18n("PacketFence Registration System") %]
-[% INCLUDE header.html 
-#    body_attributes = 'onload="$(\'firstfield\').focus();"';
-%]
-<script type="text/javascript">
-document.observe("dom:loaded", function() {
-
-        // Don't propagate mouse clicks on disabled buttons and links
-        $$(".btn").each(function(e) {
-                e.on("click", function(event) {
-                        if (Event.element(event).hasClassName('disabled')) {
-                                Event.stop(event);
-                                return false;
-                        }
-                        return true;
-                });
-        });
-
-        // Toggle the disable state of the buttons and links when the user
-        // accepts or refuses the AUP
-        $$("input[name='aup_signed']").each(function(e) {
-                e.on("change", function(event) {
-                        var accepted = e.checked;
-                        $$(".btn").each(function(btn) {
-                                if (accepted)
-                                        btn.removeClassName('disabled');
-                                else
-                                        btn.addClassName('disabled');
-                        });
-                });
-        });
-
-});
-</script>
-
-<!-- Remove submit button after the form submitted
-     so we avoid double submitting -->
-<script type="text/javascript">
-document.observe("dom:loaded", function() {
-  $('billing_form').observe('submit', function(e) { 
-    $('billing_footer').update("[% i18n("Please wait. Processing payment...") %]");
-  });
-});
-</script>
+[% INCLUDE header.html %]
 
 [%# WELCOME TEXT %]
 <div id="about">

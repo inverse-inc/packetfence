@@ -85,6 +85,8 @@ has_field 'use_time_balance' => (
 
 =head2 options_roles
 
+The list of roles
+
 =cut
 
 sub options_roles {
