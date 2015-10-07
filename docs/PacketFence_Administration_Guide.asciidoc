@@ -1371,58 +1371,87 @@ Billing Engine
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
 
-PacketFence currently supports two payment gateways: Authorize.net and Mirapay.
+PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
 
-The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
+In order to activate the billing, you will need to configure the following components : 
 
-  [default]
-  billing_engine = enabled
-  ...
+* Billing source(s)
+* Billing tier(s)
+* Portal profile
 
-Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
+Configuring a billing source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  [billing]
-  gateway = authorize_net
-  authorizenet_posturl = The payment gateway processing URL
-  authorizenet_login = The merchant's unique API Login ID
-  authorizenet_trankey = The merchant's unique Transaction Key
+First select a billing provider and follow the instructions below.
 
-It is also possible to configure multiple network access with different prices.
-For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
+Paypal
+++++++
 
-CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
+NOTE: This provider requires that your PacketFence server is accessible on the public domain. For this your PacketFence portal should be available on a public IP using the DNS server name configured in PacketFence.
 
-To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
+If you have a business account and do not want to configure a test environment, you can skip the next section.
 
-To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+*Sandbox account*
 
-    my %tiers = (
-            tier1 => {
-                id => "tier1",
-                name => "Tier 1",
-                price => "1.00",
-                timeout => "7D",
-                usage_duration => '1D',
-                category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
-            },
-    );
+To configure a sandbox paypal account for use in PacketFence, head to https://developer.paypal.com/ and either sign up or login into your existing account.
 
-*id* is used as the item value of the billing table.
+Then in the Sandbox menu, click 'Accounts'
 
-*name* is the name of the tier used on billing.html.
+Create an account that has the type 'Personal' and one that has the type 'Business'.
 
-*price* is amount charged on the credit card.
+Afterwards, go back into accounts, and expand the business account, then click 'Profile'
 
-*timeout* is used to compute the unregistration date of the node.
+## accounts screen
 
-*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
+Now click the 'Change password' link and change the password and note it.
 
-*category* is the role in which to put the node.
+## change password screen
 
-*description will* appear on the billing.html.
+Do the same thing with the personal account you created
 
-*destination_url* is the url that the device will be redirected after a successful authentication.
+*Configuring the merchant account*
+
+Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
+
+Next go in 'My Account -> Profile' in order to go into your profile configuration.
+
+Next in the 'Selling Preferences' you will need to select 'Website Payment Preferences'
+
+Configure the settings so they match the screenshot below. 
+
+You should turn on 'Auto Return', set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
+
+You should also take note of the 'Identity Token' as it will be required in the PacketFence configuration.
+
+## website payment prefs screen
+
+Next go back in your profile configuration 'My account -> Profile' and select 'Encrypted Payment Settings'
+
+Now on this page you will need to submit the certificate used by PacketFence to Paypal (/usr/local/pf/conf/ssl/server.crt by default).
+
+Once you have submitted it, note it's associated 'Cert ID' as you will need to configure it in PacketFence.
+
+Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
+
+CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Paypal'.
+
+## paypal pf config screen
+
+Where : 
+[options="compact"]
+* *Identity token* is the one you noted when on the 'Website Payment Preferences' page.
+* *Cert ID* is the one you noted when on the 'Encrypted Payment Settings'.
+* *Payment type* is whether the access is donation based (not mandatory to pay for it).
+* *Email address* is the email address of the merchant paypal account.
+* *Cert file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.crt by default).
+* *Key file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.key by default).
+* *Paypal cert file* is the path to the Paypal certificate (/usr/local/pf/conf/ssl/paypal.pem in this example).
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
