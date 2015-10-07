@@ -32,7 +32,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file}            = '/usr/local/pf/conf/billing_tiers.conf';
+    $self->{file}            = $billing_tiers_config_file;
 }
 
 sub build_child {
