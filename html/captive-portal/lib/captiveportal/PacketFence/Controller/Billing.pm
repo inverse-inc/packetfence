@@ -98,7 +98,19 @@ sub confirm : Local : Args(0) {
     my ($self, $c) = @_;
     $c->log->debug("Entering billing confirmation");
     $c->forward('validate');
+
     my $billing = $c->stash->{billing};
+
+    my $pid  = $c->session->{'email'};
+    if($pid){
+        my @fields = $c->profile->getFieldsForSources($billing);
+        my %person_fields;
+        foreach my $field (@fields){
+            $person_fields{$field} = $c->session->{$field};
+        }
+        person_modify($pid, %person_fields);
+    }
+    
     my $data = eval {
           $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->path)
     };
