@@ -83,7 +83,7 @@ has_field payment_type =>
    type     => 'Select',
    required => 1,
    default  => '_xclick',
-   options  => [{value => '_xclick', label => 'Buy Now'}, {value => '_donations', label => 'Donations'}]
+   options  => [{value => '_xclick', label => 'Buy Now'}, {value => '_donations', label => 'Donations'}],
    tags => { after_element => \&help,
              help => 'The type of transactions this source will do (donations or sales).' },
   );
