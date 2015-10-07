@@ -44,7 +44,7 @@ Whether or not the source should have authentication rules
 
 =cut
 
-sub has_authentication_rules { $TRUE }
+sub has_authentication_rules { $FALSE }
 
 =head2 available_attributes
 
