@@ -57,6 +57,8 @@ has 'email_address' => (isa => 'Str', is => 'rw', required => 1);
 
 has 'payment_type' => (isa => 'Str', is => 'rw', required => 1);
 
+has 'url' => (is => 'rw', builder => '_get_paypal_url', lazy => 1);
+
 =head2 prepare_payment
 
 Prepare the payment from paypal
