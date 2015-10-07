@@ -17,7 +17,7 @@ expires_in=1d
 expires_on_backend=1
 
 [storage httpd.portal]
-expires_in=10m
+expires_in=1d
 
 [storage httpd.portal l1_cache]
 expires_on_backend=1
