@@ -48,13 +48,9 @@ has 'proto' => (is => 'rw', default => 'https');
 
 has 'port' => (is => 'rw', default => 443);
 
-has 'test_secret_key' => (is => 'rw');
+has 'publishable_key' => (is => 'rw', required => 1);
 
-has 'test_publishable_key' => (is => 'rw');
-
-has 'live_secret_key' => (is => 'rw', required => 1);
-
-has 'live_publishable_key' => (is => 'rw', required => 1);
+has 'secret_key' => (is => 'rw', required => 1);
 
 has 'style' => (is => 'rw', default => 'charge');
 
@@ -206,16 +202,6 @@ sub charge {
         description => $tier->{description},
     };
     my ($code,$data) = $self->_send_form($self->curl, "v1/charges", $object);
-}
-
-sub publishable_key {
-    my ($self) = @_;
-    return $self->test_mode ? $self->test_publishable_key : $self->live_publishable_key;
-}
-
-sub secret_key {
-    my ($self) = @_;
-    return $self->test_mode ? $self->test_secret_key : $self->live_secret_key;
 }
 
 sub verify {

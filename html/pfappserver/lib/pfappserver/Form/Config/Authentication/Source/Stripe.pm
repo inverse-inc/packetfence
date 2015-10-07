@@ -21,22 +21,12 @@ extends 'pfappserver::Form::Config::Authentication::Source::Billing';
 with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields
-has_field 'test_secret_key' => (
+has_field 'secret_key' => (
     type => 'Text'
 );
 
-has_field 'test_publishable_key' => (
+has_field 'publishable_key' => (
     type => 'Text'
-);
-
-has_field 'live_secret_key' => (
-    type => 'Text',
-    required => 1
-);
-
-has_field 'live_publishable_key' => (
-    type => 'Text',
-    required => 1
 );
 
 has_field 'style' => (
@@ -60,7 +50,7 @@ has_field 'domains' =>
   );
 
 has_block definition => (
-    render_list => [qw(test_secret_key test_publishable_key live_secret_key live_publishable_key style currency test_mode)]
+    render_list => [qw(secret_key publishable_key style currency test_mode)]
 );
 
 =head1 AUTHOR
