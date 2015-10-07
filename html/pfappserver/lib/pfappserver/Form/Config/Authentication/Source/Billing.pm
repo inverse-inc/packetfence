@@ -39,7 +39,6 @@ has_field test_mode => (
     type => 'Checkbox',
     checkbox_value => '1',
     unchecked_value => '0',
-    default => 1,
 );
 
 =head2 options_currency
