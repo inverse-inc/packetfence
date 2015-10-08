@@ -29,6 +29,12 @@ has_field transaction_key => (
     required => 1,
 );
 
+has_field md5_hash => (
+    label => 'MD5 hash',
+    type => 'Text',
+    required => 1,
+);
+
 has_field 'domains' =>
   (
    type => 'Text',
@@ -42,7 +48,7 @@ has_field 'domains' =>
   );
 
 has_block definition => (
-    render_list => [qw(api_login_id transaction_key domains currency test_mode)]
+    render_list => [qw(api_login_id transaction_key md5_hash domains currency test_mode)]
 );
 
 =head1 AUTHOR

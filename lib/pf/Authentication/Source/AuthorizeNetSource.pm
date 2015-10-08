@@ -43,6 +43,8 @@ has 'api_login_id' => (is => 'rw', required => 1);
 
 has 'transaction_key' => (is => 'rw', required => 1);
 
+has 'md5_hash' => (is => 'rw', required => 1);
+
 has 'domains' => (is => 'rw', required => 1, default => '*.authorize.net');
 
 =head2 prepare_payment
@@ -85,7 +87,7 @@ Verify the payment from authorize.net
 sub verify {
     my ($self, $session, $parameters, $uri) = @_;
     my $logger = pf::log::get_logger;
-    my $md5_validation = md5_hex("supersecret".$self->api_login_id.$parameters->{x_trans_id}.$parameters->{x_amount});
+    my $md5_validation = md5_hex($self->md5_hash.$self->api_login_id.$parameters->{x_trans_id}.$parameters->{x_amount});
     if(uc($md5_validation) eq $parameters->{x_MD5_Hash}){
         $logger->info("Payment validation succeeded.");
     }
