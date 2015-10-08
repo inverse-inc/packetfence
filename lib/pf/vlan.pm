@@ -30,7 +30,7 @@ use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
-use pf::vlan::filter;
+use pf::access_filter;
 use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
@@ -772,7 +772,7 @@ Filter the vlan based off vlan filters
 
 sub filterVlan {
     my ($self, $scope, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    my $filter = pf::vlan::filter->new;
+    my $filter = pf::access_filter->new;
     my $args = {
         node_info       => $node_info,
         switch          => $switch,

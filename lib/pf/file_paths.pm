@@ -56,7 +56,7 @@ our (
     $apache_filters_config_file,
     $cache_control_file,
     $log_conf_dir,
-    $vlan_filters_config_file,
+    $access_filters_config_file,
     $pfcmd_binary,
     $realm_config_file,
     $cluster_config_file,
@@ -99,7 +99,7 @@ BEGIN {
         $apache_filters_config_file
         $cache_control_file
         $log_conf_dir
-        $vlan_filters_config_file
+        $access_filters_config_file
         $pfcmd_binary
         $realm_config_file
         $cluster_config_file
@@ -155,7 +155,7 @@ $wrix_config_file = catfile($conf_dir, "wrix.conf");
 $allowed_device_oui_file   = catfile($conf_dir,"allowed_device_oui.txt");
 $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
-$vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
+$access_filters_config_file = catfile($conf_dir, "access_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
@@ -191,7 +191,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
-    $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
+    $access_filters_config_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,
     $pki_provider_config_file,
 );

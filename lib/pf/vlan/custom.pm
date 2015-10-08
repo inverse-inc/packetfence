@@ -30,7 +30,7 @@ use pf::violation qw(violation_count_trap violation_exist_open violation_view_to
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
-use pf::vlan::filter;
+use pf::access_filter;
 
 our $VERSION = 1.04;
 

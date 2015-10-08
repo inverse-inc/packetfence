@@ -1,4 +1,4 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pfconfig::namespaces::config::AccessFilters;
 
 =head1 NAME
 
@@ -24,8 +24,8 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'resource::VlanFilterEngineScopes'];
+    $self->{file} = $access_filters_config_file;
+    $self->{child_resources} = [ 'resource::AccessFilterEngineScopes'];
 }
 
 sub build_child {
