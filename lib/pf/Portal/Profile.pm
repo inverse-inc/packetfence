@@ -127,6 +127,12 @@ sub getTemplatePath {
 
 *template_path = \&getTemplatePath;
 
+=item getBillingTiers
+
+Get the billing tiers for this portal profile
+
+=cut
+
 sub getBillingTiers {
     my ($self) = @_;
     my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
@@ -144,6 +150,12 @@ sub getBillingTiers {
 }
 
 *billing_tiers = \&getBillingTiers;
+
+=item getBillingTier
+
+Get the configuration of a specific billing tier
+
+=cut
 
 sub getBillingTier {
     my ($self, $id) = @_;
