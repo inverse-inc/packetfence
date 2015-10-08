@@ -373,11 +373,15 @@ sub node_db_prepare {
     ]);
 
     $node_statements->{'node_mac_by_role_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac FROM node WHERE category_id = ? ORDER BY mac LIMIT ?,?
+        SELECT mac, nr.name as role FROM node
+            LEFT JOIN node_category as nr on node.category_id = nr.category_id
+        WHERE node.category_id = nr.category_id AND nr.category_id = ? ORDER BY mac LIMIT ?,?
     ]);
 
     $node_statements->{'node_mac_list_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac FROM node ORDER BY mac LIMIT ?,?
+        SELECT mac, nr.name as role FROM node
+            LEFT JOIN node_category as nr on node.category_id = nr.category_id
+            ORDER BY mac LIMIT ?,?
     ]);
 
     $node_db_prepared = 1;
