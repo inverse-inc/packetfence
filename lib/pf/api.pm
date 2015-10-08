@@ -458,7 +458,8 @@ sub modify_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    die "No mac provided\n" unless validate_argv(\@require,  \@found);
+    my $reeval = delete $postdata{reevaluate_access};
 
     if (defined($postdata{'unregdate'})) {
         if (pf::util::valid_date($postdata{'unregdate'})) {
@@ -467,7 +468,8 @@ sub modify_node : Public {
             $postdata{'unregdate'} = pf::config::access_duration($postdata{'unregdate'});
         }
     }
-    pf::node::node_modify($postdata{'mac'}, %postdata);
+    my ($results) = pf::node::node_modify($postdata{'mac'}, %postdata);
+    die "Modifing node '$postdata{mac}' failed\n" unless $results;
     return 1;
 }
 
