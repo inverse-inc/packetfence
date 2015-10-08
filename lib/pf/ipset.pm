@@ -352,8 +352,7 @@ sub get_mangle_mark_for_mac {
                 }
             }
         } else {
-            $logger->error("Unable to list iptables mangle table: $!");
-            return $IPTABLES_MARK_UNREG;
+            return;
         }
     }
     return $IPTABLES_MARK_UNREG;
@@ -467,7 +466,7 @@ sub update_node {
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
     my $id = $view_mac->{'category_id'};
     if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-        my $mark = $self->get_mangle_mark_for_mac($srcmac);
+        my $mark = $self->get_mangle_mark_for_mac($srcmac) //= $IPTABLES_MARK_UNREG;
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
 
