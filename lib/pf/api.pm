@@ -1084,8 +1084,7 @@ sub bounce_node : Public {
     my $switch_id = $node->{'last_switch'};
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     die "Unable to find switch '$switch_id' assoicated with node '$mac'\n" unless $node;
-    $switch->bouncePort($node->{last_port});
-    return 1;
+    return $switch->bouncePort($node->{last_port});
 }
 
 =head2 export_node_by_role
