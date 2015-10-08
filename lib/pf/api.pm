@@ -1036,8 +1036,8 @@ sub _validate_node_data {
     my ($node_data) = @_;
     my @missing = grep { !defined $node_data->{$_} } qw(mac pid status);
     die "None of the following mandatory node attributes were provided " . join(' , ', @missing) if @missing;
-    my $mac = clean_mac($node_data->{mac});
-    die "Node attribute mac '$mac' is invalid" unless valid_mac($mac);
+    my $mac = pf::util::clean_mac($node_data->{mac});
+    die "Node attribute mac '$mac' is invalid" unless pf::util::valid_mac($mac);
     my ($category, $bypass_role);
     $node_data->{mac} = $mac;
     #Check node category
