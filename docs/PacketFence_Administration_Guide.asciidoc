@@ -1491,12 +1491,65 @@ PacketFence supports the subscription based billing with Stripe.
 Billing tier
 ++++++++++++
 
-When using subscription based billing, bla bla bla
+When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
 
-This means that you should configure it so the user is be granted access to the network for an infinite value (in the billing tier you configure). 
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan 'simple' and 'advanced' configured using the following parameters.
 
-Then Stripe will contact your PacketFence server when the subscription is canceled.
+  [simple]
+  name=Simple network access
+  description=Click here if you are poor
+  price=3.99
+  role=guest
+  access_duration=10Y
+  use_time_balance=disabled
+  
+  [advanced]
+  name=Simple network access
+  description=Click here if you are poor
+  price=9.99
+  role=advanced_guest
+  access_duration=10Y
+  use_time_balance=disabled
 
+Stripe configuration
+++++++++++++++++++++
+
+Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
+
+Then create a new plan.
+
+## screen stripe plan
+
+Where : 
+[options="compact"]
+* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Now, following the same procedure, create the advanced plan.
+
+Receiving updates from Stripe
++++++++++++++++++++++++++++++
+
+As the subscription can be cancelled by a user, you need to setup your PacketFence installation to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP. 
+
+You need to make sure that your PacketFence server is available through a public IP on port 80 and that your PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
+
+## screen stripe hook
+
+Where : 
+[options="compact"]
+* *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+* *Mode* is whether this webhook is for testing mode or live mode 
+
+Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
