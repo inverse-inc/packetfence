@@ -1,14 +1,14 @@
-package pf::factory::condition::vlanfilter;
+package pf::factory::condition::access_filter;
 
 =head1 NAME
 
-pf::factory::condition::vlanfilter
+pf::factory::condition::access_filter
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::condition::vlanfilter
+pf::factory::condition::access_filter
 
 =cut
 

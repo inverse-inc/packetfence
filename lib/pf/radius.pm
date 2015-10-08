@@ -41,7 +41,7 @@ use pf::radius::constants;
 use List::Util qw(first);
 use Time::HiRes;
 use pf::util::statsd qw(called);
-use pf::vlan::filter;
+use pf::access_filter;
 
 our $VERSION = 1.03;
 

@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::VlanFilterEngineScopes;
+package pfconfig::namespaces::resource::AccessFilterEngineScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::VlanFilterEngineScopes
+pfconfig::namespaces::resource::AccessFilterEngineScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::VlanFilterEngineScopes
+pfconfig::namespaces::resource::AccessFilterEngineScopes
 
 =cut
 
@@ -16,8 +16,8 @@ use strict;
 use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::VlanFilters;
-use pf::factory::condition::vlanfilter;
+use pfconfig::namespaces::config::AccessFilters;
+use pf::factory::condition::access_filter;
 use pf::filter;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
@@ -27,13 +27,13 @@ use base 'pfconfig::namespaces::resource';
 
 sub build {
     my ($self)            = @_;
-    my $config_profiles   = pfconfig::namespaces::config::VlanFilters->new($self->{cache});
-    my %VlanFiltersConfig = %{$config_profiles->build};
+    my $config_profiles   = pfconfig::namespaces::config::AccessFilters->new($self->{cache});
+    my %AccessFiltersConfig = %{$config_profiles->build};
     $self->{prebuilt_conditions} = {};
-    my (%VlanFilterEngineScopes, @filter_data, %filters_scopes);
+    my (%AccessFilterEngineScopes, @filter_data, %filters_scopes);
     foreach my $rule (@{$config_profiles->{ordered_sections}}) {
         my $logger = get_logger();
-        my $data = $VlanFiltersConfig{$rule};
+        my $data = $AccessFiltersConfig{$rule};
         if ($rule =~ /^\w+:(.*)$/) {
             $logger->info("Building rule '$rule'");
             my ($parsed_conditions, $msg) = parse_condition_string($1);
@@ -42,7 +42,7 @@ sub build {
         }
         else {
             $logger->info("Building condition '$rule'");
-            $self->{prebuilt_conditions}{$rule} = pf::factory::condition::vlanfilter->instantiate($data);
+            $self->{prebuilt_conditions}{$rule} = pf::factory::condition::access_filter->instantiate($data);
         }
     }
 
@@ -50,9 +50,9 @@ sub build {
         $self->build_filter(\%filters_scopes, @$filter_data);
     }
     while (my ($scope, $filters) = each %filters_scopes) {
-        $VlanFilterEngineScopes{$scope} = pf::filter_engine->new({filters => $filters});
+        $AccessFilterEngineScopes{$scope} = pf::filter_engine->new({filters => $filters});
     }
-    return \%VlanFilterEngineScopes;
+    return \%AccessFilterEngineScopes;
 }
 
 sub build_filter {

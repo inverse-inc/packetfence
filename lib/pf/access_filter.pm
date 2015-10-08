@@ -1,14 +1,14 @@
-package pf::vlan::filter;
+package pf::access_filter;
 
 =head1 NAME
 
-pf::vlan::filter - handle the authorization rules on the vlan attribution
+pf::access_filter - handle the authorization rules on the vlan attribution
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::vlan::filter deny, rewrite role based on rules.
+pf::access_filter deny, rewrite role based on rules.
 
 =cut
 
@@ -19,11 +19,11 @@ use Log::Log4perl;
 use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
-use pf::factory::condition::vlanfilter;
+use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
-tie our %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
-tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'resource::VlanFilterEngineScopes';
+tie our %ConfigAccessFilters, 'pfconfig::cached_hash', 'config::AccessFilters';
+tie our %AccessFilterEngineScopes, 'pfconfig::cached_hash', 'resource::AccessFilterEngineScopes';
 
 
 =head1 SUBROUTINES
@@ -35,8 +35,8 @@ tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'resource::VlanFilterE
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::vlan::filter");
-   $logger->debug("instantiating new pf::vlan::filter");
+   my $logger = Log::Log4perl::get_logger("pf::access_filter");
+   $logger->debug("instantiating new pf::access_filter");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
    return $self;
@@ -50,8 +50,8 @@ Test all the rules
 
 sub test {
     my ($self, $scope, $args) = @_;
-    if (exists $VlanFilterEngineScopes{$scope}) {
-       return $VlanFilterEngineScopes{$scope}->match_first($args);
+    if (exists $AccessFilterEngineScopes{$scope}) {
+       return $AccessFilterEngineScopes{$scope}->match_first($args);
     }
     return undef;
 }

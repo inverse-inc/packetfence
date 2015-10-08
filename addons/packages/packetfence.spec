@@ -881,8 +881,8 @@ fi
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
                         /usr/local/pf/conf/switches.conf.example
-%config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
-                        /usr/local/pf/conf/vlan_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/access_filters.conf
+                        /usr/local/pf/conf/access_filters.conf.example
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config(noreplace)      /usr/local/pf/conf/haproxy.conf
                         /usr/local/pf/conf/haproxy.conf.example

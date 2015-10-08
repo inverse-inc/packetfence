@@ -65,10 +65,10 @@ our %configs;
 }
 
 {
-  use pf::vlan::filter;
+  use pf::access_filter;
 
-  my @variables = ('%ConfigVlanFilters');
-  $configs{'pf::vlan::filter'} = dump_module("pf::vlan::filter", @variables);
+  my @variables = ('%ConfigAccessFilters');
+  $configs{'pf::access_filter'} = dump_module("pf::vlan::filter", @variables);
 
 }
 

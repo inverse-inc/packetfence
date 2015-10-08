@@ -29,7 +29,7 @@ BEGIN {
     $pf::file_paths::profiles_config_file = catfile($test_dir,'data/profiles.conf');
     $pf::file_paths::authentication_config_file = catfile($test_dir,'data/authentication.conf');
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
-    $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
+    $pf::file_paths::access_filters_config_file = catfile($test_dir,'data/access_filters.conf');
 }
 
 # we need to load the proper data in pfconfig

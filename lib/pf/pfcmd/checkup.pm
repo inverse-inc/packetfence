@@ -1091,20 +1091,20 @@ Make sure that the minimum parameters have been defined in vlan filter rules
 =cut
 
 sub vlan_filter_rules {
-    my %ConfigVlanFilters = %pf::vlan::filter::ConfigVlanFilters;
-    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
+    my %ConfigAccessFilters = %pf::access_filter::ConfigAccessFilters;
+    foreach my $rule  ( sort keys  %ConfigAccessFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
+                if (!defined($ConfigAccessFilters{$rule}->{'scope'}));
             add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
+                if (!defined($ConfigAccessFilters{$rule}->{'role'}));
         } else {
             add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
+                if (!defined($ConfigAccessFilters{$rule}->{'filter'}));
             add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
+                if (!defined($ConfigAccessFilters{$rule}->{'operator'}));
             add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+                if (!defined($ConfigAccessFilters{$rule}->{'value'}));
         }
     }
 }
