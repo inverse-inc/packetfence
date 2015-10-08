@@ -1138,6 +1138,36 @@ sub export_node_by_role : Public {
     };
 }
 
+=head2 access_reevaluate
+
+JSON Request:
+
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "access_reevaluate", "params" : [ "mac" , "00:00:00:00:00:00", "force" , false ]  }
+
+Success Response:
+
+  { "jsonrpc" : "2.0", "id" : 1, "result" : [1] }
+
+Failure Response:
+
+  { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef } }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d'{ "jsonrpc" : "2.0", "id" : 1, "method" : "access_reevaluate", "params" : [ "mac" , "00:00:00:00:00:00", "force" , false ] }'
+    http://localhost:9090/
+
+=cut
+
+sub access_reevaluate : Public {
+    my ($self, %args) = @_;
+    my @require = qw(mac);
+    my @found = grep {exists $args{$_}} @require;
+    die "A mac has not been provided\n" unless validate_argv(\@require,  \@found);
+    return pf::enforcement::reevaluate_access ($args{mac}, 'pf_api', force => $args{force});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
