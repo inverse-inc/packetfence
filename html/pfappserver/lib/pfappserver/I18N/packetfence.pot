@@ -248,10 +248,6 @@ msgstr ""
 msgid "registration.guests_self_registration"
 msgstr ""
 
-#: conf/pf.conf.defaults:248
-msgid "registration.billing_engine"
-msgstr ""
-
 #: conf/pf.conf.defaults:250
 msgid "guests_self_registration"
 msgstr ""
