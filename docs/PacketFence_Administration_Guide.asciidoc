@@ -1401,11 +1401,11 @@ Create an account that has the type 'Personal' and one that has the type 'Busine
 
 Afterwards, go back into accounts, and expand the business account, then click 'Profile'
 
-## accounts screen
+image::docs/images/billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
 
 Now click the 'Change password' link and change the password and note it.
 
-## change password screen
+image::docs/images/billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
 
 Do the same thing with the personal account you created
 
@@ -1423,7 +1423,7 @@ You should turn on 'Auto Return', set the return URL to https://YOUR_PORTAL_HOST
 
 You should also take note of the 'Identity Token' as it will be required in the PacketFence configuration.
 
-## website payment prefs screen
+image::docs/images/billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
 
 Next go back in your profile configuration 'My account -> Profile' and select 'Encrypted Payment Settings'
 
@@ -1433,7 +1433,7 @@ Once you have submitted it, note it's associated 'Cert ID' as you will need to c
 
 Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
 
-## encrypted payment screen
+image::docs/images/billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
 
 CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
 
@@ -1441,7 +1441,7 @@ CAUTION: The certificate will *NOT* be the same if you use a sandbox account or 
 
 Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Paypal'.
 
-## paypal pf config screen
+image::docs/images/billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
 
 Where : 
 [options="compact"]
@@ -1466,13 +1466,13 @@ Next on the top right click 'Your account' then 'Account settings'.
 
 Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
 
-## stripe api screen
+image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
 
 *Configuring PacketFence*
 
 Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
 
-## stripe pf config screen
+image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
 Where : 
 [options="compact"]
@@ -1518,7 +1518,7 @@ Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
 
 Then create a new plan.
 
-## screen stripe plan
+image::docs/images/billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
 
 Where : 
 [options="compact"]
@@ -1542,7 +1542,7 @@ Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any even
 
 In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
 
-## screen stripe hook
+image::docs/images/billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
 
 Where : 
 [options="compact"]
