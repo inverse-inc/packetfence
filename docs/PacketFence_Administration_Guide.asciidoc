@@ -1486,7 +1486,7 @@ Where :
 Subscription based registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence supports the subscription based billing with Stripe. 
+PacketFence supports subscription based billing using Stripe as a billing provider.
 
 Billing tier
 ++++++++++++
