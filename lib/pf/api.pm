@@ -409,13 +409,13 @@ sub release_all_violations : Public {
     return $closed_violation;
 }
 
-=head2 add_node
+=head2 modify_node
 
 Modify a node
 
-Json Request:
+JSON Request:
 
-  { "jsonrpc" : "2.0", "id" : 1, "method" : "add_node", "params" : [ "mac" : "00:00:00:00:00:00", "status" : "reg", "pid" : "pid", "category" : "rolename" ] }
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "modify_node", "params" : [ "mac" , "00:00:00:00:00:00", "notes" , "Updated the node today" ] }
 
 All node attributes
 
@@ -445,6 +445,12 @@ Success Response:
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef }  }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d '{ "jsonrpc" : "2.0", "id" : 1, "method" : "modify_node", "params" : [ "mac" , "00:00:00:00:00:00", "notes" , "Updated the node today" ] }'\
+    http://localhost:9090/
 
 =cut
 
@@ -485,9 +491,9 @@ sub register_node : Public {
 
 Deregister a node
 
-Json Request:
+JSON Request:
 
-  { "jsonrpc" : "2.0", "id" : 1, "method" : "deregister_node", "params" : [ "mac" : "00:00:00:00:00:00" }
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "deregister_node", "params" : [ "mac" , "00:00:00:00:00:00" ] }
 
 Success Response:
 
@@ -496,6 +502,12 @@ Success Response:
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef }  }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d '{ "jsonrpc" : "2.0", "id" : 1, "method" : "deregister_node", "params" : [ "mac" , "00:00:00:00:00:01" ] }'\
+    http://localhost:9090/
 
 =cut
 
@@ -513,9 +525,9 @@ sub deregister_node : Public {
 
 Return all the node attributes
 
-Json Request:
+JSON Request:
 
-  { "jsonrpc" : "2.0", "id" : 1, "method" : "node_information", "params" : [ "mac" : "00:00:00:00:00:00" }
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "node_information", "params" : [ "mac" , "00:00:00:00:00:00" ] }
 
 Success Response:
 
@@ -524,6 +536,12 @@ Success Response:
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef }  }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d '{ "jsonrpc" : "2.0", "id" : 1, "method" : "node_information", "params" : [ "mac" , "00:00:00:00:00:01" ] }'\
+    http://localhost:9090/
 
 =cut
 
@@ -957,9 +975,9 @@ sub dynamic_register_node : Public {
 
 =head2 add_node
 
-Json Request:
+JSON Request:
 
-  { "jsonrpc" : "2.0", "id" : 1, "method" : "add_node", "params" : [ "mac" : "00:00:00:00:00:00", "status" : "reg", "pid" : "pid", "category" : "rolename" ] }
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "add_node", "params" : [ "mac" , "00:00:00:00:00:00", "status" , "reg", "pid" , "default", "category" , "rolename" ] }
 
 All node attributes
 
@@ -989,6 +1007,12 @@ Success Response:
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef }  }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d '{ "jsonrpc" : "2.0", "id" : 1, "method" : "add_node", "params" : [ "mac" , "00:00:00:00:00:00", "status" , "reg", "pid" , "default", "category" , "default" ] }'\
+    http://localhost:9090/
 
 =cut
 
@@ -1031,7 +1055,7 @@ sub _validate_node_data {
 
 =head2 bounce_node
 
-Json Request:
+JSON Request:
 
   { "jsonrpc" : "2.0", "id" : 1, "method" : "bounce_node", "params" : ["00:00:00:00:00:00"]  }
 
@@ -1042,6 +1066,12 @@ Success Response:
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef }  }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d '{ "jsonrpc" : "2.0", "id" : 1, "method" : "bounce_node", "params" : ["00:00:00:00:00:00"] }'\
+    http://localhost:9090/
 
 =cut
 
@@ -1058,17 +1088,29 @@ sub bounce_node : Public {
 
 =head2 export_node_by_role
 
-Json Request:
+JSON Request:
 
-  { "jsonrpc" : "2.0", "id" : 1, "method" : "export_node_by_role", "params" : [ "mac" : "00:00:00:00:00:00", "role" : "category_name", "page_per_num" : 25, "page" : 0 ]  }
+By role
+
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "export_node_by_role", "params" : [ "role" , "name", "items_per_page" , 25, "page_number" , 0 ]  }
+
+Any role
+
+  { "jsonrpc" : "2.0", "id" : 1, "method" : "export_node_by_role", "params" : [ "items_per_page" , 25, "page_number" , 0 ]  }
 
 Success Response:
 
-  { "jsonrpc" : "2.0", "id" : 1, "result" : [{"page_per_num" : 25, "page" : 0, "results" : ["00:00:00:00:00:01", ...]}] }
+  { "jsonrpc" : "2.0", "id" : 1, "result" : [{"items_per_page" : 25, "page_number" : 0, "results" : [{ "mac" : "00:00:00:00:00:01" , "role" : "name"}, ...]}] }
 
 Failure Response:
 
   { "jsonrpc" : "2.0", "id" : 1, "error" : { "code" : -32000, "message" : "Error message", "data" : undef } }
+
+Curl Example:
+
+    curl -H "Content-Type: application/json-rpc" \
+    -d'{ "jsonrpc" : "2.0", "id" : 1, "method" : "export_node_by_role", "params" : [ "role" , "name", "items_per_page" , 25, "page_number" , 0 ]  }'\
+    http://localhost:9090/
 
 =cut
 
