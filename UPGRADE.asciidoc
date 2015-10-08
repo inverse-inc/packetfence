@@ -37,6 +37,15 @@ Please note that the sections below are cumulative. That is to say, if you are u
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.3.0-5.4.0.sql
+
 Authentication sources rules rework
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
