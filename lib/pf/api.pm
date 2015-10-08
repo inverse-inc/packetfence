@@ -1023,8 +1023,7 @@ sub add_node : Public {
     my ($class, %node_data) = @_;
     _validate_node_data(\%node_data);
     my $mac = delete $node_data{mac};
-    pf::node::node_add($mac, %node_data);
-    return 1;
+    return pf::node::node_add($mac, %node_data);
 }
 
 =head2 _validate_node_data
