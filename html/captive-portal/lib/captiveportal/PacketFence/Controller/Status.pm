@@ -40,7 +40,7 @@ sub index : Path : Args(0) {
     }
     $c->stash(
         template => 'status.html',
-        billing  => isenabled( $c->profile->getBillingEngine ),
+        billing  => ($c->profile->getBillingSources() > 0),
     );
 }
 

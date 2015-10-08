@@ -37,7 +37,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal billing_engine)],
+    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -146,22 +146,6 @@ has_field 'always_use_redirecturl' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
-  );
-
-=head2 billing_engine
-
-Controls whether or not the billing engine is enabled
-
-=cut
-
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
   );
 
 =head2 sources

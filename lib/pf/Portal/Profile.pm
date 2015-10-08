@@ -127,22 +127,12 @@ sub getTemplatePath {
 
 *template_path = \&getTemplatePath;
 
-=item getBillingEngine
-
-Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
-
-=cut
-
-sub getBillingEngine {
-    my ($self) = @_;
-    return $self->{'_billing_engine'};
-}
-
-*billing_engine = \&getBillingEngine;
-
 sub getBillingTiers {
     my ($self) = @_;
     my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
+    if(@tier_ids == 0){
+        @tier_ids = keys %ConfigBillingTiers;
+    }
     my @tiers;
     while(my ($tier_id, $tier) = each %ConfigBillingTiers){
         if(any { $_ eq $tier_id } @tier_ids){
