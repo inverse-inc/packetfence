@@ -86,19 +86,8 @@ sub reevaluate_access {
 
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
         if ( $conn_type == $INLINE ) {
-
             my $client = pf::client::getClient();
-            my $inline = new pf::inline::custom();
-            my %data = (
-                'switch'           => '127.0.0.1',
-                'mac'              => $mac,
-            );
-            if ( $inline->isInlineEnforcementRequired($mac) ) {
-                $client->notify( 'firewall', %data );
-            }
-            else {
-                $logger->debug("[$mac] is already properly enforced in firewall, no change required");
-            }
+            $client->notify( 'firewall', $mac );
         }
         else {
             return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
