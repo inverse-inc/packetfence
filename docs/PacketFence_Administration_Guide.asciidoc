@@ -1377,7 +1377,6 @@ In order to activate the billing, you will need to configure the following compo
 
 * Billing source(s)
 * Billing tier(s)
-* Portal profile
 
 Configuring a billing source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1482,9 +1481,69 @@ Where :
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using the test key and secret account.
 
+Authorize.net
++++++++++++++
+
+*Creating an account*
+
+First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
+
+After you created your account you will be shown your 'API login ID' and 'Transaction key'. Note both of these informations for usage in the PacketFence configuration.
+
+Then login into your new account.
+
+Then under 'Account' click 'Settings'.
+
+On the settings page in the section 'Security settings', click 'MD5-Hash'
+
+Now enter a secret that will be shared between authorize.net and PacketFence.
+
+image::docs/images/billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+*PacketFence configuration*
+
+Next in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing->AuthorizeNet'.
+
+image::docs/images/billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *API login ID* is the one you got earlier while creating your account.
+* *Transaction key* is the one you got earlier while creating your account.
+* *MD5 hash* the one you configured in your Authorize.net account.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+Mirapay
++++++++
+
+  To be contributed...
+
+Adding billing tiers
+^^^^^^^^^^^^^^^^^^^^
+
+Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
+
+In the PacketFence administration interface, go in 'Configuration->Billing tiers'
+
+Then click 'Add billing tier' and configure it.
+
+image::docs/images/billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Billing tier* is the unique identifier of the billing tier.
+* *Name* is the friendly name of the billing tier.
+* *Description* is an extended description of the billing tier.
+* *Price* is the amount that will be charged to the user.
+* *Access duration* is the amount of time the user will be granted access to your network.
+* *Role* is the target role the user should be in.
+* *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
+
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Portal profile'.
 
 Subscription based registration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PacketFence supports subscription based billing using Stripe as a billing provider.
 
