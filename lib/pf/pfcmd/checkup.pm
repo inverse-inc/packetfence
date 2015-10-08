@@ -140,7 +140,7 @@ sub sanity_check {
     portal_profiles();
     guests();
     unsupported();
-    vlan_filter_rules();
+    access_filter_rules();
     apache_filter_rules();
     db_check_version();
     valid_certs();
@@ -1049,13 +1049,13 @@ sub portal_profiles {
     }
 }
 
-=item vlan_filter_rules
+=item access_filter_rules
 
-Make sure that the minimum parameters have been defined in vlan filter rules
+Make sure that the minimum parameters have been defined in access filter rules
 
 =cut
 
-sub vlan_filter_rules {
+sub access_filter_rules {
     my %ConfigAccessFilters = %pf::access_filter::ConfigAccessFilters;
     foreach my $rule  ( sort keys  %ConfigAccessFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
