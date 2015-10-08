@@ -1117,22 +1117,22 @@ Curl Example:
 
 sub export_node_by_role : Public {
     my ($self, %args) = @_;
-    my $page_per_num = $args{page_per_num} // 25;
+    my $items_per_page = $args{items_per_page} // 25;
     my $role = $args{role};
-    my $page = $args{page} // 0;
+    my $page = $args{page_number} // 1;
     if (defined $role) {
         my $role_id = pf::nodecategory::nodecategory_lookup($role);
         die "Invalid role provided '$role'\n" unless $role_id;
         return {
-            page_per_num => $page_per_num,
-            page => $page,
-            results => pf::node::node_mac_by_role($page_per_num, $page, $role_id)
+            items_per_page => $items_per_page,
+            page_number => $page,
+            results => pf::node::node_mac_by_role($items_per_page, $page, $role_id)
         };
     }
     return {
-        page_per_num => $page_per_num,
-        page => $page,
-        results => pf::node::node_mac_list($page_per_num, $page)
+        items_per_page => $items_per_page,
+        page_number => $page,
+        results => pf::node::node_mac_list($items_per_page, $page)
     };
 }
 

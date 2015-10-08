@@ -1269,9 +1269,9 @@ sub node_last_reg {
 =cut
 
 sub node_mac_by_role {
-    my ($page_per_num, $page, $role_id) = @_;
-    my $offset = $page * $page_per_num;
-    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_by_role_sql', $role_id, $offset, $page_per_num) || return;
+    my ($items_per_page, $page, $role_id) = @_;
+    my $offset = $page * $items_per_page;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_by_role_sql', $role_id, $offset, $items_per_page) || return;
     return $query->fetchall_arrayref({});
 }
 
@@ -1280,9 +1280,9 @@ sub node_mac_by_role {
 =cut
 
 sub node_mac_list {
-    my ($page_per_num, $page) = @_;
-    my $offset = $page * $page_per_num;
-    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_list_sql', $offset, $page_per_num) || return;
+    my ($items_per_page, $page) = @_;
+    my $offset = $page * $items_per_page;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_mac_list_sql', $offset, $items_per_page) || return;
     return $query->fetchall_arrayref({});
 }
 
