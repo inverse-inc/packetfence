@@ -552,8 +552,9 @@ sub node_information : Public {
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
-
-    my $node_info = pf::node::node_view($postdata{'mac'});
+    my $mac = $postdata{'mac'};
+    my $node_info = pf::node::node_view($mac);
+    die "node '$mac' was not found\n" unless $node_info;
     return $node_info;
 }
 
