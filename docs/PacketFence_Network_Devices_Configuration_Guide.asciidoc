@@ -1329,6 +1329,96 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 * ... 
 ===========================================================================
 
+IOS XE Switches
+^^^^^^^^^^^^^^^
+
+PacketFence supports the IOS XE switches in Mac Authentication Bypass, 802.1x and web authentication.
+
+Mac Authentication Bypass
++++++++++++++++++++++++++
+
+Global config settings:
+
+  dot1x system-auth-control 
+
+On each interface:
+
+  authentication host-mode multi-domain
+  authentication order mab
+  authentication priority mab
+  authentication port-control auto
+  authentication periodic
+  authentication timer restart 10800
+  authentication timer reauthenticate 10800
+  mab
+  no snmp trap link-status
+  dot1x pae authenticator
+  dot1x timeout quiet-period 2
+  dot1x timeout tx-period 3
+
+AAA Groups and Configuration:
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813 
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+Radius server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+  
+Activate the SNMP v1 on the switch:
+
+  snmp-server community public RO
+
+
+802.1x only
++++++++++++
+
+Follow the same configuration as for Mac Authentication Bypass but change the `authentication priority` line with the following : 
+
+  authentication priority dot1x
+
+802.1x with Mac Authentication fallback
++++++++++++++++++++++++++++++++++++++++
+
+Follow the same configuration as for Mac Authentication Bypass but change the `authentication priority` line with the following : 
+
+  authentication priority dot1x mab
+
+Web auth
+++++++++
+
+Web auth requires at least Mac Authentication Bypass to be activated on the switchport but can also work with 802.1x. Configure your switchports as you would usually do, then add the following access lists.
+
+  ip access-list extended redirect
+   deny   ip any host 192.168.1.5
+   deny   udp any any eq domain
+   deny   tcp any any eq domain
+   deny   udp any any eq bootpc
+   deny   udp any any eq bootps
+   permit tcp any any eq www
+   permit tcp any any eq 443
+  ip access-list extended registered
+   permit ip any any
+
+PacketFence switch configuration 
+
+* Select the type to 'Cisco Catalyst 2960 with Web Auth'
+* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
+* Set the 'Registration' role to 'redirect'
+* Set your registered roles to 'registered'
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
 Router ISR 1800 Series 
 ++++++++++++++++++++++
 
