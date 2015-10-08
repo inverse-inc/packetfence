@@ -87,7 +87,7 @@ sub reevaluate_access {
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
         if ( $conn_type == $INLINE ) {
             my $client = pf::client::getClient();
-            $client->notify( 'firewall', $mac );
+            $client->notify( 'firewall', { 'mac' => $mac } );
         }
         else {
             return _vlan_reevaluation( $mac, $locationlog_entry, %opts );
