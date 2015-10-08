@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::AccessFilterEngineScopes;
+package pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::AccessFilterEngineScopes
+pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::AccessFilterEngineScopes
+pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes
 
 =cut
 

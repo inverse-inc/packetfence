@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $access_filters_config_file;
-    $self->{child_resources} = [ 'resource::AccessFilterEngineScopes'];
+    $self->{child_resources} = [ 'FilterEngine::AccessFilterEngineScopes'];
 }
 
 sub build_child {
