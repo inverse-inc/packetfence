@@ -4,8 +4,6 @@ package pf::access_filter;
 
 pf::access_filter - handle the authorization rules on the vlan attribution
 
-=cut
-
 =head1 DESCRIPTION
 
 pf::access_filter deny, rewrite role based on rules.
@@ -25,12 +23,9 @@ use pf::filter;
 tie our %ConfigAccessFilters, 'pfconfig::cached_hash', 'config::AccessFilters';
 tie our %AccessFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::AccessFilterEngineScopes';
 
-
 =head1 SUBROUTINES
 
-=over
-
-=item new
+=head2 new
 
 =cut
 
@@ -42,7 +37,7 @@ sub new {
    return $self;
 }
 
-=item test
+=head2 test
 
 Test all the rules
 
@@ -50,13 +45,40 @@ Test all the rules
 
 sub test {
     my ($self, $scope, $args) = @_;
-    if (exists $AccessFilterEngineScopes{$scope}) {
-       return $AccessFilterEngineScopes{$scope}->match_first($args);
+    my $engine = $self->getEngineForScope($scope);
+    if ($engine) {
+       return $engine->match_first($args);
     }
     return undef;
 }
 
-=back
+
+=head2 filter
+
+ Filter the arguements passed
+
+=cut
+
+sub filter {
+    my ($self, $scope, $args) = @_;
+    my $rule = $self->test($scope, $args);
+    return $self->filterRule($rule, $args);
+}
+
+
+=head2 getEngineForScope
+
+ gets the engine for the scope
+
+=cut
+
+sub getEngineForScope {
+    my ($self, $scope) = @_;
+    if (exists $AccessFilterEngineScopes{$scope}) {
+        return $AccessFilterEngineScopes{$scope};
+    }
+    return undef;
+}
 
 =head1 AUTHOR
 

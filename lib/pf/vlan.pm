@@ -30,7 +30,7 @@ use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
-use pf::access_filter;
+use pf::access_filter::vlan;
 use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
@@ -765,7 +765,7 @@ Filter the vlan based off vlan filters
 
 sub filterVlan {
     my ($self, $scope, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
-    my $filter = pf::access_filter->new;
+    my $filter = pf::access_filter::vlan->new;
     my $args = {
         node_info       => $node_info,
         switch          => $switch,
@@ -777,67 +777,9 @@ sub filterVlan {
         owner           => person_view($node_info->{'pid'}),
         radius_request  => $radius_request
     };
-    my $rule = $filter->test($scope, $args);
-    return $self->handleRoleInRule($rule, $args);
+    return $filter->filter($scope, $args);
 }
 
-=head2 handleRoleInRule
-
-Handles the role update
-
-=cut
-
-sub handleRoleInRule {
-    my ($self, $rule, $args) = @_;
-    if(defined $rule) {
-        if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
-            $self->dispatchAction($rule, $args);
-        }
-        my $scope = $rule->{scope};
-        if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
-            my $role = $rule->{'role'};
-            $role =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-            my $vlan = $args->{switch}->getVlanByName($role);
-            return (1, $role) if ($scope eq 'AutoRegister');
-            return ($vlan, $role);
-        }
-    }
-    return (0, 0);
-}
-
-=head2 dispatchAction
-
-Return the reference to the function that call the api.
-
-=cut
-
-sub dispatchAction {
-    my ($self, $rule, $args);
-
-    my $param = $self->evalParam($rule->{'action_param'}, $args);
-    my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'}, %{$param});
-}
-
-=head2 evalParam
-
-evaluate action parameters
-
-=cut
-
-sub evalParam {
-    my ($self, $action_param, $args) = @_;
-    $action_param =~ s/\s//g;
-    my @params = split(',', $action_param);
-    my $return = {};
-
-    foreach my $param (@params) {
-        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        my @param_unit = split('=', $param);
-        $return = {%$return, @param_unit};
-    }
-    return $return;
-}
 
 
 =head1 AUTHOR
