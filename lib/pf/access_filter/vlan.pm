@@ -15,6 +15,8 @@ use warnings;
 use pf::api::jsonrpcclient;
 
 use base qw(pf::access_filter);
+tie our %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
+tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::VlanFilterEngineScopes';
 
 =head2 filterRule
 
@@ -38,6 +40,20 @@ sub filterRule {
         }
     }
     return (0, 0);
+}
+
+=head2 getEngineForScope
+
+ gets the engine for the scope
+
+=cut
+
+sub getEngineForScope {
+    my ($self, $scope) = @_;
+    if (exists $VlanFilterEngineScopes{$scope}) {
+        return $VlanFilterEngineScopes{$scope};
+    }
+    return undef;
 }
 
 =head2 dispatchAction

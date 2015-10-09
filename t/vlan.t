@@ -35,13 +35,12 @@ use pf::SwitchFactory;
 use pf::Switch::constants;
 
 BEGIN { use pf::violation;
-        use pf::access_filter;
 }
 
 BEGIN {
     use_ok('pf::vlan');
     use_ok('pf::vlan::custom');
-    use_ok('pf::access_filter');
+    use_ok('pf::access_filter::vlan');
 }
 
 # test the object
