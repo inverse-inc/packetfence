@@ -298,10 +298,11 @@ sub listen_dhcp {
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
         $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
         $tmp{'last_dhcp'} = mysql_date();
-        $tmp{'computername'} = defined($dhcp->{'options'}{'12'}) ? $dhcp->{'options'}{'12'} : '';
-
-        if(isenabled($Config{network}{hostname_change_detection})){
-            $apiclient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+        if (defined($dhcp->{'options'}{'12'})) {
+            $tmp{'computername'} = $dhcp->{'options'}{'12'};
+            if(isenabled($Config{network}{hostname_change_detection})){
+                $apiclient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+            }
         }
 
         node_modify( $dhcp->{'chaddr'}, %tmp );
