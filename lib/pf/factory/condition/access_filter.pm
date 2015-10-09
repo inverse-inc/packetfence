@@ -57,20 +57,21 @@ sub instantiate {
         }
         return $c;
     }
-    my $sub_condition;
-    if (exists $VLAN_FILTER_KEY_TYPES{$filter}) {
-        $sub_condition = pf::condition::key->new({
-            key       => $data->{attribute},
-            condition => _build_sub_condition($data)
+    my $sub_condition = _build_sub_condition($data);
+    return _build_parent_condition($sub_condition, (split /\./, $filter));
+}
+
+sub _build_parent_condition {
+    my ($child, $key, @parents) = @_;
+    if (@parents == 0) {
+        return pf::condition::key->new({
+            key       => $key,
+            condition => $child,
         });
     }
-    else {
-        $sub_condition = _build_sub_condition($data);
-    }
-
     return pf::condition::key->new({
-        key       => $filter,
-        condition => $sub_condition,
+        key       => $key,
+        condition => _build_parent_condition($child, @parents),
     });
 }
 
