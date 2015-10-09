@@ -141,7 +141,7 @@ sub sanity_check {
     portal_profiles();
     guests();
     unsupported();
-    access_filter_rules();
+    vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
     valid_certs();
@@ -1084,27 +1084,27 @@ sub portal_profiles {
     }
 }
 
-=item access_filter_rules
+=item vlan_filter_rules
 
 Make sure that the minimum parameters have been defined in access filter rules
 
 =cut
 
-sub access_filter_rules {
-    my %ConfigAccessFilters = %pf::access_filter::ConfigAccessFilters;
-    foreach my $rule  ( sort keys  %ConfigAccessFilters ) {
+sub vlan_filter_rules {
+    my %ConfigVlanFilters = %pf::vlan_filter::ConfigVlanFilters;
+    foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($ConfigAccessFilters{$rule}->{'scope'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
             add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($ConfigAccessFilters{$rule}->{'role'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
         } else {
             add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($ConfigAccessFilters{$rule}->{'filter'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
             add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
-                if (!defined($ConfigAccessFilters{$rule}->{'operator'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
             add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigAccessFilters{$rule}->{'value'}));
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
         }
     }
 }

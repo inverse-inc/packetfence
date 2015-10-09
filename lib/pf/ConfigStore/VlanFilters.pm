@@ -1,13 +1,13 @@
-package pf::ConfigStore::AccessFilters;
+package pf::ConfigStore::VlanFilters;
 =head1 NAME
 
-pf::ConfigStore::AccessFilters add documentation
+pf::ConfigStore::VlanFilters add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::AccessFilters
+pf::ConfigStore::VlanFilters
 
 =cut
 
@@ -17,9 +17,9 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::access_filters_config_file };
+sub configFile { $pf::file_paths::vlan_filters_config_file };
 
-sub pfconfigNamespace {'config::AccessFilters'}
+sub pfconfigNamespace {'config::VlanFilters'}
 
 __PACKAGE__->meta->make_immutable;
 

@@ -20,8 +20,6 @@ use pf::person qw(person_view);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
-tie our %ConfigAccessFilters, 'pfconfig::cached_hash', 'config::AccessFilters';
-tie our %AccessFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::AccessFilterEngineScopes';
 
 =head1 SUBROUTINES
 
@@ -68,15 +66,12 @@ sub filter {
 
 =head2 getEngineForScope
 
- gets the engine for the scope
+ get the filter engine for the scope provided
 
 =cut
 
 sub getEngineForScope {
     my ($self, $scope) = @_;
-    if (exists $AccessFilterEngineScopes{$scope}) {
-        return $AccessFilterEngineScopes{$scope};
-    }
     return undef;
 }
 
