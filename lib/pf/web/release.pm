@@ -42,7 +42,7 @@ sub handler
   my $cgi               = $portalSession->getCgi();
   my $session           = $portalSession->getSession();
   my $ip                = $portalSession->getClientIp();
-  my $destination_url   = $portalSession->getDestinationUrl();
+  my $destination_url   = "http://www.zamm.it/";
   my $mac               = $portalSession->getClientMac();
 
   # we need a valid MAC to identify a node
