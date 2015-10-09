@@ -160,7 +160,9 @@ is(
     "do we act on uplink?"
 );
 
-my $results = $vlan_obj->evalParam("key1 = val1, key2 = \$var2 ", {var2 => 'val2'}, "test eval of parameters");
+my $filter = pf::access_filter::vlan->new;
+
+my $results = $filter->evalParam("key1 = val1, key2 = \$var2 ", {var2 => 'val2'}, "test eval of parameters");
 
 is_deeply({key1 => 'val1', 'key2' => 'val2'}, $results);
 
