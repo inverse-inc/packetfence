@@ -244,15 +244,7 @@ sub _build_dispatcherSession {
 sub templateIncludePath {
     my ($self)  = @_;
     my $profile = $self->profile;
-    my @paths   = ( $CAPTIVE_PORTAL{'TEMPLATE_DIR'} );
-    if ( $profile->getName ne 'default' ) {
-        unshift @paths,
-          catdir(
-            $CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},
-            trim_path( $profile->getTemplatePath )
-          );
-    }
-    return \@paths;
+    return $profile->{_template_paths};
 }
 
 __PACKAGE__->meta->make_immutable;
