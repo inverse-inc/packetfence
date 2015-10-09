@@ -77,7 +77,7 @@ conf/violations.conf
 conf/allowed_device_oui.txt
 conf/apache_filters.conf
 conf/firewall_sso.conf
-conf/access_filters.conf
+conf/vlan_filters.conf
 html/captive-portal/captive_portal.conf
 conf/pfdetect_remote.conf
 conf/pfarp_remote.conf
