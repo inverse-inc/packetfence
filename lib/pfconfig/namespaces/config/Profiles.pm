@@ -25,6 +25,7 @@ use pf::constants::Portal::Profile;
 use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use List::MoreUtils qw(uniq);
+use File::Spec::Functions;
 
 use base 'pfconfig::namespaces::config';
 
@@ -44,6 +45,12 @@ sub build_child {
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
         foreach my $field (qw(locale sources filter provisioners)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
+        }
+        my @template_paths = ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
+        if ($key eq 'default') {
+            $profile->{template_paths} = [@template_paths];
+        } else {
+            $profile->{template_paths} = [catdir($captiveportal_profile_templates_path, $key), @template_paths];
         }
     }
 
