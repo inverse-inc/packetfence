@@ -141,7 +141,7 @@ sub _raw_cert_string {
 
 sub _cert_cn {
     my ($self, $cert) = @_;
-    if($cert->subject =~ /CN=(.*?),/g){
+    if($cert->subject =~ /CN=(.*?)(,|$)/g){
         return $1;
     }
     else {
