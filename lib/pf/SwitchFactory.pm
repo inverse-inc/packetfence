@@ -144,7 +144,7 @@ sub instantiate {
     });
     my ($module, $type);
     pfconfig::timeme::timeme('type import', sub {
-    $type = $switch_data->{'type'};
+    $type = untaint_chain( $switch_data->{'type'} );
     if ($requestedSwitch ne 'default') {
         $module = getModule($type);
     } else {
