@@ -16,18 +16,20 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
-use pf::config;
 use File::Copy;
 use HTTP::Status qw(:constants is_error is_success);
-use pf::util;
 use File::Slurp qw(read_dir read_file write_file);
 use File::Spec::Functions;
+use File::Find;
 use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 use pf::cluster;
 use pf::Portal::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
+use pf::config;
+use pf::util;
+use pf::file_paths;
 
 Readonly our %FILTER_FILES =>
   (
@@ -241,9 +243,9 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
              );
     my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
     my $application = captiveportal::DynamicRouting::Application->new(
-        session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}}, 
-        profile => $profile, 
-        request => $c->request, 
+        session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
+        profile => $profile,
+        request => $c->request,
         root_module_id => $profile->{_root_module},
     );
 
@@ -481,6 +483,54 @@ sub _sync_file {
         }
     }
     return $TRUE;
+}
+
+sub mergeFilesFromPaths {
+    my ($self, @dirs) = @_;
+    my %paths;
+    my $root;
+    my @paths;
+    find({
+        wanted => sub {
+                my $full_path = my $path = $_;
+                #Just get the file path minus the parent directory
+                $path =~ s/^\Q$File::Find::topdir\E//;
+                return if exists $paths{$path};
+                my $dir = $File::Find::dir;
+                #Just get the directory path minus the parent directory
+                $dir =~ s/^\Q$File::Find::topdir\E//;
+                my $data;
+                if (-d) {
+                    $data = { name => $path, type => 'dir' , size => 0, entries => [] };
+                    push @paths, $data;
+                } else {
+                    $data = makeFileInfo($path,$full_path);
+                }
+                $paths{$path} = $data;
+                if($path ne '') {
+                    push @{ $paths{$dir}{entries} }, $data;
+                } else {
+                    $root = $data;
+                }
+            },
+            no_chdir => 1
+        }, @dirs);
+    return $root;
+}
+
+sub makeFileInfo {
+    my ($self, $short_path, $full_path) = @_;
+    my %data = (
+        name => $short_path,
+        full_path => $full_path,
+        type => 'file',
+        size => format_bytes(-s $full_path),
+        editable => $self->isEditable($full_path),
+        previewable => $self->isPreviewable($full_path),
+        deleteable => $self->isDeleteable($full_path),
+        revertable => $self->isRevertable($full_path),
+    );
+    return \%data;
 }
 
 =head1 COPYRIGHT
