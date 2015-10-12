@@ -93,13 +93,8 @@ after create => sub {
     my ($self, $c) = @_;
     if (is_success($c->response->status) && $c->request->method eq 'POST') {
         my $model = $self->getModel($c);
-        my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
-
-        if(@$failed_syncs) {
-            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
-            $c->stash->{status_msg} = "Failed to sync file on ".join(', ', @$failed_syncs);
-        }
-
+        my $profile_dir = $self->_makeFilePath($c);
+        mkdir($profile_dir);
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Config::Profile')->action_for('view'),
