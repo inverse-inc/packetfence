@@ -144,7 +144,8 @@ builds the inotify object
 =cut
 
 sub _build_inotify {
-    return Linux::Inotify2->new;
+    my $inotify = Linux::Inotify2->new or die "unable to setup inotify object $!";
+    return $inotify;
 }
 
 =head2 start
