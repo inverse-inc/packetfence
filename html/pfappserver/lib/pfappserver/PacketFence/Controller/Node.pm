@@ -265,7 +265,8 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     ($status, $result) = $c->model('Config::Switch')->readAll();
     if (is_success($status)) {
         my %switches = map { $_->{id} => { type => $_->{type},
-                                           mode => $_->{mode} } } @$result;
+                                           mode => $_->{mode},
+                                           description => $_->{description} } } @$result;
         $c->stash->{switches} = \%switches;
     }
     $nodeStatus = $c->model('Node')->availableStatus();
