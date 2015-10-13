@@ -2105,7 +2105,7 @@ These rules are available in different scopes:
 
 And can be defined using different criteria like:
 
-  node_info
+  node_info.attribute (like node_info.status)
   switch
   ifIndex
   mac
@@ -2113,15 +2113,14 @@ And can be defined using different criteria like:
   username
   ssid
   time
-  owner
-  radius_request
+  owner.attribute (like owner.pid)
+  radius_request.attribute (like radius_request.Calling-Station-Id)
 
 For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
 
   [category]
-  filter = node_info
-  attribute = category
+  filter = node_info.category
   operator = is
   value = default
 
@@ -2142,7 +2141,7 @@ from Monday to Friday when it try to connect as a registered device :
 The second example will create a violation if the SSID is OPEN and the owner is igmout
 
   [igmout]
-  filter = owner
+  filter = owner.pid
   operator = is
   value = igmout
 
