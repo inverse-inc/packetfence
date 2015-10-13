@@ -97,17 +97,22 @@ Overriding the default implementation for the external captive portal
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my ($self, $args) = @_;
     my $logger = $self->logger;
 
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args);
 
-    my $node = node_view($mac);
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref] if (keys %$radius_reply_ref);
 
-    my $violation = pf::violation::violation_view_top($mac);
-    # if user is unregistered or is in violation then we reject him to show him the captive portal
+    my $node = $args->{'node_info'};
+
+    my $violation = pf::violation::violation_view_top($args->{'mac'});
+    # if user is unregistered or is in violation then we reject him to show him the captive portal 
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("[$mac] is unregistered. Refusing access to force the eCWP");
+        $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,

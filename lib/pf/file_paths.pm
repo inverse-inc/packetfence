@@ -70,6 +70,7 @@ our (
     $wmi_config_file,
     $pki_provider_config_file,
     $suricata_categories_file,
+    $radius_filters_config_file,
 );
 
 BEGIN {
@@ -117,6 +118,7 @@ BEGIN {
         $wmi_config_file
         $pki_provider_config_file
         $suricata_categories_file
+        $radius_filters_config_file
     );
 }
 
@@ -178,6 +180,7 @@ $ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $wmi_config_file = catfile($conf_dir,"wmi.conf");
+$radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -207,6 +210,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
     $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
     $wmi_config_file,$pfdetect_config_file,
     $pki_provider_config_file,
+    $radius_filters_config_file,
 );
 
 

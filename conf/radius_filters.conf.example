@@ -1,0 +1,135 @@
+# Radius filter configuration
+# 
+# you are able to rewrite the radius answer based on attributes values.
+#
+# Make a simple rule like this:
+#
+#[macauth]
+#filter = connection_type
+#operator = is
+#value = WIRED_MAC_AUTH
+#
+#[mac]
+#filter = mac
+#operator = is
+#value = 00:11:22:33:44:55
+#
+#This rule will return the vlan id 42 for this specific mac address
+#
+#[1:macauth&mac]
+#scope = returnRadiusAccessAccept
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => 42
+#
+# This rule will return access-accept if there is no violation
+#
+#[violation]
+#filter = violation
+#operator = defined
+#
+#[2:macauth&!violation]
+#scope = returnRadiusAccessAccept
+#
+# Advanced rule:
+#
+# This rule will return the vlan id associated to the user role and Cisco-AVPair where the attributes
+# has been evaluated.
+#
+#[3:macauth&!violation]
+#scope = returnRadiusAccessAccept
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => $vlan
+#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#
+# All the answer in the rule is computed by PacketFence so you can set static and dynamic values
+# Let say you defined this answer and the $user_role value is set to default:
+#
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => ${switch._vlans.$user_role}
+#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#
+# PacketFence will first evaluate simple variables like $user_role to default then it will evaluate
+# ${switch._vlans.default} to 1 (see switch hash above).
+#
+#'switch' => {
+#    '_vlans' => {
+#        'inline' => '6',
+#        'isolation' => '2',
+#        'normal' => '1',
+#        'default' => '1',
+#        'registration' => '3',
+#        'voice' => '5',
+#        'macDetection' => '4',
+#    },
+#    '_portalURL' => 'http://192.168.1.2',
+#},
+#
+# Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
+#
+# filter can be:
+#     node_info.autoreg
+#     node_info.status
+#     node_info.device_class
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_type
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     ifIndex
+#     mac
+#     connection_type
+#     username
+#     ssid
+#     vlan
+#     wasInline
+#     user_role
+#     radius_request
+#     violation
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#
+# attribute can be:
+#
+# - for connection_type
+#    Wireless-802.11-EAP
+#    Wireless-802.11-NoEAP
+#    Ethernet-EAP
+#    Ethernet-NoEAP
+#    SNMP-Traps
+#    Inline
+#    WIRED_MAC_AUTH
+#
+#
+# - for the radius_request
+#    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#

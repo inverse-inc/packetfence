@@ -196,36 +196,26 @@ ATTRIBUTE       Mikrotik-Wireless-VlanIDType            27      integer
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    # Inline Vs. VLAN enforcement
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args);
+
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref] if (keys %$radius_reply_ref);
+
+    # Inline Vs. VLAN enforcement
     my $role = "";
-    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $vlan,
+            'Mikrotik-Wireless-VlanID' => $args->{'vlan'},
             'Mikrotik-Wireless-VlanIDType' => "0",
         };
     }
 
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$mac] Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        if ( defined($user_role) && $user_role ne "" ) {
-            $role = $self->getRoleByName($user_role);
-        }
-        if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-            $logger->info(
-                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-            );
-        }
-        else {
-            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
-        }
-    }
-
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
