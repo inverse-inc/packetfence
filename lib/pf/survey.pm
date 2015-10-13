@@ -37,7 +37,7 @@ our $survey_db_prepared = 0;
 # the hash if required
 our $survey_statements = {};
 
-our @SURVEY_FIELDS = ( qw(survey_value email age gender origin) );
+our @SURVEY_FIELDS = ( qw(survey_value email age gender origin source_id) );
 
 sub survey_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::survey');
