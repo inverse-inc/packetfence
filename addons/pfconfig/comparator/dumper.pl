@@ -65,10 +65,10 @@ our %configs;
 }
 
 {
-  use pf::vlan::filter;
+  use pf::access_filter::vlan;
 
   my @variables = ('%ConfigVlanFilters');
-  $configs{'pf::vlan::filter'} = dump_module("pf::vlan::filter", @variables);
+  $configs{'pf::access_filter::vlan'} = dump_module("pf::vlan::filter", @variables);
 
 }
 
@@ -96,7 +96,7 @@ our %configs;
 }
 
 my $output = $ENCODER->encode(\%configs);
-open(my $fh, ">", "/tmp/config-comparator/$BASE.out") 
+open(my $fh, ">", "/tmp/config-comparator/$BASE.out")
   or die "cannot open > /tmp/config-comparator/$BASE.out: $!";
 print $fh $output;
 
@@ -114,7 +114,7 @@ sub dump_module {
       my $elem = eval($name);
       $data{$name} = $elem;
     }
-  } 
+  }
   return \%data;
 }
 

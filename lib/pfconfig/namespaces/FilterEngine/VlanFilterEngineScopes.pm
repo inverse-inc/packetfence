@@ -1,42 +1,28 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pfconfig::namespaces::FilterEngine::VlanFilterEngineScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::FilterEngine::VlanFilterEngineScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pfconfig::namespaces::FilterEngine::VlanFilterEngineScopes
 
 =cut
 
 use strict;
 use warnings;
-
+use pf::log;
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pfconfig::namespaces::config::VlanFilters;
 
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes';
 
-sub init {
+sub parentConfig {
     my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
-}
-
-sub build_child {
-    my ($self) = @_;
-
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    $self->cleanup_whitespaces( \%tmp_cfg );
-
-    return \%tmp_cfg;
-
+    return pfconfig::namespaces::config::VlanFilters->new($self->{cache});
 }
 
 =head1 AUTHOR
@@ -67,8 +53,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

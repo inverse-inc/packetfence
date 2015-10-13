@@ -1,42 +1,31 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pf::condition::not;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pf::condition::not
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pf::condition::not
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::condition);
 
-use pfconfig::namespaces::config;
-use pf::file_paths;
+has condition => (
+    is => 'ro',
+    required => 1,
+    isa => 'pf::condition',
+);
 
-use base 'pfconfig::namespaces::config';
-
-sub init {
-    my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
-}
-
-sub build_child {
-    my ($self) = @_;
-
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    $self->cleanup_whitespaces( \%tmp_cfg );
-
-    return \%tmp_cfg;
-
+sub match {
+    my ($self,$arg) = @_;
+    return !$self->condition->match($arg);
 }
 
 =head1 AUTHOR
@@ -67,8 +56,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-
