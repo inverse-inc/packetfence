@@ -26,7 +26,13 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/wrix', CaptureArgs => 1 }
+        object => { Chained => '/', PathPart => 'config/wrix', CaptureArgs => 1 },
+        view   => { AdminRole => 'WRIX_READ' },
+        list   => { AdminRole => 'WRIX_READ' },
+        create => { AdminRole => 'WRIX_CREATE' },
+        clone  => { AdminRole => 'WRIX_CREATE' },
+        update => { AdminRole => 'WRIX_UPDATE' },
+        remove => { AdminRole => 'WRIX_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
