@@ -13,7 +13,7 @@ pf::access_filter deny, rewrite role based on rules.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use pf::api::jsonrpcclient;
 use pf::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
@@ -28,7 +28,7 @@ use pf::filter;
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::access_filter");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::access_filter");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
