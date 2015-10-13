@@ -70,15 +70,82 @@
 #
 # filter can be:
 #
-#     node_info
-#     switch
+#     node_info.autoreg
+#     node_info.status
+#     node_info.device_class
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_type
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
 #     ifIndex
 #     mac
 #     connection_type
 #     username
 #     ssid
 #     time
-#     owner
+#     owner.pid
+#     owner.firstname
+#     owner.lastname
+#     owner.email
+#     owner.telephone
+#     owner.company
+#     owner.address
+#     owner.notes
+#     owner.sponsor
+#     owner.anniversary
+#     owner.birthday
+#     owner.gender
+#     owner.lang
+#     owner.nickname
+#     owner.cell_phone
+#     owner.work_phone
+#     owner.title
+#     owner.building_number
+#     owner.apartment_number
+#     owner.room_number
+#     owner.custom_field_1
+#     owner.custom_field_2
+#     owner.custom_field_3
+#     owner.custom_field_4
+#     owner.custom_field_5
+#     owner.custom_field_6
+#     owner.custom_field_7
+#     owner.custom_field_8
+#     owner.custom_field_9
+#     owner.portal
+#     owner.source
+#     owner.nodes
+#     owner.password
+#     owner.valid_from
+#     owner.expiration
+#     owner.access_duration
+#     owner.access_level
+#     owner.can_sponsor
+#     owner.unregdate
+#     owner.category
 #     radius_request
 #
 # operator can be:
@@ -89,35 +156,6 @@
 #
 # attribute can be:
 #
-# - for the node_info:
-#     autoreg
-#     status
-#     bypass_vlan
-#     bandwidth_balance
-#     regdate
-#     pid
-#     category
-#     mac
-#     last_arp
-#     lastskip
-#     last_dhcp
-#     user_agent
-#     computername
-#     dhcp_fingerprint
-#     detect_date
-#     voip
-#     notes
-#     time_balance
-#     sessionid
-#     unregdate
-#
-# - for switch:
-#     _switchMac
-#     _switchIp
-#     _ip
-#     _controllerIp
-#     _id
-#
 # - for connection_type
 #    Wireless-802.11-EAP
 #    Wireless-802.11-NoEAP
@@ -126,48 +164,6 @@
 #    SNMP-Traps
 #    Inline
 #    WIRED_MAC_AUTH
-#
-# - for the owner
-#    pid
-#    firstname
-#    lastname
-#    email
-#    telephone
-#    company
-#    address
-#    notes
-#    sponsor
-#    anniversary
-#    birthday
-#    gender
-#    lang
-#    nickname
-#    cell_phone
-#    work_phone
-#    title
-#    building_number
-#    apartment_number
-#    room_number
-#    custom_field_1
-#    custom_field_2
-#    custom_field_3
-#    custom_field_4
-#    custom_field_5
-#    custom_field_6
-#    custom_field_7
-#    custom_field_8
-#    custom_field_9
-#    portal
-#    source
-#    nodes
-#    password
-#    valid_from
-#    expiration
-#    access_duration
-#    access_level
-#    can_sponsor
-#    unregdate
-#    category
 #
 # - for the radius_request
 #    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
