@@ -178,8 +178,13 @@ sub authorize {
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("[$mac] auto-registration of node failed");
         }
-        $switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
-            $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
+        # Commented out as it opens a locationlog even when sending a reject
+        # This shouldn't break anything in the flow as the entry is opened afterwards
+        # This also creates duplicate entries since the VLAN hasn't been computed yet
+        # Can be removed in PF6
+        # jsemaan@inverse.ca
+        #$switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
+        #    $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
