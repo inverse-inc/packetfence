@@ -110,6 +110,7 @@
 #     user_role
 #     radius_request
 #     violation
+#     time
 #
 # operator can be:
 #     is
@@ -133,3 +134,11 @@
 # - for the radius_request
 #    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
+#
+# The value of a time is specific and follow this logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to test the current date for Monday to Friday, 9am to 11am and for 2pm to 4pm:
+# [timeofday]
+# filter = time
+# operator = is
+# value = wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
