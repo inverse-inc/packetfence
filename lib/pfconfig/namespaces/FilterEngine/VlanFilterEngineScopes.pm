@@ -17,67 +17,12 @@ use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::VlanFilters;
-use pf::factory::condition::access_filter;
-use pf::filter;
-use pf::filter_engine;
-use pf::condition_parser qw(parse_condition_string);
 
-use base 'pfconfig::namespaces::resource';
+use base 'pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes';
 
-
-sub build {
-    my ($self)            = @_;
-    my $config_profiles   = pfconfig::namespaces::config::VlanFilters->new($self->{cache});
-    my %VlanFiltersConfig = %{$config_profiles->build};
-    $self->{prebuilt_conditions} = {};
-    my (%VlanFilterEngineScopes, @filter_data, %filters_scopes);
-    foreach my $rule (@{$config_profiles->{ordered_sections}}) {
-        my $logger = get_logger();
-        my $data = $VlanFiltersConfig{$rule};
-        if ($rule =~ /^\w+:(.*)$/) {
-            $logger->info("Building rule '$rule'");
-            my ($parsed_conditions, $msg) = parse_condition_string($1);
-            next unless defined $parsed_conditions;
-            push @filter_data, [$parsed_conditions, $data];
-        }
-        else {
-            $logger->info("Building condition '$rule'");
-            $self->{prebuilt_conditions}{$rule} = pf::factory::condition::access_filter->instantiate($data);
-        }
-    }
-
-    foreach my $filter_data (@filter_data) {
-        $self->build_filter(\%filters_scopes, @$filter_data);
-    }
-    while (my ($scope, $filters) = each %filters_scopes) {
-        $VlanFilterEngineScopes{$scope} = pf::filter_engine->new({filters => $filters});
-    }
-    return \%VlanFilterEngineScopes;
-}
-
-sub build_filter {
-    my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
-    push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
-        answer    => $data,
-        condition => $self->build_filter_condition($parsed_conditions)
-    });
-}
-
-sub build_filter_condition {
-    my ($self, $parsed_condition) = @_;
-    if (ref $parsed_condition) {
-        local $_;
-        my ($type, @parsed_conditions) = @$parsed_condition;
-        my $conditions = [map {$self->build_filter_condition($_)} @parsed_conditions];
-        if($type eq 'NOT' ) {
-            return pf::condition::not->new({condition => $conditions->[0]});
-        }
-        my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
-        return $module->new({conditions => $conditions});
-    }
-    else {
-        return $self->{prebuilt_conditions}->{$parsed_condition};
-    }
+sub parentConfig {
+    my ($self) = @_;
+    return pfconfig::namespaces::config::VlanFilters->new($self->{cache});
 }
 
 =head1 AUTHOR

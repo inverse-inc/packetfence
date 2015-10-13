@@ -387,8 +387,9 @@ sub list_namespaces {
     return (@$static_namespaces, @$overlayed_namespaces);
 }
 
+our %skip = ( 'config'=> 1, 'resource'=> 1, 'config::template'=> 1, 'FilterEngine::AccessFilterEngineScopes' => 1 );
+
 sub list_static_namespaces {
-    my @skip = ( 'config', 'resource', 'config::template', );
     my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
     my @modules;
     find(
@@ -402,7 +403,7 @@ sub list_static_namespaces {
                 $module =~ s/\//::/g;
                 return if $module =~ /::\..*$/;
                 return if $module =~ /^\..*$/;
-                return if grep( /^$module$/, @skip );
+                return if exists $skip{$module};
                 push @modules, $module;
             },
             no_chdir => 1
