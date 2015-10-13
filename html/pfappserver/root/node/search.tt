@@ -73,6 +73,8 @@
                 [% column_checkbox('last_ip', l('IP Address')) | none %]
                 [% column_checkbox('dhcp_fingerprint', l('OS (DHCP)')) | none %]
                 [% column_checkbox('category', l('Role')) | none %]
+                [% column_checkbox('switch_ip', l('Switch IP')) | none %]
+                [% column_checkbox('switch_description', l('Switch description')) | none %]
                 [% column_checkbox('bypass_vlan', l('Bypass VLAN')) | none %]
                 [% column_checkbox('bypass_role', l('Bypass Role')) | none %]
               </ul>
@@ -93,6 +95,8 @@
                     [% header('pid', l('Owner'), 'hidden-phone') | none %]
                     [% header('last_ip', l('IP Address')) | none %]
                     [% header('dhcp_fingerprint', l('OS (DHCP)'), 'hidden-phone') | none %]
+                    [% header('switch_ip', l('Switch IP'), 'hidden-phone') | none %]
+                    [% header('switch_description', l('Switch description'), 'hidden-phone') | none %]
                     [% header('category', l('Role'), 'hidden-phone') | none %]
                     [% header('bypass_vlan', l('Bypass VLAN'), 'hidden-phone') | none %]
                     [% header('bypass_role', l('Bypass Role'), 'hidden-phone') | none %]
@@ -128,6 +132,12 @@
                     [%- END %]
                     [%- IF c.session.nodecolumns.dhcp_fingerprint %]
                     <td class="hidden-phone">[% node.dhcp_fingerprint | html %]</td>
+                    [%- END %]
+                    [%- IF c.session.nodecolumns.switch_ip %]
+                    <td class="hidden-phone">[% node.switch_ip | html %]</td>
+                    [%- END %]
+                    [%- IF c.session.nodecolumns.switch_description %]
+                    <td class="hidden-phone">[% switches.${node.switch_ip}.description | html %]</td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.category %]
                     <td class="hidden-phone">[% node.category | html %]</td>

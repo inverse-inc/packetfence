@@ -114,6 +114,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         # Set default visible columns
         $c->session( nodecolumns => \%DEFAULT_COLUMNS );
     }
+    $c->stash->{switches} = $self->_get_switches_metadata($c);
     $c->stash->{search_action} = $c->action;
     $c->response->status($status);
 }
@@ -262,13 +263,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
-    ($status, $result) = $c->model('Config::Switch')->readAll();
-    if (is_success($status)) {
-        my %switches = map { $_->{id} => { type => $_->{type},
-                                           mode => $_->{mode},
-                                           description => $_->{description} } } @$result;
-        $c->stash->{switches} = \%switches;
-    }
+    $c->stash->{switches} = $self->_get_switches_metadata($c);
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = $c->form("Node",
                      init_object => $c->stash->{node},
@@ -426,6 +421,18 @@ sub bulk_apply_bypass_role : Local : Args(1) :AdminRole('NODES_UPDATE') {
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg;
+}
+
+sub _get_switches_metadata : Private {
+    my ($self,$c) = @_;
+    my ($status, $result) = $c->model('Config::Switch')->readAll();
+    if (is_success($status)) {
+        my %switches = map { $_->{id} => { type => $_->{type},
+                                           mode => $_->{mode},
+                                           description => $_->{description} } } @$result;
+        return \%switches;
+    }
+    return undef;
 }
 
 =head1 AUTHOR
