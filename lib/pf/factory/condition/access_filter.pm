@@ -21,20 +21,13 @@ our @MODULES;
 
 sub factory_for {'pf::condition'}
 
-our %VLAN_FILTER_TYPE_TO_CONDITION_TYPE = (
+our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'is'          => 'pf::condition::equals',
     'is_not'      => 'pf::condition::not_equals',
     'match'       => 'pf::condition::matches',
     'match_not'   => 'pf::condition::not_matches',
     'defined'     => 'pf::condition::is_defined',
     'not_defined' => 'pf::condition::not_defined',
-);
-
-our %VLAN_FILTER_KEY_TYPES = (
-    'node_info'      => 1,
-    'switch'         => 1,
-    'owner'          => 1,
-    'radius_request' => 1,
 );
 
 sub modules {
@@ -57,6 +50,7 @@ sub instantiate {
         }
         return $c;
     }
+    $filter .= "." . $data->{attribute} if defined $data->{attribute} && length $data->{attribute};
     my $sub_condition = _build_sub_condition($data);
     return _build_parent_condition($sub_condition, (split /\./, $filter));
 }
@@ -77,7 +71,7 @@ sub _build_parent_condition {
 
 sub _build_sub_condition {
     my ($data) = @_;
-    my $condition_class = $VLAN_FILTER_TYPE_TO_CONDITION_TYPE{$data->{operator}};
+    my $condition_class = $ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE{$data->{operator}};
     my $value = $data->{filter} eq 'connection_type' ? str_to_connection_type($data->{value}) : $data->{value};
     return $condition_class ? $condition_class->new({value => $value}) : undef;
 }
