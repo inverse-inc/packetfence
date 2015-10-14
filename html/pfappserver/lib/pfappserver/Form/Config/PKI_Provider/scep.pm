@@ -53,7 +53,6 @@ has_field 'username' =>
 has_field 'password' =>
   (
    type => 'Password',
-   password => 0,
    tags => { after_element => \&help,
              help => 'Password for the username filled in above'},
   );

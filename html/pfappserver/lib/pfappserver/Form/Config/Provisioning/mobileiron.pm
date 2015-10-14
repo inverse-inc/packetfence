@@ -20,7 +20,6 @@ has_field username => (
 has_field password => (
     type => 'Password',
     required => 1,
-    password => 0,
 );
 
 has_field host => (

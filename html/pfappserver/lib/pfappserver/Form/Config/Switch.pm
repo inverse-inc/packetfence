@@ -165,7 +165,6 @@ has_field 'radiusSecret' =>
   (
    type => 'Password',
    label => 'Secret Passphrase',
-   password => 0,
   );
 
 ## SNMP
