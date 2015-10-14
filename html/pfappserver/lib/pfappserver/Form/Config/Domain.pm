@@ -52,7 +52,6 @@ has_field 'bind_pass' =>
    type => 'Password',
    label => 'Password',
    required => 1,
-   password => 0,
    messages => { required => 'Please specify the password to bind to the Active Directory' },
   );
 

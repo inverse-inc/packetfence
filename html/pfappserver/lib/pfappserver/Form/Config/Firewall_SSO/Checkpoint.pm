@@ -33,7 +33,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Secret',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the radius shared secret' },
   );
 has_field 'port' =>

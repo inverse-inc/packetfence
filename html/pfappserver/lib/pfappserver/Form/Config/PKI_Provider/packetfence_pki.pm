@@ -19,7 +19,7 @@ has_field 'id' => (
     label       => 'PKI Provider Name',
     required    => 1,
     messages    => { required => 'Please specify the name of the PKI provider' },
-    tags        => { 
+    tags        => {
         after_element   => \&help,
         help            => 'The unique ID of the PKI provider',
     },
@@ -74,7 +74,6 @@ has_field 'username' => (
 has_field 'password' => (
     type        => 'Password',
     label       => 'Password',
-    password    => 0,
     tags        => {
         after_element   => \&help,
         help            => 'Password for the username filled in above',
@@ -132,7 +131,7 @@ has_field 'cn_attribute' => (
     label   => 'Common Name Attribute',
     options => [ { label => 'MAC address', value => 'mac' }, { label => 'Username', value => 'pid' } ],
     default => 'pid',
-    tags    => { 
+    tags    => {
         after_element   => \&help,
         help            => 'Defines what attribute of the node to use as the common name during the certificate generation',
     },
@@ -142,7 +141,7 @@ has_field 'server_cert_path' => (
     type        => 'Path',
     label       => 'Server cert path',
     required    => 1,
-    tags        => { 
+    tags        => {
         after_element   => \&help,
         help            => 'Path of the RADIUS server authentication certificate',
     },
@@ -152,7 +151,7 @@ has_field 'revoke_on_unregistration' => (
     type             => 'Checkbox',
     label            => 'Revoke on unregistration',
     checkbox_value   => 'Y',
-    tags             => { 
+    tags             => {
         after_element   => \&help,
         help            => 'Check this box to have the certificate revoke when the node using it is unregistered.<br/>Do not use if multiple devices share the same certificate',
     },

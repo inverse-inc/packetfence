@@ -40,7 +40,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Password',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the password' },
   );
 has_field 'port' =>

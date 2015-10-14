@@ -33,7 +33,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Secret or Key',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the password or the key' },
   );
 has_field 'port' =>
