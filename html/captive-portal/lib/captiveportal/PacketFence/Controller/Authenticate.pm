@@ -266,6 +266,7 @@ sub checkIfChainedAuth : Private {
     return unless $source->type eq 'Chained';
     my $chainedSource = $source->getChainedAuthenticationSourceObject();
     if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
+        $c->session->{chained_source} = $source->id;
         $self->setAllowedGuestModes($c,$chainedSource);
         $c->detach(Signup => 'showSelfRegistrationPage');
     }
@@ -593,9 +594,13 @@ sub showLogin : Private {
         guest_allowed   => $guest_allowed,
     );
 
-    my @mandatory_fields = $profile->getFieldsForSources(@sources);
+    # When in a chained source, we prompt mandatory fields on the second source
+    my $chain_activated = any { $_->type eq 'Chained' } @sources;
+    unless($chain_activated){
+        my @mandatory_fields = $profile->getFieldsForSources(@sources);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
 
-    $c->stash( mandatory_fields => \@mandatory_fields );
 }
 
 sub _clean_username {
@@ -625,6 +630,14 @@ sub validateMandatoryFields : Private {
     my ( $error_code, @error_args );
 
     my $source = getAuthenticationSource($session->{source_id});
+
+    $c->log->info("Finding mandatory fields for source : ".$source->id);
+
+    # When in a chained source, we prompt mandatory fields on the second source
+    if($source->type eq "Chained"){
+        return;
+    }
+
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;

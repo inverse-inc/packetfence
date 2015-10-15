@@ -559,18 +559,25 @@ sub validateMandatoryFields : Private {
     my $request = $c->request;
     my $profile = $c->profile;
 
-    # Which source is being used
-    # TODO: Move to a switch case with portal rework
-    # 2015.05.08 - dwuelfrath@inverse.ca
-    my $source_type;
-    $source_type = 'email' if $request->param('by_email');
-    $source_type = 'sms' if $request->param('by_sms');
-    $source_type = 'sponsoremail' if $request->param('by_sponsor');
+    my $source;
+    # we use the fields of the chained source if needed
+    if($c->session->{chained_source}){
+        $source = getAuthenticationSource($c->session->{chained_source});
+    }
+    else {
+        # Which source is being used
+        # TODO: Move to a switch case with portal rework
+        # 2015.05.08 - dwuelfrath@inverse.ca
+        my $source_type;
+        $source_type = 'email' if $request->param('by_email');
+        $source_type = 'sms' if $request->param('by_sms');
+        $source_type = 'sponsoremail' if $request->param('by_sponsor');
+        $source = $profile->getSourceByType($source_type);
+    }
 
-    $logger->debug("Validating mandatory and custom fields for '$source_type' based self-registration");
+    $logger->info("Validating mandatory and custom fields for '".$source->id."' based self-registration");
 
     # Getting the source object
-    my $source = $profile->getSourceByType($source_type);
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
@@ -629,9 +636,18 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    my @mandatory_fields = $profile->getFieldsForSources(@sources);
+    $c->log->info("Finding mandatory fields for source ".$source->id);
 
-    $c->stash( mandatory_fields => \@mandatory_fields );
+    if($c->session->{chained_source}){
+        $c->log->info("Found a chained source. Will use it to compute mandatory fields");
+        my $source = getAuthenticationSource($c->session->{chained_source});
+        my @mandatory_fields = $profile->getFieldsForSources($source);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
+    else {
+        my @mandatory_fields = $profile->getFieldsForSources(@sources);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
 
     $c->stash( template => 'guest.html' );
 }

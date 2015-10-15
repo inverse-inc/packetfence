@@ -131,6 +131,17 @@ sub getChainedAuthenticationSourceObject {
     return pf::authentication::getAuthenticationSource($self->chained_authentication_source);
 }
 
+=head2 mandatoryFields
+
+List of mandatory fields for this source
+
+=cut
+
+sub mandatoryFields {
+    my ($self) = @_;
+    return $self->getChainedAuthenticationSourceObject->mandatoryFields;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
