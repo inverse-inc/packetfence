@@ -21,6 +21,7 @@ use List::MoreUtils qw(any);
 use List::Util qw(first);
 use pf::factory::provisioner;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::survey;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -379,6 +380,7 @@ sub unknownState : Private {
                                 new pf::Portal::Session()->session,
                                 ),
             );
+            pf::survey::survey_add_from_session($c->session, $c);
             $c->detach;
         }
         else{
@@ -487,6 +489,7 @@ sub webNodeRegister : Private {
                                 new pf::Portal::Session()->session,
                                 ),
             );
+            pf::survey::survey_add_from_session($c->session, $c);
             $c->detach;
         }
         else{
