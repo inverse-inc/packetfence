@@ -37,14 +37,14 @@ our $survey_db_prepared = 0;
 # the hash if required
 our $survey_statements = {};
 
-our @SURVEY_FIELDS = ( qw(survey_value email age gender origin source_id) );
+our @SURVEY_FIELDS = ( qw(survey_value email age gender origin source_id mac) );
 
 sub survey_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::survey');
     $logger->debug("Preparing pf::survey database queries");
 
     $survey_statements->{'survey_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into survey(survey_value,email,age,gender,origin, source_id, mac) values(?,?,?,?,?,?,?) ]);
+        qq[ insert into survey(survey_value,email,age,gender,origin,source_id,mac) values(?,?,?,?,?,?,?) ]);
 
     $survey_db_prepared = 1;
 }
@@ -69,8 +69,9 @@ sub survey_save_request_into_session {
 sub survey_add_from_session {
     my ($session, $c) = @_;
     if(defined $session->{survey_value}) {
-        my %data = (mac => $c->portalSession->clientMac);
+        my %data;
         @data{@SURVEY_FIELDS} = @{$session}{@SURVEY_FIELDS};
+        $data{mac} //= $c->portalSession->clientMac;
         survery_add_from_oauth_response(\%data, $session->{oauth_response} ) if $session->{oauth_response};
         survey_add(%data);
     }
