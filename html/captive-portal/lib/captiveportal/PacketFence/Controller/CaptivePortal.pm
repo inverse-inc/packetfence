@@ -22,6 +22,7 @@ use List::Util qw(first);
 use pf::factory::provisioner;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::inline;
+use pf::survey;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -379,6 +380,7 @@ sub unknownState : Private {
                                 $session,
                                 ),
             );
+            pf::survey::survey_add_from_session($c->session, $c);
             $c->detach;
         }
         else{
@@ -486,6 +488,7 @@ sub webNodeRegister : Private {
                                 $session,
                                 ),
             );
+            pf::survey::survey_add_from_session($c->session, $c);
             $c->detach;
         }
         else{

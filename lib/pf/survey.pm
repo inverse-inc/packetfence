@@ -44,7 +44,7 @@ sub survey_db_prepare {
     $logger->debug("Preparing pf::survey database queries");
 
     $survey_statements->{'survey_add_sql'} = get_db_handle()->prepare(
-        qq[ insert into survey(survey_value,email,age,gender,origin) values(?,?,?,?,?) ]);
+        qq[ insert into survey(survey_value,email,age,gender,origin, source_id, mac) values(?,?,?,?,?,?,?) ]);
 
     $survey_db_prepared = 1;
 }
@@ -67,9 +67,9 @@ sub survey_save_request_into_session {
 }
 
 sub survey_add_from_session {
-    my ($session) = @_;
+    my ($session, $c) = @_;
     if(defined $session->{survey_value}) {
-        my %data;
+        my %data = (mac => $c->portalSession->clientMac);
         @data{@SURVEY_FIELDS} = @{$session}{@SURVEY_FIELDS};
         survery_add_from_oauth_response(\%data, $session->{oauth_response} ) if $session->{oauth_response};
         survey_add(%data);
