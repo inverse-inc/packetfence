@@ -19,6 +19,7 @@ use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 use fingerbank::FilePath;
+use fingerbank::Model::Endpoint;
 use pf::cluster;
 use pf::constants;
 
@@ -210,15 +211,15 @@ sub is_a {
 
     $logger->debug("Trying to determine the kind of device for '$device_type' device type");
 
-    my $fingerbank = fingerbank::Query->new;
+    my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
 
-    return "Windows" if ( $fingerbank->isWindows($device_type) );
+    return "Windows" if ( $endpoint->isWindows($device_type) );
     # Macintosh / Mac OS
-    return "Macintosh" if ( $fingerbank->isMacOS($device_type) );
+    return "Macintosh" if ( $endpoint->isMacOS($device_type) );
     # Android
-    return "Generic Android" if ( $fingerbank->isAndroid($device_type) );
+    return "Generic Android" if ( $endpoint->isAndroid($device_type) );
     # Apple IOS
-    return "Apple iPod, iPhone or iPad" if ( $fingerbank->isIOS($device_type) );
+    return "Apple iPod, iPhone or iPad" if ( $endpoint->isIOS($device_type) );
 
     # Unknown (we were not able to match)
     return "unknown";
