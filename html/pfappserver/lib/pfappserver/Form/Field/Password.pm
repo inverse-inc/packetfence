@@ -2,12 +2,11 @@ package pfappserver::Form::Field::Password;
 
 =head1 NAME
 
-pfappserver::Form::Field::Uneditable - non-editable pseudo-field
+pfappserver::Form::Field::Password - PacketFence password field
 
 =head1 DESCRIPTION
 
-This field extends Text and uses the span widget to render
-the field.
+This field extends Password to avoid autocompletion of all the password fields
 
 =cut
 
@@ -18,7 +17,7 @@ use namespace::autoclean;
 has '+password' => ( default => 0 );
 
 sub build_element_attr {
-    return { autocomplete => 'off' };
+    return { autocomplete => 'off', readonly => 1, onmouseover => "this.removeAttribute('readonly');", onfocus=>"this.removeAttribute('readonly');" };
 }
 =head1 COPYRIGHT
 
