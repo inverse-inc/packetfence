@@ -71,7 +71,7 @@ getRegistrationVlan or getNormalVlan.
 =cut
 
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg ) = @_;
+    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
     my $start = Time::HiRes::gettimeofday();
 
@@ -79,7 +79,7 @@ sub fetchVlanForNode {
 
     if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
         $logger->info("[$mac] Inline trigger match, the node is in inline mode");
-        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
+        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
         $logger->info("[$mac] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $inline, 1 );
@@ -108,7 +108,7 @@ sub fetchVlanForNode {
 
     my ($violation,$registration,$role);
     # violation handling
-    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
+    ($violation,$role) = $this->getViolationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
     if (defined($violation) && $violation ne "0" ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ( $violation, 0, $role);
@@ -117,7 +117,7 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
+    ($registration,$role) = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
     if (defined($registration) && $registration ne "0") {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -130,7 +130,7 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
+    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
     if (!defined($vlan)) {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -213,7 +213,7 @@ sub getViolationVlan {
     # $conn_type is set to the connnection type expressed as the constant in pf::config
     # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
 
@@ -311,7 +311,7 @@ sub getRegistrationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
     my $filter = new pf::vlan::filter;
@@ -383,11 +383,12 @@ sub getNormalVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $start = Time::HiRes::gettimeofday();
 
     my $options = {};
+    $options->{'last_connection_sub_type'} = $connection_sub_type if (defined( $connection_sub_type));
     $options->{'last_connection_type'} = connection_type_to_str($connection_type) if (defined( $connection_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $ifIndex if (defined($ifIndex));
@@ -524,7 +525,7 @@ sub getInlineVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
 
@@ -558,12 +559,13 @@ sub getNodeInfoForAutoReg {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch, $switch_port, $mac, $vlan,
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name, $connection_sub_type) = @_;
     my $logger = Log::Log4perl->get_logger();
     my $start = Time::HiRes::gettimeofday();
 
     #define the current connection value to instantiate the correct portal
     my $options = {};
+    $options->{'last_connection_sub_type'} = $connection_sub_type if (defined($connection_sub_type));
     $options->{'last_connection_type'} = connection_type_to_str($conn_type) if (defined($conn_type));
     $options->{'last_switch'}          = $switch->{_id} if (defined($switch->{_id}));
     $options->{'last_port'}            = $switch_port if (defined($switch_port));

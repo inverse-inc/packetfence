@@ -172,7 +172,7 @@ sub authorize {
         $autoreg = 1;
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
-            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name);
+            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name, $connection_sub_type);
 
         $logger->debug("[$mac] auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
@@ -205,7 +205,7 @@ sub authorize {
     $this->_handleAccessFloatingDevices($switch, $mac, $port);
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {

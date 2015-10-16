@@ -7326,6 +7326,10 @@ msgid "profile.filter.connection_type"
 msgstr "Connection Type"
 
 # profile.filter (Portal Profile Filters)
+msgid "profile.filter.connection_sub_type"
+msgstr "Connection Sub Type"
+
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.network"
 msgstr "Network"
 
