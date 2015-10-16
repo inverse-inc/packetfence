@@ -112,95 +112,98 @@ sub get_refresh_token {
     return $self->{'refresh_token'}
 }
 
-sub set_refresh_token {
-    my ($self, $refresh_token) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    if (!defined($refresh_token) || $refresh_token eq ''){
-        $logger->error("Called set_refresh_token but the refresh token is invalid");
-    } 
-    else{
-        $self->{'refresh_token'} = $refresh_token;
-        my $cs = pf::ConfigStore::Provisioning->new;
-        $cs->update($self->{'id'}, {refresh_token => $refresh_token});
-        $cs->commit();
-    }
-    
-}
-
 sub get_access_token {
     my ($self) = @_;
     my $logger = get_logger;
-    return $self->{'access_token'};   
-}
-
-sub set_access_token {
-    my ($self, $access_token) = @_;
-    my $logger = get_logger;
-    if (!defined($access_token) || $access_token eq ''){
-        $logger->error("Called set_access_token but the access token is invalid.");
-    }
-    else{
-        $self->{'access_token'} = $access_token;
-        my $cs = pf::ConfigStore::Provisioning->new;
-        $cs->update($self->{'id'}, {access_token => $access_token});
-        $cs->commit();
-    }
+    return $self->{'access_token'};
 }
 
 sub refresh_access_token {
     my ($self) = @_;
     my $logger = get_logger;
-        
+
     my $refresh_token = $self->get_refresh_token();
     my $curl = WWW::Curl::Easy->new;
     my $url = $self->protocol."://".$self->host.":".$self->port."/o/oauth/token?grant_type=refresh_token&client_id=".$self->client_id."&client_secret=".$self->client_secret."&refresh_token=$refresh_token";
-    
-    my $response_body = '';
-    open(my $fileb, ">", \$response_body);
-    $curl->setopt(CURLOPT_URL, $url );
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ; 
-    $curl->setopt(CURLOPT_HEADER, 0);   
-    $curl->setopt(CURLOPT_WRITEDATA,$fileb);
-
-    my $curl_return_code = $curl->perform;
-    my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
-
-    if ( $curl_return_code != 0 or $curl_info != 200 ) { 
-        # Failed to contact the OPSWAT API.;
-        $logger->error("Cannot connect to OPSWAT to refresh the token");
-        return $pf::provisioner::COMMUNICATION_FAILED;   
-    }
-    else{
-        my $json_response = decode_json($response_body);
-        my $access_token = $json_response->{'access_token'};
-        $refresh_token = $json_response->{'refresh_token'};
-        $self->set_access_token($access_token);
-        $self->set_refresh_token($refresh_token);
-        $logger->info("Refreshed the token to connect to the OPSWAT API");
-    }
-}
-
-sub get_device_info {
-    my ($self, $mac) = @_;
-    my $logger = get_logger;
- 
-    my $access_token = $self->get_access_token();
-    my $curl = WWW::Curl::Easy->new;
-    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/$mac?opt=1&access_token=$access_token";
-    
-    $logger->debug("Calling OPSWAT API using URL : ".$url);
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
     $curl->setopt(CURLOPT_URL, $url );
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ; 
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
 
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
-    return $self->decode_response($curl_info, $response_body); 
+    if ( $curl_return_code != 0 or $curl_info != 200 ) {
+        # Failed to contact the OPSWAT API.;
+        $logger->error("Cannot connect to OPSWAT to refresh the token");
+        return $pf::provisioner::COMMUNICATION_FAILED;
+    }
+    else {
+        my $json_response = decode_json($response_body);
+        my $updated_config = {};
+        my $access_token = $json_response->{'access_token'};
+        $refresh_token = $json_response->{'refresh_token'};
+        if (defined $access_token && $access_token ne '') {
+            $updated_config->{access_token} = $access_token;
+        }
+        else {
+            $logger->error("Cannot update the access token for $self->{id}");
+        }
+
+        if (defined $refresh_token && $refresh_token ne '') {
+            $updated_config->{refresh_token} = $refresh_token;
+        }
+        else {
+            $logger->error("Cannot update the refresh token for $self->{id}");
+        }
+        $self->update_config($updated_config);
+        $logger->info("Refreshed the token to connect to the SEPM");
+    }
+}
+
+=head2 update_config
+
+Update the config for this provisioner
+
+=cut
+
+sub update_config {
+    my ($self, $updated_config) = @_;
+    my $cs     = pf::ConfigStore::Provisioning->new;
+    my $config = $cs->read($self->{id});
+    unless ($config) {
+        get_logger->error("Error getting configuration for $self->{id}");
+        return;
+    }
+    %$config = (%$config, %$updated_config);
+    $cs->update($self->{'id'}, $config);
+    return $cs->commit();
+}
+
+sub get_device_info {
+    my ($self, $mac) = @_;
+    my $logger = get_logger;
+
+    my $access_token = $self->get_access_token();
+    my $curl = WWW::Curl::Easy->new;
+    my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/$mac?opt=1&access_token=$access_token";
+
+    $logger->debug("Calling OPSWAT API using URL : ".$url);
+
+    my $response_body = '';
+    open(my $fileb, ">", \$response_body);
+    $curl->setopt(CURLOPT_URL, $url );
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_WRITEDATA,$fileb);
+
+    my $curl_return_code = $curl->perform;
+    my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
+
+    return $self->decode_response($curl_info, $response_body);
 }
 
 sub validate_mac_in_opswat {
@@ -242,7 +245,7 @@ sub authorize {
     my ($self,$mac) = @_;
     my $logger = get_logger;
 
-    my $result = $self->validate_mac_in_opswat($mac); 
+    my $result = $self->validate_mac_in_opswat($mac);
     if( $result == $pf::provisioner::COMMUNICATION_FAILED){
         $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
         $self->refresh_access_token();
@@ -257,8 +260,8 @@ sub authorize {
         # take the opportunity to check compliance
         $self->verify_compliance($mac);
         return $result;
-    }   
-   
+    }
+
 }
 
 sub verify_compliance {
@@ -301,7 +304,7 @@ sub pollAndEnforce{
 sub get_status_changed_devices {
     my ($self, $timeframe) = @_;
     my $logger = get_logger;
- 
+
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
     my $url = $self->protocol.'://' . $self->host . ':' .  $self->port . "/o/api/v2.1/devices/status_changed?age=$timeframe&access_token=$access_token";
@@ -311,7 +314,7 @@ sub get_status_changed_devices {
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
     $curl->setopt(CURLOPT_URL, $url );
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ; 
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
 
@@ -319,9 +322,9 @@ sub get_status_changed_devices {
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
     $logger->info($curl_info);
-    $logger->info($response_body); 
-    
-    return $self->decode_response($curl_info, $response_body); 
+    $logger->info($response_body);
+
+    return $self->decode_response($curl_info, $response_body);
 }
 
 sub decode_response {
