@@ -299,6 +299,11 @@ sub is_eap_mac_authentication {
 
 # Function to handle authenticate
 sub authenticate {
+    # For debugging purposes only
+    # &log_request_attributes;
+    # We only increment a counter to know how often this has been called.
+    $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );                                         
+    return $RADIUS::RLM_MODULE_NOOP;
 
 }
 

@@ -412,9 +412,15 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'NTLM authentication count',
-                'vtitle' => 'failures/s',
-                'target' => 'aliasByNode(stats.timers.*.ntlm_auth.timing.count,2)',
+                'description' => 'NTLM authentication failures',
+                'vtitle' => 'failures',
+                'target' => 'aliasByNode(stats.counters.*.ntlm_auth.failures.count,2)',
+                'columns' => 1
+               },
+               {
+                'description' => 'NTLM authentication timeouts',
+                'vtitle' => 'timeouts',
+                'target' => _generate_timeout_group(),
                 'columns' => 1
                },
                {
@@ -777,6 +783,17 @@ sub _generate_hosts {
     }
     map {  s/\./_/g } @hosts;
     return @hosts;
+}
+
+sub _generate_timeout_group {
+    my @group_members;
+    for my $host (_generate_hosts()) {
+        push @group_members,
+                         "diffSeries(stats.counters.$host.freeradius__main__authenticate.count.count,stats.timers.$host.ntlm_auth.time.count)"
+;
+    }
+
+    return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,2)';
 }
 
 
