@@ -636,8 +636,6 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    $c->log->info("Finding mandatory fields for source ".$source->id);
-
     if($c->session->{chained_source}){
         $c->log->info("Found a chained source. Will use it to compute mandatory fields");
         my $source = getAuthenticationSource($c->session->{chained_source});
