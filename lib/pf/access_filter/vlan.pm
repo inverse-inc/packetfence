@@ -63,7 +63,7 @@ Return the reference to the function that call the api.
 =cut
 
 sub dispatchAction {
-    my ($self, $rule, $args);
+    my ($self, $rule, $args) = @_;
 
     my $param = $self->evalParam($rule->{'action_param'}, $args);
     my $apiclient = pf::api::jsonrpcclient->new;
