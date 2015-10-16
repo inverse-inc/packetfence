@@ -609,31 +609,15 @@ sub expire : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
-    # this is to detect failures in the light expire which has the most chances of failing since it requires the pfconfig service to be alive
-    my $error = 0;
-    if($postdata{light}){
-        my $payload = {
-          method => "expire",
-          namespace => $postdata{namespace},
-          light => $postdata{light},
-        };
-
-        my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
-        unless ( $result->{status} eq "OK." ) {
-            $logger->error("Couldn't light expire namespace $postdata{namespace}");
-            $error = 1;
-        }
+    my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
+    if($all){
+        pfconfig::manager->new->expire_all($postdata{light});
     }
-    else {
-        my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
-        if($all){
-            pfconfig::manager->new->expire_all();
-        }
-        else{
-            pfconfig::manager->new->expire($postdata{namespace});
-        }
+    else{
+        pfconfig::manager->new->expire($postdata{namespace}, $postdata{light});
     }
-    return { error => $error };
+    # There are currently no errors returned
+    return { error => 0 };
 }
 
 =head2 validate_argv
