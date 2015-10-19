@@ -34,6 +34,8 @@ use pf::config;
 use pf::util;
 use pf::node;
 
+sub description { 'Xirrus WiFi Arrays HTTP' }
+
 =head1 SUBROUTINES
 
 =cut
