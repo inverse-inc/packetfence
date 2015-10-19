@@ -34,6 +34,11 @@ You can take a backup of the pf directory with the following command:
 
 Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
 
