@@ -240,8 +240,9 @@ sub oauth2Result : Path : Args(1) {
                 $c->detach(Authenticate => 'showLogin');
             }
         }
-
-        $c->session->{"username"} = $pid // $portalSession->clientMac;
+        $pid //= $portalSession->clientMac;
+        $info{pid} = $pid;
+        $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->session->{source_match} = undef;
         $c->stash->{info}=\%info;
