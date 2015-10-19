@@ -25,6 +25,7 @@ our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'is'          => 'pf::condition::equals',
     'is_not'      => 'pf::condition::not_equals',
     'match'       => 'pf::condition::matches',
+    'regex'       => 'pf::condition::regex',
     'match_not'   => 'pf::condition::not_matches',
     'defined'     => 'pf::condition::is_defined',
     'not_defined' => 'pf::condition::not_defined',
