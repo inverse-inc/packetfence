@@ -850,7 +850,11 @@ sub node_modify {
         $existing->{sessionid},        $existing->{machine_account},
         $mac
     );
-    return ( $sth->rows );
+    if($sth) {
+        return ( $sth->rows );
+    }
+    $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
+    return undef;
 }
 
 sub node_register {
