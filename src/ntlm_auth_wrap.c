@@ -254,23 +254,20 @@ void send_statsd(const struct arguments args , int status, double elapsed)
 
     char *buf;
     char hostname[MAX_STR_LENGTH] = "";
-    char tmphostname[MAX_STR_LENGTH] = "";
 
+    if ((gethostname(hostname, sizeof(hostname))) < 0 ) { 
+        err = errno;
+        fprintf(stderr, "cannot get my own hostname: %s\n", strerror(err));
+        return;
+    }
 
-    gethostname(tmphostname, sizeof(tmphostname));
-
-    // escape the dots in the hostname. StatsD uses dots as namespace sep.
-    char c='9'; // just a placeholder to make sure it's initialized
-    int i=0;
-    while ( c != '\0' ) {
-        c =  tmphostname[i];
+    // replace the dots in the hostname with underscores. StatsD uses dots as namespace sep.
+    char c;
+    for ( int i=0; i < strlen(hostname); i++ ) { 
+        c =  hostname[i];
         if ( c == '.' ) { 
             hostname[i] = '_';
         } 
-        else {
-            hostname[i] = c;
-        }
-        i++;
     }
 
     asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
