@@ -151,7 +151,7 @@ sub doEmailRegistration : Private {
             $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
             $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
-            pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $COMPLETED);
+            pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $pf::auth_log::COMPLETED);
 
             $c->session->{"username"} = $pid;
             $c->session->{"unregdate"} = $info{'unregdate'};
@@ -321,7 +321,7 @@ sub doSponsorRegistration : Private {
 
             $c->session->{'unregdate'} = $info{'unregdate'};
 
-            pf::auth_log::record_completed_guest($source->id, $node_mac, $COMPLETED);
+            pf::auth_log::record_completed_guest($source->id, $node_mac, $pf::auth_log::COMPLETED);
 
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};

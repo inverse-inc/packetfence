@@ -9,6 +9,7 @@ use constant AUTH_LOG => "auth_log";
 use Log::Log4perl::MDC;
 use constant process_name => Log::Log4perl::MDC->get("proc") || "N/A";
 
+use Readonly;
 Readonly our $COMPLETED => "completed";
 Readonly our $FAILED => "failed";
 Readonly our $INCOMPLETE => "incomplete";
