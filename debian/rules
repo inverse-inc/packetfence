@@ -114,6 +114,10 @@ install: build
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
+	# ntlm-wrapper
+	install -d -m0755 $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
+	make bin/ntlm_auth_wrapper
+	mv bin/ntlm_auth_wrapper $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/cache/pfconfig

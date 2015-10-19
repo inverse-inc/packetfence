@@ -101,6 +101,7 @@ Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= %{perl_version}
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
+Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
 Requires: perl(Apache2::Request)
@@ -355,6 +356,15 @@ Summary: a C wrapper around ntlm_auth which allows logging or sending to StatsD 
 
 %description -n %{real_name}-ntlm_auth_wrapper
 The %{real_name}-ntlm_auth_wrapper is a C wrapper around ntlm_auth that allows logging and/or sending to StatsD the authentication latency.
+
+%package -n %{real_name}-ntlm-wrapper
+Group: System Environment/Daemons
+BuildRequires: gcc
+AutoReqProv: 0
+Summary: C wrapper for logging ntlm_auth latency.
+
+%description -n %{real_name}-ntlm-wrapper
+The %{real_name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
 
 %package -n %{real_name}-config
 Group: System Environment/Daemons
@@ -1159,6 +1169,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %files -n %{real_name}-ntlm_auth_wrapper 
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
+
+%files -n %{real_name}-ntlm-wrapper
 %attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 
 %files -n %{real_name}-config
