@@ -5,6 +5,10 @@ use warnings;
 
 use constant AUTH_LOG => "auth_log";
 
+# We will use the process name defined in the logging to insert in the table
+use Log::Log4perl::MDC;
+use constant process_name => Log::Log4perl::MDC->get("proc") || "N/A";
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
@@ -33,35 +37,35 @@ sub auth_log_db_prepare {
     ]);
 
     $auth_log_statements->{'auth_log_record_oauth_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (source,mac,attempted_at,status) 
-        VALUES(?, ?, NOW(), "incomplete");
+        insert into auth_log (process_name,source,mac,attempted_at,status) 
+        VALUES(?, ?, ?, NOW(), "incomplete");
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_oauth_sql'} = get_db_handle()->prepare(qq[
         update auth_log set completed_at=NOW(), status=?, pid=? 
-        where source=? and mac=?
+        where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
 
     $auth_log_statements->{'auth_log_record_guest_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (source,mac,pid,attempted_at,status) 
-        VALUES(?,?,?,NOW(),"incomplete");
+        insert into auth_log (process_name,source,mac,pid,attempted_at,status) 
+        VALUES(?,?,?,?,NOW(),"incomplete");
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_guest_sql'} = get_db_handle()->prepare(qq[
         update auth_log set completed_at=NOW(), status=? 
-        where source=? and mac=?
+        where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
 
     $auth_log_statements->{'auth_log_record_auth_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (source, mac, pid, attempted_at, completed_at, status) 
-        VALUES(?, ?, ?, NOW(), NOW(), ?);
+        insert into auth_log (process_name, source, mac, pid, attempted_at, completed_at, status) 
+        VALUES(?, ?, ?, ?, NOW(), NOW(), ?);
     ]);
 
     $auth_log_statements->{'auth_log_change_status_sql'} = get_db_handle()->prepare(qq[
         update auth_log set status=? 
-        where source=? and mac=?
+        where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
 
@@ -85,32 +89,32 @@ sub view_by_pid {
 
 sub record_oauth_attempt {
     my ($source, $mac) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_oauth_attempt_sql', $source, $mac));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_oauth_attempt_sql', process_name, $source, $mac));
 }
 
 sub record_completed_oauth {
     my ($source, $mac, $pid, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_oauth_sql', $status, $pid, $source, $mac));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_oauth_sql', $status, $pid, process_name, $source, $mac));
 }
 
 sub record_guest_attempt {
     my ($source, $mac, $pid) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_guest_attempt_sql', $source, $mac, $pid));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_guest_attempt_sql', process_name, $source, $mac, $pid));
 }
 
 sub record_completed_guest {
     my ($source, $mac, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_guest_sql', $status, $source, $mac));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_guest_sql', $status, process_name, $source, $mac));
 }
 
 sub record_auth {
     my ($source, $mac, $pid, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_auth_sql', $source, $mac, $pid, $status));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_auth_sql', process_name, $source, $mac, $pid, $status));
 }
 
 sub change_record_status {
     my ($source, $mac, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_change_status_sql', $status, $source, $mac));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_change_status_sql', $status, process_name, $source, $mac));
 }
 
 1;
