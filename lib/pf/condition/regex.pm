@@ -15,11 +15,7 @@ pf::condition::regex
 use strict;
 use warnings;
 use Moose;
-use Moose::Util::TypeConstraints;
-subtype 'RegexpRefStr', as 'RegexpRef';
-
-coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
-
+use pf::Moose::Types;
 extends qw(pf::condition);
 use pf::constants;
 
