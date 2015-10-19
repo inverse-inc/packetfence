@@ -6,9 +6,8 @@
 # Make a simple rule like this:
 #
 # [category]
-# filter = node_info
+# filter = node_info.category
 # operator = is
-# attribute = category
 # value = default
 #
 # [1:category]
@@ -21,10 +20,9 @@
 # Advanced rule:
 #
 # [2]
-# filter = node_info
-# attribute = category
+# filter = node_info.category
 # operator = match
-# value = ^default$
+# value = fault
 #
 # [3]
 # filter = ssid
@@ -43,9 +41,8 @@
 # This will autoregister any device beginning by a set of known Avaya MAC address OUI and consider it as phone
 #
 # [avaya_phones]
-# filter = node_info
-# operator = match
-# attribute = mac
+# filter = node_info.mac
+# operator = regex
 # value = ^(00:04:0d|84:83:71|00:07:3b|00:09:6e|00:0d:18|00:0d:28|00:1b:4f|24:d9:21|2c:f4:c5|34:75:c7|3c:b1:5b|70:38:ee|b4:b0:17).*
 #
 # [autoreg:avaya_phones]
@@ -153,6 +150,9 @@
 #     is_not
 #     match
 #     match_not
+#     defined
+#     not_defined
+#     regex
 #
 # attribute can be:
 #
