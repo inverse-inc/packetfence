@@ -50,7 +50,7 @@ sub test {
     my ($self, $scope, $switch,$ifIndex,$mac,$node_info,$connection_type,$user_name,$ssid,$radius_request) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    foreach my $rule  ( sort keys %ConfigVlanFilters ) {
+    foreach my $rule ( sort { $a <=> $b} keys %ConfigVlanFilters ) {
         if ( defined($ConfigVlanFilters{$rule}->{'scope'}) && $ConfigVlanFilters{$rule}->{'scope'} eq $scope) {
             if ($rule =~ /^\w+:(.*)$/) {
                 my $test = $1;
@@ -147,6 +147,7 @@ our %RULE_OPS = (
     is_not => sub { $_[0] ne $_[1] ? 1 : 0  },
     match => sub { $_[0] =~ $_[1] ? 1 : 0  },
     match_not => sub { $_[0] !~ $_[1] ? 1 : 0  },
+    defined => sub { defined($_[0]) ? 1 : 0 },
 );
 
 =item _match_rule_against_hash
