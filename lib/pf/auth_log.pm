@@ -9,6 +9,10 @@ use constant AUTH_LOG => "auth_log";
 use Log::Log4perl::MDC;
 use constant process_name => Log::Log4perl::MDC->get("proc") || "N/A";
 
+Readonly our $COMPLETED => "completed";
+Readonly our $FAILED => "failed";
+Readonly our $INCOMPLETE => "incomplete";
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
@@ -38,7 +42,7 @@ sub auth_log_db_prepare {
 
     $auth_log_statements->{'auth_log_record_oauth_attempt_sql'} = get_db_handle()->prepare(qq[
         insert into auth_log (process_name,source,mac,attempted_at,status) 
-        VALUES(?, ?, ?, NOW(), "incomplete");
+        VALUES(?, ?, ?, NOW(), $INCOMPLETE;
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_oauth_sql'} = get_db_handle()->prepare(qq[
@@ -49,7 +53,7 @@ sub auth_log_db_prepare {
 
     $auth_log_statements->{'auth_log_record_guest_attempt_sql'} = get_db_handle()->prepare(qq[
         insert into auth_log (process_name,source,mac,pid,attempted_at,status) 
-        VALUES(?,?,?,?,NOW(),"incomplete");
+        VALUES(?, ?, ?, ?, NOW(), $INCOMPLETE);
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_guest_sql'} = get_db_handle()->prepare(qq[

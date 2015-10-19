@@ -69,7 +69,7 @@ sub index : Path : Args(0) {
             $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
             $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
-            pf::auth_log::record_completed_guest($source->id, $portalSession->clientMac, "completed");
+            pf::auth_log::record_completed_guest($source->id, $portalSession->clientMac, $COMPLETED);
             $c->session->{"username"} = $pid;
             $c->session->{"unregdate"} = $info{'unregdate'};
             $c->session->{source_id} = $source->{id};

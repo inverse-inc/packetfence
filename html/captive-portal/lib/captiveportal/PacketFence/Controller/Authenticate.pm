@@ -526,7 +526,7 @@ sub authenticationLogin : Private {
         ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if ( defined($return) && $return == 1 ) {
-            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, "completed");
+            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $COMPLETED);
             # save login into session
             $c->session(
                 "username"  => $username // $default_pid,
