@@ -25,9 +25,6 @@ use pf::Authentication::constants;
 use pf::util;
 use pf::config::util;
 use pf::log;
-use pf::person;
-use pf::password;
-use pf::node;
 
 extends 'pf::Authentication::Source::BillingSource';
 our $logger = get_logger;
@@ -265,7 +262,9 @@ sub handle_customer_subscription_deleted {
     my $email = $customer->{email};
     my $client_mac = $customer->{metadata}{mac_address};
     get_logger->info("Handling subscription deletion for customer $customer->{id}");
-    node_deregister($client_mac);
+    # Can't import at the top as this cannot use pf::config
+    require pf::node;
+    pf::node::node_deregister($client_mac);
     $self->send_mail_for_event(
         $object,
         email   => $customer->{email},
