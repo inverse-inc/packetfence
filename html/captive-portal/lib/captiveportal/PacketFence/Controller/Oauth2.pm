@@ -247,7 +247,9 @@ sub oauth2Result : Path : Args(1) {
         }
 
         pf::auth_log::record_completed_oauth($provider, $c->portalSession->clientMac, $pid, $pf::auth_log::COMPLETED);
-        $c->session->{"username"} = $pid // $portalSession->clientMac;
+        $pid //= $portalSession->clientMac;
+        $info{pid} = $pid;
+        $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->session->{source_match} = undef;
         $c->stash->{info}=\%info;
