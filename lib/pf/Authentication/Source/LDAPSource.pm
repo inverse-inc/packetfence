@@ -23,6 +23,9 @@ use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config;
 use List::MoreUtils qw(uniq);
+use pf::StatsD;
+use pf::util::statsd qw(called);
+use Time::HiRes;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -89,6 +92,8 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
+  my $start = Time::HiRes::gettimeofday();
+  my $before; # will hold time before StatsD calls
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
@@ -103,35 +108,46 @@ sub authenticate {
   }
 
   my $filter = "($self->{'usernameattribute'}=$username)";
+
+  $before = Time::HiRes::gettimeofday();
   $result = $connection->search(
     base => $self->{'basedn'},
     filter => $filter,
     scope => $self->{'scope'},
     attrs => ['dn']
   );
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".search.timing" , $before, 0.5 ); 
+
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".search.error.count" );
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   my $user = $result->entry(0);
 
+  $before = Time::HiRes::gettimeofday();
   $result = $connection->bind($user->dn, password => $password);
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".bind.timing" , $start, "0.5" );
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
+  $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".success.count" );
   return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
@@ -147,6 +163,7 @@ if all connections fail
 sub _connect {
   my $self = shift;
   my $connection;
+  my $start = Time::HiRes::gettimeofday();
 
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
@@ -175,15 +192,23 @@ sub _connect {
     # try TLS if required, return undef if it fails
     if ( $self->{'encryption'} eq TLS ) {
       my $mesg = $connection->start_tls();
-      if ( $mesg->code() ) { $logger->error("[$self->{'id'}] ".$mesg->error()) and return undef; }
+      if ( $mesg->code() ) { 
+          $logger->error("[$self->{'id'}] ".$mesg->error()); 
+          $pf::StatsD::statsd->increment("LDAPSource::" . called() . "error.count" );
+          $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start );
+          return undef; 
+      }
     }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, "0.5" );
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start );
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . "error.count" );
   }
   return undef;
 }
@@ -454,11 +479,16 @@ sub ldap_filter_for_conditions {
 sub bind_with_credentials {
     my ($self,$connection) = @_;
     my $result;
+    my $start = Time::HiRes::gettimeofday();
     if ($self->{'binddn'} && $self->{'password'}) {
         $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     } else {
         $result = $connection->bind;
     }
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, "0.5" );
+    if ($result->is_error) {    
+        $pf::StatsD::statsd->increment("LDAPSource::" . called() . "error.count" );
+    } 
     return $result;
 }
 
