@@ -24,7 +24,7 @@ accessing data in the hash
 
 This class is used with tiying
 
-Example : 
+Example :
 my %hash;
 tie %hash, 'pfconfig::cached_hash', 'resource::default_switch';
 print $hash{_ip};
@@ -35,7 +35,7 @@ lib/pfconfig/namespaces/ and served though pfconfig
 The access to the attribute _ip then generates a GET though pfconfig
 that uses a UNIX socket
 
-In order to call a method on this tied object 
+In order to call a method on this tied object
 my @keys = tied(%hash)->keys
 
 =cut
@@ -77,7 +77,7 @@ Access an element by key in the hash
 Will serve it from it's subcache (per process) if it has it and it's still valid
 Other than that it proxies the call to pfconfig
 
-=cut 
+=cut
 
 sub FETCH {
     my ( $self, $key ) = @_;
@@ -176,7 +176,6 @@ Proxies to pfconfig
 
 sub EXISTS {
     my ( $self, $key ) = @_;
-    my @keys = $self->keys;
     return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
         return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
     });
@@ -204,7 +203,7 @@ sub values {
 
 Used to search for an element in our hash that has a specific value in one of it's field
 
-Ex (%h is us) : 
+Ex (%h is us) :
 my %h = {
   'test' => {'result' => '2'},
   'test2' => {'result' => 'success'}
