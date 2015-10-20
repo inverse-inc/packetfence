@@ -935,7 +935,7 @@ sub fingerbank_submit_unmatched : Public {
 
 =head2 throw
 
-TODO: documention
+Method throw for testing purposes
 
 =cut
 
