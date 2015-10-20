@@ -24,6 +24,9 @@ use File::Basename;
 use pf::log;
 use pf::config;
 use pfconfig::cached_hash;
+use pf::StatsD;
+use pf::util::statsd qw(called);
+use Time::HiRes;
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -114,6 +117,7 @@ sub db_connect {
     } else {
         $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
         $logger->error("unable to connect to database: " . $DBI::errstr);
+        $pf::StatsD::statsd->increment("db::" . called() . ".error.count" );
         return ();
     }
 }
@@ -219,6 +223,7 @@ sub db_query_execute {
     my $statements_valid = (ref($module_statements_ref) eq 'HASH');
     if (!($parameters_exist && $statements_valid)) {
         $logger->error("Invalid parameters for query $query. Called from: " .(caller(1))[3].". Query failed.");
+        $pf::StatsD::statsd->increment("db::" . called() . ".error.count" );
         return;
     }
 
@@ -318,6 +323,7 @@ sub db_query_execute {
     if (!$done) {
         $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
             .(caller(1))[3]." and we failed. Is the database running?");
+        $pf::StatsD::statsd->increment("db::" . called() . ".error.count" );
         return;
     } else {
         return $db_statement;
