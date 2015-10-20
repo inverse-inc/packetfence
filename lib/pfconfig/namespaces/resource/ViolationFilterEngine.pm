@@ -44,9 +44,8 @@ sub build {
     while (my ($violation, $violation_config) = each %Violations_Config) {
         my @conditions;
         my $violation_condition;
-        # TODO ? WHITESPACE CLEAN TRIGGER PART ?
         if(isenabled($violation_config->{enabled}) && defined($violation_config->{trigger})){
-            foreach my $trigger (split(',', $violation_config->{trigger})){
+            foreach my $trigger (split(/\s*,\s*/, $violation_config->{trigger})){
                 my $condition;
                 eval {
                     $condition = pf::factory::condition::violation->instantiate($trigger);

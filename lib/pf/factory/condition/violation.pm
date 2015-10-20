@@ -53,7 +53,7 @@ sub instantiate {
     my ($type, $data);
     my $trigger = $args[0];
     if($trigger =~ /\((.+)\)/){
-        my @triggers = split('&',$1);
+        my @triggers = split(/\s*&\s*/,$1);
         my @conditions;
         foreach my $sub_trigger (@triggers){
             ($type,$data) = $class->getData($sub_trigger);
