@@ -75,7 +75,7 @@ $mock->mock('node_attributes', sub {
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => '1'}
 });
-$mock->mock('violation_count_trap', sub { return (1); });
+$mock->mock('violation_count_reevaluate_access', sub { return (1); });
 $mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $vlan;
@@ -83,8 +83,8 @@ my $wasInline;
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 2, "determine vlan for node with violation");
 
-# violation_count_trap will return 0
-$mock->mock('violation_count_trap', sub { return (0); });
+# violation_count_reevaluate_access will return 0
+$mock->mock('violation_count_reevaluate_access', sub { return (0); });
 
 # mocking used node method calls
 $mock->mock('node_exist', sub { return (1); });
