@@ -20,6 +20,7 @@ use pf::person qw(person_view);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
+our $logger = get_logger();
 
 =head1 SUBROUTINES
 
@@ -28,9 +29,8 @@ use pf::filter;
 =cut
 
 sub new {
-   my $logger = get_logger();
-   $logger->debug("instantiating new pf::access_filter");
    my ( $class, %argv ) = @_;
+   $logger->debug("instantiating new pf::access_filter");
    my $self = bless {}, $class;
    return $self;
 }
