@@ -990,38 +990,6 @@ category = any
 # Certificate to send to the node
 certificate = 
 
-[billing]
-#
-# billing.gateway
-#
-# The payment gateway to process the payments
-gateway = authorize_net
-#
-# billing.authorizenet_posturl
-#
-# The payment gateway processing URL (Provided by Authorize.net)
-authorizenet_posturl = https://test.authorize.net/gateway/transact.dll
-#
-# billing.authorizenet_login
-#
-# The merchant's unique API Login ID (Provided by Authorize.net)
-authorizenet_login =
-#
-# billing.authorizenet_trankey
-#
-# The merchant's unique Transaction Key (Provided by Authorize.net)
-authorizenet_trankey =
-
-mirapay_url = https://ms1.eigendev.com/OFT/EigenOFT_d.php
-
-mirapay_currency = USD
-
-mirapay_terminal_id =
-
-mirapay_terminal_id_group =
-
-mirapay_hash_password =
-
 [node_import]
 #
 # node_import.pid

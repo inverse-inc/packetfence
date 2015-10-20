@@ -438,10 +438,6 @@ msgstr ""
 msgid "By default is an imported node a Voice over IP device or not?"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "CAD"
-msgstr ""
-
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "CLI"
 msgstr ""
@@ -3197,20 +3193,12 @@ msgstr ""
 msgid "The button text will appear on the registration page submit button"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
-msgstr ""
-
 # html/pfappserver/root/user/list_password.tt
 msgid "The following user have been created"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
 msgid "The following users have been created"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
 msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
@@ -3231,40 +3219,8 @@ msgid ""
   "Must between 1k and 128m"
 msgstr ""
 
-# conf/documentation.conf (billing.authorizenet_login)
-msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_trankey)
-msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_posturl)
-msgid "The payment gateway processing URL (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.gateway)
-msgid "The payment gateway to process the payments"
-msgstr ""
-
-# conf/documentation.conf (registration.device_registration_role)
-msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -3401,10 +3357,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "URI"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "USD"
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -3875,53 +3827,9 @@ msgstr ""
 msgid "any"
 msgstr ""
 
-# conf/documentation.conf (billing.gateway options)
-msgid "authorize_net"
-msgstr "Authorize.net"
-
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
-
-# conf/documentation.conf
-msgid "billing"
-msgstr "Billing"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_login"
-msgstr "Authorize.net API Login ID"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_posturl"
-msgstr "Authorize.net URL"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net Transaction Key"
-
-# conf/documentation.conf
-msgid "billing.gateway"
-msgstr "Gateway"
-
-# conf/documentation.conf
-msgid "billing.mirapay_currency"
-msgstr "Mirapay currency"
-
-# conf/documentation.conf
-msgid "billing.mirapay_hash_password"
-msgstr "Mirapay password"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id"
-msgstr "Mirapay terminal id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id_group"
-msgstr "Mirapay terminal group id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_url"
-msgstr "Mirapay URL"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -4547,10 +4455,6 @@ msgstr "nested group"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""
-
-# conf/documentation.conf (billing.gateway options)
-msgid "mirapay"
-msgstr "Mirapay"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
