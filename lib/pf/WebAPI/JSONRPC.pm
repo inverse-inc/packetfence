@@ -45,11 +45,11 @@ sub handler {
     my $logger = get_logger;
     use bytes;
     my ($self, $r) = @_;
-    my $content = $self->get_all_the_content($r);
+    my $content = $self->get_all_content($r);
     my $data = eval {decode_json $content };
     if ($@) {
         get_logger->error($@);
-        return $self->send_request(
+        return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $@),
@@ -58,7 +58,7 @@ sub handler {
     my $ref_type = ref $data;
     unless ($ref_type && $ref_type eq 'HASH') {
         get_logger->error("Invalid request");
-        return $self->send_request(
+        return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request\n"),
@@ -67,11 +67,11 @@ sub handler {
 
     my ($method, $id, $jsonrpc) = @{$data}{qw(method id jsonrpc)};
     unless (defined $method) {
-        get_logger->error("Invalid request no method defined");
-        return $self->send_request(
+        get_logger->error("Invalid request, no method defined");
+        return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request no method defined\n"),
+            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request, no method defined\n"),
         );
     }
     my $dispatch_to = $self->dispatch_to;
@@ -79,7 +79,7 @@ sub handler {
     my $method_sub;
     unless ( $method_sub = $dispatch_to->isPublic($method)) {
         get_logger->error("Invalid request no method defined");
-        return $self->send_request(
+        return $self->send_response(
             $r,
             Apache2::Const::HTTP_NOT_FOUND,
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_NOT_FOUND, "Method '$method' not found\n"),
@@ -105,13 +105,13 @@ sub handler {
         };
         if ($@) {
             get_logger->error($@);
-            return $self->send_request(
+            return $self->send_response(
                 $r,
                 Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
                 $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $@)
             );
         }
-        return $self->send_request($r, Apache2::Const::HTTP_OK, $object);
+        return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
     }
     # Notify message defer until later
     $r->push_handlers(
@@ -124,7 +124,7 @@ sub handler {
     return Apache2::Const::HTTP_NO_CONTENT;
 }
 
-sub send_request {
+sub send_response {
     my ($self, $r, $status, $object) = @_;
     $r->custom_response($status, '');
     $r->content_type($CONTENT_TYPE);
@@ -135,7 +135,7 @@ sub send_request {
     return Apache2::Const::OK;
 }
 
-sub get_all_the_content {
+sub get_all_content {
     my ($self, $r) = @_;
     my $content = '';
     my $offset  = 0;
