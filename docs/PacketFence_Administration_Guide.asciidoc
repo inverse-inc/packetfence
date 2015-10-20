@@ -2078,7 +2078,7 @@ First, create the proper violation either via the Admin UI, or by editing the `c
   [4000001]
   desc=No anti-virus enabled
   url=/remediation.php?template=noantivirus
-  actions=trap,email,log
+  actions=reevaluate_access,email,log
   enabled=Y
 
 NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
@@ -2224,97 +2224,76 @@ Violations
 
 In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
 
-PacketFence policy violations are controlled using the `/usr/local/pf/conf/violations.conf` configuration file. The violation format is as follows:
+PacketFence violations are configured in 'Configuration->Violations'
 
-  [1234]
-  desc=Your Violation Description
-  priority=8
-  template=<template>
-  enable=Y
-  trigger=Detect::2200032,Nessus::11808
-  actions=email,log,trap
-  vlan=isolationVlan
-  whitelisted_categories=
+The example below will guide you to create a violation that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
 
-[horizontal]
-`[1234]`:: The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
-`desc`:: single line description of violation
-`priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
-`template`:: Template name to use while in violation. It must match a HTML file name (without the extension) of the `violations` templates directory. 
-`enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
-`trigger`:: Method to reference external detection methods. Trigger is formatted as follows `type::ID`. The type can be `Detect` (Snort), `Nessus`, `OpenVAS`, `OS` (DHCP Fingerprint Detection), `UserAgent` (Browser signature), `VendorMAC` (MAC address class), `SoH` (Statement of Health filter), `Accounting`, etc. In the above example, 2000032 is the Snort ID and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
-`actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
-`log`::: Log a message to the file specified in `[alerting].log`
-`email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
-`trap`::: Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
-`winpopup`::: send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
-`external`::: execute an external command, specified in `[paths].externalapi`.
-`close`::: close the violation ID specified in the vclose field.
-`role`::: change the node's role to the one specified in the target_category field.
-`autoreg`::: register the node.
-`unreg`::: deregister the node.
-`vlan`:: Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
-`isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
-`registrationVlan`::: Registration VLAN as specified in `switches.conf`.
-`normalVlan`::: Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
-`whitelisted_categories`::: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
+Violation definition
+++++++++++++++++++++
 
-Also included in `violations.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
+First you need to configure the violation definition
 
-  [defaults]
-  priority=4
-  max_enable=3
-  actions=email,log
-  auto_enable=Y
-  enable=N
-  grace=120m
-  delay_by=0
-  window=0
-  vclose=
-  target_category=
-  button_text=Enable Network
-  snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
-  vlan=isolationVlan
-  whitelisted_categories=
+image::docs/images/violation-definition.png[scaledwidth="100%",alt="Violation definition"]
 
-`max_enable`::
-Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just 'click through' violation pages.
-`auto_enable`::
-Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
-`grace`::
-Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
-`delay_by`::
-Amount of time before the violation action will run.
-`window`::
-Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
-accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month.)
-`vclose`::
-When selecting the "close" action, triggering the violation will close the one you select in the vclose field. This is an experimentalworkflow for Mobile Device Management (MDM).
-`target_category`::
-When selecting the "role" action, triggering the violation will change the node's role to the one you select in the target_category field.
-`button_text`::
-Text displayed on the violation form to hosts.
-`snort_rules`::
-The Snort rules file is the administrators responsibility. Please change this to point to your violation rules file(s). If you do not specify a full path, the default is `/usr/local/pf/conf/snort`. If you need to include more than one file, just separate each filename with a comma.
+Where :
+[options="compact"]
+* `Enabled` is whether or not the violation is currently activated (should be `ON`).
+* `Identifier` is the violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
+* `Description` is the user friendly description of the violation.
+* `Actions` is the list of actions to be executed when this violation is raised.
+** `Unregister node` will unregister the node.
+** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated. 
+** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
+** `Log message` will log the violation in the log file defined in `[alerting].log`.
+** `External command` will execute a command on the operating system when this violation is raised.
+** `Close a violation` will close an existing violation for this device when this one is raised.
+** `Set role` will modify the role of the device.
+** `Enforce provisioning` will trigger a check of compliance on the provisioners defined for the device.
+* `Priority` defines the order onto which violations should be handled should there be more than one for a device.
+* `Whitelisted Roles` is the list of roles that are not affected by this violation.
 
-NOTE: `violations.conf` is loaded at startup. A restart is required when 
-changes are made to this file.
+Triggers
+++++++++
 
-Example violation
-^^^^^^^^^^^^^^^^^
+Next, in the `Triggers` tab, you need to define the triggers that will raise the violation. In the case of this example it will be these two cases : 
+* A device that has generated Peer-to-peer traffic and that is using MAC OSX.
+* A device that has been detected as being a rogue DHCP.
 
-In our example we want to isolate people using Limewire. Here we assume Snort is installed and configured to send alerts to PacketFence. Now we need to configure PacketFence isolation.
+Click the `+` sign at the top right in order to create a new trigger, then in the dropdown select `Suricata`.
 
-Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure it to trap.
+A menu will appear into which you can select `ET P2P` which will match all P2P alerts from Suricata.
 
-  [2001808]
-  desc=P2P (Limewire)
-  priority=8
-  template=p2p
-  actions=log,trap
-  enable=Y
-  max_enable=1
-  trigger=Detect::2001808
+Once you added this trigger, select `Device` from the dropdown and enter `38` which is the device identifier for Mac OSX.
+
+Next hit the `<` button, then the `+` to add another trigger.
+
+Select the type `Internal`, then in the menu that appears below it, select `Rogue DHCP detection` and click `Add`.
+
+image::docs/images/violation-triggers.png[scaledwidth="100%",alt="Violation triggers"]
+
+Remediation
++++++++++++
+
+Next, in the `Remediation` tab, you can configure the behavior when a client gets isolated.
+
+image::docs/images/violation-remediation.png[scaledwidth="100%",alt="Violation remediation"]
+
+Where :
+[options="compact"]
+* `Auto Enable` is whether or not the user can release the violation himself after acknoledging the message on the captive portal.
+* `Max Enables` is the amount of time a user can use the `Auto Enable` functionnality. After this amount of times, he will not be able to release the violation and it will have to be manually release by an administrator using the PacketFence administration interface.
+* `Grace` is Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+* `Dynamic Window` will only works for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month). 
+* `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
+* `Delay by` is the delay before triggering the violation.
+* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Portal Profiles configuration section.
+* `Button text` is the text of the button that is used when the user is releasing the violation directly from the captive portal.
+
+Advanced
+++++++++
+
+In the `Advanced` tab you configure the destination VLAN of the device when it has the `Reevaluate access` action and its redirection URL when the user is released.
 
 Compliance Checks
 ~~~~~~~~~~~~~~~~~
