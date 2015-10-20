@@ -109,7 +109,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
             [% FOREACH type IN ['user_agent', 'dhcp_fingerprint', 'mac_vendor', 'dhcp_vendor', 'device'] %]
               <div class="alert alert-info trigger_widget [% type %]_triggers">
                 <strong>Tip :</strong>
-                You can configure [% i18n(type) %] triggers directly from the 
+                You can get the list of [% i18n(type) %] identifiers from the 
                 <a href="configuration#config/fingerbank/[% type %]">[% i18n(type) %] page</a>.
               </div>
             [% END %]
