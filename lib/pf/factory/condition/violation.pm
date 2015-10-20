@@ -30,7 +30,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'dhcp_fingerprint'=> {type => 'equals',        key  => 'dhcp_fingerprint_id'},
     'dhcp_vendor'     => {type => 'equals',        key  => 'dhcp_vendor_id'},
     'internal'        => {type => 'equals',        key  => 'last_internal_id', event => $TRUE},
-    'mac'             => {type => 'matches',       key  => 'mac'},
+    'mac'             => {type => 'regex',         key  => 'mac'},
     'mac_vendor'      => {type => 'equals',        key  => 'mac_vendor_id'},
     'nessus'          => {type => 'equals',        key  => 'last_nessus_id', event => $TRUE},
     'openvas'         => {type => 'equals',        key  => 'last_openvas_id', event => $TRUE},
