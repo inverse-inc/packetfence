@@ -50,7 +50,7 @@ has_field 'domains' =>
   );
 
 has_block definition => (
-    render_list => [qw(secret_key publishable_key style currency test_mode)]
+    render_list => [qw(secret_key publishable_key style currency domains test_mode)]
 );
 
 =head1 AUTHOR
