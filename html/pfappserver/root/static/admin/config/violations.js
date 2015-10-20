@@ -423,14 +423,14 @@ ViolationsView.prototype.append_trigger = function(value,value_pretty){
 
   var error = false;
   var select = $('#editedTrigger select').first();
-  select.find('option:selected').each(function(){
-    console.log($(this).val())
-    var data = $(this).val().split('::');
-    console.log(data)
-    if(that.event_triggers.indexOf(data[0].toLowerCase()) > -1){
-        error = $(this).html();
-    }
-  });
+  if(that.event_triggers.indexOf(value.split('::')[0].toLowerCase()) > -1){
+    select.find('option:selected').each(function(){
+      var data = $(this).val().split('::');
+      if(that.event_triggers.indexOf(data[0].toLowerCase()) > -1){
+          error = $(this).html();
+      }
+    });
+  }
 
   if(error) {
     showError($('#viewTriggers'), "There is already an evenemential trigger defined ("+error+"). Only one is allowed per combined trigger.");
