@@ -181,7 +181,6 @@ sub is_a {
     return "unknown";
 }
 
-<<<<<<< HEAD
 sub sync_configuration {
     pf::cluster::sync_files([$fingerbank::FilePath::CONF_FILE]);
 }
@@ -192,7 +191,8 @@ sub sync_local_db {
 
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
-=======
+}
+
 =head2 mac_vendor_from_mac
 
 =cut
@@ -210,7 +210,6 @@ sub mac_vendor_from_mac {
 
     ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->read($result->id);
     return $result;
->>>>>>> refactored fingerbank violation integration
 }
 
 =head1 AUTHOR
