@@ -24,7 +24,6 @@ use Log::Log4perl::Level;
 use Readonly;
 use pf::StatsD;
 use pf::util::statsd qw(called);
-#use pf::violation qw(violation_count violation_add violation_trigger violation_force_close);
 
 use constant NODE => 'node';
 
