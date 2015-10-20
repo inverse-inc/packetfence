@@ -188,6 +188,8 @@ after view => sub {
 
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
+    $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
+    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';
     }
