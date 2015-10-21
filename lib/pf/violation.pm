@@ -46,7 +46,7 @@ use constant VIOLATION => 'violation';
 
 use pf::factory::condition::violation;
 pf::factory::condition::violation->modules;
-tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'resource::ViolationFilterEngine';
+tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
 tie our @BANDWIDTH_EXPIRED_VIOLATIONS, 'pfconfig::cached_array' => 'resource::bandwidth_expired_violations';
 tie our @ACCOUNTING_TRIGGERS, 'pfconfig::cached_array' => 'resource::accounting_triggers';
 
