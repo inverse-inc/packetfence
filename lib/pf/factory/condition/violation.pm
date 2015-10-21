@@ -1,13 +1,15 @@
 package pf::factory::condition::violation;
 =head1 NAME
 
-pf::factory::condition::violation add documentation
+pf::factory::condition::violation
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::factory::condition::violation
+
+Create the list of conditions for the filter engine based on the triggers of a violation
 
 =cut
 

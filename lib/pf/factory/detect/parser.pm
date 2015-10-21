@@ -2,13 +2,15 @@ package pf::factory::detect::parser;
 
 =head1 NAME
 
-pf::factory::detect::parser add documentation
+pf::factory::detect::parser
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::factory::detect::parser
+
+Create a pfdetect parser by it's configuration ID
 
 =cut
 

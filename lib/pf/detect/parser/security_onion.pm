@@ -2,13 +2,15 @@ package pf::detect::parser::security_onion;
 
 =head1 NAME
 
-pf::detect::parser::security_onion add documentation
+pf::detect::parser::security_onion
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::detect::parser::security_onion
+
+Class to parse syslog from a Security onion appliance
 
 =cut
 

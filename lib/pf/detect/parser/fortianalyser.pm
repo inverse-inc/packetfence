@@ -1,13 +1,15 @@
 package pf::detect::parser::fortianalyser;
 =head1 NAME
 
-pf::detect::parser::fortianalyser add documentation
+pf::detect::parser::fortianalyser
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::detect::parser::fortianalyser
+
+Class to parse syslog from a Fortianalyser
 
 =cut
 

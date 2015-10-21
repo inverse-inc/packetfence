@@ -1,13 +1,15 @@
 package pf::condition::includes;
 =head1 NAME
 
-pf::condition::includes add documentation
+pf::condition::includes
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::condition::includes
+
+Check if an array includes the value defined in the condition
 
 =cut
 

@@ -1,13 +1,15 @@
 package pf::condition::starts_with;
 =head1 NAME
 
-pf::condition::matches add documentation
+pf::condition::starts_with
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::condition::matches
+pf::condition::starts_with
+
+Check if the value defined in the condition starts with a value
 
 =cut
 

@@ -1,13 +1,15 @@
 package pf::detect::parser::snort;
 =head1 NAME
 
-pf::detect::parser::snort add documentation
+pf::detect::parser::snort
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::detect::parser::snort
+
+Class to parse syslog from Snort
 
 =cut
 

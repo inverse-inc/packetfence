@@ -1,13 +1,15 @@
 package pf::detect::parser;
 =head1 NAME
 
-pf::detect::parser add documentation
+pf::detect::parser
 
 =cut
 
 =head1 DESCRIPTION
 
 pf::detect::parser
+
+Base class for a pfdetect parser
 
 =cut
 
