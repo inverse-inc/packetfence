@@ -1,42 +1,36 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pf::condition::regex_not;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pf::condition::regex_not
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pf::condition::regex_not
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
 
-use pfconfig::namespaces::config;
-use pf::file_paths;
 
-use base 'pfconfig::namespaces::config';
+extends qw(pf::condition::regex);
+use pf::constants;
 
-sub init {
-    my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
-}
+=head2 match
 
-sub build_child {
-    my ($self) = @_;
+Match if argument does not match the regex defined
 
-    my %tmp_cfg = %{ $self->{cfg} };
+=cut
 
-    $self->cleanup_whitespaces( \%tmp_cfg );
-
-    return \%tmp_cfg;
-
+sub match {
+    my ($self,$arg) = @_;
+    my $match = $self->value;
+    return 0 if(!defined($arg));
+    return $arg !~ $match;
 }
 
 =head1 AUTHOR
@@ -67,8 +61,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

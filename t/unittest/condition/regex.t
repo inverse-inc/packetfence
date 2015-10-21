@@ -1,43 +1,38 @@
-package pfconfig::namespaces::config::VlanFilters;
-
 =head1 NAME
 
-pfconfig::namespaces::config::template
+Tests for pf::condition::regex
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+Tests for pf::condition::regex
 
 =cut
 
 use strict;
 use warnings;
-
-use pfconfig::namespaces::config;
-use pf::file_paths;
-
-use base 'pfconfig::namespaces::config';
-
-sub init {
-    my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
+use lib qw(/usr/local/pf/lib);
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
 }
 
-sub build_child {
-    my ($self) = @_;
+use Test::More tests => 7;                      # last test to print
 
-    my %tmp_cfg = %{ $self->{cfg} };
+use Test::NoWarnings;
 
-    $self->cleanup_whitespaces( \%tmp_cfg );
+use_ok("pf::condition::regex");
 
-    return \%tmp_cfg;
+my $filter = new_ok ( "pf::condition::regex", [value => '^test'],"Test regex based filter");
 
-}
+ok($filter->match('testing123'),"filter regex");
+
+ok(!$filter->match('desting'),"filter does not match regex");
+
+ok(!$filter->match('atesting'),"filter does not match regex");
+
+ok(!$filter->match(undef),"value undef does not match filter");
 
 =head1 AUTHOR
 
@@ -68,7 +63,4 @@ USA.
 
 1;
 
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
 

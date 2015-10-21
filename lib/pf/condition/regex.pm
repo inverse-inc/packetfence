@@ -1,42 +1,48 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pf::condition::regex;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pf::condition::regex
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pf::condition::regex
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+use pf::Moose::Types;
+extends qw(pf::condition);
+use pf::constants;
 
-use pfconfig::namespaces::config;
-use pf::file_paths;
+=head2 value
 
-use base 'pfconfig::namespaces::config';
+The value to match against
 
-sub init {
-    my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
-}
+=cut
 
-sub build_child {
-    my ($self) = @_;
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'RegexpRefStr',
+    coerce => 1,
+);
 
-    my %tmp_cfg = %{ $self->{cfg} };
+=head2 match
 
-    $self->cleanup_whitespaces( \%tmp_cfg );
+Match if argument matches the regex defined
 
-    return \%tmp_cfg;
+=cut
 
+sub match {
+    my ($self,$arg) = @_;
+    my $match = $self->value;
+    return 0 if(!defined($arg));
+    return $arg =~ $match;
 }
 
 =head1 AUTHOR
@@ -67,8 +73,4 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
 

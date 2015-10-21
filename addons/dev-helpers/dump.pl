@@ -76,8 +76,8 @@ use Data::Dumper;
 __PACKAGE__->mark_as_loaded();
 
 sub _run {
-    require pf::vlan::filter;
-    print Data::Dumper::Dumper(\%pf::vlan::filter::ConfigVlanFilters);
+    require pf::access_filter::vlan;
+    print Data::Dumper::Dumper(\%pf::access_filter::vlan::ConfigVlanFilters);
 }
 
 

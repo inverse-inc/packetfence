@@ -15,8 +15,8 @@ pf::condition::network
 use strict;
 use warnings;
 use Moose;
+use pf::Moose::Types;
 extends 'pf::condition';
-use NetAddr::IP;
 use pf::log;
 use pf::constants;
 
@@ -33,6 +33,8 @@ The IP network to match against
 has 'value' => (
     is       => 'ro',
     required => 1,
+    isa => 'NetAddrIpStr',
+    coerce => 1,
 );
 
 =head1 METHODS
@@ -52,12 +54,7 @@ sub match {
         $logger->info("'$ip' is not a valid ip address or range");
         return $FALSE;
     }
-    my $network = eval { NetAddr::IP->new($self->value) };
-    unless (defined $network) {
-        $logger->info("'$network' is not a valid ip address or range");
-        return $FALSE;
-    }
-    return $network->contains($ip_addr);
+    return $self->value->contains($ip_addr);
 }
 
 =head1 AUTHOR
