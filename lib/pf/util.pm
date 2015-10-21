@@ -33,7 +33,7 @@ use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
 use Encode qw(encode);
-
+use MIME::Lite::TT;
 
 our ( %local_mac );
 
@@ -1104,14 +1104,6 @@ sub send_email {
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
     $options{ENCODING} = "utf8";
     
-    my $import_succesfull = try { require MIME::Lite::TT; };
-    if (!$import_succesfull) {
-        $logger->error(
-            "Could not send email because I couldn't load a module. ".
-            "Are you sure you have MIME::Lite::TT installed?"
-        );
-        return $FALSE;
-    }
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
