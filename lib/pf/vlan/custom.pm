@@ -2,11 +2,11 @@ package pf::vlan::custom;
 
 =head1 NAME
 
-pf::vlan::custom - Object oriented module for VLAN isolation oriented functions 
+pf::vlan::custom - Object oriented module for VLAN isolation oriented functions
 
 =head1 SYNOPSIS
 
-The pf::vlan::custom module implements VLAN isolation oriented functions that are custom 
+The pf::vlan::custom module implements VLAN isolation oriented functions that are custom
 to a particular setup.
 
 This module extends pf::vlan
@@ -30,7 +30,6 @@ use pf::violation qw(violation_count_reevaluate_access violation_exist_open viol
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::Portal::ProfileFactory;
-use pf::vlan::filter;
 
 our $VERSION = 1.04;
 

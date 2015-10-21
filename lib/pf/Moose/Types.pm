@@ -1,43 +1,31 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pf::Moose::Types;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pf::Moose::Types -
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pf::Moose::Types
 
 =cut
 
 use strict;
 use warnings;
+use Moose::Util::TypeConstraints;
+use NetAddr::IP;
 
-use pfconfig::namespaces::config;
-use pf::file_paths;
+subtype 'NetAddrIpStr', as 'NetAddr::IP';
 
-use base 'pfconfig::namespaces::config';
+coerce 'NetAddrIpStr', from 'Str', via { NetAddr::IP->new($_) };
 
-sub init {
-    my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanFilterEngineScopes'];
-}
+subtype 'RegexpRefStr', as 'RegexpRef';
 
-sub build_child {
-    my ($self) = @_;
+coerce 'RegexpRefStr', from 'Str', via {qr/$_/};
 
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    $self->cleanup_whitespaces( \%tmp_cfg );
-
-    return \%tmp_cfg;
-
-}
+#no Moose::Util::TypeConstraints;
 
 =head1 AUTHOR
 
@@ -67,8 +55,4 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
 

@@ -1067,12 +1067,12 @@ sub portal_profiles {
 
 =item vlan_filter_rules
 
-Make sure that the minimum parameters have been defined in vlan filter rules
+Make sure that the minimum parameters have been defined in access filter rules
 
 =cut
 
 sub vlan_filter_rules {
-    my %ConfigVlanFilters = %pf::vlan::filter::ConfigVlanFilters;
+    my %ConfigVlanFilters = %pf::vlan_filter::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")

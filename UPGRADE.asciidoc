@@ -37,6 +37,58 @@ Please note that the sections below are cumulative. That is to say, if you are u
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+VLAN Filter configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The VLAN filter has been reworked to use a more generalized syntax to allow more complex filters to be created.
+
+This mean nested conditions no longer need to specify the attribute in the condition.
+
+So the following attribute
+
+   [condition]
+   filter=node_info
+   attribute=category
+   operator=is
+   value=default
+
+Should be rewritten as
+
+   [condition]
+   filter=node_info.category
+   operator=is
+   value=default
+
+The older syntax is still supported but will be deprecated in a future release.
+
+The operators match and match_not has changed thier behavior.
+They will match (or not match) the exact string given in the condition.
+The following condition
+
+  [condition]
+  filter=node_info.computername
+  operator=match
+  value=^Bob
+
+Will match node_info.computername only if it contians '^Bob'.
+It will not match if node_info.computername start with 'Bob'
+
+If you need to use a regex then use the regex/regex_not operator.
+So the following condition should be changed from
+
+  [condition]
+  filter=node_info.mac
+  operator=match
+  value=^00:
+
+To the following
+
+  [condition]
+  filter=node_info.mac
+  operator=regex
+  value=^00:
+
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Upgrading from a version prior to 5.4.0

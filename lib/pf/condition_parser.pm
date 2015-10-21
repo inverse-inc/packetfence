@@ -16,6 +16,7 @@ EXPR = OR || OR
 EXPR = OR
 OR   = FACT && FACT
 OR   = FACT
+FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
 ID   = /a-zA-Z0-9_/+
@@ -130,9 +131,15 @@ Handle a 'fact' expression
 =cut
 
 sub _parse_fact {
+    # FACT = ! FACT
     # FACT = '(' EXPR ')'
     # FACT = /a-zA-Z0-9_/+
     my $pos = pos();
+
+    #Check if it is a not expression !
+    if (/\G\s*!/gc) {
+        return ['NOT' ,_parse_fact()];
+    }
 
     #Check if it is a sub expression ()
     if (/\G\s*\(/gc) {
