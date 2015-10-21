@@ -89,7 +89,7 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
 
-                if ( $this->getBitAtPosition(pack("C", hex($result->{$oid})), $SNMP::LLDP::TELEPHONE) ) {
+                if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
