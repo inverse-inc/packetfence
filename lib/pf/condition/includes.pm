@@ -18,11 +18,23 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 
+=head2 value
+
+Value that should be included in the array for the condition to be true
+
+=cut
+
 has value => (
     is => 'ro',
     required => 1,
     isa  => 'Str',
 );
+
+=head2 match
+
+Check if the value is part of the array that is passed as an argument
+
+=cut
 
 sub match {
     my ($self,$arg) = @_;
