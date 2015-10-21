@@ -73,7 +73,7 @@ conf/snmptrapd.conf
 conf/snort.conf
 conf/snort.conf.pre_snort-2.8
 conf/suricata.yaml
-#conf/suricata_categories.txt
+conf/suricata_categories.txt
 conf/ui-global.conf
 conf/violations.conf
 conf/allowed_device_oui.txt
