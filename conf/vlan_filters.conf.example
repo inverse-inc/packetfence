@@ -65,6 +65,60 @@
 # scope = AutoRegister
 # role = default
 #
+# This will autoregister machine auth on ethernet EAP or EAP-TLS connection and refuse 
+# user auth if there wasn't machine auth before (you must add a role machine and a role 
+# refuse (value: -1) in packetfence's role and switch configuration.
+#
+#[EthernetEAP]
+#filter = connection_type
+#operator = is
+#value = Ethernet-EAP
+#
+#[machineauth]
+#filter = username
+#operator = match
+#value = host/
+#
+#[machine]
+#filter = node_info.machine_account
+#operator = defined
+#
+#[EAPTLS]
+#filter = radius_request
+#attribute = EAP-Type
+#operator = is
+#value = EAP-TLS
+#
+#### Machine Auth Autoregister ####
+#
+#[1:EthernetEAP&machineauth]
+#scope = AutoRegister
+#role = machine
+#
+#[2:EthernetEAP&machineauth]
+#scope = NodeInfoForAutoReg
+#role = machine
+#
+#### Refuse User Auth without machine Auth ####
+#
+#[3:EthernetEAP&!machine&!EAPTLS]
+#scope = NormalVlan
+#role = refuse
+#
+#[4:EthernetEAP&!machine]
+#scope = RegistrationVlan
+#role = refuse
+#
+#### EAP TLS Autoregister ####
+#
+#[5:EthernetEAP&EAPTLS]
+#scope = AutoRegister
+#role = machine
+#
+#[6:EthernetEAP&EAPTLS]
+#scope = NodeInfoForAutoReg
+#role = machine
+#
 # Web API call:
 #
 # [3:3]
