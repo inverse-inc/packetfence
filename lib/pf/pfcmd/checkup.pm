@@ -825,8 +825,8 @@ Checking for violations configurations
 =cut
 
 sub violations {
-    require pfconfig::namespaces::resource::ViolationFilterEngine;
-    my $engine = pfconfig::namespaces::resource::ViolationFilterEngine->new;
+    require pfconfig::namespaces::FilterEngine::Violation;
+    my $engine = pfconfig::namespaces::FilterEngine::Violation->new;
     $engine->build(); 
     while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
         foreach my $trigger (@$triggers){

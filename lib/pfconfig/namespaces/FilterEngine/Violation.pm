@@ -1,13 +1,13 @@
 package pfconfig::namespaces::FilterEngine::Violation;
 =head1 NAME
 
-pfconfig::namespaces::resource::ViolationFilterEngine
+pfconfig::namespaces::FilterEngine::Violation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::ViolationFilterEngine
+pfconfig::namespaces::FilterEngine::Violation
 
 Creates the filter engine for triggering violations
 

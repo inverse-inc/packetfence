@@ -15,13 +15,13 @@ pfconfig::namespaces::resource::accouting_triggers
 use strict;
 use warnings;
 use pf::constants;
-use pfconfig::namespaces::resource::ViolationFilterEngine;
+use pfconfig::namespaces::FilterEngine::Violation;
 
 use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self, $host_id) = @_;
-    $self->{_engine} = pfconfig::namespaces::resource::ViolationFilterEngine->new;
+    $self->{_engine} = pfconfig::namespaces::FilterEngine::Violation->new;
     $self->{_engine}->build();
 }
 
