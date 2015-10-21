@@ -33,6 +33,9 @@ sub build_child {
     my ($self) = @_;
     my %tmp_cfg = %{ $self->{cfg} };
 
+    # There for backward compatibility for when suricata or snort is configured directly in PacketFence
+    # Should this feature go, the code below can be removed
+    # This will start a pfdetect process if the detection engine is enabled in PacketFence
     if( 
       isenabled($self->{config}->{trapping}->{detection}) &&
       $self->{config}->{trapping}->{detection_engine} ne "none"
