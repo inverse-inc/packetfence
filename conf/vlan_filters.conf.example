@@ -22,7 +22,7 @@
 # [2]
 # filter = node_info.category
 # operator = match
-# value = fault
+# value = default
 #
 # [3]
 # filter = ssid
@@ -38,6 +38,10 @@
 # scope = NormalVlan
 # role = nointernet
 #
+# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
+# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
+# we return the role "nointernet" (which you will have configured in the switch configuration).
+#
 # This will autoregister any device beginning by a set of known Avaya MAC address OUI and consider it as phone
 #
 # [avaya_phones]
@@ -49,9 +53,17 @@
 # scope = IsPhone
 # role = default
 #
-# It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
-# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday,
-# we return the role "nointernet" (which you will have configured in the switch configuration).
+#
+# This will autoregister devices if the connection is Ethernet-EAP
+#
+# [etherneteap]
+# filter = connection_type
+# operator = is
+# value = Ethernet-EAP
+#
+# [reg:etherneteap]
+# scope = AutoRegister
+# role = default
 #
 # Web API call:
 #
