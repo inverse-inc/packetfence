@@ -20,7 +20,7 @@ use pfconfig::namespaces::FilterEngine::Violation;
 use base 'pfconfig::namespaces::resource';
 
 sub init {
-    my ($self, $host_id) = @_;
+    my ($self) = @_;
     $self->{_engine} = pfconfig::namespaces::FilterEngine::Violation->new;
     $self->{_engine}->build();
 }
