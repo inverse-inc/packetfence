@@ -133,6 +133,7 @@ requires: perl(Const::Fast)
 Requires: perl(Time::HiRes)
 # Required for inline mode.
 Requires: ipset, sudo
+Requires: redis
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
