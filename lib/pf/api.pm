@@ -992,6 +992,11 @@ sub reevaluate_access : Public {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
+sub process_dhcpv6 {
+    my ( $class, $packet ) = @_;
+    use Data::Dumper ; pf::log::get_logger->info(Dumper($packet));
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

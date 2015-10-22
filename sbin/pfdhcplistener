@@ -45,6 +45,7 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
+use pf::util::dhcpv6;
 use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
@@ -188,7 +189,54 @@ sub dhcp_detector {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    listen_dhcp( $pkt, $user_data ) if ($process || !$pf::cluster::cluster_enabled);
+    if ($process || !$pf::cluster::cluster_enabled){
+        use NetPacket::Ethernet qw(ETH_TYPE_IP);
+        use NetPacket::IP;
+        use NetPacket::IPv6;
+        use NetPacket::UDP;
+
+        my $l2 = NetPacket::Ethernet->decode($pkt);
+        $logger->info("client : ".$l2->{src_mac});
+        $logger->info("Protocol : ".$l2->{type});
+        my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
+        my $l4 = NetPacket::UDP->decode($l3->{'data'});
+        $logger->info("ports : ".$l4->{src_port}." ". $l4->{dest_port});
+        # We are only looking for client to server communication for Fingerbank
+        if($l4->{src_port} eq 546 && $l4->{dest_port} eq 547){
+            use Data::Dumper;
+            my $dhcpv6 = decode_dhcpv6($l4->{data});
+
+            if($dhcpv6->{msg_type} ne 1){
+                $logger->debug("Skipping DHCPv6 packet because it's not a solicit.");
+            }
+
+            my ($dhcp6_enterprise,$dhcp6_fingerprint) = ('', '');
+            foreach my $option (@{$dhcpv6->{options}}){
+                if(defined($option->{enterprise_number})){
+                    $dhcp6_enterprise = $option->{enterprise_number};
+                }
+                elsif(defined($option->{requested_options})){
+                    $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
+                }
+            }
+            $logger->info("Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+
+            # TODO : change for the MAC in the packet to handle relaying
+            my $node_attributes = node_attributes($l2->{src_mac});
+            my %fingerbank_query_args = (
+                mac                 => $l2->{src_mac},
+                dhcp_fingerprint    => $node_attributes->{'dhcp_fingerprint'},
+                dhcp_vendor         => $node_attributes->{'dhcp_vendor'},
+                dhcp6_fingerprint   => $dhcp6_fingerprint,
+                dhcp6_enterprise    => $dhcp6_enterprise,
+            );
+
+            pf::fingerbank::process(\%fingerbank_query_args);
+        }
+        else {
+            listen_dhcp( $l2, $l3, $l4 );
+        }
+    }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
     #Only perform stats when in debug mode
@@ -201,34 +249,15 @@ sub process_pkt {
 }
 
 sub listen_dhcp {
-    my ( $packet ) = @_;
+    my ( $l2, $l3, $l4 ) = @_;
 
-    my ($l2, $l3, $l4, $dhcp);
+    my ($dhcp);
 
-    # Skip frames that aren't ETH_TYPE_IP to avoid processing frames more than
-    # once when pfdhcplistener listens on both a vlan interface and its parent
-    #
-    # On post-2008 kernels, with network devices supporting VLAN acceleration
-    # (HW tagging/stripping), ethernet frames always appear untagged to libpcap.
-    # The library reconstructs the original frame by looking at the PACKET_AUXDATA
-    # (pcap-linux.c: pcap_read_packet) *after* the frame has passed the bpf filters.
-    # In other words, we cannot use bpf filters to ignore VLAN packets.
-    #
-    # Also, NetPacket::Ethernet::decode will skip the VLAN header from
-    # a tagged frame and return the 'inner' ether_type of the frame.
-    #
-    # For these reasons, we must peek directly at the data.
-    # skip the first 12 bytes of the frame (src + dst eth addr)
-    # grab the ether_type field and discard the rest:
-    my ($ether_type, undef) = unpack("x[12]nC*", $packet);
-    if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
-      return;
-    }
 
     # we need success flag here because we can't next inside try catch
     my $success;
     try {
-        ($l2, $l3, $l4, $dhcp) = decompose_dhcp($packet);
+        $dhcp = decode_dhcp($l4->{'data'});
         $success = 1;
     } catch {
         $logger->warn("Unable to parse DHCP packet: $_");

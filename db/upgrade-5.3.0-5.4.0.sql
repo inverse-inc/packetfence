@@ -1,6 +1,10 @@
 --
 -- PacketFence SQL schema upgrade from 5.3.0 to 5.4.0
 --
+
+ALTER TABLE node ADD COLUMN `dhcp6_fingerprint` VARCHAR(255) DEFAULT NULL AFTER `dhcp_fingerprint`;
+ALTER TABLE node ADD COLUMN `dhcp6_enterprise` VARCHAR(255) DEFAULT NULL AFTER `dhcp_vendor`;
+
 --
 -- Setting the major/minor/sub-minor version of the DB
 --
