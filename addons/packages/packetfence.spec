@@ -101,6 +101,7 @@ Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= %{perl_version}
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
+Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
 Requires: perl(Apache2::Request)
@@ -347,6 +348,15 @@ Summary: Replace pfcmd by a C wrapper for suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
+%package -n %{real_name}-ntlm-wrapper
+Group: System Environment/Daemons
+BuildRequires: gcc
+AutoReqProv: 0
+Summary: C wrapper for logging ntlm_auth latency.
+
+%description -n %{real_name}-ntlm-wrapper
+The %{real_name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
+
 %package -n %{real_name}-config
 Group: System Environment/Daemons
 Requires: perl(Cache::BDB)
@@ -393,6 +403,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
+# build ntlm_auth_wrapper
+make bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
@@ -1146,6 +1158,9 @@ fi
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
+
+%files -n %{real_name}-ntlm-wrapper
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
 
 %files -n %{real_name}-config
 %defattr(-, pf, pf)
