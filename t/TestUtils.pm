@@ -102,6 +102,13 @@ and return all the normal files under
 
 =cut
 
+my @excluded_binaries = qw(
+   /usr/local/pf/bin/pfcmd
+   /usr/local/pf/sbin/pfdns
+   /usr/local/pf/bin/ntlm_auth_wrapper
+);
+my %exclusions = map { $_ => 1 } @excluded_binaries;
+
 sub get_all_perl_binaries {
 
     my @list;
@@ -120,7 +127,8 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd") && ($File::Find::name ne "/usr/local/pf/sbin/pfdns"));
+            push(@list, $File::Find::name) if ((-f $File::Find::name) && 
+                not exists $exclusions{ $File::Find::name } );
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
