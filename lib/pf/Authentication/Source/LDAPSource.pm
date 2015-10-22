@@ -168,6 +168,7 @@ sub _connect {
   my $self = shift;
   my $connection;
   my $start = Time::HiRes::gettimeofday();
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
@@ -205,15 +206,15 @@ sub _connect {
     }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
-    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 );
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.1 );
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
-    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start );
     $pf::StatsD::statsd->increment("LDAPSource::" . called() . "error.count" );
   }
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start );
   return undef;
 }
 
@@ -286,9 +287,11 @@ Conditions that match are added to C<$matching_conditions>.
 sub match_in_subclass {
 
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $start = Time::HiRes::gettimeofday();
 
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
+        $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start);
         return undef;
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
@@ -297,6 +300,8 @@ sub match_in_subclass {
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
         $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
+        $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".error.count" );
+        $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start);
         return undef;
     }
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
@@ -311,6 +316,8 @@ sub match_in_subclass {
 
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
+        $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".error.count" );
+        $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start);
         return undef;
     }
 
@@ -358,10 +365,13 @@ sub match_in_subclass {
               );
             if ($result->is_error || $result->count != 1) {
                 $entry_matches = 0;
-                $logger->error(
-                    "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
-                      . $result->error . ").")
-                  if $result->is_error;
+                if ( $result->is_error ) { 
+                    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".error.count" );
+                    $logger->error(
+                        "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
+                        . $result->error . ")."); 
+                } 
+
                 if ($rule->match eq $Rules::ALL) {
                     last;
                 }
@@ -378,10 +388,12 @@ sub match_in_subclass {
             # That is normal, as we used them all to build our LDAP filter.
             $logger->info("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
+            $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.1 );
             return $params->{'username'} || $params->{'email'};
         }
     }
 
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.1 );
     return undef;
 }
 
@@ -439,6 +451,7 @@ for the usernameattribute - to match it in the source.
 
 sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
+  my $start = Time::HiRes::gettimeofday();
 
   my (@ldap_conditions, $expression);
   $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
@@ -481,6 +494,7 @@ sub ldap_filter_for_conditions {
       }
   }
 
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.1 );
   return $expression;
 }
 
@@ -497,10 +511,10 @@ sub bind_with_credentials {
     } else {
         $result = $connection->bind;
     }
-    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, "0.5" );
     if ($result->is_error) {    
         $pf::StatsD::statsd->increment("LDAPSource::" . called() . "error.count" );
     } 
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 );
     return $result;
 }
 
@@ -510,14 +524,17 @@ sub bind_with_credentials {
 
 sub search_attributes_in_subclass {
     my ($self, $username) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
+      $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start);
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+      $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start);
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $searchresult = $connection->search(
@@ -543,6 +560,7 @@ sub search_attributes_in_subclass {
         }
     }
 
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.1 );
     return $info;
 }
 
