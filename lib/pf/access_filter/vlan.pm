@@ -16,7 +16,7 @@ use pf::api::jsonrpcclient;
 
 use base qw(pf::access_filter);
 tie our %ConfigVlanFilters, 'pfconfig::cached_hash', 'config::VlanFilters';
-tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::VlanFilterEngineScopes';
+tie our %VlanFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::VlanScopes';
 
 =head2 filterRule
 
