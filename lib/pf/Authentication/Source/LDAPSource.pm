@@ -307,12 +307,14 @@ sub match_in_subclass {
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
+    my $before = Time::HiRes::gettimeofday();
     my $result = $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
       scope => $self->{'scope'},
       attrs => \@attributes
     );
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".search.timing" , $before, 0.1 );
 
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
