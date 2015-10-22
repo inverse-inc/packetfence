@@ -82,6 +82,13 @@ our %DEFAULT_CONFIG = (
             compress_threshold => 10000,
             behavior_binary_protocol => 1,
         },
+        'redis' => {
+            driver => 'Redis',
+            compress_threshold => 10000,
+            server => '127.0.0.1:6379',
+            redis_class => 'Redis::Fast',
+            prefix => 'pf',
+        },
         'file' => {
             driver => 'File',
             root_dir => "$var_dir/cache",
@@ -89,13 +96,7 @@ our %DEFAULT_CONFIG = (
     }
 );
 
-our %DEFAULT_STORAGE = (
-    driver => 'File',
-    root_dir => "$var_dir/cache",
-    l1_cache => {
-        storage => 'memcached',
-    },
-);
+our %DEFAULT_STORAGE = ${$DEFAULT_CONFIG{storage}{redis}};
 
 sub chiConfigFromIniFile {
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
