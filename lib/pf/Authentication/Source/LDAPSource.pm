@@ -116,20 +116,23 @@ sub authenticate {
     scope => $self->{'scope'},
     attrs => ['dn']
   );
-  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".search.timing" , $before, 0.5 ); 
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".search.timing" , $before, 0.25 ); 
 
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".search.error.count" );
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 ); 
+    $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".error.count" );
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
@@ -138,16 +141,17 @@ sub authenticate {
 
   $before = Time::HiRes::gettimeofday();
   $result = $connection->bind($user->dn, password => $password);
-  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".bind.timing" , $start, "0.5" );
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".bind.timing" , $before, 0.25 );
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
-  $pf::StatsD::statsd->increment("LDAPSource::" . called() . ".success.count" );
+  $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 ); 
   return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
@@ -201,7 +205,7 @@ sub _connect {
     }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
-    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, "0.5" );
+    $pf::StatsD::statsd->end("LDAPSource::" . called() . ".timing" , $start, 0.25 );
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and return undef.
@@ -222,10 +226,18 @@ sub _connect {
 
 sub match {
     my ($self, $params) = @_;
+    my $start = Time::HiRes::gettimeofday();
     if($self->is_match_cacheable) {
-        return $self->cache->compute([$self->id, $params], sub { return $self->SUPER::match($params)});
+        my $result = $self->cache->compute([$self->id, $params], sub {
+                $pf::StatsD::statsd->increment("LDAPSource::.match.".$self->id . ".cache_miss.count" );
+                my $result =   $self->SUPER::match($params);
+            });
+        $pf::StatsD::statsd->end("LDAPSource::.match.". $self->id . ".timing" , $start, 0.1 );
+        return $result;
     }
-    return $self->SUPER::match($params);
+    my $result = $self->SUPER::match($params);
+    $pf::StatsD::statsd->end("LDAPSource::.match.". $self->id . ".timing" , $start, 0.1 );
+    return $result;
 }
 
 =head2 cache
