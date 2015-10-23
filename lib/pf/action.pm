@@ -32,6 +32,7 @@ use constant ACTION => 'action';
 
 # Action types constants
 #FIXME port all hard-coded strings to these constants
+Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $UNREG => 'unreg';
 Readonly::Scalar our $REEVALUATE_ACCESS => 'reevaluate_access';
 Readonly::Scalar our $EMAIL_USER => 'email_user';
@@ -44,6 +45,7 @@ Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
 
 Readonly::Array our @VIOLATION_ACTIONS =>
   (
+   $AUTOREG,
    $UNREG,
    $EMAIL_USER,
    $EMAIL_ADMIN,
@@ -193,6 +195,8 @@ sub action_execute {
     my $logger = Log::Log4perl::get_logger('pf::action');
     my $leave_open = 0;
     my @actions = class_view_actions($vid);
+    # Sort the actions in reverse order in order to always finish with the autoreg action
+    @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
@@ -215,6 +219,8 @@ sub action_execute {
             action_unreg( $mac, $vid );
         } elsif ( $action eq $ENFORCE_PROVISIONING ) {
             action_enforce_provisioning( $mac, $vid, $notes );
+        } elsif ( $action eq $AUTOREG ) {
+            action_autoregister($mac, $vid);
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -337,6 +343,25 @@ sub action_log {
 sub action_reevaluate_access {
     my ($mac, $vid) = @_;
     pf::enforcement::reevaluate_access($mac, "manage_vopen");
+}
+
+sub action_autoregister {
+    my ($mac, $vid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
+
+    if(pf::node::is_node_registered($mac)){
+        $logger->debug("Calling autoreg on already registered node. Doing nothing.");
+    }
+    else {
+        require pf::vlan::custom;
+        if(!pf::node::node_register($mac, "default")){
+            $logger->error("auto-registration of node $mac failed");
+            return;
+        }
+        
+        require pf::enforcement;
+        pf::enforcement::reevaluate_access($mac, 'manage_register');
+    }
 }
 
 sub action_close {
