@@ -50,6 +50,11 @@ use pf::api::jsonrpcclient;
 use NetAddr::IP;
 use pf::SwitchFactory;
 use MIME::Base64();
+use NetPacket::Ethernet qw(ETH_TYPE_IP);
+use NetPacket::IP;
+use NetPacket::IPv6;
+use NetPacket::UDP;
+
 
 pf::SwitchFactory::preLoadModules();
 
@@ -189,11 +194,6 @@ sub dhcp_detector {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    use NetPacket::Ethernet qw(ETH_TYPE_IP);
-    use NetPacket::IP;
-    use NetPacket::IPv6;
-    use NetPacket::UDP;
-
     if ($process || !$pf::cluster::cluster_enabled){
         my $l2 = NetPacket::Ethernet->decode($pkt);
         my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
@@ -203,6 +203,7 @@ sub process_pkt {
             listen_dhcp( $l2, $l3, $l4 );
         }
         else{
+            # Process the DHCPv6 packets asynchronously.
             my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
             $apiclient->notify('process_dhcpv6', $udp_payload_b64);
         }
@@ -222,7 +223,6 @@ sub listen_dhcp {
     my ( $l2, $l3, $l4 ) = @_;
 
     my ($dhcp);
-
 
     # we need success flag here because we can't next inside try catch
     my $success;
