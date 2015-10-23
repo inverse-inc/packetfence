@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-condition_parser
+CHI
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for condition_parser
+unit test for pf::CHI
 
 =cut
 
