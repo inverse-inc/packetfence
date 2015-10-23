@@ -1815,9 +1815,6 @@ sub node_update_PF {
         node_add_simple($mac);
     }
 
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($mac);
-
     #should we auto-register?
     if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS)) {
         # auto-register

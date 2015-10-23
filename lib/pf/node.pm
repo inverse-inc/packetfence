@@ -71,7 +71,6 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_custom_search
-        node_mac_wakeup
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -1115,31 +1114,6 @@ sub node_update_bandwidth {
     }
 
     return ($sth->rows);
-}
-
-=item * node_mac_wakeup
-
-Sub invoked each time a MAC as activity (eiher from dhcp or traps).
-
-in: mac address
-
-out: void
-
-=cut
-
-
-sub node_mac_wakeup {
-    my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    # Is there a violation for the Vendor of this MAC?
-    my $dec_oui = macoui2nb($mac);
-    $logger->debug( "sending VENDORMAC::$dec_oui trigger" );
-    pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
-
-    my $dec_mac = mac2nb($mac);
-    $logger->debug( "sending MAC::$dec_mac trigger" );
-    pf::violation::violation_trigger( $mac, $dec_mac, "MAC" );
 }
 
 sub node_search {

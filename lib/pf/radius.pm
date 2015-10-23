@@ -126,9 +126,6 @@ sub authorize {
         node_add_simple($mac);
     }
 
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($mac);
-
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("[$mac] is doing machine auth with account '$user_name'.");
