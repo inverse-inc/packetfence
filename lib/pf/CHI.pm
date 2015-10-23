@@ -27,7 +27,6 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
-use pfconfig::util qw($undef_element);
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -120,6 +119,7 @@ sub chiConfigFromIniFile {
             my $value =  listify($storage->{$param});
             $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
         }
+        push @{$storage->{traits}}, '+pf::Role::CHI::Driver::ComputeWithUndef';
     }
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
@@ -200,27 +200,6 @@ sub preload_chi_drivers {
     unless (@PRELOADED_CHI_DRIVERS) {
         @PRELOADED_CHI_DRIVERS = __PACKAGE__->_preload_chi_drivers;
     }
-}
-
-sub compute_with_undef {
-    my ($cache, $key, $on_miss) = @_;
-    my $return = $cache->get($key);
-    if(defined($return) && ref($return) eq "pfconfig::undef_element"){
-        return undef;
-    }
-    elsif(defined($return)){
-        return $return;
-    }
-
-    my $result = $on_miss->();
-    if(defined($result)){
-        $cache->set($key,$result);
-    }
-    else {
-        $cache->set($key, $undef_element);
-    }
-
-    return $result;
 }
 
 

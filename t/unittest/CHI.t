@@ -40,7 +40,7 @@ my $cache = pf::CHI->new( namespace => 't');
 
 # Test computing with undef values
 
-my $result = pf::CHI::compute_with_undef($cache, 'undef_value', sub { $cache_miss++ ; undef });
+my $result = $cache->compute_with_undef('undef_value', sub { $cache_miss++ ; undef });
 
 is(undef, $result,
     "Computing undef returns undef in a cache miss");
@@ -48,7 +48,7 @@ is(undef, $result,
 is(1, $cache_miss,
     "Computing an uncomputed undef value increments the hits");
 
-$result = pf::CHI::compute_with_undef($cache, 'undef_value', sub { $cache_miss++ ; undef });
+$result = $cache->compute_with_undef('undef_value', sub { $cache_miss++ ; undef });
 
 is(undef, $result,
     "Computing undef returns undef in a cache hit");
@@ -59,7 +59,7 @@ is(1, $cache_miss,
 # Test computing with non-undef values
 
 $cache_miss = 0;
-$result = pf::CHI::compute_with_undef($cache, 'defined_value', sub { $cache_miss++ ; "turkey" });
+$result = $cache->compute_with_undef('defined_value', sub { $cache_miss++ ; "turkey" });
 
 is("turkey", $result,
     "Computing a defined value returns the value in a cache miss");
@@ -67,7 +67,7 @@ is("turkey", $result,
 is(1, $cache_miss,
     "Computing an uncomputed defined value increments the hits");
 
-$result = pf::CHI::compute_with_undef($cache, 'defined_value', sub { $cache_miss++ ; "turkey" });
+$result = $cache->compute_with_undef('defined_value', sub { $cache_miss++ ; "turkey" });
 
 is("turkey", $result,
     "Computing a defined value returns the value in a cache hit");
