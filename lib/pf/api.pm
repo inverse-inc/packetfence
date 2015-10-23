@@ -996,13 +996,11 @@ sub reevaluate_access : Public {
 sub process_dhcpv6 : Public {
     my ( $class, $udp_payload ) = @_;
     my $logger = pf::log::get_logger();
-#    use Data::Dumper ; pf::log::get_logger->info(Dumper(\%postdata));
 
+    # The payload is sent in base 64
     $udp_payload = MIME::Base64::decode($udp_payload);
 
-    use Data::Dumper;
     my $dhcpv6 = pf::util::dhcpv6::decode_dhcpv6($udp_payload);
-    pf::log::get_logger->info(Dumper($dhcpv6));
 
     # these are relaying packets.
     # in that case we take the inner part
@@ -1021,27 +1019,29 @@ sub process_dhcpv6 : Public {
     foreach my $option (@{$dhcpv6->{options}}){
         if(defined($option->{enterprise_number})){
             $dhcp6_enterprise = $option->{enterprise_number};
+            $logger->debug("Found DHCPv6 enterprise ID '$dhcp6_enterprise'");
         }
         elsif(defined($option->{requested_options})){
             $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
+            $logger->debug("Found DHCPv6 fingerprint '$dhcp6_fingerprint'");
         }
         elsif(defined($option->{addr})){
             $mac_address = $option->{addr};
+            $logger->debug("Found DHCPv6 link address (MAC) '$mac_address'");
         }
     }
+
     $logger->info("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
 
-    # TODO : change for the MAC in the packet to handle relaying
-    my $node_attributes = pf::node::node_attributes($mac_address);
     my %fingerbank_query_args = (
         mac                 => $mac_address,
-        dhcp_fingerprint    => $node_attributes->{'dhcp_fingerprint'},
-        dhcp_vendor         => $node_attributes->{'dhcp_vendor'},
         dhcp6_fingerprint   => $dhcp6_fingerprint,
         dhcp6_enterprise    => $dhcp6_enterprise,
     );
 
     pf::fingerbank::process(\%fingerbank_query_args);
+
+    pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
 }
 
 =head1 AUTHOR
