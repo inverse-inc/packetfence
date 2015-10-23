@@ -61,7 +61,7 @@ sub instantiate {
             return $cond_and;
         }
         elsif($type eq 'exists_in'){
-            my @values = split(/ *; */, $data->{value});
+            my @values = split(/\s*;\s*/, $data->{value});
             my $condition;
             if (@values == 1) {
                 $condition = pf::condition::equals->new({value => $data->{value}});
