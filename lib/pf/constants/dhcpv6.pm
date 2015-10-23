@@ -104,6 +104,10 @@ use constant OPTION_DNS_SERVERS   => 23;
 use constant OPTION_DOMAIN_LIST   => 24;
 use constant OPTION_IA_PD         => 25;
 use constant OPTION_IAPREFIX      => 26;
+use constant OPTION_NIS_SERVERS   => 27;
+use constant OPTION_NISP_SERVERS  => 28;
+use constant OPTION_NIS_DOMAIN    => 29;
+use constant OPTION_NISP_DOMAIN   => 30;
 use constant OPTION_CLIENT_FQDN   => 39;
 
 =head1 AUTHOR
