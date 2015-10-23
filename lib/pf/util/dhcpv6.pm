@@ -63,6 +63,7 @@ our %OPTIONS_FILTER = (
     OPTION_NIS_DOMAIN()    => \&_parse_domain_list,
     OPTION_NISP_DOMAIN()   => \&_parse_domain_list,
     OPTION_SNTP_SERVERS()  => \&_parse_ipv6_list,
+    OPTION_INFO_REFRESH_TIME() => \&_parse_option_info_refresh_time
 
 );
 
@@ -421,6 +422,15 @@ sub _parse_client_fqdn {
 sub _parse_ipv6_list {
     my ($data) = @_;
     return { ipv6_addresses =>  [map { _parse_ipv6_addr($_) } unpack("(a16)*",$data) ] };
+}
+
+=head2 _parse_option_info_refresh_time
+
+=cut
+
+sub _parse_option_info_refresh_time {
+    my ($data) = @_;
+    return { information_refresh_time => unpack("N", $data) };
 }
 
 =head1 AUTHOR
