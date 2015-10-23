@@ -13,6 +13,7 @@ use Readonly;
 Readonly our $COMPLETED => "completed";
 Readonly our $FAILED => "failed";
 Readonly our $INCOMPLETE => "incomplete";
+Readonly our $INVALIDATED => "invalidated";
 
 BEGIN {
     use Exporter ();
@@ -50,6 +51,11 @@ sub auth_log_db_prepare {
         update auth_log set completed_at=NOW(), status=?, pid=? 
         where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
+    ]);
+
+    $auth_log_statements->{'auth_log_invalidate_previous_sql'} = get_db_handle()->prepare(qq[
+        update auth_log set completed_at=NOW(), status='$INVALIDATED' 
+        where process_name=? and source=? and mac=? and status='$INCOMPLETE';
     ]);
 
     $auth_log_statements->{'auth_log_record_guest_attempt_sql'} = get_db_handle()->prepare(qq[
@@ -92,8 +98,14 @@ sub view_by_pid {
 
 =cut
 
+sub invalidate_previous {
+    my ($source, $mac) = @_;
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_invalidate_previous_sql', process_name, $source, $mac));
+}
+
 sub record_oauth_attempt {
     my ($source, $mac) = @_;
+    invalidate_previous($source,$mac);
     return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_oauth_attempt_sql', process_name, $source, $mac));
 }
 
@@ -104,6 +116,7 @@ sub record_completed_oauth {
 
 sub record_guest_attempt {
     my ($source, $mac, $pid) = @_;
+    invalidate_previous($source,$mac);
     return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_guest_attempt_sql', process_name, $source, $mac, $pid));
 }
 
