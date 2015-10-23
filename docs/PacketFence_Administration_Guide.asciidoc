@@ -2186,7 +2186,7 @@ Blocking malicious activities with violations
 
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
-In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
+In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
 
 Snort
 ^^^^^
@@ -2217,6 +2217,63 @@ Configuration
 +++++++++++++
 
 PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
+
+Security Onion
+^^^^^^^^^^^^^^
+
+Installation and Configuration
+++++++++++++++++++++++++++++++
+
+Security Onion is a Ubuntu based security suite. Latest installation instructions are available directly from the Security Onion website, https://github.com/Security-Onion-Solutions/security-onion/wiki/Installation
+
+Since a security suite consists of multiple pieces of software tied together, you may be prompted for different options during the installation process. A detailled "Production Deployment" guide can also be found directly from the Security Onion website: https://github.com/Security-Onion-Solutions/security-onion/wiki/ProductionDeployment
+
+PacketFence integration
++++++++++++++++++++++++
+
+Once Security Onion is installed and basically configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mecanisms.
+
+The most simple way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
+
+On the Security Onion server;
+
+NOTE: Must be done on the master server running 'sguild'.
+
+Configure `/etc/syslog-ng/syslog-ng.conf` by adding the followings which will enable sending sguild log entries to PacketFence:
+
+  # This line specifies where the sguild.log file is located, and informs syslog-ng to tail the file, the program_override inserts the string sguil_alert into the string
+  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("sguil_alert")); };
+
+  # This line filters on the string “Alert Received”
+  filter f_sguil { match("Alert Received"); };
+
+  # This line tells syslog-ng to send the data read to the IP address of the PacketFence management interface, via UDP to port 514
+  destination d_sguil_udp { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+
+  # This log section tells syslog-ng how to structure the previous ‘source / filter / destination’ and is what actually puts them into play
+  log {
+      source(s_sguil);
+      filter(f_sguil);
+      destination(d_sguil_udp);
+  };
+
+A restart of the syslog-ng daemon is then required
+
+  service syslog-ng restart
+
+On the PacketFence server;
+
+Configure `/etc/rsyslog.d/security_onion` by adding the followings which will enable reception of Security Onion sguild log entries:
+
+  :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
+
+Make sure the receiving alert pipe (FIFO) exists
+
+  mkfifo /usr/local/pf/var/security_onion_alerts
+
+Restart the rsyslog daemon
+
+  service rsyslog restart
 
 Violations
 ^^^^^^^^^^
