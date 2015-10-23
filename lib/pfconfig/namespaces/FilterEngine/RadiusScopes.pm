@@ -1,14 +1,14 @@
-package pfconfig::namespaces::FilterEngine::RadiusFilterEngineScopes;
+package pfconfig::namespaces::FilterEngine::RadiusScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::RadiusFilterEngineScopes
+pfconfig::namespaces::FilterEngine::RadiusScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::RadiusFilterEngineScopes
+pfconfig::namespaces::FilterEngine::RadiusScopes
 
 =cut
 
@@ -18,7 +18,7 @@ use pf::log;
 use pfconfig::namespaces::config;
 use pfconfig::namespaces::config::RadiusFilters;
 
-use base 'pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes';
+use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
 sub parentConfig {
     my ($self) = @_;

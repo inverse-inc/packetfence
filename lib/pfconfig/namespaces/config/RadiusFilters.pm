@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $radius_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::RadiusFilterEngineScopes'];
+    $self->{child_resources} = [ 'FilterEngine::RadiusScopes'];
 }
 
 sub build_child {

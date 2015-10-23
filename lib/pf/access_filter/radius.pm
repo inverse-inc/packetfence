@@ -23,7 +23,7 @@ use pf::locationlog qw(locationlog_set_session);
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
-tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::RadiusFilterEngineScopes';
+tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::RadiusScopes';
 
 
 =head1 SUBROUTINES
