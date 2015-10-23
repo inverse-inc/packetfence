@@ -17,6 +17,8 @@ Version X.Y.Z released on XXXX-YY-ZZ
 New Features
 ++++++++++++
 
+* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
+
 Enhancements
 ++++++++++++
 * Detects Microsoft Windows based captive-portal detection mecanisms
@@ -303,8 +305,6 @@ New Features
 
 Enhancements
 ++++++++++++
-
-* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
 
 Bug Fixes
 +++++++++
