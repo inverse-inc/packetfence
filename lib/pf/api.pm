@@ -993,6 +993,15 @@ sub reevaluate_access : Public {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
+=head2 process_dhcpv6
+
+Processes a DHCPv6 udp payload to extract the fingerprint and enterprise ID.
+It then uses these in Fingerbank and records them in the database.
+
+The UDP payload must be base 64 encoded.
+
+=cut
+
 sub process_dhcpv6 : Public {
     my ( $class, $udp_payload ) = @_;
     my $logger = pf::log::get_logger();
