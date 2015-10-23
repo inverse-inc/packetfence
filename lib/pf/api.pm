@@ -54,6 +54,7 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
+use pf::util::dhcpv6();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -992,9 +993,55 @@ sub reevaluate_access : Public {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
-sub process_dhcpv6 {
-    my ( $class, $packet ) = @_;
-    use Data::Dumper ; pf::log::get_logger->info(Dumper($packet));
+sub process_dhcpv6 : Public {
+    my ( $class, $udp_payload ) = @_;
+    my $logger = pf::log::get_logger();
+#    use Data::Dumper ; pf::log::get_logger->info(Dumper(\%postdata));
+
+    $udp_payload = MIME::Base64::decode($udp_payload);
+
+    use Data::Dumper;
+    my $dhcpv6 = pf::util::dhcpv6::decode_dhcpv6($udp_payload);
+    pf::log::get_logger->info(Dumper($dhcpv6));
+
+    # these are relaying packets.
+    # in that case we take the inner part
+    if($dhcpv6->{msg_type} eq 12 || $dhcpv6->{msg_type} eq 13){
+        $logger->debug("Found relaying packet. Taking inner request/reply from it.");
+        $dhcpv6 = $dhcpv6->{options}->[0];
+    }
+
+    # we are only interested in solicits for the fingerprint and enterprise ID
+    if($dhcpv6->{msg_type} ne 1){
+        $logger->debug("Skipping DHCPv6 packet because it's not a solicit.");
+        return;
+    }
+
+    my ($mac_address, $dhcp6_enterprise, $dhcp6_fingerprint) = (undef, '', '');
+    foreach my $option (@{$dhcpv6->{options}}){
+        if(defined($option->{enterprise_number})){
+            $dhcp6_enterprise = $option->{enterprise_number};
+        }
+        elsif(defined($option->{requested_options})){
+            $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
+        }
+        elsif(defined($option->{addr})){
+            $mac_address = $option->{addr};
+        }
+    }
+    $logger->info("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+
+    # TODO : change for the MAC in the packet to handle relaying
+    my $node_attributes = pf::node::node_attributes($mac_address);
+    my %fingerbank_query_args = (
+        mac                 => $mac_address,
+        dhcp_fingerprint    => $node_attributes->{'dhcp_fingerprint'},
+        dhcp_vendor         => $node_attributes->{'dhcp_vendor'},
+        dhcp6_fingerprint   => $dhcp6_fingerprint,
+        dhcp6_enterprise    => $dhcp6_enterprise,
+    );
+
+    pf::fingerbank::process(\%fingerbank_query_args);
 }
 
 =head1 AUTHOR
