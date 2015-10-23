@@ -56,6 +56,8 @@ our %OPTIONS_FILTER = (
     OPTION_IA_PD()         => \&_parse_ia_pd,
     OPTION_IAPREFIX()      => \&_parse_ia_prefix,
     OPTION_CLIENT_FQDN()   => \&_parse_client_fqdn,
+    OPTION_SIP_SERVER_D()  => \&_parse_domain_list,
+    OPTION_SIP_SERVER_A()  => \&_parse_sip_server_a,
 
 );
 
@@ -415,6 +417,15 @@ sub _parse_client_fqdn {
     my ($data) = @_;
     my ($flags, $fqdn) = unpack("c a*", $data);
     return {flags => $flags, fqdn => $fqdn};
+}
+
+=head2 _parse_sip_server_a
+
+=cut
+
+sub _parse_sip_server_a {
+    my ($data) = @_;
+    return { sip_server_addresses => [map { _parse_ipv6_addr($_) } unpack("(a16)*",$data) ] };
 }
 
 =head1 AUTHOR
