@@ -27,6 +27,9 @@ use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
+use Time::HiRes;
+use pf::util::statsd qw(called);
+use pf::StatsD;
 
 =head1 SUBROUTINES
 
@@ -52,7 +55,8 @@ sub instantiate {
 
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
     $logger->info("Instantiate profile $profile_name");
-    return $self->_from_profile($profile_name);
+    my $instance = $self->_from_profile($profile_name);
+    return $instance;
 }
 
 =head2 _from_profile
@@ -63,6 +67,7 @@ Massages the profile values before creating the object
 
 sub _from_profile {
     my ($self,$profile_name) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
@@ -78,7 +83,9 @@ sub _from_profile {
     $profile{chained_guest_modes} = _chained_guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
     $profile{template_path} = $profile_name;
-    return pf::Portal::Profile->new( \%profile );
+    my $instance =  pf::Portal::Profile->new( \%profile );
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25 );
+    return $instance;
 }
 
 =head2 _guest_modes_from_sources

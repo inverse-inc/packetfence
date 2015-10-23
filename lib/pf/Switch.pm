@@ -705,6 +705,7 @@ sub getVlanByName {
 
     if (!defined($this->{'_vlans'}) || !defined($this->{'_vlans'}->{$vlanName})) {
         # VLAN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_id});
         return;
     }
@@ -720,6 +721,7 @@ sub getVlanByName {
         # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_id} .
                       ", not a VLAN identifier");
+        $pf::StatsD::statsd->increment(called() . ".error" );
         return;
     }
     return $this->{'_vlans'}->{$vlanName};

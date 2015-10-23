@@ -385,11 +385,9 @@ sub node_db_prepare {
 #
 sub node_exist {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $query = db_query_execute(NODE, $node_statements, 'node_exist_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.5 ); 
     return ($val);
 }
 
@@ -398,11 +396,9 @@ sub node_exist {
 #
 sub node_pid {
     my ($pid, $category_id) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $query = db_query_execute(NODE, $node_statements, 'node_pid_sql', $pid, $category_id) || return (0);
     my ($count) = $query->fetchrow_array();
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.5 ); 
     return ($count);
 }
 
@@ -411,9 +407,7 @@ sub node_pid {
 #
 sub node_view_reg_pid {
     my ($pid) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my @data = (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.5 ); 
     return @data;
 }
 
@@ -429,7 +423,7 @@ sub node_delete {
 
     if ( !node_exist($mac) ) {
         $logger->error("delete of non-existent node '$mac' failed");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
         return 0;
     }
 
@@ -437,13 +431,13 @@ sub node_delete {
     # TODO that limitation is arbitrary at best, we need to resolve that.
     if ( defined( pf::locationlog::locationlog_view_open_mac($mac) ) ) {
         $logger->warn("$mac has an open locationlog entry. Node deletion prohibited");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
         return 0;
     }
 
     db_query_execute(NODE, $node_statements, 'node_delete_sql', $mac) || return (0);
     $logger->info("node $mac deleted");
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     return (1);
 }
 
@@ -477,13 +471,13 @@ sub node_add {
 
     $mac = clean_mac($mac);
     if ( !valid_mac($mac) ) { 
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
         return (0);
     }
 
     if ( node_exist($mac) ) {
         $logger->warn("attempt to add existing node $mac");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
         return (2);
     }
 
@@ -500,7 +494,7 @@ sub node_add {
     $data{'category_id'} = _node_category_handling(%data);
     if ( defined( $data{'category_id'} ) && $data{'category_id'} == 0 ) {
         $logger->error("Unable to insert node because specified category doesn't exist");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
         return (0);
     }
 
@@ -512,7 +506,7 @@ sub node_add {
         $data{autoreg},          $data{sessionid}
     );
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     if ($statement) { 
         return (1);
     }
@@ -555,7 +549,7 @@ sub _cleanup_status_value {
     unless ( defined $status && exists $ALLOW_STATUS{$status} ) {
         my $logger = get_logger();
         $logger->warn("The status was set to " . (defined $status ? $status : "'undef'") . " changing it $STATUS_UNREGISTERED" );
-        $pf::StatsD::statsd->increment("node::" . called() . "warn.count" );
+        $pf::StatsD::statsd->increment(called() . "warn.count" );
         $status = $STATUS_UNREGISTERED;
     }
     return $status;
@@ -571,14 +565,12 @@ It's a simpler and faster version of node_view with fewer fields returned.
 
 sub node_attributes {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
     $mac = clean_mac($mac);
     my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return ($ref);
 }
 
@@ -594,14 +586,12 @@ fewer fields returned.
 
 sub node_attributes_with_fingerprint {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
 
     my $query = db_query_execute(NODE, $node_statements, 'node_attributes_with_fingerprint_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return ($ref);
 }
 
@@ -616,7 +606,6 @@ This code will disappear in 2013.
 
 sub _node_view_old {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
     $mac = clean_mac($mac);
 
     # Uncomment to log callers
@@ -629,7 +618,6 @@ sub _node_view_old {
 
     # just get one row and finish
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return ($ref);
 }
 
@@ -658,7 +646,7 @@ sub node_view {
     # if no node info returned we exit
     if (!defined($node_info_ref)) {
         return undef;
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     }
 
     $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
@@ -674,7 +662,7 @@ sub node_view {
         'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return ($node_info_ref);
 }
 
@@ -733,7 +721,7 @@ sub node_count_all {
     #$logger->debug($node_count_all_sql);
 
     my @data =  db_data(NODE, $node_statements, 'node_count_all_sql_custom');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25); 
     return @data;
 }
 
@@ -744,7 +732,6 @@ sub node_custom_search {
     $logger->debug($sql);
     $node_statements->{'node_custom_search_sql_customer'} = $sql;
     my @data = db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return @data;
 }
 
@@ -807,7 +794,7 @@ sub node_view_all {
     require pf::pfcmd::report;
     import pf::pfcmd::report;
     my @data = translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return @data;
 }
 
@@ -829,7 +816,6 @@ sub node_view_with_fingerprint {
 
     # just get one row and finish
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return ($ref);
 }
 
@@ -842,7 +828,7 @@ sub node_modify {
     # validation
     $mac = clean_mac($mac);
     if ( !valid_mac($mac) ) {
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return (0);
     }
 
@@ -861,7 +847,7 @@ sub node_modify {
             $logger->error(
                 "modify of non-existent node $mac attempted - node add failed"
             );
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
             return (0);
         }
     }
@@ -884,7 +870,7 @@ sub node_modify {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+           $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
            return (0);
        }
         if ( defined($data{'category'}) && $data{'category'} ne '' ) {
@@ -912,7 +898,7 @@ sub node_modify {
     if ( $mac ne $new_mac && node_exist($new_mac) ) {
         $logger->error(
             "modify of node $mac to $new_mac conflicts with existing node");
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return (0);
     }
 
@@ -941,11 +927,11 @@ sub node_modify {
         $mac
     );
     if($sth) {
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return undef;
 }
 
@@ -986,11 +972,11 @@ sub node_register {
         $info{'pid'} = $pid;
         if ( !node_modify( $mac, %info ) ) {
             $logger->error("modify of node $mac failed");
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
             return (0);
         }
            $logger->info("[$mac] autoregister a node that is already registered, do nothing.");
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
            return 1;
        }
     }
@@ -998,7 +984,7 @@ sub node_register {
     # do not check for max_node if it's for auto-register
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
             return (0);
         }
     }
@@ -1009,7 +995,7 @@ sub node_register {
 
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("modify of node $mac failed");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return (0);
     }
     $pf::StatsD::statsd->increment( called() . ".called" );
@@ -1026,7 +1012,7 @@ sub node_register {
         }
     }
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return (1);
 }
 
@@ -1054,11 +1040,11 @@ sub node_deregister {
 
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("unable to de-register node $mac");
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return (0);
     }
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return (1);
 }
 
@@ -1076,7 +1062,7 @@ sub nodes_maintenance {
 
     my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') ;
     unless ($expire_unreg_query ) { 
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     }
 
     while (my $row = $expire_unreg_query->fetchrow_hashref()) {
@@ -1088,7 +1074,7 @@ sub nodes_maintenance {
         $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
     }
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     return (1);
 }
 
@@ -1096,26 +1082,20 @@ sub nodes_maintenance {
 #
 sub node_is_unregistered {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
 
     my $query = db_query_execute(NODE, $node_statements, 'node_is_unregistered_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
     return ($ref);
 }
 
 sub nodes_unregistered {
-    my $start = Time::HiRes::gettimeofday();
     my @data = db_data(NODE, $node_statements, 'nodes_unregistered_sql');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
 sub nodes_registered {
-    my $start = Time::HiRes::gettimeofday();
     my @data =  db_data(NODE, $node_statements, 'nodes_registered_sql');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
@@ -1127,32 +1107,24 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 
 sub nodes_registered_not_violators {
-    my $start = Time::HiRes::gettimeofday();
     my @data = db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
 sub nodes_active_unregistered {
-    my $start = Time::HiRes::gettimeofday();
     my @data = db_data(NODE, $node_statements, 'nodes_active_unregistered_sql');
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
 sub node_expire_lastarp {
     my ($time) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my @data = db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
 sub node_expire_lastdhcp {
     my ($time) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my @data = db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return @data;
 }
 
@@ -1170,13 +1142,12 @@ sub node_cleanup {
            node_delete($mac);
         }
     }
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     return (0);
 }
 
 sub node_update_lastarp {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $rc = 0;
     if ( db_query_execute(NODE, $node_statements, 'node_update_lastarp_sql', $mac) ) { 
         $rc = (1);
@@ -1184,7 +1155,6 @@ sub node_update_lastarp {
     else { 
         $rc = (0);
     }
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return $rc; 
 }
 
@@ -1216,17 +1186,15 @@ sub node_update_bandwidth {
         }
     }
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     return ($sth->rows);
 }
 
 sub node_search {
     my ($mac) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $query =  db_query_execute(NODE, $node_statements, 'node_search_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     return ($val);
 
 }
@@ -1247,7 +1215,6 @@ sub is_node_voip {
     $logger->trace("Asked whether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
     } else {
@@ -1271,7 +1238,6 @@ sub is_node_registered {
     $logger->trace("Asked whether node $mac is registered or not");
     my $node_info = node_attributes($mac);
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
     if ($node_info->{'status'} eq $STATUS_REGISTERED) {
         return $TRUE;
     } else {
@@ -1296,7 +1262,7 @@ sub _node_category_handling {
         # category_id has priority over category
         if (!nodecategory_exist($data{'category_id'})) {
             $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category_id'});
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start); 
             return 0;
         }
 
@@ -1307,7 +1273,7 @@ sub _node_category_handling {
         $data{'category_id'} = nodecategory_lookup($data{'category'});
         if (!defined($data{'category_id'}))  {
             $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category'});
-            $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start); 
             return 0;
         }
 
@@ -1316,7 +1282,7 @@ sub _node_category_handling {
         $data{'category_id'} = undef;
     }
 
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start); 
     return $data{'category_id'};
 }
 
@@ -1335,7 +1301,7 @@ sub is_max_reg_nodes_reached {
 
     # default_pid is a special case: no limit for this user
     if ($pid eq $default_pid || $pid eq $admin_pid) { 
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
         return $FALSE; 
     }
     # per-category max node per pid limit
@@ -1353,7 +1319,7 @@ sub is_max_reg_nodes_reached {
             $nb_nodes = node_pid($pid, $category_info->{'category_id'});
             $max_for_category = $category_info->{'max_nodes_per_pid'};
             if ( $max_for_category == 0 || $nb_nodes < $max_for_category ) {
-                $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+                $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
                 return $FALSE;
             }
             $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
@@ -1368,27 +1334,24 @@ sub is_max_reg_nodes_reached {
     }
 
     # fallback to maximum reached
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return $TRUE;
 }
 
 =item node_last_reg
 
-Return the last mac that has been register
-May be sometimes usefull for custom
+Return the last mac that has been registered.
+May sometimes be useful for customization.
 
 =cut
 
 sub node_last_reg {
-    my $start = Time::HiRes::gettimeofday();
     my $query;
     unless (  $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') ) { 
-        $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start); 
         return (0);
     }
     my ($val) = $query->fetchrow_array();
     $query->finish();
-    $pf::StatsD::statsd->end("node::" . called() . ".timing" , $start, 0.5); 
     return ($val);
 }
 

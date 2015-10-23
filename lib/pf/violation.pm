@@ -424,6 +424,7 @@ sub violation_view_all_active {
 sub violation_add {
     my ( $mac, $vid, %data ) = @_;
     my $logger = get_logger();
+    my $start = Time::HiRes::gettimeofday();
     return (0) if ( !$vid );
     violation_clear_warnings();
     violation_clear_errors();
@@ -440,6 +441,7 @@ sub violation_add {
         my $msg = "violation $vid already exists for $mac, not adding again";
         $logger->info($msg);
         violation_add_warnings($msg);
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ($violation);
     }
 
@@ -452,6 +454,7 @@ sub violation_add {
             $logger->warn(
                 "hostscan detected from $mac, but violation $latest_vid exists - ignoring"
             );
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return (1);
         }
 
@@ -475,6 +478,7 @@ sub violation_add {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return (-1);
         } else {
             my $msg = "grace expired on violation $vid for node $mac";
@@ -492,12 +496,15 @@ sub violation_add {
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $vid, $data{notes} );
         }
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ($last_id);
     } else {
         my $msg = "unknown error adding violation $vid for $mac";
         violation_add_errors($msg);
         $logger->error($msg);
     }
+
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return (0);
 }
 
@@ -598,22 +605,26 @@ Returns 1 if at least one violation is added, 0 otherwise.
 sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
     my $logger = get_logger();
+    my $start = Time::HiRes::gettimeofday();
     $logger->info("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 
     if (whitelisted_mac($mac)) {
         $logger->info("violation not added, $mac is whitelisted! trigger ${type}::${tid}");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return 0;
     }
 
     if (!valid_mac($mac)) {
         $logger->info("violation not added, MAC $mac is invalid! trigger ${type}::${tid}");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return 0;
     }
 
     if (!trappable_mac($mac)) {
         $logger->info("violation not added, MAC $mac is not trappable! trigger ${type}::${tid}");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return 0;
     }
 
@@ -697,6 +708,7 @@ sub violation_trigger {
         violation_add($mac, $vid, %data);
         $addedViolation = 1;
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $addedViolation;
 }
 

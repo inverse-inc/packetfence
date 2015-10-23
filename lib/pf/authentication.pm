@@ -273,10 +273,12 @@ our %ACTION_VALUE_FILTERS = (
 sub match {
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
+    my $start = Time::HiRes::gettimeofday();
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
     if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     }
 
     # Calling 'match' with empty/invalid rule class. Using default
@@ -307,6 +309,7 @@ sub match {
                 my $value = $found_action->value;
                 my $type  = $found_action->type;
                 $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+                $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
                 return $value;
             }
 
@@ -319,6 +322,8 @@ sub match {
         $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
         last;
     }
+
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     return $actions;
 }
 
