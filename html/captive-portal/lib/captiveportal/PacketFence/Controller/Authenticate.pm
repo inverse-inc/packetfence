@@ -340,7 +340,7 @@ sub setRole : Private {
 
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
-    my $value = &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
+    my $value = &pf::authentication::match( $source_match, { %$params, rule_class => 'authentication' }, $Actions::SET_ROLE );
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
