@@ -63,6 +63,8 @@ our %OPTIONS_FILTER = (
     OPTION_NIS_DOMAIN()    => \&_parse_domain_list,
     OPTION_NISP_DOMAIN()   => \&_parse_domain_list,
     OPTION_SNTP_SERVERS()  => \&_parse_ipv6_list,
+    OPTION_BCMCS_SERVER_D()  => \&_parse_domain_list,
+    OPTION_BCMCS_SERVER_A()  => \&_parse_ipv6_list,
     OPTION_INFO_REFRESH_TIME() => \&_parse_option_info_refresh_time
 
 );
