@@ -20,11 +20,12 @@ New Features
 Enhancements
 ++++++++++++
 
-Version 5.4.0 released on 2015-10-01
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
+
+
+Version 5.4.0 released on 2015-10-01
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
