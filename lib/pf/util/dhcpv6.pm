@@ -51,17 +51,18 @@ our %OPTIONS_FILTER = (
     OPTION_INTERFACE_ID()  => \&_parse_interface_id,
     OPTION_RECONF_MSG()    => \&_parse_reconf_msg,
     OPTION_RECONF_ACCEPT() => \&_zero_length_option,
-    OPTION_DNS_SERVERS()   => \&_parse_dns_server,
+    OPTION_DNS_SERVERS()   => \&_parse_ipv6_list,
     OPTION_DOMAIN_LIST()   => \&_parse_domain_list,
     OPTION_IA_PD()         => \&_parse_ia_pd,
     OPTION_IAPREFIX()      => \&_parse_ia_prefix,
     OPTION_CLIENT_FQDN()   => \&_parse_client_fqdn,
     OPTION_SIP_SERVER_D()  => \&_parse_domain_list,
-    OPTION_SIP_SERVER_A()  => \&_parse_sip_server_a,
-    OPTION_NIS_SERVERS()   => \&_parse_nis_servers,
-    OPTION_NISP_SERVERS()  => \&_parse_nisp_servers,
+    OPTION_SIP_SERVER_A()  => \&_parse_ipv6_list,
+    OPTION_NIS_SERVERS()   => \&_parse_ipv6_list,
+    OPTION_NISP_SERVERS()  => \&_parse_ipv6_list,
     OPTION_NIS_DOMAIN()    => \&_parse_domain_list,
     OPTION_NISP_DOMAIN()   => \&_parse_domain_list,
+    OPTION_SNTP_SERVERS()  => \&_parse_ipv6_list,
 
 );
 
@@ -366,17 +367,6 @@ sub _parse_reconf_msg {
     return {type => unpack("C", $data)};
 }
 
-=head2 _parse_dns_server
-
-=cut
-
-sub _parse_dns_server {
-    my ($data) = @_;
-    my (@servers) = unpack("(a16)*", $data);
-    @servers = map { _parse_ipv6_addr($_) } @servers;
-    return {servers => \@servers};
-}
-
 =head2 _parse_domain_list
 
 =cut
@@ -426,40 +416,11 @@ sub _parse_client_fqdn {
 
 =head2 _parse_ipv6_list
 
-
 =cut
 
 sub _parse_ipv6_list {
     my ($data) = @_;
-    return [map { _parse_ipv6_addr($_) } unpack("(a16)*",$data) ];
-}
-
-
-=head2 _parse_sip_server_a
-
-=cut
-
-sub _parse_sip_server_a {
-    my ($data) = @_;
-    return { sip_server_addresses => _parse_ipv6_list($data) };
-}
-
-=head2 _parse_nis_servers
-
-=cut
-
-sub _parse_nis_servers {
-    my ($data) = @_;
-    return { nis_server_addresses => _parse_ipv6_list($data) };
-}
-
-=head2 _parse_nisp_servers
-
-=cut
-
-sub _parse_nisp_servers {
-    my ($data) = @_;
-    return { nisp_server_addresses => _parse_ipv6_list($data) };
+    return { ipv6_addresses =>  [map { _parse_ipv6_addr($_) } unpack("(a16)*",$data) ] };
 }
 
 =head1 AUTHOR

@@ -108,6 +108,7 @@ use constant OPTION_NIS_SERVERS   => 27;
 use constant OPTION_NISP_SERVERS  => 28;
 use constant OPTION_NIS_DOMAIN    => 29;
 use constant OPTION_NISP_DOMAIN   => 30;
+use constant OPTION_SNTP_SERVERS  => 31;
 use constant OPTION_CLIENT_FQDN   => 39;
 
 =head1 AUTHOR
