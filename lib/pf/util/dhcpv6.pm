@@ -63,9 +63,10 @@ our %OPTIONS_FILTER = (
     OPTION_NIS_DOMAIN()    => \&_parse_domain_list,
     OPTION_NISP_DOMAIN()   => \&_parse_domain_list,
     OPTION_SNTP_SERVERS()  => \&_parse_ipv6_list,
+    OPTION_INFO_REFRESH_TIME() => \&_parse_option_info_refresh_time,
     OPTION_BCMCS_SERVER_D()  => \&_parse_domain_list,
     OPTION_BCMCS_SERVER_A()  => \&_parse_ipv6_list,
-    OPTION_INFO_REFRESH_TIME() => \&_parse_option_info_refresh_time
+    OPTION_GEOCONF_CIVIC()  => \&_parse_geoconf_civic,
 
 );
 
@@ -433,6 +434,16 @@ sub _parse_ipv6_list {
 sub _parse_option_info_refresh_time {
     my ($data) = @_;
     return { information_refresh_time => unpack("N", $data) };
+}
+
+=head2 _parse_geoconf_civic
+
+=cut
+
+sub _parse_geoconf_civic {
+    my ($data) = @_;
+    my ($what,$cc,@elements) = unpack("C a2 (C C/a*)*");
+    return {what => $what, cc => $cc, elements => \@elements};
 }
 
 =head1 AUTHOR

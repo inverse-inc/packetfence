@@ -112,6 +112,8 @@ use constant OPTION_SNTP_SERVERS  => 31;
 use constant OPTION_INFO_REFRESH_TIME => 32;
 use constant OPTION_BCMCS_SERVER_D => 33;
 use constant OPTION_BCMCS_SERVER_A => 34;
+### 35 is unassigned
+use constant OPTION_GEOCONF_CIVIC => 36;
 use constant OPTION_CLIENT_FQDN   => 39;
 
 =head1 AUTHOR
