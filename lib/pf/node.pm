@@ -227,6 +227,7 @@ sub node_db_prepare {
        SELECT
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
+           IF(ISNULL(locationlog.connection_sub_type), '', locationlog.connection_sub_type) as last_connection_sub_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
            locationlog.start_time as last_start_time,
