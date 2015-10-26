@@ -212,7 +212,7 @@ sub _connect {
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
-    $pf::StatsD::statsd->increment(called() . "error.count" );
+    $pf::StatsD::statsd->increment(called() . ".error.count" );
   }
   $pf::StatsD::statsd->end(called() . ".timing" , $start );
   return undef;
@@ -230,14 +230,14 @@ sub match {
     my $start = Time::HiRes::gettimeofday();
     if($self->is_match_cacheable) {
         my $result = $self->cache->compute([$self->id, $params], sub {
-                $pf::StatsD::statsd->increment("LDAPSource::.match.".$self->id . ".cache_miss.count" );
+                $pf::StatsD::statsd->increment(called() . ".$self->id.cache_miss.count" );
                 my $result =   $self->SUPER::match($params);
             });
-        $pf::StatsD::statsd->end("LDAPSource::.match.". $self->id . ".timing" , $start, 0.1 );
+        $pf::StatsD::statsd->end(called() . ".$self->id.timing" , $start, 0.1 );
         return $result;
     }
     my $result = $self->SUPER::match($params);
-    $pf::StatsD::statsd->end("LDAPSource::.match.". $self->id . ".timing" , $start, 0.1 );
+    $pf::StatsD::statsd->end(called() . ".$self->id.timing" , $start, 0.1 );
     return $result;
 }
 
