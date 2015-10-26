@@ -71,6 +71,7 @@ our %OPTIONS_FILTER = (
     OPTION_SUBSCRIBER_ID()  => \&_parse_subscriber_id,
     OPTION_NEW_POSIX_TIMEZONE() => \&_parse_new_posix_timezone,
     OPTION_NEW_TZDB_TIMEZONE() => \&_parse_new_tzdb_timezone,
+    OPTION_ERO() => \&_parse_ero,
 
 );
 
@@ -486,6 +487,16 @@ sub _parse_new_tzdb_timezone {
     my ($data) = @_;
     return { tzname => $data };
 }
+
+=head2 _parse_ero
+
+=cut
+
+sub _parse_ero {
+    my ($data) = @_;
+    return { echo_options => [unpack("S*",$data)] } ;
+}
+
 
 =head1 AUTHOR
 

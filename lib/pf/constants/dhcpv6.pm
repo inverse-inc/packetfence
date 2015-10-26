@@ -119,6 +119,7 @@ use constant OPTION_SUBSCRIBER_ID => 38;
 use constant OPTION_CLIENT_FQDN   => 39;
 use constant OPTION_NEW_POSIX_TIMEZONE => 41;
 use constant OPTION_NEW_TZDB_TIMEZONE => 42;
+use constant OPTION_ERO => 43;
 
 =head1 AUTHOR
 
