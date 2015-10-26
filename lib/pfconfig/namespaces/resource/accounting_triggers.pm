@@ -14,7 +14,6 @@ pfconfig::namespaces::resource::accouting_triggers
 
 use strict;
 use warnings;
-use pf::constants;
 use pfconfig::namespaces::FilterEngine::Violation;
 
 use base 'pfconfig::namespaces::resource';
