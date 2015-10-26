@@ -117,6 +117,8 @@ use constant OPTION_GEOCONF_CIVIC => 36;
 use constant OPTION_REMOTE_ID     => 37;
 use constant OPTION_SUBSCRIBER_ID => 38;
 use constant OPTION_CLIENT_FQDN   => 39;
+use constant OPTION_NEW_POSIX_TIMEZONE => 41;
+use constant OPTION_NEW_TZDB_TIMEZONE => 42;
 
 =head1 AUTHOR
 

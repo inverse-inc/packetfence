@@ -69,6 +69,8 @@ our %OPTIONS_FILTER = (
     OPTION_GEOCONF_CIVIC()  => \&_parse_geoconf_civic,
     OPTION_REMOTE_ID()      => \&_parse_remote_id,
     OPTION_SUBSCRIBER_ID()  => \&_parse_subscriber_id,
+    OPTION_NEW_POSIX_TIMEZONE() => \&_parse_new_posix_timezone,
+    OPTION_NEW_TZDB_TIMEZONE() => \&_parse_new_tzdb_timezone,
 
 );
 
@@ -465,6 +467,24 @@ sub _parse_remote_id {
     my ($data) = @_;
     my ($enterprise_number, $remote_id) = unpack("N a*",$data);
     return {enterprise_number => $enterprise_number, remote_id => $remote_id};
+}
+
+=head2 _parse_new_posix_timezone
+
+=cut
+
+sub _parse_new_posix_timezone {
+    my ($data) = @_;
+    return { tz_posix => $data } ;
+}
+
+=head2 _parse_new_tzdb_timezone
+
+=cut
+
+sub _parse_new_tzdb_timezone {
+    my ($data) = @_;
+    return { tzname => $data };
 }
 
 =head1 AUTHOR
