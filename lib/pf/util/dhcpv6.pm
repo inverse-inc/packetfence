@@ -67,6 +67,7 @@ our %OPTIONS_FILTER = (
     OPTION_BCMCS_SERVER_D()  => \&_parse_domain_list,
     OPTION_BCMCS_SERVER_A()  => \&_parse_ipv6_list,
     OPTION_GEOCONF_CIVIC()  => \&_parse_geoconf_civic,
+    OPTION_SUBSCRIBER_ID()  => \&_parse_subscriber_id,
 
 );
 
@@ -444,6 +445,15 @@ sub _parse_geoconf_civic {
     my ($data) = @_;
     my ($what,$cc,@elements) = unpack("C a2 (C C/a*)*");
     return {what => $what, cc => $cc, elements => \@elements};
+}
+
+=head2 _parse_subscriber_id
+
+=cut
+
+sub _parse_subscriber_id {
+    my ($data) = @_;
+    return {subscriber_id => $data};
 }
 
 =head1 AUTHOR
