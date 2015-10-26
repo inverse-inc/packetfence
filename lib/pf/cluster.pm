@@ -288,14 +288,14 @@ sub is_vip_running {
                 my @addresses = $inf->address(AF_INET());
                 for my $i (0 .. $#masks) {
                     if (inet_ntoa($addresses[$i]) eq cluster_ip($int)) {
-                        return 'master';
+                        return $TRUE;
                     }
                 }
-                return 'slave';
+                return $FALSE;
             }
         }
     }
-    return 0;
+    return $FALSE;
 }
 
 =head1 AUTHOR
