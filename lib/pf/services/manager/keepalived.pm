@@ -48,7 +48,7 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
+    my @ints = uniq(@listen_ints,@dhcplistener_ints, map { $_->{'Tint'} } @portal_ints);
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
