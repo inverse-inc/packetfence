@@ -6,7 +6,11 @@ Update configuration values to prevent some services to run on slave member
 
 =cut
 
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
 use Getopt::Long;
+use pf::util;
 
 my $mode;
 
