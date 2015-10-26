@@ -17,6 +17,9 @@ use strict;
 use warnings;
 use pf::log;
 use pf::floatingdevice::custom;
+use pf::StatsD;
+use Time::HiRes;
+use pf::util::statsd qw(called);
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -459,6 +462,7 @@ synchronize locationlog to current values if necessary
 sub locationlog_synchronize {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm) = @_;
     my $logger = get_logger();
+    my $start = Time::HiRes::gettimeofday();
     $logger->trace("locationlog_synchronize called");
 
     # flag to determine if we must insert a new record or not
@@ -507,6 +511,7 @@ sub locationlog_synchronize {
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         if( $floatingDeviceManager->portHasFloatingDevice($switch_ip, $ifIndex) ){
             $logger->info("Not adding locationlog entry for mac $mac because it's plugged in a floating device enabled port");
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.2 );
             return 1;
         }
 
@@ -535,6 +540,7 @@ sub locationlog_synchronize {
         locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return 1;
 }
 
@@ -546,6 +552,7 @@ sub locationlog_close_all {
 sub locationlog_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
+    my $start = Time::HiRes::gettimeofday();
     $logger->debug("calling locationlog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
     my $now = db_now();
     my $start_time = time;
@@ -562,6 +569,7 @@ sub locationlog_cleanup {
         last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
     }
     $logger->trace( "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.2 );
     return (0);
 }
 
@@ -575,6 +583,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 sub _is_locationlog_accurate {
     my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid ) = @_;
     my $logger = get_logger();
+    my $start = Time::HiRes::gettimeofday();
     $logger->trace("verifying if locationlog is accurate called");
 
     # avoid undef warnings during tests by setting undef values to empty string
@@ -598,9 +607,11 @@ sub _is_locationlog_accurate {
 
     if ($vlanChanged || $switchChanged || $conn_typeChanged || $ifIndexChanged || $userChanged || $ssidChanged) {
         $logger->trace("latest locationlog entry is not accurate");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return 0;
     } else {
         $logger->debug("latest locationlog entry is still accurate");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return 1;
     }
 }
