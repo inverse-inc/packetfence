@@ -625,9 +625,9 @@ collectd_binary=/usr/sbin/collectd
 # Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff3_binary=/usr/bin/radsniff3
 # 
-# services.radsniff_binary
+# services.p0f_binary
 # 
-# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
+# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
 p0f_binary=/usr/local/bin/p0f
 # 
 # services.iptables_binary
