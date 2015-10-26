@@ -114,6 +114,7 @@ use constant OPTION_BCMCS_SERVER_D => 33;
 use constant OPTION_BCMCS_SERVER_A => 34;
 ### 35 is unassigned
 use constant OPTION_GEOCONF_CIVIC => 36;
+use constant OPTION_REMOTE_ID     => 37;
 use constant OPTION_SUBSCRIBER_ID => 38;
 use constant OPTION_CLIENT_FQDN   => 39;
 

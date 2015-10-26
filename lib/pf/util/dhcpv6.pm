@@ -67,6 +67,7 @@ our %OPTIONS_FILTER = (
     OPTION_BCMCS_SERVER_D()  => \&_parse_domain_list,
     OPTION_BCMCS_SERVER_A()  => \&_parse_ipv6_list,
     OPTION_GEOCONF_CIVIC()  => \&_parse_geoconf_civic,
+    OPTION_REMOTE_ID()      => \&_parse_remote_id,
     OPTION_SUBSCRIBER_ID()  => \&_parse_subscriber_id,
 
 );
@@ -454,6 +455,16 @@ sub _parse_geoconf_civic {
 sub _parse_subscriber_id {
     my ($data) = @_;
     return {subscriber_id => $data};
+}
+
+=head2 _parse_remote_id
+
+=cut
+
+sub _parse_remote_id {
+    my ($data) = @_;
+    my ($enterprise_number, $remote_id) = unpack("N a*",$data);
+    return {enterprise_number => $enterprise_number, remote_id => $remote_id};
 }
 
 =head1 AUTHOR
