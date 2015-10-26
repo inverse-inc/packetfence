@@ -102,7 +102,7 @@ sub start_detectors {
     }
 }
 
-=head2 runtask
+=head2 run_detector
 
 creates a new child to run a task
 
@@ -124,7 +124,7 @@ sub run_detector {
     }
 }
 
-=head2 _runtask
+=head2 _run_detector
 
 the task to is ran in a loop until it is finished
 
