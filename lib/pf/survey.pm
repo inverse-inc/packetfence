@@ -75,6 +75,7 @@ sub survey_add_from_session {
         $data{profile} //= $c->profile->name;
         survery_add_from_oauth_response(\%data, $session->{oauth_response} ) if $session->{oauth_response};
         survey_add(%data);
+        $session->{survey_value} = undef;
     }
 }
 
