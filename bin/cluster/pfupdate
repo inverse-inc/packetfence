@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+=head1 pfupdate
+
+Update configuration values to prevent some services to run on slave member
+
+=cut
+
+use Getopt::Long;
+
+my $mode;
+
+GetOptions(
+    "mode=s" => \$mode,
+) ;
+
+if (! ($mode =~ /^master|slave$/)) {
+    exit;
+}
+
+pf_run("pkill -1 pfdhcplistener");
