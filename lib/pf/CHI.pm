@@ -97,7 +97,7 @@ our %DEFAULT_CONFIG = (
     }
 );
 
-our %DEFAULT_STORAGE = ${$DEFAULT_CONFIG{storage}{redis}};
+our %DEFAULT_STORAGE = %{$DEFAULT_CONFIG{storage}{redis}};
 
 sub chiConfigFromIniFile {
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
