@@ -136,6 +136,12 @@ trigger=(Device::202&Accounting::TOT1GBM)
 grace=0
 window=dynamic
 
+[1100013]
+desc=Hostname change
+trigger=internal::hostname_change
+actions=log
+enabled=Y
+
 [1100020]
 desc=Wireless IPS
 trigger=internal::1100020

@@ -947,15 +947,7 @@ sub detect_computername_change : Public {
               "( ".$node_attributes->{computername}." -> $new_computername ).".
               "Possible MAC spoofing.");
 
-            my %message;
-            $message{'subject'} = "Device $mac has changed hostname !";
-            $message{'message'} .= "Owner: " . $node_attributes->{'pid'} . "\n";
-            $message{'message'} .= "Previous hostname: " . $node_attributes->{'computername'} . "\n";
-            $message{'message'} .= "New hostname: " . $new_computername . "\n";
-            $message{'message'} .= "Node notes: " . $node_attributes->{'notes'} . "\n";
-
-            pf::config::util::pfmailer(%message);
-
+            pf::violation::violation_trigger($mac, "hostname_change", "internal");
             return 1;
         }
     }
