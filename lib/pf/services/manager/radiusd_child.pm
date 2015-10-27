@@ -201,7 +201,8 @@ sub generate_radiusd_cluster {
 
     if ($cluster_enabled) {
         $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
-        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+        my $cluster_ip = pf::cluster::management_cluster_ip();
+        $tags{'virt_ip'} = $cluster_ip;
         my @radius_backend = values %{pf::cluster::members_ips($int)};
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
@@ -209,6 +210,7 @@ sub generate_radiusd_cluster {
 home_server pf$i.cluster {
         type = auth+acct
         ipaddr = $radius_back
+        src_ipaddr = $cluster_ip
         port = 1812
         secret = testing1234
         response_window = 6
