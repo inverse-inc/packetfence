@@ -2,7 +2,7 @@ package pfconfig::namespaces::FilterEngine::AccessScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::AccessScopes
+pfconfig::namespaces::FilterEngine::AccessScopes - Base class for scoped filter engine
 
 =cut
 
@@ -25,6 +25,8 @@ use base 'pfconfig::namespaces::resource';
 
 sub parentConfig {
     my ($self) = @_;
+    my $class = ref($self) || $self;
+    die "${class}::parentConfig has not been implemented\n";
 }
 
 
