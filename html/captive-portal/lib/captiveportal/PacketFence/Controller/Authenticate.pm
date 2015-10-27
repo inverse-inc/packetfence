@@ -507,7 +507,7 @@ sub authenticationLogin : Private {
 
     my $username = _clean_username($request->param("username"));
     my $realm;
-    ($username, $realm) = $self->strip_username($c,$username);
+    ($username, $realm) = strip_username($c,$username);
     my $password = $request->param("password");
 
     my @sources = $self->getSources($c, $username, $realm);
@@ -543,16 +543,6 @@ sub authenticationLogin : Private {
             $c->error($message);
         }
     }
-}
-
-sub strip_username {
-    my ($self,$c,$username) = @_;
-    if($username && $username =~ /(.*)@(.*)/){
-        #(username, realm)
-        $c->log->info("Found username containing a realm ($username). Stripped username : $1, Realm : $2.");
-        return ($1, $2);
-    }
-    return ($username);
 }
 
 =head2 getSources
