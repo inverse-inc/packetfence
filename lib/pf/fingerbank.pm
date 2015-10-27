@@ -26,11 +26,11 @@ use pf::api::jsonrpcclient;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
-use pf::node qw(node_modify);
+use pf::node qw(node_attributes node_modify);
 
 use constant FINGERBANK_CACHE_EXPIRE => 300;    # Expires cache entry after 300s (5 minutes)
 
-our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
+our @fingerbank_based_violation_triggers = ('Device', @fingerbank::Constant::QUERY_PARAMETERS);
 
 =head1 METHODS
 
@@ -43,6 +43,17 @@ sub process {
     my $logger = pf::log::get_logger;
 
     my $mac = $query_args->{'mac'};
+
+    my $node_attributes = node_attributes($mac);
+
+    # We make sure to have all the parameters before querying Fingerbank
+    foreach my $query_parameter ( @fingerbank::Constant::QUERY_PARAMETERS ) {
+        $query_parameter = lc($query_parameter);
+        next if $query_parameter eq "mac_vendor";   # We skip the MAC Vendor parameter since it is a special one (always present in the args)
+        unless ( (defined($query_args->{$query_parameter})) && ($query_args->{$query_parameter} ne "") ) {
+            $query_args->{$query_parameter} = $node_attributes->{$query_parameter};
+        }
+    }
 
     # Querying for a resultset
     my $query_result = _query($query_args);

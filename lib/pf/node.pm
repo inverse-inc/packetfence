@@ -150,7 +150,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
-            user_agent, computername, dhcp_fingerprint, dhcp_vendor, device_type, device_class,
+            user_agent, computername, dhcp_fingerprint, dhcp6_fingerprint, dhcp_vendor, dhcp6_enterprise, device_type, device_class,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
