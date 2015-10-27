@@ -92,6 +92,7 @@ Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
 Requires: memcached
+Requires: redis
 Requires: freeradius >= 2.2.8-34, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
@@ -248,6 +249,7 @@ Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
 Requires: perl(Cache::Memcached::libmemcached)
 Requires: perl(CHI::Driver::Memcached)
+Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
