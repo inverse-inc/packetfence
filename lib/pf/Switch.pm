@@ -38,6 +38,9 @@ use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
 use Scalar::Util qw(looks_like_number);
 use List::MoreUtils qw(any);
+use pf::StatsD;
+use pf::util::statsd qw(called);
+use Time::HiRes;
 
 =head1 SUBROUTINES
 

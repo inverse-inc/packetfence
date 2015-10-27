@@ -35,6 +35,7 @@ use pf::person;
 use pf::lookup::person;
 use Time::HiRes;
 use pf::util::statsd qw(called);
+use pf::StatsD;
 
 our $VERSION = 1.04;
 

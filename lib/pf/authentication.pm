@@ -39,6 +39,9 @@ use List::MoreUtils qw(none any);
 use pf::util;
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
+use pf::StatsD;
+use pf::util::statsd qw(called);
+use Time::HiRes;
 
 # The results...
 #

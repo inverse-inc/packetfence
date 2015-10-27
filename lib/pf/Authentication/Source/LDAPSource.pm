@@ -199,7 +199,7 @@ sub _connect {
       my $mesg = $connection->start_tls();
       if ( $mesg->code() ) { 
           $logger->error("[$self->{'id'}] ".$mesg->error()); 
-          $pf::StatsD::statsd->increment(called() . "error.count" );
+          $pf::StatsD::statsd->increment(called() . ".error.count" );
           $pf::StatsD::statsd->end(called() . ".timing" , $start );
           return undef; 
       }
@@ -230,14 +230,14 @@ sub match {
     my $start = Time::HiRes::gettimeofday();
     if($self->is_match_cacheable) {
         my $result = $self->cache->compute([$self->id, $params], sub {
-                $pf::StatsD::statsd->increment(called() . ".$self->id.cache_miss.count" );
+                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
                 my $result =   $self->SUPER::match($params);
             });
-        $pf::StatsD::statsd->end(called() . ".$self->id.timing" , $start, 0.1 );
+        $pf::StatsD::statsd->end(called() . "." . $self->id . ".timing" , $start, 0.1 );
         return $result;
     }
     my $result = $self->SUPER::match($params);
-    $pf::StatsD::statsd->end(called() . ".$self->id.timing" , $start, 0.1 );
+    $pf::StatsD::statsd->end(called() . "." . $self->id . ".timing" , $start, 0.1 );
     return $result;
 }
 
@@ -514,7 +514,7 @@ sub bind_with_credentials {
         $result = $connection->bind;
     }
     if ($result->is_error) {    
-        $pf::StatsD::statsd->increment(called() . "error.count" );
+        $pf::StatsD::statsd->increment(called() . ".error.count" );
     } 
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $result;

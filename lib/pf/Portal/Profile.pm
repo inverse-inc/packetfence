@@ -28,6 +28,7 @@ use pf::factory::provisioner;
 use pf::ConfigStore::Scan;
 use Time::HiRes;
 use pf::util::statsd qw(called);
+use pf::StatsD;
 
 =head1 METHODS
 

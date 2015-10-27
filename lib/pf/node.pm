@@ -549,7 +549,7 @@ sub _cleanup_status_value {
     unless ( defined $status && exists $ALLOW_STATUS{$status} ) {
         my $logger = get_logger();
         $logger->warn("The status was set to " . (defined $status ? $status : "'undef'") . " changing it $STATUS_UNREGISTERED" );
-        $pf::StatsD::statsd->increment(called() . "warn.count" );
+        $pf::StatsD::statsd->increment(called() . ".warn.count" );
         $status = $STATUS_UNREGISTERED;
     }
     return $status;
@@ -731,8 +731,7 @@ sub node_custom_search {
     my $start = Time::HiRes::gettimeofday();
     $logger->debug($sql);
     $node_statements->{'node_custom_search_sql_customer'} = $sql;
-    my @data = db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
-    return @data;
+    return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
 }
 
 =item * node_view_all - view all nodes based on several criterias
@@ -828,7 +827,7 @@ sub node_modify {
     # validation
     $mac = clean_mac($mac);
     if ( !valid_mac($mac) ) {
-        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
         return (0);
     }
 
@@ -847,7 +846,7 @@ sub node_modify {
             $logger->error(
                 "modify of non-existent node $mac attempted - node add failed"
             );
-            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
             return (0);
         }
     }
@@ -870,7 +869,7 @@ sub node_modify {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
-           $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+           $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
            return (0);
        }
         if ( defined($data{'category'}) && $data{'category'} ne '' ) {
@@ -898,7 +897,7 @@ sub node_modify {
     if ( $mac ne $new_mac && node_exist($new_mac) ) {
         $logger->error(
             "modify of node $mac to $new_mac conflicts with existing node");
-            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+            $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
         return (0);
     }
 
@@ -927,11 +926,11 @@ sub node_modify {
         $mac
     );
     if($sth) {
-        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+        $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
         return ( $sth->rows );
     }
     $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
-    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
     return undef;
 }
 
@@ -1090,13 +1089,11 @@ sub node_is_unregistered {
 }
 
 sub nodes_unregistered {
-    my @data = db_data(NODE, $node_statements, 'nodes_unregistered_sql');
-    return @data;
+    return db_data(NODE, $node_statements, 'nodes_unregistered_sql');
 }
 
 sub nodes_registered {
-    my @data =  db_data(NODE, $node_statements, 'nodes_registered_sql');
-    return @data;
+    return db_data(NODE, $node_statements, 'nodes_registered_sql');
 }
 
 =item nodes_registered_not_violators
@@ -1107,25 +1104,21 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 
 sub nodes_registered_not_violators {
-    my @data = db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
-    return @data;
+    return db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
 }
 
 sub nodes_active_unregistered {
-    my @data = db_data(NODE, $node_statements, 'nodes_active_unregistered_sql');
-    return @data;
+    return db_data(NODE, $node_statements, 'nodes_active_unregistered_sql');
 }
 
 sub node_expire_lastarp {
     my ($time) = @_;
-    my @data = db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
-    return @data;
+    return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
 sub node_expire_lastdhcp {
     my ($time) = @_;
-    my @data = db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
-    return @data;
+    return db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
 }
 
 sub node_cleanup {
@@ -1148,14 +1141,8 @@ sub node_cleanup {
 
 sub node_update_lastarp {
     my ($mac) = @_;
-    my $rc = 0;
-    if ( db_query_execute(NODE, $node_statements, 'node_update_lastarp_sql', $mac) ) { 
-        $rc = (1);
-    } 
-    else { 
-        $rc = (0);
-    }
-    return $rc; 
+    db_query_execute(NODE, $node_statements, 'node_update_lastarp_sql', $mac) || return (0);
+    return (1);
 }
 
 =item * node_update_bandwidth - update the bandwidth balance of a node
@@ -1319,7 +1306,7 @@ sub is_max_reg_nodes_reached {
             $nb_nodes = node_pid($pid, $category_info->{'category_id'});
             $max_for_category = $category_info->{'max_nodes_per_pid'};
             if ( $max_for_category == 0 || $nb_nodes < $max_for_category ) {
-                $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+                $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
                 return $FALSE;
             }
             $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
@@ -1334,7 +1321,7 @@ sub is_max_reg_nodes_reached {
     }
 
     # fallback to maximum reached
-    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
+    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.1); 
     return $TRUE;
 }
 
@@ -1346,10 +1333,7 @@ May sometimes be useful for customization.
 =cut
 
 sub node_last_reg {
-    my $query;
-    unless (  $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') ) { 
-        return (0);
-    }
+    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
     return ($val);

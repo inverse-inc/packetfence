@@ -31,6 +31,8 @@ use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::User_Agent;
 use pf::violation_config;
 use pf::node;
+use pf::StatsD;
+use pf::util::statsd qw(called);
 
 
 # Violation status constants
