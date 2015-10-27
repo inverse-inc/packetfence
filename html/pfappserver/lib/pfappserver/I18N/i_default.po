@@ -7639,10 +7639,6 @@ msgid "captive_portal.httpd_mod_evasive_system_command"
 msgstr "System command"
 
 # conf/documentation.conf
-msgid "captive_portal.httpd_mod_evasive_log_dir"
-msgstr "Log directory"
-
-# conf/documentation.conf
 msgid "services.httpd_portal"
 msgstr "httpd.portal"
 

@@ -221,7 +221,7 @@ if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_evasive})) {
     $DOSBlockingPeriod = $PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period};
     $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify};
     $DOSSystemCommand = $PfConfig->{captive_portal}{httpd_mod_evasive_system_command};
-    $DOSLogDir = $PfConfig->{captive_portal}{httpd_mod_evasive_log_dir};
+    $DOSLogDir = $install_dir."/logs/;
 }
 
 $HostnameLookups = "off";
