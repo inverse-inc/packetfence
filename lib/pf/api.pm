@@ -1079,7 +1079,7 @@ Curl Example:
 
 sub bounce_node : Public {
     my ($class, $mac) = @_;
-    my $node = node_view ($mac);
+    my $node = pf::node::node_view ($mac);
     die "Unable to retrieve node '$mac'\n" unless $node;
     my $switch_id = $node->{'last_switch'};
     my $switch = pf::SwitchFactory->instantiate($switch_id);
