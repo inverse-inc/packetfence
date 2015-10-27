@@ -181,6 +181,11 @@ sub _parse_ipv6_addr {
     return NetPacket::IPv6::int_to_hexstr(@ints);
 }
 
+sub _hex_data {
+    my ($data) = @_;
+    return join(":",unpack "(H2)*", $data);
+}
+
 =head2 _zero_length_option
 
 For options that have zero length just return an empty hash
@@ -203,7 +208,7 @@ our %DUID_FILTERS = (
 sub _parse_duid_type1 {
     my ($type, $data) = @_;
     my ($hardware_type, $time,$addr) = unpack("n N a*", $data);
-    return {duid_type => $type, hardware_type => $hardware_type, 'time' => $time, addr => $addr};
+    return {duid_type => $type, hardware_type => $hardware_type, 'time' => $time, addr => _hex_data($addr)};
 }
 
 =head2 _parse_duid_type2
@@ -223,7 +228,7 @@ sub _parse_duid_type2 {
 sub _parse_duid_type3 {
     my ($type, $data) = @_;
     my ($hardware_type, $addr) = unpack("n a*", $data);
-    return {duid_type => $type, hardware_type => $hardware_type, addr => $addr};
+    return {duid_type => $type, hardware_type => $hardware_type, addr => _hex_data($addr)};
 }
 
 =head2 _parse_duid_type4

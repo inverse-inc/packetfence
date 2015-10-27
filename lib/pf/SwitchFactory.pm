@@ -162,14 +162,14 @@ sub instantiate {
     my $result;
     pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $module object");
-    $result = $module->new(
+    $result = $module->new({
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
-    );
+    });
     });
     return $result;
 }

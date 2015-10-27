@@ -82,6 +82,9 @@ conf/pf_omapi_key:
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
+bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
+	cc -g -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
+
 .PHONY:permissions
 
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
@@ -90,6 +93,7 @@ bin/pfcmd: src/pfcmd.c
 .PHONY:sudo
 
 sudo:/etc/sudoers.d/packetfence.sudoers
+
 
 permissions:
 	./bin/pfcmd fixpermissions

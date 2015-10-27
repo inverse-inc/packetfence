@@ -89,6 +89,30 @@ sub _getMacAtIfIndex {
     return @macArray;
 }
 
+sub getIfIndexByNasPortId {
+    my ($this, $ifDesc_param) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    if ($ifDesc_param =~ /(unit|slot)=(\d+);subslot=(\d+);port=(\d+)/) {
+        my $unit = $2;
+        my $subslot = $3;
+        my $port = $4;
+        my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+        my $ifDescHashRef;
+        my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+        foreach my $key ( keys %{$result} ) {
+            my $ifDesc = $result->{$key};
+            if ( $ifDesc =~ /(GigabitEthernet|Ten-GigabitEthernet|Ethernet)$unit\/$subslot\/$port/i ) {
+                $key =~ /^$OID_ifDesc\.(\d+)$/;
+                return $1;
+            }
+        }
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

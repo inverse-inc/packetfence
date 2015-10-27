@@ -66,12 +66,12 @@ foreach my $wireless_object (@wireless_devices) {
 
 # regression test for #1426: RADIUS CoA Broken on WLC 5500
 # http://www.packetfence.org/bugs/view.php?id=1426
-my $networkdevice_object = pf::Switch::Cisco::WiSM2->new(
-    '-mode' => 'production',
-    '-radiusSecret' => 'fake',
-    '-ip' => '127.0.0.1',
-    '-id' => '127.0.0.1',
-);
+my $networkdevice_object = pf::Switch::Cisco::WiSM2->new({
+    'mode' => 'production',
+    'radiusSecret' => 'fake',
+    'ip' => '127.0.0.1',
+    'id' => '127.0.0.1',
+});
 # bogusly calling methods trying to generate warnings
 $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
 
@@ -85,12 +85,12 @@ local $SIG{__DIE__} = sub {
     my $str = join("\n", @_);
     warn(@_) if ($str !~ /No answer from 127\.0\.0\.1 on port 3799/m);
 };
-$networkdevice_object = pf::Switch::Aruba->new(
-    '-mode' => 'production',
-    '-radiusSecret' => 'fake',
-    '-ip' => '127.0.0.1',
-    '-id' => '127.0.0.1',
-);
+$networkdevice_object = pf::Switch::Aruba->new({
+    'mode' => 'production',
+    'radiusSecret' => 'fake',
+    'ip' => '127.0.0.1',
+    'id' => '127.0.0.1',
+});
 # bogusly calling methods trying to generate warnings
 $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
 # putting back old die handler

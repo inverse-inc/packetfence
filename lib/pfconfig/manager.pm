@@ -387,7 +387,7 @@ sub list_namespaces {
     return (@$static_namespaces, @$overlayed_namespaces);
 }
 
-our %skip = ( 'config'=> 1, 'resource'=> 1, 'config::template'=> 1, 'FilterEngine::AccessFilterEngineScopes' => 1 );
+our %skip = ( 'config'=> 1, 'resource'=> 1, 'config::template'=> 1, 'FilterEngine::AccessScopes' => 1 );
 
 sub list_static_namespaces {
     my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";

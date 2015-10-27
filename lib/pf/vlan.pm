@@ -580,6 +580,7 @@ sub getNodeInfoForAutoReg {
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
         autoreg         => 'yes',
+        voip            => 'no',
     );
     if (defined($role)) {
         $node_info{'category'} = $role;

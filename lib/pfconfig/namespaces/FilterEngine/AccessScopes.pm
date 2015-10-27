@@ -1,14 +1,14 @@
-package pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes;
+package pfconfig::namespaces::FilterEngine::AccessScopes;
 
 =head1 NAME
 
-pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes
+pfconfig::namespaces::FilterEngine::AccessScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::FilterEngine::AccessFilterEngineScopes
+pfconfig::namespaces::FilterEngine::AccessScopes
 
 =cut
 
@@ -33,7 +33,7 @@ sub build {
     my $config   = $self->parentConfig;
     my %AccessFiltersConfig = %{$config->build};
     $self->{prebuilt_conditions} = {};
-    my (%AccessFilterEngineScopes, @filter_data, %filters_scopes);
+    my (%AccessScopes, @filter_data, %filters_scopes);
     foreach my $rule (@{$config->{ordered_sections}}) {
         my $logger = get_logger();
         my $data = $AccessFiltersConfig{$rule};
@@ -53,9 +53,9 @@ sub build {
         $self->build_filter(\%filters_scopes, @$filter_data);
     }
     while (my ($scope, $filters) = each %filters_scopes) {
-        $AccessFilterEngineScopes{$scope} = pf::filter_engine->new({filters => $filters});
+        $AccessScopes{$scope} = pf::filter_engine->new({filters => $filters});
     }
-    return \%AccessFilterEngineScopes;
+    return \%AccessScopes;
 }
 
 sub build_filter {

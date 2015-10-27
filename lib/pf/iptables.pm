@@ -208,6 +208,8 @@ sub generate_filter_if_src_to_chain {
     # 'portal' interfaces handling
     foreach my $portal_interface ( @portal_ints ) {
         my $dev = $portal_interface->tag("int");
+        $rules .= "-A INPUT --in-interface $dev -d 224.0.0.0/8 -j ACCEPT\n";
+        $rules .= "-A INPUT --in-interface $dev -p vrrp -j ACCEPT\n";
         $rules .= "-A INPUT --in-interface $dev --jump $FW_FILTER_INPUT_PORTAL\n";
     }
 
