@@ -88,6 +88,26 @@ To the following
   operator=regex
   value=^00:
 
+Violations configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Violations have been reworked and configuration changes are necessary in order to maintain functionnality.
+
+The following parameters have been removed from pf.conf
+
+* alerting.wins_server
+* alerting.admin_netbiosname
+
+In violations.conf the following actions have been renamed, please update them accordingly.
+
+* trap -> reevaluate_access
+* email -> email_admin
+
+The following action have been removed from the violations :
+
+* popup
+
+Also in violations.conf, the parameter whitelisted_categories has been renamed into whitelisted_roles
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
