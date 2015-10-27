@@ -1083,7 +1083,7 @@ sub bounce_node : Public {
     die "Unable to retrieve node '$mac'\n" unless $node;
     my $switch_id = $node->{'last_switch'};
     my $switch = pf::SwitchFactory->instantiate($switch_id);
-    die "Unable to find switch '$switch_id' assoicated with node '$mac'\n" unless $node;
+    die "Unable to find switch '$switch_id' assoicated with node '$mac'\n" unless $switch;
     return $switch->bouncePort($node->{last_port});
 }
 
