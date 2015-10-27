@@ -38,7 +38,7 @@ LOG_DIR        = %%install_dir%%/logs/
 PID_DIR        = %%install_dir%%/var/run/
 
 # Enable daily log rotation. If disabled, a kill -HUP can be used after a manual rotate
-ENABLE_LOGROTATION = False
+ENABLE_LOGROTATION = True
 
 # Specify the user to drop privileges to
 # If this is blank carbon runs as the user that invokes it
