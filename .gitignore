@@ -58,6 +58,7 @@ conf/realm.conf
 conf/domain.conf
 conf/scan.conf
 conf/wmi.conf
+conf/pfdetect.conf
 conf/snort/classification.config
 conf/snort/local.rules
 conf/snort/reference.config
@@ -72,6 +73,7 @@ conf/snmptrapd.conf
 conf/snort.conf
 conf/snort.conf.pre_snort-2.8
 conf/suricata.yaml
+conf/suricata_categories.txt
 conf/ui-global.conf
 conf/violations.conf
 conf/allowed_device_oui.txt

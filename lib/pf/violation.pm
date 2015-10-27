@@ -23,6 +23,16 @@ use Log::Log4perl;
 use Readonly;
 use POSIX;
 use Time::HiRes qw(time);
+use pfconfig::cached_scalar;
+use pf::error qw(is_success is_error);
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::User_Agent;
+use pf::log;
+use pf::violation_config;
+use pf::node;
+
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -33,6 +43,12 @@ Readonly::Scalar our $STATUS_OPEN => 'open';
 Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
 use constant VIOLATION => 'violation';
+
+use pf::factory::condition::violation;
+pf::factory::condition::violation->modules;
+tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
+tie our @BANDWIDTH_EXPIRED_VIOLATIONS, 'pfconfig::cached_array' => 'resource::bandwidth_expired_violations';
+tie our @ACCOUNTING_TRIGGERS, 'pfconfig::cached_array' => 'resource::accounting_triggers';
 
 BEGIN {
     use Exporter ();
@@ -57,7 +73,7 @@ BEGIN {
         violation_modify
         violation_trigger
         violation_count
-        violation_count_trap
+        violation_count_reevaluate_access
         violation_view_top
         violation_delete
         violation_exist_open
@@ -72,6 +88,9 @@ BEGIN {
         violation_clear_errors
         violation_last_errors
         violation_run_delayed
+
+        @BANDWIDTH_EXPIRED_VIOLATIONS
+        @ACCOUNTING_TRIGGERS
     );
 }
 use pf::action;
@@ -80,11 +99,11 @@ use pf::class qw(class_view);
 use pf::config;
 use pf::enforcement;
 use pf::db;
-use pf::node;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::util;
 use pf::config::util;
 use pf::client;
+use pf::violation_config;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $violation_db_prepared = 0;
@@ -179,8 +198,8 @@ sub violation_db_prepare {
     $violation_statements->{'violation_count_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and status="open" ]);
 
-    $violation_statements->{'violation_count_trap_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status!="closed" ]);
+    $violation_statements->{'violation_count_reevaluate_access_sql'} = get_db_handle()->prepare(
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status!="closed" ]);
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
@@ -275,10 +294,10 @@ sub violation_count {
     return ($val);
 }
 
-sub violation_count_trap {
+sub violation_count_reevaluate_access {
     my ($mac) = @_;
 
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_trap_sql', $mac)
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_reevaluate_access_sql', $mac)
         || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
@@ -410,7 +429,6 @@ sub violation_add {
     violation_clear_warnings();
     violation_clear_errors();
 
-    #print Dumper(%data);
     #defaults
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
@@ -522,6 +540,54 @@ sub violation_clear_errors { @ERRORS = (); }
 
 sub violation_last_errors { @ERRORS }
 
+sub info_for_violation_engine {
+    # NEED TO HANDLE THE NEW TID
+    my ($mac,$type,$tid) = @_;
+    my $node_info = pf::node::node_view($mac);
+
+    $type = lc($type);
+
+    my $devices = [];
+    my ($device_id);
+    if($type eq "device"){
+        $device_id = $tid;
+    }
+    else {
+        my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+        if(is_success($device_result)){
+            $device_id = $device->id
+        }
+    }
+    if(defined($device_id)){
+        my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
+        $devices = $device->{parents_ids};
+        push @$devices, $device->{id};
+        @$devices = map {$_.""} @$devices;
+    }
+
+
+    my ($dhcp_fingerprint_result, $dhcp_fingerprint) = fingerbank::Model::DHCP_Fingerprint->find([{value => $node_info->{dhcp_fingerprint}}]);
+    my ($dhcp_vendor_result, $dhcp_vendor) = fingerbank::Model::DHCP_Vendor->find([{value => $node_info->{dhcp_vendor}}]);
+    my ($user_agent_result, $user_agent) = fingerbank::Model::User_Agent->find([{value => $node_info->{user_agent}}]);
+    my ($mac_vendor) = pf::fingerbank::mac_vendor_from_mac($mac);
+
+    my $info = {
+      device_id => $devices,
+      dhcp_fingerprint_id => is_success($dhcp_fingerprint_result) ? $dhcp_fingerprint->id : undef,
+      dhcp_vendor_id => is_success($dhcp_vendor_result) ? $dhcp_vendor->id : undef,
+      mac => $mac,
+      mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
+      user_agent_id => is_success($user_agent_result) ? $user_agent->id : undef,
+    };
+
+    my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
+    if( $trigger_info->{type} ne 'includes' ){
+        $info->{$trigger_info->{key}} = $tid;
+    }
+
+    return $info;
+}
+
 =item * violation_trigger
 
 Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required
@@ -533,6 +599,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
+    $logger->info("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 
@@ -551,25 +618,15 @@ sub violation_trigger {
         return 0;
     }
 
-    require pf::trigger;
-    my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
-    if ( !scalar(@trigger_info) ) {
-        $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
-        return 0;
-    }
+    my $info = info_for_violation_engine($mac,$type,$tid);
+    
+    $logger->debug(sub { use Data::Dumper; "Infos for violation engine : ".Dumper($info) });
+    my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;
-    foreach my $row (@trigger_info) {
-        # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
-        if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
-            $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
-            next;
-        }
-        my $vid = $row->{'vid'};
-
-        # if the node's category is whitelisted, skip
-        if (_is_node_category_whitelisted($row, $mac)) {
-            $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
+    foreach my $vid (@vids) {
+        if (_is_node_category_whitelisted($vid, $mac)) {
+            $logger->info("Not adding violation ${vid} node $mac is whitelisted because of its role");
             next;
         }
 
@@ -733,15 +790,17 @@ sub violation_view_last_closed {
 =cut
 
 sub _is_node_category_whitelisted {
-    my ($trigger_info, $mac) = @_;
+    my ($vid, $mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
+    my $class = $pf::violation_config::Violation_Config{$vid};
+
     # if whitelist is empty, node is not whitelisted
-    if (!defined($trigger_info->{'whitelisted_categories'}) || $trigger_info->{'whitelisted_categories'} eq '') {
+    if (!defined($class->{'whitelisted_roles'}) || @{$class->{'whitelisted_roles'}} == 0) {
         return 0;
     }
 
-    # Grabbing the node's informations (incl. category)
+    # Grabbing the node's informations (incl. role)
     # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
     my $node_info = node_attributes($mac);
     if(!defined($node_info) || ref($node_info) ne 'HASH') {
@@ -750,15 +809,15 @@ sub _is_node_category_whitelisted {
     }
 
     # trying to match node's category on whitelisted categories
-    my $category_found = 0;
-    # whitelisted_categories is of the form "cat1,cat2,cat3,etc."
-    foreach my $category (split(",", $trigger_info->{'whitelisted_categories'})) {
-        if (lc($category) eq lc($node_info->{'category'})) {
-            $category_found = 1;
+    my $role_found = 0;
+    # whitelisted_roles is of the form "cat1,cat2,cat3,etc."
+    foreach my $role (@{$class->{'whitelisted_roles'}}) {
+        if (lc($role) eq lc($node_info->{'category'})) {
+            $role_found = 1;
         }
     }
 
-    return $category_found;
+    return $role_found;
 }
 
 =item violation_maintenance

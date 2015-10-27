@@ -1,20 +1,28 @@
-package pf::triggerParser::dhcp_vendor;
+package pf::ConfigStore::Pfdetect;
 =head1 NAME
 
-pf::triggerParser::dhcp_vendor - Trigger for dhcp_vendor
+pf::ConfigStore::Pfdetect
+Store Pfdetect configuration
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::dhcp_vendor
+pf::ConfigStore::Pfdetect
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends 'pf::triggerParser';
+use pf::file_paths;
+extends 'pf::ConfigStore';
+
+sub configFile { $pf::file_paths::pfdetect_config_file };
+
+sub pfconfigNamespace {'config::Pfdetect'}
+
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
@@ -44,3 +52,4 @@ USA.
 =cut
 
 1;
+

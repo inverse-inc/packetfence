@@ -9,7 +9,7 @@ pf::action - module to handle violation actions
 =head1 DESCRIPTION
 
 pf::action contains the functions necessary to manage all the different 
-actions (email, log, trap, ...) triggered when a violation is created, 
+actions (email, log, reevaluate_access, ...) triggered when a violation is created, 
 opened, closed or deleted.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -23,7 +23,10 @@ use warnings;
 use Log::Log4perl;
 use Readonly;
 use pf::node;
+use pf::log;
+use pf::person;
 use pf::util;
+use pf::violation_config;
 
 use constant ACTION => 'action';
 
@@ -31,11 +34,11 @@ use constant ACTION => 'action';
 #FIXME port all hard-coded strings to these constants
 Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $UNREG => 'unreg';
-Readonly::Scalar our $TRAP => 'trap';
-Readonly::Scalar our $EMAIL => 'email';
+Readonly::Scalar our $REEVALUATE_ACCESS => 'reevaluate_access';
+Readonly::Scalar our $EMAIL_USER => 'email_user';
+Readonly::Scalar our $EMAIL_ADMIN => 'email_admin';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
-Readonly::Scalar our $WINPOPUP => 'winpopup';
 Readonly::Scalar our $CLOSE => 'close';
 Readonly::Scalar our $ROLE => 'role';
 Readonly::Scalar our $ENFORCE_PROVISIONING => 'enforce_provisioning';
@@ -44,11 +47,11 @@ Readonly::Array our @VIOLATION_ACTIONS =>
   (
    $AUTOREG,
    $UNREG,
-   $EMAIL,
-   $TRAP,
+   $EMAIL_USER,
+   $EMAIL_ADMIN,
+   $REEVALUATE_ACCESS,
    $LOG,
    $EXTERNAL,
-   $WINPOPUP,
    $CLOSE,
    $ROLE,
    $ENFORCE_PROVISIONING,
@@ -197,19 +200,17 @@ sub action_execute {
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
-        if ( $action eq $TRAP ) {
+        if ( $action eq $REEVALUATE_ACCESS ) {
             $leave_open = 1;
-            action_trap( $mac, $vid );
-        } elsif ( $action eq $EMAIL ) {
-            action_email( $mac, $vid, $notes );
+            action_reevaluate_access( $mac, $vid );
+        } elsif ( $action eq $EMAIL_ADMIN ) {
+            action_email_admin( $mac, $vid, $notes );
+        } elsif ( $action eq $EMAIL_USER ) {
+            action_email_user( $mac, $vid, $notes );
         } elsif ( $action eq $LOG ) {
             action_log( $mac, $vid );
         } elsif ( $action eq $EXTERNAL ) {
             action_api( $mac, $vid );
-        } elsif ( $action eq $WINPOPUP ) {
-            action_winpopup( $mac, $vid );
-        } elsif ( $action eq $AUTOREG ) {
-            action_autoregister($mac, $vid);
         } elsif ( $action eq $CLOSE ) {
             action_close( $mac, $vid );
         } elsif ( $action eq $ROLE ) {
@@ -218,12 +219,14 @@ sub action_execute {
             action_unreg( $mac, $vid );
         } elsif ( $action eq $ENFORCE_PROVISIONING ) {
             action_enforce_provisioning( $mac, $vid, $notes );
+        } elsif ( $action eq $AUTOREG ) {
+            action_autoregister($mac, $vid);
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
     }
     if ( !$leave_open && !( ($vid eq $POST_SCAN_VID) || ($vid eq $PRE_SCAN_VID) ) ) {
-        $logger->info("this is a non-trap violation, closing violation entry now");
+        $logger->info("this is a non-reevaluate-access violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );
     }
@@ -265,7 +268,7 @@ sub action_unreg {
     node_deregister($mac);
 }
 
-sub action_email {
+sub action_email_admin {
     my ($mac, $vid, $notes) = @_;
     my %message;
 
@@ -279,6 +282,38 @@ sub action_email {
     $message{'message'} .= pf::lookup::node::lookup_node($mac);
 
     pfmailer(%message);
+}
+
+sub action_email_user {
+    my ($mac, $vid, $notes) = @_;
+    my $node_info = node_attributes($mac);
+    my $person = person_view($node_info->{pid});
+
+    if(defined($person->{email}) && $person->{email}){
+        my %message;
+
+        require pf::lookup::node;
+        my $class_info  = class_view($vid);
+        my $description = $class_info->{'description'};
+
+        my $additionnal_message = join('<br/>', split('\n',$pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+
+        pf::util::send_email(
+            $Config{'alerting'}{'smtpserver'},
+            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email}, 
+            "$description detection on $mac", 
+            "violation-triggered", 
+            description => $description, 
+            hostname => $node_info->{computername},
+            os => $node_info->{device_type}, 
+            mac => $mac,
+            additionnal_message => $additionnal_message,
+        );  
+
+    }
+    else{
+        get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
+    }
 }
 
 sub action_log {
@@ -305,70 +340,27 @@ sub action_log {
     close($log_fh);
 }
 
-sub action_trap {
+sub action_reevaluate_access {
     my ($mac, $vid) = @_;
     pf::enforcement::reevaluate_access($mac, "manage_vopen");
-}
-
-sub action_winpopup {
-    my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
-
-    eval "use Net::NetSend qw(:all); 1" || return (0);
-    eval "use Net::NBName; 1"           || return (0);
-
-    require pf::lookup::node;
-    my $class_info  = class_view($vid);
-    my $description = $class_info->{'description'};
-    my $message     = "$description detection on $mac " 
-                      . pf::lookup::node::lookup_node($mac);
-
-    my $nb = Net::NBName->new;
-    my $nq = $nb->name_query( $Config{'alerting'}{'wins_server'},
-        $Config{'alerting'}{'admin_netbiosname'}, 0x00 );
-    if ($nq) {
-        my $admin_addr_obj = ( $nq->addresses )[0];
-        my $admin_ip       = $admin_addr_obj->address;
-        if (!sendMsg(
-                $Config{'alerting'}{'admin_netbiosname'},
-                'Packetfence', $admin_ip, $message, 0
-            )
-            )
-        {
-            $logger->error("Unable to send winpopup to $admin_ip");
-        }
-    } else {
-        $logger->error("Unable to resolve NetBIOS->IP to send winpopup");
-    }
 }
 
 sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
 
-    if (isenabled($Config{'trapping'}{'registration'})) {
-
+    if(pf::node::is_node_registered($mac)){
+        $logger->debug("Calling autoreg on already registered node. Doing nothing.");
+    }
+    else {
         require pf::vlan::custom;
-        my $vlan_obj = new pf::vlan::custom();
-        if ($vlan_obj->shouldAutoRegister($mac, 0, 1)) {
-
-            # auto-register
-            # sorry for the weird call, check pf::vlan for this sub's parameters
-            my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg(undef, undef, $mac, undef, 0, 1);
-            $logger->debug("auto-registering node $mac because of violation action=autoreg");
-
-            require pf::node;
-            if (!pf::node::node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
-                $logger->error("auto-registration of node $mac failed");
-                return 0;
-            }
-            require pf::enforcement;
-            pf::enforcement::reevaluate_access($mac, 'manage_register');
-        } else {
-            $logger->info("autoreg action defined for violation $vid, but won't do it: custom config said not to");
+        if(!pf::node::node_register($mac, "default")){
+            $logger->error("auto-registration of node $mac failed");
+            return;
         }
-    } else {
-        $logger->warn("autoreg action defined for violation $vid, but registration disabled");
+        
+        require pf::enforcement;
+        pf::enforcement::reevaluate_access($mac, 'manage_register');
     }
 }
 

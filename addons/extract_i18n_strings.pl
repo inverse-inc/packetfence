@@ -22,7 +22,6 @@ use pf::Authentication::constants;
 use pf::factory::provisioner;
 use pf::factory::firewallsso;
 use pf::factory::condition::profile;
-use pf::factory::triggerParser;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
@@ -313,7 +312,7 @@ sub extract_modules {
         }
     }
 
-    const('pf::config', 'VALID_TRIGGER_TYPES', \@pf::factory::triggerParser::VALID_TRIGGER_TYPES);
+    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
     const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
     const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
     const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);

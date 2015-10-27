@@ -40,7 +40,7 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);
 use pf::web::util;
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 use pf::locationlog;
 
 sub description { 'Cisco Catalyst 2960 with Web Auth' }
@@ -253,7 +253,7 @@ sub radiusDisconnect {
         # We send a regular disconnect if there is an open trapping violation
         # to ensure the VLAN is actually changed to the isolation VLAN.
         if (  defined($role) &&
-            ( violation_count_trap($mac) == 0 )  &&
+            ( violation_count_reevaluate_access($mac) == 0 )  &&
             ( $node_info->{'status'} eq 'reg' )
            ) {
 

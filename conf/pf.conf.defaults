@@ -247,16 +247,6 @@ subjectprefix=PF Alert:
 #
 # Log file where "log" actions are sent.
 log=violation.log
-#
-# alerting.wins_server
-#
-# WINS server to  resolve NetBIOS name of administrative workstation to IP address.
-wins_server=192.168.0.100
-#
-# alerting.admin_netbiosname
-#
-# NetBIOS name of administrative workstation to send alerts with "winpopup" action assigned.
-admin_netbiosname=EXAMPLE
 
 [ports]
 #

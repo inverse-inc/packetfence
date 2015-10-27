@@ -102,57 +102,14 @@ sub _trigger_violations {
 
     my $apiclient = pf::api::jsonrpcclient->new;
 
-    foreach my $trigger_type ( @fingerbank_based_violation_triggers ) {
-        my $trigger_data;
-        if ($trigger_type eq 'Device') {
-            next if !$query_result->{'device'}{'id'};
-            $trigger_data = $query_result->{'device'}{'id'};
-        } elsif ($trigger_type eq 'MAC_Vendor') {
-            next if !$mac;
-            my $mac_oui = $mac;
-            $mac_oui =~ s/[:|\s|-]//g;    # Removing separators
-            $mac_oui = lc($mac_oui);              # Lowercasing
-            $mac_oui = substr($mac_oui, 0, 6);    # Only keep first 6 characters (OUI)
-            my $trigger_query;
-            $trigger_query->{'mac'} = $mac_oui;
-            my ($status, $result) = "fingerbank::Model::$trigger_type"->find([$trigger_query, {columns => ['id']}]);
-            next if is_error($status);
-            $trigger_data = $result->id;
-        } else {
-            next if !$query_args->{lc($trigger_type)};
-            my $trigger_query;
-            $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
-            my ($status, $result) = "fingerbank::Model::$trigger_type"->find([$trigger_query, {columns => ['id']}]);
-            next if is_error($status);
-            $trigger_data = $result->id;
-        }
+    my %violation_data = (
+        'mac'   => $mac,
+        'tid'   => 'new_dhcp_info',
+        'type'  => 'internal',
+    );
 
-        next if !$trigger_data;
+    $apiclient->notify('trigger_violation', %violation_data);
 
-        my %violation_data = (
-            'mac'   => $mac,
-            'tid'   => $trigger_data,
-            'type'  => $trigger_type,
-        );
-
-        $logger->debug("Trying to trigger a violation type '$trigger_type' for MAC '$mac' with data '$trigger_data'");
-        $apiclient->notify('trigger_violation', %violation_data);
-    }
-
-    # Parent(s) based violations
-    if ( @$parents ) {
-        $logger->debug("Device of ID '" . $query_result->{'device'}{'id'} . "' with MAC address '$mac' does have parent(s). Trying to trigger violation type 'Device' for each of them");
-        foreach my $parent ( @$parents ) {
-            my %violation_data = (
-                'mac'   => $mac,
-                'tid'   => $parent,
-                'type'  => 'Device',
-            );
-
-            $logger->debug("Trying to trigger a violation type 'Device' based on parent(s) for MAC address '$mac' with data '$parent'");
-            $apiclient->notify('trigger_violation', %violation_data);
-        }
-    }
 }
 
 =head2 _parse_parents
@@ -234,6 +191,25 @@ sub sync_local_db {
 
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+}
+
+=head2 mac_vendor_from_mac
+
+=cut
+
+sub mac_vendor_from_mac {
+    my ($mac) = @_;
+    my $mac_oui = $mac;
+    $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
+    $mac_oui = lc($mac_oui);            # Lowercasing
+    $mac_oui = substr($mac_oui, 0, 6);  # Only keep first 6 characters (OUI)
+    my $trigger_query;
+    $trigger_query->{'mac'} = $mac_oui;
+    my ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->find([$trigger_query, { columns => ['id'] }]);
+    return undef if is_error($status);
+
+    ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->read($result->id);
+    return $result;
 }
 
 =head1 AUTHOR

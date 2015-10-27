@@ -1,35 +1,36 @@
-package pf::triggerParser::provisioner;
+package pfconfig::namespaces::resource::bandwidth_expired_violations;
+
 =head1 NAME
 
-pf::triggerParser::provisioner - Trigger for provisioner
+pfconfig::namespaces::resource::bandwidth_expired_violations
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::provisioner
+pfconfig::namespaces::resource::bandwidth_expired_violations
 
 =cut
 
 use strict;
 use warnings;
-use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER);
-use Moo;
-extends 'pf::triggerParser';
+use pfconfig::namespaces::FilterEngine::Violation;
 
-our @TRIGGER_IDS = ($TRIGGER_ID_PROVISIONER);
+use base 'pfconfig::namespaces::resource';
 
-sub validateTid {
-    my ($self, $tid) = @_;
-    die("Invalid provisioner trigger id: $tid") if $tid ne $TRIGGER_ID_PROVISIONER;
-    return 1;
+sub init {
+    my ($self) = @_;
+    $self->{_engine} = pfconfig::namespaces::FilterEngine::Violation->new;
+    $self->{_engine}->build();
 }
 
-sub search {
-    my ($self,$query) = @_;
-    my @items = map { { display => $_, value => $_ } } grep { $_ =~ /\Q$query\E/i } @TRIGGER_IDS;
-    return \@items;
+sub build {
+    my ($self) = @_;
+
+    return $self->{_engine}->{bandwidth_expired_violations};
 }
+
+=back
 
 =head1 AUTHOR
 
@@ -59,3 +60,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

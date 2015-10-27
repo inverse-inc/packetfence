@@ -32,7 +32,6 @@ use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::trigger;
 use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
 use pf::floatingdevice::custom;
@@ -126,9 +125,6 @@ sub authorize {
         $logger->info("[$mac] does not yet exist in database. Adding it now");
         node_add_simple($mac);
     }
-
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($mac);
 
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
@@ -303,12 +299,8 @@ sub accounting {
                         $logger->info("[$mac] Session status: duration is $session_time secs ($time_balance secs left)");
                     }
                     if ($time_balance == 0) {
-                        # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
-                        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
-                        if (scalar(@tid) > 0) {
-                            # Trigger violation
-                            violation_trigger($mac, $ACCOUNTING_POLICY_TIME, $TRIGGER_TYPE_ACCOUNTING);
-                        }
+                        # Trigger violation
+                        violation_trigger($mac, $ACCOUNTING_POLICY_TIME, $TRIGGER_TYPE_ACCOUNTING);
                     }
                 }
             }

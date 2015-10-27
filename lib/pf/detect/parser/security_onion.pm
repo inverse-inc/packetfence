@@ -1,20 +1,45 @@
-package pf::triggerParser::nessus;
+package pf::detect::parser::security_onion;
+
 =head1 NAME
 
-pf::triggerParser::nessus - Trigger for nessus
+pf::detect::parser::security_onion
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::nessus
+pf::detect::parser::security_onion
+
+Class to parse syslog from a Security onion appliance
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends 'pf::triggerParser';
+extends qw(pf::detect::parser);
+
+sub parse {
+    my ($self,$line) = @_;
+
+    if (index($line, "OSSEC") == -1) {
+        # Split the line on the Curly Brace { }
+        # Thanks to the guys on Freenode:#perl and google for helping
+        # with this regex.
+        my @Step1 = split(m/[{}](?![^{}!()]*\))/, $line);
+
+        # The stuff we need in in position 4
+        my @Step2 = split(" ", $Step1[4]);
+
+        my $data = {
+            srcip => $Step2[0],
+            sid   => $Step2[6],
+            descr => $Step1[3],
+        };
+
+        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid} } };
+    }
+}
 
 =head1 AUTHOR
 
@@ -44,3 +69,4 @@ USA.
 =cut
 
 1;
+

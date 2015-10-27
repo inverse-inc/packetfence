@@ -8,7 +8,6 @@ use pf::billing::custom;
 use pf::config;
 use pf::iplog;
 use pf::node;
-use pf::trigger;
 use pf::person qw(person_modify);
 use pf::Portal::Session;
 use pf::util;
@@ -197,11 +196,10 @@ sub processTransaction : Private {
         }
 
         # Close violations that use the 'Accounting::BandwidthExpired' trigger
-        my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
-        foreach my $violation (@tid) {
+        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
 
             # Close any existing violation
-            violation_force_close($mac, $violation->{'vid'});
+            violation_force_close($mac, $vid);
         }
 
         # Register the node

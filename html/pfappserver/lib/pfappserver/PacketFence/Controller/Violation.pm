@@ -18,10 +18,21 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pf::log;
 use pf::config;
 use pf::Switch::constants;
-use pf::factory::triggerParser;
+use pf::constants::trigger qw($TRIGGER_MAP);
+use JSON;
 use pfappserver::Form::Violation;
+use pf::factory::condition::violation;
+use Switch;
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::MAC_Vendor;
+use fingerbank::Model::User_Agent;
+
+
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -70,7 +81,7 @@ sub begin :Private {
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
-        trigger_types => \@pf::factory::triggerParser::VALID_TRIGGER_TYPES,
+        trigger_types => [sort(keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE))],
         current_model_instance => $model,
         current_form_instance =>
               $c->form("Violation",
@@ -80,7 +91,7 @@ sub begin :Private {
                        triggers => $triggers,
                        templates => $templates,
                       )
-             )
+             );
 }
 
 =head2 index
@@ -94,6 +105,64 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
+sub prettify_trigger {
+    my ($self, $trigger) = @_;
+
+    my @parts = split('::', $trigger);
+    my $type = lc($parts[0]);
+    my $tid = lc($parts[1]);
+    
+    my $pretty_type = $type;
+    my $pretty_value;
+    switch($type){
+      case "device" {
+        my ($status, $elem) = fingerbank::Model::Device->read($tid);
+        $pretty_value = $elem->{name} if(is_success($status));
+      }
+      case "dhcp_fingerprint" {
+        my ($status, $elem) = fingerbank::Model::DHCP_Fingerprint->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "dhcp_vendor" {
+        my ($status, $elem) = fingerbank::Model::DHCP_Vendor->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "mac_vendor" {
+        my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
+        $pretty_value = $elem->{name} if(is_success($status));
+      }
+      case "user_agent" {
+        my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      else {
+        $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
+                          $TRIGGER_MAP->{$type}->{$tid} : undef;
+      }
+    } 
+    $pretty_value = (defined($pretty_value)) ? $pretty_value : $parts[1];
+
+    return {type => $pretty_type, value => $pretty_value};
+}
+
+sub parse_triggers {
+    my ($self,$triggers) = @_;
+    my @splitted_triggers; 
+    my @pretty_triggers; 
+    foreach my $trigger (split ',', $triggers) {
+        if($trigger =~ /\((.+)\)/){
+          push @splitted_triggers, [split('&', $1)];
+          push @pretty_triggers, [ map { $self->prettify_trigger($_); } split('&', $1) ];
+        }
+        else {
+          push @splitted_triggers, [($trigger)];
+          push @pretty_triggers, [($self->prettify_trigger($trigger))];
+        }
+    } 
+
+    return (\@splitted_triggers,\@pretty_triggers);
+}
+
 =head2 after view
 
 =cut
@@ -102,6 +171,10 @@ after view => sub {
     my ($self, $c, $id) = @_;
     if (!$c->stash->{action_uri}) {
         if ($c->stash->{item}) {
+            ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) = 
+                $self->parse_triggers($c->stash->{item}->{trigger});
+            $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
+            $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
             $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
@@ -115,6 +188,8 @@ after view => sub {
 
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
+    $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
+    $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';
     }

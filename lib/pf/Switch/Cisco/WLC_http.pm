@@ -262,7 +262,7 @@ sub radiusDisconnect {
         # We send a regular disconnect if there is an open trapping violation
         # to ensure the VLAN is actually changed to the isolation VLAN.
         if (  defined($role) &&
-            ( violation_count_trap($mac) == 0 )  &&
+            ( violation_count_reevaluate_access($mac) == 0 )  &&
             ( $node_info->{'status'} eq 'reg' )
            ) {
             $logger->info("[$mac] Returning ACCEPT with Role: $role");

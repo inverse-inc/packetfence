@@ -15,10 +15,13 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
+use pf::file_paths;
+use File::Slurp;
 
 our @EXPORT_OK = qw(
         $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER @VALID_TRIGGER_TYPES
         $TRIGGER_ID_PROVISIONER
+        $TRIGGER_MAP
 );
 
 # Violation trigger types
@@ -30,10 +33,31 @@ Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
 Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
+Readonly::Scalar our $TRIGGER_TYPE_SURICATA => 'suricata';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
+
+Readonly::Scalar our $SURICATA_CATEGORIES => sub {
+    my %map;
+    my @categories = split("\n", read_file($suricata_categories_file));
+    foreach my $category (@categories){
+        $map{$category} = $category;
+    }
+    return \%map;
+}->();
+
+Readonly::Scalar our $TRIGGER_MAP => {
+  $TRIGGER_TYPE_INTERNAL => {
+    "1100010" => "Rogue DHCP detection",
+    "new_dhcp_info" => "DHCP packet received",
+  },
+  $TRIGGER_TYPE_PROVISIONER => {
+    $TRIGGER_ID_PROVISIONER => "Check status",
+  },
+  $TRIGGER_TYPE_SURICATA => $SURICATA_CATEGORIES,
+};
 
 =head1 AUTHOR
 

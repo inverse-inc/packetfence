@@ -71,7 +71,6 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_custom_search
-        node_mac_wakeup
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -87,7 +86,6 @@ use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
-use pf::violation;
 use pf::Portal::ProfileFactory;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -638,7 +636,7 @@ sub node_view {
     $node_info_ref = {
         %$node_info_ref,
         %$locationlog_info_ref,
-        'nbopenviolations' => violation_count($mac),
+        'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
     return ($node_info_ref);
@@ -959,10 +957,10 @@ sub node_register {
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
-            violation_add( $mac, $SCAN_VID );
+            pf::violation::violation_add( $mac, $SCAN_VID );
         }
         if (isenabled($scan->{'post_registration'})) {
-                violation_add( $mac, $POST_SCAN_VID );
+                pf::violation::violation_add( $mac, $POST_SCAN_VID );
         }
     }
 
@@ -1110,38 +1108,12 @@ sub node_update_bandwidth {
     }
     elsif ($sth->rows == 1) {
         # Close any existing violation related to bandwidth
-        my @tid = pf::trigger::trigger_view_tid($pf::config::ACCOUNTING_POLICY_BANDWIDTH);
-        foreach my $violation (@tid) {
-            violation_force_close($mac, $violation->{'vid'});
+        foreach my $vid (@pf::violation::BANDWIDTH_EXPIRED_VIOLATIONS){
+            pf::violation::violation_force_close($mac, $vid);
         }
     }
 
     return ($sth->rows);
-}
-
-=item * node_mac_wakeup
-
-Sub invoked each time a MAC as activity (eiher from dhcp or traps).
-
-in: mac address
-
-out: void
-
-=cut
-
-
-sub node_mac_wakeup {
-    my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    # Is there a violation for the Vendor of this MAC?
-    my $dec_oui = macoui2nb($mac);
-    $logger->debug( "sending VENDORMAC::$dec_oui trigger" );
-    pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
-
-    my $dec_mac = mac2nb($mac);
-    $logger->debug( "sending MAC::$dec_mac trigger" );
-    pf::violation::violation_trigger( $mac, $dec_mac, "MAC" );
 }
 
 sub node_search {

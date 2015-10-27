@@ -1,21 +1,22 @@
-package pf::triggerParser::mac_vendor;
+package pf::detect::parser;
 =head1 NAME
 
-pf::triggerParser::mac_vendor - Trigger for fingerbank mac_vendor
+pf::detect::parser
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::mac_vendor
+pf::detect::parser
+
+Base class for a pfdetect parser
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends 'pf::triggerParser';
-
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -26,7 +27,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -44,3 +45,4 @@ USA.
 =cut
 
 1;
+

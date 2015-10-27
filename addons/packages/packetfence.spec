@@ -881,6 +881,10 @@ fi
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
+%config(noreplace)      /usr/local/pf/conf/pfdetect.conf
+                        /usr/local/pf/conf/pfdetect.conf.example
+%config(noreplace)      /usr/local/pf/conf/suricata_categories.txt
+                        /usr/local/pf/conf/suricata_categories.txt.example
 %config(noreplace)      /usr/local/pf/conf/scan.conf
                         /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/snort

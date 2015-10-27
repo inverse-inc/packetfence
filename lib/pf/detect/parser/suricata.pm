@@ -1,20 +1,20 @@
-package pf::triggerParser::internal;
+package pf::detect::parser::suricata;
 =head1 NAME
 
-pf::triggerParser::internal - Trigger for internal
+pf::detect::parser::suricata
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::internal
+pf::detect::parser::suricata
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends 'pf::triggerParser';
+extends qw(pf::detect::parser::snort);
 
 =head1 AUTHOR
 
@@ -44,3 +44,4 @@ USA.
 =cut
 
 1;
+

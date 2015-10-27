@@ -30,7 +30,7 @@ use Log::Log4perl;
 
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 
 our $VERSION = 0.90;
 
@@ -88,7 +88,7 @@ sub getRoleForNode {
     my $logger = Log::Log4perl::get_logger(ref($self));
 
     # Violation first
-    my $open_violation_count = violation_count_trap($mac);
+    my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count != 0) {
         $logger->info("MAC: $mac has $open_violation_count open violations(s) with action=trap; no role returned");
         return;

@@ -1,0 +1,5 @@
+# This example below will create a pfdetect parser on /usr/local/pf/var/alert that will listen for Snort alerts
+# /usr/local/pf/var/alert must be a FIFO (use mkfifo to create it)
+#[snort]
+#path=/usr/local/pf/var/alert
+#type=snort

@@ -1,42 +1,25 @@
-package pf::factory::triggerParser;
+package pf::constants::pfdetect;
 
 =head1 NAME
 
-pf::factory::triggerParser - The factory for triggerParser
+pf::constants::pfdetect - constants for pfdetect object
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::factory::triggerParser
+pf::constants::pfdetect
 
 =cut
 
 use strict;
 use warnings;
-use base qw(Exporter);
-our @EXPORT_OK = qw(@VALID_TRIGGER_TYPES);
-use Module::Pluggable search_path => 'pf::triggerParser', 'sub_name' => 'modules' , 'require' => 1, except => qr/^pf::triggerParser::roles/;
-use List::MoreUtils qw(any);
 
-our @MODULES = __PACKAGE__->modules;
+use Module::Pluggable search_path => 'pf::detect::parser', sub_name => '_modules' , require => 1;
 
-our @VALID_TRIGGER_TYPES = map {my $t = $_; $t =~ s/^pf::triggerParser:://; $t} @MODULES;
-
-sub factory_for { 'pf::triggerParser' }
-
-sub new {
-    my ($class,$type) = @_;
-    my $subclass = $class->getModuleName($type);
-    return $subclass->new();
-}
-
-sub getModuleName {
-    my ($class,$type) = @_;
-    my $mainClass = $class->factory_for;
-    my $subclass = "${mainClass}::${type}";
-    die "Invalid trigger type $type" unless any { $_ eq $subclass  } @MODULES;
-    return $subclass;
+sub modules {
+  my ($class) = @_;
+  return map { (split('::', $_))[-1] } $class->_modules;
 }
 
 =head1 AUTHOR

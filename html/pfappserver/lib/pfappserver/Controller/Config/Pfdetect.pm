@@ -1,20 +1,18 @@
-package pf::triggerParser::openvas;
+package pfappserver::Controller::Config::Pfdetect;
+
 =head1 NAME
 
-pf::triggerParser::openvas - Trigger for openvas
-
-=cut
+pfappserver::Controller::Config::Pfdetect
 
 =head1 DESCRIPTION
 
-pf::triggerParser::openvas
+Place all customization for Controller::Config::Pfdetect here
 
 =cut
 
-use strict;
-use warnings;
-use Moo;
-extends 'pf::triggerParser';
+use Moose;
+
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::Pfdetect'; }
 
 =head1 AUTHOR
 
@@ -42,5 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+
+__PACKAGE__->meta->make_immutable;
 
 1;

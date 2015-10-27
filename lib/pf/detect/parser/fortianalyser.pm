@@ -1,38 +1,34 @@
-package pf::triggerParser::accounting;
+package pf::detect::parser::fortianalyser;
 =head1 NAME
 
-pf::triggerParser::accounting - Trigger for accounting
+pf::detect::parser::fortianalyser
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::accounting
+pf::detect::parser::fortianalyser
+
+Class to parse syslog from a Fortianalyser
 
 =cut
 
+use strict;
+use warnings;
 use Moo;
-extends 'pf::triggerParser';
-use pf::config;
-use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
+extends qw(pf::detect::parser);
 
-our @TRIGGER_IDS = ($ACCOUNTING_POLICY_BANDWIDTH, $ACCOUNTING_POLICY_TIME);
+sub parse {
+    my ($self,$line) = @_;
 
-sub validateTid {
-    my ($self, $tid) = @_;
-    die("Invalid accounting trigger id: $tid")
-      unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/
-        || $tid eq $ACCOUNTING_POLICY_TIME
-        || $tid eq $ACCOUNTING_POLICY_BANDWIDTH);
-    return 1;
+    my $data = {};
+    my @fields = (); my %fields = (); 
+    @fields = grep  /\=/ ,  split( /\s+/, $line );
+    %fields = map { split /\=/ } @fields;
+
+    return { srcip => $fields{srcip}, events => { detect => $fields{logid} } };
 }
-
-sub search {
-    my ($self,$query) = @_;
-    my @items = map { { display => $_, value => $_ } } grep { $_ =~ /\Q$query\E/i } @TRIGGER_IDS;
-    return \@items;
-}
-
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -61,3 +57,4 @@ USA.
 =cut
 
 1;
+

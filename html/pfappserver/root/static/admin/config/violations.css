@@ -1,0 +1,38 @@
+#add_trigger {
+  position:absolute;
+  right:10px;
+  top:60px;
+}
+
+#viewTriggers .control-group .btn, #viewTriggers .control-group select {
+  margin-right:5px;
+}
+
+#editTrigger .control-group .btn, #editTrigger .control-group select {
+  margin-right:5px;
+}
+
+#triggerContainer {
+  display:none;
+}
+
+.trigger_widget {
+  display:none;
+  margin-top:10px;
+  padding:10px 0;
+  border:2px solid rgb(221, 221, 221);
+  border-radius:5px;
+}
+
+.trigger_widget select {
+  width:318px;
+}
+
+.trigger_widget span.code {
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  border:1px solid #aaaaaa;
+  color:black;
+  padding:2px;
+  font-size:90%;
+} 

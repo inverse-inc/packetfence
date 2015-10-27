@@ -1,44 +1,43 @@
-package pf::triggerParser::roles::fingerbank;
+package pf::factory::detect::parser;
+
 =head1 NAME
 
-pf::triggerParser::roles::fingerbank add documentation
+pf::factory::detect::parser
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::roles::fingerbank
+pf::factory::detect::parser
+
+Create a pfdetect parser by it's configuration ID
 
 =cut
 
 use strict;
 use warnings;
-use Moo::Role;
+use Module::Pluggable search_path => 'pf::detect::parser', sub_name => 'modules' , require => 1;
+use List::MoreUtils qw(any);
+use pf::detect::parser;
 
-has 'fingerbankModel' => ( required => 1, is => 'rw' );
+our @MODULES = __PACKAGE__->modules;
 
-has 'lookupField' => ( required => 1, is => 'rw', default => sub { "value" } );
+sub factory_for { 'pf::detect::parser' }
 
-=head2 search
-
-Lookup
-
-=cut
-
-sub search {
-    my ($self,$query) = @_;
-    my $lookup = $self->lookupField;
-    my ($status,$result) = $self->fingerbankModel->search([{ $lookup => { -like => "%$query%" } }]);
-    my @items;
-    foreach my $resultset ( @$result) {
-        while(my $row = $resultset->next) {
-            push @items, { display => $row->$lookup, value => $row->id };
-        }
-    }
-    return \@items;
+sub new {
+    my ($class,$name) = @_;
+    my $subclass = $class->getModuleName($name);
+    return $subclass->new;
 }
 
- 
+sub getModuleName {
+    my ($class,$name,$data) = @_;
+    my $mainClass = $class->factory_for;
+    my $subclass = "${mainClass}::${name}";
+    die "$name is not a valid type" unless any { $_ eq $subclass  } @MODULES;
+    $subclass;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -49,7 +48,7 @@ Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.

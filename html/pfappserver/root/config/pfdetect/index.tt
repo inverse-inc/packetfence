@@ -1,0 +1,27 @@
+      <div class="modal fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete syslog parser') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this syslog parser ?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Syslog parsers')  %]</h2>
+      <h4 class="alert alert-warning">Any change to the syslog parsers requires a restart of the pfdetect service.</h4>
+
+      [% INCLUDE config/pfdetect/list.tt %]
+
+      [%- IF can_access("PFDETECT_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Syslog parser') %]</a>
+      </div>
+      [%- END %]

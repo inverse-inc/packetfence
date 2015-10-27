@@ -1,29 +1,44 @@
-package pfappserver::Controller::Trigger;
-
+package pf::condition::includes;
 =head1 NAME
 
-pfappserver::Controller::Trigger - Catalyst Controller
+pf::condition::includes
+
+=cut
 
 =head1 DESCRIPTION
 
+pf::condition::includes
+
+Check if an array includes the value defined in the condition
+
 =cut
 
+use strict;
+use warnings;
 use Moose;
-BEGIN { extends 'pfappserver::Base::Controller'; }
+extends qw(pf::condition);
 
-use pf::factory::triggerParser;
+=head2 value
 
-
-=head1 METHODS
+Value that should be included in the array for the condition to be true
 
 =cut
 
-sub search : Local : Args(2) {
-    my ($self, $c, $trigger, $tid) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my $results;
-    my $tp = pf::factory::triggerParser->new($trigger);
-    $c->stash->{items} = $tp->search($tid);
+has value => (
+    is => 'ro',
+    required => 1,
+    isa  => 'Str',
+);
+
+=head2 match
+
+Check if the value is part of the array that is passed as an argument
+
+=cut
+
+sub match {
+    my ($self,$arg) = @_;
+    return $self->value ~~ $arg;
 }
 
 =head1 AUTHOR
@@ -53,6 +68,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+

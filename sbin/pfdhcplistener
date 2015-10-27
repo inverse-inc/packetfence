@@ -256,10 +256,6 @@ sub listen_dhcp {
         node_add_simple($dhcp->{'chaddr'});
     }
 
-    # FIXME throtle this
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($dhcp->{'chaddr'});
-
     # opcode 1 = request, opcode 2 = reply
 
     # Option 53: DHCP Message Type (RFC2132)

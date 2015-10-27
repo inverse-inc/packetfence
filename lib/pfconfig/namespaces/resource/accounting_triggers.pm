@@ -1,53 +1,36 @@
-package pf::triggerParser;
+package pfconfig::namespaces::resource::accounting_triggers;
+
 =head1 NAME
 
-pf::triggerParser
+pfconfig::namespaces::resource::accounting_triggers
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser
+pfconfig::namespaces::resource::accouting_triggers
 
 =cut
 
-use Moo;
+use strict;
+use warnings;
+use pfconfig::namespaces::FilterEngine::Violation;
 
+use base 'pfconfig::namespaces::resource';
 
-=head2 parseTid
-
-Parse the trigger id
-
-=cut
-
-sub parseTid {
-    my ($self, $type, $tid) = @_;
-    die("Invalid trigger id: ${type}::${tid}") unless $self->validateTid($tid);
-    return [$self->parseTidStartEnd($tid),$type];
+sub init {
+    my ($self) = @_;
+    $self->{_engine} = pfconfig::namespaces::FilterEngine::Violation->new;
+    $self->{_engine}->build();
 }
 
-sub validateTid {
-    my ($self,$tid) = @_;
-    return $tid =~ /^[L\d\.-]+\s*$/;
+sub build {
+    my ($self) = @_;
+
+    return $self->{_engine}->{accounting_triggers};
 }
 
-sub parseTidStartEnd {
-    my ($self,$tid) = @_;
-    if ($tid =~ /(\d+)-(\d+)/) {
-        if ($2 > $1) {
-            return ($1, $2);
-        }
-        else {
-            die("Invalid trigger range ($1 - $2)");
-        }
-    }
-    return ($tid,$tid);
-
-}
-
-sub search {
-    return [];
-}
+=back
 
 =head1 AUTHOR
 
@@ -77,3 +60,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

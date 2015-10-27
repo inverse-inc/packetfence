@@ -1,24 +1,32 @@
-package pf::triggerParser::soh;
+package pfappserver::Model::Config::Pfdetect;
+
 =head1 NAME
 
-pf::triggerParser::soh - Trigger for soh
+pfappserver::Model::Config::Pfdetect
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::triggerParser::soh
+pfappserver::Model::Config::Pfdetect
 
 =cut
 
-use strict;
-use warnings;
-use Moo;
-extends 'pf::triggerParser';
+use HTTP::Status qw(:constants is_error is_success);
+use Moose;
+use namespace::autoclean;
+use pf::config::cached;
+use pf::config;
+use pf::ConfigStore::Pfdetect;
 
-=head1 AUTHOR
+extends 'pfappserver::Base::Model::Config';
 
-Inverse inc. <info@inverse.ca>
+
+sub _buildConfigStore { pf::ConfigStore::Pfdetect->new }
+
+__PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 COPYRIGHT
 
