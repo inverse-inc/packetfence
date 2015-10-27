@@ -206,6 +206,7 @@ sub generate_radiusd_cluster {
         my @radius_backend = values %{pf::cluster::members_ips($int)};
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
+            next if($radius_back eq $management_network->{Tip} && isdisabled($Config{active_active}{auth_on_management}));
             $tags{'members'} .= <<"EOT";
 home_server pf$i.cluster {
         type = auth+acct
