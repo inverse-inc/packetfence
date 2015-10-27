@@ -33,6 +33,8 @@ Enhancements
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
+* Fix logrotation issue with the carbon daemons.
+
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
