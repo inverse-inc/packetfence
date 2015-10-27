@@ -16,12 +16,18 @@ Version X.Y.Z released on XXXX-YY-ZZ
 
 New Features
 ++++++++++++
-
 * New ntlm_auth wrapper will log authentication latency to StatsD automatically.
+* Added ability to e-mail device owner as a violation action
+* Added ability to trigger violations based on the Suricata alert description
+* Added the ability to create combined violation triggers which allow to trigger a violation based off multiple attributes of a node.
+* The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently.
+* pfdetect can now be configured through the administration interface
+* Suricata alerts can now trigger a violation based on the alert category instead of only the ID of the alert
 
 Enhancements
 ++++++++++++
 * Detects Microsoft Windows based captive-portal detection mecanisms
+* Reworked violation triggers creation in the administration interface so it's more user friendly
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
