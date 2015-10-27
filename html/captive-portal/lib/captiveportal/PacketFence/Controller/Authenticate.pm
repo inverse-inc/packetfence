@@ -8,6 +8,7 @@ use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;
 use pf::util;
+use pf::config::util;
 use pf::locationlog;
 use pf::authentication;
 use pf::Authentication::constants;
@@ -507,7 +508,7 @@ sub authenticationLogin : Private {
 
     my $username = _clean_username($request->param("username"));
     my $realm;
-    ($username, $realm) = strip_username($c,$username);
+    ($username, $realm) = strip_username($username);
     my $password = $request->param("password");
 
     my @sources = $self->getSources($c, $username, $realm);
@@ -557,14 +558,6 @@ sub getSources : Private {
     my $use_local_source = $c->stash->{use_local_source};
     my $profile = $c->stash->{profile};
 
-    my $realm_source;
-    if(exists $ConfigRealm{$realm}){
-        if(my $source = $ConfigRealm{$realm}{source}){
-            $c->log->info("Found auth source $source for realm $realm.");
-            $realm_source = pf::authentication::getAuthenticationSource($source);
-        }
-    }
-
     if ($use_local_source) {
         @sources = pf::authentication::getAuthenticationSource('local');
     } else {
@@ -577,14 +570,15 @@ sub getSources : Private {
         }
     }
 
+    my $realm_source = get_realm_source($stripped_username, $realm);
     if( $realm_source && any { $_ eq $realm_source} @sources ){
         $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
-    else {
+    elsif ( $realm_source ) {
         $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
-        return @sources;
     }
+    return @sources;
 }
 
 sub showLogin : Private {

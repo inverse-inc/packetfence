@@ -51,6 +51,7 @@ BEGIN {
     get_translatable_time trappable_mac
     portal_hosts
     get_user_sources
+    get_realm_source
   );
 }
 
@@ -378,9 +379,11 @@ sub portal_hosts {
     return @hosts;
 }
 
+sub get_realm_source {
+    my ($username, $realm) = @_;
 
-sub get_user_sources {
-    my ($profile, $username, $realm) = @_;
+    $realm = "null" unless(defined($realm));
+    $realm = lc $realm;
 
     my $realm_source;
     if(exists $ConfigRealm{$realm}){
@@ -389,6 +392,21 @@ sub get_user_sources {
             $realm_source = pf::authentication::getAuthenticationSource($source);
         }
     }
+    elsif(exists $ConfigRealm{default} && $realm ne "null"){
+        if(my $source = $ConfigRealm{default}{source}){
+            get_logger->info("Found auth source $source for realm $realm through the default configuration.");
+            $realm_source = pf::authentication::getAuthenticationSource($source);
+        }
+    }
+
+    return $realm_source;
+
+}
+
+sub get_user_sources {
+    my ($profile, $username, $realm) = @_;
+
+    my $realm_source = get_realm_source($username, $realm);
 
     my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
 
