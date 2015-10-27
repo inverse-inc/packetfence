@@ -689,7 +689,7 @@ Global config settings:
 Port 1 configuration:
 
   interface FastEthernet ALL
-  vlan ports 1 tagging unTagPvidOnly filter-unregistered-frames disable
+  vlan ports 1 tagging taggAll
   vlan members 2,3,4,5 1
   vlan ports 1 pvid 2
   eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
