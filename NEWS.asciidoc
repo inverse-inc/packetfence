@@ -23,6 +23,10 @@ New Features
 * The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently.
 * pfdetect can now be configured through the administration interface
 * Suricata alerts can now trigger a violation based on the alert category instead of only the ID of the alert
+* Authentication and accounting are now in two different RADIUS processes
+* Load balancing in an active/active process now uses a dedicated process
+* Added ability to detect hostname changes using the information in the DHCP packets.
+* Added the ability to create 'not equal' conditions in LDAP sources
 
 Enhancements
 ++++++++++++
@@ -31,11 +35,20 @@ Enhancements
 * Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members.
 * New portal profile filter (sub connection type)
 * Added switch IP and description in the available columns in the node list view
+* Refactoring and code cleanup
+* Use snmp to determine the ifindexbased on the Nas-Port-Id
+* Speed up switch creation
+* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
+* Move to the vlan filters to use the feature/filter-engine
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 * Fix logrotation issue with the carbon daemons.
-
+* Fix LLDP Telephone detection if only Telephone capabilitie is enable. #964
+* Fix keepalived and iptables configuration for portal interfaces
+* Fix improper httpd status code being set
+* Removed the node delete button.
+* Fixed detection if the device ask for a portal per uri
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
