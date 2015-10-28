@@ -22,23 +22,20 @@ extends qw(pf::detect::parser);
 sub parse {
     my ($self,$line) = @_;
 
-    if (index($line, "OSSEC") == -1) {
-        # Split the line on the Curly Brace { }
-        # Thanks to the guys on Freenode:#perl and google for helping
-        # with this regex.
-        my @Step1 = split(m/[{}](?![^{}!()]*\))/, $line);
+    # Alert line example
+    # Oct 28 13:37:42 poulichefencer sguil_alert: 13:37:42 pid(3403)  Alert Received: 0 2 misc-attack securityonion1-eth1 {2015-10-28 13:37:42} 3 88707 {ET TOR Known Tor Relay/Router (Not Exit) Node Traffic group 11} SRC.IP.AD.DR DST.IP.AD.DR 17 123 123 1 2522020 2376 7946 7946
+    # Split the line on the Curly Brace { }
+    my @split1 = split(m/[{}](?![^{}!()]*\))/, $line);
+    my @split2 = split(" ", $split1[4]);
 
-        # The stuff we need in in position 4
-        my @Step2 = split(" ", $Step1[4]);
+    my $data = {
+        date    => $split1[1],
+        descr   => $split1[3],
+        srcip   => $split2[0],
+        sid     => $split2[6],
+    };
 
-        my $data = {
-            srcip => $Step2[0],
-            sid   => $Step2[6],
-            descr => $Step1[3],
-        };
-
-        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid} } };
-    }
+    return { date => $data->{date}, srcip => $data->{srcip}, events => { detect => $data->{sid}, suricata => $data->{descr} } };
 }
 
 =head1 AUTHOR
