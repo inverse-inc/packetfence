@@ -931,7 +931,7 @@ sub throw : Public {
 =head2 detect_computername_change
 
 Will determine if a hostname has changed from what is currently stored in the DB
-Will alert the administrator if it changed
+Will try to trigger a violation with the trigger internal::hostname_change 
 
 =cut
 
