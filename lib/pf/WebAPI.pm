@@ -17,7 +17,6 @@ use ModPerl::Util;
 use pf::config;
 use pf::api;
 use pf::client;
-use pf::log;
 pf::client::setClient("pf::api::local");
 
 #uncomment for more debug information

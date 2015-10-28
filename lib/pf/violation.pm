@@ -29,7 +29,6 @@ use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::User_Agent;
-use pf::log;
 use pf::violation_config;
 use pf::node;
 
@@ -875,7 +874,7 @@ sub violation_run_delayed {
 
 sub _violation_run_delayed {
     my ($violation) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = get_logger();
     my $mac = $violation->{mac};
     my $vid = $violation->{vid};
     my %data = (status => 'open');

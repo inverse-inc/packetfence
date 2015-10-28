@@ -23,7 +23,6 @@ use warnings;
 use pf::log;
 use Readonly;
 use pf::node;
-use pf::log;
 use pf::person;
 use pf::util;
 use pf::violation_config;
@@ -79,7 +78,6 @@ use pf::config::util;
 use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
-use pf::log;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)

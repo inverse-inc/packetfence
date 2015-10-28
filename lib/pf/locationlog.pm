@@ -16,7 +16,6 @@ MAC-Switch-Port-VLAN history.
 use strict;
 use warnings;
 use pf::log;
-use pf::log;
 use pf::floatingdevice::custom;
 
 use constant LOCATIONLOG => 'locationlog';

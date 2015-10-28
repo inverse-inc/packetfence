@@ -25,7 +25,6 @@ use pf::iplog;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
 use pf::violation;
-use pf::log;
 
 =head1 Atrributes
 

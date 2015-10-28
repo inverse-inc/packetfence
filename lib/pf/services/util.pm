@@ -21,7 +21,6 @@ use Log::Log4perl::Level;
 use pf::log;
 use pf::log::trapper;
 use pf::file_paths;
-use pf::log;
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
 

@@ -40,7 +40,6 @@ use pf::node qw(node_add_simple node_exist);
 use pf::util;
 use pf::CHI;
 use pf::OMAPI;
-use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;

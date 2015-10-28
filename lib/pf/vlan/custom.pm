@@ -17,7 +17,6 @@ use strict;
 use warnings;
 
 use pf::log;
-use pf::log;
 
 use base ('pf::vlan');
 

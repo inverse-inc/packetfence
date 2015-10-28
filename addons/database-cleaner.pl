@@ -32,16 +32,8 @@ use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
-use pf::db;
-use DBI;
-use Data::Dumper;
-use Getopt::Long;
-use pf::log;
-use Pod::Usage;
-
 BEGIN {
-  use Log::Log4perl;
-  use pf::log();
+  use Log::Log4perl qw(get_logger);
   my $log_conf = q(
   log4perl.rootLogger              = INFO, SCREEN
   log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
@@ -51,6 +43,13 @@ BEGIN {
   );
   Log::Log4perl::init(\$log_conf);
 }
+
+use pf::db;
+use DBI;
+use Data::Dumper;
+use Getopt::Long;
+use Pod::Usage;
+
 
 =head2 new
 
@@ -89,7 +88,7 @@ sub seed_data {
     my $sth = $self->{dbh}->prepare("INSERT INTO `radacct` (`acctsessionid`, `acctuniqueid`, `acctstarttime`) VALUES (?,?,?)");
 
     foreach my $i (1..10000) {
-        $sth->bind_param(1, int(rand(10000))); 
+        $sth->bind_param(1, int(rand(10000)));
         $sth->bind_param(2, "dinde");
         $sth->bind_param(3, "2014-01-01");
         $sth->execute();
@@ -151,7 +150,7 @@ Main method/entry point of the script.
 sub execute {
     my %options = ();
     GetOptions (
-      \%options, 
+      \%options,
       "h!",
       "table=s",
       "date-field=s",

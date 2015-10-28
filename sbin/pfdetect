@@ -28,7 +28,6 @@ BEGIN {
     use pf::log(service => 'pfdetect');
 }
 
-use pf::log;
 use pf::action;
 use pf::class;
 use pf::config;
