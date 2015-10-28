@@ -26,7 +26,7 @@ BEGIN {
     use pf::log service => 'httpd.portal';
 }
 
-use pf:log;
+use pf::log;
 use pf::config;
 use pf::util;
 use pf::web::constants;

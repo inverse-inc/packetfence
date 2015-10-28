@@ -230,7 +230,7 @@ assigning VLANs and Roles at the same time.
 
 sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = $self->logger;
+    my $logger = $this->logger;
 
     my $radius_reply_ref = {};
 
