@@ -69,6 +69,9 @@ EOT
         if(defined($cfg->{type}) && $cfg->{type} =~ /management/){
             $tags{'vrrp'} .= "  notify \"$install_dir/bin/cluster/management_update\"\n";
         }
+        $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
+        $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
+        $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
 
         $tags{'vrrp'} .= <<"EOT";
   track_script {

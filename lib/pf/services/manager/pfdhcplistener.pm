@@ -89,7 +89,7 @@ sub managers {
 
 sub isManaged {
     my ($self) = @_;
-    return (isenabled($Config{'network'}{'dhcpdetector'}) && isenabled($Config{'services'}{$self->name})) && (!$pf::cluster::cluster_enabled || pf::cluster::is_management());;
+    return (isenabled($Config{'network'}{'dhcpdetector'}) && isenabled($Config{'services'}{$self->name}));
 }
 
 =head1 AUTHOR

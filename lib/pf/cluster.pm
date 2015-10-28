@@ -272,7 +272,31 @@ sub sync_storages {
     }
 }
 
+=head2 is_vip_running
 
+=cut
+
+sub is_vip_running {
+    my ($int) = @_;
+
+    if ( defined($ConfigCluster{$CLUSTER}->{"interface $int"}) ) {
+
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            if ($inf->name eq $int) {
+                my @masks = $inf->netmask(AF_INET());
+                my @addresses = $inf->address(AF_INET());
+                for my $i (0 .. $#masks) {
+                    if (inet_ntoa($addresses[$i]) eq cluster_ip($int)) {
+                        return $TRUE;
+                    }
+                }
+                return $FALSE;
+            }
+        }
+    }
+    return $FALSE;
+}
 
 =head1 AUTHOR
 

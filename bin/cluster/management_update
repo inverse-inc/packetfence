@@ -31,14 +31,12 @@ my $priority = $ARGV[3];
 
 if($state eq "MASTER"){
     $logger->info("Transition to master state, starting management services.");
-    `/usr/local/pf/bin/pfcmd service pfdhcplistener start`;
     `/usr/local/pf/bin/pfcmd service pfmon start`;
     my $interface = interface_for_ip($vrrp_ip);
     `arping -c 4 -A -I $interface $vrrp_ip`;
 }
 elsif($state eq "SLAVE"){
     $logger->info("Transition to master state, stoping management services.");
-    `/usr/local/pf/bin/pfcmd service pfdhcplistener stop`;
     `/usr/local/pf/bin/pfcmd service pfmon stop`;
 }
 
