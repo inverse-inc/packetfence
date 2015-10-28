@@ -96,7 +96,8 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
-            { table => 'iplog', name => 'ip', as => 'last_ip' }
+            { table => 'iplog', name => 'ip', as => 'last_ip' },
+            { table => 'locationlog', name => 'switch', as => 'switch_ip' }
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -149,6 +150,32 @@ sub make_builder {
                             \"( SELECT `ip` FROM `iplog` WHERE `mac` = `node`.`mac`
                                         ORDER BY `start_time` DESC LIMIT 1 )"
                         ]
+                    ],
+                },
+                {
+                    'table' => 'locationlog',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'mac',
+                            },
+                        ],
+                        [ 'AND' ],
+                           [
+                               {
+                                   'table'  => 'locationlog',
+                                   'name'   => 'end_time',
+                               },
+                               'IS NULL',
+                            ],
                     ],
                 },
         );
