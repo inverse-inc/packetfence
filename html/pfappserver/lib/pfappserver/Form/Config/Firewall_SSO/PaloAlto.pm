@@ -69,7 +69,7 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories) ],
+   render_list => [ qw(id type password port categories cache_updates cache_timeout) ],
   );
 
 has_field 'uid' =>
