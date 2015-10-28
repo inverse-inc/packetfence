@@ -203,6 +203,7 @@ sub post_auth {
     };
     if ($@) {
         &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
+        return server_error_handler();
     }
 
     $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
