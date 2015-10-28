@@ -52,6 +52,12 @@ rogue_dhcp_detection=enabled
 # setting of 10, it will email administrators the details of the previous 10 DHCP offers.
 rogueinterval=10
 #
+# network.hostname_change_detection
+#
+# Will identify hostname changes and send an e-mail with these changes.
+# This can help detect MAC spoofing.
+hostname_change_detection=disabled
+#
 # network.dhcpoption82logger
 #
 # If enabled PacketFence will monitor DHCP option82 location-based information.

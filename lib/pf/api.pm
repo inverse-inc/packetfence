@@ -20,6 +20,7 @@ use pf::log();
 use pf::authentication();
 use pf::Authentication::constants;
 use pf::config();
+use pf::config::util();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
@@ -927,6 +928,31 @@ sub throw : Public {
     die "This will always die\n";
 }
 
+=head2 detect_computername_change
+
+Will determine if a hostname has changed from what is currently stored in the DB
+Will try to trigger a violation with the trigger internal::hostname_change 
+
+=cut
+
+sub detect_computername_change : Public {
+    my ( $class, $mac, $new_computername ) = @_;
+    my $logger = pf::log::get_logger;
+    my $node_attributes = pf::node::node_attributes($mac);
+
+    if(defined($node_attributes->{computername}) && $node_attributes->{computername}){
+        if($node_attributes->{computername} ne $new_computername){
+            $logger->warn(
+              "[$mac]Computername change detected ".
+              "( ".$node_attributes->{computername}." -> $new_computername ).".
+              "Possible MAC spoofing.");
+
+            pf::violation::violation_trigger($mac, "hostname_change", "internal");
+            return 1;
+        }
+    }
+    return 0;
+}
 
 =head1 AUTHOR
 

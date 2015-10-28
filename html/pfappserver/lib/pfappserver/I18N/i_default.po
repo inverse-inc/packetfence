@@ -7166,6 +7166,10 @@ msgstr "Rogue DHCP detection"
 msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
+# conf/documentation.conf
+msgid "network.hostname_change_detection"
+msgstr "Detect hostname changes"
+
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "nickname"
