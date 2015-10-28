@@ -412,7 +412,7 @@ sub get_realm_source {
 
 =head2 get_user_sources
 
-Get internal and external sources for a username and realm
+Get internal and exclusive sources for a username and realm
 
 =cut
 
