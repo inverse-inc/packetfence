@@ -6072,6 +6072,10 @@ msgstr "Shared KEY"
 msgid "active_active.virtual_router_id"
 msgstr "Virtual Router ID"
 
+# conf/documentation.conf
+msgid "active_active.auth_on_management"
+msgstr "RADIUS authentication on management"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"

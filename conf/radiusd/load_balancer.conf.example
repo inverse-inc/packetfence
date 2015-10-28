@@ -1,0 +1,24 @@
+
+pidfile = %%pid_file%%
+
+$INCLUDE radiusd.conf
+
+listen {
+        ipaddr = %%virt_ip%%
+        port = 0
+        type = auth
+        virtual_server = pf.cluster
+}
+
+listen {
+        ipaddr = %%virt_ip%%
+        port = 0
+        type = acct
+        virtual_server = pf.cluster
+}
+
+listen {
+    type = control
+    socket = %%socket_file%%
+    mode = rw
+}
