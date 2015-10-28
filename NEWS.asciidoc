@@ -30,10 +30,10 @@ Enhancements
 * Reworked violation triggers creation in the administration interface so it's more user friendly
 * Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members.
 * New portal profile filter (sub connection type)
+* Added switch IP and description in the available columns in the node list view
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
-
 * Fix logrotation issue with the carbon daemons.
 
 
