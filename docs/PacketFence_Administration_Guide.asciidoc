@@ -2235,7 +2235,7 @@ Once Security Onion is installed and basically configured, integration with Pack
 
 The most simple way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
 
-On the Security Onion server;
+On the Security Onion server:
 
 NOTE: Must be done on the master server running 'sguild'.
 
@@ -2261,7 +2261,7 @@ A restart of the syslog-ng daemon is then required
 
   service syslog-ng restart
 
-On the PacketFence server;
+On the PacketFence server:
 
 Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
 
