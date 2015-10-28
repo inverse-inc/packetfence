@@ -379,6 +379,13 @@ sub portal_hosts {
     return @hosts;
 }
 
+=head2 get_realm_source
+
+Get a source for a specific username and realm
+Will look it up in the realm configuration
+
+=cut
+
 sub get_realm_source {
     my ($username, $realm) = @_;
 
@@ -402,6 +409,12 @@ sub get_realm_source {
     return $realm_source;
 
 }
+
+=head2 get_user_sources
+
+Get internal and external sources for a username and realm
+
+=cut
 
 sub get_user_sources {
     my ($profile, $username, $realm) = @_;
