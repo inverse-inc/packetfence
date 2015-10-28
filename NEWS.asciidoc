@@ -29,6 +29,7 @@ Enhancements
 * Detects Microsoft Windows based captive-portal detection mecanisms
 * Reworked violation triggers creation in the administration interface so it's more user friendly
 * Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members.
+* New portal profile filter (sub connection type)
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
