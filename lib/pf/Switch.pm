@@ -1650,9 +1650,16 @@ The input must be the untranslated raw result of an snmp get_table
 =cut
 
 # TODO move out to a util package
+
 sub getBitAtPosition {
-   my ($this, $bitStream, $position) = @_;
-   return substr(unpack('B*', $bitStream), $position, 1);
+    my ($this, $bitStream, $position) = @_;
+    my $bin;
+    my @bitStream = split('0x', $bitStream);
+    while (my $tmp = substr($bitStream[1], -2, 2, undef))
+        {
+        $bin = unpack("B8", pack("H2", $tmp)) . $bin;
+        }
+    return substr($bin, $position, 1);
 }
 
 =item modifyBitmask

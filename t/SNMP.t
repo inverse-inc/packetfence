@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 31;
+use Test::More tests => 34;
 use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
@@ -140,6 +140,16 @@ is($switch->getRoleByName('admin'), undef, 'category but no assignment expecting
 $switch = pf::SwitchFactory->instantiate('10.0.0.9');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (not cached)');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (from cache)');
+
+# 0x0400 is 0000 0100 0000 0000
+is($switch->getBitAtPosition(0x0400, 5), 1, 'getBitAtPosition returns correct bit set to 1');
+
+# 0x04 is 0000 0100
+is($switch->getBitAtPosition(0x04, 5), 1, 'getBitAtPosition returns correct bit set to 1');
+
+# 0x40 is 0100 0000
+is($switch->getBitAtPosition(0x40, 5), 0, 'getBitAtPosition returns correct bit set to 0');
+
 
 =head1 AUTHOR
 
