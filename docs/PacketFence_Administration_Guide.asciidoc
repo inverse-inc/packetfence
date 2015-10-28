@@ -2263,9 +2263,10 @@ A restart of the syslog-ng daemon is then required
 
 On the PacketFence server;
 
-Configure `/etc/rsyslog.d/security_onion` by adding the followings which will enable reception of Security Onion sguild log entries:
+Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
 
   :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
+  & ~
 
 Make sure the receiving alert pipe (FIFO) exists
 
