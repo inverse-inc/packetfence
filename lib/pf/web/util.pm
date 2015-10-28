@@ -39,7 +39,6 @@ BEGIN {
         get_memcached
         get_memcached_conf
         set_memcached
-        session
     );
 }
 

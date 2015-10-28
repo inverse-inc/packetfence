@@ -17,7 +17,6 @@ use warnings;
 
 use Log::Log4perl;
 use pf::api::jsonrpcclient;
-use pf::web::util qw(session);
 use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
 
@@ -88,7 +87,7 @@ sub handleAnswerInRule {
 sub setSession {
     my($args) = @_;
     my (%session_id);
-    session(\%session_id,undef,6);
+    pf::web::util::session(\%session_id,undef,6);
     $session_id{client_mac} = $args->{'mac'};
     $session_id{wlan} = $args->{'ssid'};
     $session_id{switch_id} = $args->{'switch'}{'_id'};
