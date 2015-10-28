@@ -17,7 +17,6 @@ Should work on all HP Wireless Access Point
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch::HP::Controller_MSM710');
@@ -44,7 +43,7 @@ Method to deauthenticate a node with SSH
 
 sub _deauthenticateMacWithSSH {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $session;
     my @addition_ops;
     if (defined $this->{_controllerPort} && $this->{_cliTransport} eq 'SSH' ) {
@@ -89,7 +88,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH  => '_deauthenticateMacWithSSH',

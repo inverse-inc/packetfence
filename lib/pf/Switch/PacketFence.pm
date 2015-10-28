@@ -19,14 +19,13 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 
 sub description { 'PacketFence' }
 
 sub connectWrite {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( defined( $this->{_sessionWrite} ) ) {
         return 1;
     }
@@ -50,7 +49,7 @@ sub sendLocalReAssignVlanTrap {
     my ($this, $switch, $ifIndex, $connection_type, $mac) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -90,7 +89,7 @@ sub sendLocalDesAssociateTrap {
     my ($this, $switch, $mac, $connection_type) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectWrite() ) {
         return 0;
     }
@@ -121,7 +120,7 @@ sub sendLocalFirewallRequestTrap {
     my ($this, $switch, $mac) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectWrite() ) {
         return 0;
     }

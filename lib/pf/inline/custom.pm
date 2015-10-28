@@ -15,7 +15,6 @@ This module extends pf::inline
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use base ('pf::inline');
 use pf::config;

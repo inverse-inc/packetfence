@@ -37,7 +37,6 @@ Nothing documented at this point.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::Appliance::Session;
 use Try::Tiny;
 
@@ -77,7 +76,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this) = @_;
     my $oid_AeroHiveSoftwareVersion = '1.3.6.1.2.1.1.1.0'; #
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -102,7 +101,7 @@ Old roaming snmp support has been commented if you need to activate it then unco
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
 #    if ($trapString =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: $AEROHIVE::ahConnectionChangeEvent/ ) {
 #        $trapHashRef->{'trapType'} = 'roaming';
@@ -145,7 +144,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
@@ -170,7 +169,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub _deauthenticateMacTelnet {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't deauthenticate");
@@ -231,7 +230,7 @@ assigning VLANs and Roles at the same time.
 
 sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $radius_reply_ref = {};
 
@@ -287,7 +286,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',

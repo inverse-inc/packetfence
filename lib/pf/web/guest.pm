@@ -28,7 +28,6 @@ use warnings;
 use Encode;
 use File::Basename;
 use HTML::Entities;
-use Log::Log4perl;
 use Net::LDAP;
 use POSIX;
 use Readonly;
@@ -44,6 +43,7 @@ BEGIN {
     @EXPORT = qw();
 }
 
+use pf::log;
 use pf::constants;
 use pf::config;
 use pf::password;
@@ -93,7 +93,7 @@ Return the Acceptable User Policy (AUP) defined in the template file
 =cut
 
 sub aup {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $html;
     my $template = Template->new({
@@ -110,7 +110,7 @@ sub aup {
 
 sub send_template_email {
     my ($template, $subject, $info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    my $logger = get_logger();
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     # local override (EMAIL_FROM) or pf.conf's value or root@domain

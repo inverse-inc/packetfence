@@ -171,7 +171,7 @@ sub _build_destinationUrl {
 
 sub _build_clientIp {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     # we fetch CGI's remote address
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP

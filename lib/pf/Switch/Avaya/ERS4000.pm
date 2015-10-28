@@ -19,7 +19,6 @@ use strict;
 use warnings;
 
 use pf::Switch::constants;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Avaya');

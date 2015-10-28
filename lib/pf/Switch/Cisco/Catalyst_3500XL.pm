@@ -21,7 +21,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco');
-use Log::Log4perl;
 use Carp;
 use Net::Appliance::Session;
 use Net::SNMP;
@@ -33,7 +32,7 @@ sub description { 'Cisco Catalyst 3500XL Series' }
 
 sub getMinOSVersion {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '12.0(5)WC15';
 }
 
@@ -48,7 +47,7 @@ TODO: This list is incomplete
 # return the list of managed ports
 sub getManagedPorts {
     my $this        = shift;
-    my $logger      = Log::Log4perl::get_logger( ref($this) );
+    my $logger      = $this->logger;
     my $oid_ifType  = '1.3.6.1.2.1.2.2.1.3';                    # MIB: ifTypes
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
     my @nonUpLinks;
@@ -138,7 +137,7 @@ sub clearMacAddressTable {
     my $command;
     my $session;
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
-    my $logger      = Log::Log4perl::get_logger( ref($this) );
+    my $logger      = $this->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
@@ -187,7 +186,7 @@ sub clearMacAddressTable {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #CISCO-C2900-MIB
     my $OID_c2900PortUsageApplication       = '1.3.6.1.4.1.9.9.87.1.4.1.1.3';
@@ -290,7 +289,7 @@ sub getMaxMacAddresses {
 
 sub ping {
     my ( $this, $ip ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $result;
     my $random;
 

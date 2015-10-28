@@ -14,7 +14,7 @@ All the behavior contained here can be overridden in lib/pf/inline/custom.pm.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::constants;
 use pf::config;
@@ -36,7 +36,7 @@ Usually you don't want to call this constructor but use the pf::inline::custom s
 =cut
 
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::inline");
+    my $logger = get_logger();
     $logger->debug("instantiating new pf::inline object");
     my ( $class, %argv ) = @_;
     my $this = bless {}, $class;
@@ -51,7 +51,7 @@ Instantiate the correct iptables modification method between iptables and ipset
 =cut
 
 sub get_technique {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $type;
     $type = "pf::ipset";
 
@@ -76,7 +76,7 @@ sub get_technique {
 
 sub performInlineEnforcement {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = get_logger(ref($this));
 
     # What is the MAC's current state?
     my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
@@ -115,7 +115,7 @@ sub isInlineEnforcementRequired {
 
 sub fetchMarkForNode {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = get_logger(ref($this));
 
     # Violation first
     my $open_violation_count = violation_count_reevaluate_access($mac);

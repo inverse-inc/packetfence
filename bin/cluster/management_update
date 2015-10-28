@@ -21,7 +21,7 @@ use pf::log;
 use Net::Interface;
 use Socket;
 
-my $logger = get_logger;
+my $logger = get_logger();
 
 $logger->info("Refreshing services for management mode");
 

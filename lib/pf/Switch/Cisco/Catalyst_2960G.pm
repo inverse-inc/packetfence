@@ -23,7 +23,7 @@ LIMITATIONS section of L<pf::Switch::Cisco::Catalyst_2960>.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::config;
@@ -47,7 +47,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # ex: 50023 is ifIndex 10123
     if ($NAS_port =~ s/^500/101/) {

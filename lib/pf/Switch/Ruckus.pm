@@ -39,7 +39,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::constants;
@@ -82,7 +81,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this)       = @_;
     my $oid_ruckusVer = '1.3.6.1.4.1.25053.1.2.1.1.1.1.18';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -109,7 +108,7 @@ All traps ignored
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # Handle WIPS Trap
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
@@ -132,7 +131,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -156,7 +155,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -183,7 +182,7 @@ status code
 
 sub parseUrl {
     my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),$$req->param('uip'),$$req->param('url'),undef,undef);
 }
 
@@ -195,7 +194,7 @@ Creates the form that should be given to the client device to trigger a reauthen
 
 sub getAcceptForm {
     my ( $self, $mac , $destination_url, $cgi_session) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     $logger->debug("[$mac] Creating web release form");
 
     my $client_ip = $cgi_session->param("ecwp-original-param-uip");

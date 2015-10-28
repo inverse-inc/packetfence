@@ -19,7 +19,6 @@ Otherwise this module is identical to pf::Switch::Nortel.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Nortel');

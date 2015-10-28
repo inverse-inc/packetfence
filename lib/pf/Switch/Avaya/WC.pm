@@ -35,7 +35,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::constants;
 use pf::config;
@@ -67,7 +66,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this)        = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
-    my $logger        = Log::Log4perl::get_logger( ref($this) );
+    my $logger        = $this->logger;
 
     if ( !$this->connectRead() ) {
         return '';
@@ -90,7 +89,7 @@ All traps ignored
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # example disassociate trap on MAC 00 1B B1 8B 82 13
     # BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (865381) 2:24:13.81|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.388.14.5.1.7.1.6|.1.3.6.1.4.1.388.14.5.1.7.1.1 = Hex-STRING: 00 1B B1 8B 82 13 |.1.3.6.1.4.1.388.14.3.3.1.2.2.1.1 = Counter32: 1|.1.3.6.1.4.1.388.14.4.1.4.1.1.1 = INTEGER: 31|.1.3.6.1.4.1.388.14.4.1.4.1.1.2 = INTEGER: 4|.1.3.6.1.4.1.388.14.4.1.4.1.1.4 = STRING: "disassociated"|.1.3.6.1.4.1.388.14.4.1.4.1.1.5 = Hex-STRING: 07 DA 09 1B 09 25 0F 00 |.1.3.6.1.4.1.388.14.4.1.4.1.1.8 = INTEGER: 2 END VARIABLEBINDINGS
@@ -112,7 +111,7 @@ deauthenticateMacDefault a MAC address from wireless network (including 802.1x)
 
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $oid_avWlanAssociatedClientDisassociateAction = '1.3.6.1.4.1.45.7.9.1.1.1.10';
 
     if ( !$this->isProductionMode() ) {
@@ -150,7 +149,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

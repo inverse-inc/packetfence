@@ -18,7 +18,7 @@ All the behavior contained here can be overridden in lib/pf/radius/custom.pm.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use pf::authentication;
@@ -54,7 +54,7 @@ our $VERSION = 1.03;
 =cut
 
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::radius");
+    my $logger = get_logger();
     $logger->debug("instantiating new pf::radius object");
     my ( $class, %argv ) = @_;
     my $this = bless {}, $class;
@@ -75,7 +75,7 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # scalar return without updating the clients.
 sub authorize {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
 
     my $start = Time::HiRes::gettimeofday();
@@ -250,7 +250,7 @@ sub authorize {
 
 sub accounting {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
@@ -319,7 +319,7 @@ Update the location log based on the accounting information
 
 sub update_locationlog_accounting {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
@@ -382,7 +382,7 @@ sub _parseRequest {
 
 sub extractApMacFromRadiusRequest {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     # it's put in Called-Station-Id
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
     if (defined($radius_request->{'Called-Station-Id'})) {
@@ -409,7 +409,7 @@ returns 0 for no, 1 for yes
 
 sub _doWeActOnThisCall {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     $logger->trace("_doWeActOnThisCall called");
 
     # lets assume we don't act
@@ -446,7 +446,7 @@ returns 0 for no, 1 for yes
 
 sub _doWeActOnThisCallWireless {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     $logger->trace("_doWeActOnThisCallWireless called");
 
     # for now we always act on wireless radius authorize
@@ -463,7 +463,7 @@ returns 0 for no, 1 for yes
 
 sub _doWeActOnThisCallWired {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     $logger->trace("[$mac] _doWeActOnThisCallWired called");
 
     # for now we always act on wired radius authorize
@@ -482,7 +482,7 @@ Returns the same structure as authorize(), see it's POD doc for details.
 
 sub _authorizeVoip {
     my ($this, $connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
     if (!$switch->supportsRadiusVoip()) {
@@ -511,7 +511,7 @@ sub _authorizeVoip {
 
 sub _translateNasPortToIfIndex {
     my ($this, $conn_type, $switch, $port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (($conn_type & $WIRED) == $WIRED) {
         $logger->trace("(" . $switch->{_id} . ") translating NAS-Port to ifIndex for proper accounting");
@@ -531,7 +531,7 @@ Determines if switch is supported by current connection type.
 
 sub _isSwitchSupported {
     my ($this, $switch, $conn_type) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if ($conn_type == $WIRED_MAC_AUTH) {
         return $switch->supportsWiredMacAuth();
@@ -554,7 +554,7 @@ sub _isSwitchSupported {
 
 sub _switchUnsupportedReply {
     my ($this, $switch) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $logger->warn("(" . $switch->{_id} . ") Sending REJECT since switch is unsupported");
     $switch->disconnectRead();
@@ -573,7 +573,7 @@ This is meant to be overridden in L<pf::radius::custom>.
 
 sub _shouldRewriteAccessAccept {
     my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return $FALSE;
 }
@@ -591,7 +591,7 @@ This is meant to be overridden in L<pf::radius::custom>.
 
 sub _rewriteAccessAccept {
     my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return $RAD_REPLY_REF;
 }
@@ -599,7 +599,7 @@ sub _rewriteAccessAccept {
 sub _handleStaticPortSecurityMovement {
     my ($self,$switch,$mac) = @_;
     my $start = Time::HiRes::gettimeofday();
-    my $logger = Log::Log4perl::get_logger("pf::radius");
+    my $logger = $self->logger;
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     #Nothing to do if there is no location log
@@ -651,7 +651,7 @@ Takes care of handling the flow for the RADIUS floating devices when receiving a
 
 sub _handleAccessFloatingDevices{
     my ($this, $switch, $mac, $port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     if( exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         $floatingDeviceManager->enableMABFloating($mac, $switch, $port);
@@ -666,7 +666,7 @@ Takes care of handling the flow for the RADIUS floating devices when receiving a
 
 sub _handleAccountingFloatingDevices{
     my ($this, $switch, $mac, $port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     $logger->debug("Verifying if $mac has to be handled as a floating");
     if (exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
@@ -684,6 +684,17 @@ sub _handleAccountingFloatingDevices{
         # disable floating device mode on the port
         $floatingDeviceManager->disableMABFloating($switch, $port);
     }
+}
+
+=item logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =back

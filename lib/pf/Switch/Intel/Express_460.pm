@@ -19,7 +19,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Intel');
 
@@ -27,14 +26,14 @@ sub description { 'Intel Express 460' }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '4.60.89';
 }
 
 sub getVersion {
     my ($this) = @_;
     my $oid_es400AgentRuntimeSwVersion = '1.3.6.1.4.1.343.6.17.1.1.1.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -54,7 +53,7 @@ sub getVersion {
 
 sub getAllVlans {
     my ( $this, @ifIndexes ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $vlanHashRef;
     if ( !@ifIndexes ) {
         @ifIndexes = $this->getManagedIfIndexes();
@@ -78,7 +77,7 @@ sub getAllVlans {
 
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -91,7 +90,7 @@ sub getVlan {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -194,7 +193,7 @@ sub _setVlan {
 
 sub setAdminStatus {
     my ( $this, $ifIndex, $enabled ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_es400PortConfigAdminState = '1.3.6.1.4.1.343.6.17.3.2.1.2';
     if ( !$this->connectWrite() ) {
         return 0;

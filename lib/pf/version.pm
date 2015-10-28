@@ -58,7 +58,7 @@ Checks the version of database schema
 =cut
 
 sub version_check_db {
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $current_pf_minor_version = version_get_current();
     $current_pf_minor_version =~ s/(\.\d+).*$/$1/; # Keeping only the major/minor part (i.e: X.Y.Z -> X.Y)
@@ -86,7 +86,7 @@ Get the last schema version in the datbase
 =cut
 
 sub version_get_last_db_version {
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $sth = db_query_execute(PF_VERSION, $version_statements, 'version_get_last_db_version_sql');
     unless ( $sth ) {

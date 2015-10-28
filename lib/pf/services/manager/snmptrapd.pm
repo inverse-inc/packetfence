@@ -73,7 +73,7 @@ Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and o
 =cut
 
 sub _fetch_trap_users_and_communities {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my %switchConfig = %{ pf::SwitchFactory->config };
 

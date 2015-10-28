@@ -31,7 +31,7 @@ extends 'Catalyst::Model';
 
 sub create {
     my ( $self, $interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -79,7 +79,7 @@ sub create {
 sub delete {
     my ($self, $interface, $host) = @_;
     my $models = $self->{models};
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -137,7 +137,7 @@ sub delete {
 
 sub down {
     my ( $self, $interface, $host ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -222,7 +222,7 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 
 sub get {
     my ( $self, $interface) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $models = $self->{models};
 
     # Put requested interfaces into an array
@@ -271,7 +271,7 @@ sub get {
 sub update {
     my ($self, $interface, $interface_ref) = @_;
     my $models = $self->{models};
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($ipaddress, $netmask, $status, $status_msg);
 
@@ -420,7 +420,7 @@ sub getType {
 
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
@@ -494,7 +494,7 @@ sub interfaceForDestination {
 
     my @interfaces = $self->_listInterfaces('all');
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     foreach my $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
@@ -619,7 +619,7 @@ Process parameters to build a proper pf.conf interface section.
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
     my ($self, $int, $int_model, $type) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $int_config_ref = {
         ip => $int_model->{'ipaddress'},
@@ -660,7 +660,7 @@ sub _prepare_interface_for_pfconf {
 
 sub up {
     my ( $self, $interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 

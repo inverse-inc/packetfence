@@ -13,7 +13,6 @@ Module to manage Trapeze controllers
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::Appliance::Session;
 use POSIX;
 
@@ -62,7 +61,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this) = @_;
     my $oid_ntwsVersionString = '1.3.6.1.4.1.45.6.1.4.2.1.4';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -97,7 +96,7 @@ This is called when we receive an SNMP-Trap for this device
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -115,7 +114,7 @@ Right now te only way to do it is from the CLi (through Telnet or SSH).
 
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't deauthenticate $mac");
@@ -183,7 +182,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::TELNET;
     my %tech = (
         $SNMP::TELNET => 'deauthenticateMacDefault',

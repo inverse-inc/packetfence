@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use POSIX;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;

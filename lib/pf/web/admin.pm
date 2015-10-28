@@ -26,8 +26,8 @@ use Apache2::Connection;
 use Data::Dumper;
 
 use APR::URI;
-use Log::Log4perl;
 use List::MoreUtils qw(uniq);
+use pf::log;
 
 use pf::config;
 use pf::util;
@@ -85,7 +85,7 @@ Rewrite Location header and links to Packetfence captive portal.
 sub rewrite {
     my $f = shift;
     my $r = $f->r;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if ($r->content_type =~ /(text\/xml|text\/html|application\/vnd.ogc.wms_xml|text\/css|application\/x-javascript)/) {
         unless ($f->ctx) {
             $f->r->headers_out->unset('Content-Length');
@@ -159,11 +159,11 @@ Proxy request to the captive portal
 
 sub proxy_portal {
     my ($self, $r) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my @interfaces = uniq (@internal_nets, @portal_ints );
     my $s = $r->server;
     if ($r->uri =~ /portal_preview\/(.*)/) {
-         $r->headers_in->{'X-Forwarded-For'} = $management_network->{'Tip'}; 
+         $r->headers_in->{'X-Forwarded-For'} = $management_network->{'Tip'};
          my $interface = $interfaces[0];
          $r->set_handlers(PerlResponseHandler => []);
          $r->add_output_filter(\&rewrite);
@@ -188,7 +188,7 @@ sub proxy_portal {
 
 =item replace
 
-Uncompress, search for links , replace and compress 
+Uncompress, search for links , replace and compress
 
 =cut
 

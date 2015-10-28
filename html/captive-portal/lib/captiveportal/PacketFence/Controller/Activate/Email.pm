@@ -4,7 +4,6 @@ use namespace::autoclean;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-use Log::Log4perl;
 use POSIX;
 
 use pf::constants;
@@ -56,7 +55,7 @@ sub code : Path : Args(1) {
     my $profile       = $c->profile;
     my $node_mac;
     my $request = $c->request;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
 
     # validate code
     my $activation_record = pf::activation::validate_code($code);
@@ -124,7 +123,7 @@ TODO: documention
 sub doEmailRegistration : Private {
     my ( $self, $c, $code ) = @_;
     my $request           = $c->request;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $activation_record = $c->stash->{activation_record};
     my $profile           = $c->profile;
     my $node_mac          = $c->portalSession->guestNodeMac;
@@ -224,7 +223,7 @@ TODO: documention
 
 sub doSponsorRegistration : Private {
     my ( $self, $c, $code ) = @_;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $request           = $c->request;
     my $activation_record = $c->stash->{activation_record};
     my $portalSession     = $c->portalSession;
@@ -317,7 +316,7 @@ sub doSponsorRegistration : Private {
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 

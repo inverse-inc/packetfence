@@ -15,7 +15,6 @@ It should work on all D2 switches and maybe more.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 use pf::Switch::constants;
@@ -42,7 +41,7 @@ sub supportsWiredMacAuth { return $SNMP::TRUE; }
 # maybe the Matrix N3's telnet code would be a safer bet?
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if (!$this->connectRead()) {
         return 0;
     }

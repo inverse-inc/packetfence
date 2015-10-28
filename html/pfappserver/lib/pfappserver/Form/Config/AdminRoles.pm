@@ -18,7 +18,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
-use pf::log;
 
 has roles => ( is => 'rw', default => sub { [] } );
 

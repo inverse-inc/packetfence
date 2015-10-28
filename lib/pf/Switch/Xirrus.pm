@@ -23,7 +23,6 @@ SNMPv3 support is untested.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch');
@@ -61,7 +60,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -84,7 +83,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # wlsxNUserEntryDeAuthenticated: 1.3.6.1.4.1.14823.2.3.1.11.1.2.1017
 
@@ -107,7 +106,7 @@ deauthenticate a MAC address from wireless network (including 802.1x)
 
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $OID_stationDeauthMacAddress = '1.3.6.1.4.1.21013.1.2.22.3.0'; # from XIRRUS-MIB
 
     if ( !$this->isProductionMode() ) {
@@ -143,7 +142,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -170,7 +169,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -245,7 +244,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

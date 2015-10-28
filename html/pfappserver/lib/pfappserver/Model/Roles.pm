@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::error qw(is_error is_success);
 use pf::nodecategory;
 
@@ -28,7 +29,7 @@ use pf::nodecategory;
 sub exists {
     my ( $self, $id ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my $result = ();
@@ -56,7 +57,7 @@ sub exists {
 sub list {
     my ( $self ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @categories;
@@ -79,7 +80,7 @@ sub list {
 sub read {
     my ($self, $role_id) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -105,7 +106,7 @@ sub read {
 sub create {
   my ($self, $name, $max_nodes_per_pid, $notes) = @_;
 
-  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+  my $logger = get_logger();
   my ($status, $status_msg) = ($STATUS::OK, 'The role was succesfully created.');
 
   eval {
@@ -127,7 +128,7 @@ sub create {
 sub delete {
     my ($self, $role_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -149,7 +150,7 @@ sub delete {
 sub update {
     my ($self, $role_ref, $name, $max_nodes_per_pid, $notes) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
     $logger->debug("category: $role_ref->{category_id}");
     eval {

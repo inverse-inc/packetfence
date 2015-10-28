@@ -30,7 +30,7 @@ use pf::node;
 use pf::nodecategory;
 use pf::iplog;
 use pf::locationlog;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use pf::node;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
@@ -227,7 +227,7 @@ Create and register a node
 sub create {
     my ($self, $data) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result) = ($STATUS::CREATED);
     my $mac = $data->{mac};
     my $pid = $data->{pid} || $default_pid;
@@ -301,7 +301,7 @@ See pf::import::nodes
 sub importCSV {
     my ($self, $data, $user) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $message);
     my $filename = $data->{nodes_file}->filename;
     my $tmpfilename = $data->{nodes_file}->tempname;

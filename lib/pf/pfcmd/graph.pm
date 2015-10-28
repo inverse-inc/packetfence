@@ -9,7 +9,6 @@ pf::pfcmd::graph - module feeding data to generate the graphics
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use constant GRAPH => 'pfcmd::graph';
 

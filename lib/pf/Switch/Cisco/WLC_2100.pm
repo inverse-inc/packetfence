@@ -37,7 +37,6 @@ Requires IOS 5 or later.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::Appliance::Session;
 use Net::SNMP;
 
@@ -82,7 +81,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $mac = format_mac_as_cisco($mac);
     if ( !defined($mac) ) {

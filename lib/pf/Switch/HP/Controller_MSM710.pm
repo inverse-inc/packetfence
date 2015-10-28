@@ -25,7 +25,6 @@ presents some issues, the SNMP deauthentication is not working.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch');
@@ -59,7 +58,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0'; #SNMPv2-MIB
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -82,7 +81,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
     # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
@@ -105,7 +104,7 @@ sub parseTrap {
 
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $OID_coDevWirCliStaMACAddress = '1.3.6.1.4.1.8744.5.25.1.7.1.1.2'; # from COLUBRIS-DEVICE-WIRELESS-MIB
     my $OID_coDevWirCliDisassociate = '1.3.6.1.4.1.8744.5.25.1.7.1.1.27'; # from COLUBRIS-DEVICE-WIRELESS-MIB
 
@@ -156,7 +155,7 @@ HP / Colubris specific parser. See pf::Switch for base implementation.
 
 sub extractSsid {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (defined($radius_request->{'Colubris-AVPair'})) {
         # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
@@ -184,7 +183,7 @@ Method to deauthenticate a node with SSH
 
 sub _deauthenticateMacWithSSH {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $session;
     my @addition_ops;
     if (defined $this->{_controllerPort} && $this->{_cliTransport} eq 'SSH' ) {
@@ -229,7 +228,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

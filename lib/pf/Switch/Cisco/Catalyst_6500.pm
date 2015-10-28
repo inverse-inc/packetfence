@@ -29,7 +29,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -52,7 +51,7 @@ The 6500's security table is per port per Vlan as opposed to per port (as most o
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -99,7 +98,7 @@ Changed authVlan's deauthVlan to authVlan.
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     if ( !$this->isProductionMode() ) {

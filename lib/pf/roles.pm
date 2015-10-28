@@ -26,7 +26,7 @@ Singleton patterns means you should not keep state within this module.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::config;
 use pf::node qw(node_attributes);
@@ -65,7 +65,7 @@ pf::roles::custom subclass instead.
 
 sub new {
     my ( $class, %argv ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("instantiating new " . __PACKAGE__ . " object");
     my $self = bless {}, $class;
     return $self;
@@ -85,7 +85,7 @@ Returns the proper role for a given node.
 
 sub getRoleForNode {
     my ($self, $mac, $switch) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = $self->logger;
 
     # Violation first
     my $open_violation_count = violation_count_reevaluate_access($mac);
@@ -127,7 +127,7 @@ looked up based on global role.
 
 sub performRoleLookup {
     my ($self, $node_attributes, $switch) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = $self->logger;
 
     my $mac = $node_attributes->{'mac'};
 
@@ -150,12 +150,23 @@ Return node category if defined.
 
 sub _assignRoleFromCategory {
     my ($self, $node_attributes) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = $self->logger;
 
     return $node_attributes->{'category'} if (defined($node_attributes->{'category'}));
 
     $logger->warn("MAC: $node_attributes->{mac} is not categorized; no role returned");
     return;
+}
+
+=item logger
+
+Return the current logger for the object
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =back

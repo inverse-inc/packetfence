@@ -24,7 +24,7 @@ use CGI::Session::Driver::chi;
 use pf::CHI;
 use HTML::Entities;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
-use Log::Log4perl;
+use pf::log;
 use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
@@ -38,7 +38,6 @@ use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
-use pf::log;
 use pf::activation qw(view_by_code);
 
 =head1 CONSTANTS
@@ -61,7 +60,7 @@ our $EXPIRES_IN = pf::CHI->config->{"storage"}{"httpd.portal"}{"expires_in"};
 
 sub new {
     my ( $class, %argv ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
     my $self = bless {}, $class;
@@ -191,7 +190,7 @@ sub _initializeStash {
 
 sub _initializeI18n {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($locale) = $self->getLanguages();
     $logger->debug("Setting locale to $locale");
@@ -233,7 +232,7 @@ Either directly connected or through a proxy.
 
 sub _resolveIp {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("resolving client IP");
 
     # we fetch CGI's remote address
@@ -531,7 +530,7 @@ of the configuration is returned.
 
 sub getLanguages {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($lang, @languages);
     #my $authorized_locales_txt = $Config{'general'}{'locale'};

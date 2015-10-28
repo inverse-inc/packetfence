@@ -16,7 +16,6 @@ use warnings;
 
 use base ('pf::Switch');
 use Net::SNMP;
-use Log::Log4perl;
 
 use pf::Switch::constants;
 use pf::util;
@@ -25,7 +24,7 @@ sub getVersion {
     my ($this) = @_;
     my $oid_swDlinkEquipmentCapacitySwVersion
         = '1.3.6.1.4.1.171.12.11.1.9.4.1.8.1';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -43,7 +42,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( $trapString
         =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|.1.3.6.1.2.1.2.2.1.1.([0-9]+)/
@@ -88,7 +87,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -185,7 +184,7 @@ sub _setVlan {
 
 sub isLearntTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return 1;
 }
 

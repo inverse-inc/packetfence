@@ -24,7 +24,6 @@ If the switch is stacked, the trap will come with the wrong ifIndex number.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Avaya');

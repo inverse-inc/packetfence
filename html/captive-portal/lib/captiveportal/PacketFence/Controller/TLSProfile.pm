@@ -43,7 +43,7 @@ Collect information about the user and the certificate to generate
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
     my $username = $c->session->{username};
-    my $logger  = get_logger;
+    my $logger  = get_logger();
     my $profile = $c->profile;
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;

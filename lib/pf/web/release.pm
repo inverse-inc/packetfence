@@ -15,7 +15,7 @@ use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
-use Log::Log4perl;
+use pf::log;
 use URI::Escape::XS qw(uri_escape);
 
 use pf::class;
@@ -27,7 +27,6 @@ use pf::constants::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::log;
 use pf::enforcement;
 # called last to allow redefinitions
 use pf::web::custom;
@@ -71,17 +70,17 @@ sub handler
       }
     }
   }
-  
-  my $violations = violation_view_top($mac); 
+
+  my $violations = violation_view_top($mac);
   # is violations valid
   if (!defined($violations) || ref($violations) ne 'HASH' || !defined($violations->{'vid'})) {
     # not valid, we should not be here then, lets tell the user to re-open his browser
     pf::web::generate_error_page($portalSession, i18n("release: reopen browser"), $r);
     return Apache2::Const::OK;
   }
-  
-  my $vid = $violations->{'vid'}; 
-  
+
+  my $vid = $violations->{'vid'};
+
   # is class valid? if so, let's grab some related info that we will need
   my ($class_redirect_url, $class_max_enable_url);
   my $class = class_view($vid);
@@ -99,30 +98,30 @@ sub handler
       pf::web::generate_scan_status_page($portalSession, $1, $r);
       return Apache2::Const::OK;
     }
-    
+
     # Start scan in cleanup phase to avoid browser to hang on connection
     my $cmd = $bin_dir."/pfcmd schedule now $ip 1>/dev/null 2>&1";
     $logger->info("scanning $ip by calling $cmd");
-    $r->pool->cleanup_register(\&scan, [$logger, $violations, $cmd]); 
- 
+    $r->pool->cleanup_register(\&scan, [$logger, $violations, $cmd]);
+
     $logger->trace("parent part, redirecting to scan started page");
     pf::web::generate_scan_start_page($portalSession, $r);
-  
+
     return Apache2::Const::OK;
   }
-  
+
   $logger->info("Will try to close violation $vid for $mac");
   my $grace = violation_close($mac,$vid);
   $logger->info("Closing of violation $vid for $mac returned $grace");
-  
+
   if ($grace != -1) {
-    my $count = violation_count($mac); 
-  
+    my $count = violation_count($mac);
+
     $logger->info("$mac enabled for $grace minutes");
     if ($count == 0) {
       # we reevaluate the access so the user is release from isolation if needed
       pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
-  
+
       if ($class_redirect_url) {
         $destination_url = $class_redirect_url;
       }
@@ -161,11 +160,11 @@ sub scan {
   # HACK: add a start date in the violation's ticket_ref to track the fact that the scan is in progress
   my $currentScanViolationId = $violations->{'id'};
   violation_modify($currentScanViolationId, (ticket_ref => "Scan in progress, started at: ".mysql_date()));
-  
+
   # requesting the scan
   $logger->trace("cleanup phase, forking $cmd");
   my $scan = qx/$cmd/;
-  
+
   return Apache2::Const::OK;
 } # sub scan
 
@@ -180,20 +179,20 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut

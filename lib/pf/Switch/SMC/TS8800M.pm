@@ -34,7 +34,6 @@ SNMPv3 support was not tested.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::SMC');
@@ -57,7 +56,7 @@ TODO: This list is incomplete
 sub getVersion {
     my ($this) = @_;
     my $OID_swProdVersion = '1.3.6.1.4.1.202.20.'.MODEL_OID_ID.'.1.1.5.4.0';    #swProdVersion
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -75,7 +74,7 @@ sub getVersion {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # portSecPortStatus
     # by looking at other SMC MIBS, I noticed that portSecPortStatus is always like .1.3.6.1.4.1.202.20.yy.1.17.2.1.1.2

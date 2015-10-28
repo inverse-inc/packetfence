@@ -44,7 +44,6 @@ Firmware 3.0.0.13 and 3.0.0.16 are known to be affected.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Dlink');
@@ -64,7 +63,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_wsAssociatedClientDisassociateAction = '1.3.6.1.4.1.171.10.73.30.9.1.1.9';
 
     if ( !$this->isProductionMode() ) {
@@ -98,7 +97,7 @@ sub isLearntTrapsEnabled {
 
 sub setLearntTrapsEnabled {
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -110,28 +109,28 @@ sub isRemovedTrapsEnabled {
 
 sub setRemovedTrapsEnabled {
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
     my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
@@ -139,14 +138,14 @@ sub isTrunkPort {
 sub getVlans {
     my ($this) = @_;
     my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
     my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
@@ -158,7 +157,7 @@ sub isVoIPEnabled {
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

@@ -45,7 +45,7 @@ use pf::ConfigStore::Interface;
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = "pfbandwidthd";
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = get_logger( basename($PROGRAM_NAME) );
 
 # init signal handlers
 POSIX::sigaction(

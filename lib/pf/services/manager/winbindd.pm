@@ -77,7 +77,7 @@ sub postStartCleanup {
     my $result = 0;
     my $inotify = $self->inotify;
     my @pidFiles = map { $_->pidFile } $self->managers;
-    my $logger = get_logger;
+    my $logger = get_logger();
     if ( @pidFiles && any { ! -e $_ } @pidFiles ) {
         my $timedout;
         eval {

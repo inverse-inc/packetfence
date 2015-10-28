@@ -33,7 +33,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::Appliance::Session;
 
 use pf::constants;
@@ -68,7 +67,7 @@ Ex: NAS-Port 115 is the 115th ifIndex entry  which is ifIndex 598.
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # grab ifName -> ifIndex hash
     my %ifNameIfIndexHash = $this->getIfNameIfIndexHash();
@@ -118,7 +117,7 @@ Warning: This is really slow! About 6 second for the link change.
 
 sub setAdminStatus {
     my ($this, $ifIndex, $enable) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't set the admin status for ifIndex $ifIndex");
@@ -185,7 +184,7 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $switch_ip = $this->{_ip};
 

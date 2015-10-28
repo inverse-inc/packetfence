@@ -15,7 +15,7 @@ pf::scan::nessus is a module to add Nessus scanning option.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use base ('pf::scan');
@@ -42,7 +42,7 @@ Create a new Nessus scanning object with the required attributes
 
 sub new {
     my ( $class, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Instantiating a new pf::scan::nessus scanning object");
 
@@ -75,7 +75,7 @@ sub new {
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # nessus scan setup
     my $id                  = $this->{_id};

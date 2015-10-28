@@ -21,7 +21,7 @@ The methods in pf::soh can be overriden in pf::soh::custom.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Data::Dumper;
 use Try::Tiny;
 
@@ -119,7 +119,7 @@ sub new {
     my ($class) = @_;
 
     my $self = {
-        logger => Log::Log4perl->get_logger("soh")
+        logger => get_logger()
     };
 
     return bless $self, $class;

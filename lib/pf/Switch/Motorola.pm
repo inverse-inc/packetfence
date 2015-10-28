@@ -54,7 +54,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::constants;
@@ -84,7 +83,7 @@ obtain image version information from switch
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -113,7 +112,7 @@ Parsing SNMP Traps - WIDS stuff only, other types are discarded
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # Handle WIPS Trap
     if ( $trapString =~ /BEGIN VARIABLEBINDINGS.*\.1\.3\.6\.1\.4\.1\.388\.50\.1\.2\.1\.4 = STRING: "Unsanctioned AP ([A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2})/){
@@ -136,7 +135,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -163,7 +162,7 @@ deauthenticate a MAC address from wireless network (including 802.1x)
 
 sub _deauthenticateMacSNMP {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $oid_wsCcRfMuDisassociateNow = '1.3.6.1.4.1.388.14.3.2.1.12.3.1.19'; # from WS-CC-RF-MIB
 
     if ( !$this->isProductionMode() ) {
@@ -215,7 +214,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

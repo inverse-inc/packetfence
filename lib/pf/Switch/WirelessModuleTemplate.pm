@@ -43,7 +43,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::constants;
 use pf::config;
@@ -79,7 +78,7 @@ sub parseTrap {
     # Optional for Wireless devices
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';

@@ -20,7 +20,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use JSON qw( decode_json );
 use XML::Simple;
-use Log::Log4perl;
+use pf::log;
 use pf::iplog;
 use MIME::Base64;
 
@@ -94,21 +94,21 @@ has boarding_port => (is => 'rw');
 
 sub get_device_info{
     my ($self, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
- 
+    my $logger = $self->logger;
+
     my $mi_mac = $mac;
     $mi_mac =~ s/://g;
     $mi_mac = uc($mi_mac);
 
     my $curl = WWW::Curl::Easy->new;
     my $url = 'https://' . $self->host . '/api/v1/dm/devices/mac/'.$mi_mac;
-        
+
     my $user_pass_base_64 = encode_base64("$self->{username}:$self->{password}", "");
 
     my $response_body = '';
     open(my $fileb, ">", \$response_body);
     $curl->setopt(CURLOPT_URL, $url );
-    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ; 
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0) ;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
     $curl->setopt(WWW::Curl::Easy::CURLOPT_HTTPHEADER(),["Authorization: Basic $user_pass_base_64", 'Accept: application/json']);
@@ -116,11 +116,11 @@ sub get_device_info{
     my $curl_return_code = $curl->perform;
     my $curl_info = $curl->getinfo(CURLINFO_HTTP_CODE); # or CURLINFO_RESPONSE_CODE depending on libcurl version
 
-     
-    if ($curl_info == 200){ 
+
+    if ($curl_info == 200){
         my $info = decode_json($response_body);
         return $info;
-    } 
+    }
     elsif ($curl_info == 404){
         my $info;
         eval {
@@ -143,7 +143,7 @@ sub get_device_info{
 
 sub validate_mac_is_compliant{
     my ($self, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     my $info = $self->get_device_info($mac);
     if (defined($info) && ($info != $pf::provisioner::COMMUNICATION_FAILED && $info != 0)){
         if ($info->{device}->{compliance} == 0){
@@ -162,11 +162,22 @@ sub validate_mac_is_compliant{
 
 sub authorize {
     my ($self,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $ip = pf::iplog::mac2ip($mac); 
+    my $logger = $self->logger;
+    my $ip = pf::iplog::mac2ip($mac);
     $logger->info("Validating if $mac is compliant in mobileiron");
     return $self->validate_mac_is_compliant($mac);
-       
+
+}
+
+=head2 logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =head1 AUTHOR

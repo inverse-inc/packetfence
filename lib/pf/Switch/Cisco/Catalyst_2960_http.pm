@@ -23,7 +23,6 @@ Developped and tested on IOS 15.0(2)SE5
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 use Try::Tiny;
@@ -68,7 +67,7 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $this->radiusDisconnect($mac);
 }
@@ -88,7 +87,7 @@ status code
 
 sub parseUrl {
     my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
@@ -112,7 +111,7 @@ Overide to support the captive portal special RADIUS accept
 
 sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $radius_reply_ref = {};
 
@@ -202,7 +201,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));

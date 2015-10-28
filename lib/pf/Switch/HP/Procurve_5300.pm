@@ -15,7 +15,6 @@ This module is currently only a placeholder, see L<pf::Switch::HP::Procurve_5400
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_5400');

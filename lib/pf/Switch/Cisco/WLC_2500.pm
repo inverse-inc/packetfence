@@ -14,7 +14,6 @@ This module is currently only a placeholder, see L<pf::Switch::Cisco::WLC> for r
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::WLC');

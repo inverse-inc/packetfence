@@ -105,7 +105,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 
@@ -140,13 +140,13 @@ TODO: This list is incomplete
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '12.2(25)SEE2';
 }
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
@@ -176,7 +176,7 @@ sub getAllSecureMacAddresses {
 
 sub isDynamicPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if ( !$this->connectRead() ) {
@@ -205,7 +205,7 @@ sub isDynamicPortSecurityEnabled {
 
 sub isStaticPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
     if ( !$this->connectRead() ) {
@@ -234,7 +234,7 @@ sub isStaticPortSecurityEnabled {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
@@ -263,7 +263,7 @@ sub getSecureMacAddresses {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     if ( !$this->isProductionMode() ) {
@@ -323,7 +323,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # ex: 50023 is ifIndex 10023
     if ($NAS_port =~ s/^5/1/) {
@@ -343,7 +343,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -356,7 +356,7 @@ Method to deauth a wired node with CoA.
 
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
 
     # perform CoA
@@ -372,7 +372,7 @@ Send a CoA to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -451,7 +451,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques {
     my ($this, $method, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -488,7 +488,7 @@ Overrides the default implementation to add the dynamic acls
 
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # Inline Vs. VLAN enforcement
     my $radius_reply_ref = {};
@@ -547,7 +547,7 @@ sub returnAccessListAttribute {
 
 sub disableMABByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 3:forceAuthorized but the s");
@@ -568,7 +568,7 @@ sub disableMABByIfIndex {
 
 sub enableMABByIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if ( !$this->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 2:auto but the switch is no");

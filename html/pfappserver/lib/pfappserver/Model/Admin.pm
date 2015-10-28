@@ -41,7 +41,7 @@ Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
 =cut
 
 sub fingerbank_version {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($filehandler, $line, $version);
     open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
         || $logger->error("Unable to open $conf_dir/dhcp_fingerprints.conf: $!");

@@ -19,7 +19,7 @@ use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::RequestRec;
 use Apache2::Connection;
-use Log::Log4perl;
+use pf::log;
 use UNIVERSAL::require;
 
 use pf::config;
@@ -40,7 +40,7 @@ use pf::constants;
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::web::externalportal");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::web::externalportal");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -55,7 +55,7 @@ Instantiate the switch module and use a specific captive portal
 
 sub external_captive_portal {
     my ($self, $switchId, $req, $r, $session) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $switch;
     if (defined($switchId)) {
@@ -92,7 +92,7 @@ sub external_captive_portal {
 
 sub _setup_session {
     my ($req, $client_mac, $client_ip, $redirect_url, $grant_url) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %info = (
         'client_mac' => $client_mac,
     );
@@ -120,7 +120,7 @@ handle the detection of the external portal
 sub handle {
     my ($self,$r) = @_;
     my $req = Apache2::Request->new($r);
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $is_external_portal;
     my $url = $r->uri;
 

@@ -23,7 +23,6 @@ Tested by the community on the 5.01.B65 firmware.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Nortel');

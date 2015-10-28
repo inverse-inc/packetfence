@@ -7,15 +7,15 @@ Script to synchronize cluster either as the master node or as a slave node
 =head1 SYNOPSIS
 
   To push out the configuration to the other nodes :
-   sync --as-master 
+   sync --as-master
 
-  Options : 
+  Options :
    --file : use with --as-master to push out only a single file
-   --with-fingerbank-db : use with --as-master to push the Fingerbank 
-                          database during the sync (can be long) 
+   --with-fingerbank-db : use with --as-master to push the Fingerbank
+                          database during the sync (can be long)
 
   To sync the configuration from a master server to this server :
-   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password> 
+   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
 
 Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
 
@@ -33,20 +33,8 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 
-use pf::api::jsonrpcclient;
-use Getopt::Long;
-use pf::api::jsonrpcclient;
-use pf::config::cached;
-use pfconfig::constants;
-use pf::file_paths;
-use pf::cluster;
-use fingerbank::FilePath;
-use pf::log;
-use Pod::Usage;
-
 BEGIN {
-  use Log::Log4perl;
-  use pf::log();
+  use Log::Log4perl qw(get_logger);
   my $log_conf = q(
   log4perl.rootLogger              = INFO, SCREEN
   log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
@@ -57,16 +45,27 @@ BEGIN {
   Log::Log4perl::init(\$log_conf);
 }
 
+use pf::api::jsonrpcclient;
+use Getopt::Long;
+use pf::api::jsonrpcclient;
+use pf::config::cached;
+use pfconfig::constants;
+use pf::file_paths;
+use pf::cluster;
+use fingerbank::FilePath;
+use Pod::Usage;
+
+
 my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file, $help);
 GetOptions (
-    "from=s"   => \$master_server, 
+    "from=s"   => \$master_server,
     "api-user=s" => \$api_user,
     "api-password=s" => \$api_password,
     "as-master" => \$as_master,
     "with-fingerbank-db" => \$with_fingerbank_db,
     "file=s" => \$file,
     "h" => \$help,
-); 
+);
 
 if($help){
   pod2usage( -verbose => 1 );
@@ -77,7 +76,7 @@ unless($master_server || $as_master){
     exit;
 }
 
-my $logger = get_logger;
+my $logger = get_logger();
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -99,8 +98,8 @@ foreach my $store (@tmp_stores){
 my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
 
 if (-e '/usr/local/pf/conf/cluster-files.txt') {
-    open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
-      or get_logger->warn("Couldn't open the list of additionnal files to sync."); 
+    open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt')
+      or get_logger->warn("Couldn't open the list of additionnal files to sync.");
 
     while (my $row = <$fh>) {
         chomp $row;
@@ -135,7 +134,7 @@ if($as_master){
 
 if($master_server){
     get_logger->info("Synching this server from node $master_server");
-    
+
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
     foreach my $store (@stores) {

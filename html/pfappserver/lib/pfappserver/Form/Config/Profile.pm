@@ -18,7 +18,6 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
 
 use pf::config;
-use pf::log;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS

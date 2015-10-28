@@ -54,7 +54,6 @@ use warnings;
 use base ('pf::Switch');
 
 use POSIX;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::constants;
@@ -82,7 +81,7 @@ This list is incomplete.
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # link up/down
     if ( $trapString =~ 
@@ -123,7 +122,7 @@ sub parseTrap {
 
 sub getVersion {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_swProdVersion = '1.3.6.1.4.1.572.17389.14500.1.1.5.4.0';    # iPECS_ES-4500G MIB
 
@@ -143,7 +142,7 @@ sub getVersion {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_portSecPortStatus = '1.3.6.1.4.1.572.17389.14500.1.17.2.1.1.2';    # iPECS_ES-4500G MIB
 
@@ -163,7 +162,7 @@ sub isPortSecurityEnabled {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1qStaticUnicastStatus = '1.3.6.1.2.1.17.7.1.3.1.1.4';           # Q-BRIDGE MIB
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';    # Q-BRIDGE MIB
@@ -235,7 +234,7 @@ sub authorizeMAC {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';                       # Q-BRIDGE-MIB
     my $OID_dot1qVlanStaticUntaggedPorts = '1.3.6.1.2.1.17.7.1.4.3.1.4';    # Q-BRIDGE-MIB
@@ -379,7 +378,7 @@ Returns an hashref with MAC => Array(VLANs)
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';    # Q-BRIDGE MIB
 
@@ -424,7 +423,7 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';    # Q-BRIDGE MIB
 
@@ -480,7 +479,7 @@ sub getAllSecureMacAddresses {
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_dot1dBaseNumPort = '1.3.6.1.2.1.17.1.2.0';    # BRIDGE MIB 
 

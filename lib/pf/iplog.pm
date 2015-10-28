@@ -17,8 +17,7 @@ use strict;
 use warnings;
 
 use Date::Parse;
-use Log::Log4perl;
-use Log::Log4perl::Level;
+use pf::log;
 
 use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
@@ -41,7 +40,6 @@ use pf::node qw(node_add_simple node_exist);
 use pf::util;
 use pf::CHI;
 use pf::OMAPI;
-use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;
@@ -50,7 +48,7 @@ our $iplog_db_prepared = 0;
 our $iplog_statements = {};
 
 sub iplog_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::iplog database queries");
 
     # We could have used the iplog_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
@@ -646,7 +644,7 @@ sub close {
 
 sub cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = get_logger();
     $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
     my $now = db_now();
     my $start_time = time;

@@ -25,6 +25,8 @@ use URI::Escape::XS qw(uri_escape);
 BEGIN {
     use pf::log service => 'httpd.portal';
 }
+
+use pf::log;
 use pf::config;
 use pf::util;
 use pf::web::constants;
@@ -51,7 +53,7 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 
 sub handler {
     my $r = Apache::SSLLookup->new(shift);
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $hostname = $r->hostname;
     my $uri = $r->uri;
@@ -82,7 +84,7 @@ sub handler {
         return proxy_redirect($r);
     }
     # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mecanism and having a self-signed SSL certificate
-    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) 
+    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s)
       && isenabled($Config{'captive_portal'}{'secure_redirect'}) && pf::web::util::is_certificate_self_signed ) {
         $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having a self-signed SSL certificate. Using HTTP instead of HTTPS");
         return html_redirect($r, { secure => $FALSE });
@@ -148,7 +150,7 @@ sub handler {
 
 sub html_redirect {
     my ($r, $params) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("hitting html_redirect with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
     $logger->debug(sub { "'html_redirect' called with the following parameters: " . join(", ", map { "$_ => $params->{$_}" } keys %$params) }) if defined($params);
@@ -177,7 +179,7 @@ sub html_redirect {
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);
     }
-        
+
     # Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
     my $portal_url = APR::URI->parse($r->pool,"$proto://".${captive_portal_domain}."/captive-portal");
     $portal_url->query("destination_url=$destination_url&".$r->args);
@@ -229,7 +231,7 @@ sub html_redirect {
 
 sub proxy_redirect {
     my ($r) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("hitting proxy_redirect with URI '" . $r->uri . "' (URL: " . $r->construct_url . ")");
 

@@ -20,7 +20,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Data::Dumper;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Intel');
 
@@ -28,14 +27,14 @@ sub description { 'Intel Express 530' }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '1.00.23';
 }
 
 sub getVersion {
     my ($this) = @_;
     my $oid_es530AgentRuntimeSwVersion = '1.3.6.1.4.1.343.6.63.1.1.1.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -55,7 +54,7 @@ sub getVersion {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -154,7 +153,7 @@ sub _setVlan {
 
 sub setAdminStatus {
     my ( $this, $ifIndex, $enabled ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #obtain unit and module from unique ifIndex
     my $OID_es530HwPortEncodingFactor = '1.3.6.1.4.1.343.6.63.2.1.3.0';

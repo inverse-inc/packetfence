@@ -15,7 +15,6 @@ This modules extends pf::Switch::Cisco::Aironet
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Aironet');

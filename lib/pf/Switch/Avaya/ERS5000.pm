@@ -18,7 +18,6 @@ This module is currently only a placeholder, see pf::SNMP::Avaya.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Avaya');

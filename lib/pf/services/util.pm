@@ -17,10 +17,10 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(daemonize createpid deletepid);
+use Log::Log4perl::Level;
 use pf::log;
 use pf::log::trapper;
 use pf::file_paths;
-use Log::Log4perl::Level;
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
 
@@ -61,7 +61,7 @@ creates the pid file for the service
 
 sub createpid {
     my ($pname) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pid     = $$;
     my $pidfile = $var_dir . "/run/$pname.pid";

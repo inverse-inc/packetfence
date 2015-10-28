@@ -15,7 +15,6 @@ This modules extends pf::Switch::Cisco::Aironet
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::config;
@@ -35,7 +34,7 @@ Specifices the type of deauth
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -55,7 +54,7 @@ Method to deauth a wired node with CoA.
 
 sub deauthenticateMacRadius {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     $mac = format_mac_as_cisco($mac);
 
     # perform CoA
@@ -70,7 +69,7 @@ Send a CoA to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));

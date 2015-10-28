@@ -73,7 +73,7 @@ Lookup the person information from the authentication hash received during the O
 
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->warn("Provider information lookup is not implemented on this OAuth source.");
 }
 

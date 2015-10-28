@@ -9,7 +9,6 @@ pf::pfcmd::help - usage messages
 use strict;
 use warnings;
 use File::Basename qw(basename);
-use Log::Log4perl;
 
 BEGIN {
     use Exporter ();

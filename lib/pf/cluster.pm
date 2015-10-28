@@ -55,7 +55,7 @@ Returns 1 if this node is the management node (i.e. owning the management ip)
 =cut
 
 sub is_management {
-    my $logger = get_logger;
+    my $logger = get_logger();
     unless($cluster_enabled){
         $logger->info("Clustering is not enabled. Cannot be management node.");
         return 0;
@@ -146,7 +146,7 @@ sub is_dhcpd_primary {
 
 =head2 should_offer_dhcp
 
-Get whether or not this node should offer DHCP 
+Get whether or not this node should offer DHCP
 
 =cut
 
@@ -162,7 +162,7 @@ Get the IP address of the DHCP peer for an interface
 
 sub dhcpd_peer {
     my ($interface) = @_;
-    
+
     unless(defined($cluster_servers[1])){
         return undef;
     }
@@ -202,7 +202,7 @@ Get all the members IP for an interface
 
 sub members_ips {
     my ($interface) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
         $logger->warn("requesting member ips for an undefined interface...");
         return {};
@@ -262,7 +262,7 @@ sub sync_storages {
             my $config_file = $cs->configFile;
             my %data = (
                 namespace => $pfconfig_namespace,
-                conf_file => $config_file,          
+                conf_file => $config_file,
             );
             my ($result) = $apiclient->call( 'expire_cluster', %data );
         };

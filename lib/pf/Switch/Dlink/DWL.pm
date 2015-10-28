@@ -21,7 +21,6 @@ This module is currently only a placeholder, see L<pf::Switch::Dlink::DWS_3026> 
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Dlink::DWS_3026');

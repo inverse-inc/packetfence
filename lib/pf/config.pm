@@ -245,7 +245,7 @@ use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
-my $logger = Log::Log4perl->get_logger('pf::config');
+my $logger = get_logger();
 
 
 # Accounting trigger policies
@@ -441,7 +441,7 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 =cut
 
 sub os_detection {
-    my $logger = Log::Log4perl::get_logger('pf::config');
+    my $logger = get_logger();
     if (-e '/etc/debian_version') {
         return "debian";
     }elsif (-e '/etc/redhat-release') {

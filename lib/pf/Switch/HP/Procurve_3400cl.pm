@@ -12,7 +12,6 @@ This switch was reported to work by the community with the Procurve 2600 module.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 

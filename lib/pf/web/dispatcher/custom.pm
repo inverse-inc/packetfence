@@ -22,7 +22,6 @@ use Apache2::ServerRec;
 
 use APR::Table;
 use APR::URI;
-use Log::Log4perl;
 use Template;
 use URI::Escape::XS qw(uri_escape);
 

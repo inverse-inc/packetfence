@@ -18,7 +18,6 @@ Tested on EdgeCore 4510 running v1.3.2.0
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch');

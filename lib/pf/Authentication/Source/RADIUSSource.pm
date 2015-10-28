@@ -11,6 +11,7 @@ pf::Authentication::Source::RADIUSSource
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
+use pf::log;
 
 use Authen::Radius;
 
@@ -40,7 +41,7 @@ sub authenticate {
 
   my ( $self, $username, $password ) = @_;
 
-  my $logger = Log::Log4perl->get_logger('pf::authentication');
+  my $logger = get_logger();
 
   my $radius = new Authen::Radius(
     Host => "$self->{'host'}:$self->{'port'}",

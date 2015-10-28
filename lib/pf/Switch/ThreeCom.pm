@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -25,7 +24,7 @@ use pf::util;
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( $trapString
         =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.2\.(\d+) = /
         )
@@ -55,7 +54,7 @@ sub parseTrap {
 
 sub getDot1dBasePortForThisIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger                   = Log::Log4perl::get_logger( ref($this) );
+    my $logger                   = $this->logger;
     my $ifIndexDot1dBasePortHash = {
         102 => 1,
         103 => 2,
@@ -68,13 +67,13 @@ sub getDot1dBasePortForThisIfIndex {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return $this->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan, $switch_locker_ref );
 }
 
 sub _getMacAtIfIndex {
     my ( $this, $ifIndex, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my @macArray;
     if ( !$this->connectRead() ) {
         return @macArray;
@@ -91,7 +90,7 @@ sub _getMacAtIfIndex {
 
 sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;

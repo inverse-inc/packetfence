@@ -30,7 +30,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use Log::Log4perl;
 use Net::Appliance::Session;
 
 use pf::constants;
@@ -68,7 +67,7 @@ For now it returns the voiceVlan untagged since Juniper supports multiple untagg
 
 sub getVoipVsa{
     my ($this) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) ); 
+    my $logger = $this->logger; 
     my $voiceVlan = $this->{'_voiceVlan'};
     $logger->info("Accepting phone with untagged Access-Accept on voiceVlan $voiceVlan");
     
@@ -90,7 +89,7 @@ Method to deauth a wired node with RADIUS Disconnect.
 
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     $this->radiusDisconnect($mac );
 }
@@ -103,7 +102,7 @@ Send a Disconnect request to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -167,7 +166,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques { 
    my ($this, $method, $connection_type) = @_;
-   my $logger = Log::Log4perl::get_logger( ref($this) );
+   my $logger = $this->logger;
 
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::RADIUS;
@@ -204,7 +203,7 @@ Connects to the switch and configures the specified port to be RADIUS floating d
 
 sub enableMABFloatingDevice{
     my ($this, $ifIndex) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $session;
     eval {
@@ -263,7 +262,7 @@ Connects to the switch and removes the RADIUS floating device configuration
 
 sub disableMABFloatingDevice{
     my ($this, $ifIndex) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     
     my $session;
     eval {
@@ -320,7 +319,7 @@ sub disableMABFloatingDevice{
 #sub supportsLldp { return $TRUE; }
 #sub getPhonesLLDPAtIfIndex {
 #    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #
 #    # if can't SNMP read abort
 #    return if ( !$this->connectRead() );

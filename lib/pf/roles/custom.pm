@@ -23,7 +23,6 @@ You have been warned!
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use base ('pf::roles');
 use pf::config;

@@ -50,7 +50,6 @@ use warnings;
 
 use base ('pf::Switch');
 use POSIX;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::util;
@@ -64,7 +63,7 @@ use constant DUAL_MODE => 3;
 sub getVersion {
     my ($this)         = @_;
     my $oid_snAgImgVer = '1.3.6.1.4.1.1991.1.1.2.1.11.0';
-    my $logger         = Log::Log4perl::get_logger( ref($this) );
+    my $logger         = $this->logger;
 
     if ( !$this->connectRead() ) {
         return '';
@@ -78,7 +77,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( $trapString
         =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) =/
         )
@@ -120,7 +119,7 @@ sub parseTrap {
 
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     # vlanIfIndex to vlan number (vlan tag)
     my $oid_snVLanByPortVLanId = '1.3.6.1.4.1.1991.1.1.3.2.1.1.2'; #from FOUNDRY-SN-SWITCH-GROUP-MIB
 
@@ -147,7 +146,7 @@ sub getVlans {
     my $vlans                    = {};
     my $oid_snVLanByPortVLanName = '1.3.6.1.4.1.1991.1.1.3.2.1.1.25';
 
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return $vlans;
@@ -174,7 +173,7 @@ sub getVlans {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -229,13 +228,13 @@ sub _setVlan {
 
 sub isLearntTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return 0;
 }
 
 sub isPortSecurityEnabled {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     if (!$this->connectRead()) {
         return 0;
@@ -274,7 +273,7 @@ Returns an hashref with MAC => Array(VLANs)
 
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # from FOUNDRY-SN-SWITCH-GROUP-MIB
     my $oid_snPortMacSecurityIntfMacVlanId = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
@@ -313,7 +312,7 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # from FOUNDRY-SN-SWITCH-GROUP-MIB
     my $oid_snPortMacSecurityIntfMacVlanId = '1.3.6.1.4.1.1991.1.1.3.24.1.1.4.1.3';
@@ -352,7 +351,7 @@ sub getAllSecureMacAddresses {
 
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # TODO consider pushing this up to caller (especially if we do it in every authorizeMAC)
     if (!$this->isProductionMode()) {
@@ -423,7 +422,7 @@ sub authorizeMAC {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return -1;
@@ -452,7 +451,7 @@ Dual-mode allows an ifIndex to support an untagged vlan along with a tagged one 
 
 sub _setDualModeVlan {
     my ($this, $ifIndex, $vlan) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -490,7 +489,7 @@ sub _setDualModeVlan {
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $voiceVlan = $this->getVlanByName('voice');
     if (defined($voiceVlan)) {

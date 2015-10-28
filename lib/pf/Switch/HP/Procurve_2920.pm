@@ -17,7 +17,6 @@ VoIP not tested using MAC Authentication/802.1X
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
@@ -47,7 +46,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 sub getVoipVsa {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $vlanid = sprintf( "%03x\n", $this->getVlanByName('voice') );
     my $hexvlan = hex( "31000" . $vlanid );
     return ( 'Egress-VLANID' => $hexvlan, );
@@ -61,7 +60,7 @@ Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "

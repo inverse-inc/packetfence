@@ -216,7 +216,7 @@ sub postStartCleanup {
             $timedout = 1 if $@ && $@ =~ /^alarm clock restart/;
         };
         alarm 0;
-        my $logger = get_logger;
+        my $logger = get_logger();
         $logger->warn($self->name . " timed out trying to start" ) if $timedout;
     }
     return -e $pidFile;
@@ -473,7 +473,7 @@ get the pid from the pid file
 sub pidFromFile {
     my ($self) = @_;
     my $name = $self->name;
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = get_logger();
     my $pid;
     my $pid_file = $self->pidFile;
     if (-e $pid_file) {
@@ -498,7 +498,7 @@ removes the stale PID file
 sub removeStalePid {
     my ($self,$quick) = @_;
     return if $quick;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $pid = $self->pidFromFile;
     my $pidFile = $self->pidFile;
     $pidFile = untaint_chain($pidFile);

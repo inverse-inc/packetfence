@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Data::Dumper;
-use Log::Log4perl;
 use Net::Telnet;
 
 use base ('pf::Switch::Dell');
@@ -28,13 +27,13 @@ sub description { 'Dell PowerConnect 3424' }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '112';
 }
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $session;
 
     eval {

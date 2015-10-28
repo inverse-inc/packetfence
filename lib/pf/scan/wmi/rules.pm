@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use pf::config;
-use Log::Log4perl;
+use pf::log;
 use Net::WMIClient qw(wmiclient);
 use Config::IniFiles;
 use pf::api::jsonrpcclient;
@@ -37,7 +37,7 @@ our %RULE_OPS = (
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::scan::wmi::rules");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::scan::wmi::rules");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -52,7 +52,7 @@ Test all the rules
 
 sub test {
     my ($self, $rules) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     my @rules = split("\n",$rules->{'_wmi_rules'});
     my $success = 0;
@@ -201,6 +201,17 @@ sub evalParam {
         $return = { %$return, @param_unit };
     }
     return \$return;
+}
+
+=item logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =back

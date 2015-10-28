@@ -17,7 +17,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
-use Log::Log4perl qw(get_logger);
 use HTML::FormHandler::Params;
 use fingerbank::Config;
 use pf::fingerbank;

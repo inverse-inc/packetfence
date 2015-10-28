@@ -2,18 +2,18 @@ package pf::configfile;
 
 =head1 NAME
 
-pf::configfile - module to store the configuration files in the 
+pf::configfile - module to store the configuration files in the
 database.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::configfile contains the functions necessary to store/read a 
-configuration file to the database. PacketFence stores the 
+pf::configfile contains the functions necessary to store/read a
+configuration file to the database. PacketFence stores the
 configuration files in the database after every configuration change
-through the web interface or a C<pfcmd> call. In a redundancy setup, in 
-case of a failover, you need to manually pull the configuration files 
+through the web interface or a C<pfcmd> call. In a redundancy setup, in
+case of a failover, you need to manually pull the configuration files
 out of the database in order to be up-to-date.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -25,7 +25,7 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use File::Copy;
 
 use constant CONFIGFILE => 'configfile';
@@ -58,7 +58,7 @@ our $configfile_db_prepared = 0;
 our $configfile_statements = {};
 
 sub configfile_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::configfile');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::configfile database queries");
 
     $configfile_statements->{'configfile_update_sql'} = get_db_handle()->prepare(
@@ -84,7 +84,7 @@ sub configfile_db_prepare {
 
 sub configfile_import {
     my ($filename) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::configfile');
+    my $logger = get_logger();
     if ( !configfile_exist($filename) ) {
         $logger->info(
             "config file $filename does not exist in database; addind new database entry"
@@ -102,7 +102,7 @@ sub configfile_import {
 
 sub configfile_export {
     my ($filename) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::configfile');
+    my $logger = get_logger();
     if ( !configfile_exist($filename) ) {
         $logger->info(
             "config file $filename does not exist in database; unable to export"
@@ -180,7 +180,7 @@ sub configfile_update {
 sub configfile_view {
     my ($filename) = @_;
 
-    my $query = db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_view_sql', $filename) 
+    my $query = db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_view_sql', $filename)
         || return (0);
     my $ref = $query->fetchrow_hashref();
 

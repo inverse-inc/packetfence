@@ -8,8 +8,8 @@ pf::action - module to handle violation actions
 
 =head1 DESCRIPTION
 
-pf::action contains the functions necessary to manage all the different 
-actions (email, log, reevaluate_access, ...) triggered when a violation is created, 
+pf::action contains the functions necessary to manage all the different
+actions (email, log, trap, ...) triggered when a violation is created,
 opened, closed or deleted.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -20,10 +20,9 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use pf::node;
-use pf::log;
 use pf::person;
 use pf::util;
 use pf::violation_config;
@@ -79,7 +78,6 @@ use pf::config::util;
 use pf::class qw(class_view class_view_actions);
 use pf::violation qw(violation_force_close);
 use pf::Portal::ProfileFactory;
-use pf::log;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -89,7 +87,7 @@ our $action_db_prepared = 0;
 our $action_statements = {};
 
 sub action_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::action database queries");
 
     $action_statements->{'action_add_sql'} = get_db_handle()->prepare(qq[ insert into action(vid,action) values(?,?) ]);
@@ -120,7 +118,7 @@ sub action_exist {
 
 sub action_add {
     my ($vid, $action) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     if ( action_exist( $vid, $action ) ) {
         $logger->warn("attempt to add existing action $action to class $vid");
         return (2);
@@ -151,7 +149,7 @@ sub action_view_all {
 
 sub action_delete {
     my ($vid, $action) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     db_query_execute(ACTION, $action_statements, 'action_delete_sql', $vid, $action) || return (0);
     $logger->debug("action $action deleted from class $vid");
 
@@ -160,7 +158,7 @@ sub action_delete {
 
 sub action_delete_all {
     my ($vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     db_query_execute(ACTION, $action_statements, 'action_delete_all_sql', $vid) || return (0);
     $logger->debug("all actions for class $vid deleted");
 
@@ -170,7 +168,7 @@ sub action_delete_all {
 # TODO what is that? Isn't it dangerous?
 sub action_api {
     my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     my $class_info = class_view($vid);
     my @params = split(' ', $class_info->{'external_command'});
     my $return;
@@ -192,7 +190,7 @@ sub action_api {
 
 sub action_execute {
     my ($mac, $vid, $notes) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     my $leave_open = 0;
     my @actions = class_view_actions($vid);
     # Sort the actions in reverse order in order to always finish with the autoreg action
@@ -300,15 +298,15 @@ sub action_email_user {
 
         pf::util::send_email(
             $Config{'alerting'}{'smtpserver'},
-            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email}, 
-            "$description detection on $mac", 
-            "violation-triggered", 
-            description => $description, 
+            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email},
+            "$description detection on $mac",
+            "violation-triggered",
+            description => $description,
             hostname => $node_info->{computername},
-            os => $node_info->{device_type}, 
+            os => $node_info->{device_type},
             mac => $mac,
             additionnal_message => $additionnal_message,
-        );  
+        );
 
     }
     else{
@@ -318,7 +316,7 @@ sub action_email_user {
 
 sub action_log {
     my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
     require pf::iplog;
     my $ip = pf::iplog::mac2ip($mac) || 0;
 
@@ -347,7 +345,7 @@ sub action_reevaluate_access {
 
 sub action_autoregister {
     my ($mac, $vid) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my $logger = get_logger();
 
     if(pf::node::is_node_registered($mac)){
         $logger->debug("Calling autoreg on already registered node. Doing nothing.");
@@ -358,7 +356,7 @@ sub action_autoregister {
             $logger->error("auto-registration of node $mac failed");
             return;
         }
-        
+
         require pf::enforcement;
         pf::enforcement::reevaluate_access($mac, 'manage_register');
     }
@@ -366,7 +364,7 @@ sub action_autoregister {
 
 sub action_close {
    my ($mac, $vid) = @_;
-   my $logger = Log::Log4perl::get_logger('pf::action');
+   my $logger = get_logger();
 
    #We need to fetch which violation id to close
    my $class = class_view($vid);
@@ -375,7 +373,7 @@ sub action_close {
 
    if (defined($class->{'vclose'})) {
      my $result = violation_force_close($mac,$class->{'vclose'});
-        
+
      # If close is a success, reevaluate the Access for the node
      if ($result) {
          pf::enforcement::reevaluate_access( $mac, "manage_vclose" );

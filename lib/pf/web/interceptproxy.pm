@@ -16,7 +16,7 @@ use Apache2::Connection;
 use Apache2::URI;
 
 use APR::URI;
-use Log::Log4perl;
+use pf::log;
 use URI::Escape::XS qw(uri_escape);
 
 use pf::config;
@@ -37,7 +37,7 @@ Intercept proxy requests to forward them to the captive portal.
 
 sub translate {
     my ($r) = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->warn("hitting interceptor with URL: " . $r->uri);
     #Fetch the captive portal URL
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
@@ -122,7 +122,7 @@ Rewrite Location header to Packetfence captive portal.
 sub rewrite {
     my $f = shift;
     my $r = $f->r;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if ($r->content_type =~ /text\/html(.*)/) {
         unless ($f->ctx) {
             my @valhead = $r->headers_out->get('Location');
@@ -163,7 +163,7 @@ Last Handler and last chance to do something in the request
 
 sub fixup {
     my $r = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if($r->pnotes('url_to_mod_proxy')){
         return proxy_redirect($r, $r->pnotes('url_to_mod_proxy'));
     }
@@ -177,7 +177,7 @@ Mod_proxy redirect
 
 sub proxy_redirect {
         my ($r, $url) = @_;
-        my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+        my $logger = get_logger();
         $r->set_handlers(PerlResponseHandler => []);
         $r->filename("proxy:".$url);
         $r->proxyreq(2);
@@ -194,7 +194,7 @@ Reverse proxy TransHandler
 
 sub reverse {
     my $r = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("Reverse proxy :".$r->uri);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;

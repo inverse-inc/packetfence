@@ -27,7 +27,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use Try::Tiny;
 use base ('pf::Switch');
@@ -62,7 +61,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -88,7 +87,7 @@ Allows callers to refer to this implementation even though someone along the way
 
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     return;
 }
@@ -103,7 +102,7 @@ All traps ignored
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->debug("trap ignored, not useful for switch");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -144,7 +143,7 @@ Method to deauth a wired node with CoA.
 
 sub deauthenticateMacRadius {
     my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
 
     # perform CoA
@@ -171,7 +170,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub wiredeauthTechniques {
     my ($this, $method, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -212,7 +211,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));

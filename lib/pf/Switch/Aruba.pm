@@ -59,7 +59,6 @@ use warnings;
 use base ('pf::Switch');
 
 use POSIX;
-use Log::Log4perl;
 use Net::Telnet;
 use Try::Tiny;
 
@@ -100,7 +99,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
+    my $logger       = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -119,7 +118,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     # wlsxNUserEntryDeAuthenticated: 1.3.6.1.4.1.14823.2.3.1.11.1.2.1017
 
@@ -147,7 +146,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
@@ -170,7 +169,7 @@ Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthentic
 
 sub _deauthenticateMacWithTelnet {
     my ( $this, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
         $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't write to the bnsMobileStationTable");
@@ -201,7 +200,7 @@ sub _deauthenticateMacWithTelnet {
 #use constant AUTH_DOT1X => 4;
 #sub deauthenticateMac {
 #    my ($this, $mac) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my $logger = $this->logger;
 #    my $OID_nUserAuthenticationMethod = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.6'; # from WLSX-USER-MIB
 #    ...
 #    # Query the controller to get the type of authentication the user is using
@@ -251,7 +250,7 @@ De-authenticate a MAC from controller when user is in 802.1x mode using Telnet.
 
 sub _dot1xDeauthenticateMAC {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $session = $this->getTelnetSession;
     if (!$session) {
@@ -289,7 +288,7 @@ and without an IP in the table.
 
 sub _deauthenticateMAC {
     my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my $OID_nUserApBSSID = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.11'; # from WLSX-USER-MIB
 
     # Query the controller to get the MAC address of the AP to which the client is associated
@@ -340,7 +339,7 @@ sub _deauthenticateMAC {
 # TODO: extract in a more generic place?
 sub getTelnetSession {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # use telnet to deauthenticate the client
     # FIXME: we do not honor the $this->{_cliTransport} parameter
@@ -380,7 +379,7 @@ Aruba specific parser. See pf::Switch for base implementation.
 
 sub extractSsid {
     my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     # Aruba-Essid-Name VSA
     if (defined($radius_request->{'Aruba-Essid-Name'})) {
@@ -403,7 +402,7 @@ assigning VLANs and Roles at the same time.
 
 sub returnRadiusAccessAccept {
     my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $radius_reply_ref = {};
 
@@ -455,7 +454,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 sub deauthTechniques {
     my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -482,7 +481,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -575,7 +574,7 @@ Extract VLAN from the radius attributes.
 
 sub extractVLAN {
     my ($self, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     return ($radius_request->{'Aruba-User-Vlan'});
 }
 
@@ -594,7 +593,7 @@ status code
 
 sub parseUrl {
     my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return ($$req->param('mac'),$$req->param('essid'),$$req->param('ip'),$$req->param('url'),undef,undef);
 }
 

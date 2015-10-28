@@ -41,7 +41,7 @@ sub begin : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
     my $pid     = $c->session->{"username"};
     my $request = $c->request;
 

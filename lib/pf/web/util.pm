@@ -18,6 +18,7 @@ See F<pf::web::custom> for details.
 use strict;
 use warnings;
 
+use pf::log;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 use pf::config;
@@ -334,7 +335,7 @@ retreive packetfence cookie
 
 sub getcookie {
     my ($cookies) =@_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $cleaned_cookies = '';
     if ( defined($cookies) ) {
         foreach (split(';', $cookies)) {
@@ -373,7 +374,7 @@ sub build_captive_portal_detection_mecanisms_regex {
         return qr/ ^(?: $captive_portal_detection_mecanism_urls ) /x; # eXtended pattern
     } else {
         return '';
-    }    
+    }
 }
 
 =item is_certificate_self_signed
@@ -383,7 +384,7 @@ Check if configured SSL certificate is self-signed
 =cut
 
 sub is_certificate_self_signed {
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     unless ( -e $ssl_configuration_file ) {
         $logger->warn("Unable to read the SSL certificate file '$ssl_configuration_file', assuming self-signed");

@@ -16,7 +16,6 @@ use fingerbank::Model::DHCP_Fingerprint();
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
-use pf::log;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';

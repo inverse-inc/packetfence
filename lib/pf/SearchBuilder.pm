@@ -43,6 +43,7 @@ pf::SearchBuilder
 
 use Moose;
 use namespace::autoclean;
+use pf::log;
 use pf::db qw(get_db_handle);
 use Scalar::Util qw(looks_like_number);
 BEGIN {
@@ -219,7 +220,7 @@ sub _where_clause {
 
 sub _add_implict_and {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if($self->has_where_clause_elements) {
         my $last_elem = $self->last_where_clause_element;
         if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{$last_elem} ) {
@@ -517,7 +518,7 @@ sub format_from_on {
 sub _format_from_on {
     my ($self, $arg) = @_;
     my $clause = '';
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $type = ref($arg);
     if ($type eq 'HASH') {
         $clause = $self->format_column($arg);

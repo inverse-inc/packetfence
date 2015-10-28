@@ -10,7 +10,6 @@ use pf::constants;
 use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::log;
 use List::MoreUtils qw(all);
 
 BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }

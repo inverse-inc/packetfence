@@ -15,7 +15,7 @@ pf::scan::openvas is a module to add OpenVAS scanning option.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use MIME::Base64;
 use Readonly;
 
@@ -44,7 +44,7 @@ Create an escalator which will trigger an action on the OpenVAS server once the 
 
 sub createEscalator {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name = $this->{_id};
     my $callback = $this->_generateCallback();
@@ -83,7 +83,7 @@ Create a target (a target is a host to scan)
 
 sub createTarget {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name = $this->{_id};
     my $target_host = $this->{_scanIp};
@@ -122,7 +122,7 @@ Create a task (a task is a scan) with the existing config id and previously crea
 
 sub createTask {
     my ( $this )  = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name = $this->{_id};
 
@@ -165,7 +165,7 @@ Report processing's duty is to ensure that the proper violation will be triggere
 
 sub processReport {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name                = $this->{_id};
     my $report_id           = $this->{_reportId};
@@ -215,7 +215,7 @@ Create a new Openvas scanning object with the required attributes
 
 sub new {
     my ( $class, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Instantiating a new pf::scan::openvas scanning object");
 
@@ -253,7 +253,7 @@ That's where we use all of these method to run a scan
 
 sub startScan {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $this->createTarget();
     $this->createEscalator();
@@ -269,7 +269,7 @@ Start a scanning task with the previously created target and escalator
 
 sub startTask {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name    = $this->{_id};
     my $task_id = $this->{_taskId};
@@ -314,7 +314,7 @@ Remote: HTTPS with fully qualified domain name on admin interface
 
 sub _generateCallback {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $name = $this->{'_id'};
     my $callback = "<method>HTTP Get<data>";

@@ -28,7 +28,7 @@ our $MSGPACKRPC_RESPONSE = 1;
 our $MSGPACKRPC_NOTIFICATION = 2;
 
 sub handler {
-    my $logger = get_logger;
+    my $logger = get_logger();
     use bytes;
     my ($self,$r) = @_;
     my $content_type = $r->headers_in->{'Content-Type'};

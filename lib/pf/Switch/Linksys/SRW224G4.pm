@@ -13,7 +13,6 @@ oriented interface to access SNMP enabled Linksys SRW224G4 switches.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Linksys');
 

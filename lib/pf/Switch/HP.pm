@@ -29,7 +29,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -46,7 +45,7 @@ TODO: This list is incomplete
 sub getVersion {
     my ($this)                = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
-    my $logger                = Log::Log4perl::get_logger( ref($this) );
+    my $logger                = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -65,7 +64,7 @@ sub getVersion {
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #-- secureMacAddrViolation SNMP v1 & v2c
     if ( $trapString
@@ -101,7 +100,7 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return 0;
     }
@@ -193,7 +192,7 @@ sub _setVlan {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
@@ -228,7 +227,7 @@ sub getAllSecureMacAddresses {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
@@ -263,7 +262,7 @@ sub getSecureMacAddresses {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+    my $logger                  = $this->logger;
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode    = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex  = 1;
@@ -325,7 +324,7 @@ sub getMaxMacAddresses {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( ($deauthMac) && ( !$this->isFakeMac($deauthMac) ) ) {
         $this->_authorizeMAC( $ifIndex, $deauthMac, 0 );
@@ -341,7 +340,7 @@ sub authorizeMAC {
 # In both case, resets IntrusionFlag
 sub _authorizeMAC {
     my ( $this, $ifIndex, $MACHexString, $authorize ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $OID_hpSecPtIntrusionFlag
@@ -397,7 +396,7 @@ sub isStaticPortSecurityEnabled {
 
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     $logger->info("function not implemented yet");
     return 1;
@@ -405,7 +404,7 @@ sub setPortSecurityEnableByIfIndex {
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_hpSecPtLearnMode   = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
@@ -447,7 +446,7 @@ sub isPortSecurityEnabled {
 sub getVlanFdbId {
     my ( $this, $vlan ) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0';    #Q-BRIDGE-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
@@ -484,7 +483,7 @@ In what VLAN should a VoIP device be.
 
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
 
     my $voiceVlan = $this->getVlanByName('voice');
     if (defined($voiceVlan)) {

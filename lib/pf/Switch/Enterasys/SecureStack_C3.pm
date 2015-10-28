@@ -16,7 +16,6 @@ It should work on all C3 switches and maybe more.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Enterasys');
 

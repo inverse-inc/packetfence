@@ -17,7 +17,6 @@ use warnings;
 
 use base ('pf::Switch');
 use POSIX;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -26,7 +25,7 @@ use pf::util;
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( $trapString
         =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) =/
         )
@@ -63,20 +62,20 @@ sub parseTrap {
 
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return $this->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan,
         $switch_locker_ref );
 }
 
 sub isLearntTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return 0;
 }
 
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     #ENTERASYS-MAC_LOCKING-MIB
     my $OID_etsysMACLockingSystemEnable = '1.3.6.1.4.1.5624.1.2.21.1.1.1';
@@ -126,7 +125,7 @@ sub isPortSecurityEnabled {
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return -1;
@@ -163,7 +162,7 @@ sub getMaxMacAddresses {
 
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     my $OID_etsysMACLockingStaticEntryRowStatus
         = '1.3.6.1.4.1.5624.1.2.21.1.3.1.1.2';
@@ -210,7 +209,7 @@ sub authorizeMAC {
 
 sub getAllSecureMacAddresses {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_etsysMACLockingStaticEntryRowStatus
         = '1.3.6.1.4.1.5624.1.2.21.1.3.1.1.2';
 
@@ -240,7 +239,7 @@ sub getAllSecureMacAddresses {
 
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     my $OID_etsysMACLockingStaticEntryRowStatus
         = '1.3.6.1.4.1.5624.1.2.21.1.3.1.1.2';
 

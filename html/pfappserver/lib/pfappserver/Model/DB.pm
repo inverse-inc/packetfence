@@ -17,6 +17,7 @@ use DBI;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::config;
 use pf::error;
 use pf::util;
@@ -35,11 +36,11 @@ our $dbHandler;
 
 sub assign {
     my ( $self, $db, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
-    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");   
+    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
@@ -69,7 +70,7 @@ sub assign {
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # Create pf_graphite database
-    $db = $graphitedb; 
+    $db = $graphitedb;
     foreach my $host ("'%'","localhost") {
         my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
         $dbHandler->do($sql_query, undef, $user, $password);
@@ -97,7 +98,7 @@ sub assign {
 
 sub connect {
     my ( $self, $db, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -118,7 +119,7 @@ sub connect {
 
 sub create {
     my ( $self, $db, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status_msg, $result );
 
@@ -157,7 +158,7 @@ sub create {
 
 sub secureInstallation {
     my ( $self, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
 
@@ -202,7 +203,7 @@ TODO: sanitize parameters going into pf_run with strict regex
 
 sub schema {
     my ( $self, $db, $root_user, $root_password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status_msg, $result );
     $root_user = quotemeta ($root_user);
@@ -251,7 +252,7 @@ sub schema {
 
 sub resetUserPassword {
     my ( $self, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ( $status, $status_msg );
     # Making sure username/password are "ok"
@@ -270,7 +271,7 @@ sub resetUserPassword {
           [ "The password of [_1] was successfully modified.", $user ];
         return ( $STATUS::OK, $status_msg );
     }
-    else {                                                                                                            
+    else {
         $logger->warn("Error while changing the password of $user");
         $status_msg = [ "Error while changing the password of [_1].", $user ];
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );

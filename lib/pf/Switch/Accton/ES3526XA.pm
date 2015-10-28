@@ -19,7 +19,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Accton');
 
@@ -27,7 +26,7 @@ sub description { 'Accton ES3526XA' }
 
 sub getMinOSVersion {
     my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     return '2.3.3.5';
 }
 

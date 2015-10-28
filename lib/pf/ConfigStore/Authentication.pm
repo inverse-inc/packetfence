@@ -83,7 +83,7 @@ deleted.
 
 sub deleteSource {
     my $id = shift;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my %Profiles_Config;
     tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
@@ -110,7 +110,7 @@ Write the configuration file to disk
 
 sub writeAuthenticationConfigFile {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $cached_authentication_config = $self->cachedConfig;
     # Remove deleted sections
     my %new_sources = map { $_->id => undef } @auth_sources;

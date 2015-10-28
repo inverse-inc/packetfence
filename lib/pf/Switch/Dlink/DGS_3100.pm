@@ -38,7 +38,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
@@ -70,7 +69,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 sub getVersion {
     my ($this) = @_;
     my $oid_dlinkFirmwareVersion = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if ( !$this->connectRead() ) {
         return '';
     }
@@ -91,7 +90,7 @@ Translate RADIUS NAS-Port into the physical port ifIndex
 
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     
     #NAS-Port is ifIndex (Stacked switch not tested!!)
     return $NAS_port;

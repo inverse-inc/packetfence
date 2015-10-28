@@ -15,7 +15,6 @@ It should work on all Matrix chassis.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 use base ('pf::Switch::Enterasys');
@@ -36,7 +35,7 @@ What we do here is the parent method and then translate dot1dBasePort to ifIndex
 
 sub getMacBridgePortHash {
     my $this   = shift;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = $this->logger;
     my %macBridgePortHash = ();
 
     # call our parent method fill the hash with mac -> dot1dBasePort
@@ -75,7 +74,7 @@ sub getMacBridgePortHash {
 # see http://www.packetfence.org/mantis/view.php?id=803 for details
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
     if (!$this->connectRead()) {
         return 0;
     }
@@ -181,7 +180,7 @@ sub _setVlan {
 # LIMITATION: only works with gigabit ports (ge.x.y)
 #sub _setVlan {
 #    my ($this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref) = @_;
-#    my $logger = Log::Log4perl::get_logger(ref($this));
+#    my $logger = $this->logger;
 #
 #    # use telnet to set the new VLAN
 #    my $session;
