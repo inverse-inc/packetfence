@@ -597,7 +597,6 @@ Returns 1 if at least one violation is added, 0 otherwise.
 
 sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
     my $logger = get_logger();
     $logger->info("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );

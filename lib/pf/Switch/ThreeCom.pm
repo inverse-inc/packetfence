@@ -90,7 +90,7 @@ sub _getMacAtIfIndex {
 
 sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $this->logger;
 
     if ( !$this->connectRead() ) {
         return 0;
