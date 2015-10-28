@@ -27,16 +27,17 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
-    'network'         => {type => 'network',       key  => 'last_ip'},
-    'node_role'       => {type => 'equals',        key  => 'category'},
-    'connection_type' => {type => 'equals',        key  => 'last_connection_type'},
-    'port'            => {type => 'equals',        key  => 'last_port'},
-    'realm'           => {type => 'equals',        key  => 'realm'},
-    'ssid'            => {type => 'equals',        key  => 'last_ssid'},
-    'switch'          => {type => 'equals',        key  => 'last_switch'},
-    'switch_port'     => {type => 'couple_equals', key1 => 'last_switch', key2 => 'last_port'},
-    'uri'             => {type => 'equals',        key  => 'last_uri'},
-    'vlan'            => {type => 'equals',        key  => 'last_vlan'},
+    'network'             => {type => 'network',       key  => 'last_ip'},
+    'node_role'           => {type => 'equals',        key  => 'category'},
+    'connection_type'     => {type => 'equals',        key  => 'last_connection_type'},
+    'port'                => {type => 'equals',        key  => 'last_port'},
+    'realm'               => {type => 'equals',        key  => 'realm'},
+    'ssid'                => {type => 'equals',        key  => 'last_ssid'},
+    'switch'              => {type => 'equals',        key  => 'last_switch'},
+    'switch_port'         => {type => 'couple_equals', key1 => 'last_switch', key2 => 'last_port'},
+    'uri'                 => {type => 'equals',        key  => 'last_uri'},
+    'vlan'                => {type => 'equals',        key  => 'last_vlan'},
+    'connection_sub_type' => {type => 'equals',        key  => 'last_connection_sub_type'},
 );
 
 sub modules {
