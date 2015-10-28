@@ -942,8 +942,6 @@ fi
                         /usr/local/pf/conf/monitoring/storage-schemas.conf.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/types.db
                         /usr/local/pf/conf/monitoring/types.db.example
-%config(noreplace)      /usr/local/pf/conf/popup.msg
-                        /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
