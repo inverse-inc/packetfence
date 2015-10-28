@@ -49,7 +49,7 @@ my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 sub handler {
     my ($r) = @_;
     pf::client::setClient("pf::api::local");
-    my $logger = get_logger;
+    my $logger = get_logger();
     if (defined($r->headers_in->{Request})) {
         $r->user($r->headers_in->{Request});
     }
@@ -65,7 +65,7 @@ sub handler {
 }
 
 sub log_faults {
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->info(@_);
 }
 

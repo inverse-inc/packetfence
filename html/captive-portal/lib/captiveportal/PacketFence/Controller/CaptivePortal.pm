@@ -89,7 +89,7 @@ Records the user agent information
 sub nodeRecordUserAgent : Private {
     my ( $self, $c ) = @_;
     my $user_agent    = $c->request->user_agent;
-    my $logger        = get_logger;
+    my $logger        = get_logger();
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     unless ($user_agent) {
@@ -392,7 +392,7 @@ sub unknownState : Private {
 
 sub endPortalSession : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger;
+    my $logger        = get_logger();
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
 

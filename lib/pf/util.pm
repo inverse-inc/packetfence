@@ -465,7 +465,7 @@ sub safe_file_update {
     $temp->flush;
     close $temp;
     unless( rename ($temp->filename, $file) ) {
-        my $logger = pf::log::get_logger;
+        my $logger = pf::log::get_logger();
         $logger->error("cannot save contents to $file '$!'");
         die "cannot save contents to $file";
     }
@@ -1099,11 +1099,11 @@ sub strip_username {
 
 sub send_email {
     my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my %options;
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
     $options{ENCODING} = "utf8";
-    
+
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,

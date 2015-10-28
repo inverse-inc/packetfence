@@ -114,7 +114,7 @@ EOT
                     if ($members) {
                         if ($current_network->contains($ip)) {
                             $dns = $members;
-                        $active = defined($net{next_hop}) ? 
+                        $active = defined($net{next_hop}) ?
                                  NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'}) :
                                  NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
                         }
@@ -243,7 +243,7 @@ sub stop {
 
 sub manageStaticRoute {
     my $add_Route = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
@@ -264,7 +264,7 @@ sub manageStaticRoute {
 
 sub isManaged {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     if($cluster_enabled && !pf::cluster::should_offer_dhcp()){
         $logger->info("This server cannot offer dhcp according to pf::cluster");
         return 0;

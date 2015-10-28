@@ -48,7 +48,7 @@ Method used to build a basic curl object
 
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $uri = $self->protocol."://".$self->host.":".$self->port."/".$uri;
 
@@ -104,6 +104,7 @@ sub available_attributes {
 Encodes a hash into URL/BODY parameters
 
 =cut
+
 sub encode_params {
     my %hash = @_;
     my @pairs;

@@ -107,19 +107,19 @@ sub supportsPolling {return 1}
 
 sub get_refresh_token {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     return $self->{'refresh_token'}
 }
 
 sub get_access_token {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     return $self->{'access_token'};
 }
 
 sub refresh_access_token {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $refresh_token = $self->get_refresh_token();
     my $curl = WWW::Curl::Easy->new;
@@ -184,7 +184,7 @@ sub update_config {
 
 sub get_device_info {
     my ($self, $mac) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
@@ -207,7 +207,7 @@ sub get_device_info {
 
 sub validate_mac_in_opswat {
     my ($self, $mac) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $info = $self->get_device_info($mac);
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         return $self->check_active($mac, $info);
@@ -219,7 +219,7 @@ sub validate_mac_in_opswat {
 
 sub check_active {
     my ($self, $mac, $json_response) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $f = DateTime::Format::RFC3339->new();
     unless(defined($json_response->{last_seen})){
@@ -242,7 +242,7 @@ sub check_active {
 
 sub authorize {
     my ($self,$mac) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $result = $self->validate_mac_in_opswat($mac);
     if( $result == $pf::provisioner::COMMUNICATION_FAILED){
@@ -265,7 +265,7 @@ sub authorize {
 
 sub verify_compliance {
     my ($self, $mac) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $info = $self->get_device_info($mac);
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         if($self->{critical_issues_threshold} != 0 && defined($info->{total_critical_issue}) && $info->{total_critical_issue} >= $self->{critical_issues_threshold}){
@@ -280,7 +280,7 @@ sub verify_compliance {
 
 sub pollAndEnforce{
     my ($self, $timeframe) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $result = $self->get_status_changed_devices($timeframe);
     if ( $result == $pf::provisioner::COMMUNICATION_FAILED ){
         $logger->info("OPSWAT Oauth access token is probably not valid anymore.");
@@ -302,7 +302,7 @@ sub pollAndEnforce{
 
 sub get_status_changed_devices {
     my ($self, $timeframe) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $access_token = $self->get_access_token();
     my $curl = WWW::Curl::Easy->new;
@@ -328,7 +328,7 @@ sub get_status_changed_devices {
 
 sub decode_response {
     my ($self, $code, $response_body) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     if ( $code == 401 ) {
         $logger->error("Unauthorized to contact OPSWAT");
         return $pf::provisioner::COMMUNICATION_FAILED;

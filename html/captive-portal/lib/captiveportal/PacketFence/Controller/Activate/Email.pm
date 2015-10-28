@@ -55,7 +55,7 @@ sub code : Path : Args(1) {
     my $profile       = $c->profile;
     my $node_mac;
     my $request = $c->request;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
 
     # validate code
     my $activation_record = pf::activation::validate_code($code);
@@ -123,7 +123,7 @@ TODO: documention
 sub doEmailRegistration : Private {
     my ( $self, $c, $code ) = @_;
     my $request           = $c->request;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $activation_record = $c->stash->{activation_record};
     my $profile           = $c->profile;
     my $node_mac          = $c->portalSession->guestNodeMac;
@@ -223,7 +223,7 @@ TODO: documention
 
 sub doSponsorRegistration : Private {
     my ( $self, $c, $code ) = @_;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $request           = $c->request;
     my $activation_record = $c->stash->{activation_record};
     my $portalSession     = $c->portalSession;

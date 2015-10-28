@@ -76,7 +76,7 @@ unless($master_server || $as_master){
     exit;
 }
 
-my $logger = get_logger;
+my $logger = get_logger();
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],

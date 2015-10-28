@@ -40,7 +40,7 @@ has '+email_required' => (isa => 'Str', is => 'rw', default => 'yes');
 
 sub authenticate {
     my ($self, $username, $password) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $uri = $KICKBOX_HOST.$VERIFY_URI;
 

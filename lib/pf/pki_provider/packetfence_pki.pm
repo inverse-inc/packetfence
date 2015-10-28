@@ -75,7 +75,7 @@ has profile => ( is => 'rw' );
 
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $uri = $self->proto."://".$self->host.":".$self->port.$uri;
 
@@ -157,7 +157,7 @@ Revoke the certificate for a user
 
 sub revoke {
     my ($self, $cn) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $uri = "/pki/cert/rest/revoke/".$cn."/";
     my $post_fields =
       "CRLReason=" . uri_escape("superseded");

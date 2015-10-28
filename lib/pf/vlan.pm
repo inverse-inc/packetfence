@@ -53,7 +53,7 @@ Usually you don't want to call this constructor but use the pf::vlan::custom sub
 
 sub new {
     my ( $class, %argv ) = @_;
-    my $logger = $class->get_logger;
+    my $logger = $class->get_logger();
     $logger->debug("instantiating new pf::vlan object");
     my $this = bless {}, $class;
     return $this;
@@ -741,7 +741,7 @@ sub isInlineTrigger {
 
 sub _check_bypass {
     my ( $mac, $node_info, $switch ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     if ( @_ < 3 ) { return undef; }
 

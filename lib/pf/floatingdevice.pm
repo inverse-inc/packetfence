@@ -92,7 +92,7 @@ Get an instance of the pf::floatingdevice object
 =cut
 
 sub new {
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->debug("instantiating new pf::floatingdevice object");
     my ($class, %argv) = @_;
     my $this = bless {}, $class;
@@ -113,7 +113,7 @@ sub enablePortConfig {
 
 
     my ($this, $mac, $switch, $switch_port, $switch_locker_ref, $radius_triggered) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     # Since PF only manages floating network devices plugged in ports configured with port-security
     # all the switches with no port-security won't work here.
@@ -172,7 +172,7 @@ sub disablePortConfig {
 # cause in this case there would be any traps enabled anymore...
 
     my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     if (! $switch->supportsFloatingDevice()) {
         $logger->error("Floating devices are not supported on switch type " . ref($switch));
@@ -245,7 +245,7 @@ Puts the switchport in MAB floating device mode
 
 sub enableMABFloating{
     my ( $this, $mac, $switch, $ifIndex ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $result;
     if($switch->supportsFloatingDevice && !$switch->supportsMABFloatingDevices){
@@ -268,7 +268,7 @@ Verifies if there is a floating device plugged into the switchport in the locati
 
 sub portHasFloatingDevice {
     my ($this, $switch, $switch_port) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $logger->debug("Determining if there is a floating device on $switch port $switch_port");
     my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch, $switch_port);
@@ -291,7 +291,7 @@ Disconnects the active locationlog macs on the port so they reauthenticate to be
 
 sub _disconnectCurrentDevices{
     my ( $this, $switch, $switch_port ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
 

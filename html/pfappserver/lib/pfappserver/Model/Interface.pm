@@ -222,7 +222,7 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 
 sub get {
     my ( $self, $interface) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $models = $self->{models};
 
     # Put requested interfaces into an array
@@ -420,7 +420,7 @@ sub getType {
 
 sub setType {
     my ($self, $interface, $interface_ref) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
@@ -619,7 +619,7 @@ Process parameters to build a proper pf.conf interface section.
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
     my ($self, $int, $int_model, $type) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $int_config_ref = {
         ip => $int_model->{'ipaddress'},

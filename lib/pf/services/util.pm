@@ -61,7 +61,7 @@ creates the pid file for the service
 
 sub createpid {
     my ($pname) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pid     = $$;
     my $pidfile = $var_dir . "/run/$pname.pid";

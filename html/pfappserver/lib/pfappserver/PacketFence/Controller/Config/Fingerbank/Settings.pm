@@ -28,7 +28,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 sub check_for_api_key :Private {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
@@ -39,7 +39,7 @@ sub check_for_api_key :Private {
 
 sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $c->forward('index') if ( fingerbank::Config::is_api_key_configured );
 
@@ -85,7 +85,7 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
 sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $c->forward('check_for_api_key');
 

@@ -81,7 +81,7 @@ Add all the common variables in the stash
 
 sub setupCommonStash : Private {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $portalSession   = $c->portalSession;
     my $destination_url = $portalSession->destinationUrl;
 
@@ -115,7 +115,7 @@ Define the locale
 
 sub setupLanguage : Private {
     my ($self, $c) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my ($locales) = $c->forward('getLanguages');
 
     my $locale = shift @$locales;
@@ -153,7 +153,7 @@ of the configuration is returned.
 
 sub getLanguages :Private {
     my ($self, $c) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $portalSession = $c->portalSession;
 
     my ($lang, @languages);

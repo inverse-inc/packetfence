@@ -42,7 +42,7 @@ our $RPC_VERSION  = "2.0";
 sub allowed {return exists $ALLOW_CONTENT_TYPE{$_[0]}}
 
 sub handler {
-    my $logger = get_logger;
+    my $logger = get_logger();
     use bytes;
     my ($self, $r) = @_;
     my $content = $self->get_all_content($r);

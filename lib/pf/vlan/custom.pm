@@ -55,7 +55,7 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
 #    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
 #
-#    my $logger = get_logger;
+#    my $logger = get_logger();
 #    # CUSTOM: We want to auto-register 802.1x connections
 #    # Since they already have validated credentials through EAP to do 802.1X
 #    if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {

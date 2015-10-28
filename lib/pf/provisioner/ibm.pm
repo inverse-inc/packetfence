@@ -22,7 +22,7 @@ use pf::util qw(valid_mac clean_mac);
 use Sub::Name;
     # SOAP global error handler (mostly transport or server errors)
     # here we only log, the or on soap method calls will take care of returning
-my $logger = get_logger;
+my $logger = get_logger();
 use SOAP::Lite
     on_fault => subname on_fault => sub {
         my($soap, $res) = @_;

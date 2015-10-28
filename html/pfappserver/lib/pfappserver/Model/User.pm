@@ -350,7 +350,7 @@ sub createSingle {
     unless ($self->_userRoleAllowedForUser($data, $user)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
-   
+
 
     # Adding person (using modify in case person already exists)
     $result = person_modify($pid,
@@ -370,7 +370,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::password::generate($pid, 
+        $result = pf::password::generate($pid,
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -395,7 +395,7 @@ sub _userRoleAllowedForUser {
     my ($self, $data, $user) = @_;
     #If the user has the ALL role then they are good
     return 1 if any { 'ALL' eq $_ } $user->roles;
-    #User does not have the role of ALL then it cannot create a user with the same role 
+    #User does not have the role of ALL then it cannot create a user with the same role
     return none { __doesActionHaveAllAccessLevel($_) } @{$data->{actions} || []};
 }
 
@@ -451,7 +451,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::password::generate($pid, 
+            $result = pf::password::generate($pid,
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -544,7 +544,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::password::generate($pid, 
+                $result = pf::password::generate($pid,
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
@@ -631,7 +631,7 @@ sub bulkApplyRole {
 sub bulkApplyViolation {
     my ($self, $violation_id, @ids) = @_;
     my $count = 0;
-    my $logger = get_logger;
+    my $logger = get_logger();
     foreach my $mac (map {$_->{mac}} map {person_nodes($_)} @ids  ) {
         my ($last_id) = violation_add( $mac, $violation_id);
         $count++ if $last_id > 0;;
