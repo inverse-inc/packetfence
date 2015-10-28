@@ -2,7 +2,7 @@ package pf::condition::exists_in;
 
 =head1 NAME
 
-pf::condition::exists_in - is the value exists in a hash
+pf::condition::exists_in - checks if a value exists in a hash
 
 =cut
 
@@ -33,7 +33,7 @@ has lookup => (
 
 =head2 match
 
-Matches if the argument does not match the value
+Matches if the argument exists in the hash
 
 =cut
 
