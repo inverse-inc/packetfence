@@ -59,6 +59,9 @@
 # Mysql
 -A input-management-if --protocol tcp --match tcp --dport 3306 --jump ACCEPT
 
+# Syslog
+-A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
+
 :input-portal-if - [0:0]
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
