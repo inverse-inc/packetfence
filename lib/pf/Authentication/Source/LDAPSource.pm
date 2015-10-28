@@ -421,7 +421,9 @@ sub ldap_filter_for_conditions {
           my $attribute = $condition->{'attribute'};
 
           if ($operator eq $Conditions::EQUALS) {
-              $str = "${attribute}=${value}";
+              $str = "(${attribute}=${value})";
+          }elsif ($operator eq $Conditions::NOT_EQUALS) {
+              $str = "!(${attribute}=${value})";
           } elsif ($operator eq $Conditions::CONTAINS) {
               $str = "${attribute}=*${value}*";
           } elsif ($operator eq $Conditions::STARTS) {

@@ -62,6 +62,7 @@ Constants related to conditions rules.
 package Conditions;
 
 Readonly::Scalar our $EQUALS => 'equals';
+Readonly::Scalar our $NOT_EQUALS => 'not equals';
 Readonly::Scalar our $CONTAINS => 'contains';
 Readonly::Scalar our $STARTS => 'starts';
 Readonly::Scalar our $ENDS => 'ends';
@@ -102,7 +103,7 @@ Readonly::Hash our %OPERATORS =>
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
    $CONNECTION => [$IS, $IS_NOT],
-   $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
+   $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );
 
 =back
