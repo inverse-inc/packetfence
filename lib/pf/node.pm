@@ -407,8 +407,7 @@ sub node_pid {
 #
 sub node_view_reg_pid {
     my ($pid) = @_;
-    my @data = (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
-    return @data;
+    return (db_data(NODE, $node_statements, 'node_view_reg_pid_sql', $pid));
 }
 
 #
@@ -1062,6 +1061,7 @@ sub nodes_maintenance {
     my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') ;
     unless ($expire_unreg_query ) { 
         $pf::StatsD::statsd->end( called() . ".timing" , $start); 
+        return (0);
     }
 
     while (my $row = $expire_unreg_query->fetchrow_hashref()) {
