@@ -130,17 +130,6 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     $c->response->status($status);
 }
 
-sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{current_view} = 'JSON';
-
-    my ( $status, $status_msg ) = fingerbank::Config::update_p0f_map();
-
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
-}
-
 =head2 update_p0f_map
 
 Update the p0f map using the fingerbank library
