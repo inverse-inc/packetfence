@@ -655,16 +655,6 @@ memcached_memory_usage=64
 # 
 # The maximum of size of the items allowed to be stored
 memcached_max_item_size=1M
-# 
-# services.httpd_mod_qos
-# 
-# Enable mod_qos
-httpd_mod_qos=disabled
-# 
-# services.httpd_mod_qos_maximum_users
-# 
-# The maximum connections per device 
-httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #
@@ -839,6 +829,66 @@ detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.go
 #
 # Enable or disable WISPr redirection capabilities on the captive-portal
 wispr_redirection = enabled
+
+# captive_portal.httpd_mod_qos
+#
+# Enable mod_qos for the captive-portal
+httpd_mod_qos=disabled
+#
+# captive_portal.httpd_mod_qos_maximum_users
+#
+# The maximum number of connections per device
+httpd_mod_qos_maximum_connections_per_device=5
+#
+# captive_portal.httpd_mod_evasive
+#
+# Enable mod_evasive for the captive-portal
+httpd_mod_evasive=disabled
+#
+# captive_portal.httpd_mod_evasive_white_list
+#
+# Comma delimited IP addresses or networks CIDR format of trusted clients can be added to the whitelist to ensure they are never denied.
+httpd_mod_evasive_white_list=127.0.0.1
+#
+# captive_portal.httpd_mod_evasive_hash_table_size
+#
+# The hash table size defines the number of top-level nodes for each child's hash table. Increasing this number will provide faster performance by decreasing the number of iterations required to get to the record, but consume more memory for table space. You should increase this if you have a busy web server.
+httpd_mod_evasive_hash_table_size=3097
+#
+# captive_portal.httpd_mod_evasive_page_count
+#
+# This is the limit for the number of requests for the same page per page interval by an IP address. Once the threshold for that interval has been exceeded, the IP address of the client will be added to the blocked list.
+httpd_mod_evasive_page_count=5
+#
+# captive_portal.httpd_mod_evasive_page_interval
+#
+# The interval in seconds for the page count threshold.
+httpd_mod_evasive_page_interval=2
+#
+# captive_portal.httpd_mod_evasive_site_count
+#
+# The limit for the total number of requests for the portal by an IP address per site interval.
+httpd_mod_evasive_site_count=20
+#
+# captive_portal.httpd_mod_evasive_site_interval
+#
+# The interval in seconds for the site count threshold
+httpd_mod_evasive_site_interval=1
+#
+# captive_portal.httpd_mod_evasive_blocking_period
+#
+# The amount of time (in seconds) that a client will be blocked for if they are added to the blocking list. During this time, all subsequent requests from the client will result in a 403 (Forbidden) and the timer being reset (e.g. another 10 seconds). Since the timer is reset for every subsequent request, it is not necessary to have a long blocking period; in the event of a DoS attack, this timer will keep getting reset.
+httpd_mod_evasive_blocking_period=10
+#
+# captive_portal.httpd_mod_evasive_email_notify
+#
+# If this value is set, an email will be sent to the address specified whenever an IP address becomes blacklisted.
+httpd_mod_evasive_email_notify=
+#
+# captive_portal.httpd_mod_evasive_system_command
+#
+# If this value is set, the system command specified will be executed whenever an IP address becomes blacklisted. This is designed to enable system calls to ip filter or other tools. A locking mechanism using /tmp prevents continuous system calls. Use %s to denote the IP address of the blacklisted IP, use %t to use the mod_evasive blocking period value. The default value will insert the device ip in ipset session for 10 seconds and deny the access to the portal.
+httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm -f /usr/local/pf/logs/dos*"
 
 [advanced]
 #

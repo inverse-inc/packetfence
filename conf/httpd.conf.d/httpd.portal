@@ -201,10 +201,32 @@ $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::
 $StartServers = "4";
 $MinSpareServers = "2";
 
-if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
+if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_qos})) {
     my $qos = $MaxClients * .7;
     $QS_SrvMaxConnClose = $qos;
-    $QS_SrvMaxConnPerIP = $PfConfig->{services}{httpd_mod_qos_maximum_connections_per_device};
+    $QS_SrvMaxConnPerIP = $PfConfig->{captive_portal}{httpd_mod_qos_maximum_connections_per_device};
+}
+
+if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_evasive})) {
+    if( pf::config::os_detection() eq 'debian' ) {
+        $LoadModule = "evasive20_module /usr/lib/apache2/modules/mod_evasive20.so";
+    } else {
+        $LoadModule = "evasive20_module modules/mod_evasive20.so";
+    }
+    $DOSHashTableSize = $PfConfig->{captive_portal}{httpd_mod_evasive_hash_table_size};
+    $DOSPageCount = $PfConfig->{captive_portal}{httpd_mod_evasive_page_count};
+    $DOSSiteCount = $PfConfig->{captive_portal}{httpd_mod_evasive_site_count};
+    $DOSPageInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_page_interval};
+    $DOSSiteInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_site_interval};
+    $DOSBlockingPeriod = $PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period};
+    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} if defined($PfConfig->{captive_portal}{httpd_mod_evasive_email_notify});
+    my $syscmd = $PfConfig->{captive_portal}{httpd_mod_evasive_system_command};
+    $syscmd =~ s/\%t/$PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period}/;
+    $DOSSystemCommand = $syscmd;
+    $DOSLogDir = $install_dir."/logs/";
+    foreach my $ip (@{$PfConfig->{captive_portal}{httpd_mod_evasive_white_list}} ) {
+        push (@DOSWhitelist, $ip);
+    }
 }
 
 $HostnameLookups = "off";

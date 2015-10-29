@@ -59,6 +59,10 @@ sub iptables_generate {
     my $cmd = "LANG=C sudo ipset --destroy";
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
+
+    $cmd = "LANG=C sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
+    @lines  = pf_run($cmd);
+
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
