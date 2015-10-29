@@ -2224,16 +2224,16 @@ Security Onion
 Installation and Configuration
 ++++++++++++++++++++++++++++++
 
-Security Onion is a Ubuntu based security suite. Latest installation instructions are available directly from the Security Onion website, https://github.com/Security-Onion-Solutions/security-onion/wiki/Installation
+Security Onion is a Ubuntu based security suite. The latest installation instructions are available directly from the Security Onion website, https://github.com/Security-Onion-Solutions/security-onion/wiki/Installation
 
-Since a security suite consists of multiple pieces of software tied together, you may be prompted for different options during the installation process. A detailled "Production Deployment" guide can also be found directly from the Security Onion website: https://github.com/Security-Onion-Solutions/security-onion/wiki/ProductionDeployment
+Since a security suite consists of multiple pieces of software tied together, you may be prompted for different options during the installation process. A detailed "Production Deployment" guide can also be found directly from the Security Onion website: https://github.com/Security-Onion-Solutions/security-onion/wiki/ProductionDeployment
 
 PacketFence integration
 +++++++++++++++++++++++
 
-Once Security Onion is installed and basically configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mecanisms.
+Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mecanisms.
 
-The most simple way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
+The simplest way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
 
 On the Security Onion server:
 
