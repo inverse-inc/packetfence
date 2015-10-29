@@ -317,7 +317,6 @@ sub getRegistrationVlan {
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type) = @_;
     my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
-    my $logger = Log::Log4perl->get_logger();
 
     # trapping on registration is enabled
 
