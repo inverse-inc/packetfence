@@ -551,6 +551,11 @@ statsd=enabled
 # Should radsniff be started?
 radsniff3=enabled
 #
+# services.p0f
+#
+# Should p0f be started?
+p0f=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -615,6 +620,11 @@ collectd_binary=/usr/sbin/collectd
 # 
 # Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff3_binary=/usr/bin/radsniff3
+# 
+# services.p0f_binary
+# 
+# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
+p0f_binary=/usr/local/bin/p0f
 # 
 # services.iptables_binary
 # 

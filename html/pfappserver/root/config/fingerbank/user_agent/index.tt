@@ -17,15 +17,6 @@
 
       <h2>[% l('User Agent') %]</h2>
 
-      <div class="options">
-        [% IF fingerbank_configured %]
-          <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('submit') )%]" ><i class="icon-share"></i> [% l('Submit Unknown/Unmatched Fingerprints') %]</a>
-          [% IF can_access("FINGERPRINTS_UPDATE") %] 
-             | <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerbank::DB').action_for('update') )%]" ><i class="icon-refresh"></i> [% l('Update Fingerbank DB') %]</a>
-          [% END %]
-        [% ELSE %]
-          [% l('It looks like Fingerbank is not configured. Please proceed to the Fingerbank Settings section to follow the onboard procedure') %]
-        [% END %]
-      </div>
+      [% INCLUDE config/fingerbank/header.tt %]
 
       [% INCLUDE config/fingerbank/user_agent/list.tt %]
