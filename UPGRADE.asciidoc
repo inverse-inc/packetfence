@@ -111,6 +111,12 @@ Also in violations.conf, the parameter whitelisted_categories has been renamed i
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Mod_qos configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Mod_qos configuration has been moved from services to captive_portal section.
+If you used it before make sure to enable it in captive portal configuration menu.
+
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
 

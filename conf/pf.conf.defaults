@@ -888,7 +888,7 @@ httpd_mod_evasive_email_notify=
 # captive_portal.httpd_mod_evasive_system_command
 #
 # The command that will be executed when a ip becomes blacklisted
-httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout 10 ; rm -f /usr/local/pf/logs/dos*"
+httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm -f /usr/local/pf/logs/dos*"
 
 [advanced]
 #
