@@ -114,8 +114,8 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Mod_qos configuration changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Mod_qos configuration has been moved from services to captive_portal section.
-If you used it before make sure to enable it in captive portal configuration menu.
+Mod_qos configuration has been moved from "services" to "captive_portal" section.
+Make sure to apply the appropriate changes if needed.
 
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
