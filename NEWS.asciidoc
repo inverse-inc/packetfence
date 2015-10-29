@@ -41,7 +41,7 @@ Enhancements
 * Speed up switch creation
 * New ntlm_auth wrapper will log authentication latency to StatsD automatically.
 * Move to the vlan filters to use the feature/filter-engine
-* Improved metrics now track SQL queries, LDAP queries, and more granular RADIUS aaa.
+* Improved metrics now track SQL queries, LDAP queries, and more granular metrics in RADIUS AAA.
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
