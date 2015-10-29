@@ -38,6 +38,11 @@ has_field 'authentication_source' =>
              help => 'The internal source used to authenticate' },
   );
 
+has_field skip_chained_auth => (
+    type => 'Checkbox',
+    checked_value => 1,
+);
+
 our %ALLOWED_CHAINED_SOURCES = (
     SMS          => undef,
     Email        => undef,
