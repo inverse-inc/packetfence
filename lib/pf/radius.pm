@@ -610,20 +610,28 @@ sub _handleStaticPortSecurityMovement {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     #Nothing to do if there is no location log
-    return unless defined($locationlog_mac);
+    unless defined($locationlog_mac) { 
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
+        return undef;
+    }
 
     my $old_switch_id = $locationlog_mac->{'switch'};
     #Nothing to do if it is the same switch
-    return if $old_switch_id eq $switch->{_id};
+    if ( $old_switch_id eq $switch->{_id} ) { 
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
+        return undef;
+    }
 
     my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id);
     if (!$oldSwitch) {
         $logger->error("Can not instantiate switch $old_switch_id !");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return;
     }
     my $old_port   = $locationlog_mac->{'port'};
     if (!$oldSwitch->isStaticPortSecurityEnabled($old_port)){
         $logger->debug("Stopping port-security handling in radius since old location is not port sec enabled");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return;
     }
     my $old_vlan   = $locationlog_mac->{'vlan'};
