@@ -837,7 +837,7 @@ httpd_mod_qos=disabled
 #
 # captive_portal.httpd_mod_qos_maximum_users
 #
-# The maximum number of connnections per device
+# The maximum number of connections per device
 httpd_mod_qos_maximum_connections_per_device=5
 #
 # captive_portal.httpd_mod_evasive
