@@ -31,6 +31,7 @@ BEGIN {
 }
 
 use pf::constants;
+use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::clustermgmt;
 use pf::config;
 use pf::config::cached;
@@ -387,10 +388,8 @@ sub parse_dhcp_request {
         );
         $apiclient->notify('trigger_scan', %data );
 
-        if(defined($lease_length)) {
-            my $firewallsso = pf::firewallsso->new;
-            $firewallsso->do_sso('Start',$dhcp->{'chaddr'}, $client_ip,$lease_length);
-        }
+        my $firewallsso = pf::firewallsso->new;
+        $firewallsso->do_sso('Update', $dhcp->{'chaddr'}, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -580,6 +579,8 @@ sub update_iplog {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
         $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
+        $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
+
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
             $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }

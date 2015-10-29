@@ -67,6 +67,23 @@ has_field 'uid' =>
    options_method => \&uid_type,
   );
 
+has_field 'cache_updates' =>
+  (
+   type => 'Checkbox',
+   label => 'Cache updates',
+   checkbox_value => 'enabled',
+   tags => { after_element => \&help,
+             help => 'Enable this to debounce updates to the Firewall.<br/>By default, PacketFence will send a SSO on every DHCP request for every device. Enabling this enables "sleep" periods during which the update is not sent if the informations stay the same.' },
+  );
+
+has_field 'cache_timeout' =>
+  (
+   type => 'PosInteger',
+   label => 'Cache timeout',
+   checkbox_value => 'enabled',
+   tags => { after_element => \&help,
+             help => 'Adjust the "Cache timeout" to half the expiration delay in your firewall.<br/>Your DHCP renewal interval should match this value.' },
+  );
 
 =head2 Methods
 

@@ -42,6 +42,7 @@ use fingerbank::DB;
 use JSON;
 use File::Slurp;
 use pf::file_paths;
+use pf::CHI;
 
 use List::MoreUtils qw(uniq);
 use NetAddr::IP;
@@ -224,9 +225,29 @@ sub firewallsso : Public {
 
     my $logger = pf::log::get_logger();
 
-    foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $firewall = pf::factory::firewallsso->new($firewall_conf);
-        $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+    foreach my $firewall_id ( sort keys %pf::config::ConfigFirewallSSO ) {
+        my $firewall = pf::factory::firewallsso->new($firewall_id);
+
+        if($postdata{method} eq "Update"){
+            if( pf::util::isenabled($pf::config::ConfigFirewallSSO{$firewall_id}{cache_updates}) ){
+                my $cache = pf::CHI->new( namespace => 'firewall_sso' );
+                my $cache_timeout = $pf::config::ConfigFirewallSSO{$firewall_id}{cache_timeout} || $postdata{timeout} / 2;
+                my $cache_key = "$firewall_id - $postdata{ip}";
+                return $cache->compute($cache_key, { expires_in => $cache_timeout },
+                    sub {
+                        $logger->debug("Doing cached firewall SSO for '$cache_key' with expiration of $cache_timeout");
+                        $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+                    }
+                );
+            }
+            else {
+                $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+            }
+        }
+        else {
+            $firewall->action($firewall_id,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+        }
+
     }
     return $pf::config::TRUE;
 }
