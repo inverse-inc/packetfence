@@ -1,8 +1,8 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index e58e4de..83ebef0 100644
+index 1fb4ba7..0c73052 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -579,7 +579,7 @@ haproxy_binary=/usr/sbin/haproxy
+@@ -574,7 +574,7 @@ haproxy_binary=/usr/sbin/haproxy
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -11,7 +11,7 @@ index e58e4de..83ebef0 100644
  #
  # services.dhcpd_binary
  #
-@@ -594,12 +594,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+@@ -589,12 +589,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -26,7 +26,7 @@ index e58e4de..83ebef0 100644
  # 
  # services.carbon-cache_binary
  # 
-@@ -614,7 +614,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
+@@ -609,7 +609,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
  # services.statsd_binary
  # 
  # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
@@ -34,4 +34,13 @@ index e58e4de..83ebef0 100644
 +statsd_binary=/usr/bin/nodejs
  # 
  # services.collectd_binary
+ # 
+@@ -624,7 +624,7 @@ radsniff3_binary=/usr/bin/radsniff3
+ # services.p0f_binary
+ # 
+ # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
+-p0f_binary=/usr/local/bin/p0f
++p0f_binary=/usr/sbin/p0f
+ # 
+ # services.iptables_binary
  # 
