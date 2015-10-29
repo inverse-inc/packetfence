@@ -26,6 +26,9 @@ use pf::log;
 use pf::node;
 use pf::factory::provisioner;
 use pf::ConfigStore::Scan;
+use Time::HiRes;
+use pf::util::statsd qw(called);
+use pf::StatsD;
 
 =head1 METHODS
 
@@ -40,6 +43,7 @@ be used instead.
 
 sub new {
     my ( $class, $args_ref ) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my $logger = get_logger();
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
@@ -51,6 +55,7 @@ sub new {
 
     my $self = bless $args_ref, $class;
 
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $self;
 }
 
@@ -238,7 +243,10 @@ Returns the internal authentication sources objects for the current captive port
 
 sub getInternalSources {
     my ($self) = @_;
-    return $self->getSourcesByClass( 'internal' );
+    my $start = Time::HiRes::gettimeofday();
+    my @sources = $self->getSourcesByClass( 'internal' );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
+    return @sources;
 }
 
 =item getExternalSources
@@ -249,7 +257,10 @@ Returns the external authentication sources objects for the current captive port
 
 sub getExternalSources {
     my ($self) = @_;
-    return $self->getSourcesByClass( 'external' );
+    my $start = Time::HiRes::gettimeofday();
+    my @sources = $self->getSourcesByClass( 'external' );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
+    return @sources;
 }
 
 =item getExclusiveSources
@@ -260,7 +271,10 @@ Returns the exclusive authentication sources objects for the current captive por
 
 sub getExclusiveSources {
     my ($self) = @_;
-    return $self->getSourcesByClass( 'exclusive' );
+    my $start = Time::HiRes::gettimeofday();
+    my @sources = $self->getSourcesByClass( 'exclusive' );
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
+    return @sources;
 }
 
 =item getSourcesByClass
@@ -403,13 +417,17 @@ sub provisionerObjects {
 
 sub findProvisioner {
     my ($self, $mac, $node_attributes) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my $logger = get_logger();
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
     unless(defined $os){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
+        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return;
     }
+
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
 }
 
@@ -454,6 +472,7 @@ return the first scan that match the device
 
 sub findScan {
     my ($self, $mac, $node_attributes) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my $scanners = $self->getScans;
     return undef unless defined $scanners;
     my $logger = get_logger();
@@ -464,6 +483,7 @@ sub findScan {
 
         # if there are no oses and no categories defined for the scan then select it
         if (!scalar(@$oses) && !scalar(@categories)) {
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return $scan_config;
         }
         $node_attributes ||= node_attributes($mac);
@@ -473,6 +493,7 @@ sub findScan {
             my $device_type = $node_attributes->{'device_type'} || '';
             my $fingerprint = pf::fingerbank::is_a($device_type);
             if ((grep {$fingerprint =~ $_} @$oses) && (grep {$_ eq $node_attributes->{'category'}} @categories)) {
+                $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
                 return $scan_config;
             }
             # Check next scan config
@@ -484,6 +505,7 @@ sub findScan {
             my $device_type = $node_attributes->{'device_type'} || '';
             my $fingerprint = pf::fingerbank::is_a($device_type);
             if (grep {$fingerprint =~ $_} @$oses) {
+                $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
                 return $scan_config;
             }
             # Check next scan config
@@ -492,9 +514,12 @@ sub findScan {
 
         # if there is only a category
         if (grep {$_ eq $node_attributes->{'category'}} @categories) {
+            $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return $scan_config;
         }
     }
+
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return undef;
 }
 
