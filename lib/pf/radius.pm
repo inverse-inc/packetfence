@@ -610,7 +610,7 @@ sub _handleStaticPortSecurityMovement {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     #Nothing to do if there is no location log
-    unless defined($locationlog_mac) { 
+    unless( defined($locationlog_mac) ){ 
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return undef;
     }
