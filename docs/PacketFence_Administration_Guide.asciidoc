@@ -1475,7 +1475,7 @@ image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100
 Where : 
 [options="compact"]
 * *Secret key* is the secret key you got from your Stripe account.
-* *Publishable key* is the secret key you got from your Stripe account.
+* *Publishable key* is the publishable key you got from your Stripe account.
 * *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using the test key and secret account.
