@@ -409,12 +409,12 @@ locationlog=0D
 # expire.httpd_portal
 #
 # Time which you would like to keep logs on location information
-httpd_portal=enabled
+httpd_portal=disabled
 #
 # expire.httpd_admin
 #
 # Please note that this table should not become too big since it 
-httpd_admin=enabled
+httpd_admin=disabled
 #
 # expire.ldap_auth
 #
