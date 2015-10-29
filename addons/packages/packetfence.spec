@@ -877,6 +877,12 @@ fi
                         /usr/local/pf/conf/radiusd/packetfence.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/packetfence-tunnel
                         /usr/local/pf/conf/radiusd/packetfence-tunnel.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/acct.conf
+                        /usr/local/pf/conf/radiusd/acct.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/auth.conf
+                        /usr/local/pf/conf/radiusd/auth.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/load_balancer.conf
+                        /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf

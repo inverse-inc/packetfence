@@ -53,6 +53,9 @@
 /usr/local/pf/conf/radiusd/proxy.conf.inc
 /usr/local/pf/conf/radiusd/packetfence
 /usr/local/pf/conf/radiusd/packetfence-tunnel
+/usr/local/pf/conf/radiusd/acct.conf
+/usr/local/pf/conf/radiusd/auth.conf
+/usr/local/pf/conf/radiusd/load_balancer.conf
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/snort.conf
 /usr/local/pf/conf/snort.conf.pre_snort-2.8
