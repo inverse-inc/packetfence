@@ -110,7 +110,7 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
               <div class="alert alert-info trigger_widget [% type %]_triggers">
                 <strong>Tip :</strong>
                 You can get the list of [% i18n(type) %] identifiers from the 
-                <a href="configuration#config/fingerbank/[% type %]">[% i18n(type) %] page</a>.
+                <a href="configuration#config/fingerbank/[% type %]" target="_blank">[% i18n(type) %] page</a>.
               </div>
             [% END %]
 
