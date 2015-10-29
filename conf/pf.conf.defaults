@@ -513,6 +513,11 @@ snmptrapd=disabled
 # Should pfmon be managed by PacketFence?
 pfmon=enabled
 #
+# services.redis_cache
+#
+# Should redis be managed by PacketFence?
+redis_cache=enabled
+#
 # services.pfdhcplistener
 #
 # Should pfdhcplistener be started?
@@ -650,6 +655,11 @@ memcached_binary=/usr/bin/memcached
 #
 # Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
 keepalived_binary=/usr/sbin/keepalived
+# 
+# services.redis_binary
+# 
+# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
+redis_binary=/usr/bin/redis-server
 # 
 # services.memcached_memory_usage
 # 

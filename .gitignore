@@ -57,6 +57,7 @@ conf/radiusd/packetfence-tunnel
 conf/radiusd/auth.conf
 conf/radiusd/acct.conf
 conf/radiusd/load_balancer.conf
+conf/redis_cache.conf
 conf/realm.conf
 conf/domain.conf
 conf/scan.conf
