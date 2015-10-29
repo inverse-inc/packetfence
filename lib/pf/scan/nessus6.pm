@@ -31,7 +31,7 @@ sub description { 'Nessus6 Scanner' }
 
 =head1 SUBROUTINES
 
-=over   
+=over
 
 =item new
 
@@ -59,7 +59,7 @@ sub new {
             '_type'        => undef,
             '_status'      => undef,
             '_scannername' => undef,
-	    '_format'	   => 'csv',
+            '_format'      => 'csv',
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -92,30 +92,30 @@ sub startScan {
 
     my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port);
     $nessus->create_session(username => $user, password => $pass);
-    
+
     # Verify nessus policy ID on the server, nessus remote scanner id, set scan name and launch the scan
-    
+
     my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
     if ($policy_id eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
         return 1;
     }
-    
+
     my $scanner_id = $nessus->get_scanner_id(name => $scanner_name);
     if ($scanner_id eq ""){
         $logger->warn("Nessus scanner name doesn't exist ".$scanner_id);
         return 1;
     }
-    
+
     #This is neccesary because the way of the new nessus API works, if the scan fails most likely
     # is in this function.
     my $policy_uuid = $nessus->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
-    	$logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
-    	return 1;
+        $logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
+        return 1;
     }
-    
-      
+
+
     #Create the scan into the Nessus web server with the name pf-hostaddr-policyname
     my $scan_name = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scan_id = $nessus->create_scan(
@@ -131,14 +131,14 @@ sub startScan {
         $logger->warn("Failled to create the scan");
         return 1;
     }
-    
+
     $nessus->launch_scan(scan_id => $scan_id->{id});
-    
+
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
     $this->statusReportSyncToDb();
-    
-   
+
+
     # Wait the scan to finish
     my $counter = 0;
     while ($nessus->get_scan_status(scan_id => $scan_id->{id}) ne 'completed') {
@@ -150,7 +150,7 @@ sub startScan {
         sleep 15;
         $counter = $counter + 15;
     }
-    
+
     # Get the report
     my $file_id = $nessus->export_scan(scan_id => $scan_id->{id}, format => $format);
     while ($nessus->get_scan_export_status(scan_id => $scan_id->{id},file_id => $file_id) ne 'ready') {
