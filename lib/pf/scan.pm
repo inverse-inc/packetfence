@@ -42,6 +42,7 @@ use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
 use pf::Portal::ProfileFactory;
 use pf::api::jsonrpcclient;
+use Text::CSV_XS;
 
 # DATABASE HANDLING
 use constant SCAN       => 'scan';
@@ -121,28 +122,43 @@ sub parse_scan_report {
     $logger->debug("Scan report to analyze. Scan id: $scan"); 
 
     my $scan_report = $scan->getReport();
-    my @count_vulns = (
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
-    );
 
-    # FIXME we shouldn't poke directly into the scan object, we should rely on accessors
-    # we are slicing out the parameters out of the $scan objectified hashref
     my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
 
     # Trigger a violation for each vulnerability
-    my $failed_scan = 0;    
-    foreach my $current_vuln (@count_vulns) {
-        # Parse nstatvulns format
-        my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
+    my $failed_scan = 0;
 
-        $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-        my $violation_added = violation_trigger($mac, $trigger_id, $type);
+    my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
+    open my $io, "<", \$scan_report;
+    my $row = $csv->getline($io);
+    if ($row->[0] eq 'Plugin ID') {
+        while (my $row = $csv->getline($io)) {
+            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
+            my $violation_added = violation_trigger($mac, $row->[0], $type);
 
-        # If a violation has been added, consider the scan failed
-        if ( $violation_added ) {
-            $failed_scan = 1;
+            # If a violation has been added, consider the scan failed
+            if ( $violation_added ) {
+                $failed_scan = 1;
+            }
+        }
+    } else {
+        my @count_vulns = (
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
+        );
+        # Trigger a violation for each vulnerability
+        foreach my $current_vuln (@count_vulns) {
+            # Parse nstatvulns format
+            my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
+
+            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
+            my $violation_added = violation_trigger($mac, $trigger_id, $type);
+
+            # If a violation has been added, consider the scan failed
+            if ( $violation_added ) {
+                $failed_scan = 1;
+            }
         }
     }
 
@@ -162,8 +178,10 @@ sub parse_scan_report {
             my %data = (
                'vid' => $scan_vid,
                'mac' => $mac,
+               'reason' => 'manage_vclose',
             );
             $apiclient->notify('close_violation', %data );
+            $apiclient->notify('reevaluate_access', %data );
         # Scan completed but a violation has been found
         # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
         } else {

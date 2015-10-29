@@ -402,12 +402,7 @@ sub endPortalSession : Private {
     my $destination_url = $c->stash->{destination_url};
 
     # violation handling
-    my $count = violation_count($mac);
-    if ( $count != 0 ) {
-        print $c->response->redirect( '/captive-portal?destination_url='
-              . uri_escape($destination_url) );
-        $logger->info("[$mac] more violations yet to come");
-    }
+    $c->forward('checkForViolation');
 
     # show provisioner template if we're authorizing and skiping deauth
     my $provisioner = $profile->findProvisioner($mac);
