@@ -7,7 +7,7 @@ $(function() { // DOM ready
         modal.append(data);
         modal.find('.switch').bootstrapSwitch();
         modal.find('.chzn-select').chosen();
-        modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+        modal.find('.chzn-deselect').chosen();
         modal.one('shown', function() {
             $('#actions').trigger('change');
         });
