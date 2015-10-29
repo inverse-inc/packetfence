@@ -883,7 +883,7 @@ httpd_mod_evasive_blocking_period=10
 # captive_portal.httpd_mod_evasive_email_notify
 #
 # The email address where the notification will be sent
-httpd_mod_evasive_email_notify=root@localhost
+httpd_mod_evasive_email_notify=
 #
 # captive_portal.httpd_mod_evasive_system_command
 #

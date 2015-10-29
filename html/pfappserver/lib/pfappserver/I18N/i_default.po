@@ -7604,39 +7604,39 @@ msgstr "Enable mod_evasive"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_white_list"
-msgstr "White list"
+msgstr "mod_evasive white listed ip"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_hash_table_size"
-msgstr "Hash table size"
+msgstr "mod_evasive hash table size"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_page_count"
-msgstr "Same page limit"
+msgstr "mod_evasive page limit"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_page_interval"
-msgstr "Page limit interval"
+msgstr "mod_evasive page limit interval"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_site_count"
-msgstr "Same listener limit"
+msgstr "mod_evasive request limit"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_site_interval"
-msgstr "Listener limit interval"
+msgstr "mod_evasive request limit interval"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_blocking_period"
-msgstr "Blocking period"
+msgstr "mod_evasive blocking period"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_email_notify"
-msgstr "Email address"
+msgstr "mod_evasive Email notify"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive_system_command"
-msgstr "System command"
+msgstr "mod_evasive system command"
 
 # conf/documentation.conf
 msgid "services.httpd_portal"

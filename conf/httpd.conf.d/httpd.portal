@@ -219,9 +219,12 @@ if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_evasive})) {
     $DOSPageInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_page_interval};
     $DOSSiteInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_site_interval};
     $DOSBlockingPeriod = $PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period};
-    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify};
+    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} if defined($PfConfig->{captive_portal}{httpd_mod_evasive_email_notify});
     $DOSSystemCommand = $PfConfig->{captive_portal}{httpd_mod_evasive_system_command};
-    $DOSLogDir = $install_dir."/logs/;
+    $DOSLogDir = $install_dir."/logs/";
+    foreach my $ip (@{$PfConfig->{captive_portal}{httpd_mod_evasive_white_list}} ) {
+        push (@DOSWhitelist, $ip);
+    }
 }
 
 $HostnameLookups = "off";
