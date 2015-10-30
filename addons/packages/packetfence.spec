@@ -91,7 +91,6 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
-Requires: memcached
 Requires: redis
 Requires: freeradius >= 2.2.8-34, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
@@ -105,10 +104,9 @@ Requires: perl >= %{perl_version}
 Requires(pre): %{real_name}-pfcmd-suid
 Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::MaybeXS)
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
-Requires: perl(Apache::Session::Memcached)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
@@ -134,7 +132,6 @@ requires: perl(Const::Fast)
 Requires: perl(Time::HiRes)
 # Required for inline mode.
 Requires: ipset, sudo
-Requires: redis
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 Requires: perl(Net::IP)
@@ -247,8 +244,6 @@ Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
-Requires: perl(Cache::Memcached::libmemcached)
-Requires: perl(CHI::Driver::Memcached)
 Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
@@ -610,7 +605,7 @@ if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
     /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
 fi
 
-for service in snortd httpd snmptrapd memcached portreserve
+for service in snortd httpd snmptrapd portreserve
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
