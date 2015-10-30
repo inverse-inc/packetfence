@@ -29,6 +29,7 @@ New Features
 * Added the ability to create 'not equal' conditions in LDAP sources
 * Added device detection through TCP fingerprinting
 * Deny access on the portal interface if the device hit to much the captive portal using mod_evasive
+* Added DHCPv6 fingerprinting though Fingerbank
 
 Enhancements
 ++++++++++++
