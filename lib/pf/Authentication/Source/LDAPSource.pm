@@ -229,7 +229,7 @@ sub match {
     my ($self, $params) = @_;
     my $start = Time::HiRes::gettimeofday();
     if($self->is_match_cacheable) {
-        my $result = $self->cache->compute([$self->id, $params], sub {
+        my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
                 $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
                 my $result =   $self->SUPER::match($params);
                 return $result;
