@@ -31,7 +31,7 @@ use strict;
 use warnings;
 
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use pfconfig::log;
 use pfconfig::util qw($undef_element);
@@ -170,7 +170,7 @@ sub compute_from_subcache {
     }
 
     return $result;
-    
+
 }
 
 =head2 _get_from_socket
@@ -283,7 +283,6 @@ sub CLONE {
     $DECODER = Sereal::Decoder->new;
 }
 
-=back
 
 =head1 AUTHOR
 

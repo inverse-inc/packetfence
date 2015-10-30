@@ -15,12 +15,12 @@ Model definition for a Kickbox authentication source
 use strict;
 use warnings;
 use Moose;
+use JSON::MaybeXS;
 use pf::constants;
 use pf::config;
 use pf::util;
 use WWW::Curl::Easy;
 use Readonly;
-use JSON;
 use pf::log;
 use URI::Escape::XS qw(uri_escape);
 use List::MoreUtils qw(any);

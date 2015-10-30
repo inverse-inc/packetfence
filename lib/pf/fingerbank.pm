@@ -13,6 +13,8 @@ Methods to interact with Fingerbank librairy
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
+
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;

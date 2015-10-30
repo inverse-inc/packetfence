@@ -22,10 +22,10 @@ pf::api::jsonrpcclient
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use pf::config;
 use pf::log;
 use WWW::Curl::Easy;
-use JSON::XS;
 use Moo;
 use HTTP::Status qw(:constants);
 

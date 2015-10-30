@@ -31,6 +31,7 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
@@ -43,7 +44,6 @@ use File::Find;
 use pfconfig::util;
 use POSIX;
 use POSIX::2008;
-use JSON;
 use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 

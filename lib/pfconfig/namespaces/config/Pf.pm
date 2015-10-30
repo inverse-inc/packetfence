@@ -17,13 +17,13 @@ This module creates the configuration hash associated to pf.conf
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
 use File::Slurp qw(read_file);
 use pfconfig::log;
 use pf::file_paths;
 use pf::util;
-use JSON;
 use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
@@ -110,7 +110,7 @@ sub build_child {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
         }
     }
-    
+
     $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
 
     # We're looking for the merged_list configurations and we merge the default value with
@@ -129,7 +129,7 @@ sub build_child {
 
     # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
     if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
-        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);        
+        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);
         $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
     }
 

@@ -24,7 +24,7 @@ accessing data in the array
 
 This class is used with tiying
 
-Example : 
+Example :
 my @array;
 tie @array, 'pfconfig::cached_array', 'resource::authentication_sources';
 print $hash{_ip};
@@ -35,7 +35,7 @@ lib/pfconfig/namespaces/ and served though pfconfig
 The access to index 0 then generates a GET though pfconfig
 that uses a UNIX socket
 
-In order to call a method on this tied object 
+In order to call a method on this tied object
 my $zammit = tied(%hash)->zammit
 
 =cut
@@ -45,7 +45,7 @@ use warnings;
 
 use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use pfconfig::log;
 use pfconfig::cached;
@@ -126,7 +126,6 @@ sub EXISTS {
     });
 }
 
-=back
 
 =head1 AUTHOR
 

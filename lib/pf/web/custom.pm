@@ -18,7 +18,7 @@ use warnings;
 use Date::Parse;
 use File::Basename;
 use POSIX;
-use JSON;
+use JSON::MaybeXS;
 use Template;
 use Locale::gettext;
 use pf::log;

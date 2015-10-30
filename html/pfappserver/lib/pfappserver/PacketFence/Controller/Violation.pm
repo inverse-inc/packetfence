@@ -17,12 +17,12 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use JSON::MaybeXS;
 
 use pf::log;
 use pf::config;
 use pf::Switch::constants;
 use pf::constants::trigger qw($TRIGGER_MAP);
-use JSON;
 use pfappserver::Form::Violation;
 use pf::factory::condition::violation;
 use Switch;
@@ -111,7 +111,7 @@ sub prettify_trigger {
     my @parts = split('::', $trigger);
     my $type = lc($parts[0]);
     my $tid = lc($parts[1]);
-    
+
     my $pretty_type = $type;
     my $pretty_value;
     switch($type){
@@ -139,7 +139,7 @@ sub prettify_trigger {
         $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
                           $TRIGGER_MAP->{$type}->{$tid} : undef;
       }
-    } 
+    }
     $pretty_value = (defined($pretty_value)) ? $pretty_value : $parts[1];
 
     return {type => $pretty_type, value => $pretty_value};
@@ -147,8 +147,8 @@ sub prettify_trigger {
 
 sub parse_triggers {
     my ($self,$triggers) = @_;
-    my @splitted_triggers; 
-    my @pretty_triggers; 
+    my @splitted_triggers;
+    my @pretty_triggers;
     foreach my $trigger (split ',', $triggers) {
         if($trigger =~ /\((.+)\)/){
           push @splitted_triggers, [split('&', $1)];
@@ -158,7 +158,7 @@ sub parse_triggers {
           push @splitted_triggers, [($trigger)];
           push @pretty_triggers, [($self->prettify_trigger($trigger))];
         }
-    } 
+    }
 
     return (\@splitted_triggers,\@pretty_triggers);
 }
@@ -171,7 +171,7 @@ after view => sub {
     my ($self, $c, $id) = @_;
     if (!$c->stash->{action_uri}) {
         if ($c->stash->{item}) {
-            ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) = 
+            ($c->stash->{splitted_triggers}, $c->stash->{pretty_triggers}) =
                 $self->parse_triggers($c->stash->{item}->{trigger});
             $c->stash->{trigger_map} = $pf::constants::trigger::TRIGGER_MAP;
             $c->stash->{json_event_triggers} = encode_json([ map { ($pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$_}{event}) ? $_ : () } keys %pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE ]);

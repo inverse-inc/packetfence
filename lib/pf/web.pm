@@ -30,7 +30,7 @@ use warnings;
 use Date::Parse;
 use File::Basename;
 use HTML::Entities;
-use JSON;
+use JSON::MaybeXS;
 use Locale::gettext qw(gettext ngettext);
 use Readonly;
 use Template;

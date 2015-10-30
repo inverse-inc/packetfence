@@ -31,7 +31,7 @@ BEGIN {
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
