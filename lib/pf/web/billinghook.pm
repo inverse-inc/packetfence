@@ -14,12 +14,7 @@ pf::web::billinghook
 
 use strict;
 use warnings;
-use Apache2::Const -compile => qw(
-    OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED
-    HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED
-    HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK
-    HTTP_INTERNAL_SERVER_ERROR
-);
+use Apache2::Const -compile => qw(OK HTTP_OK SERVER_ERROR);
 use Apache2::RequestIO();
 use Apache2::RequestRec();
 use pf::log;
