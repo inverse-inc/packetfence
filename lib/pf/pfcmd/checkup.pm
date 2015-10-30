@@ -386,6 +386,9 @@ sub authentication {
 
 sub authentication_rules_classes {
     foreach my $authentication_source_id ( keys %ConfigAuthentication ) {
+        if( $authentication_source_id =~ /\./ ) {
+            add_problem( $FATAL, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
+        }
         next if !$ConfigAuthentication{$authentication_source_id}{'rules'};
 
         my $authentication_source = $ConfigAuthentication{$authentication_source_id};
@@ -827,7 +830,7 @@ Checking for violations configurations
 sub violations {
     require pfconfig::namespaces::FilterEngine::Violation;
     my $engine = pfconfig::namespaces::FilterEngine::Violation->new;
-    $engine->build(); 
+    $engine->build();
     while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
         foreach my $trigger (@$triggers){
             add_problem($WARN, "Invalid trigger $trigger for violation $violation");
@@ -1141,62 +1144,62 @@ sub valid_certs {
     unless(-e "$generated_conf_dir/ssl-certificates.conf"){
         add_problem($WARN, "Cannot detect Apache SSL configuration. Not validating the certificates.");
         return;
-    }   
+    }
     unless(-e "$install_dir/raddb/eap.conf" || -e "$install_dir/conf/radiusd/eap.conf"){
         add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
         return;
-    }   
-    
+    }
+
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
-    
+
     my ($httpd_crt, $radius_crt);
-    
+
     if($httpd_conf =~ /SSLCertificateFile\s*(.*)\s*/){
         $httpd_crt = $1;
-    }   
+    }
     else{
         add_problem($WARN, "Cannot find the Apache certificate in your configuration.");
-    }   
-    
+    }
+
     eval {
         if(cert_has_expired($httpd_crt)){
             add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
-    };  
+    };
     if($@){
         add_problem($WARN, "Cannot open the following certificate $httpd_crt")
-    }   
-    
+    }
+
     my $radius_conf;
     # if there is no file, we assume this is a first run
     my $radius_configured = -e "$install_dir/raddb/radiusd.conf" ? 1 : 0 ;
     if ( $radius_configured ) {
-    
+
         $radius_conf = read_file("$install_dir/raddb/eap.conf");
-        
+
         if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
              $radius_crt = $1;
-        }    
+        }
         else{
             add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
-        }   
-        
+        }
+
         eval {
             if(cert_has_expired($radius_crt)){
                 add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
-            }            
-        };  
+            }
+        };
         if($@){
             add_problem($WARN, "Cannot open the following certificate $radius_crt")
-        }   
-    } 
-    else { 
+        }
+    }
+    else {
         # not a problem per se, we just warn you
         print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
-    } 
-} 
+    }
+}
 
 =back
 

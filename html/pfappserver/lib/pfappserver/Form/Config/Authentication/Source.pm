@@ -25,7 +25,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify an identifier for the source.' },
-   apply => [ { check => qr/^\S+$/, message => 'The name must not contain spaces.' } ],
+   apply => [ { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
   );
 has_field 'description' =>
   (
