@@ -135,7 +135,7 @@ sub node_db_prepare {
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role_id=?,
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
-            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, device_type=?, device_class=?,
+            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=?, sessionid=?, machine_account=?
         WHERE mac=?
@@ -148,7 +148,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
-            user_agent, computername, dhcp_fingerprint, dhcp_vendor, device_type, device_class,
+            user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
@@ -204,7 +204,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
-            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.device_type, node.device_class,
+            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class,
             node.last_arp, node.last_dhcp,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
@@ -909,19 +909,20 @@ sub node_modify {
     }
 
     my $sth = db_query_execute( NODE, $node_statements,
-        'node_modify_sql',             $new_mac,
-        $existing->{pid},              $existing->{category_id},
-        $existing->{status},           $existing->{voip},
-        $existing->{bypass_vlan},      $existing->{bypass_role_id},
-        $existing->{detect_date},      $existing->{regdate},
-        $existing->{unregdate},        $existing->{lastskip},
-        $existing->{time_balance},     $existing->{bandwidth_balance},
-        $existing->{user_agent},       $existing->{computername},
-        $existing->{dhcp_fingerprint}, $existing->{dhcp_vendor},
-        $existing->{device_type},      $existing->{device_class},
-        $existing->{last_arp},         $existing->{last_dhcp},
-        $existing->{notes},            $existing->{autoreg},
-        $existing->{sessionid},        $existing->{machine_account},
+        'node_modify_sql',              $new_mac,
+        $existing->{pid},               $existing->{category_id},
+        $existing->{status},            $existing->{voip},
+        $existing->{bypass_vlan},       $existing->{bypass_role_id},
+        $existing->{detect_date},       $existing->{regdate},
+        $existing->{unregdate},         $existing->{lastskip},
+        $existing->{time_balance},      $existing->{bandwidth_balance},
+        $existing->{user_agent},        $existing->{computername},
+        $existing->{dhcp_fingerprint},  $existing->{dhcp_vendor},
+        $existing->{dhcp6_fingerprint}, $existing->{dhcp6_enterprise},
+        $existing->{device_type},       $existing->{device_class},
+        $existing->{last_arp},          $existing->{last_dhcp},
+        $existing->{notes},             $existing->{autoreg},
+        $existing->{sessionid},         $existing->{machine_account},
         $mac
     );
     if($sth) {

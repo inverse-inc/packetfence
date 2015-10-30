@@ -54,6 +54,7 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
+use pf::util::dhcpv6();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -990,6 +991,66 @@ sub reevaluate_access : Public {
     my $logger = pf::log::get_logger();
 
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
+}
+
+=head2 process_dhcpv6
+
+Processes a DHCPv6 udp payload to extract the fingerprint and enterprise ID.
+It then uses these in Fingerbank and records them in the database.
+
+The UDP payload must be base 64 encoded.
+
+=cut
+
+sub process_dhcpv6 : Public {
+    my ( $class, $udp_payload ) = @_;
+    my $logger = pf::log::get_logger();
+
+    # The payload is sent in base 64
+    $udp_payload = MIME::Base64::decode($udp_payload);
+
+    my $dhcpv6 = pf::util::dhcpv6::decode_dhcpv6($udp_payload);
+
+    # these are relaying packets.
+    # in that case we take the inner part
+    if($dhcpv6->{msg_type} eq 12 || $dhcpv6->{msg_type} eq 13){
+        $logger->debug("Found relaying packet. Taking inner request/reply from it.");
+        $dhcpv6 = $dhcpv6->{options}->[0];
+    }
+
+    # we are only interested in solicits for the fingerprint and enterprise ID
+    if($dhcpv6->{msg_type} ne 1){
+        $logger->debug("Skipping DHCPv6 packet because it's not a solicit.");
+        return;
+    }
+
+    my ($mac_address, $dhcp6_enterprise, $dhcp6_fingerprint) = (undef, '', '');
+    foreach my $option (@{$dhcpv6->{options}}){
+        if(defined($option->{enterprise_number})){
+            $dhcp6_enterprise = $option->{enterprise_number};
+            $logger->debug("Found DHCPv6 enterprise ID '$dhcp6_enterprise'");
+        }
+        elsif(defined($option->{requested_options})){
+            $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
+            $logger->debug("Found DHCPv6 fingerprint '$dhcp6_fingerprint'");
+        }
+        elsif(defined($option->{addr})){
+            $mac_address = $option->{addr};
+            $logger->debug("Found DHCPv6 link address (MAC) '$mac_address'");
+        }
+    }
+
+    $logger->info("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+
+    my %fingerbank_query_args = (
+        mac                 => $mac_address,
+        dhcp6_fingerprint   => $dhcp6_fingerprint,
+        dhcp6_enterprise    => $dhcp6_enterprise,
+    );
+
+    pf::fingerbank::process(\%fingerbank_query_args);
+
+    pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
 }
 
 =head1 AUTHOR

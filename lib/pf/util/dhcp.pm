@@ -299,12 +299,12 @@ create the pcap filter from the supported DHCP Messages Type
 sub make_pcap_filter {
     my (@types) = @_;
     #listen to all if no types are provided
-    return "udp and (port 67 or port 68 or port 767)" unless @types;
+    return "udp and (port 67 or port 68 or port 546 or port 547 or port 767)" unless @types;
     for my $type (@types) {
        die "Unknown message type $type" unless exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type};
     }
     my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
-    return "(port 67 or port 68 or port 767) and ( $type_filter )";
+    return "((port 67 or port 68 or port 767) and ( $type_filter )) or (port 546 or port 547)";
 }
 
 
