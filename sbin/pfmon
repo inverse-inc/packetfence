@@ -179,18 +179,6 @@ sub registertasks  {
         }
     );
     register_task(
-        'expire httpd.admin sessions','httpd_admin_cleanup_interval',sub {
-            purge_cache('httpd.admin')
-              if ( isenabled($Config{'expire'}{'httpd_admin'}) );
-        }
-    );
-    register_task(
-        'expire httpd.portal sessions','httpd_portal_cleanup_interval',sub {
-            purge_cache('httpd.portal')
-              if ( isenabled($Config{'expire'}{'httpd_portal'}) );
-        }
-    );
-    register_task(
         'expire ldap_auth cache','ldap_auth_cache_cleanup_interval',sub {
             purge_cache('ldap_auth')
               if ( isenabled($Config{'expire'}{'ldap_auth'}) );
