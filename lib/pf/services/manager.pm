@@ -85,7 +85,7 @@ services that this service needs in order to start
 
 =cut
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(memcached httpd.admin)] } );
+has dependsOnServices => (is => 'ro', default => sub { [qw(redis_cache httpd.admin)] } );
 
 =head2 executable
 

@@ -15,7 +15,6 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Cache::Memcached::libmemcached;
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
 use pf::file_paths;
@@ -63,7 +62,7 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso external_captiveportal);
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
 our %DEFAULT_CONFIG = (
@@ -77,18 +76,13 @@ our %DEFAULT_CONFIG = (
             'global' => '1',
             'driver' => 'RawMemory'
         },
-        'memcached' => {
-            driver => 'Memcached::libmemcached',
-            servers => ['127.0.0.1:11211'],
-            compress_threshold => 10000,
-            behavior_binary_protocol => 1,
-        },
         'redis' => {
             driver => 'Redis',
             compress_threshold => 10000,
             server => '127.0.0.1:6379',
             redis_class => 'Redis::Fast',
             prefix => 'pf',
+            expires_on_backend => 1,
         },
         'file' => {
             driver => 'File',
@@ -195,7 +189,6 @@ sub sectionData {
 
 sub CLONE {
     pf::CHI->clear_memoized_cache_objects;
-    Cache::Memcached::libmemcached->disconnect_all;
 }
 
 sub preload_chi_drivers {

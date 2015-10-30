@@ -1285,9 +1285,9 @@ sub getIptablesTechnique {
 sub stopService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services);
-    #push memcached to back of the list
+    #push redis_cache to back of the list
     my %exclude = (
-        memcached => undef,
+        redis_cache => undef,
     );
     my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
     @managers = ();

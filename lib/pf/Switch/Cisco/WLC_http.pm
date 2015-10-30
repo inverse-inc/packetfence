@@ -151,18 +151,21 @@ sub returnRadiusAccessAccept {
             };
         }
         else {
-            my (%session_id);
-            pf::web::util::session(\%session_id,undef,6);
-            $session_id{client_mac} = $args->{'mac'};
-            $session_id{wlan} = $args->{'ssid'};
-            $session_id{switch_id} = $this->{_id};
-            pf::locationlog::locationlog_set_session($args->{'mac'}, $session_id{_session_id});
+            my $mac = $args->{mac};
+            my $session_id = $this->generateSessionId(6);
+            my $chi = pf::CHI->new(namespace => 'external_captiveportal');
+            $chi->set($session_id,{
+                client_mac => $mac,
+                wlan => $args->{'ssid'},
+                switch_id => $this->{_id},
+            });
+            pf::locationlog::locationlog_set_session($mac, $session_id);
             $radius_reply_ref = {
-                'User-Name' => $args->{'mac'},
-                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
+                'User-Name' => $mac,
+                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id"],
             };
         }
-        $logger->info("[$args->{'mac'}] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
+        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
     }
 
 
@@ -176,7 +179,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => $args->{'vlan'},
         };
-        
+
         # Delete the username when doing 802.1x as the WLC trusts this more than what's in the request
         # and we want to see the original username in the WLC
         delete $radius_reply_ref->{'User-Name'};
@@ -331,7 +334,7 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-    
+
     my $session_id;
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {

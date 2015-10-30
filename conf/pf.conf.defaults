@@ -25,11 +25,6 @@ dhcpservers=127.0.0.1
 # System's timezone in string format. Supported list:
 # http://www.php.net/manual/en/timezones.php
 timezone=America/Montreal
-#
-# general.memcached
-#
-# Server list of the memcached server
-memcached=127.0.0.1:11211
 
 [network]
 #
@@ -458,11 +453,6 @@ radiusd=enabled
 # Should iptables be managed by PacketFence?
 iptables=enabled
 #
-# services.memcached
-#
-# Should memcached be managed by PacketFence?
-memcached=enabled
-#
 # services.pfbandwidthd
 #
 # Should pfbandwidthd be managed by PacketFence?
@@ -645,11 +635,6 @@ iptables_binary=/sbin/iptables
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 winbindd_binary=/usr/sbin/winbindd
-# 
-# services.memcached_binary
-# 
-# Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
-memcached_binary=/usr/bin/memcached
 #
 # services.keepalived_binary
 #
@@ -661,15 +646,15 @@ keepalived_binary=/usr/sbin/keepalived
 # Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
 redis_binary=/usr/bin/redis-server
 # 
-# services.memcached_memory_usage
+# services.httpd_mod_qos
 # 
-# The maximum of memory that memcached will use
-memcached_memory_usage=64
+# Enable mod_qos
+httpd_mod_qos=disabled
 # 
-# services.memcached_max_item_size
+# services.httpd_mod_qos_maximum_users
 # 
-# The maximum of size of the items allowed to be stored
-memcached_max_item_size=1M
+# The maximum connections per device 
+httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #

@@ -27,7 +27,6 @@ Services managed by PacketFence:
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
-  memcached        | memcached daemon
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
@@ -37,7 +36,7 @@ Services managed by PacketFence:
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   radsniff3        | radsniff3 daemo
-  redis            | Redis for caching
+  redis_cache      | Redis for caching
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   statsd           | statsd service
@@ -246,12 +245,11 @@ sub getIptablesTechnique {
 sub stopService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services);
-    #push memcached to back of the list
+    #push redis_cache to back of the list
     my %exclude = (
-        memcached => undef,
-        pfcache   => undef,
+        redis_cache => undef,
     );
-    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name eq 'memcached' } ? 0 : 1 } @managers;
+    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name } ? 0 : 1 } @managers;
     @managers = ();
     @managers = @$infront_managers if $infront_managers;
     push @managers, @$push_managers if $push_managers;
