@@ -1,7 +1,8 @@
 package pf::ConfigStore::RadiusFilters;
 =head1 NAME
 
-pf::ConfigStore::RadiusFilters add documentation
+pf::ConfigStore::RadiusFilters
+Store radius filter rules
 
 =cut
 

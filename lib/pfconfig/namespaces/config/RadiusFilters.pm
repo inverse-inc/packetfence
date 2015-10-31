@@ -2,15 +2,15 @@ package pfconfig::namespaces::config::RadiusFilters;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::RadiusFilter
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::RadiusFilters
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to radius_filters.conf
 
 =cut
 

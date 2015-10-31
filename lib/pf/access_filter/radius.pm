@@ -19,6 +19,8 @@ use Log::Log4perl;
 use pf::api::jsonrpcclient;
 use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
+use pf::log;
+use pf::util qw(isenabled);
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
@@ -34,7 +36,7 @@ tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::Radiu
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::access_filter::radius");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::access_filter::radius");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -63,25 +65,30 @@ Handles the role update
 =cut
 
 sub handleAnswerInRule {
-    my ($self, $rule, $args) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    my $radius_reply_ref = {};
-    if(defined $rule) {
-        $radius_reply_ref = {'Reply-Message' => "Inverse is the best"};
+    my ($self, $rule, $args, $radius_reply_ref) = @_;
+    my $logger = get_logger();
+    my $radius_reply = {};
+    if (defined $rule) {
+        $radius_reply = {'Reply-Message' => "PacketFence has proceed the request"};
         my $i = 1;
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         while (1) {
             if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
                 my @answer = split('=>',$rule->{"answer$i"});
                 $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
-                evalAnswer(\@answer,$args,\$radius_reply_ref);
+                evalAnswer(\@answer,$args,\$radius_reply);
             } else {
                 last;
             }
             $i++;
         }
+        if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
+            return ($radius_reply);
+        } else {
+            $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
+            return ($radius_reply_ref);
+        }
     }
-    return ($radius_reply_ref);
 }
 
 sub setSession {

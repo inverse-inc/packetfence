@@ -113,12 +113,9 @@ sub returnRadiusAccessAccept {
     my ($this, $args) = @_;
     my $logger = $this->logger;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    my $radius_reply_ref = $filter->handleAnswerInRule($rule,$args);
+    my $radius_reply_ref = {};
 
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref] if (keys %$radius_reply_ref);
-
+    $args->{'unfilter'} = $TRUE;
     my @super_reply = @{$this->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
@@ -148,6 +145,10 @@ sub returnRadiusAccessAccept {
     }
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
