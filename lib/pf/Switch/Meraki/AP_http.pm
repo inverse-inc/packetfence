@@ -100,14 +100,11 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args);
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref] if (keys %$radius_reply_ref);
 
     my $node = $args->{'node_info'};
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     my $violation = pf::violation::violation_view_top($args->{'mac'});
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
@@ -118,11 +115,13 @@ sub returnRadiusAccessAccept {
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
         };
+        $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
         return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 
     }
     else{
         $logger->info("Returning ACCEPT");
+        $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
         return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
     }
 

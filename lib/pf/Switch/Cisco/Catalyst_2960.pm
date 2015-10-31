@@ -488,7 +488,7 @@ Overrides the default implementation to add the dynamic acls
 
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     $args->{'unfilter'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};

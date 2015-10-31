@@ -232,12 +232,7 @@ sub returnRadiusAccessAccept {
     my ($this, $args) = @_;
     my $logger = $this->logger;
 
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args);
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref] if (keys %$radius_reply_ref);
 
     $logger->debug("[$args->{'mac'}] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
     if ( isenabled($this->{_RoleMap}) && $this->supportsRoleBasedEnforcement()) {
@@ -267,6 +262,10 @@ sub returnRadiusAccessAccept {
 
         $logger->info("[$args->{'mac'}] Returning ACCEPT with VLAN: $args->{'vlan'}");
     }
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
