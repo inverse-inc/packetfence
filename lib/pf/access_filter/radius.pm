@@ -93,13 +93,13 @@ sub handleAnswerInRule {
 
 sub setSession {
     my($args) = @_;
-    my (%session_id);
-    pf::web::util::session(\%session_id,undef,6);
-    $session_id{client_mac} = $args->{'mac'};
-    $session_id{wlan} = $args->{'ssid'};
-    $session_id{switch_id} = $args->{'switch'}{'_id'};
-    locationlog_set_session($args->{'mac'}, $session_id{_session_id});
-    return ($session_id{_session_id});
+    my (%session);
+    pf::web::util::session(\%session,undef,6);
+    $session{client_mac} = $args->{'mac'};
+    $session{wlan} = $args->{'ssid'};
+    $session{switch_id} = $args->{'switch'}{'_id'};
+    locationlog_set_session($args->{'mac'}, $session{_session_id});
+    return ($session{_session_id});
 }
 
 =head2 evalAnswer
