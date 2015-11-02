@@ -231,6 +231,7 @@ Moose class.
 =cut
 
 use Moose;
+use pf::log;
 
 =head1 METHODS
 
@@ -296,6 +297,7 @@ Moose class implemeting roles.
 =cut
 
 use Moose::Role;
+use pf::log;
 
 requires qw(writeNetworkConfigs);
 
@@ -315,6 +317,7 @@ Moose class derivated from role for OS specific methods
 use Moose;
 
 use pf::util;
+use pf::log;
 
 with 'pfappserver::Model::Config::System::Role';
 
@@ -418,6 +421,7 @@ Moose class derivated from role for OS specific methods
 use Moose;
 
 use pf::util;
+use pf::log;
 
 with 'pfappserver::Model::Config::System::Role';
 
