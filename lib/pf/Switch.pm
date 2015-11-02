@@ -30,7 +30,7 @@ use pf::node;
 use pf::cluster;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
-use pf::roles::custom $ROLE_API_LEVEL;
+use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::Switch::constants;
 use pf::util;

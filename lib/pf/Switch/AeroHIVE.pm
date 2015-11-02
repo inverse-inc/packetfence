@@ -46,7 +46,7 @@ use pf::constants;
 use pf::config;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
-use pf::roles::custom $ROLE_API_LEVEL;
+use pf::roles::custom $ROLES_API_LEVEL;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
