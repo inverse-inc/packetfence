@@ -219,7 +219,7 @@ if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_evasive})) {
     $DOSPageInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_page_interval};
     $DOSSiteInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_site_interval};
     $DOSBlockingPeriod = $PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period};
-    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} if defined($PfConfig->{captive_portal}{httpd_mod_evasive_email_notify});
+    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} if (defined($PfConfig->{captive_portal}{httpd_mod_evasive_email_notify}) && $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} ne '');
     my $syscmd = $PfConfig->{captive_portal}{httpd_mod_evasive_system_command};
     $syscmd =~ s/\%t/$PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period}/;
     $DOSSystemCommand = $syscmd;
