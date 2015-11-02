@@ -86,6 +86,8 @@ sub handleAnswerInRule {
             $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
             return ($radius_reply_ref);
         }
+    } else {
+        return ($radius_reply_ref);
     }
 }
 
