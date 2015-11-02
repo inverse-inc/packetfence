@@ -27,9 +27,11 @@ BEGIN {
     );
 }
 
+use pf::log;
 use pf::config;
 use pf::util;
 use pf::db;
+use pf::node qw(node_view);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $survey_db_prepared = 0;
@@ -73,6 +75,8 @@ sub survey_add_from_session {
         @data{@SURVEY_FIELDS} = @{$session}{@SURVEY_FIELDS};
         $data{mac} //= $c->portalSession->clientMac;
         $data{profile} //= $c->profile->name;
+        my $node = node_view($data{mac});
+        $data{profile} .= "#" . $node->{last_switch};
         survery_add_from_oauth_response(\%data, $session->{oauth_response} ) if $session->{oauth_response};
         survey_add(%data);
         $session->{survey_value} = undef;
