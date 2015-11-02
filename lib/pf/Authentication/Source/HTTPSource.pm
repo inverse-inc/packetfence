@@ -144,7 +144,7 @@ sub authenticate {
         else {
             get_logger->info("Authentication invalid with $username in custom source. Error is : ".$result->{message});
         }
-        return ($result->{result}, $result->{message});
+        return ($result->{result}, $result->{message}, undef);
     }
     else {
         my $curl_error = $curl->errbuf;

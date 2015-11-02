@@ -3776,6 +3776,10 @@ msgid "advanced.ldap_attributes"
 msgstr "LDAP attributes" 
 
 # conf/documentation.conf
+msgid "advanced.radius_attributes"
+msgstr "RADIUS attributes" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 

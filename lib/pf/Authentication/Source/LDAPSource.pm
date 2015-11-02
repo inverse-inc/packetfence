@@ -152,7 +152,7 @@ sub authenticate {
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
   $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.25 ); 
-  return ($TRUE, $AUTH_SUCCESS_MSG);
+  return ($TRUE, $AUTH_SUCCESS_MSG, $connection);
 }
 
 
