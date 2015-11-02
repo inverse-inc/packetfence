@@ -2768,7 +2768,7 @@ sub returnRadiusAccessAccept {
     }
 
     $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( defined($role) ? "and role $role" : "" ));
-    if (!isenabled($args->{'unfilter'})) {
+    if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
         my $radius_reply_ref = {};
@@ -2777,6 +2777,12 @@ sub returnRadiusAccessAccept {
 
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
+
+=item returnRoleAttributes
+
+Return the specific role attribute of the switch.
+
+=cut
 
 sub returnRoleAttributes {
     my ($self, $role) = @_;

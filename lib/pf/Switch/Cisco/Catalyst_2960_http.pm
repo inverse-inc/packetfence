@@ -115,7 +115,7 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
-    $args->{'unfilter'} = $TRUE;
+    $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$this->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;

@@ -490,7 +490,7 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    $args->{'unfilter'} = $TRUE;
+    $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;

@@ -1,7 +1,7 @@
 # Radius filter configuration
 # 
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter
-# answe will be merge with the original radius answer. (to overwrite it add merge_request = no).
+# answer will be merge with the original radius answer. (to overwrite it add merge_request = no).
 #
 # Make a simple rule like this:
 #
@@ -15,7 +15,7 @@
 #operator = is
 #value = 00:11:22:33:44:55
 #
-#This rule will return the vlan id 42 for this specific mac address
+#This rule will return the VLAN ID id 42 for this specific MAC address
 #
 #[1:macauth&mac]
 #scope = returnRadiusAccessAccept
