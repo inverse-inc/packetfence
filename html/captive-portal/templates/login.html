@@ -116,6 +116,11 @@ document.observe("dom:loaded", function() {
           </div>
           [% END %]
 
+          <div class="input">
+            <div class="separator"><div class="or_separator">or</div></div>
+              <a href="[% URL_USER_CREATION %]?destination_url=[% destination_url %]">[% i18n("Create an account") %]</a>
+          </div>
+
             [% IF guest_allowed && !null_source -%]
           <div class="input">
             <div class="separator"><div class="or_separator">or</div></div>

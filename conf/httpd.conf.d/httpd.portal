@@ -281,6 +281,9 @@ if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
     # | is for a regexp "or" as this is pulled from a 'Location ~' statement
     $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
 }
+
+$allowed_from_all_urls .= "|$WEB::URL_BILLING|$WEB::URL_BILLING_CHILD";
+
 my @allowed_from_all_options;
 if ($allowed_from_all_urls) {
     @allowed_from_all_options = (

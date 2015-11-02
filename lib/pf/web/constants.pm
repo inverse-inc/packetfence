@@ -79,6 +79,9 @@ Readonly::Scalar our $URL_STATUS                => '/status';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
+# CUSTOM for user creation
+Readonly::Scalar our $URL_USER_CREATION         => '/user/signup';
+# /CUSTOM
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';

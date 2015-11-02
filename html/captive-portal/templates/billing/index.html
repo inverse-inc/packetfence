@@ -28,12 +28,9 @@
     <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
   </div>
 
-  [% FOREACH field IN mandatory_fields %]
-    <div class="input">
-      <span>[% i18n("$field") %]</span>
-      <input class="field" name="[% field %]" type="text" value="[% c.stash.$field | html %]" /><br/>
-    </div>
-  [% END %]
+  <div class="input">
+    <input class="field" name="email" type="hidden" value="[% email %]" /><br/>
+  </div>
 
   [% IF profile.billing_tiers.size %]
   [%# TIERS CHOICE %]

@@ -13,6 +13,7 @@ use pf::violation;
 use pf::person;
 use pf::web;
 use List::Util qw(first);
+use pf::nodecategory;
 
 BEGIN {extends 'captiveportal::Base::Controller';}
 
@@ -34,6 +35,13 @@ Catalyst Controller.
 
 sub begin : Private {
     my ($self, $c) = @_;
+    if(!$c->session->{username}){
+        $c->response->redirect("/status");     
+        $c->detach;
+    }
+    else {
+        $c->stash->{email} = $c->session->{username};
+    }
     unless( $c->profile->getBillingSources() ) {
         $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
         $c->detach;
@@ -248,6 +256,11 @@ sub processTransaction : Private {
     $info{'unregdate'} =
       POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
+    $c->forward('setRoleToUserDevices', [$info{pid}, $info{category}]);
+
+    my $category_id = nodecategory_lookup($info{'category'});
+    pf::password::modify_attributes($pid, category => $category_id);
+
     if (isenabled($tier->{'use_time_balance'})) {
         $info{'time_balance'} =
           normalize_time($tier->{'access_duration'});
@@ -279,12 +292,25 @@ sub processTransaction : Private {
         violation_force_close($mac, $vid);
     }
 
-    # Register the node and release it
-    $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
-    $c->forward('CaptivePortal' => 'endPortalSession');
+    $c->response->redirect("/status");
+    $c->detach;
 }
 
+=head2 updatePreviousNodesForUser
 
+Update the previous nodes for user
+
+=cut
+
+sub setRoleToUserDevices : Private {
+    my ($self, $c, $pid, $role) = @_;
+    my $logger = $c->log;
+    foreach my $node ( person_nodes($pid) ) {
+        $c->log->info("changing nodes for user $role");
+        $node->{category} = $role;
+        node_modify($node->{mac}, %{$node});
+    }
+}
 
 =head1 AUTHOR
 

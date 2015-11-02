@@ -34,9 +34,10 @@ use warnings;
 
 use Date::Parse;
 use Crypt::GeneratePassword qw(word);
-use pf::log;
+use Log::Log4perl;
 use POSIX;
 use Readonly;
+use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
@@ -55,6 +56,10 @@ Readonly our $AUTH_FAILED_EXPIRED       => 2;
 Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
 Readonly our $PLAINTEXT                 => 'plaintext';
 Readonly our $BCRYPT                    => 'bcrypt';
+Readonly our @ACTION_FIELDS => qw(
+  valid_from expiration
+  access_duration access_level category sponsor unregdate
+);    # respect the prepared statement placeholders order
 
 # Expiration time in seconds
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
@@ -102,7 +107,7 @@ Instantiate SQL statements to be prepared
 =cut
 
 sub password_db_prepare {
-    my $logger = get_logger();
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Preparing pf::password database queries");
 
     $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
@@ -271,7 +276,7 @@ Defaults to 0 (no per user limit)
 
 sub generate {
     my ( $pid, $actions, $password ) = @_;
-    my $logger = get_logger();
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
@@ -353,7 +358,7 @@ sub _update_field_for_action {
         $data->{$field} = $values[0]->{value};
     }
     else {
-        $data->{$field} = $default;
+        $data->{$field} = $default unless exists $data->{$field};
     }
 }
 
@@ -365,12 +370,8 @@ Modify the password actions
 
 sub modify_actions {
     my ( $password, $actions ) = @_;
-    my $logger        = get_logger();
-    my @ACTION_FIELDS = qw(
-        valid_from expiration
-        access_duration access_level category sponsor unregdate
-        );    # respect the prepared statement placeholders order
-    delete @{$password}{@ACTION_FIELDS};
+    my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
+#    delete @{$password}{@ACTION_FIELDS};
     _update_from_actions( $password, $actions );
     my $pid   = $password->{pid};
     my $query = db_query_execute(
@@ -378,6 +379,28 @@ sub modify_actions {
         $password_statements,
         'password_modify_actions_sql',
         @{$password}{@ACTION_FIELDS}, $pid
+    );
+    my $rows = $query->rows;
+    $logger->info("pid $pid modified") if $rows;
+    return ($rows);
+}
+
+sub modify_attributes {
+    my ($pid, %data) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $existing = view($pid);
+    if (!$existing) {
+        $logger->error("modify of non-existent password entry $pid attempted");
+        return (0);
+    }
+    foreach my $item ( keys(%data) ) {
+        $existing->{$item} = $data{$item};
+    }
+    my $query = db_query_execute(
+        PASSWORD,
+        $password_statements,
+        'password_modify_actions_sql',
+        @{$existing}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
     $logger->info("pid $pid modified") if $rows;
@@ -400,7 +423,7 @@ Return values:
 sub validate_password {
     my ( $pid, $password ) = @_;
 
-    my $logger = get_logger();
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(
         PASSWORD,
@@ -452,11 +475,12 @@ sub _check_password {
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
 
-    if ($hash_string =~ /^$bcrypt_re/) {
-        return _check_bcrypt(@_);
-    } else {
+    switch ($hash_string) {
+        case /^$bcrypt_re/ { return _check_bcrypt(@_) }
         # I am leaving room for additional cases (NT hashes, md5 etc.)
-        return $plaintext eq $hash_string ? $TRUE : $FALSE;
+        else {
+            return $plaintext eq $hash_string ? $TRUE : $FALSE;
+        }
     }
 }
 
@@ -476,15 +500,15 @@ sub password_get_hash_type {
 }
 
 sub _hash_password {
-    my ($plaintext, %params) = @_;
+    my ( $plaintext, %params ) = @_;
     my $logger = pf::log::get_logger;
-    my $algorithm = $params{"algorithm"};
-    if ($algorithm =~ /$PLAINTEXT/) {
-        return $plaintext;
-    } elsif ($algorithm =~ /$BCRYPT/) {
-        return bcrypt($plaintext, %params);
-    } else {
-        $logger->error("Unsupported hash algorithm " . $params{"algorithm"});
+
+    switch ( $params{"algorithm"} ) {
+        case /$PLAINTEXT/ { return $plaintext }
+        case /$BCRYPT/    { return bcrypt( $plaintext, %params ) }
+        else {
+            $logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
+        }
     }
 }
 
@@ -549,7 +573,7 @@ Reset (change) a password for a user in the password table.
 
 sub reset_password {
     my ( $pid, $password ) = @_;
-    my $logger = get_logger();
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Making sure pid/password are "ok"
     if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
