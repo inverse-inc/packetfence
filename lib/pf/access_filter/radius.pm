@@ -29,9 +29,7 @@ tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::Radiu
 
 =head1 SUBROUTINES
 
-=over
-
-=item new
+=head2 new
 
 =cut
 
@@ -43,7 +41,7 @@ sub new {
    return $self;
 }
 
-=item test
+=head2 test
 
 Test all the rules
 
@@ -121,7 +119,7 @@ sub evalAnswer {
     }
 
 }
-    
+
 =head2 evalParam
 
 evaluate all the variables
@@ -130,14 +128,31 @@ evaluate all the variables
 
 sub evalParam {
     my ($answer, $args) = @_;
-    $answer =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-    $answer =~ s/\${([a-zA-Z_\-]+)\.([a-zA-Z_\-]+)\.([a-zA-Z_\-]+)}/$args->{$1}->{$2}{$3} \/\/ ''/ge;
-    $answer =~ s/\${([a-zA-Z_\-]+)\.([a-zA-Z_\-]+)}/$args->{$1}->{$2} \/\/ ''/ge;
-    $answer =~ s/^\s//g;
+    $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+    $answer =~ s/\${([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
-} 
+}
 
-=back
+=head2 _replaceParamsDeep
+
+evaluate all the variables deeply
+
+=cut
+
+sub _replaceParamsDeep {
+    my ($param_string, $args) = @_;
+    my @params = split /\./, $param_string;
+    my $param  = pop @params;
+    my $hash   = $args;
+    foreach my $key (@params) {
+        if (exists $hash->{$key} && reftype($hash->{$key}) eq 'HASH') {
+            $hash = $hash->{$key};
+            next;
+        }
+        return '';
+    }
+    return $hash->{$param} // '';
+}
 
 =head1 AUTHOR
 
