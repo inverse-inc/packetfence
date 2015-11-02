@@ -861,6 +861,8 @@ fi
                         /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
+%config(noreplace)      /usr/local/pf/conf/radius_filters.conf
+                        /usr/local/pf/conf/radius_filters.conf.example
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
