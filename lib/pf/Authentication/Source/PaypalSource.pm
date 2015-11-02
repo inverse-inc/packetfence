@@ -15,7 +15,7 @@ pf::Authentication::Source::PaypalSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn);
+use pf::config qw($FALSE $TRUE $default_pid $fqdn %Config);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
@@ -82,9 +82,10 @@ sub encrypt_form {
     my $cert_file = $self->cert_file;
     my $key_file = $self->key_file;
     my $paypal_cert_file = $self->paypal_cert_file;
-    my $cmd = "/usr/bin/openssl smime -sign -signer \"$cert_file\" "
+    my $openssl_binary = $Config{services}{openssl_binary};
+    my $cmd = "$openssl_binary smime -sign -signer \"$cert_file\" "
           . "-inkey \"$key_file\" -outform der -nodetach -binary "
-          . "| /usr/bin/openssl smime -encrypt -des3 -binary -outform pem "
+          . "| $openssl_binary smime -encrypt -des3 -binary -outform pem "
           . "\"$paypal_cert_file\"";
     my $pid = open2(my $reader, my $writer,$cmd) || die "Error encrypting form data\n";
     my %params = (

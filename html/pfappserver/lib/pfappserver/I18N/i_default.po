@@ -7475,6 +7475,10 @@ msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
 # conf/documentation.conf
+msgid "services.openssl_binary"
+msgstr "openssl path"
+
+# conf/documentation.conf
 msgid "services.haproxy"
 msgstr "HAProxy"
 

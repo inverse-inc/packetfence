@@ -576,6 +576,11 @@ haproxy_binary=/usr/sbin/haproxy
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 httpd_binary=/usr/sbin/httpd
 #
+# services.openssl_binary
+#
+# Location of the openssl binary. Only necessary to change if you are not running the RPMed version.
+openssl_binary=/usr/bin/openssl
+#
 # services.dhcpd_binary
 #
 # Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
