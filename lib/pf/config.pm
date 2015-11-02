@@ -876,6 +876,7 @@ sub configreload {
     require pf::ConfigStore::Violations;
     require pf::ConfigStore::Wrix;
     require pf::ConfigStore::VlanFilters;
+    require pf::ConfigStore::RadiusFilters;
     require pf::web::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);

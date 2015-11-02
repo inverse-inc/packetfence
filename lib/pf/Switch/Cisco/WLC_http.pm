@@ -134,56 +134,58 @@ assigning VLANs and Roles at the same time.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my ($this, $args) = @_;
     my $logger = $this->logger;
 
     my $radius_reply_ref = {};
 
-    my $role = $this->getRoleByName($user_role);
+    my $role = $this->getRoleByName($args->{'user_role'});
     # Roles are configured and the user should have one
     if (defined($role) && isenabled($this->{_RoleMap})) {
-        my $node_info = node_view($mac);
-        my $violation = pf::violation::violation_view_top($mac);
+        my $node_info = $args->{'node_info'};
+        my $violation = pf::violation::violation_view_top($args->{'mac'});
         if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             $radius_reply_ref = {
-                'User-Name' => $mac,
+                'User-Name' => $args->{'mac'},
                 $this->returnRoleAttribute => $role,
             };
         }
         else {
             my (%session_id);
             pf::web::util::session(\%session_id,undef,6);
-            $session_id{client_mac} = $mac;
-            $session_id{wlan} = $ssid;
+            $session_id{client_mac} = $args->{'mac'};
+            $session_id{wlan} = $args->{'ssid'};
             $session_id{switch_id} = $this->{_id};
-            pf::locationlog::locationlog_set_session($mac, $session_id{_session_id});
+            pf::locationlog::locationlog_set_session($args->{'mac'}, $session_id{_session_id});
             $radius_reply_ref = {
-                'User-Name' => $mac,
+                'User-Name' => $args->{'mac'},
                 'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id{_session_id}"],
             };
         }
-        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
+        $logger->info("[$args->{'mac'}] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
     }
 
 
     # if vlan assignement is activated, then we use it for 802.1x connections
     # we don't return a VLAN for MAC auth since that's why the other WLC modules are there
-    if (isenabled($this->{_VlanMap}) && !($connection_type eq $WIRELESS_MAC_AUTH)) {
+    if (isenabled($this->{_VlanMap}) && !($args->{'connection_type'} eq $WIRELESS_MAC_AUTH)) {
 
         $radius_reply_ref = {
             %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
+            'Tunnel-Private-Group-ID' => $args->{'vlan'},
         };
         
         # Delete the username when doing 802.1x as the WLC trusts this more than what's in the request
         # and we want to see the original username in the WLC
         delete $radius_reply_ref->{'User-Name'};
 
-        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $vlan");
+        $logger->info("[$args->{'mac'}] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $args->{'vlan'}");
     }
-
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 

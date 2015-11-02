@@ -73,6 +73,14 @@ our %configs;
 }
 
 {
+  use pf::access_filter::radius;
+
+  my @variables = ('%ConfigRadiusFilters');
+  $configs{'pf::access_filter::radius'} = dump_module("pf::access_filter::radius", @variables);
+
+}
+
+{
   use pf::authentication;
 
   my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');

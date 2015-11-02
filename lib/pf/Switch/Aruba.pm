@@ -393,47 +393,6 @@ sub extractSsid {
     return;
 }
 
-=item returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation because Aruba doesn't support
-assigning VLANs and Roles at the same time.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = $this->logger;
-
-    my $radius_reply_ref = {};
-
-    $logger->debug("[$mac] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
-    my $role = $this->getRoleByName($user_role);
-
-    # Roles are configured and the user should have one
-    if (defined($role)  && isenabled($this->{_RoleMap})) {
-
-        $radius_reply_ref = {
-            $this->returnRoleAttribute => $role,
-        };
-
-        $logger->info("[$mac] Returning ACCEPT with role: $role");
-    }
-
-    # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_VlanMap})) {
-        $radius_reply_ref = {
-             %$radius_reply_ref,
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-
-        $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
-    }
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
-}
-
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.

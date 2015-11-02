@@ -234,7 +234,21 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
-    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role);
+    my $args = {
+        node_info       => $node_info,
+        switch          => $switch,
+        ifIndex         => $port,
+        mac             => $mac,
+        connection_type => $connection_type,
+        username        => $user_name,
+        ssid            => $ssid,
+        radius_request  => $radius_request,
+        user_role       => $user_role,
+        vlan            => $vlan,
+        wasInline       => $wasInline,
+    };
+
+    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
     if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
         $RAD_REPLY_REF = $this->_rewriteAccessAccept(

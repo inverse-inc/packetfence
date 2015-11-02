@@ -487,50 +487,34 @@ Overrides the default implementation to add the dynamic acls
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    # Inline Vs. VLAN enforcement
-    my $radius_reply_ref = {};
-    my $role = "";
-    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-    }
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
 
-    
+    my @av_pairs;
+
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($user_role) && $user_role ne ""){
-            my $access_list = $self->getAccessListByName($user_role);
-            my @av_pairs;
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+            my $access_list = $self->getAccessListByName($args->{'user_role'});
             while($access_list =~ /([^\n]+)\n?/g){
                 push(@av_pairs, $self->returnAccessListAttribute."=".$1);
-                $logger->info("[$mac] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-            } 
-            $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
-            $logger->info("[$mac] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-        }
-    }
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$mac] (".$self->{'_id'}.") Network device supports roles. Evaluating role to be returned");
-        if ( defined($user_role) && $user_role ne "" ) {
-            $role = $self->getRoleByName($user_role);
-        }
-        if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-            $logger->info(
-                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-            );
-        }
-        else {
-            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+                $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+            }
+            $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 

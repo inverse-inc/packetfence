@@ -2178,6 +2178,60 @@ The third example will autoregister the device and assign the role staff to each
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
+Radius Filter Definition
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.
+
+These rules are only available in one scope:
+
+  returnRadiusAccessAccept
+
+And can be defined using different criteria like:
+
+  node_info.attribute (like node_info.$attribute)
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner.attribute (like owner.$attribute)
+  radius_request.attribute (like radius_request.$attribute)
+  violation
+  user_role
+  vlan
+
+
+For example, lets define a rule that return Access Accept when the connection is Ethernet-EAP and when there is no violation
+(merge_return means that the original answer of PacketFence will be merge with the filter answer automatically):
+
+  [violation]
+  filter = violation
+  operator = defined
+
+  [etherneteap]
+  filter = connection_type
+  operator = is
+  value = Ethernet-EAP
+
+  [1:etherneteap&!violation]
+  merge_answer = no
+  scope = returnRadiusAccessAccept
+
+In this other example we just add a new attribute to the original answer in the same conditions
+(here $user_role will be replaced by the real user role of the device and ${switch._portalURL} will be replaced
+by the value of _portalURL defined in the switch config):
+
+  [1:etherneteap&!violation]
+  merge_answer = yes
+  scope = returnRadiusAccessAccept
+  answer1 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+
+You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
+
+
 Optional components
 -------------------
 
