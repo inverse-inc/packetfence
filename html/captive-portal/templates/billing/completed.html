@@ -1,0 +1,13 @@
+[% INCLUDE header.html %]
+
+<h3>You have successfully elevated the access to the role [% account.category %] for the following devices</h3>
+
+<ul>
+[% FOREACH device IN devices %]
+  <li>[% device.mac %]</li>
+[% END %]
+</ul>
+
+<a href="/status">Click here to manage your registered devices</a>
+
+[% INCLUDE footer.html %]

@@ -292,7 +292,8 @@ sub processTransaction : Private {
         violation_force_close($mac, $vid);
     }
 
-    $c->response->redirect("/status");
+    $c->stash->{account} = \%info;
+    $c->stash->{template} = "billing/completed.html";
     $c->detach;
 }
 
@@ -305,10 +306,15 @@ Update the previous nodes for user
 sub setRoleToUserDevices : Private {
     my ($self, $c, $pid, $role) = @_;
     my $logger = $c->log;
+    $c->stash->{devices} = [  ];
     foreach my $node ( person_nodes($pid) ) {
-        $c->log->info("changing nodes for user $role");
-        $node->{category} = $role;
-        node_modify($node->{mac}, %{$node});
+        if($node->{status} eq "reg"){
+            $c->log->info("changing node ".$node->{mac}." to role $role");
+            $node->{category} = $role;
+            node_modify($node->{mac}, %{$node});
+            pf::enforcement::reevaluate_access($node->{mac}, "redir.cgi");
+            push @{$c->stash->{devices}}, $node;
+        }
     }
 }
 
