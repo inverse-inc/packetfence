@@ -135,7 +135,8 @@ sub post_auth {
         if ( length($mac) != 17 ) {
             &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
             $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
-            return $RADIUS::RLM_MODULE_OK;
+            $radius_return_code = $RADIUS::RLM_MODULE_OK;
+            return;
         }
         my $config = _get_rpc_config();
         my $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);
