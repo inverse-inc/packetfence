@@ -15,8 +15,6 @@ pf::access_filter::radius deny, rewrite radius answer based on rules.
 use strict;
 use warnings;
 
-use Log::Log4perl;
-use pf::api::jsonrpcclient;
 use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
 use pf::log;
