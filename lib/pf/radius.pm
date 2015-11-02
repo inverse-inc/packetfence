@@ -33,7 +33,7 @@ use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
 use pf::violation;
-use pf::role::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 use pf::floatingdevice::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
