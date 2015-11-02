@@ -1332,7 +1332,7 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 IOS XE Switches
 ^^^^^^^^^^^^^^^
 
-PacketFence supports the IOS XE switches in Mac Authentication Bypass, 802.1x and web authentication.
+PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X and web authentication.
 
 Mac Authentication Bypass
 +++++++++++++++++++++++++
@@ -1356,7 +1356,7 @@ On each interface:
   dot1x timeout quiet-period 2
   dot1x timeout tx-period 3
 
-AAA Groups and Configuration:
+AAA groups and configuration:
 
   aaa new-model 
   aaa group server radius packetfence 
@@ -1370,35 +1370,35 @@ Radius server configuration:
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration
+CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
   
-Activate the SNMP v1 on the switch:
+Activate SNMP on the switch:
 
   snmp-server community public RO
 
 
-802.1x only
+802.1X only
 +++++++++++
 
-Follow the same configuration as for Mac Authentication Bypass but change the `authentication priority` line with the following : 
+Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following: 
 
   authentication priority dot1x
 
-802.1x with Mac Authentication fallback
+802.1X with Mac Authentication fallback
 +++++++++++++++++++++++++++++++++++++++
 
-Follow the same configuration as for Mac Authentication Bypass but change the `authentication priority` line with the following : 
+Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following:
 
   authentication priority dot1x mab
 
 Web auth
 ++++++++
 
-Web auth requires at least Mac Authentication Bypass to be activated on the switchport but can also work with 802.1x. Configure your switchports as you would usually do, then add the following access lists.
+Web auth requires at least MAC Authentication Bypass to be activated on the switchport but can also work with 802.1X. Configure your switchports as you would usually do, then add the following access lists.
 
   ip access-list extended redirect
    deny   ip any host 192.168.1.5
@@ -1411,7 +1411,7 @@ Web auth requires at least Mac Authentication Bypass to be activated on the swit
   ip access-list extended registered
    permit ip any any
 
-PacketFence switch configuration 
+PacketFence switch configuration:
 
 * Select the type to 'Cisco Catalyst 2960 with Web Auth'
 * Set 'Portal URL' to 'http://<your_captive_portal_ip>'
