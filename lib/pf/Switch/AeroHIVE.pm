@@ -234,6 +234,9 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
+    # should this node be kicked out?
+    $self->returnRadiusDeny($args);
+
     $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned.");
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
         my $role = $self->getRoleByName($args->{'user_role'});

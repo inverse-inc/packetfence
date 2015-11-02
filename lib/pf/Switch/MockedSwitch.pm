@@ -2991,6 +2991,25 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
+=item returnRadiusDeny
+
+Return RLM_MODULE_USERLOCK if the vlan id is -1
+
+=cut
+
+sub returnRadiusDeny {
+    my ($self, $args) =@_;
+    my $logger = $self->logger();
+
+    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+        $logger->info("[$args->{mac}] According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
+        $self->disconnectRead();
+        $self->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
+    }
+
+}
+
 
 =back
 
