@@ -57,6 +57,10 @@
 # PacketFence will first evaluate simple variables like $user_role to default then it will evaluate
 # ${switch._vlans.default} to 1 (see switch hash above).
 #
+#'node_info => {
+#        'autoreg' => 'no',
+#        ....
+#},
 #'switch' => {
 #    '_vlans' => {
 #        'inline' => '6',
@@ -68,7 +72,10 @@
 #        'macDetection' => '4',
 #    },
 #    '_portalURL' => 'http://192.168.1.2',
+#    ....
 #},
+#'wasInline' => 0,
+#...
 #
 # Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
 #
