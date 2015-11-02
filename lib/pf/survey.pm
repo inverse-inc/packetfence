@@ -37,7 +37,7 @@ our $survey_db_prepared = 0;
 # the hash if required
 our $survey_statements = {};
 
-our @SURVEY_FIELDS = ( qw(survey_value email age gender origin source_id mac profile) );
+our @SURVEY_FIELDS = ( qw(survey_value email birthday gender custom_field_1 source_id mac profile) );
 
 sub survey_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::survey');
@@ -83,8 +83,8 @@ sub survery_add_from_oauth_response {
     my ($data, $oauth_response) = @_;
     $data->{email} = $oauth_response->{email} if $oauth_response->{email};
     $data->{gender} = $oauth_response->{gender} if $oauth_response->{gender};
-    $data->{age} = $oauth_response->{birthday} if $oauth_response->{birthday};
-    $data->{origin} = $oauth_response->{locale} if $oauth_response->{locale};
+    $data->{birthday} = $oauth_response->{birthday} if $oauth_response->{birthday};
+    $data->{custom_field_1} = $oauth_response->{locale} if $oauth_response->{locale};
 }
 
 =head1 AUTHOR
