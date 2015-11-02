@@ -6,7 +6,6 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use pf::config;
 use pf::iplog;
 use pf::node;
-use pf::trigger;
 use pf::Portal::Session;
 use pf::util;
 use pf::config::util;
