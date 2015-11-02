@@ -318,7 +318,7 @@ sub setupMatchParams : Private {
     my $portalSession = $c->portalSession;
     my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
-    my $params = { username => $pid, mac => $mac };
+    my $params = { username => $pid, mac => $mac, connection => $c->session->{'connection'} };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -527,7 +527,7 @@ sub authenticationLogin : Private {
         );
     } else {
         # validate login and password
-        ( $return, $message, $source_id ) =
+        ( $return, $message, $source_id, $connection ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if ( defined($return) && $return == 1 ) {
             pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
@@ -536,6 +536,7 @@ sub authenticationLogin : Private {
                 "username"  => $username // $default_pid,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
+                "connection" => $connection,
             );
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
