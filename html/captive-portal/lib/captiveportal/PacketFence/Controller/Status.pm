@@ -40,7 +40,7 @@ sub index : Path : Args(0) {
     }
     $c->stash(
         template => 'status.html',
-        billing  => ($c->profile->getBillingSources() > 0),
+        billing  => $c->profile->hasBilling(),
     );
 }
 

@@ -173,6 +173,17 @@ sub getBillingSources {
     return $self->getSourcesByClass( 'billing' );
 }
 
+=item hasBilling
+
+Whether or not the profile has billing enabled
+
+=cut
+
+sub hasBilling {
+    my ($self) = @_;
+    return (scalar($self->getBillingSources()) > 0);
+}
+
 =item getDescripton
 
 Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
