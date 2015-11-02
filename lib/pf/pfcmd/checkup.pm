@@ -702,7 +702,8 @@ sub extensions {
 
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
-        { 'name' => 'VLAN', 'module' => 'pf::vlan::custom', 'api' => $VLAN_API_LEVEL, },
+        { 'name' => 'VLAN', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
+        { 'name' => 'Billing', 'module' => 'pf::billing::custom', 'api' => $BILLING_API_LEVEL, },
         { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLE_API_LEVEL, },
@@ -738,7 +739,7 @@ sub extensions {
     # catastrophic chains of extension failures that are confusing to users
 
     # we ignore "version check failed" or "version x required"
-    # as it means that pf::vlan::custom's version is not good which we already catched above
+    # as it means that pf::role::custom's version is not good which we already catched above
     #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
     #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
     #}

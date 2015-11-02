@@ -2488,7 +2488,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = $self->logger;
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
 
     $logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
 
@@ -2731,6 +2731,14 @@ sub returnRadiusAccessAccept {
     my $logger = $self->logger();
 
     my $radius_reply_ref = {};
+
+    # should this node be kicked out?
+    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+        $logger->info("[$args->{mac}] According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
+        $self->disconnectRead();
+        $self->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
+    }
 
     # Inline Vs. VLAN enforcement
     my $role = "";

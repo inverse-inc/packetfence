@@ -34,12 +34,10 @@ sub filterRule {
         if (defined($rule->{'role'}) && $rule->{'role'} ne '') {
             my $role = $rule->{'role'};
             $role =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-            my $vlan = $args->{switch}->getVlanByName($role);
-            return (1, $role) if ($scope eq 'AutoRegister');
-            return ($vlan, $role);
+            return $role;
         }
-        return (0, 0);
     }
+    return 0;
 }
 
 =head2 getEngineForScope

@@ -372,9 +372,16 @@ Set the vlan for the node on the switch
 sub _node_determine_and_set_into_VLAN {
     my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $vlan_obj = new pf::role::custom();
+    my $args = {
+        mac => $mac,
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+    };
 
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+    my $role = $vlan_obj->fetchRoleForNode($args);
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     my %locker_ref;
     $locker_ref{$switch->{_ip}} = &share({});

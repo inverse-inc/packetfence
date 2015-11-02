@@ -5,7 +5,7 @@ vlan.t
 
 =head1 DESCRIPTION
 
-pf::vlan module testing
+pf::role module testing
 
 =cut
 
@@ -38,22 +38,22 @@ BEGIN { use pf::violation;
 }
 
 BEGIN {
-    use_ok('pf::vlan');
-    use_ok('pf::vlan::custom');
+    use_ok('pf::role');
+    use_ok('pf::role::custom');
     use_ok('pf::access_filter::vlan');
 }
 
 # test the object
-my $vlan_obj = new pf::vlan::custom();
-isa_ok($vlan_obj, 'pf::vlan');
+my $vlan_obj = new pf::role::custom();
+isa_ok($vlan_obj, 'pf::role');
 
 # subs
 can_ok($vlan_obj, qw(
-    fetchVlanForNode
+    fetchRoleForNode
     doWeActOnThisTrap
-    getViolationVlan
-    getRegistrationVlan
-    getNormalVlan
+    getViolationRole
+    getRegistrationRole
+    getNormalRole
     getNodeInfoForAutoReg
     shouldAutoRegister
   ));
@@ -64,8 +64,8 @@ $Config{'trapping'}{'registration'} = 'enabled';
 # setup a fake switch object
 my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 
-# redefining violation functions (we stay in pf::vlan's context because methods are imported there from pf::violation)
-my $mock = new Test::MockModule('pf::vlan');
+# redefining violation functions (we stay in pf::role's context because methods are imported there from pf::violation)
+my $mock = new Test::MockModule('pf::role');
 # emulate the presence of a violation
 # TODO this is a cheap test, the false in view_top is to avoid the cascade of vid, class, etc. checking
 # mocked node_attributes returns violation node
@@ -79,7 +79,7 @@ $mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $vlan;
 my $wasInline;
-($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
+($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
 is($vlan, 2, "determine vlan for node with violation");
 
 # violation_count_reevaluate_access will return 0
@@ -95,7 +95,7 @@ $mock->mock('node_attributes', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
-($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
+($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001'});
 is($vlan, 1, "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
@@ -105,7 +105,7 @@ $mock->mock('node_attributes', sub {
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
-($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
+($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
 my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
@@ -118,10 +118,10 @@ is($role, 'registration', "obtain registration role for the device");
 ($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'TEST');
 is($role, 'registration2', "obtain registration role for the device");
 
-#($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
+#($vlan,$wasInline) = $vlan_obj->getNormalRole($switch);
 #is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-#($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch_vlan_override);
+#($vlan,$wasInline) = $vlan_obj->getNormalRole($switch_vlan_override);
 #is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
 
 # doWeActOnThisTrap tests

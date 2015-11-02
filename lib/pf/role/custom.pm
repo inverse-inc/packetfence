@@ -1,15 +1,15 @@
-package pf::vlan::custom;
+package pf::role::custom;
 
 =head1 NAME
 
-pf::vlan::custom - Object oriented module for VLAN isolation oriented functions
+pf::role::custom - Object oriented module for VLAN isolation oriented functions
 
 =head1 SYNOPSIS
 
-The pf::vlan::custom module implements VLAN isolation oriented functions that are custom
+The pf::role::custom module implements VLAN isolation oriented functions that are custom
 to a particular setup.
 
-This module extends pf::vlan
+This module extends pf::role
 
 =cut
 
@@ -18,7 +18,7 @@ use warnings;
 
 use pf::log;
 
-use base ('pf::vlan');
+use base ('pf::role');
 
 use pf::config;
 use pf::node qw(node_attributes node_exist node_modify);
@@ -41,7 +41,7 @@ our $VERSION = 1.04;
 
 This is an example of how to redefine a method for custom purposes.
 
-See pf::vlan::shouldAutoRegister for full original method.
+See pf::role::shouldAutoRegister for full original method.
 
 =cut
 

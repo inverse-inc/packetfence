@@ -255,7 +255,7 @@ is used by the `pfcmd` CLI) with:
 VLAN assignment
 ~~~~~~~~~~~~~~~
 
-pfsetvlan uses the `getNormalVlan` function defined in `pf::vlan::custom`
+pfsetvlan uses the `getNormalVlan` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
 ----

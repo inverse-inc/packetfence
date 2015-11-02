@@ -44,7 +44,7 @@ use pf::node;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $VLAN_API_LEVEL;
 use pf::client;
 use pf::cluster;
 
@@ -162,7 +162,7 @@ sub _vlan_reevaluation {
 
 Returns true or false whether or not we should request vlan adjustment
 
-Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
+Evaluates node's VLAN through L<pf::role>'s fetchRoleForNode (which can be redefined by L<pf::role::custom>)
 
 =cut
 
@@ -185,7 +185,7 @@ sub _should_we_reassign_vlan {
 
     $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $vlan_obj = new pf::role::custom();
 
     # TODO avoidable load?
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
@@ -194,9 +194,17 @@ sub _should_we_reassign_vlan {
         return $FALSE;
     }
 
-    my ( $newCorrectVlan, $wasInline )
-        = $vlan_obj->fetchVlanForNode( $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid );
+    my $args = {
+        mac => $mac,
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+        user_name => $user_name,
+        ssid => $ssid,
+    };
 
+    my $role = $vlan_obj->fetchRoleForNode( $args );
+    my $newCorrectVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
     if (!defined($newCorrectVlan)) {
         return $TRUE;
     } elsif ( $newCorrectVlan eq '-1' ) {

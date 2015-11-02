@@ -1,17 +1,17 @@
-package pf::vlan::custom_example;
+package pf::role::custom_example;
 
 =head1 NAME
 
-pf::vlan::custom
+pf::role::custom
 
 =head1 SYNOPSIS
 
-This is a sample custom pf::vlan::custom module. It performs a database
+This is a sample custom pf::role::custom module. It performs a database 
 lookup on the requests coming from a Cisco WLC to pre-prend a building Id
 to the returned VLAN. The query on the database is made using the
 Called-Station-Id to discriminate based on the AP.
 
-This module extends pf::vlan
+This module extends pf::role
 
 =head1 INSTALLATION
 
@@ -26,14 +26,14 @@ This module requires the presence of a special table in the database:
     | building_name   | text        | NO   |     | NULL    |       |
     +-----------------+-------------+------+-----+---------+-------+
 
-Also, the Called-Sation-Id parameter must be added in pf::radius'
-fetchVlanForNode. Preferably do this in L<pf::radius::custom>.
+Also, the Called-Sation-Id parameter must be added in pf::radius' 
+fetchRoleForNode. Preferably do this in L<pf::radius::custom>.
 
     $radius_request->{'Called-Station-Id'}
 
 Rename to pf/vlan/custom.pm and change package declaration to:
 
-    package pf::vlan::custom;
+    package pf::role::custom;
 
 =cut
 
@@ -47,7 +47,7 @@ use constant CUSTOM => 'vlan::custom';
 
 BEGIN {
     # use base must be performed before @EXPORT assignment otherwise we are not a subclass
-    use base ('pf::vlan');
+    use base ('pf::role');
     our @EXPORT = qw(
         $custom_db_prepared
         custom_db_prepare
@@ -135,22 +135,22 @@ sub buildingnum_per_called_station_id {
 
 =over
 
-=item fetchVlanForNode
+=item fetchRoleForNode
 
 Answers the question: What VLAN should a given node be put into?
 
-Overrides pf::vlan's fetchVlanForNode
+Overrides pf::role's fetchRoleForNode
 
 CUSTOM: pass the Called-Station-Id to violation, registration and normal VLAN resolvers.
 
 =cut
 
-sub fetchVlanForNode {
-    my ( $self, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $called_station_id ) = @_;
+sub fetchRoleForNode {
+    my ( $self, $mrgs) = @_;
     my $logger = get_logger();
 
     # violation handling
-    my $violation = $self->getViolationVlan(
+    my $violation = $self->getViolationRole(
         $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id
     );
     if (defined($violation) && $violation != 0) {
@@ -160,18 +160,13 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    my $node_info = node_attributes($mac);
-    my $registration = $self->getRegistrationVlan(
-        $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id
-    );
+    my $registration = $self->getRegistrationRole($args);
     if (defined($registration) && $registration != 0) {
         return $registration;
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $self->getNormalVlan(
-        $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id
-    );
+    my $vlan = $self->getNormalRole($args);
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -181,11 +176,11 @@ sub fetchVlanForNode {
 }
 
 
-=item getViolationVlan
+=item getViolationRole
 
 Returns the violation vlan for a node (if any)
 
-Overrides pf::vlan::getViolationVlan
+Overrides pf::role::getViolationRole
 
 CUSTOM: handling called_station_id
 
@@ -205,14 +200,14 @@ Return values:
 
 =cut
 
-sub getViolationVlan {
+sub getViolationRole {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($self, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $args) = @_;
     my $logger = get_logger();
 
     my $open_violation_count = violation_count_reevaluate_access($mac);
@@ -273,11 +268,11 @@ sub getViolationVlan {
     return $vlan_number;
 }
 
-=item getRegistrationVlan
+=item getRegistrationRole
 
 Returns the registration vlan for a node if registration is enabled and node is unregistered or pending.
 
-Overrides pf::vlan's getRegistrationVlan
+Overrides pf::role's getRegistrationRole
 
 CUSTOM: handling called_station_id
 
@@ -295,7 +290,7 @@ Return values:
 
 =cut
 
-sub getRegistrationVlan {
+sub getRegistrationRole {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
@@ -303,7 +298,7 @@ sub getRegistrationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $args) = @_;
     my $logger = get_logger();
 
     # trapping on registration is enabled
@@ -338,15 +333,15 @@ sub getRegistrationVlan {
     return 0;
 }
 
-=item getNormalVlan
+=item getNormalRole
 
-Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
+Sample getNormalRole, see pf::role for getNormalRole interface description
 
 =cut
 
-sub getNormalVlan {
+sub getNormalRole {
 
-    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $args) = @_;
     my $logger = get_logger();
 
     # CUSTOM: fetching per building VLAN id if switch type is Cisco::WLC

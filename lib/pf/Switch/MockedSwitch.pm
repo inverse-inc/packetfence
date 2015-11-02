@@ -2783,7 +2783,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     }
     my $hasPhone = $self->hasPhoneAtIfIndex($ifIndex);
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
     if ( !$hasPhone ) {
         $logger->info( "no VoIP phone is currently connected at " . $switch_ip
             . " ifIndex $ifIndex. Flipping port admin status"

@@ -35,7 +35,6 @@ use pf::config;
 use pf::Switch::constants;
 use pf::util;
 
-use pf::roles::custom;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::node qw(node_attributes node_view);

@@ -91,6 +91,14 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
 
+    # should this node be kicked out?
+    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+        $logger->info("[$args->{mac}] According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
+        $self->disconnectRead();
+        $self->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
+    }
+
     my $node = $args->{'node_info'};
 
     my $violation = pf::violation::violation_view_top($args->{'mac'});
