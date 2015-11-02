@@ -45,13 +45,14 @@ sub process {
 
     if($query_args->{mac}){
         my $node_info = pf::node::node_view($query_args->{mac});
-        next unless($node_info);
-        my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
-        foreach my $param (@base_params){
-            $query_args->{$param} = $query_args->{$param} // $node_info->{$param};
+        if($node_info){
+            my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
+            foreach my $param (@base_params){
+                $query_args->{$param} = $query_args->{$param} // $node_info->{$param};
+            }
+            # ip is a special case as it's not in the node_info
+            $query_args->{ip} = $query_args->{ip} // pf::iplog::mac2ip($query_args->{mac}) || undef;
         }
-        # ip is a special case as it's not in the node_info
-        $query_args->{ip} = $query_args->{ip} // pf::iplog::mac2ip($query_args->{mac}) || undef;
     }
 
     my $mac = $query_args->{'mac'};
