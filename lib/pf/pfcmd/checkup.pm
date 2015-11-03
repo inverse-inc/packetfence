@@ -121,7 +121,7 @@ sub sanity_check {
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
     scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
 
-    billing() if ( isenabled($Config{'registration'}{'billing_engine'}) );
+    billing();
 
     database();
     omapi();
@@ -701,7 +701,6 @@ sub extensions {
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'VLAN', 'module' => 'pf::vlan::custom', 'api' => $VLAN_API_LEVEL, },
-        { 'name' => 'Billing', 'module' => 'pf::billing::custom', 'api' => $BILLING_API_LEVEL, },
         { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLE_API_LEVEL, },
@@ -954,27 +953,20 @@ Validation related to the billing engine feature.
 =cut
 
 sub billing {
-    # Check if the configuration provided payment gateway is instanciable
-    my $payment_gw = 'pf::billing::gateway::' . lc($Config{'billing'}{'gateway'});
-    $payment_gw = untaint_chain($payment_gw);
-    try {
-        eval "$payment_gw->require()";
-        die($@) if ($@);
-        my $gw = $payment_gw->new();
-
-        if (!defined($gw->VERSION())) {
-            add_problem($FATAL, "Payment gateway module $payment_gw is enabled and its VERSION is not defined.");
+    # validate each profile has at least a billing tier if it has one or more billing source
+    foreach my $profile_id (keys %Profiles_Config){
+        my $profile = pf::Portal::ProfileFactory->_from_profile($profile_id);
+        if($profile->getBillingSources() > 0 && @{$profile->getBillingTiers()} == 0){
+            add_problem($WARN, "Profile $profile_id has billing sources configured but no billing tiers.");
         }
-        elsif ($BILLING_API_LEVEL > $gw->VERSION()) {
-            add_problem( $FATAL,
-                "Payment gateway module $payment_gw is enabled and is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
+    }
+    # validate billing tiers have the necessary configuration
+    my @required_tier_params = qw(name description price role access_duration use_time_balance);
+    foreach my $tier_id (keys %ConfigBillingTiers){
+        foreach my $param (@required_tier_params){
+            add_problem($WARN, "Missing parameter $param for billing tier $tier_id") unless($ConfigBillingTiers{$tier_id}{$param});
         }
-    } catch {
-        chomp($_);
-        add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
-    };
+    }
 }
 
 =item guests
@@ -1028,7 +1020,7 @@ Make sure only one external authentication source is selected for each type.
 sub portal_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
-        billing_engine|description|sources|redirecturl|always_use_redirecturl|
+        billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;

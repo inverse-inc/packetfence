@@ -1,0 +1,69 @@
+[% INCLUDE header.html %]
+
+[% INCLUDE billing/tier.html %]
+<hr>
+[% IF txt_validation_error.defined %]
+<div class="error"><p>[% txt_validation_error %]</p></div>
+[% END %]
+
+<form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
+  <div class="error"><p id="payment-errors"></p></div>
+
+  <div class="input">
+    <span>Name</span>
+    <input class="field" type="text" size="20" data-stripe="name" />
+  </div>
+
+  <div class="input">
+    <span>Card Number</span>
+    <input class="field" type="text" size="20" data-stripe="number"/>
+  </div>
+
+  <div class="input">
+    <span>CVC</span>
+    <input class="field" type="text" size="4" data-stripe="cvc"/>
+  </div>
+
+  <div class="input">
+    <span>Expiration (MM/YYYY)</span>
+    <input type="text" size="2" data-stripe="exp-month"/>
+    /
+    <input type="text" size="4" data-stripe="exp-year"/>
+  </div>
+  <input type="hidden" name="stripeToken" value=""/>
+
+  <div class="input">
+    <button class="btn" type="submit">Submit Payment</button>
+  </div>
+</form>
+
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+
+<script type="text/javascript">
+  // This identifies your website in the createToken call below
+    function stripeResponseHandler(status, response) {
+        if(response.error) {
+            $('payment-errors').update(response.error.message);
+        }
+        else {
+            var token = response.id;
+            var form = $('payment-form');
+            var input = form["stripeToken"];
+            $(input).setValue(token);
+            form.submit();
+        }
+    };
+    if(typeof Stripe !== 'undefined' ) {
+        Stripe.setPublishableKey('[% billing.publishable_key %]');
+        $('payment-form').onsubmit = function(e) {
+            Stripe.card.createToken(this, stripeResponseHandler);
+            return false;
+        };
+    }
+    else {
+        $('payment-errors').update('Unable to proceed with payment please contact your service provider');
+    }
+      // ...
+</script>
+
+[% INCLUDE footer.html %]

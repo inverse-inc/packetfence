@@ -29,6 +29,7 @@ use pf::ConfigStore::Scan;
 use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
+use pf::config;
 
 =head1 METHODS
 
@@ -126,18 +127,62 @@ sub getTemplatePath {
 
 *template_path = \&getTemplatePath;
 
-=item getBillingEngine
+=item getBillingTiers
 
-Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
+Get the billing tiers for this portal profile
 
 =cut
 
-sub getBillingEngine {
+sub getBillingTiers {
     my ($self) = @_;
-    return $self->{'_billing_engine'};
+    my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
+    if(@tier_ids == 0){
+        @tier_ids = keys %ConfigBillingTiers;
+    }
+    my @tiers;
+    while(my ($tier_id, $tier) = each %ConfigBillingTiers){
+        if(any { $_ eq $tier_id } @tier_ids){
+            $tier->{id} = $tier_id;
+            push @tiers, $tier;
+        }
+    }
+    return \@tiers;
 }
 
-*billing_engine = \&getBillingEngine;
+*billing_tiers = \&getBillingTiers;
+
+=item getBillingTier
+
+Get the configuration of a specific billing tier
+
+=cut
+
+sub getBillingTier {
+    my ($self, $id) = @_;
+    return $ConfigBillingTiers{$id};
+}
+
+=item getBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getBillingSources {
+    my ($self) = @_;
+    return $self->getSourcesByClass( 'billing' );
+}
+
+=item hasBilling
+
+Whether or not the profile has billing enabled
+
+=cut
+
+sub hasBilling {
+    my ($self) = @_;
+    return (scalar($self->getBillingSources()) > 0);
+}
 
 =item getDescripton
 
@@ -347,6 +392,14 @@ sub guestRegistrationOnly {
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
     return $result;
+}
+
+sub billingRegistrationOnly {
+    my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if(@sources == 0);
+
+    return all { $_->class eq 'billing' } @sources;
 }
 
 =item guestModeAllowed

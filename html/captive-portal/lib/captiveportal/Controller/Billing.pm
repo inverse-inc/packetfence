@@ -1,46 +1,17 @@
-package pf::billing::gateway::mirapay::response;
+package captiveportal::Controller::Billing;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::Controller::Billing'; }
+
 =head1 NAME
 
-pf::billing::gateway::mirapay::response add documentation
-
-=cut
+captiveportal::Controller::Billing - Billing Controller for captiveportal
 
 =head1 DESCRIPTION
 
-pf::billing::gateway::mirapay::response
+[enter your description here]
 
 =cut
-
-use strict;
-use warnings;
-use Moo;
-
-
-has [qw(
-    messageType
-    idSeqNumber
-    termID
-    displayMsg
-    accountBalance
-    receiptMsg
-    responseCode
-    approvalCd
-    isoResponseCode
-    receiptRefNum
-    transactionCounter
-    approved
-    operatorMsg
-    receiptMsgAction
-    receiptMsgAccount
-    cardType
-    echoData
-    invoicenum
-    accountType
-    cvvResponse
-    avsResponseCode
-    avsResponseMesg
-    transactionHandle
-)] => (is => 'rw');
 
 =head1 AUTHOR
 
@@ -69,5 +40,6 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
+1;

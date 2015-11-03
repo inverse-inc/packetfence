@@ -591,6 +591,7 @@ sub showLogin : Private {
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
+        billing         => $c->profile->hasBilling(),
         guest_allowed   => $guest_allowed,
     );
 
@@ -616,14 +617,21 @@ sub _clean_username {
 
 sub validationError {
     my ( $self, $c, $error_code, @error_args ) = @_;
-    $c->stash->{'txt_validation_error'} =
-      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
-    utf8::decode($c->stash->{'txt_validation_error'});
+    $self->createValidationErrorMessage( $c, $error_code, @error_args );
     $c->detach('showLogin');
 }
 
+sub createValidationErrorMessage {
+    my ( $self, $c, $error_code, @error_args ) = @_;
+    $c->stash->{'txt_validation_error'} =
+      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
+}
+
 sub validateMandatoryFields : Private {
-    my ( $self, $c ) = @_;
+    my ( $self, $c, %options ) = @_;
+    # we detach by default
+    $options{detach} = defined($options{detach}) ? $options{detach} : 1;
     my $request = $c->request;
     my $session = $c->session;
     my $profile    = $c->profile;
@@ -656,7 +664,12 @@ sub validateMandatoryFields : Private {
     }
 
     if ( defined $error_code && $error_code != 0 ) {
-        $self->validationError( $c, $error_code, @error_args );
+        if($options{detach}){
+            $self->validationError( $c, $error_code, @error_args );
+        }
+        else {
+            $self->createValidationErrorMessage( $c, $error_code, @error_args );
+        }
     } else {
         $c->forward('setupSession');
         _update_person($session,$profile);

@@ -191,7 +191,7 @@ sub regzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        if ( ($qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
+        if ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
             my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });

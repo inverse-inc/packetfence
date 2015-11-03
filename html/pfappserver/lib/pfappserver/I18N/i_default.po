@@ -655,10 +655,6 @@ msgstr ""
 msgid "CA cert path"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "CAD"
-msgstr ""
-
 # html/pfappserver/root/config/switch/view.tt
 msgid "CLI"
 msgstr ""
@@ -5069,10 +5065,6 @@ msgstr ""
 msgid "The certificate for signing profiles"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "The domain to use for the authentication in that realm"
 msgstr ""
@@ -5083,10 +5075,6 @@ msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
 msgid "The following users have been created"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
 msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
@@ -5130,28 +5118,8 @@ msgstr ""
 msgid "The maximum of size of the items allowed to be stored Must between 1k and 128m"
 msgstr ""
 
-# conf/documentation.conf (billing.authorizenet_login)
-msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_trankey)
-msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_posturl)
-msgid "The payment gateway processing URL (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.gateway)
-msgid "The payment gateway to process the payments"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
@@ -5187,14 +5155,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
 msgid "The rules of the chained source are applied"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
@@ -5369,10 +5329,6 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
 msgid "URL to submit unmatched parameter to upstream Fingerbank project"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "USD"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -6183,10 +6139,6 @@ msgstr ""
 msgid "apartment_number"
 msgstr ""
 
-# conf/documentation.conf (billing.gateway options)
-msgid "authorize_net"
-msgstr "Authorize.net"
-
 # pf::config (SoH Classes)
 msgid "auto-updates"
 msgstr ""
@@ -6194,46 +6146,6 @@ msgstr ""
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
-
-# conf/documentation.conf
-msgid "billing"
-msgstr "Billing"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_login"
-msgstr "Authorize.net API Login ID"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_posturl"
-msgstr "Authorize.net URL"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net Transaction Key"
-
-# conf/documentation.conf
-msgid "billing.gateway"
-msgstr "Gateway"
-
-# conf/documentation.conf
-msgid "billing.mirapay_currency"
-msgstr "MiraPay currency"
-
-# conf/documentation.conf
-msgid "billing.mirapay_hash_password"
-msgstr "MiraPay password"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id"
-msgstr "MiraPay terminal id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id_group"
-msgstr "MiraPay terminal group id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_url"
-msgstr "MiraPay URL"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -7089,10 +7001,6 @@ msgstr ""
 msgid "minutes"
 msgstr ""
 
-# conf/documentation.conf (billing.gateway options)
-msgid "mirapay"
-msgstr "MiraPay"
-
 # pf::provisioner (Provisioners)
 msgid "mobileconfig"
 msgstr "Apple Devices"
@@ -7565,6 +7473,10 @@ msgstr "dhcpd"
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
+
+# conf/documentation.conf
+msgid "services.openssl_binary"
+msgstr "openssl path"
 
 # conf/documentation.conf
 msgid "services.haproxy"

@@ -71,6 +71,7 @@ our (
     $pki_provider_config_file,
     $suricata_categories_file,
     $radius_filters_config_file,
+    $billing_tiers_config_file,
 );
 
 BEGIN {
@@ -119,6 +120,7 @@ BEGIN {
         $pki_provider_config_file
         $suricata_categories_file
         $radius_filters_config_file
+        $billing_tiers_config_file
     );
 }
 
@@ -181,6 +183,7 @@ $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $wmi_config_file = catfile($conf_dir,"wmi.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
+$billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';

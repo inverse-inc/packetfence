@@ -25,20 +25,23 @@ use pf::util::apache qw(url_parser);
 
 =cut
 
-=head2 oauth_domain
+=head2 sources_domains
 
-Build all the permit domain for oauth authentication
+Build all the permit domain for oauth and billing authentication
 
 =cut
 
-sub oauth_domain {
+sub sources_domains {
 
     my @domains;
     foreach my $source ( @authentication_sources ) {
 
         my $classname = $source->meta->name;
 
-        if ( ($classname eq 'pf::Authentication::Source::GoogleSource') || ($classname eq 'pf::Authentication::Source::GithubSource') || ($classname eq 'pf::Authentication::Source::FacebookSource') || ($classname eq 'pf::Authentication::Source::LinkedInSource') || ($classname eq 'pf::Authentication::Source::WindowsLiveSource') || ($classname eq 'pf::Authentication::Source::TwitterSource')) {
+        if($source->class eq 'billing' && $source->can('domains')){
+            push(@domains, split(',',$source->{'domains'}));
+        }
+        elsif ( ($classname eq 'pf::Authentication::Source::GoogleSource') || ($classname eq 'pf::Authentication::Source::GithubSource') || ($classname eq 'pf::Authentication::Source::FacebookSource') || ($classname eq 'pf::Authentication::Source::LinkedInSource') || ($classname eq 'pf::Authentication::Source::WindowsLiveSource') || ($classname eq 'pf::Authentication::Source::TwitterSource')) {
             push(@domains, split(',',$source->{'domains'}));
 
         }
@@ -61,17 +64,17 @@ sub passthrough { @{ $Config{trapping}{passthroughs} }; }
 
 package OAUTH;
 
-my @oauth_domains =  pf::pfdns::constants::oauth_domain();
-foreach (@oauth_domains) { s{^([\d+|\w+](.*))}{\Q$1\E} };
-foreach (@oauth_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
-foreach (@oauth_domains) { s{([^/])$}{$1\$} };
+my @sources_domains =  pf::pfdns::constants::sources_domains();
+foreach (@sources_domains) { s{^([\d+|\w+](.*))}{\Q$1\E} };
+foreach (@sources_domains) { s{(\*)(.*)}{\(\.\*\)\Q$2\E} };
+foreach (@sources_domains) { s{([^/])$}{$1\$} };
 
-my $allow_oauth_domains = join('|', @oauth_domains) if (@oauth_domains ne '0');
+my $allow_sources_domains = join('|', @sources_domains) if (@sources_domains ne '0');
 
-if (defined($allow_oauth_domains)) {
-    Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => qr/ ^(?: $allow_oauth_domains ) /xo; # eXtended pattern, compile Once
+if (defined($allow_sources_domains)) {
+    Readonly::Scalar our $ALLOWED_SOURCES_DOMAINS => qr/ ^(?: $allow_sources_domains ) /xo; # eXtended pattern, compile Once
 } else {
-    Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => '';
+    Readonly::Scalar our $ALLOWED_SOURCES_DOMAINS => '';
 }
 
 

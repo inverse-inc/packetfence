@@ -121,6 +121,8 @@ our (
     %ConfigPKI_Provider,
 #pfdetect.conf
     %ConfigDetect,
+#billing_tiers.conf
+    %ConfigBillingTiers,
 );
 
 BEGIN {
@@ -171,6 +173,7 @@ BEGIN {
         %ConfigWmi
         %ConfigPKI_Provider
         %ConfigDetect
+        %ConfigBillingTiers
     );
 }
 
@@ -236,6 +239,8 @@ tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 
 tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
+
+tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
 
 sub import {
     pf::config->export_to_level(1,@_);

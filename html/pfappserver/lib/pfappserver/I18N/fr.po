@@ -655,10 +655,6 @@ msgstr "Role Bypass"
 msgid "Bypass VLAN"
 msgstr "VLAN de contournement"
 
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "CAD"
-msgstr "CAD"
-
 # html/pfappserver/root/config/switch/view.tt
 msgid "CLI"
 msgstr "CLI"
@@ -5031,10 +5027,6 @@ msgid ""
 "only applies to bcrypt."
 msgstr "Le facteur coût à appliquer au hachage de mot de passe le cas échéant. Actuellement cela s'applique uniquement aux bcrypt."
 
-# conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
-msgstr "La monnaie des transactions MiraPay"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "The domain to use for the authentication in that realm"
 msgstr "Le domaine à utiliser pour l'authentification dans ce \"realm\""
@@ -5046,10 +5038,6 @@ msgstr "L'utilisateur suivant a bien été créé "
 # html/pfappserver/root/user/list_password.tt
 msgid "The following users have been created"
 msgstr "Les utilisateurs suivant ont bien été créés"
-
-# conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
-msgstr "Le mot de passe de hachage pour MiraPay"
 
 # conf/documentation.conf (provisioning.ssid)
 msgid "The hidden SSID where the user should connect to after registration"
@@ -5093,31 +5081,11 @@ msgid ""
 "128m"
 msgstr "La taille maximum autorisée pour stocker des objets. Ca doit être entre 1k et 128m"
 
-# conf/documentation.conf (billing.authorizenet_login)
-msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
-msgstr "ID unique de l'API de connexion (fournie par Authorize.net)"
-
-# conf/documentation.conf (billing.authorizenet_trankey)
-msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
-msgstr "Clef de transaction de Authorize.net (fournie par Authorize.net)"
-
 # html/pfappserver/root/node/create.tt
 msgid ""
 "The node will be automatically registered. If the MAC matches an existing "
 "node, it will also be modified and registered."
 msgstr "Le nœud sera automatiquement enregistré. Si la MAC correspond à un nœud existant, il sera également modifié et enregistré."
-
-# conf/documentation.conf (billing.authorizenet_posturl)
-msgid "The payment gateway processing URL (Provided by Authorize.net)"
-msgstr "L'URL de la passerelle de paiement (fournie par Authorize.net)"
-
-# conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
-msgstr "La passerelle de paiement pour le traitement URL MiraPay"
-
-# conf/documentation.conf (billing.gateway)
-msgid "The payment gateway to process the payments"
-msgstr "La passerelle pour traiter les paiements"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
@@ -5147,14 +5115,6 @@ msgstr "Le rôle à attribuer à des consoles de jeux. Si aucun n'est sélection
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr "La règle n´a pas été trouvée. "
-
-# conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
-msgstr "L'identifiant du terminal de MiraPay"
-
-# conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
-msgstr "L'identifiant de group de MiraPay"
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 msgid "The username to use for login to the captive portal."
@@ -5354,10 +5314,6 @@ msgstr "URL pour aller chercher la base de données du projet Fingerbank sur int
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
 msgid "URL to submit unmatched parameter to upstream Fingerbank project"
 msgstr "URL pour soumettre des entrées inconnu au projet Fingerbank sur internet"
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "USD"
-msgstr "USD"
 
 # pf::admin_roles (Actions groups)
 msgid "USERAGENTS"
@@ -6169,10 +6125,6 @@ msgstr "Une des"
 msgid "apartment_number"
 msgstr "Numéro d´appartement"
 
-# conf/documentation.conf (billing.gateway options)
-msgid "authorize_net"
-msgstr "Authorize.net"
-
 # pf::config (SoH Classes)
 msgid "auto-updates"
 msgstr "mise à jour automatique"
@@ -6188,42 +6140,6 @@ msgstr "bcrypt"
 # conf/documentation.conf
 msgid "billing"
 msgstr "Facturation"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_login"
-msgstr "Nom d'utilisateur Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_posturl"
-msgstr "URL Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_trankey"
-msgstr "Clé Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.gateway"
-msgstr "Passerelle"
-
-# conf/documentation.conf
-msgid "billing.mirapay_currency"
-msgstr "Monnaie de MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_hash_password"
-msgstr "Mot de passe de MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id"
-msgstr "Identifiant du terminal MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id_group"
-msgstr "Identifiant du groupe MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_url"
-msgstr "URL de MiraPay"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -7061,10 +6977,6 @@ msgstr "microsoft"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr "minutes"
-
-# conf/documentation.conf (billing.gateway options)
-msgid "mirapay"
-msgstr "MiraPay"
 
 # pf::provisioner (Provisioners)
 msgid "mobileconfig"

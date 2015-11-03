@@ -798,7 +798,6 @@ Here are the different configuration parameters that can be set for each portal 
   [profilename1]
   description = the description of your portal profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
-  billing_engine = either enabled or disabled
   sources = comma-separated list of authentications sources (IDs) to use
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
@@ -1371,58 +1370,244 @@ Billing Engine
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
 
-PacketFence currently supports two payment gateways: Authorize.net and Mirapay.
+PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
 
-The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
+In order to activate the billing, you will need to configure the following components : 
 
-  [default]
-  billing_engine = enabled
-  ...
+* Billing source(s)
+* Billing tier(s)
 
-Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
+Configuring a billing source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  [billing]
-  gateway = authorize_net
-  authorizenet_posturl = The payment gateway processing URL
-  authorizenet_login = The merchant's unique API Login ID
-  authorizenet_trankey = The merchant's unique Transaction Key
+First select a billing provider and follow the instructions below.
 
-It is also possible to configure multiple network access with different prices.
-For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
+Paypal
+++++++
 
-CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
+NOTE: This provider requires that your PacketFence server is accessible on the public domain. For this your PacketFence portal should be available on a public IP using the DNS server name configured in PacketFence.
 
-To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
+If you have a business account and do not want to configure a test environment, you can skip the next section.
 
-To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+*Sandbox account*
 
-    my %tiers = (
-            tier1 => {
-                id => "tier1",
-                name => "Tier 1",
-                price => "1.00",
-                timeout => "7D",
-                usage_duration => '1D',
-                category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
-            },
-    );
+To configure a sandbox paypal account for use in PacketFence, head to https://developer.paypal.com/ and either sign up or login into your existing account.
 
-*id* is used as the item value of the billing table.
+Then in the Sandbox menu, click 'Accounts'
 
-*name* is the name of the tier used on billing.html.
+Create an account that has the type 'Personal' and one that has the type 'Business'.
 
-*price* is amount charged on the credit card.
+Afterwards, go back into accounts, and expand the business account, then click 'Profile'
 
-*timeout* is used to compute the unregistration date of the node.
+image::docs/images/billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
 
-*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
+Now click the 'Change password' link and change the password and note it.
 
-*category* is the role in which to put the node.
+image::docs/images/billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
 
-*description will* appear on the billing.html.
+Do the same thing with the personal account you created
 
-*destination_url* is the url that the device will be redirected after a successful authentication.
+*Configuring the merchant account*
+
+Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
+
+Next go in 'My Account -> Profile' in order to go into your profile configuration.
+
+Next in the 'Selling Preferences' you will need to select 'Website Payment Preferences'
+
+Configure the settings so they match the screenshot below. 
+
+You should turn on 'Auto Return', set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
+
+You should also take note of the 'Identity Token' as it will be required in the PacketFence configuration.
+
+image::docs/images/billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+
+Next go back in your profile configuration 'My account -> Profile' and select 'Encrypted Payment Settings'
+
+Now on this page you will need to submit the certificate used by PacketFence to Paypal (/usr/local/pf/conf/ssl/server.crt by default).
+
+Once you have submitted it, note it's associated 'Cert ID' as you will need to configure it in PacketFence.
+
+Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
+
+image::docs/images/billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
+
+CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Paypal'.
+
+image::docs/images/billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Identity token* is the one you noted when on the 'Website Payment Preferences' page.
+* *Cert ID* is the one you noted when on the 'Encrypted Payment Settings'.
+* *Payment type* is whether the access is donation based (not mandatory to pay for it).
+* *Email address* is the email address of the merchant paypal account.
+* *Cert file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.crt by default).
+* *Key file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.key by default).
+* *Paypal cert file* is the path to the Paypal certificate (/usr/local/pf/conf/ssl/paypal.pem in this example).
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+Stripe
+++++++
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click 'Your account' then 'Account settings'.
+
+Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
+
+image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Secret key* is the secret key you got from your Stripe account.
+* *Publishable key* is the publishable key you got from your Stripe account.
+* *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using the test key and secret account.
+
+Authorize.net
++++++++++++++
+
+*Creating an account*
+
+First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
+
+After you created your account you will be shown your 'API login ID' and 'Transaction key'. Note both of these informations for usage in the PacketFence configuration.
+
+Then login into your new account.
+
+Then under 'Account' click 'Settings'.
+
+On the settings page in the section 'Security settings', click 'MD5-Hash'
+
+Now enter a secret that will be shared between authorize.net and PacketFence.
+
+image::docs/images/billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+*PacketFence configuration*
+
+Next in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing->AuthorizeNet'.
+
+image::docs/images/billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *API login ID* is the one you got earlier while creating your account.
+* *Transaction key* is the one you got earlier while creating your account.
+* *MD5 hash* the one you configured in your Authorize.net account.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+Mirapay
++++++++
+
+  To be contributed...
+
+Adding billing tiers
+^^^^^^^^^^^^^^^^^^^^
+
+Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
+
+In the PacketFence administration interface, go in 'Configuration->Billing tiers'
+
+Then click 'Add billing tier' and configure it.
+
+image::docs/images/billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Billing tier* is the unique identifier of the billing tier.
+* *Name* is the friendly name of the billing tier.
+* *Description* is an extended description of the billing tier.
+* *Price* is the amount that will be charged to the user.
+* *Access duration* is the amount of time the user will be granted access to your network.
+* *Role* is the target role the user should be in.
+* *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
+
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Portal profile'.
+
+Subscription based registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports subscription based billing using Stripe as a billing provider.
+
+Billing tier
+++++++++++++
+
+When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
+
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan 'simple' and 'advanced' configured using the following parameters.
+
+  [simple]
+  name=Simple network access
+  description=Click here if you are poor
+  price=3.99
+  role=guest
+  access_duration=10Y
+  use_time_balance=disabled
+  
+  [advanced]
+  name=Simple network access
+  description=Click here if you are poor
+  price=9.99
+  role=advanced_guest
+  access_duration=10Y
+  use_time_balance=disabled
+
+Stripe configuration
+++++++++++++++++++++
+
+Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
+
+Then create a new plan.
+
+image::docs/images/billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where : 
+[options="compact"]
+* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Now, following the same procedure, create the advanced plan.
+
+Receiving updates from Stripe
++++++++++++++++++++++++++++++
+
+As the subscription can be cancelled by a user, you need to setup your PacketFence installation to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP. 
+
+You need to make sure that your PacketFence server is available through a public IP on port 80 and that your PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
+
+image::docs/images/billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+
+Where : 
+[options="compact"]
+* *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+* *Mode* is whether this webhook is for testing mode or live mode 
+
+Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
