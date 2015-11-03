@@ -28,7 +28,7 @@ pf-maint.pl [options]
 
 use strict;
 use warnings;
-use JSON::XS;
+use JSON::MaybeXS;
 use File::Spec::Functions;
 use File::Slurp;
 use HTTP::Request;

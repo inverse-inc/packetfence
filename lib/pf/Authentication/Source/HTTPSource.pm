@@ -8,6 +8,7 @@ pf::Authentication::Source::HTTPSource
 
 =cut
 
+use JSON::MaybeXS;
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -16,7 +17,6 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use WWW::Curl::Easy;
 use pf::log;
 use Readonly;
-use JSON;
 
 use Moose;
 extends 'pf::Authentication::Source';

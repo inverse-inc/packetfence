@@ -16,9 +16,9 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 
+use JSON::MaybeXS qw( decode_json );
 use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
-use JSON qw( decode_json );
 use XML::Simple;
 use pf::log;
 use pf::iplog;

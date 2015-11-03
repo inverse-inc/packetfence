@@ -9,7 +9,7 @@ pf::Authentication::Source::LinkedInSource
 =cut
 
 use WWW::Curl::Easy;
-use JSON qw( decode_json );
+use JSON::MaybeXS qw( decode_json );
 use Moose;
 use pf::person;
 extends 'pf::Authentication::Source::OAuthSource';

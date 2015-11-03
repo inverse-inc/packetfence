@@ -56,7 +56,7 @@ my @whitelist = (
     'radiusDisconnect', 'supportsRoleBasedEnforcement', 'getRoleByName', 'returnRadiusAccessAccept',
     'synchronize_locationlog', 'extractVLAN',
     'supportsMABFloatingDevices', 'disableMABFloatingDevice', 'enableMABFloatingDevice', 'disableMABByIfIndex', 'enableMABByIfIndex',
-    'identifyConnectionType', 'logger', 'returnRoleAttributes',
+    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'generateSessionId',
 );
 
 my @missing_subs;

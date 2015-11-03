@@ -152,7 +152,7 @@ Services managed by PacketFence:
   dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.webservices| Apache Webservices
-  httpd.aaa        | Apache AAA webservice 
+  httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
@@ -166,6 +166,7 @@ Services managed by PacketFence:
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
+  redis_cache      | Redis for caching
   winbindd         | Winbind daemon
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS

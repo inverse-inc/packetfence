@@ -126,27 +126,30 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
     my $role = $this->getRoleByName($args->{'user_role'});
     if(defined($role) && $role ne ""){
+        my $mac = $args->{'mac'};
         my $node_info = $args->{'node_info'};
-        my $violation = pf::violation::violation_view_top($args->{'mac'});
+        my $violation = pf::violation::violation_view_top($mac);
         unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
-            my (%session_id);
-            pf::web::util::session(\%session_id,undef,6);
-            $session_id{client_mac} = $args->{'mac'};
-            $session_id{wlan} = $args->{'ssid'};
-            $session_id{switch_id} = $this->{_id};
-            pf::locationlog::locationlog_set_session($args->{'mac'}, $session_id{_session_id});
-            my $redirect_url = $this->{'_portalURL'}."/cep$session_id{_session_id}";
+            my $session_id = $this->generateSessionId(6);
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
+            $chi->set($session_id,{
+                client_mac => $mac,
+                wlan => $args->{'ssid'},
+                switch_id => $this->{_id},
+            });
+            pf::locationlog::locationlog_set_session($mac, $session_id);
+            my $redirect_url = $this->{'_portalURL'}."/cep$session_id";
             $logger->info("[$args->{'mac'}] Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
-      
+
             # remove the role if any as we push the redirection ACL along with it's role
             delete $radius_reply_ref->{$this->returnRoleAttribute()};
         }
 
     }
 
-    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
@@ -184,7 +187,7 @@ sub radiusDisconnect {
 
     $logger->info("deauthenticating $mac");
 
-    my $send_disconnect_to = $self->{'_ip'}; 
+    my $send_disconnect_to = $self->{'_ip'};
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -211,7 +214,7 @@ sub radiusDisconnect {
 
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to, 
+            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # merging additional attributes provided by caller to the standard attributes
@@ -270,7 +273,7 @@ sub parseRequest {
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-    
+
     my $session_id;
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {

@@ -14,6 +14,7 @@ pf::api
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::log();
@@ -39,7 +40,6 @@ use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
 use fingerbank::DB;
-use JSON;
 use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
@@ -953,7 +953,7 @@ sub throw : Public {
 =head2 detect_computername_change
 
 Will determine if a hostname has changed from what is currently stored in the DB
-Will try to trigger a violation with the trigger internal::hostname_change 
+Will try to trigger a violation with the trigger internal::hostname_change
 
 =cut
 

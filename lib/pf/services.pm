@@ -29,7 +29,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::services::manager)],
   'sub_name'    => 'managers',
   'require'     => 1,
-  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child|radiusd_child)$/,
+  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child|radiusd_child|redis)$/,
   ;
 
 
@@ -40,8 +40,8 @@ our %MANAGERS = map { $_->new->name => $_ } @MANAGERS;
 
 our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd') } @MANAGERS;
 
-our @ALL_SERVICES = sub { 
-    my @services = sort map { 
+our @ALL_SERVICES = sub {
+    my @services = sort map {
       my $name = $_->new->name;
       unless($name eq 'keepalived') {$name}
     } @MANAGERS;

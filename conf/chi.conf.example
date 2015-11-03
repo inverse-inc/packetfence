@@ -1,34 +1,23 @@
 [storage DEFAULT]
-storage=file
-
-[storage DEFAULT l1_cache]
-storage=memcached
+storage=redis
 
 [storage ldap_auth]
 expires_in=10m
 
-[storage ldap_auth l1_cache]
-expires_on_backend=1
-
 [storage httpd.admin]
 expires_in=1d
-
-[storage httpd.admin l1_cache]
-expires_on_backend=1
 
 [storage httpd.portal]
 expires_in=6h
 
-[storage httpd.portal l1_cache]
-expires_on_backend=1
+[storage redis]
+driver = Redis
+redis_class = Redis::Fast
+server = 127.0.0.1:6379
+prefix = pf
+expires_on_backend = 1
 
-[storage memcached]
-driver = Memcached::libmemcached
-servers = 127.0.0.1:11211
-compress_threshold = 10000
-behavior_binary_protocol = 1
-
-[storage file]
-driver=File
-root_dir=/usr/local/pf/var/cache
+#[storage file]
+#driver=File
+#root_dir=/usr/local/pf/var/cache
 

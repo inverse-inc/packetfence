@@ -15,7 +15,6 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Cache::Memcached::libmemcached;
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
 use pf::file_paths;
@@ -27,6 +26,7 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
+use Redis::Fast;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -76,11 +76,13 @@ our %DEFAULT_CONFIG = (
             'global' => '1',
             'driver' => 'RawMemory'
         },
-        'memcached' => {
-            driver => 'Memcached::libmemcached',
-            servers => ['127.0.0.1:11211'],
+        'redis' => {
+            driver => 'Redis',
             compress_threshold => 10000,
-            behavior_binary_protocol => 1,
+            server => '127.0.0.1:6379',
+            redis_class => 'Redis::Fast',
+            prefix => 'pf',
+            expires_on_backend => 1,
         },
         'file' => {
             driver => 'File',
@@ -89,13 +91,7 @@ our %DEFAULT_CONFIG = (
     }
 );
 
-our %DEFAULT_STORAGE = (
-    driver => 'File',
-    root_dir => "$var_dir/cache",
-    l1_cache => {
-        storage => 'memcached',
-    },
-);
+our %DEFAULT_STORAGE = %{$DEFAULT_CONFIG{storage}{redis}};
 
 sub chiConfigFromIniFile {
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
@@ -193,7 +189,6 @@ sub sectionData {
 
 sub CLONE {
     pf::CHI->clear_memoized_cache_objects;
-    Cache::Memcached::libmemcached->disconnect_all;
 }
 
 sub preload_chi_drivers {

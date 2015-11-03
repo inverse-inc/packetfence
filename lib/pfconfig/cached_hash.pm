@@ -45,7 +45,7 @@ use warnings;
 
 use Tie::Hash;
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use pfconfig::log;
@@ -199,7 +199,7 @@ sub values {
     return @values;
 }
 
-=item search
+=head2 search
 
 Used to search for an element in our hash that has a specific value in one of it's field
 
@@ -224,8 +224,6 @@ sub search {
     });
     return @$elements;
 }
-
-=back
 
 =head1 AUTHOR
 

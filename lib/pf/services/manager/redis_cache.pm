@@ -1,46 +1,31 @@
-#!/usr/bin/perl
+package pf::services::manager::redis_cache;
+
 =head1 NAME
 
-chi_stats add documentation
+pf::services::manager::redis_cache - Service manager for the redis cache
 
 =cut
 
 =head1 DESCRIPTION
 
-chi_stats
+pf::services::manager::redis_cache
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
-
-use pf::IniFiles;
+use Moo;
 use pf::file_paths;
-use Benchmark;
-use CHI;
+use pf::config;
 
-my $chi_memcache = CHI->new(
-    driver => 'Memcached',
-    servers => [qw(127.0.0.1:11211)],
-    compress_threshold => 1000000,
-    namespace => 'chistats',
-);
+extends 'pf::services::manager::redis';
 
-$chi_memcache->remove('configfile');
-
-timethese (-5, {
-        '01 loading the config from the filesystem' => sub {
-            my $config = pf::IniFiles->new( -file => $pf_config_file, -import => pf::IniFiles->new( -file => $default_config_file));
-        },
-        '02 loading the config from the cache' => sub {
-            my $config = $chi_memcache->compute('configfile', sub { pf::IniFiles->new( -file => $pf_config_file,  -import => pf::IniFiles->new( -file => $default_config_file)) })  ;
-        }
-});
+has '+name' => (default => sub { 'redis_cache' } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -64,4 +49,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

@@ -19,15 +19,15 @@ In order to use it with a configuration file :
 - Implement the init method and initialize at least the file attribute
 to the file path of the configuration file
 - You can also implement the build_child method that is executed after
-the build method and has access to the configuration hash through 
-the attribute cfg 
+the build method and has access to the configuration hash through
+the attribute cfg
 
 =cut
 
 use strict;
 use warnings;
 
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::log;
 
 use base 'pfconfig::namespaces::resource';
@@ -136,8 +136,6 @@ sub GroupMembers {
     }
     return @members;
 }
-
-=back
 
 =head1 AUTHOR
 

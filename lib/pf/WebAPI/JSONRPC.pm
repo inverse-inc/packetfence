@@ -14,7 +14,7 @@ pf::WebAPI::JSONRPC
 
 use strict;
 use warnings;
-use JSON::XS;
+use JSON::MaybeXS;
 use pf::log;
 use Apache2::RequestIO;
 use Apache2::RequestRec;

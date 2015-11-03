@@ -18,6 +18,7 @@ use Apache2::URI;
 use APR::URI;
 use pf::log;
 use URI::Escape::XS qw(uri_escape);
+use Data::UUID;
 
 use pf::config;
 use pf::util;
@@ -80,8 +81,8 @@ sub translate {
         #If there is a session cookie then push the remote ip in the session and redirect to the captive portal
         if ($session_cook) {
             my (%session_id);
-            pf::web::util::session(\%session_id,$session_cook);
-            $session_id{remote_ip} = $r->connection->remote_ip;
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
+            $chi->set($session_cook,{remote_ip => $r->connection->remote_ip});
             my $uri = $parsed_portal->unparse;
             $logger->trace("http request redirect to captive portal, we have the cookie");
             $r->err_headers_out->set('Location' => $uri);
@@ -204,12 +205,12 @@ sub reverse {
     $parsed_portal->scheme('http');
     my $session_cook = pf::web::util::getcookie($r->headers_in->{Cookie});
 
-    #If session cookie exist then we can set X-Forwarded-For and proxy to the captive portal
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
     if ($session_cook) {
-        my (%session_id);
-        pf::web::util::session(\%session_id,$session_cook);
-        if ($session_id{remote_ip}) {
-            $r->headers_in->set('X-Forwarded-For' => $session_id{remote_ip});
+        #If session cookie exist then we can set X-Forwarded-For and proxy to the captive portal
+        my $session = $chi->get($session_cook);
+        if ($session && $session->{remote_ip}) {
+            $r->headers_in->set('X-Forwarded-For' => $session->{remote_ip});
             $r->headers_in->set('Host' => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'});
             my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
             $parsed_portal->scheme('https');
@@ -218,7 +219,7 @@ sub reverse {
         }
         #Cookie is invalid delete it
         else {
-            $r->err_headers_out->add('Set-Cookie' => "packetfence=".$session_id{_session_id}."; expires=Thu, 01-Jan-70 00:00:01 GMT; domain=".$parsed_portal->hostname."; path=/");
+            $r->err_headers_out->add('Set-Cookie' => "packetfence=$session_cook; expires=Thu, 01-Jan-70 00:00:01 GMT; domain=".$parsed_portal->hostname."; path=/");
             $r->err_headers_out->set('Location' => $parsed_portal->unparse);
             $r->content_type('text/html');
             $r->no_cache(1);
@@ -226,11 +227,11 @@ sub reverse {
         }
 
     }
-    #No session, create one and redirect to http portal to catch the remote ip
     else {
-        my (%session_id);
-        pf::web::util::session(\%session_id);
-        $r->err_headers_out->add('Set-Cookie' => "packetfence=".$session_id{_session_id}."; domain=".$parsed_portal->hostname."; path=/");
+        #No session, create one and redirect to http portal to catch the remote ip
+        my $ug = Data::UUID->new;
+        my $session_id = $ug->create_str();
+        $r->err_headers_out->add('Set-Cookie' => "packetfence=$session_id; domain=".$parsed_portal->hostname."; path=/");
         $r->err_headers_out->set('Location' => $parsed_portal->unparse);
         $r->content_type('text/html');
         $r->no_cache(1);
