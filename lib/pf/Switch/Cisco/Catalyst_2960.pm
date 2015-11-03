@@ -25,6 +25,9 @@ The absolute minimum required firmware version is 12.2(25)SEE2.
 Port-security + VoIP mode works with firmware 12.2(44)SE or greater unless mentioned below.
 Earlier IOS were not explicitly tested.
 
+The RADIUS part of this module also works with IOS XE switches.
+It has been tested on IOS XE version 03.07.02E
+
 This module extends pf::Switch::Cisco::Catalyst_2950.
 
 =head1 PRODUCT LINES
