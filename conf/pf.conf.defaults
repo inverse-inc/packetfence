@@ -637,14 +637,6 @@ winbindd_binary=/usr/sbin/winbindd
 keepalived_binary=/usr/sbin/keepalived
 # 
 # services.redis_binary
-<<<<<<< HEAD
-=======
-# 
-# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
-redis_binary=/usr/bin/redis-server
-# 
-# services.memcached_memory_usage
->>>>>>> Added new service redis
 # 
 # Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
 redis_binary=/usr/bin/redis-server
