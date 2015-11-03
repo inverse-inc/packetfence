@@ -179,12 +179,6 @@ sub registertasks  {
         }
     );
     register_task(
-        'expire ldap_auth cache','ldap_auth_cache_cleanup_interval',sub {
-            purge_cache('ldap_auth')
-              if ( isenabled($Config{'expire'}{'ldap_auth'}) );
-        }
-    );
-    register_task(
         'checking registered nodes for expiration','nodes_maintenance_interval',sub {
             nodes_maintenance();
         }
