@@ -142,6 +142,7 @@ Requires: perl(Digest::HMAC_MD5)
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
 Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
+Requires: perl-Scalar-List-Utils
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
 Requires: perl(Log::Any)
