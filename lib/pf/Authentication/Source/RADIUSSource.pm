@@ -76,7 +76,7 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     my $radius = $params->{'connection'};
-    Authen::Radius->load_dictionary('/usr/share/freeradius/dictionary.rfc2865');
+    Authen::Radius->load_dictionary('/usr/local/pf/lib/pf/util/dictionary');
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {
