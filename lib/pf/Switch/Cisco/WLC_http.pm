@@ -143,6 +143,7 @@ sub returnRadiusAccessAccept {
     # Roles are configured and the user should have one
     if (defined($role) && isenabled($this->{_RoleMap})) {
         my $node_info = $args->{'node_info'};
+        my $mac = $args->{mac};
         my $violation = pf::violation::violation_view_top($args->{'mac'});
         if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             $radius_reply_ref = {
@@ -151,7 +152,6 @@ sub returnRadiusAccessAccept {
             };
         }
         else {
-            my $mac = $args->{mac};
             my $session_id = $this->generateSessionId(6);
             my $chi = pf::CHI->new(namespace => 'external_captiveportal');
             $chi->set($session_id,{
