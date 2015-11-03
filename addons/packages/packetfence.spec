@@ -886,6 +886,10 @@ fi
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
+%config(noreplace)      /usr/local/pf/conf/radius_filters.conf
+                        /usr/local/pf/conf/radius_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
+                        /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfdetect.conf
