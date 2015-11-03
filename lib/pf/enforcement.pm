@@ -201,6 +201,7 @@ sub _should_we_reassign_vlan {
         connection_type => $connection_type,
         user_name => $user_name,
         ssid => $ssid,
+        node_info => node_view($mac),
     };
 
     my $role = $vlan_obj->fetchRoleForNode( $args );
