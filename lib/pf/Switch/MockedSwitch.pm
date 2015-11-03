@@ -2980,6 +2980,16 @@ sub deauth_source_ip {
     return "";
 }
 
+=item returnRoleAttributes
+
+Return the specific role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role);
+}
 
 
 =back
