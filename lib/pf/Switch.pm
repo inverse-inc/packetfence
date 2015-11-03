@@ -179,7 +179,7 @@ sub supportsRoleBasedEnforcement {
     my $logger = $this->logger;
 
     if (defined($this->{'_roles'}) && %{$this->{'_roles'}}) {
-        $logger->warn(
+        $logger->trace(
             "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
         );
     }
@@ -189,7 +189,7 @@ sub supportsRoleBasedEnforcement {
 sub supportsAccessListBasedEnforcement {
     my ( $this ) = @_;
     my $logger = $this->logger;
-    $logger->info("Access list based enforcement is not supported on network device type " . ref($this) . ". ");
+    $logger->trace("Access list based enforcement is not supported on network device type " . ref($this) . ". ");
     return $FALSE;
 }
 
@@ -200,7 +200,7 @@ sub supportsAccessListBasedEnforcement {
 sub supportsRoamingAccounting {
     my ( $this ) = @_;
     my $logger = $this->logger;
-    $logger->info("Update of the locationlog based on accounting data is not supported on network device type " . ref($this) . ". ");
+    $logger->trace("Update of the locationlog based on accounting data is not supported on network device type " . ref($this) . ". ");
     return $FALSE;
 }
 
@@ -693,7 +693,7 @@ sub getRoleByName {
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("(".$this->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
+    $logger->trace("(".$this->{_id}.") No parameter ${roleName}Role found in conf/switches.conf");
     return;
 }
 
@@ -716,7 +716,7 @@ sub getVlanByName {
 
     if ($vlanName eq "inline" && length($this->{'_vlans'}->{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
-        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_id} .
+        $logger->trace("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_id} .
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
@@ -742,7 +742,7 @@ sub getAccessListByName {
     return $this->{'_access_lists'}->{$access_list_name} if (defined($this->{'_access_lists'}->{$access_list_name}));
 
     # otherwise log and return undef
-    $logger->warn("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $this->{_id});
+    $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $this->{_id});
     return;
 
 }
@@ -2660,7 +2660,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("[$mac] deauthenticating");
+    $logger->info("deauthenticating");
 
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default

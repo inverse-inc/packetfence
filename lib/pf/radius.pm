@@ -95,7 +95,7 @@ sub authorize {
     }
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
-
+    Log::Log4perl::MDC->put( 'mac', $mac );
     my $connection = pf::Connection->new;
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
@@ -119,19 +119,19 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
     }
 
-    $logger->info("[$mac] handling radius autz request: from switch_ip => ($switch_ip), "
+    $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
-        $logger->info("[$mac] does not yet exist in database. Adding it now");
+        $logger->info("does not yet exist in database. Adding it now");
         node_add_simple($mac);
     }
 
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
-        $logger->info("[$mac] is doing machine auth with account '$user_name'.");
+        $logger->info("is doing machine auth with account '$user_name'.");
         node_modify($mac, ('machine_account' => $user_name));
     }
 
@@ -173,9 +173,9 @@ sub authorize {
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type, $radius_request, $realm, $stripped_user_name, $connection_sub_type);
 
-        $logger->debug("[$mac] auto-registering node");
+        $logger->debug("auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
-            $logger->error("[$mac] auto-registration of node failed");
+            $logger->error("auto-registration of node failed");
         }
         # Commented out as it opens a locationlog even when sending a reject
         # This shouldn't break anything in the flow as the entry is opened afterwards
@@ -194,7 +194,7 @@ sub authorize {
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("[$mac] Should perform access control on switch ($switch_id) but the switch "
+        $logger->warn("Should perform access control on switch ($switch_id) but the switch "
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -210,7 +210,7 @@ sub authorize {
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
-        $logger->info("[$mac] According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
+        $logger->info("According to rules in fetchVlanForNode this node must be kicked out. Returning USERLOCK");
         $switch->disconnectRead();
         $switch->disconnectWrite();
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
@@ -226,7 +226,7 @@ sub authorize {
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
-            "[$mac] Switch doesn't support Dynamic VLAN assignment. " .
+            "Switch doesn't support Dynamic VLAN assignment. " .
             "Setting VLAN with SNMP on (" . $switch->{_id} . ") ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
@@ -314,10 +314,10 @@ sub accounting {
                     $time_balance = 0 if ($time_balance < 0);
                     # Only update the node table on a Stop
                     if ($isStop && node_modify($mac, ('time_balance' => $time_balance))) {
-                        $logger->info("[$mac] Session stopped: duration was $session_time secs ($time_balance secs left)");
+                        $logger->info("Session stopped: duration was $session_time secs ($time_balance secs left)");
                     }
                     elsif ($isUpdate) {
-                        $logger->info("[$mac] Session status: duration is $session_time secs ($time_balance secs left)");
+                        $logger->info("Session status: duration is $session_time secs ($time_balance secs left)");
                     }
                     if ($time_balance == 0) {
                         # Trigger violation
@@ -485,7 +485,7 @@ returns 0 for no, 1 for yes
 sub _doWeActOnThisCallWired {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = $this->logger;
-    $logger->trace("[$mac] _doWeActOnThisCallWired called");
+    $logger->trace("_doWeActOnThisCallWired called");
 
     # for now we always act on wired radius authorize
     return 1;
@@ -507,7 +507,7 @@ sub _authorizeVoip {
     my $start = Time::HiRes::gettimeofday();
 
     if (!$switch->supportsRadiusVoip()) {
-        $logger->warn("[$mac] Returning failure to RADIUS.");
+        $logger->warn("Returning failure to RADIUS.");
         $switch->disconnectRead();
         $switch->disconnectWrite();
 

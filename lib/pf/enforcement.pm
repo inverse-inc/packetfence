@@ -75,10 +75,10 @@ sub reevaluate_access {
         return $FALSE;
     }
 
-    $logger->info("[$mac] re-evaluating access ($function called)");
+    $logger->info("re-evaluating access ($function called)");
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
-        $logger->warn("[$mac] Can't re-evaluate access because no open locationlog entry was found");
+        $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
         return;
 
     }
@@ -97,7 +97,7 @@ sub reevaluate_access {
                 $client->notify( 'firewall', %data );
             }
             else {
-                $logger->debug("[$mac] is already properly enforced in firewall, no change required");
+                $logger->debug("is already properly enforced in firewall, no change required");
             }
         }
         else {
@@ -122,7 +122,7 @@ sub _vlan_reevaluation {
         my $switch_id = $locationlog_entry->{'switch'} || 'unknown';
         my $ifIndex   = $locationlog_entry->{'port'}   || 'unknown';
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-        $logger->info( "[$mac] switch port is (".$switch_id.") ifIndex $ifIndex "
+        $logger->info( "switch port is (".$switch_id.") ifIndex $ifIndex "
                 . "connection type: "
                 . $connection_type_explained{$conn_type} );
 
@@ -140,12 +140,12 @@ sub _vlan_reevaluation {
             'ifIndex'          => $ifIndex
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
-            $logger->debug("[$mac] Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
+            $logger->debug("Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
             $client->notify( 'ReAssignVlan', %data );
 
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
-            $logger->debug("[$mac] Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
+            $logger->debug("Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
             $client->notify( 'desAssociate', %data );
 
         }
@@ -170,7 +170,7 @@ sub _should_we_reassign_vlan {
     my ( $mac, $locationlog_entry, %opts ) = @_;
     my $logger = get_logger();
     if ( $opts{'force'} ) {
-        $logger->info("[$mac] VLAN reassignment is forced.");
+        $logger->info("VLAN reassignment is forced.");
         return $TRUE;
     }
 
@@ -183,7 +183,7 @@ sub _should_we_reassign_vlan {
     my $user_name       = $locationlog_entry->{'dot1x_username'};
     my $ssid            = $locationlog_entry->{'ssid'};
 
-    $logger->info("[$mac] is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
+    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
 
     my $vlan_obj = new pf::vlan::custom();
 
@@ -201,17 +201,17 @@ sub _should_we_reassign_vlan {
         return $TRUE;
     } elsif ( $newCorrectVlan eq '-1' ) {
         $logger->info(
-            "[$mac] VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
         );
         return $TRUE;
     }
     elsif ( $newCorrectVlan ne $currentVlan ) {
         $logger->info(
-            "[$mac] VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
         );
         return $TRUE;
     }
-    $logger->debug("[$mac] No VLAN reassignment required.");
+    $logger->debug("No VLAN reassignment required.");
     return $FALSE;
 }
 

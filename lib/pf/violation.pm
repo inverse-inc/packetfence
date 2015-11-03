@@ -608,7 +608,7 @@ sub violation_trigger {
     my ( $mac, $tid, $type ) = @_;
     my $logger = get_logger();
     my $start = Time::HiRes::gettimeofday();
-    $logger->info("Triggering violation $type $tid for mac $mac");
+    $logger->trace("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 

@@ -83,11 +83,11 @@ sub performInlineEnforcement {
     my $should_be_mark = $this->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
-        $logger->debug("[$mac] is already properly enforced in firewall, no change required");
+        $logger->debug("is already properly enforced in firewall, no change required");
         return $TRUE;
     }
 
-    $logger->info("[$mac] stated changed, adapting firewall rules for proper enforcement");
+    $logger->info("stated changed, adapting firewall rules for proper enforcement");
     return $this->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
 }
 
@@ -121,7 +121,7 @@ sub fetchMarkForNode {
     my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count != 0) {
         $logger->info(
-            "[$mac] has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
+            "has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
         );
         return $IPTABLES_MARK_ISOLATION;
     }
@@ -131,18 +131,18 @@ sub fetchMarkForNode {
     # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {
-        $logger->debug("[$mac] doesn't have a node entry; it needs to be firewalled");
+        $logger->debug("doesn't have a node entry; it needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
-        $logger->debug("[$mac] is of status $n_status; needs to be firewalled");
+        $logger->debug("is of status $n_status; needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     # At this point, we are registered and we don't have a violation: allow through
-    $logger->debug("[$mac] should be allowed through firewall");
+    $logger->debug("should be allowed through firewall");
     return $IPTABLES_MARK_REG;
 }
 

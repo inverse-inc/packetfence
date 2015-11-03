@@ -291,7 +291,7 @@ sub mac2ip {
     }
 
     if ( !$ip ) {
-        $logger->warn("Unable to match IP address to MAC '$mac'");
+        $logger->trace("Unable to match IP address to MAC '$mac'");
         return (0);
     }
 

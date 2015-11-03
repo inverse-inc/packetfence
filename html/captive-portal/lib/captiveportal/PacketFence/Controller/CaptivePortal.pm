@@ -93,7 +93,7 @@ sub nodeRecordUserAgent : Private {
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     unless ($user_agent) {
-        $logger->warn("[$mac] has no user agent");
+        $logger->warn("has no user agent");
         return;
     }
 
@@ -105,12 +105,12 @@ sub nodeRecordUserAgent : Private {
       if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
 
     # Caching and updating node's info
-    $logger->debug("[$mac] adding user-agent to cache");
+    $logger->debug("adding user-agent to cache");
     $USERAGENT_CACHE->set( $mac, $user_agent, "5 minutes" );
 
     # Recording useragent
     $logger->info(
-        "[$mac] Updating node user_agent with useragent: '$user_agent'");
+        "Updating node user_agent with useragent: '$user_agent'");
     node_modify( $mac, ( 'user_agent' => $user_agent ) );
 
     # updates the node_useragent information and fires relevant violations triggers
@@ -165,13 +165,13 @@ sub checkForViolation : Private {
             && $violation->{'ticket_ref'}
             =~ /^Scan in progress, started at: (.*)$/ ) {
             $logger->info(
-                "[$mac] captive portal redirect to the scan in progress page");
+                "captive portal redirect to the scan in progress page");
             $c->detach( 'Remediation', 'scan_status', [$1] );
         }
         my $class    = class_view($vid);
         my $template = $class->{'template'};
         $logger->info(
-            "[$mac] captive portal redirect on violation vid: $vid, redirect template: $template"
+            "captive portal redirect on violation vid: $vid, redirect template: $template"
         );
 
         # The little redirect dance here is controlled by frames which are inherently alterable by the user
@@ -180,23 +180,23 @@ sub checkForViolation : Private {
         # enable button
         if ( $request->param("enable_menu") ) {
             $logger->debug(
-                "[$mac] violation redirect: generating enable button frame (enable_menu = 1)"
+                "violation redirect: generating enable button frame (enable_menu = 1)"
             );
             $c->detach( 'Enabler', 'index' );
         } elsif ( $class->{'auto_enable'} eq 'Y' ) {
             $logger->debug(
-                "[$mac] violation redirect: showing violation remediation page inside a frame"
+                "violation redirect: showing violation remediation page inside a frame"
             );
             $c->detach( 'Redirect', 'index' );
         }
         $logger->debug(
-            "[$mac] violation redirect: showing violation remediation page directly since there is no enable button"
+            "violation redirect: showing violation remediation page directly since there is no enable button"
         );
 
         # Retrieve violation template name
 
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
-        $logger->info("[$mac] Showing the $subTemplate  remediation page.");
+        $logger->info("Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
             'template'     => 'remediation.html',
@@ -235,19 +235,19 @@ sub checkIfNeedsToRegister : Private {
 
         if ( $profile->nbregpages > 0 ) {
             $logger->info(
-                "[$mac] redirected to multi-page registration process on ".$profile->name." portal");
+                "redirected to multi-page registration process on ".$profile->name." portal");
             $c->detach('Authenticate', 'next_page');
         } elsif ($portalSession->profile->guestRegistrationOnly) {
 
             # Redirect to the guests self registration page if configured to do so
-            $logger->info("[$mac] redirected to guests self registration page on ".$profile->name." portal");
+            $logger->info("redirected to guests self registration page on ".$profile->name." portal");
             $c->detach('Signup' => 'index');
         } elsif ($portalSession->profile->billingRegistrationOnly) {
             # Redirect to the billing self registration page if configured to do so
             $logger->info("[$mac] redirected to billing self registration page on ".$profile->name." portal");
             $c->detach('Billing' => 'index');
         } else {
-            $logger->info("[$mac] redirected to authentication page on ".$profile->name." portal");
+            $logger->info("redirected to authentication page on ".$profile->name." portal");
             $c->detach('Authenticate', 'index');
         }
     }
@@ -358,7 +358,7 @@ sub unknownState : Private {
         $LOST_DEVICES_CACHE->set( $mac, ++$cached_lost_device, "5 minutes");
 
         $c->log->info(
-          "[$mac] shouldn't reach here. Calling access re-evaluation. " .
+          "shouldn't reach here. Calling access re-evaluation. " .
           "Make sure your network device configuration is correct."
         );
         my $node = node_view($mac);
