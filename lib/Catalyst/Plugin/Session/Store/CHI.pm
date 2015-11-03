@@ -116,7 +116,7 @@ sub setup_session {
     if($expires_in) {
         $expire = ref($expires_in) ? $expires_in->seconds : $expires_in;
     } else {
-        $chi->expire_in($expire);
+        $chi->expires_in($expire);
     }
     $config->{expires} = $expire;
 }
