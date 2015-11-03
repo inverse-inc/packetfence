@@ -31,6 +31,10 @@ New Features
 * Deny access on the portal interface if the device hit to much the captive portal using mod_evasive
 * Added DHCPv6 fingerprinting though Fingerbank
 * Radius filter engine to return custom attributes based on rules
+* Security Onion integration
+* Added Paypal payment to the captive portal
+* Added Stripe payment and subscriptions to the captive portal
+
 
 Enhancements
 ++++++++++++
@@ -42,10 +46,15 @@ Enhancements
 * Refactoring and code cleanup
 * Use snmp to determine the ifindexbased on the Nas-Port-Id
 * Speed up switch creation
-* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
 * Move to the vlan filters to use the feature/filter-engine
 * Improved metrics now track SQL queries, LDAP queries, and more granular metrics in RADIUS AAA.
-* Better logic based on the definition of the VLAN ID, role or ACL to return the radius answer
+* Better logic based on the definition of the VLAN ID, role or ACL to return the radius answer (radius filters)
+* Added support for Nessus 6 scan engine
+* Added documentation for the Cisco iOS XE switches
+* Reworked existing billing providers to be PCI compliant
+* Billing providers are now part of the authentication sources
+* Billing tiers are now stored in the configuration instead of the source code files
+* Billing sources can now be used with other authentication sources on the same portal profile
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
@@ -55,6 +64,8 @@ Bug Fixes (bug Id is denoted with #id)
 * Fix improper httpd status code being set
 * Removed the node delete button.
 * Fixed detection if the device ask for a portal per uri
+* Fixed 3Com switches ifIndex calculation in stack mode using SNMP
+* Non-found users will now be cached when using the caching in an LDAP source #978
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
