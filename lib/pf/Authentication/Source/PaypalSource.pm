@@ -20,7 +20,7 @@ use pf::Authentication::constants;
 use pf::util;
 use pf::log;
 use WWW::Curl::Easy;
-use JSON::XS;
+use JSON::MaybeXS;
 use List::Util qw(first pairmap);
 use URI::Escape qw(uri_escape uri_unescape);
 use HTTP::Status qw(is_success :constants);

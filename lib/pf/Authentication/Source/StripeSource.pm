@@ -16,7 +16,7 @@ use warnings;
 use Moose;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
-use JSON::XS;
+use JSON::MaybeXS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
 

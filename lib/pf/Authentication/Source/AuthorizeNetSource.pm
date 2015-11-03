@@ -21,7 +21,7 @@ use pf::util;
 use pf::log;
 use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
-use JSON::XS;
+use JSON::MaybeXS;
 use List::Util qw(first);
 use Digest::HMAC_MD5 qw(hmac_md5_hex);
 use Digest::MD5 qw(md5_hex);
