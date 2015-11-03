@@ -290,8 +290,8 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $start = Time::HiRes::gettimeofday();
 
-    my $connection;
-    if (defined($params->{'connection'}) && $params->{'connection'} ne '') {
+    my ($connection, $LDAPServer, $LDAPServerPort);
+    if (exists($params->{'connection'}) && $params->{'connection'} ne '') {
         $connection = $params->{'connection'};
     } else {
         my $cached_connection = $self->_cached_connection;
@@ -299,7 +299,7 @@ sub match_in_subclass {
             $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
             return undef;
         }
-        $connection = @$cached_connection;
+        ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
     }
 
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
@@ -322,7 +322,7 @@ sub match_in_subclass {
     $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".search.timing" , $before, 0.1 );
 
     if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $connection->host:$connection->port, we skip the rule.");
+        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on ".$connection->host.":".$connection->port.", we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
         return undef;
@@ -375,7 +375,7 @@ sub match_in_subclass {
                 if ( $result->is_error ) { 
                     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
                     $logger->error(
-                        "[$self->{'id'}] Unable to execute search $filter from $value on $connection->host:$connection->port, we skip the condition ("
+                        "[$self->{'id'}] Unable to execute search $filter from $value on ".$connection->host.":".$connection->port.", we skip the condition ("
                         . $result->error . ")."); 
                 } 
 
