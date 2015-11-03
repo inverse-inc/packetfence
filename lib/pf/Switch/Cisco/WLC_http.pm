@@ -153,7 +153,7 @@ sub returnRadiusAccessAccept {
         }
         else {
             my $session_id = $this->generateSessionId(6);
-            my $chi = pf::CHI->new(namespace => 'external_captiveportal');
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_id,{
                 client_mac => $mac,
                 wlan => $args->{'ssid'},

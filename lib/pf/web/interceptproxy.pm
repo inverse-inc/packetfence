@@ -81,7 +81,7 @@ sub translate {
         #If there is a session cookie then push the remote ip in the session and redirect to the captive portal
         if ($session_cook) {
             my (%session_id);
-            my $chi = pf::CHI->new(namespace => 'external_captiveportal');
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_cook,{remote_ip => $r->connection->remote_ip});
             my $uri = $parsed_portal->unparse;
             $logger->trace("http request redirect to captive portal, we have the cookie");
@@ -205,7 +205,7 @@ sub reverse {
     $parsed_portal->scheme('http');
     my $session_cook = pf::web::util::getcookie($r->headers_in->{Cookie});
 
-    my $chi = pf::CHI->new(namespace => 'external_captiveportal');
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
     if ($session_cook) {
         #If session cookie exist then we can set X-Forwarded-For and proxy to the captive portal
         my $session = $chi->get($session_cook);

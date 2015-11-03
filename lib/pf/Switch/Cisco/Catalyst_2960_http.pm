@@ -131,7 +131,7 @@ sub returnRadiusAccessAccept {
         my $violation = pf::violation::violation_view_top($mac);
         unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             my $session_id = $this->generateSessionId(6);
-            my $chi = pf::CHI->new(namespace => 'external_captiveportal');
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_id,{
                 client_mac => $mac,
                 wlan => $args->{'ssid'},
