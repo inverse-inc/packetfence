@@ -10,13 +10,14 @@ expires_in=1d
 [storage httpd.portal]
 expires_in=6h
 
-[storage file]
-driver=File
-root_dir=/usr/local/pf/var/cache
-
 [storage redis]
 driver = Redis
 redis_class = Redis::Fast
 server = 127.0.0.1:6379
 prefix = pf
 expires_on_backend = 1
+
+#[storage file]
+#driver=File
+#root_dir=/usr/local/pf/var/cache
+
