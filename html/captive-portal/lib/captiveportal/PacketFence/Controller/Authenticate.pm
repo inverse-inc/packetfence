@@ -488,7 +488,7 @@ sub authenticationLogin : Private {
     my $profile = $c->profile;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-    my ( $return, $message, $source_id );
+    my ( $return, $message, $source_id, $connection );
     $logger->debug("authentication attempt");
     if ($request->{'match'} eq "status/login") {
         use pf::person;
