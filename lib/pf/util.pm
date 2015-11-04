@@ -917,9 +917,10 @@ sub pf_chown {
 
 sub untaint_chain {
     my ($chain) = @_;
-    if ($chain =~ /^(.+)$/) {
+    if (defined $chain && $chain =~ /^(.+)$/) {
         return $1;
     }
+    return undef;
 }
 
 sub valid_mac_or_ip {
