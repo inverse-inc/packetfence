@@ -631,16 +631,6 @@ keepalived_binary=/usr/sbin/keepalived
 # 
 # Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
 redis_binary=/usr/bin/redis-server
-# 
-# services.httpd_mod_qos
-# 
-# Enable mod_qos
-httpd_mod_qos=disabled
-# 
-# services.httpd_mod_qos_maximum_users
-# 
-# The maximum connections per device 
-httpd_mod_qos_maximum_connections_per_device=5
 
 [vlan]
 #
