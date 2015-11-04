@@ -1,0 +1,6 @@
+[queue general]
+workers=4
+has_delayed_queue=1
+delayed_queue_batch=100
+delayed_queue_sleep=100
+delayed_queue_workers=1
