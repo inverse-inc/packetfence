@@ -128,12 +128,6 @@ document.observe("dom:loaded", function() {
           </div>
             [% END -%]
 
-            [% IF billing -%]
-              <div class="input">
-                <div class="separator"><div class="or_separator">or</div></div>
-                  <a href="[% URL_BILLING %]?destination_url=[% destination_url %]">[% i18n("Pay for your access") %]</a>
-              </div>
-            [% END %]         
         </form>
 
 [% INCLUDE footer.html %]
