@@ -58,6 +58,7 @@ conf/radiusd/auth.conf
 conf/radiusd/acct.conf
 conf/radiusd/load_balancer.conf
 conf/redis_cache.conf
+conf/redis_queue.conf
 conf/realm.conf
 conf/domain.conf
 conf/radius_filters.conf
