@@ -16,20 +16,41 @@ use strict;
 use warnings;
 use Scalar::Util( );
 
+our %ALLOWED_ATTRIBUTES = (
+    Public => 1,
+    Fork => 1,
+);
+
+our %SHOULD_FORK;
 our %EXPORTED_API;
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ($class, $code, @attrs) = @_;
-    my @bad = grep {$_ ne 'Public'} @attrs;
-    _updateExportedApi($code) unless @bad;
+    my (@bad, @good);
+    foreach my $attr (@attrs) {
+        if (exists $ALLOWED_ATTRIBUTES{$attr} ) {
+            push @good, $attr;
+        } else {
+            push @bad, $attr;
+        }
+    }
+    _updateExportedApi($code,@good) unless @bad;
     return @bad;
 }
 
 sub _updateExportedApi {
-    my ($code) = @_;
+    my ($code, @attrs) = @_;
+    my %attrs;
+    @attrs{@attrs} = ();
     my $ref_add = Scalar::Util::refaddr($code);
-    $EXPORTED_API{$ref_add} = $code;
-    Scalar::Util::weaken($EXPORTED_API{$ref_add});
+    if (exists $attrs{Public}) {
+        $EXPORTED_API{$ref_add} = $code;
+        Scalar::Util::weaken($EXPORTED_API{$ref_add});
+    }
+    if (exists $attrs{Fork}) {
+        $SHOULD_FORK{$ref_add} = $code;
+        Scalar::Util::weaken($SHOULD_FORK{$ref_add});
+    }
 }
 
 sub isPublic {
@@ -40,11 +61,20 @@ sub isPublic {
     return;
 }
 
+sub shouldFork {
+    my ($class, $method) = @_;
+    my $code = $class->can($method);
+    return $code && exists $SHOULD_FORK{Scalar::Util::refaddr($code)};
+}
+
 sub CLONE {
     # fix-up all object ids in the new thread
     my @code_refs = grep {defined} values %EXPORTED_API;
     %EXPORTED_API = ();
-    _updateExportedApi($_) foreach @code_refs;
+    _updateExportedApi($_, 'Public') foreach @code_refs;
+    %SHOULD_FORK = ();
+    @code_refs = grep {defined} values %EXPORTED_API;
+    _updateExportedApi($_, 'Fork') foreach @code_refs;
     return;
 }
 
