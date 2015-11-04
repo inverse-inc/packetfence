@@ -152,7 +152,7 @@ sub returnRadiusAccessAccept {
             };
         }
         else {
-            my $session_id = $this->generateSessionId(6);
+            my $session_id = generate_session_id(6);
             my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_id,{
                 client_mac => $mac,

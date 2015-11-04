@@ -34,6 +34,7 @@ use Date::Parse;
 use Crypt::OpenSSL::X509;
 use Encode qw(encode);
 use MIME::Lite::TT;
+use Digest::MD5;
 
 our ( %local_mac );
 
@@ -69,6 +70,7 @@ BEGIN {
         safe_file_update
         fix_file_permissions
         strip_username
+        generate_session_id
     );
 }
 
@@ -1125,6 +1127,12 @@ sub send_email {
     catch {
       $logger->error("Can't send email to ".$to.": $!");
     };
+}
+
+sub generate_session_id {
+    my ($length) = @_;
+    $length //= 32;
+    return substr(Digest::MD5::md5_hex(Digest::MD5::md5_hex(time(). {}. rand(). $$)), 0, $length);
 }
 
 =back

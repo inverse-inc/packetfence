@@ -42,7 +42,6 @@ use pf::StatsD;
 use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
-use Digest::MD5;
 
 =head1 SUBROUTINES
 
@@ -3051,19 +3050,6 @@ Return the current logger for the switch
 sub logger {
     my ($proto) = @_;
     return get_logger( ref($proto) || $proto );
-}
-
-
-=item generateSessionId
-
-Generate a session id with a particular length
-
-=cut
-
-sub generateSessionId {
-    my ($self, $length) = @_;
-    $length //= 32;
-    substr(Digest::MD5::md5_hex(Digest::MD5::md5_hex(time(). {}. rand(). $$)), 0, $length);
 }
 
 =back
