@@ -155,6 +155,8 @@ sub service_exists {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
         if ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
+        } elsif ($service =~ /redis_(.*)/) {
+            $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
         }
         if ( !-e $exe ) {
             add_problem( $FATAL, "$exe for $service does not exist !" );

@@ -47,7 +47,7 @@ sub action_all {
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir);
+    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache");
     _fingerbank();
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;

@@ -429,6 +429,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
