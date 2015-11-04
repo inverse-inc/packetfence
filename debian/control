@@ -92,6 +92,7 @@ Depends: ${misc:Depends}, vlan, make,
  libsort-naturally-perl, libhtml-formhandler-perl (=0.40013-2), libchi-perl (>=0.59),
  libdata-serializer-perl,
  libchi-driver-redis-perl,
+ lib-redis-fast-perl,
  libcache-fastmmap-perl, libmoo-perl (=1.004002-1), libterm-size-any-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,

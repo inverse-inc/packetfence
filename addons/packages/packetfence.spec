@@ -244,6 +244,7 @@ Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
+Requires: perl(Redis::Fast)
 Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
