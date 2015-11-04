@@ -46,7 +46,7 @@ use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
 use List::MoreUtils qw(any);
-use pf::api::jsonrpcclient;
+use pf::api::queue;
 use NetAddr::IP;
 use pf::SwitchFactory;
 use MIME::Base64();
@@ -105,7 +105,7 @@ my $interface_vlan;
 my @local_dhcp_servers_ip;
 my @local_dhcp_servers_mac;
 my $pcap;
-my $apiclient = pf::api::jsonrpcclient->new;
+my $apiclient = pf::api::queue->new;
 my $net_type;
 my $process;
 
@@ -207,7 +207,7 @@ sub process_pkt {
             my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
             $apiclient->notify('process_dhcpv6', $udp_payload_b64);
         }
-    }   
+    }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
     #Only perform stats when in debug mode
