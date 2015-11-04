@@ -135,6 +135,7 @@ document.observe("dom:loaded", function() {
           [%- ELSIF node.time_balance == 0 %]
           <div>[% i18n("Your network access has expired.") %]</div>
           [%- END %]
+          <div>You are logged in as : [% account.pid %]</div>
           <div>Your current role is : [% account.category %]</div>
           [% IF showLogin %]
           <div>[% i18n("Login to manage registered devices") %]</div>

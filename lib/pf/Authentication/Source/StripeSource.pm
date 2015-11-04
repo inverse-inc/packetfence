@@ -260,16 +260,33 @@ sub handle_customer_subscription_deleted {
     my $customer_id = $object->{data}{object}{customer};
     my ($status, $customer) = $self->get_customer($customer_id);
     my $email = $customer->{email};
-    my $client_mac = $customer->{metadata}{mac_address};
     get_logger->info("Handling subscription deletion for customer $customer->{id}");
     # Can't import at the top as this cannot use pf::config
+    # CUSTOM : We change the role of the user devices instead of unregistering the MAC associated to the account
+    require pf::person;
     require pf::node;
-    pf::node::node_deregister($client_mac);
+    require pf::enforcement;
+    require pf::nodecategory;
+    require pf::password;
+    my @client_macs;
+    my $role = "default";
+    foreach my $node ( pf::person::person_nodes($email) ) {
+        if($node->{status} eq "reg"){
+            pf::log::get_logger->info("changing node ".$node->{mac}." to role $role");
+            $node->{category} = $role;
+            pf::node::node_modify($node->{mac}, %{$node});
+            pf::enforcement::reevaluate_access($node->{mac}, "redir.cgi");
+            push @client_macs, $node->{mac};
+        }
+    }
+    my $category_id = pf::nodecategory::nodecategory_lookup($role);
+    pf::password::modify_attributes($email, category => $category_id);
+    # /CUSTOM
     $self->send_mail_for_event(
         $object,
         email   => $customer->{email},
         subject => "Your Subscription has been canceled",
-        mac => $client_mac,
+        mac => join(', ', @client_macs),
     );
     return 200;
 }
