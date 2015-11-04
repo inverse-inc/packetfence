@@ -19,6 +19,7 @@ use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
 use pf::log;
 use pf::util qw(isenabled);
+use pf::CHI;
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
@@ -91,13 +92,15 @@ sub handleAnswerInRule {
 
 sub setSession {
     my($args) = @_;
-    my (%session);
-    pf::web::util::session(\%session,undef,6);
-    $session{client_mac} = $args->{'mac'};
-    $session{wlan} = $args->{'ssid'};
-    $session{switch_id} = $args->{'switch'}{'_id'};
-    locationlog_set_session($args->{'mac'}, $session{_session_id});
-    return ($session{_session_id});
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
 }
 
 =head2 evalAnswer
