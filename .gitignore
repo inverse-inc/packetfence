@@ -60,6 +60,7 @@ conf/radiusd/load_balancer.conf
 conf/redis_cache.conf
 conf/realm.conf
 conf/domain.conf
+conf/radius_filters.conf
 conf/scan.conf
 conf/wmi.conf
 conf/pfdetect.conf
