@@ -3006,7 +3006,7 @@ Get-EventLog -LogName Security -InstanceId 4726 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
@@ -3081,7 +3081,7 @@ Get-EventLog -LogName Security -InstanceId 4725 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
@@ -3157,7 +3157,7 @@ Get-EventLog -LogName Security -InstanceId 4740 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
