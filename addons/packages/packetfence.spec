@@ -1146,6 +1146,7 @@ fi
 %dir                    /usr/local/pf/var/session
 %dir                    /usr/local/pf/var/webadmin_cache
 %dir                    /usr/local/pf/var/control
+%dir                    /usr/local/pf/var/redis_cache
 %config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote snort sensor file list
