@@ -21,8 +21,7 @@ our %ALLOWED_ATTRIBUTES = (
     Fork => 1,
 );
 
-our %SHOULD_FORK;
-our %EXPORTED_API;
+our %TAGS;
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ($class, $code, @attrs) = @_;
@@ -34,47 +33,47 @@ sub MODIFY_CODE_ATTRIBUTES {
             push @bad, $attr;
         }
     }
-    _updateExportedApi($code,@good) unless @bad;
+    _updateTags($code,@good) unless @bad;
     return @bad;
 }
 
-sub _updateExportedApi {
+sub _updateTags {
     my ($code, @attrs) = @_;
     my %attrs;
-    @attrs{@attrs} = ();
     my $ref_add = Scalar::Util::refaddr($code);
-    if (exists $attrs{Public}) {
-        $EXPORTED_API{$ref_add} = $code;
-        Scalar::Util::weaken($EXPORTED_API{$ref_add});
-    }
-    if (exists $attrs{Fork}) {
-        $SHOULD_FORK{$ref_add} = $code;
-        Scalar::Util::weaken($SHOULD_FORK{$ref_add});
-    }
+    @attrs{@attrs} = ();
+    $attrs{code} = $code;
+    Scalar::Util::weaken($attrs{code});
+    $TAGS{$ref_add} = \%attrs;
 }
 
 sub isPublic {
     my ($class, $method) = @_;
+    return _hasTag($class, $method, 'Public');
+}
+
+sub _hasTag {
+    my ($class,$method, $tag) = @_;
     my $code = $class->can($method);
-    return $code
-      if $code && exists $EXPORTED_API{Scalar::Util::refaddr($code)};
-    return;
+    return unless $code;
+    my $ref_addr = Scalar::Util::refaddr($code);
+    return unless exists $TAGS{$ref_addr};
+    return exists $TAGS{$ref_addr}{$tag};
 }
 
 sub shouldFork {
     my ($class, $method) = @_;
-    my $code = $class->can($method);
-    return $code && exists $SHOULD_FORK{Scalar::Util::refaddr($code)};
+    return _hasTag($class, $method, 'Fork');
 }
 
 sub CLONE {
     # fix-up all object ids in the new thread
-    my @code_refs = grep {defined} values %EXPORTED_API;
-    %EXPORTED_API = ();
-    _updateExportedApi($_, 'Public') foreach @code_refs;
-    %SHOULD_FORK = ();
-    @code_refs = grep {defined} values %EXPORTED_API;
-    _updateExportedApi($_, 'Fork') foreach @code_refs;
+    my @tags = grep {defined} values %TAGS;
+    %TAGS = ();
+    foreach my $tag_data (@tags) {
+        my $code = delete $tag_data->{code};
+        _updateTags($code, keys %$tag_data);
+    }
     return;
 }
 
