@@ -271,7 +271,8 @@ sub runtask {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
         Log::Log4perl::MDC->put( 'tid', $$ );
-        $SIG{CHLD} = "DEFAULT";
+        POSIX::sigaction(&POSIX::SIGCHLD, POSIX::SigAction->new('child_sighandler2', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
+          or die("pfqueue could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
         _runtask(@$task);
     } else {
@@ -418,6 +419,20 @@ sub child_sighandler {
         last unless $child > 0;
         my $task = delete $CHILDREN{$child};
         register_task(@$task);
+    }
+}
+
+=head2 child_sighandler2
+
+reaps the children
+
+=cut
+
+sub child_sighandler2 {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
     }
 }
 
