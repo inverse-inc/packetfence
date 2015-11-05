@@ -54,7 +54,7 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
-use pf::dhcp::processor;
+use pf::dhcp::processor();
 use pf::util::dhcpv6();
 
 sub event_add : Public {
