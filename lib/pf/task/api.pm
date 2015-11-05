@@ -47,7 +47,7 @@ sub doTask {
             POSIX::_exit(0);
         }
     } else {
-        $logger->error("Invalid method given");
+        $logger->error("Invalid method '$method' given");
     }
 }
 
