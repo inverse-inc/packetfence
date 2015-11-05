@@ -21,6 +21,13 @@ has '+name' => ( default => sub { 'pfqueue' } );
 
 has '+launcher' => (default => sub { '%1$s -d' } );
 
+around dependsOnServices => sub {
+    my ($orig, $self) = (shift, shift);
+    my $dependsOnServices = $self->$orig(@_);
+    push @$dependsOnServices,'redis_queue';
+    return $dependsOnServices;
+};
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
