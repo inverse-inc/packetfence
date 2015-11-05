@@ -15,18 +15,36 @@ pf::task::api
 use strict;
 use warnings;
 use base 'pf::task';
+use POSIX;
 use pf::log;
-use threads;
 use pf::api;
+use pf::db;
+use threads;
 my $logger = get_logger();
 
 sub doTask {
     my ($self, $args) = @_;
     my ($method, @args) = @$args;
     if (pf::api->isPublic($method)) {
+        my $pid;
+        if (pf::api->shouldFork($method)) {
+            pf::db::db_disconnect();
+            $pid = fork;
+            unless (defined $pid) {
+                $logger->error("Error fork $!");
+                return;
+            }
+            if ($pid) {
+                $logger->debug("Fork $method off");
+                return;
+            }
+        }
         eval {pf::api->$method(@args);};
         if ($@) {
             $logger->error($@);
+        }
+        if (defined $pid && $pid == 0 ) {
+            POSIX::_exit(0);
         }
     } else {
         $logger->error("Invalid method given");
