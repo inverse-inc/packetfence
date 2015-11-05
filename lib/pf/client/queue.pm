@@ -33,7 +33,7 @@ has redis => (
 has server => (
     is       => 'rw',
     required => 1,
-    default  => sub {"$install_dir/var/run/redis.sock"},
+    default  => sub { "127.0.0.1:6379" },
 );
 
 sub _build_redis {
