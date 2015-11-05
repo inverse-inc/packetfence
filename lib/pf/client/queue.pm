@@ -33,7 +33,7 @@ has redis => (
 has server => (
     is       => 'rw',
     required => 1,
-    default  => sub { "127.0.0.1:6379" },
+    default  => sub { "127.0.0.1:6380" },
 );
 
 sub _build_redis {
