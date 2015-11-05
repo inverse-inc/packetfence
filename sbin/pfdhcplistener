@@ -116,20 +116,33 @@ sub reload_config {
 
 reload_config;
 
+my $force_update_on_ack = isenabled($Config{network}{force_listener_update_on_ack});
+
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
 my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+my $running_w_dhcpd = $FALSE;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
     if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
-        # are we listening on an inline interface ?
+        $net_type = $Config{"interface $interface"}{'type'};
+        $interface_ip = $Config{"interface $interface"}{'ip'};
+        $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+
         foreach my $network (keys %ConfigNetworks) {
-            next if (!pf::config::is_network_type_inline($network));
             my %net = %{$ConfigNetworks{$network}};
+            my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
+            if(isenabled($net{dhcpd}) && $network_obj->contains($net_addr)){
+                $running_w_dhcpd = $TRUE;
+                $logger->info("The listener process is on the same server as the DHCP server.");
+            }
+
+            # are we listening on an inline interface ?
+            next if (!pf::config::is_network_type_inline($network));
             my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
             if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 || (defined($net{'next_hop'}) && $net_addr->contains($ip))) {
                 $logger->warn("DHCP detector on an inline interface");
@@ -137,10 +150,6 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
                 $accessControl = new pf::inline::custom();
             }
         }
-        $net_type = $Config{"interface $interface"}{'type'};
-        $interface_ip = $Config{"interface $interface"}{'ip'};
-        $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
-
         $logger->info("DHCP detector on $interface enabled");
         dhcp_detector();
     }
@@ -373,22 +382,19 @@ sub parse_dhcp_request {
 
     my $lease_length = $dhcp->{'options'}{'51'};
     my $client_ip = $dhcp->{'options'}{'50'};
+    my $client_mac;
     if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
         $logger->info(
             "DHCPREQUEST from $dhcp->{'chaddr'} ($client_ip)"
             . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
         );
-        update_iplog( $dhcp->{'chaddr'}, $client_ip, $lease_length );
+        $client_mac = $dhcp->{'chaddr'};
+    }
 
-        my %data = (
-           'ip' => $client_ip,
-           'mac' => $dhcp->{'chaddr'},
-           'net_type' => $net_type,
-        );
-        $apiclient->notify('trigger_scan', %data );
-
-        my $firewallsso = pf::firewallsso->new;
-        $firewallsso->do_sso('Update', $dhcp->{'chaddr'}, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
+    # We check if we are running without dhcpd
+    # This means we don't see ACK so we need to act on requests
+    if((!$running_w_dhcpd && !$force_update_on_ack) && (defined($client_ip) && defined($client_mac))){
+        handle_new_ip($client_mac, $client_ip, $lease_length);
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -415,41 +421,57 @@ sub parse_dhcp_ack {
     my $s_mac = $dhcp->{'src_mac'};
     my $lease_length = $dhcp->{'options'}->{'51'};
 
-    if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
+    my $client_ip;
+    my $client_mac;
 
+    if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
         $logger->info(
             "DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})"
             . ( defined($lease_length) ? " for $lease_length seconds" : "" )
         );
-        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
-
-        my %data = (
-           'ip' => $dhcp->{'yiaddr'},
-           'mac' => $dhcp->{'chaddr'},
-           'net_type' => $net_type,
-        );
-        $apiclient->notify('trigger_scan', %data );
-
-    } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
+        $client_ip = $dhcp->{'yiaddr'};
+        $client_mac = $dhcp->{'chaddr'};
+    } 
+    elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
 
         $logger->info(
             "DHCPACK CIADDR from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{ciaddr})"
             . ( defined($lease_length) ? " for $lease_length seconds" : "")
         );
-        update_iplog( $dhcp->{'chaddr'}, $dhcp->{'ciaddr'}, $lease_length );
-
-        my %data = (
-           'ip' => $dhcp->{'ciaddr'},
-           'mac' => $dhcp->{'chaddr'},
-           'net_type' => $net_type,
-        );
-        $apiclient->notify('trigger_scan', %data );
-
-    } else {
+        $client_ip = $dhcp->{'ciaddr'};
+        $client_mac = $dhcp->{'chaddr'};
+    } 
+    else {
         $logger->warn(
             "invalid DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
         );
     }
+
+    # We check if we are running with the DHCPd process.
+    # If yes, we are interested with the ACK
+    # Packet also has to be valid
+    if(($running_w_dhcpd || $force_update_on_ack) && (defined($client_ip) && defined($client_mac))){
+        handle_new_ip($client_mac, $client_ip, $lease_length);
+    }
+    else {
+        $logger->debug("Not acting on DHCPACK");
+    }
+
+}
+
+sub handle_new_ip {
+    my ($client_mac, $client_ip, $lease_length) = @_;
+    $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
+    update_iplog( $client_mac, $client_ip, $lease_length );
+
+    my %data = (
+       'ip' => $client_ip,
+       'mac' => $client_mac,
+       'net_type' => $net_type,
+    );
+    $apiclient->notify('trigger_scan', %data );
+    my $firewallsso = pf::firewallsso->new;
+    $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
 }
 
 =item parse_dhcp_release
