@@ -454,7 +454,7 @@ get redis client
 
 sub get_redis_client {
     my (@args) = @_;
-    return Redis::Fast->new(on_connect => \&on_connect, %{$CONFIG{"pfqueue redis"}}, @args);
+    return Redis::Fast->new(on_connect => \&on_connect, %{$CONFIG{"redis"}}, @args);
 }
 
 =head1 AUTHOR
