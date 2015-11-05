@@ -17,11 +17,11 @@ use pf::config;
 use List::MoreUtils qw(any);
 use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
 use pf::cluster;
+use pf::constants::api;
 
 my @MODULES = __PACKAGE__->modules;
 
-our $DEFAULT_CLIENT = "pf::api::jsonrpcclient";
-our $CURRENT_CLIENT = $DEFAULT_CLIENT;
+our $CURRENT_CLIENT = $pf::constants::api::DEFAULT_CLIENT;
 
 =head2 setClient
 
@@ -42,6 +42,7 @@ gets the currently configured client
 =cut
 
 sub getClient {
+    $CURRENT_CLIENT ||= $pf::constants::api::DEFAULT_CLIENT;
     $CURRENT_CLIENT->new;
 }
 

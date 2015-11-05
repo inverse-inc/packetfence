@@ -54,6 +54,7 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
+use pf::dhcp::processor;
 use pf::util::dhcpv6();
 
 sub event_add : Public {
@@ -993,6 +994,19 @@ sub reevaluate_access : Public {
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
 }
 
+sub process_dhcp : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(src_mac src_ip dest_mac dest_ip udp_payload_b64);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,\@found);
+    
+
+    $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
+    pf::dhcp::processor->new(%postdata)->process_packet();
+
+    return $pf::config::TRUE;
+}
+
 =head2 process_dhcpv6
 
 Processes a DHCPv6 udp payload to extract the fingerprint and enterprise ID.
@@ -1052,6 +1066,7 @@ sub process_dhcpv6 : Public {
 
     pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
 }
+
 
 =head1 AUTHOR
 
