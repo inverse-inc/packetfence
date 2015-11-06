@@ -183,7 +183,7 @@ status code
 sub parseUrl {
     my($this, $req) = @_;
     my $logger = $this->logger;
-    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),$$req->param('uip'),$$req->param('url'),undef,undef);
+    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
 }
 
 =item getAcceptForm

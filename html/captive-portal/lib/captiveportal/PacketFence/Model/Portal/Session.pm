@@ -158,6 +158,8 @@ sub _build_destinationUrl {
 
     my $host = URI::URL->new($url)->host();
 
+    get_logger-debug("Destination URL host is : $host");
+
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the portal profile
     if ( any { $_ eq $host } @portal_hosts) {
