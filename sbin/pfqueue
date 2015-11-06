@@ -25,7 +25,6 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Redis::Fast;
 use Scalar::Util qw(blessed);
-use Time::HiRes qw(usleep);
 
 #pf::log must always be initilized first
 BEGIN {
@@ -45,6 +44,7 @@ use Config::IniFiles;
 use pf::SwitchFactory;
 use threads;
 use pf::factory::task;
+use pf::pfqueue::consumer::redis;
 
 tie our %CONFIG ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
 
@@ -59,22 +59,6 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
-
-#
-# This lua script gets all the job id from a zset with a timestamp less the one passed
-# Then push all the job ids the work queue
-# It is called like the following
-# EVAL LUA_DELAY_JOBS_MOVE 2 DELAY_ZSET JOB_QUEUE TIMESTAMP BATCH
-#
-our $LUA_DELAY_JOBS_MOVE =<<EOS ;
-    local task_ids = redis.call("ZRANGEBYSCORE",KEYS[1],'-inf',ARGV[1],'LIMIT',0,ARGV[2]);
-    if table.getn(task_ids) > 0 then
-        redis.call("LPUSH",KEYS[2],unpack(task_ids));
-        redis.call("ZREM",KEYS[1],unpack(task_ids));
-    end
-EOS
-
-our $LUA_DELAY_JOBS_MOVE_SHA1;
 
 
 my $logger = Log::Log4perl->get_logger($PROGRAM_NAME);
@@ -144,21 +128,6 @@ exit(0);
 
 =head1 SUBROUTINES
 
-=head2 on_connect
-
-What actions to do when connecting to a redis server
-
-=cut
-
-sub on_connect {
-    my ($redis) = @_;
-    if($LUA_DELAY_JOBS_MOVE_SHA1) {
-        my ($loaded) = $redis->script('EXISTS',$LUA_DELAY_JOBS_MOVE_SHA1);
-        return if $loaded;
-    }
-    ($LUA_DELAY_JOBS_MOVE_SHA1) = $redis->script('LOAD',$LUA_DELAY_JOBS_MOVE);
-}
-
 =head2 register_tasks
 
 Register all tasks
@@ -171,18 +140,18 @@ sub register_tasks {
         next unless $name =~ s/^queue +//;
         my $worker = $config->val($section, 'workers', 10);
         foreach (1 .. $worker) {
-            register_task("Queue:$name",\&process_queue, "Queue:$name");
+            register_task("Queue:$name",\&process_queue, {  queue_name => "Queue:$name"});
         }
         my $has_delayed_queue = isenabled($config->val($section, 'has_delayed_queue', 0));
         if ($has_delayed_queue) {
             my $delayed_queue = "Delayed:$name";
             my $submit_queue = "Queue:$name";
-            my $parameters = [
-                $delayed_queue,
-                $submit_queue,
-                $config->val($section, 'delayed_queue_batch', 100),
-                $config->val($section, 'delayed_queue_sleep', 100) * 1000,
-            ];
+            my $parameters = {
+                'delay_queue' => $delayed_queue,
+                'submit_queue' => $submit_queue,
+                'batch' => $config->val($section, 'delayed_queue_batch', 100),
+                'batch_sleep' => $config->val($section, 'delayed_queue_sleep', 100) * 1000,
+            };
             my $delayed_queue_workers = $config->val($section, 'delayed_queue_workers', 1);
             for(1 .. $delayed_queue_workers) {
                 register_task($delayed_queue, \&process_delayed_jobs, $parameters );
@@ -286,12 +255,12 @@ the task to is run in a loop until it is finished
 sub _runtask {
     my ($id, $task, $parameters) = @_;
     $0 = "pfqueue - $id";
-    my $redis = get_redis_client(name => $id);
+    my $consumer = get_consumer($id, $parameters);
     while ($running) {
         pf::config::cached::ReloadConfigs();
         eval {
             #reload all cached configs before running the task
-            $task->($redis, $parameters);
+            $task->($consumer);
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
@@ -303,7 +272,6 @@ sub _runtask {
             $running = 0;
         }
     }
-    $redis->quit;
     $logger->trace("$$ shutting down");
     exit;
 }
@@ -337,48 +305,13 @@ Process queue
 =cut
 
 sub process_queue {
-    my ($redis, $queue_name) = @_;
-    my ($queue, $task_id) = $redis->brpop($queue_name, 1);
-    if ($queue) {
-        my $data = $redis->hget($task_id, 'data');
-        if($data) {
-            eval {
-                sereal_decode_with_object($DECODER, $data, my $item);
-                if (ref ($item) eq 'ARRAY' ) {
-                    my $type = $item->[0];
-                    my $args = $item->[1];
-                    $redis->hincrby("TaskCount", "${queue}:${type}", -1);
-                    "pf::task::$type"->doTask($args);
-                } else {
-                    $logger->error("Invalid object stored in queue");
-                }
-            };
-            if ($@) {
-                $logger->error($@);
-            }
-        } else {
-                $logger->error("Invalid task id $task_id provided");
-        }
-        $redis->del($task_id);
-    }
+    my ($consumer) = @_;
+    $consumer->process_next_job;
 }
 
 sub process_delayed_jobs {
-    my ($redis, $options) = @_;
-    my ($delay_queue,$submit_queue,$batch,$sleep) = @$options;
-    eval {
-
-        #Getting the current time from the redis service
-        my ($seconds, $micro) = $redis->time;
-        die "error getting time from the redis service" unless defined $seconds && defined $micro;
-        my $time_milli = $seconds * 1000 + int($micro / 1000);
-        $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $delay_queue, $submit_queue, $time_milli, $batch);
-    };
-    if ($@) {
-        $logger->error("Error running task : $@");
-    }
-    # Sleep for 10 milliseconds
-    usleep($sleep);
+    my ($consumer) = @_;
+    $consumer->process_delayed_jobs;
 }
 
 =head2 wait_for_it
@@ -444,15 +377,15 @@ sub usr1_sighandler {
     db_cancel_current_query();
 }
 
-=head2 get_redis_client(@additional_args)
+=head2 get_consumer(@additional_args)
 
-get redis client
+get consumer
 
 =cut
 
-sub get_redis_client {
-    my (@args) = @_;
-    return Redis::Fast->new(on_connect => \&on_connect, %{$CONFIG{"redis"}}, @args);
+sub get_consumer {
+    my ($id, $parameters) = @_;
+    return pf::pfqueue::consumer::redis->new({ %{$CONFIG{"consumer"}}, %$parameters, redis_name => $id,});
 }
 
 =head1 AUTHOR
