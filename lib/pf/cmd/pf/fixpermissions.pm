@@ -124,7 +124,7 @@ sub _changeFilesToOwner {
 sub _fingerbank {
     _changeFilesToOwner('fingerbank', @fingerbank::FilePath::PATHS, @fingerbank::FilePath::FILES);
     chmod(0664, @fingerbank::FilePath::FILES);
-    chmod(0775, @fingerbank::FilePath::PATHS);
+    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl');
 }
 
 =head1 AUTHOR
