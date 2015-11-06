@@ -125,10 +125,6 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 
 pf::SwitchFactory::preLoadModules();
 
-# Pre
-#my $redis = Redis::Fast->new(sock => "$var_dir/run/redis.sock", on_connect => \&on_connect);
-#$redis->quit;
-
 registertasks();
 runtasks();
 waitforit();
@@ -165,7 +161,7 @@ sub on_connect {
 
 =head2 registertasks
 
-    Register all tasks
+Register all tasks
 
 =cut
 
@@ -177,7 +173,7 @@ sub registertasks {
         foreach (1 .. $worker) {
             register_task("Queue:$name",\&process_queue, "Queue:$name");
         }
-        my $has_delayed_queue = $config->val($section, 'has_delayed_queue', 0);
+        my $has_delayed_queue = isenabled($config->val($section, 'has_delayed_queue', 0));
         if ($has_delayed_queue) {
             my $delayed_queue = "Delayed:$name";
             my $submit_queue = "Queue:$name";

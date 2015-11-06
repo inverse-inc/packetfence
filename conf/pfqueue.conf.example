@@ -3,7 +3,7 @@ server=127.0.0.1:6380
 
 [queue general]
 workers=4
-has_delayed_queue=1
+has_delayed_queue=enabled
 delayed_queue_batch=100
 delayed_queue_sleep=100
 delayed_queue_workers=1
