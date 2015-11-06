@@ -1,7 +1,8 @@
 package pf::task::log;
+
 =head1 NAME
 
-pf::task::log add documentation
+pf::task::log - Task for logging to pfqueue.log
 
 =cut
 

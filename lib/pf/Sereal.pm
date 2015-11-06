@@ -2,7 +2,7 @@ package pf::Sereal;
 
 =head1 NAME
 
-pf::Sereal add documentation
+pf::Sereal - Global package for Sereal Encoder/Decoder
 
 =cut
 

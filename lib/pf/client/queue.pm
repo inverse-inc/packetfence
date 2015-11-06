@@ -2,7 +2,7 @@ package pf::client::queue;
 
 =head1 NAME
 
-pf::client::queue add documentation
+pf::client::queue - The client for adding messages to pfqueue
 
 =cut
 

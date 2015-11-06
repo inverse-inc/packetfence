@@ -1,7 +1,8 @@
 package pf::services::manager::pfqueue;
+
 =head1 NAME
 
-pf::services::manager::pfqueue add documentation
+pf::services::manager::pfqueue - Manager for the pfqueue service
 
 =cut
 
@@ -57,4 +58,3 @@ USA.
 =cut
 
 1;
-

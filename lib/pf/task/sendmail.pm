@@ -2,7 +2,7 @@ package pf::task::sendmail;
 
 =head1 NAME
 
-pf::task::sendmail add documentation
+pf::task::sendmail - Task for sending mail
 
 =cut
 
