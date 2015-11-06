@@ -7,3 +7,6 @@ has_delayed_queue=enabled
 delayed_queue_batch=100
 delayed_queue_sleep=100
 delayed_queue_workers=1
+
+[queue pfdhcplistener]
+workers=8
