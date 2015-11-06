@@ -45,6 +45,13 @@ my %rogue_servers;
 my $ROGUE_DHCP_TRIGGER = '1100010';
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
+
+=head2 new
+
+Create a new DHCP processor
+
+=cut
+
 sub new {
     my ( $class, %argv ) = @_;
     my $self = bless {}, $class;
@@ -56,6 +63,12 @@ sub new {
     }
     return $self;
 }
+
+=head2 process_packet
+
+Process a packet
+
+=cut
 
 sub process_packet {
     my ( $self ) = @_;
@@ -175,7 +188,7 @@ sub process_packet {
     }
 }
 
-=item parse_dhcp_discover
+=head2 parse_dhcp_discover
 
 =cut
 
@@ -184,7 +197,7 @@ sub parse_dhcp_discover {
     $logger->debug("DHCPDISCOVER from $dhcp->{'chaddr'}");
 }
 
-=item parse_dhcp_offer
+=head2 parse_dhcp_offer
 
 =cut
 
@@ -201,7 +214,7 @@ sub parse_dhcp_offer {
     $self->rogue_dhcp_handling($dhcp->{'src_ip'}, $dhcp->{'src_mac'}, $dhcp->{'yiaddr'}, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
 }
 
-=item parse_dhcp_request
+=head2 parse_dhcp_request
 
 =cut
 
@@ -239,7 +252,7 @@ sub parse_dhcp_request {
 }
 
 
-=item parse_dhcp_ack
+=head2 parse_dhcp_ack
 
 =cut
 
@@ -288,6 +301,12 @@ sub parse_dhcp_ack {
 
 }
 
+=head2 handle_new_ip
+
+Handle the tasks related to a device getting an IP address
+
+=cut
+
 sub handle_new_ip {
     my ($self, $client_mac, $client_ip, $lease_length) = @_;
     $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
@@ -303,7 +322,7 @@ sub handle_new_ip {
     $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
 }
 
-=item parse_dhcp_release
+=head2 parse_dhcp_release
 
 =cut
 
@@ -313,7 +332,7 @@ sub parse_dhcp_release {
     $apiclient->notify('close_iplog',$dhcp->{'ciaddr'});
 }
 
-=item parse_dhcp_inform
+=head2 parse_dhcp_inform
 
 =cut
 
@@ -322,7 +341,7 @@ sub parse_dhcp_inform {
     $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
 }
 
-=item rogue_dhcp_handling
+=head2 rogue_dhcp_handling
 
 Requires DHCP Server IP
 
@@ -394,7 +413,7 @@ sub rogue_dhcp_handling {
 }
 
 
-=item parse_dhcp_option82
+=head2 parse_dhcp_option82
 
 Option 82 is Relay Agent Information. Defined in RFC 3046.
 
@@ -412,6 +431,13 @@ sub parse_dhcp_option82 {
         $apiclient->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
     }
 }
+
+=head2 update_iplog
+
+Update the iplog entry for a device
+Also handles the SSO stop if the IP changes
+
+=cut
 
 sub update_iplog {
     my ( $self, $srcmac, $srcip, $lease_length ) = @_;
@@ -445,7 +471,7 @@ sub update_iplog {
     $apiclient->notify('update_iplog', %data );
 }
 
-=item get_local_dhcp_servers_by_ip
+=head2 get_local_dhcp_servers_by_ip
 
 Return a list of all dhcp servers IP that could be running locally.
 
@@ -469,7 +495,7 @@ sub get_local_dhcp_servers_by_ip {
     return @local_dhcp_servers_ip;
 }
 
-=item get_local_dhcp_servers_by_mac
+=head2 get_local_dhcp_servers_by_mac
 
 Return a list of all mac addresses that could be issuing DHCP offers/acks locally.
 
