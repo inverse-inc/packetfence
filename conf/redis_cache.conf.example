@@ -821,7 +821,7 @@ client-output-buffer-limit pubsub 32mb 8mb 60
 # The range is between 1 and 500, however a value over 100 is usually not
 # a good idea. Most users should use the default of 10 and raise this up to
 # 100 only in environments where very low latency is required.
-hz 10
+hz 50
 
 # When a child rewrites the AOF file, if the following option is enabled
 # the file will be fsync-ed every 32 MB of data generated. This is useful
