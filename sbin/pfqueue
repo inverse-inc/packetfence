@@ -125,9 +125,9 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 
 pf::SwitchFactory::preLoadModules();
 
-registertasks();
-runtasks();
-waitforit();
+register_tasks();
+run_tasks();
+wait_for_it();
 cleanup();
 
 END {
@@ -159,13 +159,13 @@ sub on_connect {
     ($LUA_DELAY_JOBS_MOVE_SHA1) = $redis->script('LOAD',$LUA_DELAY_JOBS_MOVE);
 }
 
-=head2 registertasks
+=head2 register_tasks
 
 Register all tasks
 
 =cut
 
-sub registertasks {
+sub register_tasks {
     foreach my $section ($config->GroupMembers('queue')) {
         my $name = $section;
         next unless $name =~ s/^queue +//;
@@ -193,7 +193,7 @@ sub registertasks {
 
 =head2 cleanup
 
-cleans after children
+cleans up after children
 
 =cut
 
@@ -241,13 +241,13 @@ sub normal_sighandler {
     $running = 0;
 }
 
-=head2 runtasks
+=head2 run_tasks
 
-run all runtasks
+run all run_tasks
 
 =cut
 
-sub runtasks {
+sub run_tasks {
     db_disconnect();
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
@@ -381,16 +381,16 @@ sub process_delayed_jobs {
     usleep($sleep);
 }
 
-=head2 waitforit
+=head2 wait_for_it
 
 waits for signals
 
 =cut
 
-sub waitforit {
+sub wait_for_it {
     while ($running) {
         pause;
-        runtasks();
+        run_tasks();
     }
 }
 
