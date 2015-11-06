@@ -23,7 +23,13 @@ our @EXPORT_OK = qw($ENCODER $DECODER);
 our $ENCODER = Sereal::Encoder->new;
 our $DECODER = Sereal::Decoder->new;
 
-sub clone {
+=head2 CLONE
+
+Reinitialize ENCODER/DECODER when a new thread is created
+
+=cut
+
+sub CLONE {
     $ENCODER = Sereal::Encoder->new;
     $DECODER = Sereal::Decoder->new;
 }

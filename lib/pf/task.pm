@@ -37,6 +37,12 @@ sub doTask {
     die "Unimplemented doTask";
 }
 
+=head2 generateId
+
+Generate the task id
+
+=cut
+
 sub generateId {
    "Task:" . $GENERATOR->create_str
 }

@@ -20,6 +20,12 @@ use pf::config;
 
 extends 'pf::services::manager::redis';
 
+=head2 name
+
+The name of the redis service
+
+=cut
+
 has '+name' => (default => sub { 'redis_queue' } );
 
 =head1 AUTHOR

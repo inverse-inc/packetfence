@@ -24,17 +24,35 @@ use pf::task;
 
 our $DEFAULT_EXPIRATION = 300;
 
+=head2 redis
+
+The redis client to use
+
+=cut
+
 has redis => (
     is      => 'rw',
     builder => 1,
     lazy    => 1,
 );
 
+=head2 server
+
+The server of the redis client
+
+=cut
+
 has server => (
     is       => 'rw',
     required => 1,
     default  => sub { "127.0.0.1:6380" },
 );
+
+=head2 _build_redis
+
+Build the redis client
+
+=cut
 
 sub _build_redis {
     my ($self) = @_;
@@ -50,6 +68,12 @@ sub _build_redis {
     }
     return Redis::Fast->new(%args);
 }
+
+=head2 submit
+
+Submit a task to the queue
+
+=cut
 
 sub submit {
     my ($self, $queue, $task_type, $task_data, $expire_in) = @_;

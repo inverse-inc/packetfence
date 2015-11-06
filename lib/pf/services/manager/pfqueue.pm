@@ -18,9 +18,27 @@ use Moo;
 
 extends 'pf::services::manager';
 
+=head2 name
+
+The name of service of this manager
+
+=cut
+
 has '+name' => ( default => sub { 'pfqueue' } );
 
+=head2 launcher
+
+The sprintf string to launch service
+
+=cut
+
 has '+launcher' => (default => sub { '%1$s -d' } );
+
+=head2 dependsOnServices
+
+Add redis_queue to the list of dependecies
+
+=cut
 
 around dependsOnServices => sub {
     my ($orig, $self) = (shift, shift);

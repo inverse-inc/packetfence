@@ -18,6 +18,12 @@ use base 'pf::task';
 use pf::log;
 our $logger = get_logger();
 
+=head2 doTask
+
+Log to pfqueue.log
+
+=cut
+
 sub doTask {
     my ($self, $args) = @_;
     $logger->info(@$args);

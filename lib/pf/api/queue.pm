@@ -17,11 +17,22 @@ use warnings;
 use Moo;
 use pf::client::queue;
 
+=head2 queue
+
+The queue to submit to
+
+=cut
+
 has queue => (
     is      => 'rw',
-    required => 1,
     default => 'general',
 );
+
+=head2 client
+
+The queue client
+
+=cut
 
 has client => (
     is => 'rw',
@@ -30,6 +41,8 @@ has client => (
 );
 
 =head2 _build_client
+
+Build the client
 
 =cut
 

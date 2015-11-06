@@ -22,6 +22,13 @@ use pf::db;
 use threads;
 my $logger = get_logger();
 
+
+=head2 doTask
+
+Calls the api call
+
+=cut
+
 sub doTask {
     my ($self, $args) = @_;
     my ($method, @args) = @$args;

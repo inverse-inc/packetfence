@@ -22,6 +22,12 @@ use pf::log;
 use pf::config;
 my $logger     = get_logger();
 
+=head2 doTask
+
+Sendmail
+
+=cut
+
 sub doTask {
     my ($self, $args) = @_;
     my %data = @$args;
