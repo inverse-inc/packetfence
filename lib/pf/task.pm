@@ -34,7 +34,7 @@ The function to override to perform a task
 =cut
 
 sub doTask {
-    die "";
+    die "Unimplemented doTask";
 }
 
 sub generateId {
