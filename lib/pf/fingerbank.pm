@@ -91,10 +91,13 @@ sub _query {
 
     my $cache = pf::CHI->new( namespace => 'fingerbank' );
 
-    # Doing a shallow copy or the args hashref to remove 'mac' from it.
-    # We are using the args as the cache key and don't want to have 'mac' since it is too specific
+    # Doing a shallow copy of the args hashref to modify the 'MAC' value and make it OUI rather than full MAC
     my $cached_args = { %$args };
-    delete $cached_args->{'mac'};
+    my $mac = $cached_args->{'mac'};
+    $mac =~ s/[:|\s|-]//g;      # Removing separators
+    $mac = lc($mac);            # Lowercasing
+    $mac = substr($mac, 0, 6);  # Only keep first 6 characters (OUI)
+    $cached_args->{'mac'} = $mac;
 
     return $cache->compute($cached_args, {expires_in => FINGERBANK_CACHE_EXPIRE},
         sub {
