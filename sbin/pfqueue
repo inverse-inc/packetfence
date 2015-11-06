@@ -347,7 +347,7 @@ sub process_queue {
                 if (ref ($item) eq 'ARRAY' ) {
                     my $type = $item->[0];
                     my $args = $item->[1];
-                    $redis->hincrby("TaskCount", $type, -1);
+                    $redis->hincrby("TaskCount", "${queue}:${type}", -1);
                     "pf::task::$type"->doTask($args);
                 } else {
                     $logger->error("Invalid object stored in queue");

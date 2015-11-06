@@ -61,7 +61,7 @@ sub submit {
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->lpush("Queue:$queue", $id, sub {});
-    $redis->hincrby("TaskCount", $task_type, 1, sub {});
+    $redis->hincrby("TaskCount", "${queue}:${task_type}", 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
 }
@@ -80,7 +80,7 @@ sub submit_delayed {
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
-    $redis->hincrby("TaskCount", $task_type, 1, sub {});
+    $redis->hincrby("TaskCount", "${queue}:${task_type}", 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
 }
