@@ -104,7 +104,7 @@ Requires: perl >= %{perl_version}
 Requires(pre): %{real_name}-pfcmd-suid
 Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::MaybeXS), perl(JSON::XS) >= 3
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Class::Accessor)
