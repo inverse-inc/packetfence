@@ -38,7 +38,6 @@ use NetAddr::IP;
 use pf::SwitchFactory;
 use pf::log(service => 'pfdhcplistener');
 
-our $apiclient = pf::client::getClient();
 our $logger = get_logger;
 my $force_update_on_ack = isenabled($Config{network}{force_listener_update_on_ack});
 my %rogue_servers;
@@ -61,6 +60,7 @@ sub new {
     if($self->{is_inline_vlan}){
         $self->{accessControl} = new pf::inline::custom();
     }
+    $self->{api_client} = pf::client::getClient();
     return $self;
 }
 
@@ -160,7 +160,7 @@ sub process_packet {
         if (defined($dhcp->{'options'}{'12'})) {
             $tmp{'computername'} = $dhcp->{'options'}{'12'};
             if(isenabled($Config{network}{hostname_change_detection})){
-                $apiclient->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+                $self->{api_client}->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
             }
         }
 
@@ -174,7 +174,7 @@ sub process_packet {
             # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
             ip                  => ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'},
         );
-        $apiclient->notify('fingerbank_process', \%fingerbank_query_args );
+        $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
 
         my $modified_node_log_message = '';
         foreach my $node_key ( keys %tmp ) {
@@ -246,7 +246,7 @@ sub parse_dhcp_request {
     }
 
     if ($self->{is_inline_vlan} || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
-        $apiclient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+        $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
     }
 }
@@ -317,7 +317,7 @@ sub handle_new_ip {
        'mac' => $client_mac,
        'net_type' => $self->{net_type},
     );
-    $apiclient->notify('trigger_scan', %data );
+    $self->{api_client}->notify('trigger_scan', %data );
     my $firewallsso = pf::firewallsso->new;
     $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
 }
@@ -329,7 +329,7 @@ sub handle_new_ip {
 sub parse_dhcp_release {
     my ($self, $dhcp) = @_;
     $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
-    $apiclient->notify('close_iplog',$dhcp->{'ciaddr'});
+    $self->{api_client}->notify('close_iplog',$dhcp->{'ciaddr'});
 }
 
 =head2 parse_dhcp_inform
@@ -387,7 +387,7 @@ sub rogue_dhcp_handling {
            'tid' => $ROGUE_DHCP_TRIGGER,
            'type' => 'INTERNAL',
         );
-        $apiclient->notify('trigger_violation', %data );
+        $self->{api_client}->notify('trigger_violation', %data );
     } else {
         $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
         $dhcp_srv_mac = 'unknown';
@@ -428,7 +428,7 @@ sub parse_dhcp_option82 {
 
         # TODO port should be translated into ifIndex
         # FIXME option82 stuff needs to be re-validated (#1340)
-        $apiclient->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
+        $self->{api_client}->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
     }
 }
 
@@ -458,7 +458,7 @@ sub update_iplog {
         $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
 
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-            $apiclient->notify('ipset_node_update',$oldip, $srcip, $srcmac);
+            $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
     }
     my %data = (
@@ -468,7 +468,7 @@ sub update_iplog {
         'oldip' => $oldip,
         'oldmac' => $oldmac,
     );
-    $apiclient->notify('update_iplog', %data );
+    $self->{api_client}->notify('update_iplog', %data);
 }
 
 =head2 get_local_dhcp_servers_by_ip
