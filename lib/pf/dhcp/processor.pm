@@ -39,7 +39,6 @@ use pf::SwitchFactory;
 use pf::log;
 
 our $logger = get_logger;
-my $force_update_on_ack = isenabled($Config{network}{force_listener_update_on_ack});
 my $ROGUE_DHCP_TRIGGER = '1100010';
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
@@ -266,7 +265,7 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if((!$self->{running_w_dhcpd} && !$force_update_on_ack) && (defined($client_ip) && defined($client_mac))){
+    if((!$self->{running_w_dhcpd} && !isenabled($Config{network}{force_listener_update_on_ack})) && (defined($client_ip) && defined($client_mac))){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
 
@@ -323,7 +322,7 @@ sub parse_dhcp_ack {
     # We check if we are running with the DHCPd process.
     # If yes, we are interested with the ACK
     # Packet also has to be valid
-    if(($self->{running_w_dhcpd} || $force_update_on_ack) && (defined($client_ip) && defined($client_mac))){
+    if(($self->{running_w_dhcpd} || isenabled($Config{network}{force_listener_update_on_ack})) && (defined($client_ip) && defined($client_mac))){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
     else {
