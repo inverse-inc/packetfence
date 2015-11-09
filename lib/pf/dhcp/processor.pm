@@ -36,7 +36,7 @@ use List::MoreUtils qw(any);
 use pf::api::jsonrpcclient;
 use NetAddr::IP;
 use pf::SwitchFactory;
-use pf::log(service => 'pfdhcplistener');
+use pf::log;
 
 our $logger = get_logger;
 my $force_update_on_ack = isenabled($Config{network}{force_listener_update_on_ack});
