@@ -91,7 +91,6 @@ my $is_inline_vlan;
 my $interface_ip;
 my $interface_vlan;
 my $pcap;
-my $apiclient = pf::api::jsonrpcclient->new;
 my $net_type;
 my $process;
 
@@ -204,6 +203,7 @@ sub process_pkt {
             interface_vlan => $interface_vlan,
             net_type => $net_type,
         );
+        my $apiclient = pf::api::jsonrpcclient->new;
         # we send all IPv4 DHCPv4 codepath
         if($l2->{type} eq ETH_TYPE_IP) {
             $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
