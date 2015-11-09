@@ -220,17 +220,17 @@ sub run_tasks {
     db_disconnect();
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
-        runtask($task);
+        run_task($task);
     }
 }
 
-=head2 runtask
+=head2 run_task
 
 creates a new child to run a task
 
 =cut
 
-sub runtask {
+sub run_task {
     my ($task) = @_;
     my $pid = fork();
     if ($pid) {
@@ -240,19 +240,19 @@ sub runtask {
         POSIX::sigaction(&POSIX::SIGCHLD, POSIX::SigAction->new('child_sighandler2', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
           or die("pfqueue could not set SIGCHLD handler: $!");
         $IS_CHILD = 1;
-        _runtask(@$task);
+        _run_task(@$task);
     } else {
         $logger->error("Fork error $!");
     }
 }
 
-=head2 _runtask
+=head2 _run_task
 
 the task to is run in a loop until it is finished
 
 =cut
 
-sub _runtask {
+sub _run_task {
     my ($id, $task, $parameters) = @_;
     $0 = "pfqueue - $id";
     my $consumer = get_consumer($id, $parameters);
@@ -308,6 +308,12 @@ sub process_queue {
     my ($consumer) = @_;
     $consumer->process_next_job;
 }
+
+=head2 process_delayed_jobs
+
+Move the delayed jobs to the work queue
+
+=cut
 
 sub process_delayed_jobs {
     my ($consumer) = @_;
@@ -377,7 +383,7 @@ sub usr1_sighandler {
     db_cancel_current_query();
 }
 
-=head2 get_consumer(@additional_args)
+=head2 get_consumer($id, $param_hash)
 
 get consumer
 
