@@ -695,14 +695,6 @@ sub shouldAutoRegister {
         }
     }
 
-    # custom example: auto-register 802.1x users
-    # Since they already have validated credentials through EAP to do 802.1X
-    #if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
-    #    $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
-    #    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
-    #    return 1;
-    #}
-
     # otherwise don't autoreg
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return 0;
