@@ -40,10 +40,23 @@ use pf::log;
 
 our $logger = get_logger;
 my $force_update_on_ack = isenabled($Config{network}{force_listener_update_on_ack});
-my %rogue_servers;
 my $ROGUE_DHCP_TRIGGER = '1100010';
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
+
+our $LUA_ROGUE_DHCP_APPEND = <<EOS ;
+    local key_name = "rogue_dhcp_servers_"..ARGV[1];
+    redis.call("RPUSH",key_name,ARGV[2]);
+    local rogue_dhcp_servers_detected = redis.call("LLEN",key_name);
+    if tonumber(rogue_dhcp_servers_detected) >= tonumber(ARGV[3]) then
+        local elements = redis.call("LRANGE",key_name,0,rogue_dhcp_servers_detected);
+        redis.call("DEL", key_name)
+        return elements
+    end
+    return {}
+EOS
+
+our $LUA_ROGUE_DHCP_SHA1;
 
 =head2 new
 
@@ -62,6 +75,24 @@ sub new {
     }
     $self->{api_client} = pf::client::getClient();
     return $self;
+}
+
+=head2 _get_redis_client
+
+Get the redis client
+
+=cut
+
+sub _get_redis_client {
+    my ($self) = @_;
+    if($self->{redis_client}){
+        return $self->{redis_client};
+    }
+    else {
+        my $server = $pf::CHI::DEFAULT_CONFIG{storage}{redis}{server};
+        $self->{redis_client} = Redis::Fast->new(server => $server, on_connect => \&_on_redis_connect);
+        return $self->{redis_client};
+    }
 }
 
 =head2 process_packet
@@ -377,7 +408,8 @@ sub rogue_dhcp_handling {
         $rogue_offer .= " received via relay $relay_ip";
     }
     $rogue_offer .= "\n";
-    push @{ $rogue_servers{$dhcp_srv_ip} }, $rogue_offer;
+    my $previous_offers = $self->add_rogue_dhcp($dhcp_srv_ip, $rogue_offer, $Config{'network'}{'rogueinterval'});
+    use Data::Dumper; $logger->info("offers : ".Dumper($previous_offers));
 
     # if I have a MAC use it, otherwise look it up
     $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
@@ -394,7 +426,7 @@ sub rogue_dhcp_handling {
     }
 
     $logger->warn("$dhcp_srv_ip ($dhcp_srv_mac) was detected offering $offered_ip to $client_mac on ".$self->{interface});
-    if (scalar( @{ $rogue_servers{$dhcp_srv_ip} } ) == $Config{'network'}{'rogueinterval'} ) {
+    if (@$previous_offers) {
         my %rogue_message;
         $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT $dhcp_srv_ip ($dhcp_srv_mac) ON ".$self->{interface}."\n";
         $rogue_message{'message'} = '';
@@ -402,8 +434,8 @@ sub rogue_dhcp_handling {
             $rogue_message{'message'} .= pf::lookup::node::lookup_node($dhcp_srv_mac) . "\n";
         }
         $rogue_message{'message'} .= "Detected Offers\n---------------\n";
-        while ( @{ $rogue_servers{$dhcp_srv_ip} } ) {
-            $rogue_message{'message'} .= pop( @{ $rogue_servers{$dhcp_srv_ip} } );
+        while ( @$previous_offers ) {
+            $rogue_message{'message'} .= pop( @$previous_offers );
         }
         $rogue_message{'message'} .=
             "\n\nIf this DHCP Server is legitimate, make sure to add it to the dhcpservers list under General.\n"
@@ -412,6 +444,35 @@ sub rogue_dhcp_handling {
     }
 }
 
+=head2 _on_redis_connect
+
+To execute when connecting to redis
+Allows to install the Lua script for the rogue DHCP
+
+=cut
+
+sub _on_redis_connect {
+    my ($redis) = @_;
+    if($LUA_ROGUE_DHCP_SHA1) {
+        my ($loaded) = $redis->script('EXISTS',$LUA_ROGUE_DHCP_SHA1);
+        return if $loaded;
+    }
+    ($LUA_ROGUE_DHCP_SHA1) = $redis->script('LOAD',$LUA_ROGUE_DHCP_APPEND);
+}
+
+=head2 add_rogue_dhcp
+
+Save a rogue DHCP, along with it's offer
+If the amount of offers detected exceeds the threshold, they are returned.
+Otherwise, an empty array is returned
+
+=cut
+
+sub add_rogue_dhcp {
+    my ($self, $rogue_dhcp, $offer, $threshold) = @_;
+    my @offers = $self->_get_redis_client->evalsha($LUA_ROGUE_DHCP_SHA1, 0, $rogue_dhcp, $offer, $threshold);
+    return \@offers; 
+}
 
 =head2 parse_dhcp_option82
 
