@@ -67,6 +67,12 @@ sub BUILDARGS {
     return $args;
 }
 
+=head2 process_next_job
+
+Process the next job in the queue
+
+=cut
+
 sub process_next_job {
     my ($self) = @_;
     my $redis = $self->redis;
@@ -97,10 +103,22 @@ sub process_next_job {
     }
 }
 
+=head2 _build_redis
+
+Build the redis client
+
+=cut
+
 sub _build_redis {
     my ($self) = @_;
     return Redis::Fast->new(%{$self->redis_args}, on_connect => \&on_connect);
 }
+
+=head2 process_delayed_jobs
+
+Process delayed jobs
+
+=cut
 
 sub process_delayed_jobs {
     my ($self) = @_;

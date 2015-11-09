@@ -16,6 +16,25 @@ use strict;
 use warnings;
 use Moo;
 
+=head2 process_next_job
+
+Process the next job in the queue
+
+=cut
+
+sub process_next_job {
+    die "process_next_job not implmented";
+}
+
+=head2 process_delayed_jobs
+
+Process delayed jobs
+
+=cut
+
+sub process_delayed_jobs {
+    die "process_delayed_jobs not implmented";
+}
 
 =head1 AUTHOR
 
