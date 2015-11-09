@@ -1,20 +1,21 @@
-package pf::client::queue;
+package pf::pfqueue::producer::redis;
 
 =head1 NAME
 
-pf::client::queue - The client for adding messages to pfqueue
+pf::pfqueue::producer::redis - The client for adding messages to pfqueue via redis
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::client::queue
+pf::pfqueue::producer::redis
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
+extends qw(pf::pfqueue::producer);
 use Redis::Fast;
 use pf::file_paths;
 use List::MoreUtils qw(all);

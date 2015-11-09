@@ -1,75 +1,39 @@
-package pf::api::queue;
+package pf::pfqueue::producer;
 
 =head1 NAME
 
-pf::api::queue - The api queue notify
+pf::pfqueue::producer - Base class for pf::pfqueue::producer
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::api::queue
+pf::pfqueue::producer
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-use pf::pfqueue::producer::redis;
 
-=head2 queue
+=head2 submit
 
-The queue to submit to
-
-=cut
-
-has queue => (
-    is      => 'rw',
-    default => 'general',
-);
-
-=head2 client
-
-The queue client
+Submit a task to the queue
 
 =cut
 
-has client => (
-    is => 'rw',
-    builder => 1,
-    lazy => 1,
-);
-
-=head2 _build_client
-
-Build the client
-
-=cut
-
-sub _build_client {
-    my ($self) = @_;
-    return pf::pfqueue::producer::redis->new;
+sub submit {
+    die "submit Not implemented";
 }
 
-=head2 call
+=head2 submit_delayed
+
+Submit a task to the queue but delayed
 
 =cut
 
-sub call {
-    my ($self) = @_;
-    die "call not implemented\n";
-}
-
-=head2 notify
-
-calls the pf api ignoring the return value
-
-=cut
-
-sub notify {
-    my ($self, $method, @args) = @_;
-    $self->client->submit($self->queue, api => [$method, @args]);
-    return;
+sub submit_delayed {
+    die "delayed Not implemented";
 }
 
 =head1 AUTHOR
@@ -100,4 +64,3 @@ USA.
 =cut
 
 1;
-
