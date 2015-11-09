@@ -253,8 +253,7 @@ sub firewallsso : Public {
     return $pf::config::TRUE;
 }
 
-
-sub ReAssignVlan : Public {
+sub ReAssignVlan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
@@ -289,7 +288,7 @@ sub ReAssignVlan : Public {
     }
 }
 
-sub desAssociate : Public {
+sub desAssociate : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
@@ -804,7 +803,7 @@ Check if we have to launch a scan for the device
 
 =cut
 
-sub trigger_scan : Public {
+sub trigger_scan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;

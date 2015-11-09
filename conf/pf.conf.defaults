@@ -484,6 +484,11 @@ pfsetvlan=disabled
 # Should snmptrapd be managed by PacketFence?
 snmptrapd=disabled
 #
+# services.pfqueue
+#
+# Should pfqueue be managed by PacketFence?
+pfqueue=enabled
+#
 # services.pfmon
 #
 # Should pfmon be managed by PacketFence?
@@ -493,6 +498,10 @@ pfmon=enabled
 #
 # Should redis be managed by PacketFence?
 redis_cache=enabled
+# services.redis_queue
+#
+# Should redis be managed by PacketFence?
+redis_queue=enabled
 #
 # services.pfdhcplistener
 #

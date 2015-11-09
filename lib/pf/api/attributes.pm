@@ -16,35 +16,64 @@ use strict;
 use warnings;
 use Scalar::Util( );
 
-our %EXPORTED_API;
+our %ALLOWED_ATTRIBUTES = (
+    Public => 1,
+    Fork => 1,
+);
+
+our %TAGS;
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ($class, $code, @attrs) = @_;
-    my @bad = grep {$_ ne 'Public'} @attrs;
-    _updateExportedApi($code) unless @bad;
+    my (@bad, @good);
+    foreach my $attr (@attrs) {
+        if (exists $ALLOWED_ATTRIBUTES{$attr} ) {
+            push @good, $attr;
+        } else {
+            push @bad, $attr;
+        }
+    }
+    _updateTags($code,@good) unless @bad;
     return @bad;
 }
 
-sub _updateExportedApi {
-    my ($code) = @_;
+sub _updateTags {
+    my ($code, @attrs) = @_;
+    my %attrs;
     my $ref_add = Scalar::Util::refaddr($code);
-    $EXPORTED_API{$ref_add} = $code;
-    Scalar::Util::weaken($EXPORTED_API{$ref_add});
+    @attrs{@attrs} = ();
+    $attrs{code} = $code;
+    Scalar::Util::weaken($attrs{code});
+    $TAGS{$ref_add} = \%attrs;
 }
 
 sub isPublic {
     my ($class, $method) = @_;
+    return _hasTag($class, $method, 'Public');
+}
+
+sub _hasTag {
+    my ($class,$method, $tag) = @_;
     my $code = $class->can($method);
-    return $code
-      if $code && exists $EXPORTED_API{Scalar::Util::refaddr($code)};
-    return;
+    return unless $code;
+    my $ref_addr = Scalar::Util::refaddr($code);
+    return unless exists $TAGS{$ref_addr};
+    return exists $TAGS{$ref_addr}{$tag};
+}
+
+sub shouldFork {
+    my ($class, $method) = @_;
+    return _hasTag($class, $method, 'Fork');
 }
 
 sub CLONE {
     # fix-up all object ids in the new thread
-    my @code_refs = grep {defined} values %EXPORTED_API;
-    %EXPORTED_API = ();
-    _updateExportedApi($_) foreach @code_refs;
+    my @tags = grep {defined} values %TAGS;
+    %TAGS = ();
+    foreach my $tag_data (@tags) {
+        my $code = delete $tag_data->{code};
+        _updateTags($code, keys %$tag_data);
+    }
     return;
 }
 

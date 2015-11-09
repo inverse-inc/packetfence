@@ -58,13 +58,16 @@ conf/radiusd/auth.conf
 conf/radiusd/acct.conf
 conf/radiusd/load_balancer.conf
 conf/redis_cache.conf
+conf/redis_queue.conf
 conf/realm.conf
 conf/domain.conf
 conf/radius_filters.conf
 conf/scan.conf
+conf/pfqueue.conf
 conf/wmi.conf
 conf/pfdetect.conf
 conf/billing_tiers.conf
+conf/redis.conf
 conf/snort/classification.config
 conf/snort/local.rules
 conf/snort/reference.config

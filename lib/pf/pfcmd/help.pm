@@ -164,13 +164,15 @@ Services managed by PacketFence:
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
   pfmon            | PF ARP monitoring daemon
+  pfqueue          | PF queue daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   redis_cache      | Redis for caching
-  winbindd         | Winbind daemon
+  redis_queue      | Redis for queue
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   suricata         | Suricata IDS
+  winbindd         | Winbind daemon
 
 watch
 Watch performs services checks to make sure that everything is fine. It's
