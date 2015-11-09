@@ -54,6 +54,7 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
+use pf::dhcp::processor();
 use pf::util::dhcpv6();
 
 sub event_add : Public {
@@ -990,6 +991,25 @@ sub reevaluate_access : Public {
     my $logger = pf::log::get_logger();
 
     pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
+}
+
+=head2 process_dhcp
+
+Processes a DHCPv4 request through the pf::dhcp::processor module
+The UDP payload must be base 64 encoded.
+
+=cut
+
+sub process_dhcp : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(src_mac src_ip dest_mac dest_ip running_w_dhcpd is_inline_vlan interface interface_ip interface_vlan net_type udp_payload_b64);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,\@found);
+    
+    $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
+    pf::dhcp::processor->new(%postdata)->process_packet();
+
+    return $pf::config::TRUE;
 }
 
 =head2 process_dhcpv6
