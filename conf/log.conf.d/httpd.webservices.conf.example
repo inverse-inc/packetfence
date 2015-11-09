@@ -11,7 +11,10 @@ log4perl.category.fingerbank = INFO, FINGERBANK
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.fingerbank = 0
 
-log4perl.category.pf.dhcp = INFO, PFDHCPLISTENER
+### DHCP processing logger ###
+## Used to separate the DHCP processing into a different log file
+log4perl.category.pf.dhcp = INFO, DHCP_PROCESSING
+## Prevent the message from bubbling up to it's parents
 log4perl.additivity.pf.dhcp = 0
 
 ### Logging for httpd.webservices
@@ -39,13 +42,13 @@ log4perl.appender.FINGERBANK.user                          = pf
 log4perl.appender.FINGERBANK.group                         = fingerbank
 log4perl.appender.FINGERBANK.binmode                       = utf8
 
-### General Fingerbank log facility configuration ###
-log4perl.appender.PFDHCPLISTENER                               = Log::Log4perl::Appender::File
-log4perl.appender.PFDHCPLISTENER.filename                      = /usr/local/pf/logs/pfdhcplistener.log
-log4perl.appender.PFDHCPLISTENER.mode                          = append
-log4perl.appender.PFDHCPLISTENER.layout                        = PatternLayout
-log4perl.appender.PFDHCPLISTENER.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
-log4perl.appender.PFDHCPLISTENER.umask                         = 0002
-log4perl.appender.PFDHCPLISTENER.user                          = pf
-log4perl.appender.PFDHCPLISTENER.group                         = pf
-log4perl.appender.PFDHCPLISTENER.binmode                       = utf8
+### DHCP processing log facility configuration ###
+log4perl.appender.DHCP_PROCESSING                               = Log::Log4perl::Appender::File
+log4perl.appender.DHCP_PROCESSING.filename                      = /usr/local/pf/logs/pfdhcplistener.log
+log4perl.appender.DHCP_PROCESSING.mode                          = append
+log4perl.appender.DHCP_PROCESSING.layout                        = PatternLayout
+log4perl.appender.DHCP_PROCESSING.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.DHCP_PROCESSING.umask                         = 0002
+log4perl.appender.DHCP_PROCESSING.user                          = pf
+log4perl.appender.DHCP_PROCESSING.group                         = pf
+log4perl.appender.DHCP_PROCESSING.binmode                       = utf8
