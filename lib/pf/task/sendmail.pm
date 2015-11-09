@@ -32,7 +32,6 @@ Sendmail
 sub doTask {
     my ($self, $args) = @_;
     return pf::config::util::send_email(@$args);
-    return 1;
 }
 
 =head1 AUTHOR
