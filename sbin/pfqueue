@@ -37,14 +37,12 @@ BEGIN {
 use pf::file_paths;
 use pf::util;
 use pf::services::util;
-use pf::Sereal qw($DECODER);
-use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::db;
 use Config::IniFiles;
 use pf::SwitchFactory;
+use pf::pfqueue::consumer::redis;
 use threads;
 use pf::factory::task;
-use pf::pfqueue::consumer::redis;
 
 tie our %CONFIG ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
 
