@@ -16,6 +16,7 @@ redis_class = Redis::Fast
 server = 127.0.0.1:6379
 prefix = pf
 expires_on_backend = 1
+reconnect=60
 
 #[storage file]
 #driver=File

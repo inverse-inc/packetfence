@@ -83,6 +83,7 @@ our %DEFAULT_CONFIG = (
             redis_class => 'Redis::Fast',
             prefix => 'pf',
             expires_on_backend => 1,
+            reconnect => 60,
         },
         'file' => {
             driver => 'File',
