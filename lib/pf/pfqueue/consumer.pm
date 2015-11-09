@@ -23,7 +23,7 @@ Process the next job in the queue
 =cut
 
 sub process_next_job {
-    die "process_next_job not implmented";
+    die "process_next_job not implemented";
 }
 
 =head2 process_delayed_jobs
@@ -33,7 +33,7 @@ Process delayed jobs
 =cut
 
 sub process_delayed_jobs {
-    die "process_delayed_jobs not implmented";
+    die "process_delayed_jobs not implemented";
 }
 
 =head1 AUTHOR
