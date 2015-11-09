@@ -20,6 +20,7 @@ use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;
+use pf::config::util;
 my $logger = get_logger();
 
 =head2 doTask
@@ -30,31 +31,7 @@ Sendmail
 
 sub doTask {
     my ($self, $args) = @_;
-    my %data = @$args;
-    my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
-    my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
-    my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
-    my $subject
-        = $Config{'alerting'}{'subjectprefix'} . " " . $data{'subject'};
-    my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
-    my $smtp = Net::SMTP->new( $smtpserver, Hello => $fqdn );
-
-    if ( defined $smtp ) {
-        $smtp->mail($from);
-        $smtp->to(@to);
-        $smtp->data();
-        $smtp->datasend("From: $from\n");
-        $smtp->datasend( "To: " . join( ",", @to ) . "\n" );
-        $smtp->datasend("Subject: $subject ($date)\n");
-        $smtp->datasend("\n");
-        $smtp->datasend( $data{'message'} );
-        $smtp->dataend();
-        $smtp->quit;
-        $logger->info(
-            "email regarding '$subject' sent to " . join( ",", @to ) );
-    } else {
-        $logger->error("can not connect to SMTP server $smtpserver!");
-    }
+    return pf::config::util::send_email(@$args);
     return 1;
 }
 
