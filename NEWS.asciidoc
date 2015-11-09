@@ -55,6 +55,7 @@ Enhancements
 * Billing providers are now part of the authentication sources
 * Billing tiers are now stored in the configuration instead of the source code files
 * Billing sources can now be used with other authentication sources on the same portal profile
+* DHCP packet processing is now fully done asynchronously to allow more PPS in the pfdhcplistener
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
