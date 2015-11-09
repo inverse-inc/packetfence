@@ -902,6 +902,8 @@ fi
                         /usr/local/pf/conf/domain.conf.example
 %config(noreplace)      /usr/local/pf/conf/pfdetect.conf
                         /usr/local/pf/conf/pfdetect.conf.example
+%config(noreplace)      /usr/local/pf/conf/pfqueue.conf
+                        /usr/local/pf/conf/pfqueue.conf.example
 %config(noreplace)      /usr/local/pf/conf/suricata_categories.txt
                         /usr/local/pf/conf/suricata_categories.txt.example
 %config(noreplace)      /usr/local/pf/conf/scan.conf
@@ -1112,6 +1114,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
