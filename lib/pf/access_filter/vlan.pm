@@ -38,8 +38,8 @@ sub filterRule {
             return (1, $role) if ($scope eq 'AutoRegister');
             return ($vlan, $role);
         }
+        return (0, 0);
     }
-    return (0, 0);
 }
 
 =head2 getEngineForScope
