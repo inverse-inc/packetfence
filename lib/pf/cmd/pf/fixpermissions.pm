@@ -42,12 +42,12 @@ Fix the permissions on pf and fingerbank files
 
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
-    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
+    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
     _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache");
+    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;
