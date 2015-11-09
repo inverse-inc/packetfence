@@ -43,6 +43,12 @@ my $ROGUE_DHCP_TRIGGER = '1100010';
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
 
+#
+# This lua script appends an offer comment to a list for the rogue DHCP server
+# If the length of the list exceeds the threshold, the list is emptied and its content returned
+# It is called like the following
+# EVAL LUA_ROGUE_DHCP_APPEND 0 ROGUE_DHCP_IP COMMENT THRESHOLD
+#
 our $LUA_ROGUE_DHCP_APPEND = <<EOS ;
     local key_name = "rogue_dhcp_servers_"..ARGV[1];
     redis.call("RPUSH",key_name,ARGV[2]);
@@ -88,7 +94,7 @@ sub _get_redis_client {
         return $self->{redis_client};
     }
     else {
-        my $server = $pf::CHI::DEFAULT_CONFIG{storage}{redis}{server};
+        my $server = pf::CHI->config->{storage}{redis}{server};
         $self->{redis_client} = Redis::Fast->new(server => $server, on_connect => \&_on_redis_connect);
         return $self->{redis_client};
     }
