@@ -409,7 +409,6 @@ sub rogue_dhcp_handling {
     }
     $rogue_offer .= "\n";
     my $previous_offers = $self->add_rogue_dhcp($dhcp_srv_ip, $rogue_offer, $Config{'network'}{'rogueinterval'});
-    use Data::Dumper; $logger->info("offers : ".Dumper($previous_offers));
 
     # if I have a MAC use it, otherwise look it up
     $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
