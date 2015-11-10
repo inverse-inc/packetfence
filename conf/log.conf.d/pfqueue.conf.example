@@ -5,6 +5,18 @@ log4perl.rootLogger = INFO, PFQUEUE
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
 
+### Fingerbank logger ###
+## Used to separate Fingerbank logs in a different log file
+log4perl.category.fingerbank = INFO, FINGERBANK
+## Prevent the message from bubbling up to it's parents
+log4perl.additivity.fingerbank = 0
+
+### DHCP processing logger ###
+## Used to separate the DHCP processing into a different log file
+log4perl.category.pf.dhcp = INFO, DHCP_PROCESSING
+## Prevent the message from bubbling up to it's parents
+log4perl.additivity.pf.dhcp = 0
+
 ### Logging for pfqueue
 log4perl.appender.PFQUEUE                              = Log::Log4perl::Appender::File
 log4perl.appender.PFQUEUE.filename                     = /usr/local/pf/logs/pfqueue.log
@@ -16,3 +28,25 @@ log4perl.appender.PFQUEUE.umask                        = 0002
 log4perl.appender.PFQUEUE.user                         = pf
 log4perl.appender.PFQUEUE.group                        = pf
 log4perl.appender.PFQUEUE.binmode                      = utf8
+
+### General Fingerbank log facility configuration ###
+log4perl.appender.FINGERBANK                               = Log::Log4perl::Appender::File
+log4perl.appender.FINGERBANK.filename                      = /usr/local/fingerbank/logs/fingerbank.log
+log4perl.appender.FINGERBANK.mode                          = append
+log4perl.appender.FINGERBANK.layout                        = PatternLayout
+log4perl.appender.FINGERBANK.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.FINGERBANK.umask                         = 0002
+log4perl.appender.FINGERBANK.user                          = pf
+log4perl.appender.FINGERBANK.group                         = fingerbank
+log4perl.appender.FINGERBANK.binmode                       = utf8
+#
+### DHCP processing log facility configuration ###
+log4perl.appender.DHCP_PROCESSING                               = Log::Log4perl::Appender::File
+log4perl.appender.DHCP_PROCESSING.filename                      = /usr/local/pf/logs/pfdhcplistener.log
+log4perl.appender.DHCP_PROCESSING.mode                          = append
+log4perl.appender.DHCP_PROCESSING.layout                        = PatternLayout
+log4perl.appender.DHCP_PROCESSING.layout.ConversionPattern      = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.DHCP_PROCESSING.umask                         = 0002
+log4perl.appender.DHCP_PROCESSING.user                          = pf
+log4perl.appender.DHCP_PROCESSING.group                         = pf
+log4perl.appender.DHCP_PROCESSING.binmode                       = utf8
