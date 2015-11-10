@@ -203,13 +203,13 @@ sub process_pkt {
             interface_vlan => $interface_vlan,
             net_type => $net_type,
         );
-        my $apiclient = pf::api::jsonrpcclient->new;
         # we send all IPv4 DHCPv4 codepath
         if($l2->{type} eq ETH_TYPE_IP) {
+            my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
             $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
         }
         else{
-            # Process the DHCPv6 packets asynchronously.
+            my $apiclient = pf::api::queue->new;
             $apiclient->notify('process_dhcpv6', $udp_payload_b64);
         }
     }   
