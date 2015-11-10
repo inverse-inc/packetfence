@@ -1,5 +1,5 @@
 [consumer]
-server=127.0.0.1:6380
+redis_server=127.0.0.1:6380
 
 [queue general]
 workers=4
