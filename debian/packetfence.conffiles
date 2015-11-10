@@ -26,6 +26,7 @@
 /usr/local/pf/conf/provisioning.conf
 /usr/local/pf/conf/realm.conf
 /usr/local/pf/conf/redis_cache.conf
+/usr/local/pf/conf/redis_queue.conf
 /usr/local/pf/conf/domain.conf
 /usr/local/pf/conf/pfdetect.conf
 /usr/local/pf/conf/suricata_categories.txt
@@ -95,7 +96,6 @@
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm
-/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm
