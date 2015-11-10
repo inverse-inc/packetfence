@@ -295,7 +295,7 @@ sub is_vip_running {
             }
         }
     }
-    return $FALSE;
+    return $TRUE;
 }
 
 =head1 AUTHOR
