@@ -102,7 +102,7 @@ $KeepAlive = "On";
 $MaxKeepAliveRequests = "100";
 
 $MaxClients = "8";
-$StartServers = "2";
+$StartServers = "4";
 $MinSpareServers = "1";
 $MaxSpareServers = "1";
 
