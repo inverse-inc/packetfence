@@ -91,24 +91,6 @@ sub performInlineEnforcement {
     return $this->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
 }
 
-=item isInlineEnforcementRequired
-
-Returns a true value if a firewall change is required. False otherwise.
-
-=cut
-
-sub isInlineEnforcementRequired {
-    my ($this, $mac) = @_;
-
-    # What is the MAC's current state?
-    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->fetchMarkForNode($mac);
-    if ($current_mark == $should_be_mark) {
-        return $FALSE;
-    }
-    return $TRUE;
-}
-
 =item fetchMarkForNode
 
 =cut
