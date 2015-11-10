@@ -36,7 +36,7 @@ Services managed by PacketFence:
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   radsniff3        | radsniff3 daemo
-  redis_cache      | Redis for caching
+  redis_queue      | Redis for pfqueue
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   statsd           | statsd service
