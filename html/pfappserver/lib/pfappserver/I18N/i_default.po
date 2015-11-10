@@ -7079,6 +7079,10 @@ msgid "network.rogueinterval"
 msgstr "Rogue interval"
 
 # conf/documentation.conf
+msgid "network.force_listener_update_on_ack"
+msgstr "Force Listener update on DHCPACK"
+
+# conf/documentation.conf
 msgid "network.hostname_change_detection"
 msgstr "Detect hostname changes"
 
