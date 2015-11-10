@@ -100,6 +100,12 @@ sub authorize {
     $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
+    # switch-specific information retrieval
+    my $ssid;
+    if (($connection_type & $WIRELESS) == $WIRELESS) {
+        $ssid = $switch->extractSsid($radius_request);
+        $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+    }
 
     my $before = Time::HiRes::gettimeofday();
     $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
@@ -121,7 +127,8 @@ sub authorize {
 
     $logger->info("[$mac] handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"");
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"" 
+        . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
     #add node if necessary
     if ( !node_exist($mac) ) {
@@ -148,12 +155,6 @@ sub authorize {
         return $this->_switchUnsupportedReply($switch);
     }
 
-    # switch-specific information retrieval
-    my $ssid;
-    if (($connection_type & $WIRELESS) == $WIRELESS) {
-        $ssid = $switch->extractSsid($radius_request);
-        $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
-    }
 
     my $vlan_obj = new pf::vlan::custom();
 
