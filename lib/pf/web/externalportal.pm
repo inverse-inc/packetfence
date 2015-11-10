@@ -83,7 +83,7 @@ sub external_captive_portal {
         my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
         my $portalSession = _setup_session($req, $mac, $ip, undef, undef);
         pf::iplog::open($ip,$mac,3600) if defined ($ip);
-        my $redirect_url = defined($r->headers_in->{'Referer'}) ? $r->headers_in->{'Referer'
+        my $redirect_url = defined($r->headers_in->{'Referer'}) ? $r->headers_in->{'Referer'} : '';
         return ($portalSession->session->id(), $redirect_url);
     }
     else {
