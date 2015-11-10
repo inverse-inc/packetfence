@@ -813,6 +813,7 @@ sub trigger_scan : Public : Fork {
 
     my $logger = pf::log::get_logger();
     # post_registration (production vlan)
+    # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         # get violation id
