@@ -40,8 +40,8 @@ sub generateConfig {
     $tags{'install_dir'}   = $install_dir;
 
     my @rules;
-    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
-        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+    if (exists $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'} ) ) {
 
             #append install_dir if the path doesn't start with /
             $rule = " - $rule" if ( $rule !~ /^\// );

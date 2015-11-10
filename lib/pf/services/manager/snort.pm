@@ -46,8 +46,8 @@ sub generateConfig {
     $tags{'install_dir'}   = $install_dir;
     my @rules;
 
-    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
-        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+    if (exists $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'} ) ) {
             if ( $rule !~ /^\// && -e "$install_dir/conf/snort/$rule" || -e $rule ) {
                 # Append configuration directory if the path doesn't start with /
                 $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
