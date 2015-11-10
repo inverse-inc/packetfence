@@ -166,7 +166,6 @@
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/SoH.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/User.pm
 /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
-/usr/local/pf/lib/pf/billing/custom.pm
 /usr/local/pf/lib/pf/floatingdevice/custom.pm
 /usr/local/pf/lib/pf/inline/custom.pm
 /usr/local/pf/lib/pf/lookup/node.pm
