@@ -25,6 +25,8 @@ use Pod::Usage;
 use Fcntl qw(:flock);
 use Redis::Fast;
 use Scalar::Util qw(blessed);
+use pf::client;
+pf::client::setClient("pf::api::local");
 
 #pf::log must always be initilized first
 BEGIN {
