@@ -16,7 +16,7 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
-use pf::StatsD;
+use pf::StatsD qw($statsd);
 use pf::db;
 use pf::CHI;
 use pf::SwitchFactory();
@@ -41,8 +41,11 @@ sub child_init {
     my ($child_pool, $s) = @_;
     #Avoid child processes having the same random seed
     srand();
-    db_connect();
     pf::StatsD->initStatsd;
+    #The database initialization can fail on the initial install
+    eval {
+        db_connect();
+    };
     return Apache2::Const::OK;
 }
 
