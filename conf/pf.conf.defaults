@@ -70,7 +70,6 @@ dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEA
 # This will only do the iplog update and other DHCP related task on a DHCPACK.
 # You need to make sure the UDP reflector is in place so this works on the production network.
 # This is implicitly activated on registration interfaces on which dhcpd runs.
-# Requires to restart httpd.webservices afterwards.
 force_listener_update_on_ack=disabled
 #
 # network.interfaceSNAT
