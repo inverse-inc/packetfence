@@ -472,6 +472,12 @@ sub findProvisioner {
     my ($self, $mac, $node_attributes) = @_;
     my $start = Time::HiRes::gettimeofday();
     my $logger = get_logger();
+    my @provisioners = $self->provisionerObjects;
+    unless(@provisioners){
+        $logger->trace("No provisioners configured for portal profile");
+        return;
+    }
+
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
     unless(defined $os){
@@ -481,7 +487,7 @@ sub findProvisioner {
     }
 
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
-    return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
+    return first { $_->match($os,$node_attributes) } @provisioners;
 }
 
 =item dot1xRecomputeRoleFromPortal
