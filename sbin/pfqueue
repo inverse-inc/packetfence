@@ -218,10 +218,13 @@ run all run_tasks
 
 sub run_tasks {
     db_disconnect();
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK,$mask);
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         run_task($task);
     }
+    sigprocmask(SIG_UNBLOCK,$mask);
 }
 
 =head2 run_task
