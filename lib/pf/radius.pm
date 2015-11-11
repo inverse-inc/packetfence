@@ -235,6 +235,8 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
+    # We re-fetch the node_info as the status, role or other attributes of the node can have changed.
+    $node_info = node_attributes($mac);
     my $args = {
         node_info       => $node_info,
         switch          => $switch,
