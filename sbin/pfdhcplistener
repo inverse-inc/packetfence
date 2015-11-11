@@ -187,32 +187,37 @@ sub dhcp_detector {
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
     if ($process || !$pf::cluster::cluster_enabled){
-        my $l2 = NetPacket::Ethernet->decode($pkt);
-        my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
-        my $l4 = NetPacket::UDP->decode($l3->{'data'});
-        my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
-        my %args = (
-            src_mac => clean_mac($l2->{'src_mac'}),
-            dest_mac => clean_mac($l2->{'dest_mac'}),
-            src_ip => $l3->{'src_ip'},
-            dest_ip => $l3->{'dest_ip'},
-            running_w_dhcpd => $running_w_dhcpd,
-            is_inline_vlan => $is_inline_vlan,
-            interface => $interface,
-            interface_ip => $interface_ip,
-            interface_vlan => $interface_vlan,
-            net_type => $net_type,
-        );
-        # we send all IPv4 DHCPv4 codepath
-        if($l2->{type} eq ETH_TYPE_IP) {
-            my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
-            $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
+        eval {
+            my $l2 = NetPacket::Ethernet->decode($pkt);
+            my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
+            my $l4 = NetPacket::UDP->decode($l3->{'data'});
+            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
+            my %args = (
+                src_mac => clean_mac($l2->{'src_mac'}),
+                dest_mac => clean_mac($l2->{'dest_mac'}),
+                src_ip => $l3->{'src_ip'},
+                dest_ip => $l3->{'dest_ip'},
+                running_w_dhcpd => $running_w_dhcpd,
+                is_inline_vlan => $is_inline_vlan,
+                interface => $interface,
+                interface_ip => $interface_ip,
+                interface_vlan => $interface_vlan,
+                net_type => $net_type,
+            );
+            # we send all IPv4 DHCPv4 codepath
+            if($l2->{type} eq ETH_TYPE_IP) {
+                my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
+                $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
+            }
+            else{
+                my $apiclient = pf::api::queue->new;
+                $apiclient->notify('process_dhcpv6', $udp_payload_b64);
+            }
+        };
+        if($@) {
+            $logger->error("Error processing packet: $@");
         }
-        else{
-            my $apiclient = pf::api::queue->new;
-            $apiclient->notify('process_dhcpv6', $udp_payload_b64);
-        }
-    }   
+    }
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
     #Only perform stats when in debug mode
