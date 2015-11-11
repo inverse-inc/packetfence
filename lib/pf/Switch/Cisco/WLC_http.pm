@@ -139,19 +139,19 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$this->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    $radius_reply_ref = \%radius_reply;
+
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
     my $role = $this->getRoleByName($args->{'user_role'});
-    # Roles are configured and the user should have one
-    if (defined($role) && isenabled($this->{_RoleMap})) {
+    if(defined($role) && $role ne ""){
+        my $mac = $args->{'mac'};
         my $node_info = $args->{'node_info'};
-        my $mac = $args->{mac};
-        my $violation = pf::violation::violation_view_top($args->{'mac'});
-        if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
-            $radius_reply_ref = {
-                'User-Name' => $args->{'mac'},
-                $this->returnRoleAttribute => $role,
-            };
-        }
-        else {
+        my $violation = pf::violation::violation_view_top($mac);
+        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
             my $session_id = generate_session_id(6);
             my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_id,{
@@ -160,35 +160,23 @@ sub returnRadiusAccessAccept {
                 switch_id => $this->{_id},
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
-            $radius_reply_ref = {
-                'User-Name' => $mac,
-                'Cisco-AVPair' => ["url-redirect-acl=$role","url-redirect=".$this->{'_portalURL'}."/cep$session_id"],
-            };
+            my $redirect_url = $this->{'_portalURL'}."/cep$session_id";
+            $logger->info("[$args->{'mac'}] Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+            # remove the role if any as we push the redirection ACL along with it's role
+            delete $radius_reply_ref->{$this->returnRoleAttribute()};
         }
-        $logger->info("[$mac] (".$this->{'_id'}.") Returning ACCEPT with role: $role");
+
     }
 
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
-    # if vlan assignement is activated, then we use it for 802.1x connections
-    # we don't return a VLAN for MAC auth since that's why the other WLC modules are there
-    if (isenabled($this->{_VlanMap}) && !($args->{'connection_type'} eq $WIRELESS_MAC_AUTH)) {
-
-        $radius_reply_ref = {
-            %$radius_reply_ref,
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $args->{'vlan'},
-        };
-
-        # Delete the username when doing 802.1x as the WLC trusts this more than what's in the request
-        # and we want to see the original username in the WLC
-        delete $radius_reply_ref->{'User-Name'};
-
-        $logger->info("[$args->{'mac'}] (".$this->{'_id'}.") Returning ACCEPT with VLAN: $args->{'vlan'}");
-    }
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
