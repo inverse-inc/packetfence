@@ -60,7 +60,7 @@ sub handler
       # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
       if ($cgi->https()) {
         print $cgi->redirect(
-          "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+          "http://".$r->hostname
           .'/access?destination_url=' . uri_escape($destination_url)
         );
         return Apache2::Const::REDIRECT;
@@ -126,7 +126,7 @@ sub handler
         $destination_url = $class_redirect_url;
       }
       print $cgi->redirect(
-        "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+        "http://".$r->hostname
         .'/access?destination_url=' . uri_escape($destination_url)
       );
       return Apache2::Const::REDIRECT;
