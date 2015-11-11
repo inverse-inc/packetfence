@@ -71,7 +71,7 @@ sub handleAnswerInRule {
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         while (1) {
             if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
-                my @answer = split('=>',$rule->{"answer$i"});
+                my @answer = $rule->{"answer$i"} =~ /([a-zA-Z_-]*)\s*=>\s*(.*)/;
                 $args->{'session_id'} = setSession($args) if ($answer[1] =~ /\$session_id/);
                 evalAnswer(\@answer,$args,\$radius_reply);
             } else {
