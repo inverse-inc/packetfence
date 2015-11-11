@@ -66,7 +66,7 @@ sub handleAnswerInRule {
     my $logger = get_logger();
     my $radius_reply = {};
     if (defined $rule) {
-        $radius_reply = {'Reply-Message' => "PacketFence has proceed the request"};
+        $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
         my $i = 1;
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         while (1) {
