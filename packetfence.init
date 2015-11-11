@@ -12,6 +12,8 @@ source /etc/rc.d/init.d/functions
 
 [ -x /usr/local/pf/bin/pfcmd ] || exit 1
 
+REDIS_CACHE_PID=/usr/local/pf/var/run/redis_cache.pid
+
 start() {
 	if [ -z ${1+x} ]; then
 		pfconfig
@@ -73,6 +75,16 @@ restart() {
 	fi
 }
 
+pf_status() {
+	pfconfig
+    status -p "$REDIS_CACHE_PID" "packetfence-redis-cache"
+	/usr/local/pf/bin/pfcmd service pf status
+	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
+		RETVAL=3
+	fi
+}
+
+
 pfconfig() {
     # Check if packetfence-config is started
 	  if [ ! -f /usr/local/pf/var/run/pfconfig.pid ] || ! ps -p $(cat /usr/local/pf/var/run/pfconfig.pid) > /dev/null; then
@@ -100,11 +112,7 @@ case "$1" in
 	restart $2
 	;;
   status)
-	pfconfig
-	/usr/local/pf/bin/pfcmd service pf status
-	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
-		RETVAL=3
-	fi
+    pf_status $2
 	;;
   condrestart)
 	if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
