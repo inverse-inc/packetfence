@@ -12,12 +12,9 @@ source /etc/rc.d/init.d/functions
 
 [ -x /usr/local/pf/bin/pfcmd ] || exit 1
 
-REDIS_CACHE_PID=/usr/local/pf/var/run/redis_cache.pid
-
 start() {
 	if [ -z ${1+x} ]; then
 		pfconfig
-		redis_cache
 		echo -n $"Starting PacketFence..."
 		IPSET=`command -v ipset`
 		if [ $IPSET ]; then
@@ -42,7 +39,6 @@ start() {
 stop() {
         if [ -z ${1+x} ]; then
 		pfconfig
-		redis_cache
 		echo -n $"Shutting down PacketFence..."
 		/usr/local/pf/bin/pfcmd service pf stop
 		RETVAL=$?
@@ -60,7 +56,6 @@ stop() {
 restart() {
         if [ -z ${1+x} ]; then
 		pfconfig
-		redis_cache
 		echo -n $"Restarting PacketFence..."
 		/usr/local/pf/bin/pfcmd service pf restart
 		RETVAL=$?
@@ -75,29 +70,12 @@ restart() {
 	fi
 }
 
-pf_status() {
-	pfconfig
-    status -p "$REDIS_CACHE_PID" "packetfence-redis-cache"
-	/usr/local/pf/bin/pfcmd service pf status
-	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
-		RETVAL=3
-	fi
-}
-
-
 pfconfig() {
     # Check if packetfence-config is started
 	  if [ ! -f /usr/local/pf/var/run/pfconfig.pid ] || ! ps -p $(cat /usr/local/pf/var/run/pfconfig.pid) > /dev/null; then
             if [ -f /etc/init.d/packetfence-config ]; then
                     /etc/init.d/packetfence-config start
             fi
-    fi
-}
-
-redis_cache() {
-    # Check if redis for the cache is started
-	if [ ! -f /usr/local/pf/var/run/redis_cache.pid ] || ! ps -p $(cat /usr/local/pf/var/run/redis_cache.pid) > /dev/null; then
-        /usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf
     fi
 }
 
@@ -112,7 +90,11 @@ case "$1" in
 	restart $2
 	;;
   status)
-    pf_status $2
+	pfconfig
+	/usr/local/pf/bin/pfcmd service pf status
+	if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
+		RETVAL=3
+	fi
 	;;
   condrestart)
 	if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
