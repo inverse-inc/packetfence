@@ -114,12 +114,9 @@ wait_for_it();
 cleanup();
 
 END {
-    $config = undef;
-    if (!$args{h} && $HAS_LOCK) {
-        unless ($IS_CHILD) {
-            deletepid();
-            $logger->info("stopping pfqueue");
-        }
+    if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
+        deletepid();
+        $logger->info("stopping pfqueue");
     }
 }
 
@@ -179,13 +176,17 @@ signal children and waits for them to exit process
 
 sub kill_and_wait_for_children {
     my ($signal, $waittime) = @_;
+    return unless keys %CHILDREN;
+    my $start = time();
     signal_children($signal);
-    my $not_done = 1;
-    $ALARM_RECV = 0;
-    alarm $waittime;
-    while (((keys %CHILDREN) != 0) && !$ALARM_RECV) {
-        pause;
+    while (((keys %CHILDREN) != 0) ) {
+        my $slept = sleep $waittime;
+        $waittime -= $slept;
+        $logger->trace("($signal) left to sleep : $waittime " . join(" ",keys %CHILDREN));
+        last if $waittime <= 0;
     }
+    my $diff = time - $start;
+    $logger->trace("Time waiting for $diff $waittime");
 }
 
 =head2 signal_children
@@ -275,7 +276,7 @@ sub _run_task {
         }
     }
     $logger->trace("$$ shutting down");
-    exit;
+    exit 0;
 }
 
 =head2 is_parent_alive
@@ -336,6 +337,7 @@ sub wait_for_it {
         pause;
         $logger->trace("Woke up from a signal");
     }
+    $logger->trace("Signaled to stop running");
 }
 
 =head2 alarm_sighandler
