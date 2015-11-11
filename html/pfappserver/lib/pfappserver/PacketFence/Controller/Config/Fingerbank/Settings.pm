@@ -105,6 +105,7 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
             # to be set as 'disabled'
             ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
+            ( !$params->{'query'}{'use_tcp_fingerprinting'} ) ? $params->{'query'}{'use_tcp_fingerprinting'} = 'disabled':();
 
             ( $status, $status_msg ) = fingerbank::Config::write_config($params);
 
