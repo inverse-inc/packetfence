@@ -497,6 +497,7 @@ cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 #pfconfig
 %{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-config
+%{__install} -D -m0755 packetfence-redis-cache.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-redis-cache
 #end pfconfig
 # logfiles
 for LOG in %logfiles; do
@@ -584,6 +585,7 @@ fi
 
 %post -n %{real_name}
 /sbin/chkconfig --add packetfence
+/sbin/chkconfig --add packetfence-redis-cache
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
@@ -608,7 +610,7 @@ if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
     /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
 fi
 
-for service in snortd httpd snmptrapd portreserve
+for service in snortd httpd snmptrapd portreserve redis
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -687,6 +689,7 @@ echo "Adding PacketFence config startup script"
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
+        /sbin/chkconfig --del packetfence-redis-cache
 fi
 
 %preun -n %{real_name}-remote-snort-sensor
@@ -748,6 +751,7 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%attr(0755, root, root) %{_initrddir}/packetfence-redis-cache
 %dir                    %{_sysconfdir}/logrotate.d
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
