@@ -110,7 +110,6 @@ Log::Log4perl::MDC->put( 'tid', $$ );
 pf::SwitchFactory::preLoadModules();
 
 register_tasks();
-run_tasks();
 wait_for_it();
 cleanup();
 
@@ -331,8 +330,11 @@ waits for signals
 
 sub wait_for_it {
     while ($running) {
-        pause;
+        $logger->trace("Starting tasks");
         run_tasks();
+        $logger->trace("Finish tasks");
+        pause;
+        $logger->trace("Woke up from a signal");
     }
 }
 
