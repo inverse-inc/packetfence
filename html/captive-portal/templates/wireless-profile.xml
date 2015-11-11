@@ -29,9 +29,9 @@
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         [% IF provisioner.broadcast %]
-                        <false/>
-                        [% ELSE %]
                         <true/>
+                        [% ELSE %]
+                        <false/>
                         [% END %]
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>
