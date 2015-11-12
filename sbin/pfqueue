@@ -42,7 +42,7 @@ use Config::IniFiles;
 use pf::SwitchFactory;
 use pf::pfqueue::consumer::redis;
 use pf::client;
-pf::client::setClient("pf::api::local");
+pf::client::setClient("pf::api::can_fork");
 use threads;
 use pf::factory::task;
 
@@ -239,11 +239,18 @@ sub run_task {
     if ($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
-        Log::Log4perl::MDC->put( 'tid', $$ );
-        POSIX::sigaction(&POSIX::SIGCHLD, POSIX::SigAction->new('child_sighandler2', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-          or die("pfqueue could not set SIGCHLD handler: $!");
-        $IS_CHILD = 1;
-        _run_task(@$task);
+        eval {
+            my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+            Log::Log4perl::MDC->put('tid', $$);
+            POSIX::sigaction(&POSIX::SIGCHLD,
+                POSIX::SigAction->new('child_sighandler2', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
+              or die("pfqueue could not set SIGCHLD handler: $!");
+            $IS_CHILD = 1;
+            sigprocmask(SIG_UNBLOCK, $mask);
+            _run_task(@$task);
+        };
+        $logger->error("Error running the task $@") if $@;
+        exit 0;
     } else {
         $logger->error("Fork error $!");
     }
@@ -276,7 +283,6 @@ sub _run_task {
         }
     }
     $logger->trace("$$ shutting down");
-    exit 0;
 }
 
 =head2 is_parent_alive
