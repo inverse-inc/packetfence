@@ -7858,6 +7858,22 @@ msgstr "Upstream URL"
 msgid "upstream.submit_url"
 msgstr "Upstream Submit URL"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.use_tcp_fingerprinting"
+msgstr "Use TCP fingerprinting"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_socket_path"
+msgstr "p0f socket path"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_map_path"
+msgstr "p0f map path"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "tcp_fingerprinting.p0f_map_url"
+msgstr "p0f map URL"
+
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
 msgstr ""
