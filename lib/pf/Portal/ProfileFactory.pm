@@ -43,10 +43,8 @@ tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Pro
 
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
-    my $logger = get_logger();
     $options ||= {};
     if (defined($options->{'portal'})) {
-        $logger->info("Instantiate profile ".$options->{'portal'});
         return $self->_from_profile($options->{'portal'});
     }
 
@@ -54,7 +52,6 @@ sub instantiate {
     $node_info = {%$node_info, %$options};
 
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
-    $logger->info("Instantiate profile $profile_name");
     my $instance = $self->_from_profile($profile_name);
     return $instance;
 }
@@ -67,7 +64,10 @@ Massages the profile values before creating the object
 
 sub _from_profile {
     my ($self,$profile_name) = @_;
+    my $logger = get_logger();
     my $start = Time::HiRes::gettimeofday();
+    $profile_name = "default" unless exists $Profiles_Config{$profile_name};
+    $logger->info("Instantiate profile $profile_name");
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
