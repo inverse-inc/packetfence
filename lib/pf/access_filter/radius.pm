@@ -17,7 +17,6 @@ use warnings;
 
 use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
-use pf::log;
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
 use Scalar::Util qw(reftype);
@@ -29,18 +28,6 @@ tie our %RadiusFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::Radiu
 
 =head1 SUBROUTINES
 
-=head2 new
-
-=cut
-
-sub new {
-   my $logger = get_logger();
-   $logger->debug("instantiating new pf::access_filter::radius");
-   my ( $class, %argv ) = @_;
-   my $self = bless {}, $class;
-   return $self;
-}
-
 =head2 test
 
 Test all the rules
@@ -49,9 +36,11 @@ Test all the rules
 
 sub test {
     my ($self, $scope, $args) = @_;
-    if (exists $RadiusFilterEngineScopes{$scope}) {
-       $args->{'violation'} = violation_view_top($args->{'mac'});
-       return $RadiusFilterEngineScopes{$scope}->match_first($args);
+    my $engine = $self->getEngineForScope($scope);
+    if ($engine) {
+        my $answer = $engine->match_first($args);
+        $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
+        return $answer;
     }
     return undef;
 }
@@ -64,7 +53,7 @@ Handles the role update
 
 sub handleAnswerInRule {
     my ($self, $rule, $args, $radius_reply_ref) = @_;
-    my $logger = get_logger();
+    my $logger = $self->logger;
     my $radius_reply = {};
     if (defined $rule) {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
@@ -156,6 +145,20 @@ sub _replaceParamsDeep {
         return '';
     }
     return $hash->{$param} // '';
+}
+
+=head2 getEngineForScope
+
+ gets the engine for the scope
+
+=cut
+
+sub getEngineForScope {
+    my ($self, $scope) = @_;
+    if (exists $RadiusFilterEngineScopes{$scope}) {
+        return $RadiusFilterEngineScopes{$scope};
+    }
+    return undef;
 }
 
 =head1 AUTHOR

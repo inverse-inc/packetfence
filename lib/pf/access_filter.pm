@@ -20,8 +20,6 @@ use pf::person qw(person_view);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
-our $logger = get_logger();
-
 =head1 SUBROUTINES
 
 =head2 new
@@ -29,8 +27,9 @@ our $logger = get_logger();
 =cut
 
 sub new {
-   my ( $class, %argv ) = @_;
-   $logger->debug("instantiating new pf::access_filter");
+   my ( $proto, %argv ) = @_;
+   my $class = ref($proto) || $proto;
+   $class->logger->debug("instantiating new $class");
    my $self = bless {}, $class;
    return $self;
 }
@@ -45,7 +44,9 @@ sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
-       return $engine->match_first($args);
+        my $answer = $engine->match_first($args);
+        $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
+        return $answer;
     }
     return undef;
 }
@@ -73,6 +74,17 @@ sub filter {
 sub getEngineForScope {
     my ($self, $scope) = @_;
     return undef;
+}
+
+=head2 logger
+
+Return the current logger for the object
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
 }
 
 =head1 AUTHOR
