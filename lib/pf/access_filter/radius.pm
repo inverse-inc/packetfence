@@ -20,7 +20,7 @@ use pf::locationlog qw(locationlog_set_session);
 use pf::log;
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
-use Scalar::Util qw(reftype)
+use Scalar::Util qw(reftype);
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
