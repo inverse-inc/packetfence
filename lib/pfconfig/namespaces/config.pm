@@ -38,6 +38,13 @@ sub init {
     $self->{child_resources}   = [];
 }
 
+sub _parse_error {
+    my ($self) = @_;
+    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
+    print STDERR "$message\n";
+    pfconfig::log::get_logger->error($message);
+}
+
 sub build {
     my ($self) = @_;
 
@@ -47,7 +54,7 @@ sub build {
 
     $added_params{-file} = $self->{file};
 
-    tie %tmp_cfg, 'Config::IniFiles', %added_params;
+    tie %tmp_cfg, 'Config::IniFiles', %added_params or $self->_parse_error();
 
     @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
