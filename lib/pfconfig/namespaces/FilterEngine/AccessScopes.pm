@@ -43,6 +43,7 @@ sub build {
             $logger->info("Building rule '$rule'");
             my ($parsed_conditions, $msg) = parse_condition_string($1);
             next unless defined $parsed_conditions;
+            $data->{_rule} = $rule;
             push @filter_data, [$parsed_conditions, $data];
         }
         else {
