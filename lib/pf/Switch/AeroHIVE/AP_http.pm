@@ -96,7 +96,7 @@ sub returnRadiusAccessAccept {
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
     my $logger = $self->logger;
-    $logger->debug("[$mac] Creating web release form");
+    $logger->debug("Creating web release form");
 
     my $node = node_view($mac);
     my $last_ssid = $node->{last_ssid};

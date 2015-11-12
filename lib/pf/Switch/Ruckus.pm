@@ -195,7 +195,7 @@ Creates the form that should be given to the client device to trigger a reauthen
 sub getAcceptForm {
     my ( $self, $mac , $destination_url, $cgi_session) = @_;
     my $logger = $self->logger;
-    $logger->debug("[$mac] Creating web release form");
+    $logger->debug("Creating web release form");
 
     my $client_ip = $cgi_session->param("ecwp-original-param-uip");
     my $controller_ip = $self->{_ip};

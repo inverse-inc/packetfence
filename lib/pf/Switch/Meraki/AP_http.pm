@@ -130,7 +130,7 @@ sub returnRadiusAccessAccept {
 sub getAcceptForm {
     my ( $self, $mac , $destination_url, $cgi_session) = @_;
     my $logger = $self->logger;
-    $logger->debug("[$mac] Creating web release form");
+    $logger->debug("Creating web release form");
 
     my $login_url = $cgi_session->param("ecwp-original-param-login_url");
     my $html_form = qq[

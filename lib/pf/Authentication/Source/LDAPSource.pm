@@ -389,7 +389,7 @@ sub match_in_subclass {
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
-            $logger->info("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
+            $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
             $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
             return $params->{'username'} || $params->{'email'};

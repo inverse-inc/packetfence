@@ -147,11 +147,11 @@ sub deauthenticateMacDefault {
     my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
-        $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        $logger->info("(".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
         return 1;
     }
 
-    $logger->debug("[$mac] deauthenticate using RADIUS Disconnect-Request deauth method");
+    $logger->debug("deauthenticate using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
 
@@ -172,7 +172,7 @@ sub _deauthenticateMacTelnet {
     my $logger = $this->logger;
 
     if ( !$this->isProductionMode() ) {
-        $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't deauthenticate");
+        $logger->info("(".$this->{'_id'}.") not in production mode ... we won't deauthenticate");
         return 1;
     }
 
@@ -204,7 +204,7 @@ sub _deauthenticateMacTelnet {
     # if $session->begin_configure() does not work, use the following command:
     my $command = "clear auth station mac $mac";
 
-    $logger->info("[$mac] Deauthenticating mac");
+    $logger->info("Deauthenticating mac");
     $logger->trace("sending CLI command '$command'");
     my @output;
     $session->in_privileged_mode(1);
@@ -213,7 +213,7 @@ sub _deauthenticateMacTelnet {
     };
     $session->in_privileged_mode(0);
     if ($@) {
-        $logger->error("[$mac] Unable to deauthenticate: $@");
+        $logger->error("Unable to deauthenticate: $@");
         $session->close();
         return;
     }

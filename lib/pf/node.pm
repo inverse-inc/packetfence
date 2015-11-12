@@ -974,7 +974,7 @@ sub node_register {
             $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
             return (0);
         }
-           $logger->info("[$mac] autoregister a node that is already registered, do nothing.");
+           $logger->info("autoregister a node that is already registered, do nothing.");
             $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
            return 1;
        }

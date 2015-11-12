@@ -93,6 +93,8 @@ sub handler {
         } else {
             @args = ($params);
         }
+        my %params = @args;
+        Log::Log4perl::MDC->put( 'mac', $params{'mac'} );
     }
     if (defined $id) {
         my $object;

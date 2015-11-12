@@ -334,7 +334,7 @@ sub _reassignSNMPConnections {
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP( $switch->{_id}, $ifIndex );
     unless ( (@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' ) ) {
         $logger->warn(
-            "[$mac] received reAssignVlan trap on (".$switch->{'_id'}.") ifIndex $ifIndex but can't determine non VoIP MAC"
+            "received reAssignVlan trap on (".$switch->{'_id'}.") ifIndex $ifIndex but can't determine non VoIP MAC"
         );
         return;
     }
@@ -342,7 +342,7 @@ sub _reassignSNMPConnections {
     # case PORTSEC : When doing port-security we need to reassign the VLAN before
     # bouncing the port.
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
-        $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
+        $logger->info( "security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
 
@@ -351,14 +351,14 @@ sub _reassignSNMPConnections {
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
-                $logger->warn("[$mac] VLAN changed and is behind VoIP phone. Not bouncing the port!");
+                $logger->warn("VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
             }
         }
 
     } # end case PORTSEC
 
-    $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
+    $logger->info( "Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
 
@@ -810,7 +810,7 @@ sub trigger_scan : Public : Fork {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
-
+    return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
     # post_registration (production vlan)
     # We sleep until (we hope) the device has had time issue an ACK.
@@ -966,7 +966,7 @@ sub detect_computername_change : Public {
     if(defined($node_attributes->{computername}) && $node_attributes->{computername}){
         if($node_attributes->{computername} ne $new_computername){
             $logger->warn(
-              "[$mac]Computername change detected ".
+              "Computername change detected ".
               "( ".$node_attributes->{computername}." -> $new_computername ).".
               "Possible MAC spoofing.");
 
@@ -1060,7 +1060,7 @@ sub process_dhcpv6 : Public {
         }
     }
 
-    $logger->info("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+    $logger->trace("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
 
     my %fingerbank_query_args = (
         mac                 => $mac_address,
