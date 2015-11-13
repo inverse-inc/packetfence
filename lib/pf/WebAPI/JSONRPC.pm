@@ -101,7 +101,7 @@ sub handler {
         eval {
             $object = {
                 (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
-                result => [$dispatch_to->$method_sub(@args)],
+                result => [$dispatch_to->$method(@args)],
                 id     => $id,
             }
         };
