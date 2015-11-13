@@ -62,6 +62,9 @@ doc-pki:
 doc-mspki:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook docs/PacketFence_MSPKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MSPKI_Quick_Install_Guide.pdf
 
+doc-solsource:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Solsource_Install_guide.docbook docs/PacketFence_Solsource_Install_guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Solsource_Install_guide.docbook  -pdf docs/PacketFence_Solsource_Install_guide.pdf
+
 .PHONY: configurations
 
 configurations:

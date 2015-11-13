@@ -1,0 +1,225 @@
+Solsource Install Guide
+=======================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+This guide has been created in order to help engineers from Solsource configure PacketFence with Stripe for user based billing
+
+Premisse
+--------
+You should install PacketFence using the following method, instead of the one described in the admin guide.
+
+----
+
+First, make sure you have the PacketFence repository installed as described in the documentation
+
+Please execute the following on your server to download the packages :
+cd /root
+mkdir packetfence_packages && cd packetfence_packages
+wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-config-5.4.1-0.20151105.el6.noarch.rpm
+wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-5.4.1-0.20151105.el6.noarch.rpm
+
+Now install them using :
+yum localinstall packetfence*.rpm --enablerepo=packetfence-devel
+
+Since these are development packages, we have a small bug that requires you to execute the following commands to make all PacketFence services start :
+wget https://fingerbank.inverse.ca/api/v1/download-p0f-map?key=packetfence-users -O /usr/local/fingerbank/conf/fingerbank-p0f.fp
+yum install perl-Scalar-List-Utils --enablerepo=packetfence-devel
+
+Now restart the packetfence services :
+service packetfence-config restart
+service packetfence restart
+
+Your installation should now be ready.
+You can proceed to configure it. 
+
+----
+
+Assumptions
+-----------
+* You have a configured PacketFence environment with working test equipment
+* Inline throttled enforcement is already working.
+* In this guide, the default role is throttled, the paid role is unthrottled.
+
+Quick installation
+------------------
+
+Step 1: Configure the Stripe source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: These instructions have been taken from the Administration Guide and adjusted to the Solsource use case.
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click 'Your account' then 'Account settings'.
+
+Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
+
+image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Secret key* is the secret key you got from your Stripe account.
+* *Publishable key* is the publishable key you got from your Stripe account.
+* *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using the test key and secret account.
+
+NOTE: It is required to restart the pfdns service after configuring the source as it requires a passthrough (*.stripe.com)
+
+Subscription based registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Billing tier
+++++++++++++
+
+Next, go in 'Configuration -> Billing tiers'
+
+Click 'Add billing tier' and configure the following : 
+* Billing tier : 'simple'
+* Name : 'Illimited access'
+* Description : 'Illimited access to the network'
+* Price : '9.99'
+* Role : 'paid'
+* Access duration : '20 years'
+
+Stripe configuration
+++++++++++++++++++++
+
+Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
+
+Then create a new plan.
+
+image::docs/images/billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where : 
+[options="compact"]
+* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+
+Receiving updates from Stripe
++++++++++++++++++++++++++++++
+
+As the subscription can be cancelled by a user, you need to setup your PacketFence installation to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP. 
+
+You need to make sure that your PacketFence server is available through a public IP on port 80 and that your PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
+
+image::docs/images/billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+
+Where : 
+[options="compact"]
+* *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+* *Mode* is whether this webhook is for testing mode or live mode 
+
+Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
+
+
+Step 2: Configure PacketFence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Portal Profile
+^^^^^^^^^^^^^^
+
+Next, go in 'Configuration -> Portal Profiles -> default' 
+
+Add the 'local' and 'stripe' source to the Portal profile.
+
+Add the 'simple' billing tier to the Portal profile.
+
+Device registration
+^^^^^^^^^^^^^^^^^^^
+
+Next, to allow devices to be registered via MAC address (for device that don't have a web brower, ex : XBOX), you need to activate the device registration.
+
+Go in 'Configuration -> Registration'
+
+Check 'Device registration'
+
+Make sure 'Device registration role' is empty and save.
+
+Next, you need to decide which MAC OUI are allowed to be registered on the device registration portal
+
+This is done in `/usr/local/pf/conf/allowed_device_oui.txt`
+
+You can empty the file to allow all MAC addresses to be registered on this portal (requires to restart httpd.portal)
+
+
+Max device per user
+^^^^^^^^^^^^^^^^^^^
+
+To configure the maximum devices a user can own, go in 'Configuration -> Roles'
+
+Then put 'Max nodes per user' to the desired amount for the roles 'default' and 'paid'.
+
+Step 3: Testing
+~~~~~~~~~~~~~~~
+
+NOTE: packetfence.log will provide detailed informations on what is currently happening.
+
+Registering a device
+^^^^^^^^^^^^^^^^^^^^
+
+Connect a device to your network.
+
+You should be prompted with the Captive portal.
+
+You can create an account or reuse any existing local account (shown in 'Users' in the Administration interface)
+
+An account will be created with the role 'default' and assigns the role 'default' to the device that is registered.
+
+Using a local account will assign the role that is assigned to the user to the device (shown in the 'Actions' tab when viewing the details of a user)
+
+
+Modifying the access level
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To modify their access level, a user should go on https://PORTAL_HOSTNAME/status
+
+You then need to login with the local account credentials.
+
+The button 'Modify your access' redirects to the billing section.
+
+Select the plan and proceed to payment.
+
+Now, the role assigned to the user will be 'paid' and all the devices he has registered will now have the role 'paid'
+
+Managing devices
+^^^^^^^^^^^^^^^^
+
+This is done on the status page also via the button 'Add a device' and the user can unregister his devices from there.
+
+Cancelling subscription
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In the Stripe dashboard, go in 'Customers' and select the customer.
+
+In his subscription list, you can cancel it.
+
+If the webhooks are properly working between Stripe and your PacketFence server, the user devices will be downgraded to the role 'default' and the user will be downgraded to the role 'default'
+
+
+
+
+
