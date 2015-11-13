@@ -123,17 +123,12 @@ Process delayed jobs
 sub process_delayed_jobs {
     my ($self) = @_;
     my $redis = $self->redis;
-    eval {
 
-        #Getting the current time from the redis service
-        my ($seconds, $micro) = $redis->time;
-        die "error getting time from the redis service" unless defined $seconds && defined $micro;
-        my $time_milli = $seconds * 1000 + int($micro / 1000);
-        $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $self->delay_queue, $self->submit_queue, $time_milli, $self->batch);
-    };
-    if ($@) {
-        get_logger->error("Error running task : $@");
-    }
+    #Getting the current time from the redis service
+    my ($seconds, $micro) = $redis->time;
+    die "error getting time from the redis service" unless defined $seconds && defined $micro;
+    my $time_milli = $seconds * 1000 + int($micro / 1000);
+    $redis->evalsha($LUA_DELAY_JOBS_MOVE_SHA1, 2, $self->delay_queue, $self->submit_queue, $time_milli, $self->batch);
     # Sleep for 10 milliseconds
     usleep($self->batch_sleep);
 }
