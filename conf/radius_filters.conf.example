@@ -1,7 +1,7 @@
 # Radius filter configuration
 # 
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter
-# answer will be merge with the original radius answer. (to overwrite it add merge_request = no).
+# answer will be merge with the original radius answer. (to overwrite it add merge_answer = no).
 #
 # Make a simple rule like this:
 #
@@ -19,7 +19,7 @@
 #
 #[1:macauth&mac]
 #scope = returnRadiusAccessAccept
-#merge_request = no
+#merge_answer = no
 #answer1 = Tunnel-Medium-Type => 6
 #answer2 = Tunnel-Type => 13
 #answer3 = Tunnel-Private-Group-ID => 42
@@ -37,10 +37,10 @@
 #
 # This rule will return the vlan id associated to the user role and Cisco-AVPair where the attributes
 # has been evaluated.
-# merge_request mean to not merge the original answer with radius filter answer.
+# merge_answer mean to not merge the original answer with radius filter answer.
 #[3:macauth&!violation]
 #scope = returnRadiusAccessAccept
-#merge_request = no
+#merge_answer = no
 #answer1 = Tunnel-Medium-Type => 6
 #answer2 = Tunnel-Type => 13
 #answer3 = Tunnel-Private-Group-ID => $vlan
