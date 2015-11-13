@@ -227,6 +227,15 @@ EOT
             $i++;
         }
         parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
+
+        parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+
+        %tags = ();
+        $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
+        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+        $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
+        parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
@@ -244,14 +253,6 @@ EOT
     } else {
         $tags{'config'} = '';
     }
-    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
-
-    %tags = ();
-    $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
-    $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
-    $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
-    $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
-    parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
 }
 
 =head1 AUTHOR
