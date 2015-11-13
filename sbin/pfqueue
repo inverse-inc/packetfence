@@ -249,21 +249,26 @@ the task to is run in a loop until it is finished
 sub _run_task {
     my ($id, $task, $parameters) = @_;
     $0 = "pfqueue - $id";
-    my $consumer = get_consumer($id, $parameters);
+    my $consumer;
     while ($running) {
+        $consumer = get_consumer($id, $parameters) unless $consumer;
         pf::config::cached::ReloadConfigs();
         eval {
             #reload all cached configs before running the task
             $task->($consumer);
         };
         if ($@) {
-            $logger->error("Error running task $id: $@");
+            $logger->error("Error running task '$id': $@");
+            $consumer = undef;
         }
 
         #Stop running if parent is no longer alive
         unless (is_parent_alive()) {
             $logger->error("Parent is no longer running shutting down");
             $running = 0;
+        }
+        unless ($consumer) {
+            sleep (int(rand(5)) + 1);
         }
     }
     $logger->trace("$$ shutting down");
@@ -298,8 +303,8 @@ Process queue
 =cut
 
 sub process_queue {
-    my ($consumer) = @_;
-    $consumer->process_next_job;
+    my ($consumer, @args) = @_;
+    $consumer->process_next_job(@args);
 }
 
 =head2 process_delayed_jobs
@@ -309,8 +314,8 @@ Move the delayed jobs to the work queue
 =cut
 
 sub process_delayed_jobs {
-    my ($consumer) = @_;
-    $consumer->process_delayed_jobs;
+    my ($consumer, @args) = @_;
+    $consumer->process_delayed_jobs(@args);
 }
 
 =head2 wait_for_it
@@ -378,7 +383,14 @@ get consumer
 
 sub get_consumer {
     my ($id, $parameters) = @_;
-    return pf::pfqueue::consumer::redis->new({ %{$CONFIG{"consumer"}}, %$parameters, redis_name => $id,});
+    my $consumer;
+    eval {
+        $consumer = pf::pfqueue::consumer::redis->new({ %{$CONFIG{"consumer"}}, %$parameters, redis_name => $id });
+    };
+    if ($@) {
+        $logger->error($@);
+    }
+    return $consumer;
 }
 
 =head1 AUTHOR
