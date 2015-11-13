@@ -53,6 +53,7 @@ sub build {
     my %added_params = ();
 
     $added_params{-file} = $self->{file};
+    $added_params{-allowempty} = 1;
 
     tie %tmp_cfg, 'Config::IniFiles', %added_params or $self->_parse_error();
 
