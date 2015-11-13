@@ -18,12 +18,10 @@ pfqueue [options]
 use warnings;
 use strict;
 use Getopt::Std;
-use Net::Pcap 0.16;
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h);
 use Pod::Usage;
 use Fcntl qw(:flock);
-use Redis::Fast;
 use Scalar::Util qw(blessed);
 
 #pf::log must always be initilized first
@@ -63,24 +61,10 @@ our $ALARM_RECV = 0;
 
 my $logger = Log::Log4perl->get_logger($PROGRAM_NAME);
 
-POSIX::sigaction(&POSIX::SIGALRM, POSIX::SigAction->new('alarm_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGALRM handler: $!");
-
-POSIX::sigaction(&POSIX::SIGHUP, POSIX::SigAction->new('normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGHUP handler: $!");
-
-POSIX::sigaction(&POSIX::SIGINT, POSIX::SigAction->new('normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGINT handler: $!");
-
-POSIX::sigaction(&POSIX::SIGTERM,
-    POSIX::SigAction->new('normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGTERM handler: $!");
-
-POSIX::sigaction(&POSIX::SIGCHLD, POSIX::SigAction->new('child_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGCHLD handler: $!");
-
-POSIX::sigaction(&POSIX::SIGUSR1, POSIX::SigAction->new('usr1_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-  or die("pfqueue could not set SIGUSR1 handler: $!");
+$SIG{INT}  = \&normal_sighandler;
+$SIG{HUP}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
 
 $SIG{PIPE} = 'IGNORE';
 
@@ -112,6 +96,7 @@ pf::SwitchFactory::preLoadModules();
 register_tasks();
 wait_for_it();
 cleanup();
+$config = undef;
 
 END {
     if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
@@ -219,12 +204,12 @@ run all run_tasks
 sub run_tasks {
     db_disconnect();
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
-    sigprocmask(SIG_BLOCK,$mask);
+    sigprocmask(SIG_BLOCK, $mask);
     while (@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         run_task($task);
     }
-    sigprocmask(SIG_UNBLOCK,$mask);
+    sigprocmask(SIG_UNBLOCK, $mask);
 }
 
 =head2 run_task
@@ -240,11 +225,10 @@ sub run_task {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
         eval {
+            srand();
             my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
             Log::Log4perl::MDC->put('tid', $$);
-            POSIX::sigaction(&POSIX::SIGCHLD,
-                POSIX::SigAction->new('child_sighandler2', POSIX::SigSet->new(), &POSIX::SA_NODEFER))
-              or die("pfqueue could not set SIGCHLD handler: $!");
+            $SIG{CHLD} = \&child_sighandler2;
             $IS_CHILD = 1;
             sigprocmask(SIG_UNBLOCK, $mask);
             _run_task(@$task);
@@ -384,16 +368,6 @@ sub child_sighandler2 {
         my $child = waitpid(-1, WNOHANG);
         last unless $child > 0;
     }
-}
-
-=head2 usr1_sighandler
-
-the handler to cancel any currently running database queries
-
-=cut
-
-sub usr1_sighandler {
-    db_cancel_current_query();
 }
 
 =head2 get_consumer($id, $param_hash)
