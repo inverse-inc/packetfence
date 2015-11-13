@@ -228,8 +228,6 @@ EOT
         }
         parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
 
-        parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
-
         %tags = ();
         $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
         $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
@@ -253,6 +251,7 @@ EOT
     } else {
         $tags{'config'} = '';
     }
+    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
 }
 
 =head1 AUTHOR
