@@ -70,7 +70,7 @@ sub handler {
     return $result if $result;
 
     # Proxy passthrough
-    if ( (($hostname.$uri) =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
+    if ( ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '')
       || ($hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
         $logger->info("URI '$uri' (URL: $url) match proxy passthrough configuration.");
         return proxy_redirect($r);

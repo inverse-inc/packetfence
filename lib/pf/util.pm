@@ -495,6 +495,8 @@ sub parse_template {
     while (<$template_fh>) {
         study $_;
         foreach my $tag ( keys %{$tags} ) {
+#            use Data::Dumper;
+#            print Dumper($tag, $tags->{$tag});
             $_ =~ s/%%$tag%%/$tags->{$tag}/ig;
         }
         push @parsed, $_;
