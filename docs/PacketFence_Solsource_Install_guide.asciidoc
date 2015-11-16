@@ -12,11 +12,24 @@ This guide has been created in order to help engineers from Solsource configure 
 
 Premisse
 --------
+
+Installing the PacketFence devel repo
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Execute the following command on your server : 
+
+  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-2.centos6.noarch.rpm
+
+The repo will be in `/etc/yum.repos.d/packetfence.repo`
+
+Installation of PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You should install PacketFence using the following method, instead of the one described in the admin guide.
 
 ----
 
-First, make sure you have the PacketFence repository installed as described in the documentation
+First, make sure you have the PacketFence repository installed as described above
 
 Please execute the following on your server to download the packages :
 cd /root
@@ -173,7 +186,79 @@ To configure the maximum devices a user can own, go in 'Configuration -> Roles'
 
 Then put 'Max nodes per user' to the desired amount for the roles 'default' and 'paid'.
 
-Step 3: Testing
+Step 3: Configure traffic shaping
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First, we need to know what is the ID of the paid category.
+
+Go in 'Configuration -> Roles' and get the identifier associated to the 'default' category from the 'Id' column. In the case of this example, it will be 1.
+
+In this example, the Inline interface is `eth1.156` and the management interface is `eth0`
+
+Traffic shaping using tc is not reboot proof, thus requires the installation of the rules through a script executed at boot time.
+
+Install the following script in `/etc/install_tc.sh`
+
+  #!/bin/bash
+
+  tc qdisc del dev eth0 root
+  tc qdisc add dev eth0 root handle 1:0 htb default 1
+
+  tc class add dev eth0 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
+  # the second 1 in 1:1 represents the category ID
+  tc qdisc add dev eth0 parent 1:1 sfq
+
+  tc qdisc del dev eth1.156 root
+  tc qdisc add dev eth1.156 root handle 1:0 htb default 1
+
+  tc class add dev eth1.156 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
+  # the second 1 in 1:1 represents the category ID
+  tc qdisc add dev eth1.156 parent 1:1 sfq
+
+Make the file executable `chmod +x /etc/install_tc.sh`
+
+And add it to `/etc/rc.local` so it is executed at boot time
+
+  echo "/etc/install_tc.sh" >> /etc/rc.local
+
+Configuring another role
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Should you want to configure another role.
+
+First, get his ID from the role page, will be using 2 in this example
+
+Then the tc script should look like this. Note the class has changed to `1:2`
+
+  #!/bin/bash
+
+  tc qdisc del dev eth0 root
+  tc qdisc add dev eth0 root handle 1:0 htb default 1
+
+  tc class add dev eth0 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
+  #### THIS LINE WAS ADDED
+  tc class add dev eth0 parent 1:0 classid 1:2 htb rate 1mbit ceil 1mbit
+  ####
+  # the second 1 in 1:1 represents the category ID
+  tc qdisc add dev eth0 parent 1:1 sfq
+  #### THIS LINE WAS ADDED
+  tc qdisc add dev eth0 parent 1:2 sfq
+  ####
+
+  tc qdisc del dev eth1.156 root
+  tc qdisc add dev eth1.156 root handle 1:0 htb default 1
+
+  tc class add dev eth1.156 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
+  #### THIS LINE WAS ADDED
+  tc class add dev eth1.156 parent 1:0 classid 1:2 htb rate 1mbit ceil 1mbit
+  ####
+  # the second 1 in 1:1 represents the category ID
+  tc qdisc add dev eth1.156 parent 1:1 sfq
+  #### THIS LINE WAS ADDED
+  tc qdisc add dev eth1.156 parent 1:2 sfq
+  ####
+
+Step 4: Testing
 ~~~~~~~~~~~~~~~
 
 NOTE: packetfence.log will provide detailed informations on what is currently happening.
