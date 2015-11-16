@@ -365,9 +365,9 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $graphs = [
                {
-                'description' => 'Registrations',
-                'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"10min"),5,"sum"),"End-Points registered")',
-                    'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"10min"),5,"sum"), "End-Points deregistered")' ],
+                'description' => 'Registrations/min',
+                'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"1min"),5,"sum"),"End-Points registered")',
+                    'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"1min"),5,"sum"), "End-Points deregistered")' ],
                 'lineMode' => "staircase",
                 'columns' => 2,
                },
