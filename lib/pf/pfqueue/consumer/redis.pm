@@ -20,6 +20,8 @@ use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::log;
 use pf::Sereal qw($DECODER);
 use Moo;
+use pf::util::pfqueue qw(task_counter_id);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 extends qw(pf::pfqueue::consumer);
 
 has 'redis' => (is => 'rw', lazy => 1, builder => 1);
@@ -82,13 +84,18 @@ sub process_next_job {
     if ($queue) {
         my $data = $redis->hget($task_id, 'data');
         if($data) {
+            local $@;
             eval {
                 sereal_decode_with_object($DECODER, $data, my $item);
                 if (ref ($item) eq 'ARRAY' ) {
                     my $type = $item->[0];
                     my $args = $item->[1];
-                    $redis->hincrby("TaskCount", "${queue}:${type}", -1);
-                    "pf::task::$type"->doTask($args);
+                    eval {
+                        "pf::task::$type"->doTask($args);
+                    };
+                    die $@ if $@;
+                    my $task_counter_id = task_counter_id($queue, $type, $args);
+                    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1);
                 } else {
                     $logger->error("Invalid object stored in queue");
                 }

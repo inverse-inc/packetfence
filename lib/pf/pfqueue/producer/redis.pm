@@ -22,6 +22,8 @@ use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
 use pf::task;
+use pf::util::pfqueue qw(task_counter_id);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 
 our $DEFAULT_EXPIRATION = 300;
 
@@ -79,14 +81,16 @@ Submit a task to the queue
 sub submit {
     my ($self, $queue, $task_type, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
+    my $queue_name = "Queue:$queue";
     my $id    = pf::task->generateId();
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
-    $redis->lpush("Queue:$queue", $id, sub {});
-    $redis->hincrby("TaskCount", "${queue}:${task_type}", 1, sub {});
+    $redis->lpush($queue_name, $id, sub {});
+    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
+    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
 }
@@ -94,6 +98,7 @@ sub submit {
 sub submit_delayed {
     my ($self, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
+    my $queue_name = "Queue:$queue";
     my $id    = pf::task->generateId();
     my $redis = $self->redis;
     #Getting the current time from the redis service
@@ -105,7 +110,8 @@ sub submit_delayed {
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
-    $redis->hincrby("TaskCount", "${queue}:${task_type}", 1, sub {});
+    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
+    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
 }
@@ -139,4 +145,3 @@ USA.
 =cut
 
 1;
-
