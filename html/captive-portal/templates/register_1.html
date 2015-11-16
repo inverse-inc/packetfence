@@ -1,16 +1,18 @@
 [%# TODO: generalize language selector and auto-detection %]
 <script type="text/javascript">
 function reloadLanguage(languageCode) {
-    var currentRef = window.location.href;
-    if (window.location.search.length == 0) {
-        window.location.replace(currentRef + '?lang=' + languageCode);
-    } else {
-        if (window.location.search.indexOf('lang=') == -1) {
-            window.location.replace(currentRef + '&lang=' + languageCode);
-        } else {
-            window.location.replace(currentRef.replace(/lang=.{5}/, 'lang=' + languageCode));
-        }
+  var currentRef = window.location.href;
+  if (window.location.search.length == 0) {
+    window.location.replace(currentRef + '?lang=' + languageCode);
+  }
+  else {
+    if (window.location.search.indexOf('lang=') == -1) {
+      window.location.replace(currentRef + '&lang=' + languageCode);
     }
+    else {
+      window.location.replace(currentRef.replace(/lang=.{5}/, 'lang=' + languageCode));
+    }
+  }
 }
 </script>
 
