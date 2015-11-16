@@ -104,7 +104,7 @@ sub getIfIndexByNasPortId {
         my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
         foreach my $key ( keys %{$result} ) {
             my $ifDesc = $result->{$key};
-            if ( $ifDesc =~ /(GigabitEthernet|Ten-GigabitEthernet|Ethernet)$unit\/$subslot\/$port/i ) {
+            if ( $ifDesc =~ /(GigabitEthernet|Ten-GigabitEthernet|Ethernet)$unit\/$subslot\/$port$/i ) {
                 $key =~ /^$OID_ifDesc\.(\d+)$/;
                 return $1;
             }
