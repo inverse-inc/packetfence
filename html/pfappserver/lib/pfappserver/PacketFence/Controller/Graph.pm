@@ -336,8 +336,19 @@ sub _buildGraphiteURL :Private {
     my $url = sprintf('http://%s:%s/render?%s',
                       $options->{graphite_host},
                       $options->{graphite_port},
-                      join('&', map { $_ . '=' . uri_escape($params->{$_}) } keys(%$params)));
-
+                      join('&', map { $_ . '=' . uri_escape($params->{$_}) } 
+                          grep { $_ ne "target" } keys(%$params))); # we don't map the target here. It can be an arrayref		
+    
+    # targets can be an arrayref of graphite queries, so we need to handle it
+    if (ref $params->{'target'} eq  "ARRAY") { 
+        for my $target ( @{ $params->{'target'} }) { 
+            $url .=  ( '&target=' . uri_escape( $target ));
+        }
+    }
+    else { 
+        $url .= ( '&target=' . uri_escape( $params->{'target'} ) );
+    }
+	
     return $url;
 }
 
@@ -355,9 +366,10 @@ sub dashboard :Local :AdminRole('REPORTS') {
     $graphs = [
                {
                 'description' => 'Registrations',
-                'target' => 'group(alias(scaleToSeconds(stats.counters.*.pf__node__node_register.called.count,1),"End-Points registered"),
-                                   alias(scaleToSeconds(stats.counters.*.pf__node__node_deregister.called.count,1),"End-Points unregistered"))',
-                'columns' => 2
+                'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"10min"),5,"sum"),"End-Points registered")',
+                    'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"10min"),5,"sum"), "End-Points deregistered")' ],
+                'lineMode' => "staircase",
+                'columns' => 2,
                },
                {
                 'description' => 'Server Load',
@@ -414,13 +426,8 @@ sub dashboard :Local :AdminRole('REPORTS') {
                {
                 'description' => 'NTLM authentication failures',
                 'vtitle' => 'failures/s',
-                'target' => 'aliasByNode(stats.counters.*.ntlm_auth.failures.count,2)',
-                'columns' => 1
-               },
-               {
-                'description' => 'NTLM authentication timeouts',
-                'vtitle' => 'timeouts/s',
-                'target' => _generate_timeout_group(),
+                'target' => [ 'aliasSub(stats.counters.*.ntlm_auth.failures.count,"^stats.counters.([^.]+).ntlm_auth.failures.count$", "\1 failures")',
+                            _generate_timeout_group() ],
                 'columns' => 1,
                 'drawNullAsZero' => 'true'
                },
@@ -794,7 +801,7 @@ sub _generate_timeout_group {
 ;
     }
 
-    return 'aliasByNode( group(' . join( ', ', @group_members ) . ') ,2)';
+    return 'aliasSub(aliasByNode( group(' . join( ', ', @group_members ) . ') ,2), "^(\w+)", "\1 timeouts"  ) ';
 }
 
 
