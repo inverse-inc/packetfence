@@ -1,5 +1,7 @@
 [consumer]
 redis_server=127.0.0.1:6380
+redis_reconnect=1
+redis_every=100
 
 [queue general]
 workers=4
