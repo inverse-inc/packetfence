@@ -16,6 +16,7 @@ use warnings;
 use Data::MessagePack;
 use Data::MessagePack::Stream;
 use pf::log;
+use pf::util::webapi;
 use Apache2::RequestIO();
 use Apache2::RequestRec();
 use Apache2::Response ();
@@ -51,6 +52,7 @@ sub handler {
     if ($data->[0] == $MSGPACKRPC_REQUEST ) {
         my $status_code = Apache2::Const::OK;
         my ($type, $msgid, $method, $params) = @$data;
+        pf::util::webapi::add_mac_to_log_context($params);
         my $dispatch_to = $self->dispatch_to;
         unless ($dispatch_to->isPublic($method)) {
             $self->_set_error($r,$msgid,Apache2::Const::HTTP_NOT_FOUND,"$method not found");
@@ -73,6 +75,7 @@ sub handler {
         $r->content_type('application/x-msgpack');
     } elsif ($data->[0] == $MSGPACKRPC_NOTIFICATION ) {
         my ($type, $method, $params) = @$data;
+        pf::util::webapi::add_mac_to_log_context($params);
         #Do not return errors on notification messages
         $r->status(Apache2::Const::HTTP_NO_CONTENT);
         my $dispatch_to = $self->dispatch_to;

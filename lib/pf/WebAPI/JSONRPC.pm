@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use JSON::MaybeXS;
 use pf::log;
+use pf::util::webapi;
 use Apache2::RequestIO;
 use Apache2::RequestRec;
 use Apache2::Response;
@@ -93,8 +94,7 @@ sub handler {
         } else {
             @args = ($params);
         }
-        my %params = @args;
-        Log::Log4perl::MDC->put( 'mac', $params{'mac'} );
+        pf::util::webapi::add_mac_to_log_context(\@args);
     }
     if (defined $id) {
         my $object;
