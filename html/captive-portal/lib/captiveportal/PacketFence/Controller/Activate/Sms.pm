@@ -68,6 +68,7 @@ sub index : Path : Args(0) {
             $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
             $c->session->{"username"} = $pid;
+            $c->session->{"unregdate"} = $info{'unregdate'};
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
