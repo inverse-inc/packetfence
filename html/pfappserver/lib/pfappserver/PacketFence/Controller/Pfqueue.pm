@@ -1,58 +1,46 @@
-package pf::util::pfqueue;
+package pfappserver::PacketFence::Controller::Pfqueue;
 
 =head1 NAME
 
-pf::util::pfqueue - pfqueue
-
-=cut
+pfappserver::PacketFence::Controller::Pfqueue - Catalyst Controller
 
 =head1 DESCRIPTION
 
-=head1 WARNING
+Catalyst Controller.
 
 =cut
 
 use strict;
 use warnings;
-use pf::file_paths;
-use Config::IniFiles;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT = qw();
-    @EXPORT_OK = qw(task_counter_id);
-}
+use HTTP::Status qw(:constants is_error is_success);
+use Moose;
+use Readonly;
+use URI::Escape::XS qw(uri_escape uri_unescape);
+use namespace::autoclean;
 
-=head2 task_counter_id
+BEGIN { extends 'pfappserver::Base::Controller'; }
+
+=head2 index
 
 =cut
 
-sub task_counter_id {
-    my ($queue, $type, $args) = @_;
-    my $counter_id = "${queue}:${type}";
-    if ($type eq 'api' && ref ($args) eq 'ARRAY') {
-        $counter_id .= ":" . $args->[0];
-    }
-    return $counter_id;
+sub index :Path : Args(0) {
+    my ($self, $c) = @_;
+    my $model = $c->model('Pfqueue');
+    $c->stash({
+        counters => $model->counters,
+    });
 }
 
-=head2 load_config_hash
-
-=cut
-
-sub load_config_hash {
-    my ($self) = @_;
-    tie our %config ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
-    return \%config;
+sub counters :Args {
+    my ($self, $c) = @_;
+    my $model = $c->model('Pfqueue');
+    $c->stash({
+        current_view => 'JSON',
+        counters => $model->counters,
+    });
 }
-
-=head1 SUBROUTINES
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -76,5 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;

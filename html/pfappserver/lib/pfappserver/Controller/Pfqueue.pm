@@ -1,54 +1,18 @@
-package pf::util::pfqueue;
+package pfappserver::Controller::Pfqueue;
 
 =head1 NAME
 
-pf::util::pfqueue - pfqueue
-
-=cut
+pfappserver::Controller::Pfqueue
 
 =head1 DESCRIPTION
 
-=head1 WARNING
+Place all customization for Controller::Pfqueue here
 
 =cut
 
-use strict;
-use warnings;
-use pf::file_paths;
-use Config::IniFiles;
+use Moose;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT = qw();
-    @EXPORT_OK = qw(task_counter_id);
-}
-
-=head2 task_counter_id
-
-=cut
-
-sub task_counter_id {
-    my ($queue, $type, $args) = @_;
-    my $counter_id = "${queue}:${type}";
-    if ($type eq 'api' && ref ($args) eq 'ARRAY') {
-        $counter_id .= ":" . $args->[0];
-    }
-    return $counter_id;
-}
-
-=head2 load_config_hash
-
-=cut
-
-sub load_config_hash {
-    my ($self) = @_;
-    tie our %config ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
-    return \%config;
-}
-
-=head1 SUBROUTINES
+BEGIN { extends 'pfappserver::PacketFence::Controller::Pfqueue'; }
 
 =head1 AUTHOR
 
@@ -76,5 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+
+__PACKAGE__->meta->make_immutable;
 
 1;

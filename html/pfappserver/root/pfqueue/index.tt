@@ -1,0 +1,19 @@
+<h2>[% l('PFqueue') %]</h2>
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Queue</th>
+        <th>Name</th>
+        <th>Count</th>
+      </tr>
+    </thead>
+  [% FOREACH counter IN counters %]
+    <tr>
+      <td> [% counter.queue %]</td>
+      <td>[% counter.name %] </td>
+      <td> [% counter.count %]</td>
+    </tr>
+  [% END %]
+  </table>
+</div>
