@@ -46,6 +46,9 @@ sub index : Path : Args(0) {
     my $logger  = $c->log;
     if ( defined $code ) {
         $c->forward( 'code', [$code] );
+    } else {
+        $self->showError($c,"An activation code is required");
+        $c->detach;
     }
 }
 
