@@ -17,7 +17,7 @@ Version 5.5.0 released on 2015-11-17
 New Features
 ++++++++++++
 * New device detection through TCP fingerprinting
-* New DHCPv6 fingerprinting though Fingerbank
+* New DHCPv6 fingerprinting through Fingerbank
 * New RADIUS filter engine to return custom attributes based on rules
 * Security Onion integration
 * Paypal payment is now supported in the captive portal
@@ -27,7 +27,7 @@ New Features
 Enhancements
 ++++++++++++
 * pfdetect can now be configured through the administration interface
-* Added ability to detect hostname changes using the information in the DHCP packets.
+* Added ability to detect hostname changes using the information in the DHCP packets
 * Added the ability to create 'not equal' conditions in LDAP sources
 * DoS mitigation on the captive portal through mod_evasive
 * Load balancing in an active/active process now uses a dedicated process
@@ -54,14 +54,14 @@ Enhancements
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
-* Fixed logrotation issue with the carbon daemons
-* Fixed LLDP Telephone detection if only Telephone capabilitie is enable (#964)
+* Fixed log rotation issue with the carbon daemons
+* Fixed LLDP phone detection if only telephone capability is enabled (#964)
 * Fixed keepalived and iptables configuration for portal interfaces
 * Fixed improper httpd status code being set
 * Removed the node delete button
-* Fixed detection if the device ask for a portal per uri
+* Fixed detection if the device asks for a portal per URI
 * Fixed 3Com switches ifIndex calculation in stack mode using SNMP
-* Non-found users will now be cached when using the caching in an LDAP source (#978)
+* Not-found users will now be cached when using the caching in an LDAP source (#978)
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
