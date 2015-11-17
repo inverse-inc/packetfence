@@ -39,6 +39,7 @@ BEGIN {
         locationlog_view_all_open_mac
         locationlog_view_open
         locationlog_view_open_mac
+        locationlog_view_lastnotinline_mac
         locationlog_view_open_switchport
         locationlog_view_open_switchport_no_VoIP
         locationlog_view_open_switchport_only_VoIP
@@ -171,6 +172,16 @@ sub locationlog_db_prepare {
         WHERE mac=? AND (ISNULL(end_time) OR end_time=0)
         ORDER BY start_time desc
     ]);
+
+# CUSTOM
+# 2015.11.17 - dwuelfrath@inverse.ca
+    $locationlog_statements->{'locationlog_view_lastnotinline_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, switch, switch_ip, switch_mac, port, vlan, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
+        FROM locationlog
+        WHERE mac=? AND connection_type != 'Inline'
+        ORDER BY start_time desc
+    ]);
+# \CUSTOM
 
     $locationlog_statements->{'locationlog_view_open_switchport_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
@@ -368,6 +379,22 @@ sub locationlog_view_open_mac {
     $query->finish();
     return ($ref);
 }
+
+# CUSTOM
+# 2015.11.17 - dwuelfrath@inverse.ca
+sub locationlog_view_lastnotinline_mac {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+
+    my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_lastnotinline_mac_sql', $mac)
+        || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+# \CUSTOM
 
 sub locationlog_insert_start {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac ) = @_;
