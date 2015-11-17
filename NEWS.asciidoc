@@ -11,44 +11,39 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on XXXX-YY-ZZ
+Version 5.5.0 released on 2015-11-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
-* New ntlm_auth wrapper will log authentication latency to StatsD automatically.
-* Added ability to e-mail device owner as a violation action
-* Added ability to trigger violations based on the Suricata alert description
-* Added the ability to create combined violation triggers which allow to trigger a violation based off multiple attributes of a node.
-* The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently.
-* pfdetect can now be configured through the administration interface
-* Suricata alerts can now trigger a violation based on the alert category instead of only the ID of the alert
-* Authentication and accounting are now in two different RADIUS processes
-* Load balancing in an active/active process now uses a dedicated process
-* Added ability to detect hostname changes using the information in the DHCP packets.
-* Added the ability to create 'not equal' conditions in LDAP sources
-* Added device detection through TCP fingerprinting
-* Deny access on the portal interface if the device hit to much the captive portal using mod_evasive
-* Added DHCPv6 fingerprinting though Fingerbank
-* Radius filter engine to return custom attributes based on rules
+* New device detection through TCP fingerprinting
+* New DHCPv6 fingerprinting though Fingerbank
+* New RADIUS filter engine to return custom attributes based on rules
 * Security Onion integration
-* Added Paypal payment to the captive portal
-* Added Stripe payment and subscriptions to the captive portal
+* Paypal payment is now supported in the captive portal
+* Stripe payment and subscriptions are now supported in the captive portal
 
 
 Enhancements
 ++++++++++++
-* Detects Microsoft Windows based captive-portal detection mecanisms
+* pfdetect can now be configured through the administration interface
+* Added ability to detect hostname changes using the information in the DHCP packets.
+* Added the ability to create 'not equal' conditions in LDAP sources
+* DoS mitigation on the captive portal through mod_evasive
+* Load balancing in an active/active process now uses a dedicated process
+* Authentication and accounting are now in two different RADIUS processes
 * Reworked violation triggers creation in the administration interface so it's more user friendly
-* Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members.
+* Added the ability to create combined violation triggers which allow to trigger a violation based off multiple attributes of a node
+* Suricata alerts can now trigger a violation based on the alert category or description instead of only the ID of the alert
+* Added ability to e-mail device owner as a violation action
+* The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently
+* New ntlm_auth wrapper will log authentication latency to StatsD automatically
+* Handle Microsoft Windows based captive-portal detection mecanisms
+* Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members
 * New portal profile filter (sub connection type)
 * Added switch IP and description in the available columns in the node list view
-* Refactoring and code cleanup
-* Use snmp to determine the ifindexbased on the Nas-Port-Id
-* Speed up switch creation
-* Move to the vlan filters to use the feature/filter-engine
-* Improved metrics now track SQL queries, LDAP queries, and more granular metrics in RADIUS AAA.
-* Better logic based on the definition of the VLAN ID, role or ACL to return the radius answer (radius filters)
+* Use SNMP to determine the ifindex based on the Nas-Port-Id
+* Improved metrics now track SQL queries, LDAP queries, and more granular metrics in RADIUS AAA
 * Added support for Nessus 6 scan engine
 * Added documentation for the Cisco iOS XE switches
 * Reworked existing billing providers to be PCI compliant
@@ -59,14 +54,14 @@ Enhancements
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
-* Fix logrotation issue with the carbon daemons.
-* Fix LLDP Telephone detection if only Telephone capabilitie is enable. #964
-* Fix keepalived and iptables configuration for portal interfaces
-* Fix improper httpd status code being set
-* Removed the node delete button.
+* Fixed logrotation issue with the carbon daemons
+* Fixed LLDP Telephone detection if only Telephone capabilitie is enable (#964)
+* Fixed keepalived and iptables configuration for portal interfaces
+* Fixed improper httpd status code being set
+* Removed the node delete button
 * Fixed detection if the device ask for a portal per uri
 * Fixed 3Com switches ifIndex calculation in stack mode using SNMP
-* Non-found users will now be cached when using the caching in an LDAP source #978
+* Non-found users will now be cached when using the caching in an LDAP source (#978)
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
