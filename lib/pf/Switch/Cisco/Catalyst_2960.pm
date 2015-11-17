@@ -118,6 +118,10 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
 
+# CUSTOM : additionnal modules required
+use pf::person;
+use pf::iplog;
+# /CUSTOM
 
 sub description { 'Cisco Catalyst 2960' }
 
@@ -501,10 +505,18 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
             my $access_list = $self->getAccessListByName($args->{'user_role'});
+            # CUSTOM : We allow the user to access all of his devices on the network
+            foreach my $node (person_nodes($args->{node_info}->{pid})){
+                my $permit = "permit ip any host ".pf::iplog::mac2ip($node->{mac});
+                push(@av_pairs, $self->returnAccessListAttribute."=".$permit);
+                $logger->info("Adding ACL for user owned device : $permit");
+            }
+            # /CUSTOM
             while($access_list =~ /([^\n]+)\n?/g){
                 push(@av_pairs, $self->returnAccessListAttribute."=".$1);
                 $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
             }
+
             $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
         }
     }

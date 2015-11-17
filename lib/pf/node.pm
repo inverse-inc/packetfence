@@ -1011,6 +1011,15 @@ sub node_register {
         }
     }
 
+    # CUSTOM : we reevaluate access for the other nodes as the dynamic
+    foreach my $node (pf::person::person_nodes($pid)){
+        require pf::enforcement;
+        next if($mac eq $node->{mac});
+        $logger->info("Reevaluating access for user owned device ".$node->{mac});
+        pf::enforcement::reevaluate_access($node->{mac}, 'redir.cgi');
+    }
+    # /CUSTOM
+
     $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25); 
     return (1);
 }
