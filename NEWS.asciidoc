@@ -26,6 +26,8 @@ New Features
 
 Enhancements
 ++++++++++++
+* New pfqueue service based on Redis to manage asynchronous tasks
+* Memcached has been replaced by Redis for all caching
 * pfdetect can now be configured through the administration interface
 * Added ability to detect hostname changes using the information in the DHCP packets
 * Added the ability to create 'not equal' conditions in LDAP sources
