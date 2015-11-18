@@ -15,23 +15,28 @@ pf::util::webapi
 use strict;
 use warnings;
 use pf::log;
+use pf::util;
 
 sub add_mac_to_log_context {
     my ($args) = @_;
     my $params;
-    if (@$args == 1 ) {
-        if( ref ($args->[0]) eq 'HASH') {
+    if (@$args == 1) {
+        if (ref($args->[0]) eq 'HASH') {
             $params = $args->[0];
         }
-    } else {
-        $params = { @$args };
     }
-    if($params && exists $params->{mac}) {
-        Log::Log4perl::MDC->put( 'mac', $params->{'mac'} );
+    else {
+        $params = {@$args};
+    }
+    if ($params) {
+        for my $key (qw(mac Calling-Station-Id User-Name)) {
+            if (exists $params->{$key} && valid_mac (my $mac = $params->{$key})) {
+                Log::Log4perl::MDC->put('mac', $mac);
+                last;
+            }
+        }
     }
 }
-
-
 
 =head1 AUTHOR
 
