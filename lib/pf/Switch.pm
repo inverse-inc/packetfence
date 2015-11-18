@@ -2736,7 +2736,7 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
-            $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS reply");
+            $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS reply");
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
                 'Tunnel-Type' => $RADIUS::VLAN,
@@ -2744,12 +2744,12 @@ sub returnRadiusAccessAccept {
             };
         }
         else {
-            $logger->debug("[$args->{'mac'}] (".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
+            $logger->debug("(".$self->{'_id'}.") Received undefined VLAN. No VLAN added to RADIUS Access-Accept");
         }
     }
 
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$args->{'mac'}] Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
@@ -2759,15 +2759,15 @@ sub returnRadiusAccessAccept {
                 $self->returnRoleAttributes($role),
             };
             $logger->info(
-                "[$args->{'mac'}] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
+                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
         }
         else {
-            $logger->debug("[$args->{'mac'}] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+            $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
         }
     }
 
-    $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( defined($role) ? "and role $role" : "" ));
+    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( defined($role) ? "and role $role" : "" ));
     if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
