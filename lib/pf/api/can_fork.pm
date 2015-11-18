@@ -18,6 +18,7 @@ use warnings;
 use pf::log;
 use pf::api;
 use pf::db;
+use pf::util::webapi;
 use POSIX;
 use Moo;
 
@@ -31,6 +32,7 @@ calls the pf api
 
 sub call {
     my ($self,$method,@args) = @_;
+    pf::util::webapi::add_mac_to_log_context(\@args);
     return pf::api->$method(@args);
 }
 
@@ -56,6 +58,7 @@ sub notify {
         }
         Log::Log4perl::MDC->put( 'tid', $$ );
     }
+    pf::util::webapi::add_mac_to_log_context(\@args);
     eval {pf::api->$method(@args);};
     if ($@) {
         $logger->error($@);
