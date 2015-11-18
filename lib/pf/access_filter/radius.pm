@@ -91,6 +91,7 @@ sub setSession {
         switch_id => $args->{'switch'}->{'_id'},
     });
     pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
 }
 
 =head2 evalAnswer
