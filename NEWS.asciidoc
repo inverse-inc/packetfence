@@ -64,6 +64,7 @@ Bug Fixes (bug Id is denoted with #id)
 * Fixed detection if the device asks for a portal per URI
 * Fixed 3Com switches ifIndex calculation in stack mode using SNMP
 * Not-found users will now be cached when using the caching in an LDAP source (#978)
+* Updating a node puts an invalid entry in the voip field
 
 Version 5.4.0 released on 2015-10-01
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
