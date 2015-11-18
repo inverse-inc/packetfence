@@ -506,9 +506,9 @@ sub returnRadiusAccessAccept {
             my $access_list = $self->getAccessListByName($args->{'user_role'});
             while($access_list =~ /([^\n]+)\n?/g){
                 push(@av_pairs, $self->returnAccessListAttribute."=".$1);
-                $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
             }
-            $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
         }
     }
 
