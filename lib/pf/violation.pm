@@ -484,7 +484,6 @@ sub violation_add {
             return (-1);
         } else {
             my $msg = "grace expired on violation $vid for node $mac";
-            $logger->warn($msg);
             $logger->info($msg);
         }
     }
