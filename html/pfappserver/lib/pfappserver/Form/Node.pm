@@ -104,6 +104,7 @@ has_field 'voip' =>
    type => 'Checkbox',
    label => 'Voice Over IP',
    checkbox_value => 'yes',
+   input_without_param => 'no',
   );
 has_field 'last_dot1x_username' =>
   (
