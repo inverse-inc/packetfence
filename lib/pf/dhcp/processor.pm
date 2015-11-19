@@ -207,9 +207,12 @@ sub process_packet {
             dhcp_fingerprint    => $tmp{'dhcp_fingerprint'},
             dhcp_vendor         => $tmp{'dhcp_vendor'},
             mac                 => $dhcp->{'chaddr'},
-            # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
-            ip                  => ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'},
         );
+
+        # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
+        my $ip = ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'};
+        $fingerbank_query_args{'ip'} = $ip if defined($ip);
+
         $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
 
         my $modified_node_log_message = '';

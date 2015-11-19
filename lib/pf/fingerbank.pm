@@ -53,7 +53,7 @@ sub process {
                 $query_args->{$param} = $query_args->{$param} // $node_info->{$param};
             }
             # ip is a special case as it's not in the node_info
-            $query_args->{ip} = $query_args->{ip} // pf::iplog::mac2ip($query_args->{mac}) || undef;
+            $query_args->{ip} = $query_args->{ip} // pf::iplog::mac2ip($query_args->{mac}) if (pf::iplog::mac2ip($query_args->{mac}) ne 0);
         }
     }
 
