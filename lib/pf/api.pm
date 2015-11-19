@@ -43,6 +43,7 @@ use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
+use pf::access_filter::dhcp;
 
 use List::MoreUtils qw(uniq);
 use NetAddr::IP;
@@ -912,8 +913,12 @@ sub dynamic_register_node : Public {
 
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
-
-    return (pf::fingerbank::process($args));
+    my $filter = pf::access_filter::dhcp->new;
+    my $rule = $filter->filter('DhcpRequest', $args);
+    if (!$rule) {
+        delete $args->{'computer_name'};
+        return (pf::fingerbank::process($args));
+    }
 }
 
 =head2 fingerbank_update_upstream_db

@@ -207,6 +207,7 @@ sub process_packet {
             dhcp_fingerprint    => $tmp{'dhcp_fingerprint'},
             dhcp_vendor         => $tmp{'dhcp_vendor'},
             mac                 => $dhcp->{'chaddr'},
+            computer_name       => $tmp{'computername'},
         );
 
         # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
