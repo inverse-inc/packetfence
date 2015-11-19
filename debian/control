@@ -13,7 +13,7 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}), packetfence-ntlm-wrapper (>= ${Source-Version}),
- fingerbank (>= 2.0.0), graphite-web, winbind,
+ fingerbank (>= 2.0.0), graphite-web, winbind, p0f (>=3.06),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client
 Breaks: libdata-alias-perl
