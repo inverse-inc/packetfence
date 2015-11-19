@@ -38,7 +38,7 @@ Depends: ${misc:Depends}, vlan, make,
  procps,
 # perl basic components
  liblist-moreutils-perl, libwww-perl, libtry-tiny-perl,
- libscalar-list-utils-perl,
+ libscalar-list-utils-perl (>= 1.42),
 # perl uncategorized modules
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
