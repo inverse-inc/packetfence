@@ -197,6 +197,7 @@ sub touch_cache {
     }
     if ( -e $filename ) {
         my $command = 'touch --date=@'.time.' '."'".$filename."'";
+        $command = untaint_chain($command);
         `$command`;
     }
     my ( undef, undef, $uid, $gid ) = getpwnam('pf');
