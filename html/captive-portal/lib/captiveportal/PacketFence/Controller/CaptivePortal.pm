@@ -244,7 +244,7 @@ sub checkIfNeedsToRegister : Private {
             $c->detach('Signup' => 'index');
         } elsif ($portalSession->profile->billingRegistrationOnly) {
             # Redirect to the billing self registration page if configured to do so
-            $logger->info("[$mac] redirected to billing self registration page on ".$profile->name." portal");
+            $logger->info("redirected to billing self registration page on ".$profile->name." portal");
             $c->detach('Billing' => 'index');
         } else {
             $logger->info("redirected to authentication page on ".$profile->name." portal");
@@ -369,7 +369,7 @@ sub unknownState : Private {
         }
 
         if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
-            $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate [$mac]");
+            $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
             $c->stash(
                 template => 'webFormRelease.html',
                 content => $switch->getAcceptForm($mac,

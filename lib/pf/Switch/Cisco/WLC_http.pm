@@ -128,8 +128,7 @@ sub parseUrl {
 
 =head2 returnRadiusAccessAccept
 
-Overloading L<pf::Switch>'s implementation because AeroHIVE doesn't support
-assigning VLANs and Roles at the same time.
+Overloading L<pf::Switch>'s implementation to return specific attributes.
 
 =cut
 
@@ -161,7 +160,7 @@ sub returnRadiusAccessAccept {
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
             my $redirect_url = $this->{'_portalURL'}."/cep$session_id";
-            $logger->info("[$args->{'mac'}] Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
 
