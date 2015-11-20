@@ -23,8 +23,8 @@ case "$1" in
 	export PACKETFENCE=/usr/local/pf
 	chmod 2775 -R $PACKETFENCE/logs
 	chmod 2775 -R $PACKETFENCE/var
-	chown pf:pf $PACKETFENCE
-	find $PACKETFENCE '(' -type d -or -type f ')'  -not -name pfcmd -print0 | xargs -0 chown pf:pf
+	chown pf:pf $PACKETFENCE/logs
+	chown pf:pf $PACKETFENCE/var
 	update-rc.d packetfence-redis-cache defaults 60 || exit 0
 	set +e
 	for service in redis-server; do
