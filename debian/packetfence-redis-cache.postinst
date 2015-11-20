@@ -22,6 +22,7 @@ case "$1" in
     configure)
 	export PACKETFENCE=/usr/local/pf
 	chmod 2775 -R $PACKETFENCE/logs
+	chmod 2775 -R $PACKETFENCE/var
 	chown pf:pf $PACKETFENCE
 	find $PACKETFENCE '(' -type d -or -type f ')' -print0 | xargs -0 chown pf:pf
 	update-rc.d packetfence-redis-cache defaults 60 || exit 0
