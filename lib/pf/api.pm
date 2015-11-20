@@ -914,7 +914,7 @@ sub dynamic_register_node : Public {
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
     my $filter = pf::access_filter::dhcp->new;
-    my $rule = $filter->filter('DhcpRequest', $args);
+    my $rule = $filter->filter('DhcpFingerbank', $args);
     if (!$rule) {
         delete $args->{'computer_name'};
         return (pf::fingerbank::process($args));
