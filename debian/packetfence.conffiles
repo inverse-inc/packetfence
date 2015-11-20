@@ -25,7 +25,6 @@
 /usr/local/pf/conf/pki_provider.conf
 /usr/local/pf/conf/provisioning.conf
 /usr/local/pf/conf/realm.conf
-/usr/local/pf/conf/redis_cache.conf
 /usr/local/pf/conf/redis_queue.conf
 /usr/local/pf/conf/domain.conf
 /usr/local/pf/conf/pfdetect.conf
