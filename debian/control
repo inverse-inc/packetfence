@@ -13,13 +13,11 @@ Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}), packetfence-ntlm-wrapper (>= ${Source-Version}),
- fingerbank (>= 2.0.0), graphite-web, winbind, p0f (>=3.06),
-# wmi
- libnet-wmiclient-perl, libwmiclient1, wmi-client
+ fingerbank (>= 2.0.0), packetfence-redis-cache (>= ${Source-Version})
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
- mysql-server|mariadb-server|mariadb-galera-server, redis-server, redis-tools,
+ mysql-server|mariadb-server|mariadb-galera-server,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
@@ -27,13 +25,18 @@ Depends: ${misc:Depends}, vlan, make,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-qos,
  libapache2-mod-evasive,
+# binary
  make,
  samba,
  krb5-user,
  iproute,
  ipset,
  sudo,
- liburi-escape-xs-perl,
+ winbind,
+ p0f (>=3.06),
+ sscep,
+# wmi
+ libnet-wmiclient-perl, libwmiclient1, wmi-client,
 # process management
  procps,
 # perl basic components
@@ -66,7 +69,7 @@ Depends: ${misc:Depends}, vlan, make,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- sscep,
+ liburi-escape-xs-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -111,12 +114,13 @@ Depends: ${misc:Depends}, vlan, make,
  libauthen-radius-perl, libauthen-krb5-simple-perl,
 # used by bin/pftest
  libio-interactive-perl,
+# cluster
  haproxy (>= 1.5), keepalived (>= 1.2),
 # monitoring
  collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
  nodejs, freeradius-radsniff (>=3.0), libapache2-mod-wsgi,
- python-twisted-bin (<=13.0), python-twisted-core (<=13.0),
+ python-twisted-bin (<=13.0), python-twisted-core (<=13.0), graphite-web,
 # EAP TLS
  libcrypt-smime-perl
 Recommends:  freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
@@ -186,3 +190,8 @@ Package: packetfence-config
 Architecture: all
 Depends: ${misc:Depends}, libcache-bdb-perl, liblog-fast-perl
 Description: Service use to manage PacketFence configuration.
+
+Package: packetfence-redis-cache
+Architecture: all
+Depends: ${misc:Depends}, redis-server, redis-tools
+Description: Init script to manage redis server.
