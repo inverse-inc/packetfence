@@ -49,6 +49,9 @@ case "$1" in
         if [ -e "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
                 rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
         fi
+        if [ -e "/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm" ] ; then
+                rm -fr /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
+        fi
         usermod pf -a -G fingerbank,winbindd_priv
         exit 0
     ;;
