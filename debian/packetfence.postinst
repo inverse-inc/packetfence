@@ -102,7 +102,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server; do
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived; do
             
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
