@@ -1,4 +1,4 @@
-# PacketFence RPM SPEC
+    # PacketFence RPM SPEC
 #
 # NEW (since git migration):
 #
@@ -1205,6 +1205,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+
+* Fri Nov 20 2015 Inverse <info@inverse.ca> - 5.5.0-1
+- New release 5.5.0
 
 * Thu Oct  1 2015 Inverse <info@inverse.ca> - 5.4.0-1
 - New release 5.4.0
