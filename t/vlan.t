@@ -112,10 +112,10 @@ my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => ''
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
 
-my ($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'OPEN');
+my ($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
 is($role, 'registration', "obtain registration role for the device");
 
-($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',$switch, '10000', 'aa:bb:cc:dd:ee:ff', $node_attributes, 'Wireless-802.11-NoEAP', 'pf', 'TEST');
+($result,$role) = $vlan_obj->filterVlan('RegistrationVlan',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
 is($role, 'registration2', "obtain registration role for the device");
 
 #($vlan,$wasInline) = $vlan_obj->getNormalRole($switch);
