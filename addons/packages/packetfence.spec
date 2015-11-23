@@ -588,7 +588,7 @@ fi
 /sbin/chkconfig --add packetfence-redis-cache
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
+for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log redis_cache.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
