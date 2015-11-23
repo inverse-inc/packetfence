@@ -552,11 +552,11 @@ sub iptables_update_set {
         my $ip = new NetAddr::IP::Lite clean_ip($ip);
         if ($net_addr->contains($ip)) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                pf_run("LANG=C sudo ipset del PF-iL3_ID$old\_$network $ip -exist 2>&1");
-                pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip -exist 2>&1");
+                pf_run("LANG=C sudo ipset del PF-iL3_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip -exist 2>&1") if defined($new);
             } else {
-                pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip -exist 2>&1");
-                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip -exist 2>&1");
+                pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip -exist 2>&1") if defined($new);
             }
         }
     }
