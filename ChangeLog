@@ -1,3 +1,57 @@
+commit 73ae8c78f674ab013ac91b881dfcd67ee59ff26c
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Nov 23 11:13:53 2015 -0500
+
+    Fixed redis_cache.log permission issue.
+
+M	addons/packages/packetfence.spec
+
+commit 3ca567dd248cc133aa5506884324206501f31cf4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Nov 23 08:49:16 2015 -0500
+
+    Removed useless log
+
+M	lib/pf/Switch/AeroHIVE.pm
+M	lib/pf/Switch/AeroHIVE/AP_http.pm
+M	lib/pf/Switch/Cisco/Catalyst_2960_http.pm
+M	lib/pf/Switch/Mikrotik.pm
+M	lib/pf/Switch/Xirrus/AP_http.pm
+
+commit ed81cdb106f7aea987b8c7a3ff037463ed3ddda9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Nov 20 15:58:12 2015 -0500
+
+    Remove benchmark script that breaks the build
+
+D	addons/dev-helpers/redis-memcached-chi-benchmark.pl
+
+commit 3b9f67d9b54b8c21c61c0965a084e0216db7744a
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 20 15:26:09 2015 -0500
+
+    Fixed db schema and scripts with references 5.3-5.4.
+
+M	db/pf-schema-5.5.0.sql
+M	db/upgrade-5.4.0-5.5.0.sql
+
+commit ba19c0a014335266e9b2df3dd7111ec60fbd2112
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 20 15:23:36 2015 -0500
+
+    Renamed schema prior to 5.5.0 release.
+
+A	db/pf-schema-5.5.0.sql
+D	db/pf-schema-X.Y.Z.sql
+
+commit 8d5475b415e208350767f15e0896192adb778846
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 20 15:13:10 2015 -0500
+
+    Updated Changelog.
+
+M	ChangeLog
+
 commit 2ab2e3ecccbdf2538429959a19e24a7827867476
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Fri Nov 20 15:10:48 2015 -0500
