@@ -234,7 +234,7 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
-    $logger->debug("[$args->{'mac'}] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
+    $logger->debug("Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
     if ( isenabled($this->{_RoleMap}) && $this->supportsRoleBasedEnforcement()) {
         my $role = $this->getRoleByName($args->{'user_role'});
 
