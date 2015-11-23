@@ -620,7 +620,7 @@ sub _handleStaticPortSecurityMovement {
     # We check if the mac moved in a different switch. If it's a different port we don't care.
     # Let's say MAB + port sec on the same switch is a bit too extreme
 
-    $logger->debug("$args->{'mac'} has still open locationlog entry at $old_switch_id ifIndex $old_port");
+    $logger->debug("has still open locationlog entry at $old_switch_id ifIndex $old_port");
 
     $logger->info("Will try to check on this node's previous switch if secured entry needs to be removed. ".
         "Old Switch IP: $old_switch_id");

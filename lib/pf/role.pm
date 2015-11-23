@@ -79,9 +79,9 @@ sub fetchRoleForNode {
     my $node_info = $args->{'node_info'};
 
     if ($this->isInlineTrigger($args)) {
-        $logger->info("[$args->{'mac'}] Inline trigger match, the node is in inline mode");
+        $logger->info("Inline trigger match, the node is in inline mode");
         my $inline = $this->getInlineRole($args);
-        $logger->info("[$args->{'mac'}] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({ role => "inline", wasInline => 1 });
     }
@@ -91,16 +91,16 @@ sub fetchRoleForNode {
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         if (exists($ConfigFloatingDevices{$args->{'mac'}})){
             my $floating_config = $ConfigFloatingDevices{$args->{'mac'}};
-            $logger->info("Floating device $args->{'mac'} has plugged into $args->{'switch'}->{_ip} port $args->{'ifIndex'}. Returned VLAN : $floating_config->{pvid}");
+            $logger->info("Floating device has plugged into $args->{'switch'}->{_ip} port $args->{'ifIndex'}. Returned VLAN : $floating_config->{pvid}");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return ({ vlan => $floating_config->{'pvid'}});
         }
         my $floating_mac = $floatingDeviceManager->portHasFloatingDevice($args->{'switch'}->{_ip}, $args->{'ifIndex'});
         if($floating_mac){
-            $logger->debug("Device $args->{'mac'} is plugged into a floating enabled port (Device $floating_mac). Determining if trunk.");
+            $logger->debug("Device is plugged into a floating enabled port (Device $floating_mac). Determining if trunk.");
             my $floating_config = $ConfigFloatingDevices{$floating_mac};
             if( ! $floating_config->{'trunkPort'} ){
-                $logger->info("MAC $args->{'mac'}, PID: $node_info->{pid} has just plugged in an access floating device enabled port. Returned VLAN $floating_config->{pvid}");
+                $logger->info("PID: $node_info->{pid} has just plugged in an access floating device enabled port. Returned VLAN $floating_config->{pvid}");
                 $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
                 return ({ vlan => $floating_config->{'pvid'}});
             }
@@ -122,7 +122,7 @@ sub fetchRoleForNode {
     if (defined($answer->{role}) && $answer->{role} ne "0") {
         if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
-                $logger->info("[$args->{'mac'}] Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
+                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
                 node_modify($args->{'mac'}, ('autoreg' => 'no'));
             }
         }
@@ -132,7 +132,7 @@ sub fetchRoleForNode {
 
     # no violation, not unregistered, we are now handling a normal vlan
     $answer = $this->getNormalRole($args);
-    $logger->info("[$args->{'mac'}] PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: ".(defined $answer->{vlan} ? $answer->{vlan} : "(undefined)").", Role: " . (defined $answer->{role} ? $answer->{role} : "(undefined)") );
+    $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: ".(defined $answer->{vlan} ? $answer->{vlan} : "(undefined)").", Role: " . (defined $answer->{role} ? $answer->{role} : "(undefined)") );
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $answer;
 }
@@ -220,7 +220,7 @@ sub getViolationRole {
         return ({ role => 0});
     }
 
-    $logger->debug("[$args->{'mac'}] has $open_violation_count open violations(s) with action=trap; ".
+    $logger->debug("has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
@@ -234,12 +234,12 @@ sub getViolationRole {
     $role = "isolation";
 
     # fetch top violation
-    $logger->trace("[$args->{'mac'}] What is the highest priority violation for this host?");
+    $logger->trace("What is the highest priority violation for this host?");
     my $top_violation = violation_view_top($args->{'mac'});
     # fetching top violation failed
     if (!$top_violation || !defined($top_violation->{'vid'})) {
 
-        $logger->warn("[$args->{'mac'}] Could not find highest priority open violation. ".
+        $logger->warn("Could not find highest priority open violation. ".
                       "Setting target role");
         $pf::StatsD::statsd->increment(called() . ".error" );
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -261,7 +261,7 @@ sub getViolationRole {
     # finding violation class based on violation id failed
     if (!$class || !defined($class->{'vlan'})) {
 
-        $logger->warn("[$args->{'mac'}] Could not find class entry for violation $vid. ".
+        $logger->warn("Could not find class entry for violation $vid. ".
                       "Setting target role to isolation");
         $pf::StatsD::statsd->increment(called() . ".error" );
         $pf::StatsD::statsd->end(called() . ".timing" , $start );
@@ -277,7 +277,7 @@ sub getViolationRole {
 
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
     if (defined($role)) {
-        $logger->info("[$args->{'mac'}] highest priority violation is $vid. Target Role for violation: $role");
+        $logger->info("highest priority violation is $vid. Target Role for violation: $role");
     }
 
     $pf::StatsD::statsd->end(called() . ".timing" , $start);
@@ -316,7 +316,7 @@ sub getRegistrationRole {
     # trapping on registration is enabled
 
     if (!isenabled($Config{'trapping'}{'registration'})) {
-        $logger->debug("[$args->{'mac'}] Registration trapping disabled: skipping node is registered test");
+        $logger->debug("Registration trapping disabled: skipping node is registered test");
         return ({ role => 0});
     }
 
@@ -324,11 +324,11 @@ sub getRegistrationRole {
         # Vlan Filter
         my $role = $this->filterVlan('RegistrationVlan',$args);
         if ($role) {
-            $logger->info("[$args->{'mac'}] vlan filter match ; belongs into $role VLAN");
+            $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return ({role => $role});
         }
-        $logger->info("[$args->{'mac'}] doesn't have a node entry; belongs into registration VLAN");
+        $logger->info("doesn't have a node entry; belongs into registration VLAN");
         my $vlan = $args->{'switch'}->getVlanByName('registration');
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({role => 'registration'});
@@ -339,11 +339,11 @@ sub getRegistrationRole {
         # Vlan Filter
         my $role = $this->filterVlan('RegistrationVlan',$args);
         if ($role) {
-            $logger->info("[$args->{'mac'}] vlan filter match ; belongs into $role VLAN");
+            $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return ({role => $role});
         }
-        $logger->info("[$args->{'mac'}] is of status $n_status; belongs into registration VLAN");
+        $logger->info("is of status $n_status; belongs into registration VLAN");
         my $vlan = $args->{'switch'}->getVlanByName('registration');
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return ({role => 'registration'});
@@ -398,13 +398,13 @@ sub getNormalRole {
 
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
     if (defined($provisioner) && $provisioner->{enforce}) {
-        $logger->info("[$args->{'mac'}] Triggering provisioner check");
+        $logger->info("Triggering provisioner check");
         violation_trigger($args->{'mac'}, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
     }
 
     my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
     if (defined($scan) && isenabled($scan->{'post_registration'})) {
-        $logger->info("[$args->{'mac'}] Triggering scan check");
+        $logger->info("Triggering scan check");
         violation_add( $args->{'mac'}, $POST_SCAN_VID );
     }
 
@@ -414,7 +414,7 @@ sub getNormalRole {
         return ({ vlan => $vlan});
     }
 
-    $logger->debug("[$args->{'mac'}] Trying to determine VLAN from role.");
+    $logger->debug("Trying to determine VLAN from role.");
 
     # Vlan Filter
     $role = $this->filterVlan('NormalVlan',$args);
@@ -425,15 +425,15 @@ sub getNormalRole {
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
     if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
-        $logger->info("[$args->{'mac'}] Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
+        $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
     } elsif ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-        $logger->info("[$args->{'mac'}] Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
+        $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
 
 
         if (isenabled($args->{'node_info'}->{'autoreg'})) {
-            $logger->info("[$args->{'mac'}] Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
+            $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
             $role = 'registration';
             my %info = (
                 'status' => 'unreg',
@@ -448,7 +448,7 @@ sub getNormalRole {
     # FIRST HIT MATCH
     elsif ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) {
         if ( isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
-            $logger->info("[$args->{'mac'}] Role has already been computed and we don't want to recompute it. Getting role from node_info" );
+            $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
             my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
@@ -487,11 +487,11 @@ sub getNormalRole {
     }
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
-        $logger->info("[$args->{'mac'}] Username was defined \"$args->{'user_name'}\" - returning role '$role'");
+        $logger->info("Username was defined \"$args->{'user_name'}\" - returning role '$role'");
     # Otherwise, we return the node based role matched with the node MAC address
     } else {
         $role = $args->{'node_info'}->{'category'};
-        $logger->info("[$args->{'mac'}] Username was NOT defined or unable to match a role - returning node based role '$role'");
+        $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return ({role => $role});
@@ -596,7 +596,7 @@ sub getNodeInfoForAutoReg {
 
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($args->{'connection_type'}) && (($args->{'connection_type'} & $EAP) == $EAP) && defined($args->{'user_name'})) {
-        $logger->debug("[$args->{'mac'}] EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
+        $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
         my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
         my $stripped_user = '';
         $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
@@ -663,19 +663,19 @@ sub shouldAutoRegister {
 
     # handling switch-config first because I think it's the most important to honor
     if (defined($args->{'switch'}->{switch_in_autoreg_mode}) && $args->{'switch'}->{switch_in_autoreg_mode}) {
-        $logger->trace("[$args->{'mac'}] returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
+        $logger->trace("returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return 1;
 
     # if we have a violation action set to autoreg
     } elsif (defined($args->{'violation_autoreg'}) && $args->{'violation_autoreg'}) {
-        $logger->trace("[$args->{'mac'}] returned yes because it's from a violation with action autoreg");
+        $logger->trace("returned yes because it's from a violation with action autoreg");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return 1;
     }
 
     if ($args->{'isPhone'}) {
-        $logger->trace("[$args->{'mac'}] returned yes because it's an ip phone");
+        $logger->trace("returned yes because it's an ip phone");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return $args->{'isPhone'};
     }
@@ -729,7 +729,7 @@ sub isInlineTrigger {
             # make sure trigger is a valid trigger type
             # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
             if ( !grep( { lc($_) eq $type } $args->{'switch'}->inlineCapabilities ) ) {
-                $logger->warn("[$args->{'mac'}] Invalid trigger type ($type), this is not supported by this switch (" . $args->{'switch'}->{_id} . ")");
+                $logger->warn("Invalid trigger type ($type), this is not supported by this switch (" . $args->{'switch'}->{_id} . ")");
                 return $FALSE;
             }
             return $TRUE if (($type eq $MAC) && ($args->{'mac'} eq $tid));
@@ -745,11 +745,11 @@ sub _check_bypass {
 
     # Bypass VLAN/role is configured in node record so we return accordingly
     if ( defined( $args->{'node_info'}->{'bypass_vlan'} ) && ( $args->{'node_info'}->{'bypass_vlan'} ne '' ) ) {
-        $logger->info( "[$args->{'mac'}] A bypass VLAN is configured. Returning VLAN: " . $args->{'node_info'}->{'bypass_vlan'} );
+        $logger->info( "A bypass VLAN is configured. Returning VLAN: " . $args->{'node_info'}->{'bypass_vlan'} );
         return $args->{'node_info'}->{'bypass_vlan'};
     }
     elsif ( defined( $args->{'node_info'}->{'bypass_role'} ) && ( $args->{'node_info'}->{'bypass_role'} ne '' ) ) {
-        $logger->info( "[$args->{'mac'}] A bypass Role is configured. Returning Role: " . $args->{'node_info'}->{'bypass_role'} );
+        $logger->info( "A bypass Role is configured. Returning Role: " . $args->{'node_info'}->{'bypass_role'} );
         return $args->{'switch'}->getVlanByName( $args->{'node_info'}->{'bypass_role'} );
     }
     else {
