@@ -139,7 +139,7 @@ sub returnRadiusAccessAccept {
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
             my $redirect_url = $this->{'_portalURL'}."/cep$session_id";
-            $logger->info("[$args->{'mac'}] Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
 

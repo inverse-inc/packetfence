@@ -86,7 +86,7 @@ sub returnRadiusAccessAccept {
 
     }
     else{
-        $logger->info("[$args->{'mac'}] Returning ACCEPT");
+        $logger->info("Returning ACCEPT");
         $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
         return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
     }

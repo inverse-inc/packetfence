@@ -210,7 +210,7 @@ sub returnRadiusAccessAccept {
         };
     }
 
-    $logger->info("[$args->{'mac'}] (".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");
+    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);

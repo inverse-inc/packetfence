@@ -247,7 +247,7 @@ sub returnRadiusAccessAccept {
             };
         }
 
-        $logger->info("[$args->{'mac'}] (".$this->{'_id'}.") Returning ACCEPT with Role: $role");
+        $logger->info("(".$this->{'_id'}.") Returning ACCEPT with Role: $role");
 
     }
 
@@ -260,7 +260,7 @@ sub returnRadiusAccessAccept {
             'Tunnel-Private-Group-ID' => $args->{'vlan'},
         };
 
-        $logger->info("[$args->{'mac'}] Returning ACCEPT with VLAN: $args->{'vlan'}");
+        $logger->info("Returning ACCEPT with VLAN: $args->{'vlan'}");
     }
 
     my $filter = pf::access_filter::radius->new;
