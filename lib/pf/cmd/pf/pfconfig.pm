@@ -14,7 +14,6 @@ pf::cmd::pf::pfconfig
    list                | list all pfconfig namespaces
    show <namespace>    | rebuild and display a pfconfig namespace
    get <namespace>     | display a pfconfig namespace from pfconfig process
-   clear_overlay       | clear all overlayed namespaces of pfconfig
 
 =head1 DESCRIPTION
 
@@ -126,19 +125,6 @@ sub action_get {
     my $obj = pfconfig::cached->new;
     my $response = $obj->_get_from_socket($namespace, "element");
     print Dumper($response);
-    return $EXIT_SUCCESS;
-}
-
-=head2 action_clear_overlay
-
-Clear all overlayed namespaces of pfconfig
-
-=cut
-
-sub action_clear_overlay {
-    my ($self) = @_;
-    my $manager = pfconfig::manager->new;
-    $manager->clear_overlayed_namespaces(); 
     return $EXIT_SUCCESS;
 }
 

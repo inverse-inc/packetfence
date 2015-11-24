@@ -137,11 +137,6 @@ sub overlayed_namespaces {
     return @overlayed_namespaces;
 }
 
-sub clear_overlayed_namespaces {
-    my ($self) = @_;
-    $self->{cache}->set('_namespace_overlay', undef);
-}
-
 =head2 new
 
 Constructor for the manager
