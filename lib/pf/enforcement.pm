@@ -184,7 +184,7 @@ sub _should_we_reassign_vlan {
     my $ssid            = $locationlog_entry->{'ssid'};
     my $role            = $locationlog_entry->{'role'};
 
-    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex with the role $role");
+    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex ".(defined $role ? "${role}" : "(undefined)"));
 
     my $vlan_obj = new pf::role::custom();
 
