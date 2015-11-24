@@ -182,13 +182,13 @@ sub authorize {
 
     # Vlan Filter
     my $node_info = node_view($mac);
+    $args->{'ssid'} = $ssid;
+    $args->{'node_info'} = $node_info;
     my $result = $vlan_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || ($result != 0);
 
-    $args->{'ssid'} = $ssid;
-    $args->{'node_info'} = $node_info;
     $args->{'isPhone'} = $isPhone;
 
     my $autoreg = 0;
