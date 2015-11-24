@@ -2767,7 +2767,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( defined($role) ? "and role $role" : "" ));
+    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( (defined($role) && $role ne "") ? "and role $role" : "" ));
     if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
