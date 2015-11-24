@@ -206,7 +206,7 @@ sub _should_we_reassign_vlan {
     };
 
     my $newRole = $vlan_obj->fetchRoleForNode( $args );
-    my $newCorrectVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
+    my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
 
     if (defined($newCorrectVlan)) {
         if ( $newCorrectVlan eq '-1' ) {
