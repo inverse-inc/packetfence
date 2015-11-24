@@ -53,8 +53,8 @@ Please note that the sections below are cumulative. That is to say, if you are u
 
 With the changes made to RADIUS in the version 5.5, you will need to remove the following files if they are present on your setup.
 
-  raddb/sites-enabled/inner-tunnel
-  raddb/sites-enabled/default
+  /usr/local/pf/raddb/sites-enabled/inner-tunnel
+  /usr/local/pf/raddb/sites-enabled/default
 
 
 Upgrading from a version prior to 5.5.0
