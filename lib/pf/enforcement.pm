@@ -182,8 +182,9 @@ sub _should_we_reassign_vlan {
     my $connection_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
     my $user_name       = $locationlog_entry->{'dot1x_username'};
     my $ssid            = $locationlog_entry->{'ssid'};
+    my $role            = $locationlog_entry->{'role'};
 
-    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
+    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex with the role $role");
 
     my $vlan_obj = new pf::role::custom();
 
@@ -204,21 +205,32 @@ sub _should_we_reassign_vlan {
         node_info => node_view($mac),
     };
 
-    my $role = $vlan_obj->fetchRoleForNode( $args );
+    my $newRole = $vlan_obj->fetchRoleForNode( $args );
     my $newCorrectVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
-    if (!defined($newCorrectVlan)) {
-        return $TRUE;
-    } elsif ( $newCorrectVlan eq '-1' ) {
-        $logger->info(
-            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
-    }
-    elsif ( $newCorrectVlan ne $currentVlan ) {
-        $logger->info(
-            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
+
+    if (defined($newCorrectVlan)) {
+        if ( $newCorrectVlan eq '-1' ) {
+            $logger->info(
+                "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+            );
+            return $TRUE;
+        } elsif (defined($currentVlan)) {
+            if ( $newCorrectVlan ne $currentVlan ) {
+                $logger->info(
+                    "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                );
+                return $TRUE;
+            } else {
+                return $FALSE;
+            }
+        }
+    } elsif (defined($role)) {
+        if ($role ne $newRole) {
+            $logger->info(
+                "VLAN reassignment required (current Role = $role but should be in Role $newRole)"
+            );
+            return $TRUE;
+        }
     }
     $logger->debug("No VLAN reassignment required.");
     return $FALSE;
