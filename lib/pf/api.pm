@@ -1059,8 +1059,8 @@ sub process_dhcpv6 : Public {
             $logger->debug("Found DHCPv6 link address (MAC) '$mac_address'");
         }
     }
-
-    $logger->trace("[$mac_address] Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+    Log::Log4perl::MDC->put('mac', $mac_address);
+    $logger->trace("Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
 
     my %fingerbank_query_args = (
         mac                 => $mac_address,
