@@ -689,6 +689,7 @@ echo "Adding PacketFence config startup script"
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
+        /sbin/service packetfence-redis-cache stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
         /sbin/chkconfig --del packetfence-redis-cache
 fi
