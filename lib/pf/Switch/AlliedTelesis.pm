@@ -68,16 +68,16 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_alliedFirmwareVersion = '.1.3.6.1.4.1.89.2.4.0';
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for oid_alliedFirmwareVersion: $oid_alliedFirmwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_alliedFirmwareVersion] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_alliedFirmwareVersion] );
     my $runtimeSwVersion = ( $result->{$oid_alliedFirmwareVersion} || '' );
 
     return $runtimeSwVersion;

@@ -59,8 +59,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # NAS-Port bumps by +100 between stacks while ifIndex bumps by +500
     # some examples values for stacked switches are available in t/network-devices/cisco.t

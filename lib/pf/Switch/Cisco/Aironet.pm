@@ -86,8 +86,8 @@ L<http://www.cpanforum.com/threads/6909/>
 =cut
 
 sub deauthenticateMacDefault {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
 
     $mac = format_mac_as_cisco($mac);
     if ( !defined($mac) ) {
@@ -99,24 +99,24 @@ sub deauthenticateMacDefault {
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
         $logger->error(
-            "ERROR: Can not connect to access point $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Can not connect to access point $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 1;
     }
 
-    #if (! $session->enable($this->{_cliEnablePwd})) {
+    #if (! $session->enable($self->{_cliEnablePwd})) {
     #    $logger->error("ERROR: Can not 'enable' telnet connection");
     #    return 1;
     #}
@@ -127,67 +127,67 @@ sub deauthenticateMacDefault {
 }
 
 sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $type ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
-    my ($this) = @_;
+    my ($self) = @_;
     my $vlans  = {};
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $vlan ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub isVoIPEnabled {
-    my ($this) = @_;
+    my ($self) = @_;
     return 0;
 }
 
@@ -199,8 +199,8 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 
 # Same as in pf::Switch::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
@@ -224,7 +224,7 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
     );
     return;
@@ -237,8 +237,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::TELNET;
     my %tech = (
         $SNMP::TELNET => 'deauthenticateMacDefault',

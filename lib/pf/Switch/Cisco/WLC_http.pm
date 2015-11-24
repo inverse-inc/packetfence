@@ -94,8 +94,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -121,8 +121,8 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = $this->logger;
+    my($self, $req) = @_;
+    my $logger = $self->logger;
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
@@ -133,19 +133,19 @@ Overloading L<pf::Switch>'s implementation to return specific attributes.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
 
     $args->{'unfiltered'} = $TRUE;
-    my @super_reply = @{$this->SUPER::returnRadiusAccessAccept($args)};
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     $radius_reply_ref = \%radius_reply;
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-    my $role = $this->getRoleByName($args->{'user_role'});
+    my $role = $self->getRoleByName($args->{'user_role'});
     if(defined($role) && $role ne ""){
         my $mac = $args->{'mac'};
         my $node_info = $args->{'node_info'};
@@ -156,16 +156,16 @@ sub returnRadiusAccessAccept {
             $chi->set($session_id,{
                 client_mac => $mac,
                 wlan => $args->{'ssid'},
-                switch_id => $this->{_id},
+                switch_id => $self->{_id},
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $this->{'_portalURL'}."/cep$session_id";
+            my $redirect_url = $self->{'_portalURL'}."/cep$session_id";
             $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
 
             # remove the role if any as we push the redirection ACL along with it's role
-            delete $radius_reply_ref->{$this->returnRoleAttribute()};
+            delete $radius_reply_ref->{$self->returnRoleAttribute()};
         }
 
     }
@@ -312,7 +312,7 @@ Redefinition of pf::Switch::parseRequest due to specific attribute being used fo
 =cut
 
 sub parseRequest {
-    my ( $this, $radius_request ) = @_;
+    my ( $self, $radius_request ) = @_;
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});

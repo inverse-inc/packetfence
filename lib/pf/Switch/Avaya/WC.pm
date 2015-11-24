@@ -64,17 +64,17 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)        = @_;
+    my ($self)        = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
-    my $logger        = $this->logger;
+    my $logger        = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return '';
     }
 
     $logger->trace("SNMP get_request for s5ChasVer: $oid_s5ChasVer");
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_s5ChasVer] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_s5ChasVer] );
     if ( exists( $result->{$oid_s5ChasVer} ) && ( $result->{$oid_s5ChasVer} ne 'noSuchInstance' ) ) {
         return $result->{$oid_s5ChasVer};
     }
@@ -87,9 +87,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     # example disassociate trap on MAC 00 1B B1 8B 82 13
     # BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (865381) 2:24:13.81|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.388.14.5.1.7.1.6|.1.3.6.1.4.1.388.14.5.1.7.1.1 = Hex-STRING: 00 1B B1 8B 82 13 |.1.3.6.1.4.1.388.14.3.3.1.2.2.1.1 = Counter32: 1|.1.3.6.1.4.1.388.14.4.1.4.1.1.1 = INTEGER: 31|.1.3.6.1.4.1.388.14.4.1.4.1.1.2 = INTEGER: 4|.1.3.6.1.4.1.388.14.4.1.4.1.1.4 = STRING: "disassociated"|.1.3.6.1.4.1.388.14.4.1.4.1.1.5 = Hex-STRING: 07 DA 09 1B 09 25 0F 00 |.1.3.6.1.4.1.388.14.4.1.4.1.1.8 = INTEGER: 2 END VARIABLEBINDINGS
@@ -110,25 +110,25 @@ deauthenticateMacDefault a MAC address from wireless network (including 802.1x)
 =cut
 
 sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $oid_avWlanAssociatedClientDisassociateAction = '1.3.6.1.4.1.45.7.9.1.1.1.10';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to avWlanAssociatedClientDisassociateAction");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     # append MAC to deauthenticate to oid to set
     $oid_avWlanAssociatedClientDisassociateAction .= '.' . mac2oid($mac);
 
-    $logger->info("deauthenticate mac $mac from controller: " . $this->{_ip});
+    $logger->info("deauthenticate mac $mac from controller: " . $self->{_ip});
     $logger->trace("SNMP set_request for avWlanAssociatedClientDisassociateAction: $oid_avWlanAssociatedClientDisassociateAction");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$oid_avWlanAssociatedClientDisassociateAction", Net::SNMP::INTEGER, 2 ]
     );
 
@@ -136,7 +136,7 @@ sub deauthenticateMacDefault {
         $logger->debug("deauthenticatation successful");
         return $TRUE;
     } else {
-        $logger->warn("deauthenticatation failed with " . $this->{_sessionWrite}->error());
+        $logger->warn("deauthenticatation failed with " . $self->{_sessionWrite}->error());
         return;
     }
 }
@@ -148,8 +148,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

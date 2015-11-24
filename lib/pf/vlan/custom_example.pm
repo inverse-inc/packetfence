@@ -146,11 +146,11 @@ CUSTOM: pass the Called-Station-Id to violation, registration and normal VLAN re
 =cut
 
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $called_station_id ) = @_;
+    my ( $self, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $called_station_id ) = @_;
     my $logger = get_logger();
 
     # violation handling
-    my $violation = $this->getViolationVlan(
+    my $violation = $self->getViolationVlan(
         $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id
     );
     if (defined($violation) && $violation != 0) {
@@ -161,7 +161,7 @@ sub fetchVlanForNode {
 
     # there were no violation, now onto registration handling
     my $node_info = node_attributes($mac);
-    my $registration = $this->getRegistrationVlan(
+    my $registration = $self->getRegistrationVlan(
         $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id
     );
     if (defined($registration) && $registration != 0) {
@@ -169,7 +169,7 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $this->getNormalVlan(
+    my $vlan = $self->getNormalVlan(
         $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id
     );
     if (!defined($vlan)) {
@@ -212,7 +212,7 @@ sub getViolationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid, $called_station_id) = @_;
     my $logger = get_logger();
 
     my $open_violation_count = violation_count_reevaluate_access($mac);
@@ -303,7 +303,7 @@ sub getRegistrationVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
     my $logger = get_logger();
 
     # trapping on registration is enabled
@@ -346,7 +346,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 
 sub getNormalVlan {
 
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
+    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $called_station_id) = @_;
     my $logger = get_logger();
 
     # CUSTOM: fetching per building VLAN id if switch type is Cisco::WLC

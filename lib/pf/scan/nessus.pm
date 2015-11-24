@@ -46,7 +46,7 @@ sub new {
 
     $logger->debug("Instantiating a new pf::scan::nessus scanning object");
 
-    my $this = bless {
+    my $self = bless {
             '_id'       => undef,
             '_ip'       => undef,
             '_port'     => undef,
@@ -62,10 +62,10 @@ sub new {
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{'_' . $value} = $data{$value};
+        $self->{'_' . $value} = $data{$value};
     }
 
-    return $this;
+    return $self;
 }
 
 =item startScan
@@ -74,18 +74,18 @@ sub new {
 
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
     # nessus scan setup
-    my $id                  = $this->{_id};
-    my $hostaddr            = $this->{_scanIp};
-    my $mac                 = $this->{_scanMac};
-    my $host                = $this->{_ip};
-    my $port                = $this->{_port};
-    my $user                = $this->{_username};
-    my $pass                = $this->{_password};
-    my $nessus_clientpolicy = $this->{_nessus_clientpolicy};
+    my $id                  = $self->{_id};
+    my $hostaddr            = $self->{_scanIp};
+    my $mac                 = $self->{_scanMac};
+    my $host                = $self->{_ip};
+    my $port                = $self->{_port};
+    my $user                = $self->{_username};
+    my $pass                = $self->{_password};
+    my $nessus_clientpolicy = $self->{_nessus_clientpolicy};
     my $n = Net::Nessus::XMLRPC->new('https://'.$host.':'.$port.'/', $user, $pass);
 
     # select nessus policy on the server, set scan name and launch the scan
@@ -98,16 +98,16 @@ sub startScan {
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
 
     my $scan_vid = $POST_SCAN_VID;
-    $scan_vid = $SCAN_VID if ($this->{'_registration'});
-    $scan_vid = $PRE_SCAN_VID if ($this->{'_pre_registration'});
+    $scan_vid = $SCAN_VID if ($self->{'_registration'});
+    $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
 
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
         return $scan_vid;
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
-    $this->{'_status'} = $STATUS_STARTED;
-    $this->statusReportSyncToDb();
+    $self->{'_status'} = $STATUS_STARTED;
+    $self->statusReportSyncToDb();
 
     # Wait the scan to finish
     my $counter = 0;
@@ -122,14 +122,14 @@ sub startScan {
     }
     
     # Get the report
-    $this->{'_report'} = $n->report_filenbe_download($scanid);
+    $self->{'_report'} = $n->report_filenbe_download($scanid);
     # Remove report on the server and logout from nessus
     $n->report_delete($scanid);
     $n->DESTROY;
     # Clean the report
-    $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
+    $self->{'_report'} = [ split("\n", $self->{'_report'}) ];
 
-    pf::scan::parse_scan_report($this,$scan_vid);
+    pf::scan::parse_scan_report($self,$scan_vid);
 }
 
 =back

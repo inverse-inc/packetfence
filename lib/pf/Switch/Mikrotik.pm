@@ -51,14 +51,14 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.4.1.14988.1.1.4.4.0';
-    my $logger       = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
     return $sysDescr;
 }
@@ -70,8 +70,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',

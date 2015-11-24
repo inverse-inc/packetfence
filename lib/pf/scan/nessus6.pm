@@ -45,7 +45,7 @@ sub new {
 
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
-    my $this = bless {
+    my $self = bless {
             '_id'          => undef,
             '_host'        => undef,
             '_port'        => undef,
@@ -63,10 +63,10 @@ sub new {
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{'_' . $value} = $data{$value};
+        $self->{'_' . $value} = $data{$value};
     }
 
-    return $this;
+    return $self;
 }
 
 =item startScan
@@ -75,20 +75,20 @@ sub new {
 
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # nessus scan setup
-    my $id                  = $this->{_id};
-    my $hostaddr            = $this->{_scanIp};
-    my $mac                 = $this->{_scanMac};
-    my $host                = $this->{_ip};
-    my $port                = $this->{_port};
-    my $user                = $this->{_username};
-    my $pass                = $this->{_password};
-    my $nessus_clientpolicy = $this->{_nessus_clientpolicy};
-    my $scanner_name        = $this->{_scannername};
-    my $format              = $this->{_format};
+    my $id                  = $self->{_id};
+    my $hostaddr            = $self->{_scanIp};
+    my $mac                 = $self->{_scanMac};
+    my $host                = $self->{_ip};
+    my $port                = $self->{_port};
+    my $user                = $self->{_username};
+    my $pass                = $self->{_password};
+    my $nessus_clientpolicy = $self->{_nessus_clientpolicy};
+    my $scanner_name        = $self->{_scannername};
+    my $format              = $self->{_format};
 
     my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port);
     $nessus->create_session(username => $user, password => $pass);
@@ -135,8 +135,8 @@ sub startScan {
     $nessus->launch_scan(scan_id => $scan_id->{id});
 
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
-    $this->{'_status'} = $pf::scan::STATUS_STARTED;
-    $this->statusReportSyncToDb();
+    $self->{'_status'} = $pf::scan::STATUS_STARTED;
+    $self->statusReportSyncToDb();
 
 
     # Wait the scan to finish
@@ -156,12 +156,12 @@ sub startScan {
     while ($nessus->get_scan_export_status(scan_id => $scan_id->{id},file_id => $file_id) ne 'ready') {
         sleep 2;
     }
-    $this->{'_report'} = $nessus->download_scan(scan_id => $scan_id->{id}, file_id => $file_id);
+    $self->{'_report'} = $nessus->download_scan(scan_id => $scan_id->{id}, file_id => $file_id);
     # Remove report on the server and logout from nessus
     $nessus->delete_scan(scan_id => $scan_id->{id});
     $nessus->DESTROY;
 
-    pf::scan::parse_scan_report($this);
+    pf::scan::parse_scan_report($self);
 }
 
 =back

@@ -33,8 +33,8 @@ Specifices the type of deauth
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -53,12 +53,12 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     $mac = format_mac_as_cisco($mac);
 
     # perform CoA
-    $this->radiusDisconnect($mac);
+    $self->radiusDisconnect($mac);
 }
 
 =head2 radiusDisconnect

@@ -142,24 +142,24 @@ TODO: This list is incomplete
 =cut
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '12.2(25)SEE2';
 }
 
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrRowStatus: $oid_cpsIfVlanSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrRowStatus" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -178,14 +178,14 @@ sub getAllSecureMacAddresses {
 }
 
 sub isDynamicPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->debug("port security is not enabled");
         return 0;
     }
@@ -193,7 +193,7 @@ sub isDynamicPortSecurityEnabled {
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrType: $oid_cpsIfVlanSecureMacAddrType"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if (   ( $result->{$oid_including_mac} == 1 )
@@ -207,14 +207,14 @@ sub isDynamicPortSecurityEnabled {
 }
 
 sub isStaticPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->info("port security is not enabled");
         return 0;
     }
@@ -222,7 +222,7 @@ sub isStaticPortSecurityEnabled {
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrType: $oid_cpsIfVlanSecureMacAddrType"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if (   ( $result->{$oid_including_mac} == 1 )
@@ -236,18 +236,18 @@ sub isStaticPortSecurityEnabled {
 }
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrRowStatus: $oid_cpsIfVlanSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}->get_table(
+    my $result = $self->{_sessionRead}->get_table(
         -baseoid => "$oid_cpsIfVlanSecureMacAddrRowStatus.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -265,18 +265,18 @@ sub getSecureMacAddresses {
 }
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add an entry to the SecureMacAddrTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -295,11 +295,11 @@ sub authorizeMAC {
     }
     if (@oid_value) {
         $logger->trace("SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
-        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
+        my $result = $self->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
         if (!defined($result)) {
             $logger->warn(
                 "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
-                . "This could be normal. Error message: ".$this->{_sessionWrite}->error()
+                . "This could be normal. Error message: ".$self->{_sessionWrite}->error()
             );
         }
     }
@@ -313,9 +313,9 @@ Points to pf::Switch implementation bypassing Catalyst_2950's overridden behavio
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex, $mac) = @_;
+    my ($self, $ifIndex, $mac) = @_;
 
-    return $this->_dot1xPortReauthenticate($ifIndex);
+    return $self->_dot1xPortReauthenticate($ifIndex);
 }
 
 =head2 NasPortToIfIndex
@@ -325,8 +325,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # ex: 50023 is ifIndex 10023
     if ($NAS_port =~ s/^5/1/) {
@@ -345,8 +345,8 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -358,13 +358,13 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
 
 
     # perform CoA
     my $acctsessionid = node_accounting_current_sessionid($mac);
-    $this->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
+    $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
 =head2 radiusDisconnect
@@ -453,8 +453,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($this, $method, $connection_type) = @_;
-    my $logger = $this->logger;
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -528,48 +528,48 @@ Returns the attribute to use when pushing an ACL using RADIUS
 =cut
 
 sub returnAccessListAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
     return "ip:inacl#101";
 }
 
 sub disableMABByIfIndex {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     my $logger = get_logger();
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 3:forceAuthorized but the s");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
 
     $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 3 ] );
     return ( defined($result) );
 }
 
 sub enableMABByIfIndex {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     my $logger = get_logger();
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 2:auto but the switch is no");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
 
     $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 2 ] );
     return ( defined($result) );
 }

@@ -17,25 +17,25 @@ use warnings;
 use base ('pf::Switch');
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_productIdentificationBuildNumber
         = '1.3.6.1.4.1.674.10895.3000.1.2.100.5.0';    # Dell-Vendor-MIB
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->debug(
         "SNMP get_request for productIdentificationBuildNumber: $oid_productIdentificationBuildNumber"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [$oid_productIdentificationBuildNumber] );
     return ( $result->{$oid_productIdentificationBuildNumber} || '' );
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     if ( $trapString
         =~ /OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER/
         )
@@ -57,9 +57,9 @@ sub parseTrap {
 # 1 => static
 # 2 => dynamic
 sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_vlanPortModeExtStatus
@@ -67,7 +67,7 @@ sub getVmVlanType {
     $logger->trace(
         "SNMP get_request for vlanPortModeExtStatus: $OID_vlanPortModeExtStatus.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => ["$OID_vlanPortModeExtStatus.$ifIndex"] );
     if (( exists( $result->{"$OID_vlanPortModeExtStatus.$ifIndex"} ) )
         && ( $result->{"$OID_vlanPortModeExtStatus.$ifIndex"} ne

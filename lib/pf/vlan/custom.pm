@@ -53,7 +53,7 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    #$conn_type is set to the connnection type expressed as the constant in pf::config
 #    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
 #    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-#    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
+#    my ($self, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request) = @_;
 #
 #    my $logger = get_logger();
 #    # CUSTOM: We want to auto-register 802.1x connections
@@ -65,7 +65,7 @@ See pf::vlan::shouldAutoRegister for full original method.
 #    # \CUSTOM
 #
 #    # Otherwise, call parent method
-#    return $this->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
+#    return $self->SUPER::shouldAutoRegister($mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type, $switch, $port, $radius_request);
 #}
 
 

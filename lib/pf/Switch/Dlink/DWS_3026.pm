@@ -62,17 +62,17 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$SSID); }
 
 sub deauthenticateMacDefault {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
     my $OID_wsAssociatedClientDisassociateAction = '1.3.6.1.4.1.171.10.73.30.9.1.1.9';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to wsAssociatedClientDisassociateAction");
         return 1;
     }
 
     # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
-    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    my $performDeauthOn = $self->getDeauthSnmpConnectionKey();
     if ( !defined($performDeauthOn) ) {
         return;
     }
@@ -80,84 +80,84 @@ sub deauthenticateMacDefault {
     my $deauth_oid = $OID_wsAssociatedClientDisassociateAction . "." . mac2oid($mac);
 
     $logger->trace("SNMP set_request for wsAssociatedClientDisassociateAction: $deauth_oid");
-    my $result = $this->{$performDeauthOn}->set_request( -varbindlist => [ $deauth_oid, Net::SNMP::INTEGER, 2 ] );
+    my $result = $self->{$performDeauthOn}->set_request( -varbindlist => [ $deauth_oid, Net::SNMP::INTEGER, 2 ] );
 
     # if $result is defined, it works we can return $TRUE
     return $TRUE if (defined($result));
 
     # otherwise report failure
-    $logger->warn("deauthentication for $mac failed with " . $this->{$performDeauthOn}->error());
+    $logger->warn("deauthentication for $mac failed with " . $self->{$performDeauthOn}->error());
     return;
 }
 
 sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $type ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
-    my ($this) = @_;
+    my ($self) = @_;
     my $vlans  = {};
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $vlan ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub isVoIPEnabled {
-    my ($this) = @_;
+    my ($self) = @_;
     return 0;
 }
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

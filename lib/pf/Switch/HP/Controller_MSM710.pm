@@ -56,14 +56,14 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0'; #SNMPv2-MIB
-    my $logger       = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
     if ( $sysDescr =~ m/V(\d{1}\.\d{2}\.\d{2})/ ) {
         return $1;
@@ -79,9 +79,9 @@ sub getVersion {
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     # COLUBRIS-DEVICE-EVENT-MIB :: coDeviceEventSuccessfulDeAuthentication :: 1.3.6.1.4.1.8744.5.26.2.0.9
     # COLUBRIS-DEVICE-EVENT-MIB :: coDevEvDetMacAddress ::                    1.3.6.1.4.1.8744.5.26.1.2.2.1.2
@@ -103,13 +103,13 @@ sub parseTrap {
 =cut
 
 sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $OID_coDevWirCliStaMACAddress = '1.3.6.1.4.1.8744.5.25.1.7.1.1.2'; # from COLUBRIS-DEVICE-WIRELESS-MIB
     my $OID_coDevWirCliDisassociate = '1.3.6.1.4.1.8744.5.25.1.7.1.1.27'; # from COLUBRIS-DEVICE-WIRELESS-MIB
 
     # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
-    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    my $performDeauthOn = $self->getDeauthSnmpConnectionKey();
     if ( !defined($performDeauthOn) ) {
         return;
     }
@@ -117,7 +117,7 @@ sub deauthenticateMacDefault {
     # Query the controller to get the index of the MAc in the coDeviceWirelessClientStatusTable
     # CAUTION: we need to use the sessionWrite in order to have access to that table
     $logger->trace("SNMP get_table for coDevWirCliStaMACAddress: $OID_coDevWirCliStaMACAddress");
-    my $result = $this->{$performDeauthOn}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
+    my $result = $self->{$performDeauthOn}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
     if (keys %{$result}) {
         my $count = 0;
         foreach my $key ( keys %{$result} ) {
@@ -127,21 +127,21 @@ sub deauthenticateMacDefault {
                 $key =~ /^$OID_coDevWirCliStaMACAddress\.(\d+).(\d+).(\d+)$/;
                 my $coDevWirCliStaIndex = "$1.$2.$3";
 
-                $logger->debug("deauthenticating $mac on controller " . $this->{$performDeauthOn}->hostname());
+                $logger->debug("deauthenticating $mac on controller " . $self->{$performDeauthOn}->hostname());
                 $logger->trace("SNMP set_request for coDevWirCliDisassociate: "
                     . "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex = $HP::DISASSOCIATE"
                 );
-                $result = $this->{$performDeauthOn}->set_request(-varbindlist => [
+                $result = $self->{$performDeauthOn}->set_request(-varbindlist => [
                     "$OID_coDevWirCliDisassociate.$coDevWirCliStaIndex", Net::SNMP::INTEGER, $HP::DISASSOCIATE
                 ]);
                 $count++;
                 last;
             }
         }
-        $logger->warn("Can't deauthenticate $mac on controller $this->{_ip} because it does not seem to be associated!")
+        $logger->warn("Can't deauthenticate $mac on controller $self->{_ip} because it does not seem to be associated!")
             if ($count == 0);
     } else {
-        $logger->error("Can not get the list of associated devices on controller " . $this->{_ip});
+        $logger->error("Can not get the list of associated devices on controller " . $self->{_ip});
     }
 }
 
@@ -154,8 +154,8 @@ HP / Colubris specific parser. See pf::Switch for base implementation.
 =cut
 
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Colubris-AVPair'})) {
         # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
@@ -169,7 +169,7 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Please let us know so we can add support for it."
     );
     return;
@@ -182,35 +182,35 @@ Method to deauthenticate a node with SSH
 =cut
 
 sub _deauthenticateMacWithSSH {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
     my $session;
     my @addition_ops;
-    if (defined $this->{_controllerPort} && $this->{_cliTransport} eq 'SSH' ) {
+    if (defined $self->{_controllerPort} && $self->{_cliTransport} eq 'SSH' ) {
         @addition_ops = (
             connect_options => {
-                ops => [ '-p' => $this->{_controllerPort}  ]
+                ops => [ '-p' => $self->{_controllerPort}  ]
             }
         );
     }
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_controllerIp},
+            Host      => $self->{_controllerIp},
             Timeout   => 20,
-            Transport => $this->{_cliTransport},
+            Transport => $self->{_cliTransport},
             Platform => 'HP',
             Source   => $lib_dir.'/pf/Switch/HP/nas-pb.yml',
             @addition_ops
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
-        $logger->error( "ERROR: Can not connect to controller $this->{'_controllerIp'} using "
-                . $this->{_cliTransport} );
+        $logger->error( "ERROR: Can not connect to controller $self->{'_controllerIp'} using "
+                . $self->{_cliTransport} );
         return 1;
     }
     $session->cmd("enable");
@@ -227,8 +227,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',

@@ -59,8 +59,8 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new pf::radius object");
     my ( $class, %argv ) = @_;
-    my $this = bless {}, $class;
-    return $this;
+    my $self = bless {}, $class;
+    return $self;
 }
 
 =item * authorize - handling the RADIUS authorize call
@@ -76,10 +76,10 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
 sub authorize {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
-    my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $this->_parseRequest($radius_request);
+    my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
 
     $logger->debug("instantiating switch");
@@ -109,7 +109,7 @@ sub authorize {
     }
 
     my $before = Time::HiRes::gettimeofday();
-    $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
     $pf::StatsD::statsd->end(called() . ".getIfIndex.timing" , $before, 0.25);
 
     $logger->trace("received a radius authorization request with parameters: ".
@@ -117,9 +117,9 @@ sub authorize {
         "mac => [$mac], port => $port, username => \"$user_name\"");
 
     # let's check if an old port sec entry needs to be removed in another switch
-    $this->_handleStaticPortSecurityMovement($switch, $mac);
+    $self->_handleStaticPortSecurityMovement($switch, $mac);
 
-    my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
+    my $weActOnThisCall = $self->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
@@ -150,10 +150,10 @@ sub authorize {
     my $switch_id =  $switch->{_id};
 
     # verify if switch supports this connection type
-    if (!$this->_isSwitchSupported($switch, $connection_type)) {
+    if (!$self->_isSwitchSupported($switch, $connection_type)) {
         # if not supported, return
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
-        return $this->_switchUnsupportedReply($switch);
+        return $self->_switchUnsupportedReply($switch);
     }
 
 
@@ -191,7 +191,7 @@ sub authorize {
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
-        return $this->_authorizeVoip($connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid);
+        return $self->_authorizeVoip($connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid);
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
@@ -205,7 +205,7 @@ sub authorize {
     }
 
     # Check if a floating just plugged in
-    $this->_handleAccessFloatingDevices($switch, $mac, $port);
+    $self->_handleAccessFloatingDevices($switch, $mac, $port);
 
     # Fetch VLAN depending on node status
     my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $radius_request, $realm, $stripped_user_name, $autoreg, $connection_sub_type);
@@ -253,8 +253,8 @@ sub authorize {
 
     my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
-    if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
-        $RAD_REPLY_REF = $this->_rewriteAccessAccept(
+    if ($self->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
+        $RAD_REPLY_REF = $self->_rewriteAccessAccept(
             $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid
         );
     }
@@ -273,11 +273,11 @@ sub authorize {
 =cut
 
 sub accounting {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
-    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
+    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
@@ -300,11 +300,11 @@ sub accounting {
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
         my $connection_type = $connection->attributesToBackwardCompatible;
 
-        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
         if($isStop){
             #handle radius floating devices
-            $this->_handleAccountingFloatingDevices($switch, $mac, $port);
+            $self->_handleAccountingFloatingDevices($switch, $mac, $port);
         }
 
         # On accounting stop/update, check the usage duration of the node
@@ -342,11 +342,11 @@ Update the location log based on the accounting information
 =cut
 
 sub update_locationlog_accounting {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
-    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $this->_parseRequest($radius_request);
+    my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip } );
@@ -388,8 +388,8 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 =cut
 
 sub _parseRequest {
-    my ($this, $radius_request) = @_;
-    my $ap_mac = $this->extractApMacFromRadiusRequest($radius_request);
+    my ($self, $radius_request) = @_;
+    my $ap_mac = $self->extractApMacFromRadiusRequest($radius_request);
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
     my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
@@ -405,7 +405,7 @@ sub _parseRequest {
 }
 
 sub extractApMacFromRadiusRequest {
-    my ($this, $radius_request) = @_;
+    my ($self, $radius_request) = @_;
     my $logger = get_logger();
     # it's put in Called-Station-Id
     # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
@@ -432,8 +432,8 @@ returns 0 for no, 1 for yes
 =cut
 
 sub _doWeActOnThisCall {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = $this->logger;
+    my ($self, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
+    my $logger = $self->logger;
     $logger->trace("_doWeActOnThisCall called");
 
     # lets assume we don't act
@@ -445,10 +445,10 @@ sub _doWeActOnThisCall {
     if (defined($connection_type)) {
 
         if (($connection_type & $WIRELESS) == $WIRELESS) {
-            $do_we_act = $this->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, $port, $user_name);
+            $do_we_act = $self->_doWeActOnThisCallWireless($connection_type, $switch_ip, $mac, $port, $user_name);
 
         } elsif (($connection_type & $WIRED) == $WIRED) {
-            $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name);
+            $do_we_act = $self->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name);
         } else {
             $do_we_act = 0;
         }
@@ -469,8 +469,8 @@ returns 0 for no, 1 for yes
 =cut
 
 sub _doWeActOnThisCallWireless {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = $this->logger;
+    my ($self, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
+    my $logger = $self->logger;
     $logger->trace("_doWeActOnThisCallWireless called");
 
     # for now we always act on wireless radius authorize
@@ -486,8 +486,8 @@ returns 0 for no, 1 for yes
 =cut
 
 sub _doWeActOnThisCallWired {
-    my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
-    my $logger = $this->logger;
+    my ($self, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
+    my $logger = $self->logger;
     $logger->trace("_doWeActOnThisCallWired called");
 
     # for now we always act on wired radius authorize
@@ -505,8 +505,8 @@ Returns the same structure as authorize(), see it's POD doc for details.
 =cut
 
 sub _authorizeVoip {
-    my ($this, $connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid) = @_;
-    my $logger = $this->logger;
+    my ($self, $connection_type, $connection_sub_type, $switch, $mac, $port, $user_name, $ssid) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     if (!$switch->supportsRadiusVoip()) {
@@ -534,8 +534,8 @@ sub _authorizeVoip {
 =cut
 
 sub _translateNasPortToIfIndex {
-    my ($this, $conn_type, $switch, $port) = @_;
-    my $logger = $this->logger;
+    my ($self, $conn_type, $switch, $port) = @_;
+    my $logger = $self->logger;
 
     if (($conn_type & $WIRED) == $WIRED) {
         $logger->trace("(" . $switch->{_id} . ") translating NAS-Port to ifIndex for proper accounting");
@@ -554,8 +554,8 @@ Determines if switch is supported by current connection type.
 =cut
 
 sub _isSwitchSupported {
-    my ($this, $switch, $conn_type) = @_;
-    my $logger = $this->logger;
+    my ($self, $switch, $conn_type) = @_;
+    my $logger = $self->logger;
 
     if ($conn_type == $WIRED_MAC_AUTH) {
         return $switch->supportsWiredMacAuth();
@@ -577,8 +577,8 @@ sub _isSwitchSupported {
 =cut
 
 sub _switchUnsupportedReply {
-    my ($this, $switch) = @_;
-    my $logger = $this->logger;
+    my ($self, $switch) = @_;
+    my $logger = $self->logger;
 
     $logger->warn("(" . $switch->{_id} . ") Sending REJECT since switch is unsupported");
     $switch->disconnectRead();
@@ -596,8 +596,8 @@ This is meant to be overridden in L<pf::radius::custom>.
 =cut
 
 sub _shouldRewriteAccessAccept {
-    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = $this->logger;
+    my ($self, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = $self->logger;
 
     return $FALSE;
 }
@@ -614,8 +614,8 @@ This is meant to be overridden in L<pf::radius::custom>.
 =cut
 
 sub _rewriteAccessAccept {
-    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = $this->logger;
+    my ($self, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = $self->logger;
 
     return $RAD_REPLY_REF;
 }
@@ -682,8 +682,8 @@ Takes care of handling the flow for the RADIUS floating devices when receiving a
 =cut
 
 sub _handleAccessFloatingDevices{
-    my ($this, $switch, $mac, $port) = @_;
-    my $logger = $this->logger;
+    my ($self, $switch, $mac, $port) = @_;
+    my $logger = $self->logger;
     if( exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();
         $floatingDeviceManager->enableMABFloating($mac, $switch, $port);
@@ -697,8 +697,8 @@ Takes care of handling the flow for the RADIUS floating devices when receiving a
 =cut
 
 sub _handleAccountingFloatingDevices{
-    my ($this, $switch, $mac, $port) = @_;
-    my $logger = $this->logger;
+    my ($self, $switch, $mac, $port) = @_;
+    my $logger = $self->logger;
     $logger->debug("Verifying if $mac has to be handled as a floating");
     if (exists( $ConfigFloatingDevices{$mac} ) ){
         my $floatingDeviceManager = new pf::floatingdevice::custom();

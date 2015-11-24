@@ -26,22 +26,22 @@ use base ('pf::Switch::Intel');
 sub description { 'Intel Express 530' }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '1.00.23';
 }
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_es530AgentRuntimeSwVersion = '1.3.6.1.4.1.343.6.63.1.1.1.0';
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for es530AgentRuntimeSwVersion: $oid_es530AgentRuntimeSwVersion"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => [$oid_es530AgentRuntimeSwVersion] );
     my $runtimeSwVersion
         = ( $result->{$oid_es530AgentRuntimeSwVersion} || '' );
@@ -53,9 +53,9 @@ sub getVersion {
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
@@ -65,26 +65,26 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex);
     if ( !defined($dot1dBasePort) ) {
         return 0;
     }
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_id} } };
+        lock %{ $switch_locker_ref->{ $self->{_id} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_id}
+                . $self->{_id}
                 . "} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -95,31 +95,31 @@ sub _setVlan {
 
         # calculate new settings
         my $egressPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $egressPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $ifIndex - 1, 1 );
         my $untaggedPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $untaggedPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $ifIndex - 1, 1 );
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # set all values
-        if ( !$this->connectWrite() ) {
+        if ( !$self->connectWrite() ) {
             return 0;
         }
         $logger->trace(
             "SNMP set_request for dot1qPvid, dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qPvid.$dot1dBasePort",
                 Net::SNMP::INTEGER,
@@ -141,29 +141,29 @@ sub _setVlan {
 
         if ( !defined($result) ) {
             $logger->error(
-                "error setting VLAN: " . $this->{_sessionWrite}->error );
+                "error setting VLAN: " . $self->{_sessionWrite}->error );
         }
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} unlocked in _setVlan" );
     return ( defined($result) );
 
 }
 
 sub setAdminStatus {
-    my ( $this, $ifIndex, $enabled ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $enabled ) = @_;
+    my $logger = $self->logger;
 
     #obtain unit and module from unique ifIndex
     my $OID_es530HwPortEncodingFactor = '1.3.6.1.4.1.343.6.63.2.1.3.0';
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
     $logger->trace(
         "SNMP get_request for es530HwPortEncodingFactor: $OID_es530HwPortEncodingFactor"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => ["$OID_es530HwPortEncodingFactor"] );
     my $es530PortEncodingFactor = $result->{"$OID_es530HwPortEncodingFactor"};
     my $es530PortCtrlUnitIndex
@@ -176,13 +176,13 @@ sub setAdminStatus {
     }
 
     my $OID_es530PortCtrlAdminState = '1.3.6.1.4.1.343.6.63.3.4.2.1.4';
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
     $logger->trace(
         "SNMP set_request for es530PortCtrlAdminState: $OID_es530PortCtrlAdminState"
     );
-    $result = $this->{_sessionWrite}->set_request(
+    $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [
             "$OID_es530PortCtrlAdminState.$es530PortCtrlUnitIndex.$es530PortCtrlModuleIndex.$es530PortCtrlIndex",
             Net::SNMP::INTEGER,

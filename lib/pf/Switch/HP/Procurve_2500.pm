@@ -39,13 +39,13 @@ sub supportsWiredDot1x { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMaxMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                  = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger                  = $self->logger;
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode    = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex  = 1;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
 
@@ -53,7 +53,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for hpSecPtLearnMode: $OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist =>
+    my $result = $self->{_sessionRead}->get_request( -varbindlist =>
             [ "$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex" ] );
     if ((   !exists(
                 $result->{
@@ -79,7 +79,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for hpSecPtAddressLimit: $OID_hpSecPtAddressLimit.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    $result = $this->{_sessionRead}->get_request( -varbindlist =>
+    $result = $self->{_sessionRead}->get_request( -varbindlist =>
             [ "$OID_hpSecPtAddressLimit.$hpSecCfgAddrGroupIndex.$ifIndex" ] );
     if ((   !exists(
                 $result->{
@@ -101,21 +101,21 @@ sub getMaxMacAddresses {
 }
 
 sub isPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     my $OID_hpSecPtLearnMode   = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
     my $hpSecCfgAddrGroupIndex = 1;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace(
         "SNMP get_next_request for hpSecPtLearnMode: $OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex and hpSecPtAlarmEnable: $OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [
             "$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex",
             "$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"
@@ -142,8 +142,8 @@ sub isPortSecurityEnabled {
 }
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
 
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
@@ -151,14 +151,14 @@ sub authorizeMAC {
         = '1.3.6.1.4.1.11.2.14.2.10.3.1.7';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add or delete an entry from the hpSecureCfgAddrTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -202,7 +202,7 @@ sub authorizeMAC {
         "SNMP set_request for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
     my $result
-        = $this->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
+        = $self->{_sessionWrite}->set_request( -varbindlist => \@oid_value );
     return ( defined($result) );
 }
 

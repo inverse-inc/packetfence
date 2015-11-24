@@ -61,8 +61,8 @@ method do per-IOS translations.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # 50017 is ifIndex 17
     if ($NAS_port =~ s/^500//) {

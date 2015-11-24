@@ -74,15 +74,15 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_AeroHiveSoftwareVersion = '1.3.6.1.2.1.1.1.0'; #
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
 
     $logger->trace("SNMP get_request for AeroHiveSoftwareVersion: $oid_AeroHiveSoftwareVersion");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_AeroHiveSoftwareVersion] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_AeroHiveSoftwareVersion] );
     if (defined($result)) {
         return $result->{$oid_AeroHiveSoftwareVersion};
     }
@@ -99,9 +99,9 @@ Old roaming snmp support has been commented if you need to activate it then unco
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
 #    if ($trapString =~ /\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: $AEROHIVE::ahConnectionChangeEvent/ ) {
 #        $trapHashRef->{'trapType'} = 'roaming';
@@ -168,11 +168,11 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub _deauthenticateMacTelnet {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
-        $logger->info("(".$this->{'_id'}.") not in production mode ... we won't deauthenticate");
+    if ( !$self->isProductionMode() ) {
+        $logger->info("(".$self->{'_id'}.") not in production mode ... we won't deauthenticate");
         return 1;
     }
 
@@ -184,20 +184,20 @@ sub _deauthenticateMacTelnet {
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport},
+            Transport => $self->{_cliTransport},
             Platform => 'HiveOS',
             Source   => $lib_dir.'/pf/Switch/AeroHIVE/nas-pb.yml'
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
     }
 
@@ -229,17 +229,17 @@ assigning VLANs and Roles at the same time.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
 
-    $logger->debug("Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
-    if ( isenabled($this->{_RoleMap}) && $this->supportsRoleBasedEnforcement()) {
-        my $role = $this->getRoleByName($args->{'user_role'});
+    $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned.");
+    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+        my $role = $self->getRoleByName($args->{'user_role'});
 
         # Roles are configured and the user should have one
-        if (defined($role) && $role ne ""  && isenabled($this->{_RoleMap})) {
+        if (defined($role) && $role ne ""  && isenabled($self->{_RoleMap})) {
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::IP,
                 'Tunnel-Type' => $RADIUS::GRE,
@@ -247,12 +247,12 @@ sub returnRadiusAccessAccept {
             };
         }
 
-        $logger->info("(".$this->{'_id'}.") Returning ACCEPT with Role: $role");
+        $logger->info("(".$self->{'_id'}.") Returning ACCEPT with Role: $role");
 
     }
 
     # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_VlanMap}) && defined($args->{'vlan'})) {
+    if (isenabled($self->{_VlanMap}) && defined($args->{'vlan'})) {
         $radius_reply_ref = {
              %$radius_reply_ref,
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
@@ -279,7 +279,7 @@ This stub is here otherwise roles support tests fails since we expect an returnR
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
     return;
 }
 
@@ -291,8 +291,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',

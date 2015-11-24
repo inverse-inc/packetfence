@@ -25,14 +25,14 @@ use base ('pf::Switch::ThreeCom');
 sub description { '3COM NJ220' }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '2.0.23';
 }
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }

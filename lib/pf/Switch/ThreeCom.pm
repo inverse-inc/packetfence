@@ -22,9 +22,9 @@ use pf::Switch::constants;
 use pf::util;
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     if ( $trapString
         =~ /BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.2\.(\d+) = /
         )
@@ -53,8 +53,8 @@ sub parseTrap {
 }
 
 sub getDot1dBasePortForThisIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                   = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger                   = $self->logger;
     my $ifIndexDot1dBasePortHash = {
         102 => 1,
         103 => 2,
@@ -66,20 +66,20 @@ sub getDot1dBasePortForThisIfIndex {
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = $this->logger;
-    return $this->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan, $switch_locker_ref );
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    return $self->_setVlanByOnlyModifyingPvid( $ifIndex, $newVlan, $oldVlan, $switch_locker_ref );
 }
 
 sub _getMacAtIfIndex {
-    my ( $this, $ifIndex, $vlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $vlan ) = @_;
+    my $logger = $self->logger;
     my @macArray;
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return @macArray;
     }
-    my %macBridgePortHash = $this->getMacBridgePortHash();
-    my $dot1dBasePort     = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my %macBridgePortHash = $self->getMacBridgePortHash();
+    my $dot1dBasePort     = $self->getDot1dBasePortForThisIfIndex($ifIndex);
     foreach my $_mac ( keys %macBridgePortHash ) {
         if ( $macBridgePortHash{$_mac} eq $dot1dBasePort ) {
             push @macArray, lc($_mac);
@@ -89,10 +89,10 @@ sub _getMacAtIfIndex {
 }
 
 sub getIfIndexByNasPortId {
-    my ($this, $ifDesc_param) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifDesc_param) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
     if ($ifDesc_param =~ /(unit|slot)=(\d+);subslot=(\d+);port=(\d+)/) {
@@ -101,7 +101,7 @@ sub getIfIndexByNasPortId {
         my $port = $4;
         my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
         my $ifDescHashRef;
-        my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+        my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
         foreach my $key ( keys %{$result} ) {
             my $ifDesc = $result->{$key};
             if ( $ifDesc =~ /(GigabitEthernet|Ten-GigabitEthernet|Ethernet)$unit\/$subslot\/$port$/i ) {

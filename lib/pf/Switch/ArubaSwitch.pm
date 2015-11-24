@@ -59,14 +59,14 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
     if ( $sysDescr =~ m/V(\d{1}\.\d{2}\.\d{2})/ ) {
         return $1;
@@ -86,8 +86,8 @@ Allows callers to refer to this implementation even though someone along the way
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
     return;
 }
@@ -100,9 +100,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     $logger->debug("trap ignored, not useful for switch");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -117,15 +117,15 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 =cut
 
 sub getIfIndexByNasPortId {
-    my ($this, $ifDesc_param) = @_;
+    my ($self, $ifDesc_param) = @_;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     my @ifDescTemp = split(':',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDescTemp[1]$/i ) {
@@ -142,12 +142,12 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
 
 
     # perform CoA
-    $this->radiusDisconnect($mac);
+    $self->radiusDisconnect($mac);
 }
 
 =head2 returnRoleAttribute
@@ -157,7 +157,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Aruba-User-Role';
 }
@@ -169,8 +169,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($this, $method, $connection_type) = @_;
-    my $logger = $this->logger;
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (

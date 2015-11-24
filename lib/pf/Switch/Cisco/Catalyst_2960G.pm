@@ -46,7 +46,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
+    my ($self, $NAS_port) = @_;
     my $logger = get_logger();
 
     # ex: 50023 is ifIndex 10123
