@@ -508,7 +508,7 @@ sub _authorizeVoip {
     my $start = Time::HiRes::gettimeofday();
 
     if (!$args->{'switch'}->supportsRadiusVoip()) {
-        $logger->warn("[$args->{'mac'}] Returning failure to RADIUS.");
+        $logger->warn("Returning failure to RADIUS.");
         $args->{'switch'}->disconnectRead();
         $args->{'switch'}->disconnectWrite();
 
