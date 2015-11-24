@@ -41,6 +41,7 @@ use List::Util qw(first);
 use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
+use Data::Thunk;
 
 our $VERSION = 1.03;
 
@@ -127,7 +128,7 @@ sub authorize {
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"" 
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
     #add node if necessary
@@ -236,9 +237,8 @@ sub authorize {
     }
 
     # We re-fetch the node_info as the status, role or other attributes of the node can have changed.
-    $node_info = node_attributes($mac);
     my $args = {
-        node_info       => $node_info,
+        node_info       => lazy { node_attributes($mac) },
         switch          => $switch,
         ifIndex         => $port,
         mac             => $mac,
@@ -627,14 +627,14 @@ sub _handleStaticPortSecurityMovement {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     #Nothing to do if there is no location log
-    unless( defined($locationlog_mac) ){ 
+    unless( defined($locationlog_mac) ){
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return undef;
     }
 
     my $old_switch_id = $locationlog_mac->{'switch'};
     #Nothing to do if it is the same switch
-    if ( $old_switch_id eq $switch->{_id} ) { 
+    if ( $old_switch_id eq $switch->{_id} ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return undef;
     }
