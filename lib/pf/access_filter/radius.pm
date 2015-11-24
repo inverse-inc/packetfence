@@ -38,6 +38,7 @@ sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
+        $args->{'violation'} = violation_view_top($args->{'mac'});
         my $answer = $engine->match_first($args);
         $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
         return $answer;
