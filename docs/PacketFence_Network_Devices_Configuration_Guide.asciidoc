@@ -1251,6 +1251,10 @@ The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define th
 
 These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
 
+Add the following configuration setting on the global level 
+
+   ip device tracking
+
 Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
 
 Now in the PacketFence interface go in the switch configuration and in the Roles tab.
