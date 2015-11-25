@@ -194,26 +194,48 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
+
     $logger->trace(sub { "Process $0 handling request" });
+    my $ip_addr = clean_ip($peerhost);
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
-    foreach my $network (@routed_registration_nets_named) {
-        if ($network->contains($ip)) {
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
-        }
-    }
-    foreach my $network (@routed_isolation_nets_named) {
-        if ($network->contains($ip)) {
-           # Should be different for isolation network.
-           return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
-        }
+    my $mac = pf::iplog::ip2mac($ip_addr);
+
+    unless($mac){
+        $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
+        return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
     }
 
-    foreach my $network (@routed_inline_nets_named) {
-        if ($network->contains($ip)) {
-           # Should be different for inline
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+    my $node = pf::node::node_attributes($mac);
+    $logger->info("Status of $mac is : ".$node->{status});
+    if($node->{status} eq "reg"){
+        return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    }
+    else {
+        return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+    }
+}
+
+sub resolve {
+    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my ($rcode, @ans, @auth, @add);
+
+    my ($ttl, $rdata);
+    my $res   = Net::DNS::Resolver->new;
+    $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
+    if ($query) {
+        foreach my $rr ($query->answer) {
+            next unless $rr->type eq "A";
+            $rdata= $rr->address;
+            push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
+        }
+        if(@ans) {
+            $rcode = "NOERROR";
+        } else {
+            $logger->warn("Unresolved domain $qname");
+            $rcode = "NXDOMAIN";
         }
     }
+    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
 }
 
 sub regzone {
