@@ -67,14 +67,22 @@ sub dispatchAction {
 
 =head2 evalParam
 
-evaluate all the variables
+evaluate action parameters
 
 =cut
 
 sub evalParam {
-    my ($answer, $args) = @_;
-    $answer =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-    return $answer;
+    my ($self, $action_param, $args) = @_;
+    $action_param =~ s/\s//g;
+    my @params = split(',', $action_param);
+    my $return = {};
+
+    foreach my $param (@params) {
+        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
+        my @param_unit = split('=', $param);
+        $return = {%$return, @param_unit};
+    }
+    return $return;
 }
 
 =head2 evalLine
