@@ -250,7 +250,7 @@ sub getViolationVlan {
     my $vid = $top_violation->{'vid'};
 
     # Scan violation that must be done in the production vlan
-    if ($vid == $POST_SCAN_VID) { 
+    if ($vid == $POST_SCAN_VID) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return $FALSE;
     }
@@ -451,7 +451,7 @@ sub getNormalVlan {
     elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         # Attributes has been computed in getNodeInfoForAutoReg
         if ((isenabled($node_info->{'autoreg'}) && $autoreg) or isdisabled($profile->dot1xRecomputeRoleFromPortal)) {
-            $logger->info(Connection type is EAP. Getting role from node_info" );
+            $logger->info("Connection type is EAP. Getting role from node_info" );
             $role = $node_info->{'category'};
         } else {
             my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
