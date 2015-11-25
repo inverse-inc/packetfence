@@ -120,6 +120,12 @@ use constant OPTION_CLIENT_FQDN   => 39;
 use constant OPTION_NEW_POSIX_TIMEZONE => 41;
 use constant OPTION_NEW_TZDB_TIMEZONE => 42;
 use constant OPTION_ERO => 43;
+use constant OPTION_LQ_QUERY => 44;
+use constant OPTION_CLIENT_DATA => 45;
+use constant OPTION_CLT_TIME => 46;
+use constant OPTION_LQ_RELAY_DATA => 47;
+use constant OPTION_LQ_CLIENT_LINK => 48;
+
 
 =head1 AUTHOR
 

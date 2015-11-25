@@ -72,6 +72,11 @@ our %OPTIONS_FILTER = (
     OPTION_NEW_POSIX_TIMEZONE() => \&_parse_new_posix_timezone,
     OPTION_NEW_TZDB_TIMEZONE() => \&_parse_new_tzdb_timezone,
     OPTION_ERO() => \&_parse_ero,
+    OPTION_LQ_QUERY() => \&_parse_lq_query,
+    OPTION_CLIENT_DATA() => \&_parse_client_data,
+    OPTION_CLT_TIME() => \&_parse_clt_time,
+    OPTION_LQ_RELAY_DATA() => \&_parse_lq_relay_data,
+    OPTION_LQ_CLIENT_LINK() => \&_parse_ipv6_list,
 
 );
 
@@ -495,6 +500,51 @@ sub _parse_new_tzdb_timezone {
 sub _parse_ero {
     my ($data) = @_;
     return { echo_options => [unpack("S*",$data)] } ;
+}
+
+=head2 _parse_lq_query
+
+=cut
+
+sub _parse_lq_query {
+    my ($data) = @_;
+    my ($type,$link, $options) = unpack("c a16 a*");
+    return {
+        query_type => $type,
+        link_addr  => _parse_ipv6_addr($link),
+        query_options    => decode_dhcpv6_options($options)
+    };
+}
+
+=head2 _parse_client_data
+
+=cut
+
+sub _parse_client_data {
+    my ($data) = @_;
+    return { client_options => decode_dhcpv6_options($data) };
+}
+
+=head2 _parse_clt_time
+
+=cut
+
+sub _parse_clt_time {
+    my ($data) = @_;
+    return { clt_time => unpack("N", $data) };
+}
+
+=head2 _parse_lq_relay_data
+
+=cut
+
+sub _parse_lq_relay_data {
+    my ($data) = @_;
+    my ($link, $relay_message) = unpack("c a16 a*");
+    return {
+        peer_address => _parse_ipv6_addr($link),
+        dhcp_relay_message => decode_dhcpv6($relay_message),
+    };
 }
 
 
