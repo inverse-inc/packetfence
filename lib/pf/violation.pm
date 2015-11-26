@@ -476,7 +476,7 @@ sub violation_add {
 
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
-        if ( $remaining_time > 0 ) {
+        if ( $remaining_time > 0 && $data{'force'} ne $TRUE ) {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
