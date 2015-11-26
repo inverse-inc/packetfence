@@ -79,7 +79,29 @@ sub new {
         $self->{accessControl} = new pf::inline::custom();
     }
     $self->{api_client} = pf::client::getClient();
+    $self->_build_DHCP_networks();
     return $self;
+}
+
+=head2 _build_DHCP_networks
+
+Builds the list of networks on which PacketFence is the DHCP server
+
+=cut
+
+sub _build_DHCP_networks {
+    my ($self) = @_;
+
+    my @dhcp_networks;
+    foreach my $network (keys %ConfigNetworks) {
+        my %net = %{$ConfigNetworks{$network}};
+        my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
+        if(isenabled($net{dhcpd})){
+            push @dhcp_networks, $network_obj;
+        }
+    }
+
+    $self->{dhcp_networks} = \@dhcp_networks;
 }
 
 =head2 _get_redis_client
@@ -274,7 +296,7 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if((!$self->{running_w_dhcpd} && !isenabled($Config{network}{force_listener_update_on_ack})) && (defined($client_ip) && defined($client_mac))){
+    if( (defined($client_ip) && defined($client_mac)) && (!$self->pf_is_dhcp($client_ip) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
 
@@ -287,6 +309,9 @@ sub parse_dhcp_request {
     if ($self->{is_inline_vlan} || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
         $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
+    }
+    else {
+        $logger->debug("Not acting on DHCPREQUEST");
     }
 }
 
@@ -331,13 +356,35 @@ sub parse_dhcp_ack {
     # We check if we are running with the DHCPd process.
     # If yes, we are interested with the ACK
     # Packet also has to be valid
-    if(($self->{running_w_dhcpd} || isenabled($Config{network}{force_listener_update_on_ack})) && (defined($client_ip) && defined($client_mac))){
+    if( (defined($client_ip) && defined($client_mac)) && ($self->pf_is_dhcp($client_ip) || isenabled($Config{network}{force_listener_update_on_ack})) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
     else {
         $logger->debug("Not acting on DHCPACK");
     }
 
+}
+
+=head2 pf_is_dhcp
+
+Verifies if PacketFence is the DHCP server for the network the IP is in
+
+=cut
+
+sub pf_is_dhcp {
+    my ($self, $client_ip) = @_;
+
+    foreach my $network_obj (@{$self->{dhcp_networks}}) {
+        # We need to rebuild it everytime with the mask from the network as
+        # a DHCPREQUEST does not contain the subnet mask
+        my $net_addr = NetAddr::IP->new($client_ip,$network_obj->mask);
+        if($network_obj->contains($net_addr)){
+            $logger->info("The listener process is on the same server as the DHCP server.");
+            return $TRUE;
+        }
+    }
+    $logger->info("The listener process is NOT on the same server as the DHCP server.");
+    return $FALSE;
 }
 
 =head2 handle_new_ip
