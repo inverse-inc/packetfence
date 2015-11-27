@@ -10,62 +10,88 @@ About this Guide
 ----------------
 This guide has been created in order to help engineers from Solsource configure PacketFence with Stripe for user based billing
 
-Premisse
---------
 
-Installing the PacketFence devel repo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Assumptions
+-----------
+* You have a server with CentOS 6.7 *minimal* installed.
+* You have 2 network cards on the server.
+* The default role is throttled, the paid role is unthrottled.
+* The management interface is on eth0 and has IP address 192.168.1.5
+* The VLAN for the endpoints is 156 and the network associated to this VLAN is 172.21.156.0/24
+** The IP address of PacketFence is 172.21.156.1 in this VLAN
+
+Server setup
+------------
+
+Setup informations
+~~~~~~~~~~~~~~~~~~
+
+The inline setup in this guide uses :
+
+* 2 network interfaces on your machine(1 for the Inline and another one to go out).
+* a switch port in the management network for eth0.
+* a switch port on a trunk (eth1) on which we tag VLAN 156 for our inline network
+* The inline interface is eth1.156
+
+The dynamic ACL setup in this guide uses :
+
+* A Cisco Catalyst 2960 running IOS 15 and with IP address `172.21.2.3`
+
+PacketFence repository install
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Execute the following command on your server : 
 
   # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-2.centos6.noarch.rpm
 
-The repo will be in `/etc/yum.repos.d/packetfence.repo`
+The repo information for the `packetfence` and `packetfence-devel` repos will be in the file : `/etc/yum.repos.d/packetfence.repo`
 
 Installation of PacketFence
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-You should install PacketFence using the following method, instead of the one described in the admin guide.
-
-----
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, make sure you have the PacketFence repository installed as described above
 
 Please execute the following on your server to download the packages :
-cd /root
-mkdir packetfence_packages && cd packetfence_packages
-wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-config-5.4.1-0.20151105.el6.noarch.rpm
-wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-5.4.1-0.20151105.el6.noarch.rpm
+
+  # cd /root
+  # mkdir packetfence_packages && cd packetfence_packages
+  # wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-config-5.4.1-0.20151117.el6.noarch.rpm
+  # wget http://inverse.ca/downloads/PacketFence/RHEL6/feature/ss-billing/x86_64/RPMS/packetfence-5.4.1-0.20151117.el6.noarch.rpm
 
 Now install them using :
-yum localinstall packetfence*.rpm --enablerepo=packetfence-devel
+
+  # yum localinstall packetfence*.rpm --enablerepo=packetfence-devel
 
 Since these are development packages, we have a small bug that requires you to execute the following commands to make all PacketFence services start :
-wget https://fingerbank.inverse.ca/api/v1/download-p0f-map?key=packetfence-users -O /usr/local/fingerbank/conf/fingerbank-p0f.fp
-yum install perl-Scalar-List-Utils --enablerepo=packetfence-devel
+
+  # wget https://fingerbank.inverse.ca/api/v1/download-p0f-map?key=packetfence-users -O /usr/local/fingerbank/conf/fingerbank-p0f.fp
+  # yum install perl-Scalar-List-Utils --enablerepo=packetfence-devel
 
 Now restart the packetfence services :
-service packetfence-config restart
-service packetfence restart
 
-Your installation should now be ready.
-You can proceed to configure it. 
+  # service packetfence-config restart
+  # service packetfence restart
 
-----
 
-Assumptions
------------
-* You have a configured PacketFence environment with working test equipment
-* Inline throttled enforcement is already working.
-* In this guide, the default role is throttled, the paid role is unthrottled.
+Configuration
+-------------
 
-Quick installation
-------------------
+Here are the networks that will be used in the configuration below.
 
-Step 1: Configure the Stripe source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please adjust accordingly.
 
-NOTE: These instructions have been taken from the Administration Guide and adjusted to the Solsource use case.
+    eth0: Management
+    IP Address: 192.168.1.5
+    Netmask: 255.255.255.0
+    Gateway: 192.168.1.254
+
+    eth1.156: Inline Layer 2
+    IP Address: 172.21.156.1
+    Netmask: 255.255.255.0
+    DNS Servers: 8.8.8.8
+    
+Configure the Stripe source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *Stripe account*
 
@@ -90,8 +116,6 @@ Where :
 * *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using the test key and secret account.
-
-NOTE: It is required to restart the pfdns service after configuring the source as it requires a passthrough (*.stripe.com)
 
 Subscription based registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -149,8 +173,8 @@ Where :
 Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
 
-Step 2: Configure PacketFence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure PacketFence
+~~~~~~~~~~~~~~~~~~~~~
 
 Portal Profile
 ^^^^^^^^^^^^^^
@@ -186,10 +210,10 @@ To configure the maximum devices a user can own, go in 'Configuration -> Roles'
 
 Then put 'Max nodes per user' to the desired amount for the roles 'default' and 'paid'.
 
-Step 3: Configure traffic shaping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure traffic shaping
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, we need to know what is the ID of the paid category.
+First, we need to know what is the ID of the default category.
 
 Go in 'Configuration -> Roles' and get the identifier associated to the 'default' category from the 'Id' column. In the case of this example, it will be 1.
 
@@ -200,17 +224,13 @@ Traffic shaping using tc is not reboot proof, thus requires the installation of 
 Install the following script in `/etc/install_tc.sh`
 
   #!/bin/bash
-
   tc qdisc del dev eth0 root
   tc qdisc add dev eth0 root handle 1:0 htb default 1
-
   tc class add dev eth0 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
   # the second 1 in 1:1 represents the category ID
   tc qdisc add dev eth0 parent 1:1 sfq
-
   tc qdisc del dev eth1.156 root
   tc qdisc add dev eth1.156 root handle 1:0 htb default 1
-
   tc class add dev eth1.156 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
   # the second 1 in 1:1 represents the category ID
   tc qdisc add dev eth1.156 parent 1:1 sfq
@@ -231,10 +251,8 @@ First, get his ID from the role page, will be using 2 in this example
 Then the tc script should look like this. Note the class has changed to `1:2`
 
   #!/bin/bash
-
   tc qdisc del dev eth0 root
   tc qdisc add dev eth0 root handle 1:0 htb default 1
-
   tc class add dev eth0 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
   #### THIS LINE WAS ADDED
   tc class add dev eth0 parent 1:0 classid 1:2 htb rate 1mbit ceil 1mbit
@@ -244,10 +262,8 @@ Then the tc script should look like this. Note the class has changed to `1:2`
   #### THIS LINE WAS ADDED
   tc qdisc add dev eth0 parent 1:2 sfq
   ####
-
   tc qdisc del dev eth1.156 root
   tc qdisc add dev eth1.156 root handle 1:0 htb default 1
-
   tc class add dev eth1.156 parent 1:0 classid 1:1 htb rate 1mbit ceil 1mbit
   #### THIS LINE WAS ADDED
   tc class add dev eth1.156 parent 1:0 classid 1:2 htb rate 1mbit ceil 1mbit
@@ -258,8 +274,167 @@ Then the tc script should look like this. Note the class has changed to `1:2`
   tc qdisc add dev eth1.156 parent 1:2 sfq
   ####
 
-Step 4: Testing
-~~~~~~~~~~~~~~~
+Configure the dynamic ACLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: This instructions have been taken from the administration guide and adjusted to the Solsource use case.
+
+TIP: Use `show authentication sessions interface xxxx` to see the status of the VLAN and ACLs being applied to the Switch
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
+Global config settings 
+
+  dot1x system-auth-control 
+  ip device tracking
+
+On each interface
+
+  switchport mode access 
+  switchport voice vlan 156 
+  dot1x mac-auth-bypass 
+  dot1x pae authenticator 
+  dot1x port-control auto 
+  dot1x timeout tx-period 5 
+  dot1x reauthentication 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 7200 
+  mab 
+  no snmp trap link-status 
+
+AAA Groups and Configuration 
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813 
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+Radius server configuration 
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
+Activate SNMP on the switch:
+
+  snmp-server community solsourcesnmp RO
+  snmp-server community solsourcesnmp RW
+
+
+Next, in PacketFence, go in 'Configuration -> Switches' and add a new Switch with the following parameters : 
+
+Definition tab :
+[options="compact"]
+* Description : Solsource test Switch
+* Type : Cisco Catalyst 2960
+* Mode : production
+* Dynamic Uplinks : checked
+
+Roles tab :
+[options="compact"]
+* Role by VLAN ID : checked
+* Assign the inline VLAN to all the roles (in the case of this example, 156)
+* Role by access list : checked
+* Add the following rules, 1 by line to the registration, default and paid roles access list : 
+[options="compact"]
+** permit ip any host 172.21.156.1
+** deny ip 172.21.156.0 0.0.0.255
+** permit ip any any
+
+RADIUS tab :
+[options="compact"]
+* Secret Passphrase : useStrongerSecret
+
+SNMP tab :
+[options="compact"]
+* Version : v2c
+* Community Read : solsourcesnmp
+* Community Write : solsourcesnmp
+
+The resulting configuration in `/usr/local/pf/conf/switches.conf` should be :
+
+  [172.21.2.3]
+  mode=production
+  description=Solsource test Switch
+  type=Cisco::Catalyst_2960
+  radiusSecret=useStrongerSecret
+  defaultAccessList= <<EOT
+  permit ip any host 172.21.156.1
+  deny ip any 172.21.156.0 0.0.0.255
+  permit ip any any
+  EOT
+  guestVlan=156
+  paidVlan=156
+  isolationVlan=156
+  gamingVlan=156
+  registrationVlan=156
+  AccessListMap=Y
+  defaultVlan=156
+  inlineVlan=156
+  macDetectionVlan=156
+  voiceVlan=156
+  RoleMap=N
+  paidAccessList= <<EOT
+  permit ip any host 172.21.156.1
+  deny ip any 172.21.156.0 0.0.0.255
+  permit ip any any
+  EOT
+  registrationAccessList= <<EOT
+  permit ip any host 172.21.156.1
+  deny ip any 172.21.156.0 0.0.0.255
+  permit ip any any
+  EOT
+  SNMPCommunityRead=solsourcesnmp
+  SNMPCommunityWrite=solsourcesnmp
+  SNMPVersion=2c
+
+The access lists above can be adjusted to your needs, right now it refuses access to any device in the endpoints VLAN. 
+A permit is added for every user owned device and for the PacketFence IP address.
+Then a permit is added for any other address to allow internet access.
+
+Example result : 
+
+  lab2#show authentication sessions int f0/1
+              Interface:  FastEthernet0/1
+            MAC Address:  c860.0050.ffff
+             IP Address:  172.21.156.37
+              User-Name:  c8600050cf25
+                 Status:  Authz Success
+                 Domain:  DATA
+         Oper host mode:  single-host
+       Oper control dir:  both
+          Authorized By:  Authentication Server
+            Vlan Policy:  156
+           Per-User ACL:  permit ip any host 172.21.156.223
+           Per-User ACL:  permit ip any host 172.21.156.37
+           Per-User ACL:  permit ip any host 172.21.156.1
+           Per-User ACL:  deny ip any 172.21.156.0 0.0.0.255
+           Per-User ACL:  permit ip any any
+        Session timeout:  1800s (local), Remaining: 668s
+         Timeout action:  Reauthenticate
+           Idle timeout:  N/A
+      Common Session ID:  AC1414C000004C3E66C519B4
+        Acct Session ID:  0x00004C43
+                 Handle:  0x00000C56
+
+  Runnable methods list:
+         Method   State
+         dot1x    Failed over
+         mab      Authc Success
+
+Testing
+~~~~~~~
 
 NOTE: packetfence.log will provide detailed informations on what is currently happening.
 
@@ -268,6 +443,14 @@ Registering a device
 
 Connect a device to your network.
 
+You should receive a RADIUS request in `/usr/local/pf/logs/radius.log`. The response should be with VLAN 156.
+
+The following access lists should be applied : 
+
+  permit ip any host 172.21.156.1
+  deny ip any 172.21.156.0 0.0.0.255
+  permit ip any any
+
 You should be prompted with the Captive portal.
 
 You can create an account or reuse any existing local account (shown in 'Users' in the Administration interface)
@@ -275,7 +458,6 @@ You can create an account or reuse any existing local account (shown in 'Users' 
 An account will be created with the role 'default' and assigns the role 'default' to the device that is registered.
 
 Using a local account will assign the role that is assigned to the user to the device (shown in the 'Actions' tab when viewing the details of a user)
-
 
 Modifying the access level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -305,6 +487,22 @@ In his subscription list, you can cancel it.
 If the webhooks are properly working between Stripe and your PacketFence server, the user devices will be downgraded to the role 'default' and the user will be downgraded to the role 'default'
 
 
+Adding another device
+^^^^^^^^^^^^^^^^^^^^^
+
+Next, add another device using either the Status page or by registering it with the same username.
+
+After its registration is complete you should see that the ACLs have been adjusted to allow the user devices to communicate with each other.
+
+In this example, the 2 devices IPs are `172.21.156.11` and `172.21.156.12`
+
+Both switchport ACLs should be modified to the following
+
+  permit ip any host 172.21.156.11
+  permit ip any host 172.21.156.12
+  permit ip any host 172.21.156.1
+  deny ip any 172.21.156.0 0.0.0.255
+  permit ip any any
 
 
 
