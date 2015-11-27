@@ -205,7 +205,7 @@ sub regzone {
             }
 
         }
-        elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
+        elsif ($qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
