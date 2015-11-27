@@ -57,6 +57,12 @@ With the changes made to RADIUS in the version 5.5, you will need to remove the 
   /usr/local/pf/raddb/sites-enabled/default
 
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
 Upgrading from a version prior to 5.5.0
 ---------------------------------------
 
