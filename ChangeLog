@@ -1,3 +1,144 @@
+commit df19b26d3682b33c72bffdff6e18bb5a0d9a8816
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Nov 27 12:01:45 2015 -0500
+
+    fix : resolve own domain properly when directly queried
+
+M	sbin/pfdns
+
+commit c9b2b10bcc41654164b40da0d492feff239ef8e9
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 27 11:49:16 2015 -0500
+
+    Updated spec file for new fingerbank 2.0.1.
+
+M	addons/packages/packetfence.spec
+
+commit 0d7bf2f76d748287e06b9a08afc52aa175249058
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 27 11:32:46 2015 -0500
+
+    Post 5.5 release procedure.
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/pf-release
+A	db/pf-schema-X.Y.Z.sql
+A	db/upgrade-X.X.X-X.Y.Z.sql
+
+commit 18837fd4823c12e27b0851f4b8f3db142a3c4bf8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 25 10:56:13 2015 -0500
+
+    Fix syntax error
+
+M	lib/pf/vlan.pm
+
+commit 38fae926a9074876d2673c05f084b5e7a053ad0c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Nov 25 08:58:42 2015 -0500
+
+    Let's revert "Remove unnecessary so-called "logic"" for necessary so-called "logic"
+    
+    This reverts commit 80d9ebf986074745446495d7dfe25ab281decb4e.
+    
+    Conflicts:
+    	lib/pf/vlan.pm
+
+M	lib/pf/vlan.pm
+
+commit f830a6bc5529d5d9d98623fd87fd3163bb8a56de
+Author: Durand Fabrice <oeufdure@gmail.com>
+Date:   Tue Nov 24 18:52:44 2015 -0500
+
+    Fixed missing violation_view_top call in radius filter
+
+M	lib/pf/access_filter/radius.pm
+
+commit 7e0af2943ba2177c60f1d2cfae3befd7124f1714
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Nov 24 15:12:52 2015 -0500
+
+    full path
+
+M	UPGRADE.asciidoc
+
+commit bf6a06bbfa0e9cc2bbd6075d323d9b7c2007268a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Nov 24 15:10:44 2015 -0500
+
+    UPGRADE guide for #989
+
+M	UPGRADE.asciidoc
+
+commit 222f25ec9d7aae3ea23ad576e0d94a382eb3058a
+Author: Antoine Amacher <aamacher@inverse.ca>
+Date:   Tue Nov 24 14:56:01 2015 -0500
+
+    add configuration for dACL
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit e9b2981ee145ade889a7735250c3e7de747ac592
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 24 14:36:25 2015 -0500
+
+    Adapted log line in returnRadiusAccessAccept
+
+M	lib/pf/Switch.pm
+
+commit 99deac48c6005e7bf4ccb195b8e4b129864bc83e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 24 12:43:53 2015 -0500
+
+    Added [mac: ] prefix in the log for process_dhcpv6
+
+M	lib/pf/api.pm
+
+commit aeb5db95195b081c8fd81a7991edb902f4185b05
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 24 11:03:32 2015 -0500
+
+    Stop packetfence-redis-cache when we remove packetfence (packaging)
+
+M	addons/packages/packetfence.spec
+
+commit f999ddf415a6e52fede118fc4040ee87c0050cbc
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Nov 24 10:54:17 2015 -0500
+
+    Remove pfconfig overlay clearing
+    
+    In a cluster, it would cause namespaces on other servers to be not refreshed
+    Would have required to add cluster sync inside pfconfig which is not worth it for a feature nobody uses
+
+M	lib/pf/cmd/pf/pfconfig.pm
+M	lib/pfconfig/manager.pm
+
+commit a95ee6445e58ed6dda0583c170787a35b95ad0d2
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Nov 23 16:25:14 2015 -0500
+
+    Removed useless log
+
+M	lib/pf/Switch/AeroHIVE.pm
+
+commit 4d85246f960a0d75a00a7744ee93f02c573c4ce7
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 23 16:03:23 2015 -0500
+
+    fix equals in LDAP rule
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit e467d7909ffb2b420a1548f7969260d91fe3da8b
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Nov 23 11:15:39 2015 -0500
+
+    Update the changelog.
+
+M	ChangeLog
+
 commit 73ae8c78f674ab013ac91b881dfcd67ee59ff26c
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Mon Nov 23 11:13:53 2015 -0500
