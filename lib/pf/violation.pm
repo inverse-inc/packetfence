@@ -482,6 +482,9 @@ sub violation_add {
             $logger->info($msg);
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return (-1);
+        } elsif ( $remaining_time > 0 && $data{'force'} eq $TRUE ) {
+            my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
+            $logger->info($msg);
         } else {
             my $msg = "grace expired on violation $vid for node $mac";
             $logger->info($msg);
