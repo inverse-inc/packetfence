@@ -349,8 +349,8 @@ sub accounting {
             #
             $data = send_rpc_request($config, "radius_update_locationlog", \%RAD_REQUEST);
         }
-	# Tracking IP address.
-	send_rpc_request($config, "update_iplog", {mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+        # Tracking IP address.
+        send_rpc_request($config, "update_iplog", {mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}}) if ($RAD_REQUEST{'Framed-IP-Address'} );
 
         if ($data) {
             my $elements = $data->[0];
