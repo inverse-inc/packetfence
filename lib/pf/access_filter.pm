@@ -42,12 +42,19 @@ Test all the rules
 
 sub test {
     my ($self, $scope, $args) = @_;
+    my $logger = $self->logger;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
         my $answer = $engine->match_first($args);
-        $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
+        if (defined $answer) {
+            $logger->info("Match rule $answer->{_rule}");
+        }
+        else {
+            $logger->debug(sub {"No rule matched for scope $scope"});
+        }
         return $answer;
     }
+    $logger->debug(sub {"No engine found for $scope"});
     return undef;
 }
 
