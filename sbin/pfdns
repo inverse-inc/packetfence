@@ -222,7 +222,15 @@ sub resolve {
     my ($ttl, $rdata);
     my $res   = Net::DNS::Resolver->new;
     $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
-    if ($query) {
+
+    $logger->info("Query : $qname");
+    if ($qname && $qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
+        my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    }
+    elsif ($query) {
         foreach my $rr ($query->answer) {
             next unless $rr->type eq "A";
             $rdata= $rr->address;
@@ -235,7 +243,10 @@ sub resolve {
             $rcode = "NXDOMAIN";
         }
     }
-    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    # mark the answer as authoritive (by setting the 'aa' flag
+    my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
+    return @answer;
 }
 
 sub regzone {
@@ -325,7 +336,9 @@ sub regzone {
     }
 
     # mark the answer as authoritive (by setting the 'aa' flag
-    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
+    return @answer;
 }
 
 =head2 add_answers_to_ipset
