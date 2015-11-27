@@ -375,7 +375,7 @@ sub accounting {
         return $rc;
     };
     if ($@) {
-        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize RPC request: $@");
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the accounting RPC request: $@");
         $radius_return_code = server_error_handler();
     }
 
