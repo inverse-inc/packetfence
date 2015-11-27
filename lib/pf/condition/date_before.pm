@@ -25,7 +25,7 @@ extends 'pf::condition';
 
 has value => (
     is => 'rw',
-    isa => 'Str',
+    isa => 'Maybe[Str]',
     required => 0,
 );
 
