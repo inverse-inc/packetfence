@@ -67,7 +67,7 @@ Depends: ${misc:Depends}, vlan, make,
  perl-modules,libdata-swap-perl,libdata-structure-util-perl,
  liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
- libtime-period-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
+ libtime-period-perl, libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
  liburi-escape-xs-perl, libdata-thunk-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
