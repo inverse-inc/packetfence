@@ -536,7 +536,7 @@ CREATE TABLE radacct (
   PRIMARY KEY  (radacctid),
   KEY username (username),
   KEY framedipaddress (framedipaddress),
-  KEY acctsessionid (acctsessionid),
+  KEY acctsessionid_username_nasip (acctsessionid,username,nasipaddress),
   KEY acctsessiontime (acctsessiontime),
   KEY acctuniqueid (acctuniqueid),
   KEY acctstarttime (acctstarttime),
@@ -583,9 +583,9 @@ BEGIN
   DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
-  SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
+  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct_log
+    FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
     AND nasipaddress = p_nasipaddress;
@@ -704,9 +704,9 @@ BEGIN
   DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
-  SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
+  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct_log
+    FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
     AND nasipaddress = p_nasipaddress;
