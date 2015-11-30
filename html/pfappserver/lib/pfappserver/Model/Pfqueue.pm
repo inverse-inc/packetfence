@@ -13,7 +13,7 @@ Catalyst Model.
 use Moose;
 use namespace::autoclean;
 use pf::util::pfqueue;
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX);
 use Redis::Fast;
 
 extends 'Catalyst::Model';
@@ -34,7 +34,7 @@ sub counters {
 
 sub _counter_map {
     my ($counters, $key) = @_;
-    $key =~ /Queue:([^:]+):(.*)$/;
+    $key =~ /^\Q$PFQUEUE_QUEUE_PREFIX\E([^:]+):(.*)$/;
     my $queue = $1;
     my $name = $2;
     my %counter = (

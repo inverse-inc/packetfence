@@ -23,7 +23,7 @@ use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
 use pf::task;
 use pf::util::pfqueue qw(task_counter_id);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX);
 
 our $DEFAULT_EXPIRATION = 300;
 
@@ -81,15 +81,15 @@ Submit a task to the queue
 sub submit {
     my ($self, $queue, $task_type, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
-    my $queue_name = "Queue:$queue";
-    my $id    = pf::task->generateId();
+    my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
+    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
+    my $id    = pf::task->generateId($task_counter_id);
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->lpush($queue_name, $id, sub {});
-    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
@@ -98,8 +98,9 @@ sub submit {
 sub submit_delayed {
     my ($self, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
     $expire_in //= $DEFAULT_EXPIRATION;
-    my $queue_name = "Queue:$queue";
-    my $id    = pf::task->generateId();
+    my $queue_name = $PFQUEUE_QUEUE_PREFIX . $queue;
+    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
+    my $id    = pf::task->generateId($task_counter_id);
     my $redis = $self->redis;
     #Getting the current time from the redis service
     my ($seconds, $micro) = $redis->time;
@@ -110,7 +111,6 @@ sub submit_delayed {
     $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
-    my $task_counter_id = task_counter_id($queue_name, $task_type, $task_data);
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->exec(sub {});
     $redis->wait_all_responses();
