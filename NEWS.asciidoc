@@ -11,6 +11,13 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 5.5.1 released on 2015-11-27
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* pfdns will now resolve it's own domain correctly
+* Fixed missing violation_view_top call in radius filter
+* Fixed equals operator in LDAP rule
+
 Version 5.5.0 released on 2015-11-20
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
