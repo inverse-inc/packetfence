@@ -51,15 +51,29 @@ our $logger = get_logger();
 
 
 our @FIELDS = qw(
-  nas_ip_address
-  nas_port_type
-  called_station_id
-  calling_station_id
-  module_failure_message
-  user_name
-  radius_request
-  radius_reply
+    mac
+    user_name
+    auth_type
+    source
+    role
+    status
+    unreg
+    ifindex
+    reason
+    nas_port
+    profile
+    event_type
+    uuid
+    nas_ip_address
+    nas_port_type
+    called_station_id
+    calling_station_id
+    radius_reply
 );
+
+our $FIELD_LIST = join(", ",@FIELDS);
+
+our $INSERT_LIST = join(", ", ("?") x @FIELDS);
 
 =back
 
@@ -77,20 +91,14 @@ sub radius_audit_log_db_prepare {
     $logger->debug("Preparing pf::radius_audit_log database queries");
     my $dbh = get_db_handle();
 
-    $radius_audit_log_statements->{'radius_audit_log_exist_sql'} = $dbh->prepare(qq[ select count(*) from radius_audit_log where pid=? ]);
-
     $radius_audit_log_statements->{'radius_audit_log_add_sql'} = $dbh->prepare(
-        qq[ INSERT INTO radius_audit_log
-                   ( nas_ip_address, nas_port_type, called_station_id, calling_station_id, module_failure_message, user_name, radius_request, radius_reply)
-            VALUES (?,?,?,?,?,?,?,?) ]);
+        qq[ INSERT INTO radius_audit_log ( $FIELD_LIST ) VALUES ( $INSERT_LIST ) ]);
 
     $radius_audit_log_statements->{'radius_audit_log_view_sql'} = $dbh->prepare(
-        qq[ SELECT id, created_at, nas_ip_address, nas_port_type, called_station_id, calling_station_id, module_failure_message, user_name, radius_request, radius_reply
-            FROM radius_audit_log WHERE id = ? ]);
+        qq[ SELECT id, created_at, $FIELD_LIST FROM radius_audit_log WHERE id = ? ]);
 
     $radius_audit_log_statements->{'radius_audit_log_view_all_sql'} = $dbh->prepare(
-        qq[ SELECT id, created_at, nas_ip_address, nas_port_type, called_station_id, calling_station_id, module_failure_message, user_name, radius_request, radius_reply
-            FROM radius_audit_log ORDER BY id LIMIT ?, ? ]);
+        qq[ SELECT id, created_at, $FIELD_LIST FROM radius_audit_log ORDER BY id LIMIT ?, ? ]);
 
     $radius_audit_log_statements->{'radius_audit_log_count_all_sql'} = $dbh->prepare( qq[ SELECT count(*) as count FROM radius_audit_log ]);
 
