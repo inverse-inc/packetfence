@@ -227,12 +227,12 @@ sub _should_we_reassign_vlan {
     } elsif (defined($role)) {
         if ($role ne $newRole) {
             $logger->info(
-                "VLAN reassignment required (current Role = $role but should be in Role $newRole)"
+                "Reassignment required (current Role = $role but should be in Role $newRole)"
             );
             return $TRUE;
         }
     }
-    $logger->debug("No VLAN reassignment required.");
+    $logger->debug("No reassignment required.");
     return $FALSE;
 }
 
