@@ -29,7 +29,7 @@ Version 5.5.1 released on 2015-11-27
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
-* pfdns will now resolve it's own domain correctly
+* pfdns will now resolve its own domain correctly
 * Fixed missing violation_view_top call in radius filter
 * Fixed equals operator in LDAP rule
 
