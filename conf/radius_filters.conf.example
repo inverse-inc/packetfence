@@ -128,6 +128,8 @@
 #     match
 #     match_not
 #     defined
+#     date_is_before
+#     date_is_after
 #
 # attribute can be:
 #
