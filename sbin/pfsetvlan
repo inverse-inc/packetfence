@@ -1818,7 +1818,7 @@ sub node_update_PF {
     }
 
     #should we auto-register?
-    if ($vlan_obj->shouldAutoRegister({mac => $mac, switch => $registrationMode, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
+    if ($vlan_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
         # auto-register
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
             mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
