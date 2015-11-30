@@ -2283,10 +2283,10 @@ We added the ability to specify filters directly in the portion of code that re-
 
 These rules are available in different scopes:
 
-  ViolationVlan
-  RegistrationVlan
-  NormalVlan
-  InlineVlan
+  ViolationRole
+  RegistrationRole
+  RegisteredRole
+  InlineRole
   AutoRegister
   NodeInfoForAutoReg
 
@@ -2322,7 +2322,7 @@ from Monday to Friday when it try to connect as a registered device :
   value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 
   [1:category&ssid&time]
-  scope = NormalVlan
+  scope = RegisteredRole
   role = nointernet
 
 The second example will create a violation if the SSID is OPEN and the owner is igmout
@@ -2338,7 +2338,7 @@ The second example will create a violation if the SSID is OPEN and the owner is 
   value = OPEN
 
   [2:igmout&ssid]
-  scope = NormalVlan
+  scope = RegisteredRole
   action = trigger_violation
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
 

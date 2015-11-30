@@ -166,7 +166,7 @@ sub fetchRoleForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $self->getNormalRole($args);
+    my $vlan = $self->getRegisteredRole($args);
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -333,13 +333,13 @@ sub getRegistrationRole {
     return 0;
 }
 
-=item getNormalRole
+=item getRegisteredRole
 
-Sample getNormalRole, see pf::role for getNormalRole interface description
+Sample getRegisteredRole, see pf::role for getRegisteredRole interface description
 
 =cut
 
-sub getNormalRole {
+sub getRegisteredRole {
 
     my ($self, $args) = @_;
     my $logger = get_logger();

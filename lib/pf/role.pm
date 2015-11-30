@@ -67,7 +67,7 @@ Answers the question: What VLAN should a given node be put into?
 This sub is meant to be overridden in lib/pf/role/custom.pm if the default
 version doesn't do the right thing for you. However it is very generic,
 maybe what you are looking for needs to be done in getViolationRole,
-getRegistrationRole or getNormalRole.
+getRegistrationRole or getRegisteredRole.
 
 =cut
 
@@ -131,7 +131,7 @@ sub fetchRoleForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    $answer = $this->getNormalRole($args);
+    $answer = $this->getRegisteredRole($args);
     $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: ".(defined $answer->{vlan} ? $answer->{vlan} : "(undefined)").", Role: " . (defined $answer->{role} ? $answer->{role} : "(undefined)") );
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $answer;
@@ -224,7 +224,7 @@ sub getViolationRole {
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
-    my $role = $this->filterVlan('ViolationVlan',$args);
+    my $role = $this->filterVlan('ViolationRole',$args);
     if ($role) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({role => $role});
@@ -322,7 +322,7 @@ sub getRegistrationRole {
 
     if (!defined($args->{'node_info'})) {
         # Vlan Filter
-        my $role = $this->filterVlan('RegistrationVlan',$args);
+        my $role = $this->filterVlan('RegistrationRole',$args);
         if ($role) {
             $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -337,7 +337,7 @@ sub getRegistrationRole {
     my $n_status = $args->{'node_info'}->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         # Vlan Filter
-        my $role = $this->filterVlan('RegistrationVlan',$args);
+        my $role = $this->filterVlan('RegistrationRole',$args);
         if ($role) {
             $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -352,7 +352,7 @@ sub getRegistrationRole {
     return ({ role => 0});
 }
 
-=head2 getNormalRole
+=head2 getRegisteredRole
 
 Returns normal Role
 
@@ -372,7 +372,7 @@ Return values:
 
 =cut
 
-sub getNormalRole {
+sub getRegisteredRole {
     #$args->{'switch'} is the switch object (pf::Switch)
     #$args->{'ifIndex'} is the ifIndex of the computer connected to
     #$args->{'mac'} is the mac connected
@@ -417,7 +417,7 @@ sub getNormalRole {
     $logger->debug("Trying to determine VLAN from role.");
 
     # Vlan Filter
-    $role = $this->filterVlan('NormalVlan',$args);
+    $role = $this->filterVlan('RegisteredRole',$args);
     if ( $role ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({ role => $role});
@@ -523,7 +523,7 @@ sub getInlineRole {
     my $logger = $this->logger;
     my $start = Time::HiRes::gettimeofday();
 
-    my $role = $this->filterVlan('InlineVlan',$args);
+    my $role = $this->filterVlan('InlineRole',$args);
     if ( $role ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({role => $role});
