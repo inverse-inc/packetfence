@@ -2,12 +2,25 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
+--
+-- Alter locationlog
+--
+
+ALTER TABLE `locationlog` ADD `role` varchar(255) default NULL AFTER vlan;
+
+--
+-- Alter locationlog_archive
+--
+
+ALTER TABLE `locationlog_archive` ADD `role` varchar(255) default NULL AFTER vlan;
+
+--
 -- Setting the major/minor/sub-minor version of the DB
 --
 
 SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 5;
-SET @SUBMINOR_VERSION = 2;
+SET @MINOR_VERSION = 6;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
