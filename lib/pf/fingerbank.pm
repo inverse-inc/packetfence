@@ -100,12 +100,13 @@ sub _query {
     $mac = substr($mac, 0, 6);  # Only keep first 6 characters (OUI)
     $cached_args->{'mac'} = $mac;
 
-    return $cache->compute($cached_args, {expires_in => FINGERBANK_CACHE_EXPIRE},
+    return $cache->compute_with_undef($cached_args, 
         sub {
             $logger->debug("Fingerbank result not in cache (either not present or expired). Querying Fingerbank for result");
             my $fingerbank = fingerbank::Query->new;
             return $fingerbank->match($args);
-        }
+        },
+        {expires_in => FINGERBANK_CACHE_EXPIRE}
     );
 }
 
