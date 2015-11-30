@@ -18,7 +18,7 @@ use Moo::Role;
 use pfconfig::util qw($undef_element);
 
 sub compute_with_undef {
-    my ($self, $key, $on_miss) = @_;
+    my ($self, $key, $on_miss, $options) = @_;
     my $return = $self->get($key);
     if(defined($return) && ref($return) eq "pfconfig::undef_element"){
         return undef;
@@ -29,10 +29,10 @@ sub compute_with_undef {
 
     my $result = $on_miss->();
     if(defined($result)){
-        $self->set($key,$result);
+        $self->set($key,$result,$options);
     }
     else {
-        $self->set($key, $undef_element);
+        $self->set($key, $undef_element,$options);
     }
 
     return $result;
