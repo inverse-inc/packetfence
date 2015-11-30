@@ -44,7 +44,8 @@ Generate the task id
 =cut
 
 sub generateId {
-   "Task:" . $GENERATOR->create_str
+    my ($self, $metadata) = @_;
+   "Task:" . $GENERATOR->create_str . ":$metadata";
 }
 
 
