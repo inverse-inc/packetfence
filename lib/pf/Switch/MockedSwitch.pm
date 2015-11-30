@@ -2991,13 +2991,13 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
-=item returnRadiusDeny
+=item handleRadiusDeny
 
 Return RLM_MODULE_USERLOCK if the vlan id is -1
 
 =cut
 
-sub returnRadiusDeny {
+sub handleRadiusDeny {
     my ($self, $args) =@_;
     my $logger = $self->logger();
 
@@ -3007,7 +3007,7 @@ sub returnRadiusDeny {
         $self->disconnectWrite();
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
-
+    return undef;
 }
 
 
