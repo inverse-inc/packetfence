@@ -94,8 +94,6 @@ sub process_next_job {
                         "pf::task::$type"->doTask($args);
                     };
                     die $@ if $@;
-                    my $task_counter_id = task_counter_id($queue, $type, $args);
-                    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1);
                 } else {
                     $logger->error("Invalid object stored in queue");
                 }
@@ -106,8 +104,23 @@ sub process_next_job {
         } else {
                 $logger->error("Invalid task id $task_id provided");
         }
-        $redis->del($task_id);
+        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
+        $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
+        $redis->del($task_id, sub {});
+        $redis->wait_all_responses();
     }
+}
+
+=head2 _get_task_counter_id_from_task_id
+
+Extract the task counter from the task id
+
+=cut
+
+sub _get_task_counter_id_from_task_id {
+    my ($id) = @_;
+    $id =~ /^Task:[^:]+:(.*)$/;
+    return $1;
 }
 
 =head2 _build_redis
