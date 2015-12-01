@@ -60,6 +60,11 @@ after [qw(create update clone)] => sub {
                 $c->log->debug("Expiring $key since $model_name has changed.");
                 $cache->expire($key);
             }
+            # special case, we need to expire results from the CombinationMatch view
+            elsif($model_name eq "Combination" && $key =~ /^CombinationMatch_/){
+                $c->log->debug("Expiring $key since $model_name has changed.");
+                $cache->expire($key);
+            }
         }
     }
 };
