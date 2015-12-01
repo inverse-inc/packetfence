@@ -192,15 +192,9 @@ sub radius_audit_log_custom_search {
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
