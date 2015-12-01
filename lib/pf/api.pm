@@ -375,7 +375,7 @@ sub _node_determine_and_set_into_VLAN {
     my $vlan_obj = new pf::role::custom();
     my $args = {
         mac => $mac,
-        node_info => node_view($mac),
+        node_info => pf::node::node_view($mac),
         switch => $switch,
         ifIndex => $ifIndex,
         connection_type => $connection_type,
