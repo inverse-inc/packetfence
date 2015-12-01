@@ -54,6 +54,7 @@ use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::cached;
 use pf::db;
 use pf::violation;
+use pf::constants::violation;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;

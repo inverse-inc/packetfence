@@ -51,6 +51,7 @@ use pf::constants;
 use pf::config;
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
+use pf::constants::violation;
 use pf::db;
 use pf::violation;
 use pf::util;
@@ -385,7 +386,7 @@ sub acct_maintenance {
             else {
                 $interval = "all";
             }
-            
+
             $logger->info("Found timeframed accounting policy : $acct_policy for violation $vid");
 
             # Grab the list of the mac address first without caring about the violations

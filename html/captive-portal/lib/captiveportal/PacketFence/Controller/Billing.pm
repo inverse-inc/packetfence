@@ -9,6 +9,7 @@ use pf::node;
 use pf::Portal::Session;
 use pf::util;
 use pf::config::util;
+use pf::constants::violation;
 use pf::violation;
 use pf::person;
 use pf::web;
@@ -106,7 +107,7 @@ sub confirm : Local : Args(0) {
         }
         person_modify($pid, %person_fields);
     }
-    
+
     my $data = eval {
           $billing->prepare_payment($c->session, $c->stash->{tier}, $c->request->parameters, $c->request->uri)
     };
@@ -155,7 +156,7 @@ sub validate : Private {
         });
         $c->detach('index');
     }
-    
+
     $c->forward(Authenticate => "validateMandatoryFields", [detach => 0]);
     if($c->stash->{'txt_validation_error'}){
         $c->log->error("Invalid mandatory fields");
