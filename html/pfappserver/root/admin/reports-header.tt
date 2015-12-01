@@ -1,22 +1,21 @@
+<div id="reports" class="navbar">
+  <div class="navbar-inner">
+    <div class=" container">
+      <div class="nav-collapse collapse navbar-responsive-collapse">
 
-          <div id="reports" class="navbar">
-            <div class="navbar-inner">
-              <div class=" container">
-                <div class="nav-collapse collapse navbar-responsive-collapse">
+        <form class="navbar-search pull-left input-daterange datepicker" action="">
+          <input type="text" class="search-query input-small" name="start" value="[% c.session.reports.start | html %]" data-date-format="yyyy-mm-dd" />
+          <i class="icon-arrow-right"></i>
+          <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start | html %]" />
+        </form>
+      </div>
 
-                  <form class="navbar-search pull-left input-daterange datepicker" action="">
-                    <input type="text" class="search-query input-small" name="start" value="[% c.session.reports.start | html %]" data-date-format="yyyy-mm-dd" />
-                    <i class="icon-arrow-right"></i>
-                    <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start | html %]" />
-                  </form>
-                </div>
-
-                <ul class="nav pull-right">
-                  <li><a href="#[% last7days %]">[% l('7 days') %]</a></li>
-                  <li><a href="#[% last30days %]">[% l('30 days') %]</a></li>
-                  <li><a href="#[% last60days %]">[% l('60 days') %]</a></li>
-                  <li><a href="#[% last90days %]">[% l('90 days') %]</a></li>
-                </ul>
-              </div>
-            </div>
-          </div>
+      <ul class="nav pull-right">
+        <li><a href="#[% last7days %]">[% l('7 days') %]</a></li>
+        <li><a href="#[% last30days %]">[% l('30 days') %]</a></li>
+        <li><a href="#[% last60days %]">[% l('60 days') %]</a></li>
+        <li><a href="#[% last90days %]">[% l('90 days') %]</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
