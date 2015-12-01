@@ -1,0 +1,32 @@
+<div id="reports" class="navbar">
+  <div class="navbar-inner">
+    <div class=" container">
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+
+        <form class="navbar-search pull-left input-daterange datepicker" action="">
+          <input type="text" class="search-query input-small" name="start" value="[% c.session.reports.start | html %]" data-date-format="yyyy-mm-dd" />
+          <i class="icon-arrow-right"></i>
+          <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start | html %]" />
+        </form>
+      </div>
+
+      <ul class="nav pull-right">
+        <li><a href="#[% last7days %]">[% l('Last 30 minutes') %]</a></li>
+        <li><a href="#[% last7days %]">[% l('Last 1 hour') %]</a></li>
+        <li><a href="#[% last7days %]">[% l('Last 6 hours') %]</a></li>
+        <li><a href="#[% last7days %]">[% l('Last 12 hours') %]</a></li>
+        <li><a href="#[% last7days %]">[% l('Last 24 hours') %]</a></li>
+      </ul>
+    </div>
+    <div class=" container">
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+
+        <form class="navbar-search pull-left " action="">
+          <span>Auth Type</span> <input type="text" class="search-query input-small" name="auth_type" value="[% c.session.reports.start | html %]" />
+          <span>Bob</span> <input type="text" class="search-query input-small" name="end" value="[% c.session.reports.end | html %]" data-date-format="yyyy-mm-dd" date-datestart="[% c.session.reports.start | html %]" />
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
