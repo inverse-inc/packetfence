@@ -1842,7 +1842,7 @@ sub node_determine_and_set_into_VLAN {
 
     my $vlan_obj = new pf::role::custom();
 
-    my $role = $vlan_obj->fetchRoleForNode({ mac => $mac, switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type});
+    my $role = $vlan_obj->fetchRoleForNode({ mac => $mac, node_info => node_view($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type});
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(

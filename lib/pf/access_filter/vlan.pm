@@ -37,7 +37,7 @@ sub filterRule {
             return $role;
         }
     }
-    return 0;
+    return undef;
 }
 
 =head2 getEngineForScope
