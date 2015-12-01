@@ -56,6 +56,7 @@ Set the default view to pfappserver::View::JSON.
 sub begin :Private {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
+    $self->_rangeForHeader($c);
 }
 
 =head2 _saveRange
@@ -67,7 +68,7 @@ Save the period range for a specific section.
 sub _saveRange :Private {
     my ($self, $c, $section, $start, $end) = @_;
 
-    if ( ( defined $start and defined $end ) 
+    if ( ( defined $start and defined $end )
             and length $start && length $end ) {
         if (my ($syear, $smonth, $sday) = $start =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
             if (my ($eyear, $emonth, $eday) = $end =~ m/(\d{4})-?(\d{1,2})-?(\d{1,2})/) {
@@ -323,7 +324,7 @@ sub _buildGraphiteURL :Private {
     $params->{from} = $start;
     $params->{format} = 'png';
     $params->{tz} = 'Etc/UTC';
-    $params->{tz} = $Config{'general'}{'timezone'}; 
+    $params->{tz} = $Config{'general'}{'timezone'};
     $params->{height} = '320';
     $params->{bgcolor} = 'ff000000';
     $params->{fgcolor} = '#000000'; #'#B8B8B8';
@@ -336,19 +337,19 @@ sub _buildGraphiteURL :Private {
     my $url = sprintf('http://%s:%s/render?%s',
                       $options->{graphite_host},
                       $options->{graphite_port},
-                      join('&', map { $_ . '=' . uri_escape($params->{$_}) } 
-                          grep { $_ ne "target" } keys(%$params))); # we don't map the target here. It can be an arrayref       
-    
+                      join('&', map { $_ . '=' . uri_escape($params->{$_}) }
+                          grep { $_ ne "target" } keys(%$params))); # we don't map the target here. It can be an arrayref
+
     # targets can be an arrayref of graphite queries, so we need to handle it
-    if (ref $params->{'target'} eq  "ARRAY") { 
-        for my $target ( @{ $params->{'target'} }) { 
+    if (ref $params->{'target'} eq  "ARRAY") {
+        for my $target ( @{ $params->{'target'} }) {
             $url .=  ( '&target=' . uri_escape( $target ));
         }
     }
-    else { 
+    else {
         $url .= ( '&target=' . uri_escape( $params->{'target'} ) );
     }
-    
+
     return $url;
 }
 
@@ -378,7 +379,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                },
                {
                 'description' => 'Available Memory',
-                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',                   
+                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
                 'columns' => 2
                },
                {
@@ -437,7 +438,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
-               {                                                                                                      
+               {
                 'description' => 'Apache Webservices Open Connections per server',
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
@@ -485,6 +486,14 @@ sub reports :Local :AdminRole('REPORTS') {
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 
+}
+
+=head2 _rangeForHeader
+
+=cut
+
+sub _rangeForHeader {
+    my ($self, $c) = @_;
     my $now = time();
     my $today = POSIX::strftime("%Y-%m-%d", localtime($now));
     $c->stash({
@@ -783,7 +792,7 @@ sub _generate_hosts {
         @hosts = @cluster_hosts;
     }
     elsif ($Config{'monitoring'}{'graphite_hosts'}) {
-    
+
     }
     else {
         my $host = hostname;

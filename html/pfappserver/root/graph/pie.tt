@@ -1,3 +1,4 @@
+[% INCLUDE "admin/reports-header.tt" %]
 <div class="piegraph">
   <h2>[% title %]</h2>
   <h6>[% range.start | html %] <i class="icon-arrow-right"></i> [% range.end | html %]</h6>
