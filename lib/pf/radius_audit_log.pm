@@ -49,7 +49,6 @@ our $radius_audit_log_db_prepared = 0;
 our $radius_audit_log_statements = {};
 our $logger = get_logger();
 
-
 our @FIELDS = qw(
     mac
     user_name
@@ -81,7 +80,7 @@ our $INSERT_LIST = join(", ", ("?") x @FIELDS);
 
 =cut
 
-=head2 radius_audit_log_db_prepare
+=head2 radius_audit_log_db_prepare()
 
 Prepare the sql statements for radius_audit_log table
 
@@ -108,7 +107,7 @@ sub radius_audit_log_db_prepare {
 }
 
 
-=head2 radius_audit_log_delete
+=head2 $success = radius_audit_log_delete($id)
 
 Delete a radius_audit_log entry
 
@@ -122,7 +121,7 @@ sub radius_audit_log_delete {
 }
 
 
-=head2 radius_audit_log_add
+=head2 $success = radius_audit_log_add(%args)
 
 Add a radius_audit_log entry
 
@@ -134,7 +133,7 @@ sub radius_audit_log_add {
     return (1);
 }
 
-=head2 radius_audit_log_view
+=head2 $entry = radius_audit_log_view($id)
 
 View a radius_audit_log entry by it's id
 
@@ -150,7 +149,7 @@ sub radius_audit_log_view {
     return ($ref);
 }
 
-=head2 radius_audit_log_count_all
+=head2 $count = radius_audit_log_count_all()
 
 Count all the entries radius_audit_log
 
