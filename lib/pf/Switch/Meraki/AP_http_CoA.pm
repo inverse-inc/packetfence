@@ -30,7 +30,7 @@ The only workaround is to have the DHCP traffic forwarded to PacketFence.
 use strict;
 use warnings;
 
-use base ('pf::Switch');
+use base ('pf::Switch::Meraki::AP_http_CoA');
 
 use Net::SNMP;
 use Net::Telnet;
@@ -56,22 +56,11 @@ use pf::locationlog;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki cloud controller' }
+sub description { 'Meraki cloud controller v2' }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
-sub supportsWebFormRegistration { return $TRUE }
 sub supportsWirelessDot1x { return $TRUE; }
-
-=head2 getVersion - obtain image version information from switch
-
-=cut
-
-sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
-    $logger->info("we don't know how to determine the version through SNMP !");
-    return '1';
-}
+sub supportsWebFormRegistration { return $FALSE }
 
 =head2 parseUrl
 
@@ -117,7 +106,7 @@ sub deauthTechniques {
     my $logger = $this->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
-        $SNMP::RADIUS => 'radiusDisconnect',
+        $SNMP::RADIUS => 'deauthenticateMacDefault',
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -204,28 +193,6 @@ sub deauthenticateMacDefault {
     # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac );
-}
-
-sub getAcceptForm {
-    my ( $self, $mac , $destination_url, $cgi_session) = @_;
-    my $logger = $self->logger;
-    $logger->debug("Creating web release form");
-
-    my $login_url = $cgi_session->param("ecwp-original-param-login_url");
-    my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="$login_url">
-            <input type="hidden" name="Submit2" value="Submit">
-            <input type="hidden" name="username" value="$mac">
-            <input type="hidden" name="password" value="$mac">
-            <input type="hidden" name="success_url" value="$destination_url">
-        </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
-    ];
-
-    $logger->debug("Generated the following html form : ".$html_form);
-    return $html_form;
 }
 
 =head2 radiusDisconnect
