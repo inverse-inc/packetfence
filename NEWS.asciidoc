@@ -20,6 +20,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Code cleanup
 * Violation triggering from web admin will add even if there is still a grace period
 * Ability to add date based filter condition (is before date, is after date)
 * Avoid unneccesary calls to the database when using vlan filtering
