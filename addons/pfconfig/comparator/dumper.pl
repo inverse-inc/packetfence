@@ -81,6 +81,14 @@ our %configs;
 }
 
 {
+  use pf::access_filter::dhcp;
+
+  my @variables = ('%ConfigDhcpFilters');
+  $configs{'pf::access_filter::dhcp'} = dump_module("pf::access_filter::dhcp", @variables);
+
+}
+
+{
   use pf::authentication;
 
   my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');
