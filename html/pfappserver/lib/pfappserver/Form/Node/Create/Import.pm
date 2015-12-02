@@ -95,6 +95,8 @@ sub init_object {
         { 'enabled' => 0, name => 'unregdate', label => 'Unregistration Date' },
         { 'enabled' => 0, name => 'voip', label => 'Voice Over IP (yes/no)' },
         { 'enabled' => 0, name => 'notes', label => 'Notes' },
+        { 'enabled' => 0, name => 'bypass_role', label => 'Bypass Role' },
+        { 'enabled' => 0, name => 'bypass_vlan', label => 'Bypass VLAN' },
        ]
       };
 

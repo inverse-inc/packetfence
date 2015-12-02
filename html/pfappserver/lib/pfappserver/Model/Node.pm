@@ -371,6 +371,12 @@ sub importCSV {
                'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
                'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
               );
+            if (exists $index{'bypass_vlan'}) {
+                    $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
+            }
+            if (exists $index{'bypass_role'}) {
+                $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
+            }
             if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
                 $logger->debug("Register MAC $mac ($pid)");
                 $result = node_register($mac, $pid, %data);
