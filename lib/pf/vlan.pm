@@ -36,6 +36,7 @@ use pf::lookup::person;
 use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
+use Data::Thunk;
 
 our $VERSION = 1.04;
 
@@ -789,7 +790,7 @@ sub filterVlan {
         connection_type => $connection_type,
         username       => $user_name,
         ssid            => $ssid,
-        owner           => person_view($node_info->{'pid'}),
+        owner           => lazy { person_view($node_info->{'pid'}) },
         radius_request  => $radius_request
     };
     my @results = $filter->filter($scope, $args);
