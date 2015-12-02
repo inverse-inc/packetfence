@@ -919,6 +919,7 @@ sub fingerbank_process : Public {
         delete $args->{'computer_name'};
         return (pf::fingerbank::process($args));
     }
+    return undef;
 }
 
 =head2 fingerbank_update_upstream_db
