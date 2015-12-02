@@ -1,12 +1,12 @@
-package pf::Switch::Meraki::AP_http;
+package pf::Switch::Meraki::AP_http_CoA;
 
 =head1 NAME
 
-pf::Switch::Meraki::AP_http
+pf::Switch::Meraki::AP_http_CoA
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http module implements an object oriented interface to
+The pf::Switch::Meraki::AP_http_CoA module implements an object oriented interface to
 manage the external captive portal on Meraki access points
 
 =head1 STATUS
