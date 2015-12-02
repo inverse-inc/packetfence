@@ -20,6 +20,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* New columns bypass_vlan and bypass_role are allowed to be import for nodes
 * Code cleanup
 * Violation triggering from web admin will add even if there is still a grace period
 * Ability to add date based filter condition (is before date, is after date)
