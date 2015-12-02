@@ -471,12 +471,15 @@ sub violation_add {
 
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
-        if ( $remaining_time > 0 ) {
+        if ( $remaining_time > 0 && $data{'force'} ne $TRUE ) {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
             return (-1);
+        } elsif ( $remaining_time > 0 && $data{'force'} eq $TRUE ) {
+            my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
+            $logger->info($msg);
         } else {
             my $msg = "grace expired on violation $vid for node $mac";
             $logger->info($msg);

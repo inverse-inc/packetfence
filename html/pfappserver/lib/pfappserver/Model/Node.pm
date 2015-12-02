@@ -485,7 +485,7 @@ sub violations {
 sub addViolation {
     my ($self, $mac, $vid) = @_;
 
-    if (violation_add($mac, $vid)) {
+    if (violation_add($mac, $vid, ('force' => $TRUE))) {
         return ($STATUS::OK, 'The violation was successfully added.');
     }
     else {
