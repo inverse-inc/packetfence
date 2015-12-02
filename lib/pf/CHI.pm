@@ -64,7 +64,10 @@ Hash::Merge::specify_behavior(
 
 our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso);
 
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
+our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
+
+our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config) or die "Cannot open $chi_config_file";
+
 our %DEFAULT_CONFIG = (
     'namespace' => {
         map { $_ => { 'storage' => $_ } } @CACHE_NAMESPACES
