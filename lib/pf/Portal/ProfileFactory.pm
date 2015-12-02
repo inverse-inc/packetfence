@@ -30,7 +30,6 @@ use List::Util qw(first);
 use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
-use Data::Thunk;
 
 =head1 SUBROUTINES
 
@@ -48,7 +47,10 @@ sub instantiate {
     if (defined($options->{'portal'})) {
         return $self->_from_profile($options->{'portal'});
     }
-    my $node_info = lazy { {node_view($mac) || {}, %$options } };
+
+    my $node_info = node_view($mac) || {};
+    $node_info = {%$node_info, %$options};
+
     my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
     my $instance = $self->_from_profile($profile_name);
     return $instance;
