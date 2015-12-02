@@ -30,7 +30,7 @@ The only workaround is to have the DHCP traffic forwarded to PacketFence.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Meraki::AP_http_CoA');
+use base ('pf::Switch::Meraki::AP_http');
 
 use Net::SNMP;
 use Net::Telnet;
@@ -90,8 +90,6 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
-
     return 'Airespace-ACL-Name';
 }
 
