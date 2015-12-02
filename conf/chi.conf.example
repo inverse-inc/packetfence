@@ -1,6 +1,10 @@
-#An example configuration for a new storage type
+# Look in /usr/local/pf/conf/chi.conf.defaults
+# for allowed parameters 
+# Also look in the CHI and the CHI::Driver::<Class>
+# documentation for allow parameters for cache storage
+#
 
+#An example configuration for a new storage type
 #[storage file]
 #driver=File
 #root_dir=/usr/local/pf/var/cache
-
