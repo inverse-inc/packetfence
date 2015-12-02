@@ -43,9 +43,9 @@ This is called when we receive an SNMP-Trap for this device
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -58,8 +58,8 @@ sub parseTrap {
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '1.4.6';
 }

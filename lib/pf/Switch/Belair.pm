@@ -66,19 +66,19 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_beActiveBank = '.1.3.6.1.4.1.15768.3.1.1.3.1';
-    my $logger       = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_beActiveBank");
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_beActiveBank] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_beActiveBank] );
     if (defined($result)) {
         #Fetch the active version
         my $oid_beBank = '1.3.6.1.4.1.15768.3.1.1.3.5.1.2.' . $result->{$oid_beActiveBank};
-        $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_beBank] );
+        $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_beBank] );
 
         if (defined($result)) {
             return $result->{$oid_beBank};
@@ -96,9 +96,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled.  TrapString was: $trapString");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -134,8 +134,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',

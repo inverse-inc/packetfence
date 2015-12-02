@@ -34,8 +34,8 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '112';
 }
 
@@ -46,16 +46,16 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 =cut
 
 sub getIfIndexByNasPortId {
-    my ($this, $ifDesc_param) = @_;
-    my $logger = $this->logger;
-    if ( !$this->connectRead() ) {
+    my ($self, $ifDesc_param) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my @ifDesc_val = split('/',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.17.1.4.1.2.'.$ifDesc_param;
     $logger->warn($OID_ifDesc);
     my $ifDescHashRef;
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
     return $result->{"$OID_ifDesc"};
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};

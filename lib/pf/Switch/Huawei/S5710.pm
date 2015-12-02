@@ -52,10 +52,10 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 =cut
 
 sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex, $mac) = @_;
+    my ($self, $ifIndex, $mac) = @_;
     my $logger = get_logger();
 
-    $this->deauthenticateMacRadius($mac);
+    $self->deauthenticateMacRadius($mac);
 }
 
 =head1 AUTHOR

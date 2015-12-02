@@ -31,8 +31,8 @@ use pf::Switch::constants;
 sub description { 'Cisco Catalyst 3500XL Series' }
 
 sub getMinOSVersion {
-    my $this   = shift;
-    my $logger = $this->logger;
+    my $self   = shift;
+    my $logger = $self->logger;
     return '12.0(5)WC15';
 }
 
@@ -46,18 +46,18 @@ TODO: This list is incomplete
 
 # return the list of managed ports
 sub getManagedPorts {
-    my $this        = shift;
-    my $logger      = $this->logger;
+    my $self        = shift;
+    my $logger      = $self->logger;
     my $oid_ifType  = '1.3.6.1.2.1.2.2.1.3';                    # MIB: ifTypes
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
     my @nonUpLinks;
-    my @UpLinks = $this->getUpLinks();    # fetch the UpLink list
+    my @UpLinks = $self->getUpLinks();    # fetch the UpLink list
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return @nonUpLinks;
     }
     $logger->trace("SNMP get_Table for ifType: $oid_ifType");
-    my $ifTypes = $this->{_sessionRead}
+    my $ifTypes = $self->{_sessionRead}
         ->get_table(    # fetch the ifTypes list of the ports
         -baseoid => $oid_ifType
         );
@@ -70,22 +70,22 @@ sub getManagedPorts {
                 $port =~ /^$oid_ifType\.(\d+)$/;
                 if ( grep( { $_ == $1 } @UpLinks ) == 0 ) {    # skip UpLinks
 
-                    my $portVlan = $this->getVlan($1);
+                    my $portVlan = $self->getVlan($1);
                     if ( defined $portVlan ) {    # skip ports with no VLAN
 
-                        my $port_type = $this->getVmVlanType($1);
+                        my $port_type = $self->getVmVlanType($1);
                         if ( ( $port_type == 1 ) || ( $port_type == 4 ) )
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $self->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->trace(
                                     "SNMP get_request for ifDesc: $oid_ifDescr.$1"
                                 );
                                 my $ifDescr
-                                    = $this->{_sessionRead}->get_request(
+                                    = $self->{_sessionRead}->get_request(
                                     -varbindlist =>
                                         ["oid_ifDescr.$1"]    # MIB: ifDescr
                                     );
@@ -103,7 +103,7 @@ sub getManagedPorts {
 
 #obtain hashref from result of getMacAddr
 sub _getIfDescMacVlan {
-    my ( $this, @macAddr ) = @_;
+    my ( $self, @macAddr ) = @_;
     my $ifDescMacVlan;
     foreach my $line ( grep( {/Dynamic/} @macAddr ) ) {
         my ( $mac, $vlan, $ifDesc ) = unpack( "A14x21A4x2A*", $line );
@@ -133,38 +133,38 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub clearMacAddressTable {
-    my ( $this, $ifIndex, $vlan ) = @_;
+    my ( $self, $ifIndex, $vlan ) = @_;
     my $command;
     my $session;
     my $oid_ifDescr = '1.3.6.1.2.1.2.2.1.2';
-    my $logger      = $this->logger;
+    my $logger      = $self->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
         # Session not already privileged are not supported at this point. See #1370
-        #$session->begin_privileged( $this->{_cliEnablePwd} );
+        #$session->begin_privileged( $self->{_cliEnablePwd} );
     };
     if ($@) {
         $logger->error(
-            "ERROR: Can not connect to switch $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Can not connect to switch $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 0;
     }
 
     # First we fetch ifDescr(ifIndex)
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
     $logger->trace("SNMP get_request for $oid_ifDescr.$ifIndex");
-    my $ifDescr = $this->{_sessionRead}->get_request(
+    my $ifDescr = $self->{_sessionRead}->get_request(
         -varbindlist => ["$oid_ifDescr.$ifIndex"]    # MIB: ifDescr
     );
     my $port = $ifDescr->{"$oid_ifDescr.$ifIndex"};
@@ -175,8 +175,8 @@ sub clearMacAddressTable {
     eval { $session->cmd( String => $command, Timeout => '10' ); };
     if ($@) {
         $logger->error(
-            "ERROR: Error while clearing MAC Address table on port $ifIndex for switch $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Error while clearing MAC Address table on port $ifIndex for switch $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         $session->close();
         return;
     }
@@ -185,22 +185,22 @@ sub clearMacAddressTable {
 }
 
 sub getMaxMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     #CISCO-C2900-MIB
     my $OID_c2900PortUsageApplication       = '1.3.6.1.4.1.9.9.87.1.4.1.1.3';
     my $OID_c2900PortIfIndex                = '1.3.6.1.4.1.9.9.87.1.4.1.1.25';
     my $OID_c2900PortAddrSecureMaxAddresses = '1.3.6.1.4.1.9.9.87.1.4.1.1.10';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
 
     #determine c2900PortModuleIndex and c2900PortIndex from ifIndex
     $logger->trace(
         "SNMP get_table for c2900PortIfIndex: $OID_c2900PortIfIndex");
-    my $portIfIndexes = $this->{_sessionRead}
+    my $portIfIndexes = $self->{_sessionRead}
         ->get_table( -baseoid => $OID_c2900PortIfIndex );
 
     my $c2900PortModuleIndex = undef;
@@ -228,7 +228,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for c2900PortUsageApplication: $OID_c2900PortUsageApplication"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [
             "$OID_c2900PortUsageApplication.$c2900PortModuleIndex.$c2900PortIndex"
         ]
@@ -261,7 +261,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for c2900PortAddrSecureMaxAddresses: $OID_c2900PortAddrSecureMaxAddresses"
     );
-    $result = $this->{_sessionRead}->get_request(
+    $result = $self->{_sessionRead}->get_request(
         -varbindlist => [
             "$OID_c2900PortAddrSecureMaxAddresses.$c2900PortModuleIndex.$c2900PortIndex"
         ]
@@ -288,8 +288,8 @@ sub getMaxMacAddresses {
 }
 
 sub ping {
-    my ( $this, $ip ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ip ) = @_;
+    my $logger = $self->logger;
     my $result;
     my $random;
 
@@ -301,10 +301,10 @@ sub ping {
     my $oid_ciscoPingSentPackets     = '1.3.6.1.4.1.9.9.16.1.1.1.9';
     my $oid_ciscoPingReceivedPackets = '1.3.6.1.4.1.9.9.16.1.1.1.10';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -314,7 +314,7 @@ sub ping {
         $logger->trace(
             "SNMP get_request for ciscoPingEntryStatus: $oid_ciscoPingEntryStatus.$random"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [ "$oid_ciscoPingEntryStatus.$random" ] );
         if ( defined($result) ) {
             $logger->debug(
@@ -334,7 +334,7 @@ sub ping {
     $logger->trace(
         "SNMP set_request for ciscoPingEntryStatus: $oid_ciscoPingEntryStatus.$random"
     );
-    $result = $this->{_sessionWrite}->set_request(
+    $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [
             "$oid_ciscoPingEntryStatus.$random",
             Net::SNMP::INTEGER,
@@ -359,13 +359,13 @@ sub ping {
         $logger->trace(
             "SNMP get_request for ciscoPingEntryStatus: $oid_ciscoPingEntryStatus.$random"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [ "$oid_ciscoPingEntryStatus.$random" ] );
         if ( $result->{"$oid_ciscoPingEntryStatus.$random"} == 2 ) {
             $logger->trace(
                 "SNMP set_request for ciscoPingEntryStatus: $oid_ciscoPingEntryStatus.$random"
             );
-            $result = $this->{_sessionWrite}->set_request(
+            $result = $self->{_sessionWrite}->set_request(
                 -varbindlist => [
                     "$oid_ciscoPingEntryStatus.$random", Net::SNMP::INTEGER,
                     1
@@ -376,7 +376,7 @@ sub ping {
                 $logger->trace(
                     "SNMP get_request for ciscoPingSentPackets: $oid_ciscoPingSentPackets.$random and ciscoPingReceivedPackets: $oid_ciscoPingReceivedPackets.$random"
                 );
-                $result = $this->{_sessionRead}->get_request(
+                $result = $self->{_sessionRead}->get_request(
                     -varbindlist => [
                         "$oid_ciscoPingSentPackets.$random",
                         "$oid_ciscoPingReceivedPackets.$random"
@@ -399,7 +399,7 @@ sub ping {
         $logger->trace(
             "SNMP set_request for ciscoPingEntryStatus: $oid_ciscoPingEntryStatus.$random"
         );
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$oid_ciscoPingEntryStatus.$random", Net::SNMP::INTEGER, 6
             ]

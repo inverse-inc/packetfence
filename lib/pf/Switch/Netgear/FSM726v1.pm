@@ -64,12 +64,12 @@ sub description { 'Netgear FSM726v1' }
 =cut
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
 
     my $OID_trustedMacStatus = '1.3.6.1.4.1.4526.1.1.15.1.1.3';    # NETGEAR-MIB
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
                 "The switch isn't in production mode (Do nothing): " .
                 "Should deauthorize MAC $deauthMac on ifIndex $ifIndex " .
@@ -78,7 +78,7 @@ sub authorizeMAC {
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -90,13 +90,13 @@ sub authorizeMAC {
                 "SNMP set_request for OID_trustedMacStatus: " . 
                 "( $OID_trustedMacStatus.$ifIndex.$mac_oid i $SNMP::DESTROY )"
         );
-        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+        my $result = $self->{_sessionWrite}->set_request( -varbindlist => [ 
                 "$OID_trustedMacStatus.$ifIndex.$mac_oid", Net::SNMP::INTEGER, $SNMP::DESTROY 
         ] );
         if ( !defined($result) ) {
             $logger->error(
                     "Error deauthorizing $deauthMac ( $mac_oid ) on ifIndex $ifIndex: " .
-                    $this->{_sessionWrite}->error 
+                    $self->{_sessionWrite}->error 
             );
         } else {
             $logger->info(
@@ -113,13 +113,13 @@ sub authorizeMAC {
                 "SNMP set_request for OID_trustedMacStatus: " . 
                 "( $OID_trustedMacStatus.$ifIndex.$mac_oid i $SNMP::CREATE_AND_GO )"
         );
-        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+        my $result = $self->{_sessionWrite}->set_request( -varbindlist => [ 
                 "$OID_trustedMacStatus.$ifIndex.$mac_oid", Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO 
         ] );
         if ( !defined($result) ) {        
             $logger->error(
                     "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex: " .
-                    $this->{_sessionWrite}->error 
+                    $self->{_sessionWrite}->error 
             );
         } else {
             $logger->info(
@@ -140,22 +140,22 @@ See bugs and limitations.
 =cut
 
 sub forceDeauthOnLinkDown {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # here we actively ignore uplinks because this is called from the parsing threads which don't
     # check for uplinks (yet). 
     # This hack is to work-around "Netgear's not sending traps under certain circumstances" "feature"
-    my @uplinks = $this->getUpLinks();
+    my @uplinks = $self->getUpLinks();
 
     if ( @uplinks && $uplinks[0] == -1 ) {
         $logger->warn("Can't determine uplinks for the switch -> do nothing");
     } else {
         if ( grep( { $_ == $ifIndex } @uplinks ) == 0 ) {
-            my $trustedMacHash = $this->getSecureMacAddresses($ifIndex);
+            my $trustedMacHash = $self->getSecureMacAddresses($ifIndex);
             my $deauthMac = (keys %{$trustedMacHash})[0];
-            my $authMac = $this->generateFakeMac($FALSE, $ifIndex);
-            $this->authorizeMAC($ifIndex, $deauthMac, $authMac);
+            my $authMac = $self->generateFakeMac($FALSE, $ifIndex);
+            $self->authorizeMAC($ifIndex, $deauthMac, $authMac);
         }
     }
 
@@ -167,20 +167,20 @@ sub forceDeauthOnLinkDown {
 =cut
 
 sub getAllSecureMacAddresses {
-    my ( $this ) = @_;
-    my $logger = $this->logger;
+    my ( $self ) = @_;
+    my $logger = $self->logger;
     
     my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
     my $secureMacAddrHashRef = {};
     
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
-    $this->{_sessionRead}->translate(0);
+    $self->{_sessionRead}->translate(0);
     $logger->trace("SNMP get_table for trustedMacAddress: $OID_trustedMacAddress");
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress" );
-    $this->{_sessionRead}->translate(1);
+    my $result = $self->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress" );
+    $self->{_sessionRead}->translate(1);
 
     while ( my $oid_including_mac = each( %{$result} ) ) {
         if ($oid_including_mac =~
@@ -191,7 +191,7 @@ sub getAllSecureMacAddresses {
 
             my $ifIndex = $1;
             my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
-            my $vlan = $this->getVlan($ifIndex);
+            my $vlan = $self->getVlan($ifIndex);
 
             push @{$secureMacAddrHashRef->{$mac}->{$ifIndex}}, $vlan;
         }        
@@ -205,20 +205,20 @@ sub getAllSecureMacAddresses {
 =cut
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     
     my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
     my $secureMacAddrHashRef = {};
     
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
-    $this->{_sessionRead}->translate(0);
+    $self->{_sessionRead}->translate(0);
     $logger->trace("SNMP get_table for trustedMacAddress: $OID_trustedMacAddress");
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress.$ifIndex" );
-    $this->{_sessionRead}->translate(1);
+    my $result = $self->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress.$ifIndex" );
+    $self->{_sessionRead}->translate(1);
 
     while ( my $oid_including_mac = each( %{$result} ) ) {
 
@@ -229,7 +229,7 @@ sub getSecureMacAddresses {
                 /x) {
 
                 my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $1, $2, $3, $4, $5, $6 );
-                my $vlan = $this->getVlan($ifIndex);
+                my $vlan = $self->getVlan($ifIndex);
 
                 push @{$secureMacAddrHashRef->{$mac}}, $vlan;
             }
@@ -242,12 +242,12 @@ sub getSecureMacAddresses {
 =cut
 
 sub getVlan {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     
     my $OID_configPortDefaultVlanId = '1.3.6.1.4.1.4526.1.1.11.6.1.12';    # NETGEAR-MIB
     
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
@@ -255,13 +255,13 @@ sub getVlan {
             "SNMP get_request for OID_configPortDefaultVlanId: " .
             "( $OID_configPortDefaultVlanId.$ifIndex )"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [
             "$OID_configPortDefaultVlanId.$ifIndex"
     ] );
     if ( !defined($result) ) {
         $logger->error(
                 "Error getting PVID on ifIndex $ifIndex: " .
-                $this->{_sessionRead}->error
+                $self->{_sessionRead}->error
         );
     } else {
         $logger->info(
@@ -288,7 +288,7 @@ sub isPortSecurityEnabled { return $TRUE; }
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $logger = get_logger();
 
     my $trapHashRef;
@@ -301,7 +301,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'}      = ( ( $1 == 3 ) ? "up" : "down" );
         $trapHashRef->{'trapIfIndex'}   = $2;
 
-        if ( $1 == 2 ) { $this->forceDeauthOnLinkDown($2) };
+        if ( $1 == 2 ) { $self->forceDeauthOnLinkDown($2) };
     } 
     # secure MAC address violation traps
     elsif ( $trapString =~ 
@@ -312,7 +312,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'}   = $1;
         $trapHashRef->{'trapMac'}       = parse_mac_from_trap($2);
-        $trapHashRef->{'trapVlan'}      = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapVlan'}      = $self->getVlan( $trapHashRef->{'trapIfIndex'} );
     }
     # unhandled traps
     else {
@@ -332,12 +332,12 @@ See bugs and limitations.
 =cut
 
 sub setAdminStatus {
-    my ( $this, $ifIndex, $status ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $status ) = @_;
+    my $logger = $self->logger;
 
     my $OID_configPortAutoNegotiation = '1.3.6.1.4.1.4526.1.1.11.6.1.14';    # NETGEAR-MIB
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
                 "The switch isn't in production mode (Do nothing): " .
                 "Should trigger auto negotiation status to shut the ifIndex $ifIndex"
@@ -345,7 +345,7 @@ sub setAdminStatus {
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -353,13 +353,13 @@ sub setAdminStatus {
             "SNMP set_request for OID_configPortAutoNegotiation: " . 
             "( $OID_configPortAutoNegotiation.$ifIndex i $status )"
     );
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+    my $result = $self->{_sessionWrite}->set_request( -varbindlist => [ 
             "$OID_configPortAutoNegotiation.$ifIndex", Net::SNMP::INTEGER, $status 
     ] );
     if ( !defined($result) ) {
         $logger->error(
                 "Error setting auto negotiation status on ifIndex $ifIndex: " .
-                $this->{_sessionWrite}->error 
+                $self->{_sessionWrite}->error 
         );
  
         return 0;
@@ -377,15 +377,15 @@ sub setAdminStatus {
 =cut
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
     
     my $OID_vlanPortStatus = '1.3.6.1.4.1.4526.1.1.13.2.1.3';            # NETGEAR-MIB
     my $OID_configPortDefaultVlanId = '1.3.6.1.4.1.4526.1.1.11.6.1.12';  # NETGEAR-MIB
 
     my $result;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
                 "The switch isn't in production mode (Do nothing): " .
                 "Should set ifIndex $ifIndex to VLAN $newVlan"
@@ -393,24 +393,24 @@ sub _setVlan {
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
-    $this->forceDeauthOnLinkDown($ifIndex);
+    $self->forceDeauthOnLinkDown($ifIndex);
 
     # Change port PVID
     $logger->trace(
             "SNMP set_request for OID_configPortDefaultVlanId: " . 
             "( $OID_configPortDefaultVlanId.$ifIndex i $newVlan )"
     );
-    $result = $this->{_sessionWrite}->set_request( -varbindlist =>[ 
+    $result = $self->{_sessionWrite}->set_request( -varbindlist =>[ 
             "$OID_configPortDefaultVlanId.$ifIndex", Net::SNMP::INTEGER, $newVlan
     ] );
     if ( !defined($result) ) {
         $logger->error(
                 "Error setting PVID $newVlan on ifIndex $ifIndex: " . 
-                $this->{_sessionWrite}->error
+                $self->{_sessionWrite}->error
         );
     } else {
         $logger->info(
@@ -423,13 +423,13 @@ sub _setVlan {
             "SNMP set_request for OID_vlanPortStatus: " . 
             "( $OID_vlanPortStatus.$ifIndex.$oldVlan i $SNMP::DESTROY )"
     );
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+    $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$OID_vlanPortStatus.$ifIndex.$oldVlan", Net::SNMP::INTEGER, $SNMP::DESTROY
     ] );
     if ( !defined($result) ) {
         $logger->error(
                 "Error removing old vlan $oldVlan from ifIndex $ifIndex: " . 
-                $this->{_sessionWrite}->error
+                $self->{_sessionWrite}->error
         );
     } else {
         $logger->info(
@@ -442,13 +442,13 @@ sub _setVlan {
             "SNMP set_request for OID_vlanPortStatus: " .
             "( $OID_vlanPortStatus.$ifIndex.$newVlan i $SNMP::CREATE_AND_GO )"
     );
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+    $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$OID_vlanPortStatus.$ifIndex.$newVlan", Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO
     ] );
     if ( !defined($result) ) {
         $logger->error( 
                 "Error setting new vlan $newVlan on ifIndex $ifIndex: " .
-                $this->{_sessionWrite}->error
+                $self->{_sessionWrite}->error
         );
     } else {
         $logger->info(

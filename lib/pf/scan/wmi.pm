@@ -46,7 +46,7 @@ sub new {
 
     $logger->debug("Instantiating a new pf::scan::wmi scanning object");
 
-    my $this = bless {
+    my $self = bless {
             '_id'       => undef,
             '_username' => undef,
             '_password' => undef,
@@ -60,10 +60,10 @@ sub new {
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{'_' . $value} = $data{$value};
+        $self->{'_' . $value} = $data{$value};
     }
 
-    return $this;
+    return $self;
 }
 
 =item startScan
@@ -72,15 +72,15 @@ sub new {
 
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
     my $rule_tester = new pf::scan::wmi::rules;
-    my $result = $rule_tester->test($this);
+    my $result = $rule_tester->test($self);
  
     my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
-    $scan_vid = $pf::constants::scan::SCAN_VID if ($this->{'_registration'});
-    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($this->{'_pre_registration'});
+    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
+    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
 
     if (!$result) {
         $logger->warn("WMI scan didnt start");
@@ -90,12 +90,12 @@ sub startScan {
     my $apiclient = pf::api::jsonrpcclient->new;
     my %data = (
        'vid' => $scan_vid,
-       'mac' => $this->{'_scanMac'},
+       'mac' => $self->{'_scanMac'},
     );
     $apiclient->notify('close_violation', %data );
 
-    $this->setStatus($pf::constants::scan::STATUS_CLOSED);
-    $this->statusReportSyncToDb();
+    $self->setStatus($pf::constants::scan::STATUS_CLOSED);
+    $self->statusReportSyncToDb();
     return 0;
 }
 

@@ -43,16 +43,16 @@ Create an escalator which will trigger an action on the OpenVAS server once the 
 =cut
 
 sub createEscalator {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name = $this->{_id};
-    my $callback = $this->_generateCallback();
+    my $name = $self->{_id};
+    my $callback = $self->_generateCallback();
     my $command = _get_escalator_string($name, $callback);
 
     $logger->info("Creating a new scan escalator named $name");
 
-    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
+    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->trace("Scan escalator creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -67,7 +67,7 @@ sub createEscalator {
     # Scan escalator successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan escalator named $name successfully created with id: $escalator_id");
-        $this->{_escalatorId} = $escalator_id;
+        $self->{_escalatorId} = $escalator_id;
         return $TRUE;
     }
 
@@ -82,16 +82,16 @@ Create a target (a target is a host to scan)
 =cut
 
 sub createTarget {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name = $this->{_id};
-    my $target_host = $this->{_scanIp};
+    my $name = $self->{_id};
+    my $target_host = $self->{_scanIp};
     my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
-    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
+    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->trace("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -106,7 +106,7 @@ sub createTarget {
     # Scan target successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan target named $name successfully created with id: $target_id");
-        $this->{_targetId} = $target_id;
+        $self->{_targetId} = $target_id;
         return $TRUE;
     }
 
@@ -121,17 +121,17 @@ Create a task (a task is a scan) with the existing config id and previously crea
 =cut
 
 sub createTask {
-    my ( $this )  = @_;
+    my ( $self )  = @_;
     my $logger = get_logger();
 
-    my $name = $this->{_id};
+    my $name = $self->{_id};
 
     $logger->info("Creating a new scan task named $name");
 
     my $command = _get_task_string(
-        $name, $this->{_openvas_configid}, $this->{_targetId}, $this->{_escalatorId}
+        $name, $self->{_openvas_configid}, $self->{_targetId}, $self->{_escalatorId}
     );
-    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
+    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->trace("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -146,7 +146,7 @@ sub createTask {
     # Scan task successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan task named $name successfully created with id: $task_id");
-        $this->{_taskId} = $task_id;
+        $self->{_taskId} = $task_id;
         return $TRUE;
     }
 
@@ -164,17 +164,17 @@ Report processing's duty is to ensure that the proper violation will be triggere
 =cut
 
 sub processReport {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name                = $this->{_id};
-    my $report_id           = $this->{_reportId};
-    my $report_format_id    = $this->{'_openvas_reportformatid'}; 
+    my $name                = $self->{_id};
+    my $report_id           = $self->{_reportId};
+    my $report_format_id    = $self->{'_openvas_reportformatid'}; 
     my $command             = "<get_reports report_id=\"$report_id\" format_id=\"$report_format_id\"/>";
 
     $logger->info("Getting the scan report for the finished scan task named $name");
 
-    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
+    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->trace("Report fetching command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -190,15 +190,15 @@ sub processReport {
     # Scan report successfully fetched
     if ( defined($response) && $response eq $RESPONSE_OK && defined($raw_report) ) {
         $logger->info("Report id $report_id successfully fetched for task named $name");
-        $this->{_report} = decode_base64($raw_report);   # we need to decode the base64 report
+        $self->{_report} = decode_base64($raw_report);   # we need to decode the base64 report
 
         # We need to manipulate the scan report.
         # Each line of the scan report is pushed into an arrayref
-        $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
+        $self->{'_report'} = [ split("\n", $self->{'_report'}) ];
         my $scan_vid = $POST_SCAN_VID;
-        $scan_vid = $SCAN_VID if ($this->{'_registration'});
-        $scan_vid = $PRE_SCAN_VID if ($this->{'_pre_registration'});
-        pf::scan::parse_scan_report($this,$scan_vid);
+        $scan_vid = $SCAN_VID if ($self->{'_registration'});
+        $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
+        pf::scan::parse_scan_report($self,$scan_vid);
 
         return $TRUE;
     }
@@ -219,7 +219,7 @@ sub new {
 
     $logger->debug("Instantiating a new pf::scan::openvas scanning object");
 
-    my $this = bless {
+    my $self = bless {
             '_id'               => undef,
             '_ip'               => undef,
             '_port'             => undef,
@@ -239,10 +239,10 @@ sub new {
     }, $class;
 
     foreach my $value ( keys %data ) {
-        $this->{'_' . $value} = $data{$value};
+        $self->{'_' . $value} = $data{$value};
     }
 
-    return $this;
+    return $self;
 }
 
 =item startScan
@@ -252,13 +252,13 @@ That's where we use all of these method to run a scan
 =cut
 
 sub startScan {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    $this->createTarget();
-    $this->createEscalator();
-    $this->createTask();
-    $this->startTask();
+    $self->createTarget();
+    $self->createEscalator();
+    $self->createTask();
+    $self->startTask();
 }
 
 =item startTask
@@ -268,16 +268,16 @@ Start a scanning task with the previously created target and escalator
 =cut
 
 sub startTask {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name    = $this->{_id};
-    my $task_id = $this->{_taskId};
+    my $name    = $self->{_id};
+    my $task_id = $self->{_taskId};
     my $command = "<start_task task_id=\"$task_id\"/>";
 
     $logger->info("Starting scan task named $name");
 
-    my $cmd = "omp -h $this->{_ip} -p $this->{_port} -u $this->{_username} -w $this->{_password} -X '$command'";
+    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->trace("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
@@ -292,9 +292,9 @@ sub startTask {
     # Scan task successfully started
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
-        $this->{_reportId} = $report_id;
-        $this->{'_status'} = $STATUS_STARTED;
-        $this->statusReportSyncToDb();
+        $self->{_reportId} = $report_id;
+        $self->{'_status'} = $STATUS_STARTED;
+        $self->statusReportSyncToDb();
         return $TRUE;
     }
 
@@ -313,12 +313,12 @@ Remote: HTTPS with fully qualified domain name on admin interface
 =cut
 
 sub _generateCallback {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name = $this->{'_id'};
+    my $name = $self->{'_id'};
     my $callback = "<method>HTTP Get<data>";
-    if ($this->{'_ip'} eq '127.0.0.1') {
+    if ($self->{'_ip'} eq '127.0.0.1') {
         $callback .= "http://127.0.0.1/scan/report/$name";
     }
     else {

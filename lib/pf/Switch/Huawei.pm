@@ -54,9 +54,9 @@ This is called when we receive an SNMP-Trap for this device
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -69,8 +69,8 @@ sub parseTrap {
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }
@@ -82,8 +82,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -201,8 +201,8 @@ Find RADIUS SSID parameter on the Huawei AC6605 controller
 =cut
 
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Called-Station-Id'})) {
         return $radius_request->{'Called-Station-Id'};

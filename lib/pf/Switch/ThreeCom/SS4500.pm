@@ -87,16 +87,16 @@ sub supportsLldp { return $SNMP::TRUE; }
 
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     my $OID_hwLswSlotSoftwareVersion = '1.3.6.1.4.1.43.45.1.2.23.1.18.4.3.1.6.0.0'; #from A3COM-HUAWEI-DEVICE-MIB
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace( "SNMP get_request for hwLswSlotSoftwareVersion: $OID_hwLswSlotSoftwareVersion");
-    my $result = $this->{_sessionRead} ->get_request( -varbindlist => ["$OID_hwLswSlotSoftwareVersion"] );
+    my $result = $self->{_sessionRead} ->get_request( -varbindlist => ["$OID_hwLswSlotSoftwareVersion"] );
 
     if ( ( exists( $result->{"$OID_hwLswSlotSoftwareVersion"} ) )
         && ( $result->{"$OID_hwLswSlotSoftwareVersion"} ne 'noSuchInstance' )) {
@@ -108,16 +108,16 @@ sub getVersion {
 
 #TODO this implementation is broken, it returns an integer instead of vlan name
 sub getVlans {
-    my $this                = shift;
-    my $logger              = $this->logger;
+    my $self                = shift;
+    my $logger              = $self->logger;
     my $OID_hwdot1qVlanName = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.1'; #from A3COM-HUAWEI-LswVLAN-MIB
     my $vlans = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $vlans;
     }
 
     $logger->trace("SNMP get_table for hwdot1qVlanName: $OID_hwdot1qVlanName");
-    my $result = $this->{_sessionRead} ->get_table( -baseoid => $OID_hwdot1qVlanName );
+    my $result = $self->{_sessionRead} ->get_table( -baseoid => $OID_hwdot1qVlanName );
 
     if ( defined($result) ) {
         foreach my $key ( keys %{$result} ) {
@@ -129,15 +129,15 @@ sub getVlans {
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger               = $this->logger;
+    my ( $self, $vlan ) = @_;
+    my $logger               = $self->logger;
     my $OID_hwdot1qVlanIndex = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.1'; #from A3COM-HUAWEI-LswVLAN-MIB
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace( "SNMP get_request for hwdot1qVlanIndex: $OID_hwdot1qVlanIndex.$vlan");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_hwdot1qVlanIndex.$vlan"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_hwdot1qVlanIndex.$vlan"] );
 
     return (defined($result)
         && exists( $result->{"$OID_hwdot1qVlanIndex.$vlan"} )
@@ -146,16 +146,16 @@ sub isDefinedVlan {
 }
 
 sub getDot1dBasePortForThisIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                  = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger                  = $self->logger;
     my $OID_hwifXXBasePortIndex = '1.3.6.1.4.1.43.45.1.2.23.1.1.1.1.10.' . $ifIndex; #from A3COM-HUAWEI-LswINF-MIB
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace( "SNMP get_request for hwifXXBasePortIndex: $OID_hwifXXBasePortIndex");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_hwifXXBasePortIndex"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_hwifXXBasePortIndex"] );
 
     if (( exists( $result->{"$OID_hwifXXBasePortIndex"} ) )
         && ( $result->{"$OID_hwifXXBasePortIndex"} ne 'noSuchInstance' ) ) {
@@ -173,17 +173,17 @@ returns ifIndex for a given "normal" port number (dot1d)
 =cut
 
 sub getIfIndexForThisDot1dBasePort {
-    my ( $this, $dot1dBasePort ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $dot1dBasePort ) = @_;
+    my $logger = $self->logger;
     # port number into ifIndex
     my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace( "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
 
     if (exists($result->{"$OID_dot1dBasePortIfIndex"})) {
         return $result->{"$OID_dot1dBasePortIfIndex"}; #return ifIndex (Integer)
@@ -193,15 +193,15 @@ sub getIfIndexForThisDot1dBasePort {
 }
 
 sub getVlan {
-    my ( $this, $ifIndex ) = @_;
-    my $logger        = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger        = $self->logger;
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';           # Q-BRIDGE-MIB
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace("SNMP get_request for dot1qPvid: $OID_dot1qPvid.$ifIndex");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1qPvid.$ifIndex"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1qPvid.$ifIndex"] );
 
     return $result->{"$OID_dot1qPvid.$ifIndex"};
 }
@@ -215,50 +215,50 @@ before adding the correct MAC to the correct VLAN.
 =cut
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
     my $OID_hwdot1qVlanPortList = '1.3.6.1.4.1.43.45.1.2.23.1.2.1.1.1.3'; #VLAN Port List from A3COM-HUAWEI-LswVLAN-MIB
 
     $logger->trace( "SNMP get_request for hwdot1qVlanPortsList: $OID_hwdot1qVlanPortList.$newVlan");
 
-    $this->{_sessionRead}->translate(0);
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_hwdot1qVlanPortList.$newVlan" ]);
-    $this->{_sessionRead}->translate(1);
+    $self->{_sessionRead}->translate(0);
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_hwdot1qVlanPortList.$newVlan" ]);
+    $self->{_sessionRead}->translate(1);
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
-    my $portListPosition = $this->getPortListPositionFromDot1dBasePort($dot1dBasePort);
-    my $vlanPortList = $this->modifyBitmask( $result->{"$OID_hwdot1qVlanPortList.$newVlan"}, $portListPosition - 1, 1 );
+    my $portListPosition = $self->getPortListPositionFromDot1dBasePort($dot1dBasePort);
+    my $vlanPortList = $self->modifyBitmask( $result->{"$OID_hwdot1qVlanPortList.$newVlan"}, $portListPosition - 1, 1 );
     $logger->trace("SNMP set_request on hwdot1qVlanName and hwdot1qVlanPortList to assign new VLAN");
-    $result = $this->{_sessionWrite}->set_request(
+    $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_hwdot1qVlanPortList.$newVlan", Net::SNMP::OCTET_STRING, $vlanPortList ]
     );
 
     if ( !defined($result) ) {
-        $logger->error("error setting PVID to new vlan: " . $this->{_sessionWrite}->error );
+        $logger->error("error setting PVID to new vlan: " . $self->{_sessionWrite}->error );
     }
 
     return ( defined($result) );
 }
 
 sub isPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # a3com-huawei-port-security.mib
     my $OID_h3cSecurePortSecurityControl = '1.3.6.1.4.1.43.45.1.10.2.26.1.1.1.0';
     my $OID_h3cSecurePortMode = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.1';
     my $OID_h3cSecureIntrusionAction = '1.3.6.1.4.1.43.45.1.10.2.26.1.2.1.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
@@ -268,7 +268,7 @@ sub isPortSecurityEnabled {
         . "$OID_h3cSecurePortSecurityControl, $OID_h3cSecurePortMode.$ifIndex, $OID_h3cSecureIntrusionAction.$ifIndex"
     );
 
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [
             "$OID_h3cSecurePortSecurityControl",
             "$OID_h3cSecurePortMode.$ifIndex",
@@ -291,7 +291,7 @@ This method hides that complexity.
 =cut
 
 sub getPortListPositionFromDot1dBasePort {
-    my ($this, $dot1dBasePort) = @_;
+    my ($self, $dot1dBasePort) = @_;
 
     # dot1dBasePort to PortList conversion
     # they an unfamiliar conversion technique where bit order is the opposite of what I'm used to
@@ -311,10 +311,10 @@ Authorize and deauthorize MAC addresses. A core component of port-security handl
 =cut
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger  = $self->logger;
 
-    return $this->_authorizeMacWithSnmp($ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan);
+    return $self->_authorizeMacWithSnmp($ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan);
 }
 
 =item _authorizeMacWithSnmp
@@ -326,10 +326,10 @@ ports in autolearn mode.
 =cut
 
 sub _authorizeMacWithSnmp {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger  = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info( "not in production mode ... we won't modify static MAC addresses");
         return 1;
     }
@@ -339,12 +339,12 @@ sub _authorizeMacWithSnmp {
     my $oid_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3';
     my $oid_hwdot1qTpFdbSetOperate = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.4';
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
-    if ($deauthMac && !$this->isFakeMac($deauthMac)) {
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex); # physical port number
+    if ($deauthMac && !$self->isFakeMac($deauthMac)) {
 
         my $mac_oid = mac2oid($deauthMac);
 
@@ -352,7 +352,7 @@ sub _authorizeMacWithSnmp {
         $logger->trace(
             "SNMP set_request for oid_hwdot1qTpFdbSetPort, oid_hwdot1qTpFdbSetStatus and oid_hwdot1qTpFdbSetOperate"
         );
-        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+        my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$oid_hwdot1qTpFdbSetPort.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $dot1dBasePort,
             "$oid_hwdot1qTpFdbSetStatus.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::STATIC,
             "$oid_hwdot1qTpFdbSetOperate.$deauthVlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::DELETE,
@@ -360,16 +360,16 @@ sub _authorizeMacWithSnmp {
         if (!defined($result)) {
             $logger->warn(
                 "SNMP error tyring to perform auth. This could be normal. "
-                . "Error message: ".$this->{_sessionWrite}->error());
+                . "Error message: ".$self->{_sessionWrite}->error());
         }
     }
 
-    if ($authMac && !$this->isFakeMac($authMac)) {
+    if ($authMac && !$self->isFakeMac($authMac)) {
 
         # Warning: this may seem counter-intuitive but I'm authorizing the new MAC on the old VLAN
         # because the switch won't accept it for a VLAN that doesn't exist on that port.
         # When changed by _setVlan later, the MAC will be re-authorized on the right VLAN
-        my $vlan = $this->getVlan($ifIndex);
+        my $vlan = $self->getVlan($ifIndex);
         my $mac_oid = mac2oid($authMac);
 
         $logger->info(
@@ -379,7 +379,7 @@ sub _authorizeMacWithSnmp {
         $logger->trace(
             "SNMP set_request for oid_hwdot1qTpFdbSetPort, oid_hwdot1qTpFdbSetStatus and oid_hwdot1qTpFdbSetOperate"
         );
-        my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+        my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$oid_hwdot1qTpFdbSetPort.$vlan.$mac_oid", Net::SNMP::INTEGER, $dot1dBasePort,
             "$oid_hwdot1qTpFdbSetStatus.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::STATIC,
             "$oid_hwdot1qTpFdbSetOperate.$vlan.$mac_oid", Net::SNMP::INTEGER, $THREECOM::ADD,
@@ -387,7 +387,7 @@ sub _authorizeMacWithSnmp {
         if (!defined($result)) {
             $logger->warn(
                 "SNMP error tyring to perform auth. This could be normal. "
-                . "Error message: ".$this->{_sessionWrite}->error());
+                . "Error message: ".$self->{_sessionWrite}->error());
         }
     }
     return 1;
@@ -400,10 +400,10 @@ Uses "mac-address static" instead of "mac-address security" because the latter o
 =cut
 
 sub _authorizeMacWithTelnet {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger  = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger  = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info( "not in production mode ... we won't modify static MAC addresses");
         return 1;
     }
@@ -411,23 +411,23 @@ sub _authorizeMacWithTelnet {
     # Warning: this generates a warning on empty password
     my $session;
     eval {
-        $session = new Net::Telnet( Host => $this->{_ip}, Timeout => 20 );
+        $session = new Net::Telnet( Host => $self->{_ip}, Timeout => 20 );
 
         #$session->input_log('/tmp/test.txt');
         $session->waitfor('/Username:/');
-        $session->print( $this->{_cliUser} );
+        $session->print( $self->{_cliUser} );
         $session->waitfor('/Password:/');
-        $session->print( $this->{_cliPwd} );
+        $session->print( $self->{_cliPwd} );
         $session->waitfor('/>/');
     };
     if ($@) {
-        $logger->warn("ERROR: Can not connect to switch " . $this->{'_id'} . " using Telnet");
+        $logger->warn("ERROR: Can not connect to switch " . $self->{'_id'} . " using Telnet");
         return 0;
     }
 
-    my $ifDesc = $this->getIfDesc($ifIndex);
+    my $ifDesc = $self->getIfDesc($ifIndex);
     # do not deauthorize a fake MAC. It is useless for this switch.
-    if ($deauthMac && !$this->isFakeMac($deauthMac)) {
+    if ($deauthMac && !$self->isFakeMac($deauthMac)) {
 
         $deauthMac =~ s/://g;
         $deauthMac
@@ -449,7 +449,7 @@ sub _authorizeMacWithTelnet {
     }
 
     # do not authorize a fake MAC. It is useless for this switch.
-    if ($authMac && !$this->isFakeMac($authMac)) {
+    if ($authMac && !$self->isFakeMac($authMac)) {
 
         $authMac =~ s/://g;
         $authMac
@@ -484,22 +484,22 @@ Returns a hash table with mac, ifIndex, vlan
 
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     # Status of all MAC addresses
     my $OID_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3'; # from A3COM-HUAWEI-LswMAM-MIB
     # Port number of all MAC addresses
     my $OID_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; # from A3COM-HUAWEI-LswMAM-MIB
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
     $logger->trace("SNMP get_table for hwdot1qTpFdbSetStatus: $OID_hwdot1qTpFdbSetStatus");
 
     # read the whole mac to port association and put it in a hashmap for later
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetPort" );
+    my $result = $self->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetPort" );
     my $macPort = {};
     foreach my $macOidPort ( keys %{$result} ) {
         if ($macOidPort =~ /^$OID_hwdot1qTpFdbSetPort
@@ -517,7 +517,7 @@ sub getAllSecureMacAddresses {
         return $secureMacAddrHashRef;
     }
 
-    $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetStatus" );
+    $result = $self->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetStatus" );
     foreach my $vlanMacOidStatus ( keys %{$result} ) {
 
         # we are only interested by static entries
@@ -530,7 +530,7 @@ sub getAllSecureMacAddresses {
 
                 my $oldMac = oid2mac($2);
                 my $oldVlan = $1;
-                my $ifIndex = $this->getIfIndexForThisDot1dBasePort($macPort->{$oldMac});
+                my $ifIndex = $self->getIfIndexForThisDot1dBasePort($macPort->{$oldMac});
                 push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $oldVlan;
             }
         }
@@ -548,24 +548,24 @@ Returns a hash table with mac, vlan
 
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     # OID holds Vlan and MAC. The result is dot1dPort
     my $OID_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; #from A3COM-HUAWEI-LswMAM-MIB
     # OID holds Vlan and MAC. The result is mac type
     my $OID_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3'; #from A3COM-HUAWEI-LswMAM-MIB
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex);
 
     # fetch all the MACs based on port
     my @macOnTargetPort;
     $logger->trace("SNMP get_table for hwdot1qTpFdbSetPort: $OID_hwdot1qTpFdbSetPort");
-    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetPort");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetPort");
     foreach my $macOidPort (keys %{$result}) {
         if ($result->{$macOidPort} == $dot1dBasePort) {
             $macOidPort =~ /^$OID_hwdot1qTpFdbSetPort
@@ -580,7 +580,7 @@ sub getSecureMacAddresses {
 
     # Grab all vlans, MACs and status (static, dynamic, etc.)
     $logger->trace("SNMP get_table for hwdot1qTpFdbSetStatus: $OID_hwdot1qTpFdbSetStatus");
-    $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetStatus");
+    $result = $self->{_sessionRead}->get_table(-baseoid => "$OID_hwdot1qTpFdbSetStatus");
     foreach my $vlanMacOidStatus ( keys %{$result} ) {
         # we are only interested by static entries
         if ( $result->{$vlanMacOidStatus} ==  $THREECOM::STATIC ) {
@@ -615,15 +615,15 @@ We extract the LLDP index from SNMP request to the switch
 =cut
 
 sub _getLLDPIndex {
-    my ($this, $ifIndex) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
     
     my $OID_ifDesc = "1.3.6.1.2.1.31.1.1.1.1.$ifIndex";
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
     my $desc = $result->{"1.3.6.1.2.1.31.1.1.1.1.$ifIndex"};
 
     $desc =~ /(\d+)$/;
@@ -637,28 +637,28 @@ Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 =cut
 
 sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my @phones;
-    if ( !$this->isVoIPEnabled() ) {
+    if ( !$self->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
+                . $self->{_ip}
                 . ". getPhonesLLDPAtIfIndex will return empty list." );
         return @phones;
     }
 
-    my $index = $this->getLLDPIndex($ifIndex);
+    my $index = $self->getLLDPIndex($ifIndex);
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysDesc = '1.0.8802.1.1.2.1.4.1.1.10';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return @phones;
     }
     sleep(4);
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemSysDesc");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemSysDesc );
     foreach my $oid ( keys %{$result} ) {
         if ( $oid =~ /^$oid_lldpRemSysDesc\.([0-9]+)\.([0-9]+)\.([0-9]+)$/ ) {
@@ -670,7 +670,7 @@ sub getPhonesLLDPAtIfIndex {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
-                    my $MACresult = $this->{_sessionRead}->get_request(
+                    my $MACresult = $self->{_sessionRead}->get_request(
                         -varbindlist => [
                             "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                         ]
@@ -699,8 +699,8 @@ Returns 1 if VoIP is enabled
 =cut
 
 sub isVoIPEnabled {
-    my ($this) = @_;
-    return ( $this->{_VoIPEnabled} == 1 );
+    my ($self) = @_;
+    return ( $self->{_VoIPEnabled} == 1 );
 }
 
 =back

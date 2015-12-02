@@ -24,38 +24,38 @@ use Net::SNMP;
 sub description { 'PacketFence' }
 
 sub connectWrite {
-    my $this   = shift;
-    my $logger = $this->logger;
-    if ( defined( $this->{_sessionWrite} ) ) {
+    my $self   = shift;
+    my $logger = $self->logger;
+    if ( defined( $self->{_sessionWrite} ) ) {
         return 1;
     }
     $logger->debug("opening SNMP v1 connection to 127.0.0.1");
-    ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
+    ( $self->{_sessionWrite}, $self->{_error} ) = Net::SNMP->session(
         -hostname  => '127.0.0.1',
         -version   => 1,
         -port      => '162',
-        -community => $this->{_SNMPCommunityTrap},
+        -community => $self->{_SNMPCommunityTrap},
         -maxmsgsize => 4096
     );
-    if ( !defined( $this->{_sessionWrite} ) ) {
+    if ( !defined( $self->{_sessionWrite} ) ) {
         $logger->error( "error creating SNMP v1 connection to 127.0.0.1: "
-                . $this->{_error} );
+                . $self->{_error} );
         return 0;
     }
     return 1;
 }
 
 sub sendLocalReAssignVlanTrap {
-    my ($this, $switch, $ifIndex, $connection_type, $mac) = @_;
+    my ($self, $switch, $ifIndex, $connection_type, $mac) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = $this->logger;
-    if ( !$this->connectWrite() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectWrite() ) {
         return 0;
     }
     my $result;
     if (defined($mac)) {
-        $result = $this->{_sessionWrite}->trap(
+        $result = $self->{_sessionWrite}->trap(
             -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
             -agentaddr   => $switch_ip,
             -varbindlist => [
@@ -67,7 +67,7 @@ sub sendLocalReAssignVlanTrap {
             ]
         );
     } else {
-        $result = $this->{_sessionWrite}->trap(
+        $result = $self->{_sessionWrite}->trap(
             -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
             -agentaddr   => $switch_ip,
             -varbindlist => [
@@ -80,20 +80,20 @@ sub sendLocalReAssignVlanTrap {
     }
     if ( !$result ) {
         $logger->error(
-            "error sending SNMP trap: " . $this->{_sessionWrite}->error() );
+            "error sending SNMP trap: " . $self->{_sessionWrite}->error() );
     }
     return 1;
 }
 
 sub sendLocalDesAssociateTrap {
-    my ($this, $switch, $mac, $connection_type) = @_;
+    my ($self, $switch, $mac, $connection_type) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = $this->logger;
-    if ( !$this->connectWrite() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectWrite() ) {
         return 0;
     }
-    my $result = $this->{_sessionWrite}->trap(
+    my $result = $self->{_sessionWrite}->trap(
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
         -agentaddr   => $switch_ip,
         -varbindlist => [
@@ -105,7 +105,7 @@ sub sendLocalDesAssociateTrap {
     );
     if ( !$result ) {
         $logger->error(
-            "error sending SNMP trap: " . $this->{_sessionWrite}->error() );
+            "error sending SNMP trap: " . $self->{_sessionWrite}->error() );
     }
     return 1;
 }
@@ -117,14 +117,14 @@ Sends a local trap meant to trigger firewall changes in pfsetvlan
 =cut
 
 sub sendLocalFirewallRequestTrap {
-    my ($this, $switch, $mac) = @_;
+    my ($self, $switch, $mac) = @_;
     my $switch_ip = $switch->{_ip};
     my $switch_id = $switch->{_id};
-    my $logger = $this->logger;
-    if ( !$this->connectWrite() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectWrite() ) {
         return 0;
     }
-    my $result = $this->{_sessionWrite}->trap(
+    my $result = $self->{_sessionWrite}->trap(
         -genericTrap => Net::SNMP::ENTERPRISE_SPECIFIC,
         -agentaddr   => $switch_ip,
         -varbindlist => [
@@ -134,7 +134,7 @@ sub sendLocalFirewallRequestTrap {
         ]
     );
     if ( !$result ) {
-        $logger->error("error sending SNMP trap: " . $this->{_sessionWrite}->error());
+        $logger->error("error sending SNMP trap: " . $self->{_sessionWrite}->error());
     }
     return 1;
 }

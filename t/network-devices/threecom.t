@@ -45,7 +45,7 @@ my %NasPortIfIndex = (
 $switch = Test::MockObject::Extends->new( $switch );
 $switch->mock('getIfIndexForThisDot1dBasePort',
     sub {
-        my ($this, $dot1dBasePort) = @_;
+        my ($self, $dot1dBasePort) = @_;
         my %hardcoded_table = (
             1 => 4227145, 2 => 4227153, 3 => 4227161, 4 => 4227169, 5 => 4227177, 6 => 4227185, 7 => 4227193,
             8 => 4227201, 9 => 4227209, 10 => 4227217, 11 => 4227225, 12 => 4227233, 13 => 4227241, 14 => 4227249,

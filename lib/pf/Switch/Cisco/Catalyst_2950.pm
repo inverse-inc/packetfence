@@ -122,24 +122,24 @@ sub supportsLldp { return $TRUE; }
 sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
-    my $this   = shift;
-    my $logger = $this->logger;
+    my $self   = shift;
+    my $logger = $self->logger;
     return '12.1(22)EA10';
 }
 
 sub getManagedPorts {
-    my $this       = shift;
-    my $logger     = $this->logger;
+    my $self       = shift;
+    my $logger     = $self->logger;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';                     # MIB: ifTypes
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
     my @nonUpLinks;
-    my @UpLinks = $this->getUpLinks();    # fetch the UpLink list
+    my @UpLinks = $self->getUpLinks();    # fetch the UpLink list
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return @nonUpLinks;
     }
     $logger->trace("SNMP get_table for ifType: $oid_ifType");
-    my $ifTypes = $this->{_sessionRead}
+    my $ifTypes = $self->{_sessionRead}
         ->get_table(    # fetch the ifTypes list of the ports
         -baseoid => $oid_ifType
         );
@@ -152,22 +152,22 @@ sub getManagedPorts {
                 $port =~ /^$oid_ifType\.(\d+)$/;
                 if ( grep( { $_ == $1 } @UpLinks ) == 0 ) {    # skip UpLinks
 
-                    my $portVlan = $this->getVlan($1);
+                    my $portVlan = $self->getVlan($1);
                     if ( defined $portVlan ) {    # skip port with no VLAN
 
-                        my $port_type = $this->getVmVlanType($1);
+                        my $port_type = $self->getVmVlanType($1);
                         if ( ( $port_type == 1 ) || ( $port_type == 4 ) )
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $self->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->trace(
                                     "SNMP get_request for ifName: $oid_ifName.$1"
                                 );
                                 my $ifNames
-                                    = $this->{_sessionRead}->get_request(
+                                    = $self->{_sessionRead}->get_request(
                                     -varbindlist =>
                                         ["$oid_ifName.$1"]    # MIB: ifNames
                                     );
@@ -185,7 +185,7 @@ sub getManagedPorts {
 
 #obtain hashref from result of getMacAddr
 sub _getIfDescMacVlan {
-    my ( $this, @macAddr ) = @_;
+    my ( $self, @macAddr ) = @_;
     my $ifDescMacVlan;
     foreach my $line ( grep( {/DYNAMIC/} @macAddr ) ) {
         my ( $vlan, $mac, $ifDesc ) = unpack( "A4x4A14x16A*", $line );
@@ -215,39 +215,39 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub clearMacAddressTable {
-    my ( $this, $ifIndex, $vlan ) = @_;
+    my ( $self, $ifIndex, $vlan ) = @_;
     my $command;
     my $session;
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
-    my $logger     = $this->logger;
+    my $logger     = $self->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
         # Session not already privileged are not supported at this point. See #1370
-        # $session->begin_privileged( $this->{_cliEnablePwd} );
+        # $session->begin_privileged( $self->{_cliEnablePwd} );
     };
 
     if ($@) {
         $logger->error(
-            "ERROR: Can not connect to switch $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Can not connect to switch $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 0;
     }
 
     # First we fetch ifName(ifIndex)
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
     $logger->trace("SNMP get_request for ifName: $oid_ifName");
-    my $ifNames = $this->{_sessionRead}
+    my $ifNames = $self->{_sessionRead}
         ->get_request( -varbindlist => ["$oid_ifName.$ifIndex"] );
     my $port = $ifNames->{"$oid_ifName.$ifIndex"};
 
@@ -257,8 +257,8 @@ sub clearMacAddressTable {
     eval { $session->cmd( String => $command, Timeout => '10' ); };
     if ($@) {
         $logger->error(
-            "ERROR: Error while clearing MAC Address table on port $ifIndex for switch $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Error while clearing MAC Address table on port $ifIndex for switch $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         $session->close();
         return;
     }
@@ -267,18 +267,18 @@ sub clearMacAddressTable {
 }
 
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsSecureMacAddrRowStatus: $oid_cpsSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsSecureMacAddrRowStatus" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -288,7 +288,7 @@ sub getAllSecureMacAddresses {
             my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x",
                 $2, $3, $4, $5, $6, $7 );
             my $ifIndex = $1;
-            my $oldVlan = $this->getVlan($ifIndex);
+            my $oldVlan = $self->getVlan($ifIndex);
             push @{ $secureMacAddrHashRef->{$oldMac}->{$ifIndex} }, $oldVlan;
         }
     }
@@ -297,21 +297,21 @@ sub getAllSecureMacAddresses {
 }
 
 sub isDynamicPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                   = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger                   = $self->logger;
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->debug("port security is not enabled");
         return 0;
     }
 
     $logger->trace(
         "SNMP get_table for cpsSecureMacAddrType: $oid_cpsSecureMacAddrType");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $result->{$oid_including_mac} == 1 ) {
@@ -323,21 +323,21 @@ sub isDynamicPortSecurityEnabled {
 }
 
 sub isStaticPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                   = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger                   = $self->logger;
     my $oid_cpsSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.2.1.2';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->debug("port security is not enabled");
         return 0;
     }
 
     $logger->trace(
         "SNMP get_table for cpsSecureMacAddrType: $oid_cpsSecureMacAddrType");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $result->{$oid_including_mac} == 1 ) {
@@ -349,18 +349,18 @@ sub isStaticPortSecurityEnabled {
 }
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsSecureMacAddrRowStatus: $oid_cpsSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsSecureMacAddrRowStatus.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -369,7 +369,7 @@ sub getSecureMacAddresses {
         {
             my $oldMac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x",
                 $1, $2, $3, $4, $5, $6 );
-            my $oldVlan = $this->getVlan($ifIndex);
+            my $oldVlan = $self->getVlan($ifIndex);
             push @{ $secureMacAddrHashRef->{$oldMac} }, $oldVlan;
         }
     }
@@ -378,22 +378,22 @@ sub getSecureMacAddresses {
 }
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add an entry to the SecureMacAddrTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
-    my $voiceVlan = $this->getVoiceVlan($ifIndex);
+    my $voiceVlan = $self->getVoiceVlan($ifIndex);
     if ( ( $deauthVlan == $voiceVlan ) || ( $authVlan == $voiceVlan ) ) {
         $logger->error(
             "ERROR: authorizeMAC called with voice VLAN .... this should not have happened ... we won't add an entry to the SecureMacAddrTable"
@@ -421,21 +421,21 @@ sub authorizeMAC {
 
     if ( scalar(@oid_value) > 0 ) {
         $logger->trace("SNMP set_request for cpsSecureMacAddrRowStatus");
-        my $result = $this->{_sessionWrite}
+        my $result = $self->{_sessionWrite}
             ->set_request( -varbindlist => \@oid_value );
     }
     return 1;
 }
 
 sub getMaxMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     #CISCO-PORT-SECURITY-MIB
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
     my $OID_cpsIfMaxSecureMacAddr   = '1.3.6.1.4.1.9.9.315.1.2.1.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
 
@@ -443,7 +443,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for cpsIfPortSecurityEnable: $OID_cpsIfPortSecurityEnable.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [ "$OID_cpsIfPortSecurityEnable.$ifIndex" ] );
     if (( !exists( $result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} ) )
         || ( $result->{"$OID_cpsIfPortSecurityEnable.$ifIndex"} eq
@@ -462,7 +462,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for cpsIfMaxSecureMacAddr: $OID_cpsIfMaxSecureMacAddr.$ifIndex"
     );
-    $result = $this->{_sessionRead}->get_request(
+    $result = $self->{_sessionRead}->get_request(
         -varbindlist => [ "$OID_cpsIfMaxSecureMacAddr.$ifIndex" ] );
     if (( !exists( $result->{"$OID_cpsIfMaxSecureMacAddr.$ifIndex"} ) )
         || ( $result->{"$OID_cpsIfMaxSecureMacAddr.$ifIndex"} eq
@@ -488,31 +488,31 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub ping {
-    my ( $this, $ip ) = @_;
+    my ( $self, $ip ) = @_;
     my $session;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
         $logger->error(
-            "ERROR: Can not connect to switch $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+            "ERROR: Can not connect to switch $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 1;
     }
 
     # Session not already privileged are not supported at this point. See #1370
-    #if ( !$session->begin_privileged( $this->{_cliEnablePwd} ) ) {
+    #if ( !$session->begin_privileged( $self->{_cliEnablePwd} ) ) {
     #    $logger->error( "ERROR: Cannot enable: " . $session->errmsg );
     #    $session->close();
     #    return 1;
@@ -543,43 +543,43 @@ With VoIP
 =cut
 
 sub enablePortSecurityByIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     my $maxSecureMacTotal;
     my $maxSecureMacVlanAccess = 1;
 
-    if ($this->isVoIPEnabled()) {
+    if ($self->isVoIPEnabled()) {
 
         # switchport port-security maximum 2
         $maxSecureMacTotal = 2;
-        $this->setPortSecurityMaxSecureMacAddrByIfIndex($ifIndex,$maxSecureMacTotal);
+        $self->setPortSecurityMaxSecureMacAddrByIfIndex($ifIndex,$maxSecureMacTotal);
 
         # switchport port-security maximum 1 vlan access
-        $this->setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex($ifIndex,$maxSecureMacVlanAccess);
+        $self->setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex($ifIndex,$maxSecureMacVlanAccess);
     } else {
 
         # switchport port-security maximum 1
         $maxSecureMacTotal = 1;
-        $this->setPortSecurityMaxSecureMacAddrByIfIndex($ifIndex,$maxSecureMacTotal);
+        $self->setPortSecurityMaxSecureMacAddrByIfIndex($ifIndex,$maxSecureMacTotal);
     }
 
     # switchport port-security violation restrict
-    $this->setPortSecurityViolationActionByIfIndex($ifIndex, $CISCO::DROPNOTIFY);
+    $self->setPortSecurityViolationActionByIfIndex($ifIndex, $CISCO::DROPNOTIFY);
 
     # switchport port-security mac-adress xxxx.xxxx.xxxx
     my $macToAuthorize;
-    my @macArray = $this->_getMacAtIfIndex($ifIndex);
+    my @macArray = $self->_getMacAtIfIndex($ifIndex);
     if ( !@macArray ) {
-        $macToAuthorize = $this->generateFakeMac(0, $ifIndex);
+        $macToAuthorize = $self->generateFakeMac(0, $ifIndex);
     } else {
         $macToAuthorize = $macArray[0];
     }
-    my $vlan = $this->getVlan($ifIndex);
-    $this->authorizeMAC( $ifIndex, undef, $macToAuthorize, $vlan, $vlan);
+    my $vlan = $self->getVlan($ifIndex);
+    $self->authorizeMAC( $ifIndex, undef, $macToAuthorize, $vlan, $vlan);
 
     # switchport port-security
-    $this->setPortSecurityEnableByIfIndex($ifIndex, $TRUE);
+    $self->setPortSecurityEnableByIfIndex($ifIndex, $TRUE);
     return 1;
 }
 
@@ -588,28 +588,28 @@ sub enablePortSecurityByIfIndex {
 =cut
 
 sub disablePortSecurityByIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     # no switchport port-security
-    if (! $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE)) {
+    if (! $self->setPortSecurityEnableByIfIndex($ifIndex, $FALSE)) {
         $logger->error("An error occured while disablling port-security on ifIndex $ifIndex");
         return 0;
     }
 
     # no switchport port-security violation restrict
-    if (! $this->setPortSecurityViolationActionByIfIndex($ifIndex, $CISCO::SHUTDOWN)) {
+    if (! $self->setPortSecurityViolationActionByIfIndex($ifIndex, $CISCO::SHUTDOWN)) {
         $logger->error("An error occured while disablling port-security violation restrict in ifIndex $ifIndex");
         return 0;
     }
 
     # no switchport port-security mac-adress xxxx.xxxx.xxxx
-    my $secureMacHashRef = $this->getSecureMacAddresses($ifIndex);
+    my $secureMacHashRef = $self->getSecureMacAddresses($ifIndex);
     my $valid = (ref($secureMacHashRef) eq 'HASH');
     my $mac_count = scalar(keys %{$secureMacHashRef});
     if ($valid && $mac_count >= 1) {
         foreach my $macToDeAuthorize (keys %{$secureMacHashRef}) {
-            my $vlan = $this->getVlan($ifIndex);
-            if (! $this->authorizeMAC( $ifIndex, $macToDeAuthorize, undef, $vlan, $vlan)) {
+            my $vlan = $self->getVlan($ifIndex);
+            if (! $self->authorizeMAC( $ifIndex, $macToDeAuthorize, undef, $vlan, $vlan)) {
                 $logger->error("An error occured while de-authorizing $macToDeAuthorize on ifIndex $ifIndex");
                 return 0;
             }
@@ -624,22 +624,22 @@ sub disablePortSecurityByIfIndex {
 =cut
 
 sub setPortSecurityEnableByIfIndex {
-    my ( $this, $ifIndex, $enable ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $enable ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set IfPortSecurityEnable on $ifIndex to $enable but the switch is not in production -> Do nothing");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
     my $OID_cpsIfPortSecurityEnable = '1.3.6.1.4.1.9.9.315.1.2.1.1.1';
     my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
 
     $logger->trace("SNMP set_request for cpsIfPortSecurityEnable: $OID_cpsIfPortSecurityEnable");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cpsIfPortSecurityEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue ] );
     return ( defined($result) );
 }
@@ -651,21 +651,21 @@ Sets the global (data + voice) maximum number of MAC addresses for port-security
 =cut
 
 sub setPortSecurityMaxSecureMacAddrByIfIndex {
-    my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddr on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
     my $OID_cpsIfMaxSecureMacAddr = '1.3.6.1.4.1.9.9.315.1.2.1.1.3';
 
     $logger->trace("SNMP set_request for IfMaxSecureMacAddr: $OID_cpsIfMaxSecureMacAddr");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cpsIfMaxSecureMacAddr.$ifIndex", Net::SNMP::INTEGER, $maxSecureMac ] );
    return ( defined($result) );
 }
@@ -679,14 +679,14 @@ floating network devices with VoIP through SSH transport
 =cut
 
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
-    my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = $self->logger;
 
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
 
     my $command = 
-        "/usr/local/pf/bin/pfcmd_vlan -switch $this->{_ip} "
+        "/usr/local/pf/bin/pfcmd_vlan -switch $self->{_ip} "
         . "-runSwitchMethod _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex $ifIndex $maxSecureMac"
     ;
 
@@ -708,15 +708,15 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
-    my ( $this, $ifIndex, $maxSecureMac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $maxSecureMac ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set IfMaxSecureMacAddrPerVlan on $ifIndex to $maxSecureMac but the switch is not in production -> Do nothing");
         return 1;
     }
 
-    my $ifName = $this->getIfName($ifIndex);
+    my $ifName = $self->getIfName($ifIndex);
     if ($ifName eq '') {
         $logger->error( "Can not read ifName for ifIndex $ifIndex, Port-Security maximum can not be set on data Vlan");
         return 0;
@@ -725,18 +725,18 @@ sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
-        $logger->error("Error connecting to " . $this->{'_ip'} . " using ".$this->{_cliTransport} . ". Error: $!");
+        $logger->error("Error connecting to " . $self->{'_ip'} . " using ".$self->{_cliTransport} . ". Error: $!");
     }
 
     # Session not already privileged are not supported at this point. See #1370
@@ -744,8 +744,8 @@ sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     #if (!$session->in_privileged_mode()) {
 
     #    # let's try to enable
-    #    if (!$session->enable($this->{_cliEnablePwd})) {
-    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #    if (!$session->enable($self->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$self->{'ip'}.
     #                       ". Are you sure you provided enable password in configuration?");
     #        $session->close();
     #        return 0;
@@ -777,21 +777,21 @@ Tells the switch what to do when the number of MAC addresses on the port has exc
 =cut
 
 sub setPortSecurityViolationActionByIfIndex {
-    my ( $this, $ifIndex, $action ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $action ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set IfViolationAction on $ifIndex to $action but the switch is not in production -> Do nothing");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
     my $OID_cpsIfViolationAction = '1.3.6.1.4.1.9.9.315.1.2.1.1.8';
 
     $logger->trace("SNMP set_request for IfViolationAction: $OID_cpsIfViolationAction");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cpsIfViolationAction.$ifIndex", Net::SNMP::INTEGER, $action ] );
     return ( defined($result) );
 
@@ -804,10 +804,10 @@ Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devi
 =cut
 
 sub setTaggedVlans {
-    my ( $this, $ifIndex, $switch_locker, @vlans ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $switch_locker, @vlans ) = @_;
+    my $logger = $self->logger;
     
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port vlanTrunkPortVlansEnabled");
         return 1;
     }   
@@ -817,7 +817,7 @@ sub setTaggedVlans {
         return 0;
     }   
         
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }       
          
@@ -840,7 +840,7 @@ sub setTaggedVlans {
     my $taggedVlanMembers = pack("B*", $bitString);
         
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+    my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
             "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
             "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
@@ -855,15 +855,15 @@ Removes all the tagged Vlans on a multi-Vlan port. Used for floating network dev
 =cut
 
 sub removeAllTaggedVlans {
-    my ( $this, $ifIndex, $switch_locker) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $switch_locker) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port OID_vlanTrunkPortVlansEnabled");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -890,7 +890,7 @@ sub removeAllTaggedVlans {
     my $taggedVlanMembers4k = pack("B*", $bitString4k);
 
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
+    my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
         "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
         "$OID_vlanTrunkPortVlansEnabled2k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 1 x 1024),
         "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 1 x 1024),
@@ -908,19 +908,19 @@ Overriding default enablePortConfigAsTrunk to fix a race issue with Cisco
 =cut
 
 sub enablePortConfigAsTrunk {
-    my ($this, $mac, $switch_port, $switch_locker, $taggedVlans)  = @_;
-    my $logger = $this->logger;
+    my ($self, $mac, $switch_port, $switch_locker, $taggedVlans)  = @_;
+    my $logger = $self->logger;
 
     # switchport mode trunk
     $logger->info("Setting port $switch_port as trunk.");
-    if (! $this->setModeTrunk($switch_port, $TRUE)) {
+    if (! $self->setModeTrunk($switch_port, $TRUE)) {
         $logger->error("An error occured while enabling port $switch_port as multi-vlan (trunk)");
         return 0;
     }
 
     # switchport trunk allowed vlan x,y,z
     $logger->info("Allowing tagged Vlans on port $switch_port");
-    if (! $this->setTaggedVlans($switch_port, $switch_locker, split(",", $taggedVlans)) ) {
+    if (! $self->setTaggedVlans($switch_port, $switch_locker, split(",", $taggedVlans)) ) {
         $logger->error("An error occured while allowing tagged Vlans on trunk port $switch_port");
         return 0;
     }
@@ -942,8 +942,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger; 
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger; 
 
     # 50017 is ifIndex 17
     if ($NAS_port =~ s/^500//) {
@@ -962,8 +962,8 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -977,51 +977,51 @@ or set the VLAN and log if there is a VoIP device.
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = $self->logger;
 
     $logger->info(
         "802.1X renegociation on this switch is not compatible with PacketFence. "
         . "If there's VoIP we will bounce the port otherwise we will re-assign VLAN directly. "
         . "If it doesn't work open a bug report with your hardware type. "
-        . "switch: $this->{_ip} ifIndex: $ifIndex"
+        . "switch: $self->{_ip} ifIndex: $ifIndex"
     );
 
     # TODO extract the following behavior in a method call in pf::vlan so it can be overridden easily
     # by following behavior I mean the "don't bounce on VoIP violations" behavior
 
     # If VoIP isn't enabled on this switch: bounce
-    if (!$this->isVoIPEnabled()) {
-        $logger->debug("VoIP is diabled on switch at $this->{_ip}. Will bounce ifIndex $ifIndex.");
-        return $this->bouncePort($ifIndex);
+    if (!$self->isVoIPEnabled()) {
+        $logger->debug("VoIP is diabled on switch at $self->{_ip}. Will bounce ifIndex $ifIndex.");
+        return $self->bouncePort($ifIndex);
     }
 
     # If there's no phone on the ifIndex, we also bounce
-    my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
+    my $hasPhone = $self->hasPhoneAtIfIndex($ifIndex);
     if ( !$hasPhone ) {
-        $logger->debug("No VoIP is currently connected at $this->{_ip} ifIndex $ifIndex. Boucing ifIndex.");
-        return $this->bouncePort($ifIndex);
+        $logger->debug("No VoIP is currently connected at $self->{_ip} ifIndex $ifIndex. Boucing ifIndex.");
+        return $self->bouncePort($ifIndex);
     }
 
     # there's a phone, we need to fetch the MAC on the ifIndex in order to do a setVlan!
-    my @locationlog = locationlog_view_open_switchport_no_VoIP( $this->{_ip}, $ifIndex );
+    my @locationlog = locationlog_view_open_switchport_no_VoIP( $self->{_ip}, $ifIndex );
     if (!(@locationlog) || !defined($locationlog[0]->{'mac'}) || ($locationlog[0]->{'mac'} eq '' )) {
         $logger->warn(
-            "802.1X renegociation requested on $this->{_ip} ifIndex $ifIndex but can't determine non VoIP MAC"
+            "802.1X renegociation requested on $self->{_ip} ifIndex $ifIndex but can't determine non VoIP MAC"
         );
         return;
     }
     
     $logger->debug(
-        "A VoIP phone is currently connected at $this->{_ip} ifIndex $ifIndex so the port will not be bounced. " . 
+        "A VoIP phone is currently connected at $self->{_ip} ifIndex $ifIndex so the port will not be bounced. " . 
         "Changing VLAN and leaving everything as it is."
     );
 
     $mac = $locationlog[0]->{'mac'};
     my $vlan_obj = new pf::vlan::custom();
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X);
+    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $self, $ifIndex, $WIRED_802_1X);
 
-    $this->_setVlan(
+    $self->_setVlan(
         $ifIndex, 
         $vlan,
         undef, 
@@ -1042,7 +1042,7 @@ sub dot1xPortReauthenticate {
         $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
         $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
         $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
-        $message{'message'} .= "Switch: " . $this->{'_ip'} . "\n";
+        $message{'message'} .= "Switch: " . $self->{'_ip'} . "\n";
         $message{'message'} .= "Port (ifIndex): " . $ifIndex . "\n\n";
         $message{'message'} .= "The violation details are\n";
 
@@ -1065,14 +1065,14 @@ In that case, create a generic ifIndexToLldpLocalPort also.
 =cut
 
 sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # if can't SNMP read abort
-    return if ( !$this->connectRead() );
+    return if ( !$self->connectRead() );
 
     #Transfer ifIndex to LLDP index
-    my $lldpPort = $this->ifIndexToLldpLocalPort($ifIndex);
+    my $lldpPort = $self->ifIndexToLldpLocalPort($ifIndex);
     if (!defined($lldpPort)) {
         $logger->info("Unable to lookup LLDP port from IfIndex. LLDP VoIP detection will not work. Is LLDP enabled?");
         return;
@@ -1085,7 +1085,7 @@ sub getPhonesLLDPAtIfIndex {
         "SNMP get_next_request for lldpRemSysCapEnabled: "
         . "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
     );
-    my $result = $this->{_sessionRead}->get_table(
+    my $result = $self->{_sessionRead}->get_table(
         -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
     );
     # Cap entries look like this:
@@ -1100,13 +1100,13 @@ sub getPhonesLLDPAtIfIndex {
             my $lldpRemIndex = $1;
 
             # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
-            if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+            if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                 # we have a phone on the port. Get the MAC
                 $logger->trace(
                     "SNMP get_request for lldpRemPortId: "
                     . "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
                 );
-                my $portIdResult = $this->{_sessionRead}->get_request(
+                my $portIdResult = $self->{_sessionRead}->get_request(
                     -varbindlist => [
                         "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
                     ]
@@ -1131,19 +1131,19 @@ We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
 =cut
 
 sub ifIndexToLldpLocalPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # if can't SNMP read abort
-    return if ( !$this->connectRead() );
+    return if ( !$self->connectRead() );
 
-    my $ifDescr = $this->getIfDesc($ifIndex);
+    my $ifDescr = $self->getIfDesc($ifIndex);
     return if (!defined($ifDescr) || $ifDescr eq '');
 
     my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
 
     $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $result = $this->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc);
+    my $result = $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc);
     # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
     # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
     # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
@@ -1168,15 +1168,15 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 =cut
 
 sub getIfIndexByNasPortId {
-    my ($this, $ifDesc_param) = @_;
+    my ($self, $ifDesc_param) = @_;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
     my $ifDescHashRef;
-    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /^$ifDesc_param$/i ) {

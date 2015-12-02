@@ -79,10 +79,10 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_ruckusVer = '1.3.6.1.4.1.25053.1.2.1.1.1.1.18';
-    my $logger       = $this->logger;
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_ruckusVer");
@@ -90,7 +90,7 @@ sub getVersion {
     # sysDescr sample output:
     # 9.3.0.0 build 83
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_ruckusVer] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_ruckusVer] );
     if (defined($result)) {
         return $result->{$oid_ruckusVer};
     }
@@ -106,9 +106,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     # Handle WIPS Trap
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
@@ -154,8 +154,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -181,8 +181,8 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = $this->logger;
+    my($self, $req) = @_;
+    my $logger = $self->logger;
     return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
 }
 

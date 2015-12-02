@@ -118,8 +118,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $nas_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $nas_port) = @_;
+    my $logger = $self->logger;
 
     # 4096 NAS-Port slots are reserved per physical ports, 
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
@@ -128,7 +128,7 @@ sub NasPortToIfIndex {
     if ($port > 0) {
 
         # TODO we should think about caching or pre-computation here
-        my $ifIndex = $this->getIfIndexForThisDot1dBasePort($port);
+        my $ifIndex = $self->getIfIndexForThisDot1dBasePort($port);
 
         # return if defined and an int
         return $ifIndex if (defined($ifIndex) && $ifIndex =~ /^\d+$/);
@@ -150,14 +150,14 @@ See in L</"BUGS AND LIMITATIONS">.
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = $self->logger;
 
     $logger->warn(
         "Bouncing the port instead of performing 802.1x port re-authentication because of a 4200G bug. "
         . "Your mileage may vary"
     );
-    return $this->bouncePort($ifIndex);
+    return $self->bouncePort($ifIndex);
 }
 
 =back

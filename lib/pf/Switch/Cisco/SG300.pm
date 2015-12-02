@@ -54,13 +54,13 @@ For now it returns the voiceVlan untagged since Cisco supports multiple untagged
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return (
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $this->{_voiceVlan},
+        'Tunnel-Private-Group-ID' => $self->{_voiceVlan},
     );
 }
 
@@ -83,8 +83,8 @@ Just returns the NAS-Port
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     $logger->debug("Found $NAS_port for ifindex");
 

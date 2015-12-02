@@ -49,8 +49,8 @@ use Net::Appliance::Session;
 sub description { 'Cisco ISR 1800 Series' }
 
 #sub getMinOSVersion {
-#    my $this   = shift;
-#    my $logger = $this->logger;
+#    my $self   = shift;
+#    my $logger = $self->logger;
 #    return '';
 #}
 
@@ -69,19 +69,19 @@ sub description { 'Cisco ISR 1800 Series' }
 #}
 
 sub isDefinedVlan {
-    my ($this, $vlan) = @_;
-    my $logger = $this->logger;
+    my ($self, $vlan) = @_;
+    my $logger = $self->logger;
 
     # port assigned to VLAN (VLAN membership)
     my $oid_vmMembershipSummaryMemberPorts = "1.3.6.1.4.1.9.9.68.1.2.1.1.2"; #from CISCO-VLAN-MEMBERSHIP-MIB
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace("SNMP get_request for vmMembershipSummaryMemberPorts: $oid_vmMembershipSummaryMemberPorts.$vlan");
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$oid_vmMembershipSummaryMemberPorts.$vlan"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$oid_vmMembershipSummaryMemberPorts.$vlan"] );
 
     return (
             defined($result)
@@ -91,10 +91,10 @@ sub isDefinedVlan {
 }
 
 sub getVlan {
-    my ($this, $ifIndex) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
-    if (!$this->connectRead()) {
+    if (!$self->connectRead()) {
         return 0;
     }
 
@@ -102,14 +102,14 @@ sub getVlan {
 
     $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
     if (defined($result)
         && exists($result->{"$OID_vmVlan.$ifIndex"})
         && ($result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance')) {
 
         return $result->{"$OID_vmVlan.$ifIndex"};
     } else {
-        $logger->error("Unable to get VLAN on ifIndex $ifIndex for ip: ".$this->{'ip'});
+        $logger->error("Unable to get VLAN on ifIndex $ifIndex for ip: ".$self->{'ip'});
         return;
     }
 }
@@ -123,35 +123,35 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub getMacBridgePortHash {
-    my $this   = shift;
+    my $self   = shift;
     my $vlan   = shift || '';
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     my %macBridgePortHash  = ();
 
     if ($vlan eq '') {
-        $logger->error("Cannot query MAC table information on ".$this->{'_ip'}.": No VLAN provided");
+        $logger->error("Cannot query MAC table information on ".$self->{'_ip'}.": No VLAN provided");
         return %macBridgePortHash;
     }
 
     # before starting telnet let's get all the info we need
-    my @ifIndexes = $this->_getAllIfIndexForThisVlan($vlan);
-    my $ifDescrHashRef = $this->getAllIfDesc();
+    my @ifIndexes = $self->_getAllIfIndexForThisVlan($vlan);
+    my $ifDescrHashRef = $self->getAllIfDesc();
 
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return %macBridgePortHash;
     }
 
@@ -160,8 +160,8 @@ sub getMacBridgePortHash {
     #if (!$session->in_privileged_mode()) {
 
     #    # let's try to enable
-    #    if (!$session->enable($this->{_cliEnablePwd})) {
-    #        $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+    #    if (!$session->enable($self->{_cliEnablePwd})) {
+    #        $logger->error("Cannot get into privileged mode on ".$self->{'ip'}.
     #                       ". Are you sure you provided enable password in configuration?");
     #        $session->close();
     #        return %macBridgePortHash;
@@ -175,7 +175,7 @@ sub getMacBridgePortHash {
     my @output;
     eval { @output = $session->cmd(String => $command, Timeout => '10');};
     if ($@) {
-        $logger->error("Error getting MAC Address table for ".$this->{'_ip'}.". Failed with $@");
+        $logger->error("Error getting MAC Address table for ".$self->{'_ip'}.". Failed with $@");
         $session->close();
         return;
     }
@@ -214,10 +214,10 @@ Returns a list of all IfIndex part of a given VLAN
 =cut
 
 sub _getAllIfIndexForThisVlan {
-    my ($this, $vlan) = @_;
-    my $logger = $this->logger;
+    my ($self, $vlan) = @_;
+    my $logger = $self->logger;
 
-    if (!$this->connectRead()) {
+    if (!$self->connectRead()) {
         return 0;
     }
 
@@ -225,7 +225,7 @@ sub _getAllIfIndexForThisVlan {
 
     $logger->trace("SNMP get_table for vmVlan: $OID_vmVlan");
     my @ifIndexes;
-    my $result = $this->{_sessionRead}->get_table(-baseoid => $OID_vmVlan);
+    my $result = $self->{_sessionRead}->get_table(-baseoid => $OID_vmVlan);
     foreach my $key (keys %{$result}) {
         # format matches and grab the ifIndex
         if ($key =~ /^$OID_vmVlan\.(\d+)$/) {

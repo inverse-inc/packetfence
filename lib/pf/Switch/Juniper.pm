@@ -66,11 +66,11 @@ Ex: NAS-Port 115 is the 115th ifIndex entry  which is ifIndex 598.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = $this->logger;
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # grab ifName -> ifIndex hash
-    my %ifNameIfIndexHash = $this->getIfNameIfIndexHash();
+    my %ifNameIfIndexHash = $self->getIfNameIfIndexHash();
 
     # get numerically sorted ifIndexes (hash values)
     my @sortedIfIndexes = sort {$a <=> $b} values %ifNameIfIndexHash;
@@ -89,7 +89,7 @@ sub NasPortToIfIndex {
     my $subIntIfIndex = $sortedIfIndexes[$NAS_port];
 
     # because no obvious link could be made between a sub-interface ifIndex and it's parent, we use a regexp to do it
-    my $subIntName = $this->getIfName($subIntIfIndex);
+    my $subIntName = $self->getIfName($subIntIfIndex);
     # interface: ge-0/0/46 
     # sub-interface: ge-0/0/46.0
     if ($subIntName !~ /^(.+)\.\d+$/) {
@@ -116,34 +116,34 @@ Warning: This is really slow! About 6 second for the link change.
 =cut
 
 sub setAdminStatus {
-    my ($this, $ifIndex, $enable) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex, $enable) = @_;
+    my $logger = $self->logger;
     
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't set the admin status for ifIndex $ifIndex");
         return 1;
     }   
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $this->{_cliTransport},        
+            Transport => $self->{_cliTransport},        
             Platform  => "JUNOS",    
         );
         
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );  
     };  
     
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
     }   
 
-    my $port = $this->getIfName($ifIndex);
+    my $port = $self->getIfName($ifIndex);
 
     my $command;
     if ($enable eq 1) {
@@ -183,10 +183,10 @@ Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authe
 =cut
 
 sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex, $mac) = @_;
-    my $logger = $this->logger;
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = $self->logger;
 
-    my $switch_ip = $this->{_ip};
+    my $switch_ip = $self->{_ip};
 
     # TODO implement VoIP device detection
     $logger->info("Bouncing $switch_ip:$ifIndex. A new VLAN will be assigned upon reconnection.");

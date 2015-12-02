@@ -76,9 +76,9 @@ sub getVersion {
 
 sub parseTrap {
     # Optional for Wireless devices
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';

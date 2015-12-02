@@ -59,10 +59,10 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req, $r) = @_;
-    my $logger = $this->logger;
+    my($self, $req, $r) = @_;
+    my $logger = $self->logger;
     my $connection = $r->connection;
-    $this->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
     );
 

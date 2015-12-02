@@ -334,7 +334,7 @@ our $var_dir              = "/usr/local/pf/var/";
 =cut
 
 sub writeNetworkConfigs {
-    my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
+    my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = get_logger();
 
     my $status_msg;
@@ -436,7 +436,7 @@ our $var_dir              ="/usr/local/pf/var/";
 =cut
 
 sub writeNetworkConfigs {
-    my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
+    my ( $self, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = get_logger();
 
     my $status_msg;

@@ -39,9 +39,9 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new pf::inline object");
     my ( $class, %argv ) = @_;
-    my $this = bless {}, $class;
-    $this->{_technique} = get_technique();
-    return $this;
+    my $self = bless {}, $class;
+    $self->{_technique} = get_technique();
+    return $self;
 }
 
 =item get_technique
@@ -75,12 +75,12 @@ sub get_technique {
 =cut
 
 sub performInlineEnforcement {
-    my ($this, $mac) = @_;
-    my $logger = get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = get_logger(ref($self));
 
     # What is the MAC's current state?
-    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->fetchMarkForNode($mac);
+    my $current_mark = $self->{_technique}->get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $self->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
         $logger->debug("is already properly enforced in firewall, no change required");
@@ -88,7 +88,7 @@ sub performInlineEnforcement {
     }
 
     $logger->info("stated changed, adapting firewall rules for proper enforcement");
-    return $this->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
+    return $self->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
 }
 
 =item isInlineEnforcementRequired
@@ -98,11 +98,11 @@ Returns a true value if a firewall change is required. False otherwise.
 =cut
 
 sub isInlineEnforcementRequired {
-    my ($this, $mac) = @_;
+    my ($self, $mac) = @_;
 
     # What is the MAC's current state?
-    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->fetchMarkForNode($mac);
+    my $current_mark = $self->{_technique}->get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $self->fetchMarkForNode($mac);
     if ($current_mark == $should_be_mark) {
         return $FALSE;
     }
@@ -114,8 +114,8 @@ sub isInlineEnforcementRequired {
 =cut
 
 sub fetchMarkForNode {
-    my ($this, $mac) = @_;
-    my $logger = get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = get_logger(ref($self));
 
     # Violation first
     my $open_violation_count = violation_count_reevaluate_access($mac);

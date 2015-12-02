@@ -53,8 +53,8 @@ sub supportsWebFormRegistration { return $TRUE }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '1';
 }
@@ -73,10 +73,10 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req, $r) = @_;
-    my $logger = $this->logger;
+    my($self, $req, $r) = @_;
+    my $logger = $self->logger;
     my $connection = $r->connection;
-    $this->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('client_mac')), "Unknown"
     );
 

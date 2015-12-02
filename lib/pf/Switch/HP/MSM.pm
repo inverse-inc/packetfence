@@ -42,35 +42,35 @@ Method to deauthenticate a node with SSH
 =cut
 
 sub _deauthenticateMacWithSSH {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
     my $session;
     my @addition_ops;
-    if (defined $this->{_controllerPort} && $this->{_cliTransport} eq 'SSH' ) {
+    if (defined $self->{_controllerPort} && $self->{_cliTransport} eq 'SSH' ) {
         @addition_ops = (
             connect_options => {
-                ops => [ '-p' => $this->{_controllerPort}  ]
+                ops => [ '-p' => $self->{_controllerPort}  ]
             }
         );
     }
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $this->{_cliTransport},
+            Transport => $self->{_cliTransport},
             Platform => 'HP',
             Source   => $lib_dir.'/pf/Switch/HP/nas-pb.yml',
             @addition_ops
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     };
 
     if ($@) {
-        $logger->error( "ERROR: Can not connect to controller $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+        $logger->error( "ERROR: Can not connect to controller $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 1;
     }
     $session->cmd("enable");
@@ -87,8 +87,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH  => '_deauthenticateMacWithSSH',

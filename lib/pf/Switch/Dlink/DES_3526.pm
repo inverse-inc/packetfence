@@ -23,9 +23,9 @@ use base ('pf::Switch::Dlink');
 sub description {'D-Link DES 3526'}
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     my @fields = split '\|', $trapString;
 
@@ -73,7 +73,7 @@ sub parseTrap {
             $ifIndex = hex $ifIndex;
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
 
-            $trapHashRef->{'trapVlan'} = $this->getVlan( $ifIndex );
+            $trapHashRef->{'trapVlan'} = $self->getVlan( $ifIndex );
             next PARSETRAP;
         }
 

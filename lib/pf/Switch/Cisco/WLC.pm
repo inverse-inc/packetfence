@@ -166,18 +166,18 @@ See L<BUGS AND LIMITATIONS> for details.
 =cut
 
 sub _deauthenticateMacSNMP {
-    my ( $this, $mac ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't write to the bnsMobileStationTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -191,10 +191,10 @@ sub _deauthenticateMacSNMP {
         $logger->trace(
             "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );
-        my $result = $this->{_sessionWrite}->set_request(
+        my $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
         # TODO: validate result
-        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
+        $logger->info("deauthenticate mac $mac from controller: ".$self->{_ip});
         return ( defined($result) );
     } else {
         $logger->error(
@@ -205,28 +205,28 @@ sub _deauthenticateMacSNMP {
 }
 
 sub blacklistMac {
-    my ( $this, $mac, $description ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $mac, $description ) = @_;
+    my $logger = $self->logger;
 
     if ( length($mac) == 17 ) {
 
         my $session;
         eval {
             $session = Net::Telnet->new(
-                Host    => $this->{_ip},
+                Host    => $self->{_ip},
                 Timeout => 5,
                 Prompt  => '/[\$%#>]$/'
             );
             $session->waitfor('/User: /');
-            $session->put( $this->{_cliUser} . "\n" );
+            $session->put( $self->{_cliUser} . "\n" );
             $session->waitfor('/Password:/');
-            $session->put( $this->{_cliPwd} . "\n" );
+            $session->put( $self->{_cliPwd} . "\n" );
             $session->waitfor( $session->prompt );
         };
 
         if ($@) {
             $logger->error(
-                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
+                "ERROR: Can not connect to access point $self->{'_ip'} using telnet"
             );
             return 1;
         }
@@ -240,67 +240,67 @@ sub blacklistMac {
 }
 
 sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex, $type ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
-    my ($this) = @_;
+    my ($self) = @_;
     my $vlans  = {};
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $vlan ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub isVoIPEnabled {
-    my ($this) = @_;
+    my ($self) = @_;
     return 0;
 }
 
@@ -311,7 +311,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Airespace-ACL-Name';
 }
@@ -323,8 +323,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -351,8 +351,8 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = $this->logger;
+    my($self, $req) = @_;
+    my $logger = $self->logger;
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 

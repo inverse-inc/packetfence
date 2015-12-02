@@ -17,9 +17,9 @@ use warnings;
 use base ('pf::Switch');
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
     if ( $trapString
         =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/
         )
@@ -34,12 +34,12 @@ sub parseTrap {
 }
 
 sub getAlias {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return "This function is not supported by Intel switches";
 }
 
 sub setAlias {
-    my ( $this, $ifIndex, $alias ) = @_;
+    my ( $self, $ifIndex, $alias ) = @_;
     return 1;
 }
 

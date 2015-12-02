@@ -52,9 +52,9 @@ This is called when we receive an SNMP-Trap for this device
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = $this->logger;
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -67,8 +67,8 @@ sub parseTrap {
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }
@@ -80,8 +80,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -203,15 +203,15 @@ Enterasys specific parser. See pf::SNMP for base implementation.
 =cut
 
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Siemens-SSID'})) {
         return $radius_request->{'Siemens-SSID'};
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Please let us know so we can add support for it."
     );
     return;
@@ -224,7 +224,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Filter-Id';
 }

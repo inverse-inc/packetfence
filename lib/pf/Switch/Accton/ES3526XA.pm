@@ -25,8 +25,8 @@ use base ('pf::Switch::Accton');
 sub description { 'Accton ES3526XA' }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = $this->logger;
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '2.3.3.5';
 }
 

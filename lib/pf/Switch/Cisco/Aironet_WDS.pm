@@ -199,8 +199,8 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 
 # Same as in pf::Switch::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = $this->logger;
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
@@ -224,7 +224,7 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
     );
     return;
@@ -237,8 +237,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
