@@ -9,7 +9,7 @@ use pf::node;
 use pf::Portal::Session;
 use pf::util;
 use pf::config::util;
-use pf::constants::violation;
+use pf::config::violation;
 use pf::violation;
 use pf::person;
 use pf::web;

@@ -1,14 +1,14 @@
-package pf::constants::violation;
+package pf::config::violation;
 
 =head1 NAME
 
-pf::constants::violation -
+pf::config::violation -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::violation
+pf::config::violation
 
 =cut
 

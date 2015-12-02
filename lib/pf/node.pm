@@ -81,7 +81,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::constants::violation;
+use pf::config::violation;
 use pf::config;
 use pf::db;
 use pf::nodecategory;
