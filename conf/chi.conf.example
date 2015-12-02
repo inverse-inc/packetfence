@@ -1,22 +1,4 @@
-[storage DEFAULT]
-storage=redis
-
-[storage ldap_auth]
-expires_in=10m
-
-[storage httpd.admin]
-expires_in=1d
-
-[storage httpd.portal]
-expires_in=6h
-
-[storage redis]
-driver = Redis
-redis_class = Redis::Fast
-server = 127.0.0.1:6379
-prefix = pf
-expires_on_backend = 1
-reconnect=60
+#An example configuration for a new storage type
 
 #[storage file]
 #driver=File
