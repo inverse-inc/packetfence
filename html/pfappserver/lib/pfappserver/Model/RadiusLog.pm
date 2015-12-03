@@ -52,6 +52,7 @@ sub search {
         -from => $self->table,
         $self->_build_where($params),
         $self->_build_limit($params),
+        $self->_build_order_by($params),
     );
     my @items =  radius_audit_log_custom($sql, @bind);
     return ($STATUS::OK,\@items);
@@ -74,6 +75,11 @@ sub _build_limit {
     my $limit  = $params->{per_page} || 25;
     my $offset = (( $page_num - 1 ) * $limit);
     return (-limit => $limit, -offset => $offset);
+}
+
+sub _build_order_by {
+    my ($self, $params) = @_;
+    return -order_by => [];
 }
 
 our %OP_MAP = (
