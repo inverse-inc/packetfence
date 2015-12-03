@@ -31,7 +31,7 @@ The set the default OS to IOS
 # Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
 has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X'] });
 
-=head2 hidden_ssid
+=head2 broadcast
 
 Is the ssid broadcasting
 
