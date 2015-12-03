@@ -17,6 +17,7 @@ use Moose;
 use namespace::autoclean;
 use pf::radius_audit_log;
 use pf::error qw(is_error is_success);
+use SQL::Abstract::More;
 
 =head1 METHODS
 
@@ -45,8 +46,77 @@ sub view_entries {
 }
 
 sub search {
-    my ($self, $query) = @_;
+    my ($self, $params) = @_;
+    my $sqla = SQL::Abstract::More->new;
+    my ($sql, @bind) = $sqla->select(
+        -from => $self->table,
+        $self->_build_where($params),
+        $self->_build_limit($params),
+    );
+    my @items =  radius_audit_log_custom($sql, @bind);
+    return ($STATUS::OK,\@items);
 }
+
+sub _build_where {
+    my ($self, $params) = @_;
+    my $searches = $params->{searches};
+    my $all_or_any = $params->{all_or_any} // "any";
+    my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
+    my @clauses = map { $self->_build_clause($_) } @$searches;
+    return -where => {
+        $relational_op => \@clauses,
+    };
+}
+
+sub _build_limit {
+    my ($self, $params) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit  = $params->{per_page} || 25;
+    my $offset = (( $page_num - 1 ) * $limit);
+    return (-limit => $limit, -offset => $offset);
+}
+
+our %OP_MAP = (
+    equal       => '=',
+    not_equal   => '<>',
+    not_like    => 'NOT LIKE',
+    like        => 'LIKE',
+    ends_with   => 'LIKE',
+    starts_with => 'LIKE',
+    in          => 'IN',
+    not_in      => 'NOT IN',
+);
+
+=head2 _build_clause
+
+=cut
+
+sub _build_clause {
+    my ($self, $query) = @_;
+    my $op = $query->{op};
+    die "$op is not a supported search operation"
+        unless exists $OP_MAP{$op};
+    my $sql_op = $OP_MAP{$op};
+    my $value = $query->{value};
+    my $name = $query->{name};
+    if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
+        #escaping the % and _ charcaters
+        my $escaped = $value =~ s/([%_])/\\$1/g;
+        if($op eq 'like' || $op eq 'not_like') {
+            $value = "\%$value\%";
+        } elsif ($op eq 'starts_with') {
+            $value = "$value\%";
+        } elsif ($op eq 'ends_with') {
+            $value = "\%$value";
+        }
+        if ($escaped) {
+            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+        }
+    }
+    return {$name => {$sql_op => $value}};
+}
+
+sub table { "radius_audit_log" }
 
 =head1 AUTHOR
 
