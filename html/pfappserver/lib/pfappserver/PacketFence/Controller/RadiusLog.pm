@@ -52,6 +52,9 @@ sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c, $pageNum, $perPage) = @_;
     $pageNum = 1 unless $pageNum;
     $perPage = 25 unless $perPage;
+    $c->stash({
+        columns => \@pf::radius_audit_log::FIELDS,
+    });
 }
 
 =head2 simple_search
