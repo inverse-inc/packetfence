@@ -202,7 +202,7 @@ sub _should_we_reassign_vlan {
         connection_type => $connection_type,
         user_name => $user_name,
         ssid => $ssid,
-        node_info => node_view($mac),
+        node_info => pf::node::node_attributes($mac),
     };
 
     my $newRole = $vlan_obj->fetchRoleForNode( $args );

@@ -250,7 +250,7 @@ sub getViolationRole {
     my $vid = $top_violation->{'vid'};
 
     # Scan violation that must be done in the production vlan
-    if ($vid == $POST_SCAN_VID) { 
+    if ($vid == $POST_SCAN_VID) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return $FALSE;
     }

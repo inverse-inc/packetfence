@@ -44,11 +44,11 @@ BEGIN {
 }
 
 # test the object
-my $vlan_obj = new pf::role::custom();
-isa_ok($vlan_obj, 'pf::role');
+my $role_obj = new pf::role::custom();
+isa_ok($role_obj, 'pf::role');
 
 # subs
-can_ok($vlan_obj, qw(
+can_ok($role_obj, qw(
     fetchRoleForNode
     doWeActOnThisTrap
     getViolationRole
@@ -77,10 +77,9 @@ $mock->mock('node_attributes', sub {
 $mock->mock('violation_count_reevaluate_access', sub { return (1); });
 $mock->mock('violation_view_top', sub { return $FALSE; });
 
-my $vlan;
-my $wasInline;
-($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
-is($vlan, 2, "determine vlan for node with violation");
+my $role;
+($role) = $role_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
+is($role->{role}, 'isolation', "determine vlan for node with violation");
 
 # violation_count_reevaluate_access will return 0
 $mock->mock('violation_count_reevaluate_access', sub { return (0); });
@@ -95,8 +94,8 @@ $mock->mock('node_attributes', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
-($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001'});
-is($vlan, 1, "determine vlan for registered user on custom switch");
+($role) = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001'});
+is($role->{role}, 'normal', "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
 $mock->mock('node_attributes', sub {
@@ -105,23 +104,23 @@ $mock->mock('node_attributes', sub {
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
-($vlan,$wasInline) = $vlan_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
-is($vlan, 3, "obtain registrationVlan for an unreg node");
+($role) = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
+is($role->{role}, 'registration', "obtain registrationVlan for an unreg node");
 
 my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
 
-my ($result,$role) = $vlan_obj->filterVlan('RegistrationRole',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
+my ($role) = $role_obj->filterVlan('RegistrationRole',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
 is($role, 'registration', "obtain registration role for the device");
 
-($result,$role) = $vlan_obj->filterVlan('RegistrationRole',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
+($role) = $role_obj->filterVlan('RegistrationRole',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
 is($role, 'registration2', "obtain registration role for the device");
 
-#($vlan,$wasInline) = $vlan_obj->getRegisteredRole($switch);
+#($vlan,$wasInline) = $role_obj->getRegisteredRole($switch);
 #is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-#($vlan,$wasInline) = $vlan_obj->getRegisteredRole($switch_vlan_override);
+#($vlan,$wasInline) = $role_obj->getRegisteredRole($switch_vlan_override);
 #is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
 
 # doWeActOnThisTrap tests
@@ -133,28 +132,28 @@ $switch->mock('getIfType', sub { return $SNMP::GIGABIT_ETHERNET; });
 $switch->mock('getUpLinks', sub { return; });
 
 is(
-    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    $role_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
     1,
     "avoid empty array warning (issue #832)"
 );
 
 $switch->mock('getUpLinks', sub { return (); });
 is(
-    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    $role_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
     1,
     "Zero uplinks"
 );
 
 $switch->mock('getUpLinks', sub { return -1; });
 is(
-    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    $role_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
     0,
     "getUpLinks not supported return 0"
 );
 
 $switch->mock('getUpLinks', sub { return (1000, 1001); });
 is(
-    $vlan_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
+    $role_obj->doWeActOnThisTrap( $switch, 1000, 'secureMacAddrViolation' ),
     0,
     "do we act on uplink?"
 );

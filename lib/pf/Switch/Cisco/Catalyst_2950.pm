@@ -1020,7 +1020,7 @@ sub dot1xPortReauthenticate {
     $mac = $locationlog[0]->{'mac'};
     my $vlan_obj = new pf::role::custom();
 
-    my $role = $vlan_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::view($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X});
+    my $role = $vlan_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::node_attributes($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X});
     my $vlan = $self->getVlanByName($role->{role});
     $self->_setVlan(
         $ifIndex, 
