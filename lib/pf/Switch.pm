@@ -3105,7 +3105,7 @@ sub deauth_source_ip {
         return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
     }
     else {
-        return $management_network->tag('vip');
+        return $management_network->tag('vip') || $management_network->tag('ip');
     }
 }
 
