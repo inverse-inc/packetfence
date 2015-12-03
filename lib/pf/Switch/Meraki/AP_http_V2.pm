@@ -69,8 +69,8 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req, $r) = @_;
-    my $logger = $this->logger;
+    my($self, $req, $r) = @_;
+    my $logger = $self->logger;
     
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 
@@ -93,8 +93,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = $this->logger;
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -323,7 +323,7 @@ Redefinition of pf::Switch::parseRequest due to specific attribute being used fo
 =cut
 
 sub parseRequest {
-    my ( $this, $radius_request ) = @_;
+    my ( $self, $radius_request ) = @_;
     my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
