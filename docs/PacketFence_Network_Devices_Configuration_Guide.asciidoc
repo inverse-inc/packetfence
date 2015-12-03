@@ -4116,7 +4116,6 @@ aaa server radius dynamic-author
  auth-type all
 ----
 
-
 Aironet (WDS)
 ^^^^^^^^^^^^^
 
@@ -4365,7 +4364,6 @@ image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page 
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
-=======
 Version 2
 +++++++++
 
