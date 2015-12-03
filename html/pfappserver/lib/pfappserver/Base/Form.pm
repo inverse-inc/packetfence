@@ -81,7 +81,7 @@ sub build_update_subfields {{
        'TimePicker' =>
        {
         element_class => ['timepicker-default', 'input-small'],
-        element_attr => {placeholder => 'MM:HH'},
+        element_attr => {placeholder => 'HH:MM'},
        },
       },
 }}
