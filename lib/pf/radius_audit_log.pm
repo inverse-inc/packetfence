@@ -29,6 +29,7 @@ BEGIN {
         radius_audit_log_view
         radius_audit_log_count_all
         radius_audit_log_view_all
+        radius_audit_log_custom
     );
 }
 
@@ -166,16 +167,16 @@ sub radius_audit_log_view_all {
     return db_data(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_view_all_sql', $offset, $limit);
 }
 
-=head2 @entries = radius_audit_log_custom_search($sql, @args)
+=head2 @entries = radius_audit_log_custom($sql, @args)
 
 Custom sql query for radius audit log
 
 =cut
 
-sub radius_audit_log_custom_search {
+sub radius_audit_log_custom {
     my ($sql, @args) = @_;
-    $radius_audit_log_statements->{'radius_audit_log_custom_search_sql'} = $sql;
-    return db_data(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_custom_search_sql', @args);
+    $radius_audit_log_statements->{'radius_audit_log_custom_sql'} = $sql;
+    return db_data(RADIUS_AUDIT_LOG, $radius_audit_log_statements, 'radius_audit_log_custom_sql', @args);
 }
 
 =head1 AUTHOR
