@@ -28,9 +28,8 @@ has_field 'broadcast' =>
   (
    type => 'Checkbox',
    label => 'Broadcast network',
-   value => 'true',
-   default => 'yes',
-   checkbox_value => 'Y',
+   checkbox_value => 1,
+   input_without_param => 0,
    tags => { after_element => \&help,
              help => 'Uncheck this box if you are using a hidden SSID' },
   );
