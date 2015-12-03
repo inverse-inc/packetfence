@@ -56,8 +56,8 @@ sub new {
     my ( $class, %argv ) = @_;
     my $logger = $class->get_logger();
     $logger->debug("instantiating new pf::vlan object");
-    my $this = bless {}, $class;
-    return $this;
+    my $self = bless {}, $class;
+    return $self;
 }
 
 =head2 fetchRoleForNode
@@ -72,15 +72,15 @@ getRegistrationRole or getRegisteredRole.
 =cut
 
 sub fetchRoleForNode {
-    my ( $this, $args) = @_;
-    my $logger = $this->logger;
+    my ( $self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $node_info = $args->{'node_info'};
 
-    if ($this->isInlineTrigger($args)) {
+    if ($self->isInlineTrigger($args)) {
         $logger->info("Inline trigger match, the node is in inline mode");
-        my $inline = $this->getInlineRole($args);
+        my $inline = $self->getInlineRole($args);
         $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({ role => "inline", wasInline => 1 });
@@ -108,7 +108,7 @@ sub fetchRoleForNode {
     }
 
     # violation handling
-    my $answer = $this->getViolationRole($args);
+    my $answer = $self->getViolationRole($args);
     $answer->{wasInline} = 0;
     if (defined($answer->{role}) && $answer->{role} ne "0" ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -118,7 +118,7 @@ sub fetchRoleForNode {
     }
 
     # there were no violation, now onto registration handling
-    $answer = $this->getRegistrationRole($args);
+    $answer = $self->getRegistrationRole($args);
     if (defined($answer->{role}) && $answer->{role} ne "0") {
         if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             if (isenabled($node_info->{'autoreg'})) {
@@ -131,7 +131,7 @@ sub fetchRoleForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    $answer = $this->getRegisteredRole($args);
+    $answer = $self->getRegisteredRole($args);
     $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. " Returned VLAN: ".(defined $answer->{vlan} ? $answer->{vlan} : "(undefined)").", Role: " . (defined $answer->{role} ? $answer->{role} : "(undefined)") );
     $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     return $answer;
@@ -147,8 +147,8 @@ version doesn't do the right thing for you.
 =cut
 
 sub doWeActOnThisTrap {
-    my ( $this, $switch, $ifIndex, $trapType ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $switch, $ifIndex, $trapType ) = @_;
+    my $logger = $self->logger;
 
     # TODO we should rethink the position of this code, it's in the wrong test but at the good spot in the flow
     my $weActOnThisTrap = 0;
@@ -210,8 +210,8 @@ sub getViolationRole {
     # $args->{'connection_type'} is set to the connnection type expressed as the constant in pf::config
     # $args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     # $args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $open_violation_count = violation_count_reevaluate_access($args->{'mac'});
@@ -224,7 +224,7 @@ sub getViolationRole {
                    "it might belong into another VLAN (isolation or other).");
 
     # Vlan Filter
-    my $role = $this->filterVlan('ViolationRole',$args);
+    my $role = $self->filterVlan('ViolationRole',$args);
     if ($role) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({role => $role});
@@ -309,8 +309,8 @@ sub getRegistrationRole {
     #$args->{'connection_type'} is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     # trapping on registration is enabled
@@ -322,7 +322,7 @@ sub getRegistrationRole {
 
     if (!defined($args->{'node_info'})) {
         # Vlan Filter
-        my $role = $this->filterVlan('RegistrationRole',$args);
+        my $role = $self->filterVlan('RegistrationRole',$args);
         if ($role) {
             $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -337,7 +337,7 @@ sub getRegistrationRole {
     my $n_status = $args->{'node_info'}->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         # Vlan Filter
-        my $role = $this->filterVlan('RegistrationRole',$args);
+        my $role = $self->filterVlan('RegistrationRole',$args);
         if ($role) {
             $logger->info("vlan filter match ; belongs into $role VLAN");
             $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
@@ -380,8 +380,8 @@ sub getRegisteredRole {
     #$args->{'connection_type'} is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     my $options = {};
@@ -417,7 +417,7 @@ sub getRegisteredRole {
     $logger->debug("Trying to determine VLAN from role.");
 
     # Vlan Filter
-    $role = $this->filterVlan('RegisteredRole',$args);
+    $role = $self->filterVlan('RegisteredRole',$args);
     if ( $role ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({ role => $role});
@@ -519,11 +519,11 @@ sub getInlineRole {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
-    my $role = $this->filterVlan('InlineRole',$args);
+    my $role = $self->filterVlan('InlineRole',$args);
     if ( $role ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return ({role => $role});
@@ -551,8 +551,8 @@ sub getNodeInfoForAutoReg {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     #define the current connection value to instantiate the correct portal
@@ -568,7 +568,7 @@ sub getNodeInfoForAutoReg {
 
     my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
 
-    my ($result, $role) = $this->filterVlan('NodeInfoForAutoReg', $args);
+    my ($result, $role) = $self->filterVlan('NodeInfoForAutoReg', $args);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -655,8 +655,8 @@ sub shouldAutoRegister {
     #$args->{'connection'}_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $args) = @_;
-    my $logger = $this->logger;
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
     my $start = Time::HiRes::gettimeofday();
 
     $logger->trace("[$args->{'mac'}] asked if should auto-register device");
@@ -679,7 +679,7 @@ sub shouldAutoRegister {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return $args->{'isPhone'};
     }
-    my $role = $this->filterVlan('AutoRegister',$args);
+    my $role = $self->filterVlan('AutoRegister',$args);
     if ($role) {
         if ($args->{'switch'}->getVlanByName($role) eq -1) {
             return 0;
