@@ -4383,7 +4383,7 @@ While done you will need to add the address for the redirection in the switch co
  http://192.168.1.5
 ----
 
-Also make sure to select RADIUS as the deauthentication merhod.
+Also make sure to select RADIUS as the deauthentication method.
 
 Mikrotik
 ~~~~~~~~
