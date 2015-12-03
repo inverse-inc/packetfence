@@ -4369,15 +4369,15 @@ NOTE: Even if you enabled the bridge mode on the access point, it will still sen
 Version 2
 +++++++++
 
-In the version X.X of the Meraki firmware, the webauth mode has been improved and now allow CoA, and the use of redirect-URL instead of passing by the external captive portal.
+In the version X.X of the Meraki firmware, the WebAuth mode has been improved and now allow CoA, and the use of redirect-URL instead of passing by the external captive portal.
 
-If you have the version X.X the configuration for your SSID should look like this:
+If you have the version X.X, the configuration for your SSID should look like this:
 
 image::docs/images/Meraki-config-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
 image::docs/images/Meraki-config-2.png[scaledwidth="100%",alt="Network configuration"]
 
-While done you will need to add the address of where to send the redirection in the switch configuration in PacketFence. Add the Meraki IP to PacketFence, then choose the module "Meraki cloud controller v2" and add the portal interface ip in the "Portal URL" section. It should look like the following:
+While done you will need to add the address for the redirection in the switch configuration in PacketFence. Add the Meraki IP to PacketFence, then choose the module "Meraki cloud controller v2" and add the portal interface ip in the "Portal URL" section. It should look like the following:
 
 ----
  http://192.168.1.5
