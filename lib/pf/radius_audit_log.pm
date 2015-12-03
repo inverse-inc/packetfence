@@ -15,8 +15,6 @@ deletion, read info, ...
 
 use strict;
 use warnings;
-use pf::log;
-
 use constant RADIUS_AUDIT_LOG => 'radius_audit_log';
 
 BEGIN {
@@ -34,19 +32,15 @@ BEGIN {
     );
 }
 
+use pf::log;
 use pf::db;
-
-=head1 GLOBALS
-
-=over
-
-=cut
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $radius_audit_log_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $radius_audit_log_statements = {};
+
 our $logger = get_logger();
 
 our @FIELDS = qw(
@@ -74,11 +68,7 @@ our $FIELD_LIST = join(", ",@FIELDS);
 
 our $INSERT_LIST = join(", ", ("?") x @FIELDS);
 
-=back
-
 =head1 SUBROUTINES
-
-=cut
 
 =head2 radius_audit_log_db_prepare()
 
