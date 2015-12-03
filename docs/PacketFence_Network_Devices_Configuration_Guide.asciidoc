@@ -4105,6 +4105,7 @@ Aironet 1600
 ^^^^^^^^^^^^
 
 CoA and radius:
+
 ----
 radius-server attribute 32 include-in-access-req format %h
 radius-server vsa send accounting
@@ -4114,6 +4115,7 @@ aaa server radius dynamic-author
  port 3799
  auth-type all
 ----
+
 
 Aironet (WDS)
 ^^^^^^^^^^^^^
@@ -4362,6 +4364,26 @@ Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* an
 image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
+
+=======
+Version 2
++++++++++
+
+In the version X.X of the Meraki firmware, the webauth mode has been improved and now allow CoA, and the use of redirect-URL instead of passing by the external captive portal.
+
+If you have the version X.X the configuration for your SSID should look like this:
+
+image::docs/images/Meraki-config-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
+
+image::docs/images/Meraki-config-2.png[scaledwidth="100%",alt="Network configuration"]
+
+While done you will need to add the address of where to send the redirection in the switch configuration in PacketFence. Add the Meraki IP to PacketFence, then choose the module "Meraki cloud controller v2" and add the portal interface ip in the "Portal URL" section. It should look like the following:
+
+----
+ http://192.168.1.5
+----
+
+Also make sure to select RADIUS as the deauthentication merhod.
 
 Mikrotik
 ~~~~~~~~

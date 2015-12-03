@@ -1,12 +1,12 @@
-package pf::Switch::Meraki::AP_http_CoA;
+package pf::Switch::Meraki::AP_http_V2;
 
 =head1 NAME
 
-pf::Switch::Meraki::AP_http_CoA
+pf::Switch::Meraki::AP_http_V2
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http_CoA module implements an object oriented interface to
+The pf::Switch::Meraki::AP_http_V2 module implements an object oriented interface to
 manage the external captive portal on Meraki access points
 
 =head1 STATUS
@@ -14,11 +14,6 @@ manage the external captive portal on Meraki access points
 Developed and tested on a MR12 access point
 
 =head1 BUGS AND LIMITATIONS
-
-=head2 Cannot reevaluate the access
-
-There is currently no way to reevaluate the access of the device.
-There is neither an API access or a RADIUS disconnect that can be sent either to the AP or to the controller.
 
 =head2 client IP cannot be computed from parseUrl
 
@@ -33,7 +28,6 @@ use warnings;
 use base ('pf::Switch::Meraki::AP_http');
 
 use Net::SNMP;
-use Net::Telnet;
 use Try::Tiny;
 
 use pf::Switch::constants;
@@ -43,9 +37,8 @@ use pf::config;
 use pf::roles::custom;
 use pf::util;
 use pf::node;
-use pf::accounting qw(node_accounting_current_sessionid);
 use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_attributes node_view);
+use pf::node qw(node_view);
 use pf::violation;
 use pf::locationlog;
 
