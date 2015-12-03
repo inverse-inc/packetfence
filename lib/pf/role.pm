@@ -408,10 +408,10 @@ sub getRegisteredRole {
         violation_add( $args->{'mac'}, $POST_SCAN_VID );
     }
 
-    $vlan = _check_bypass($args);
-    if( $vlan ) {
+    $role = _check_bypass($args);
+    if( $role ) {
         $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
-        return ({ vlan => $vlan});
+        return $role;
     }
 
     $logger->debug("Trying to determine VLAN from role.");
@@ -746,11 +746,11 @@ sub _check_bypass {
     # Bypass VLAN/role is configured in node record so we return accordingly
     if ( defined( $args->{'node_info'}->{'bypass_vlan'} ) && ( $args->{'node_info'}->{'bypass_vlan'} ne '' ) ) {
         $logger->info( "A bypass VLAN is configured. Returning VLAN: " . $args->{'node_info'}->{'bypass_vlan'} );
-        return $args->{'node_info'}->{'bypass_vlan'};
+        return ({vlan => $args->{'node_info'}->{'bypass_vlan'}});
     }
     elsif ( defined( $args->{'node_info'}->{'bypass_role'} ) && ( $args->{'node_info'}->{'bypass_role'} ne '' ) ) {
         $logger->info( "A bypass Role is configured. Returning Role: " . $args->{'node_info'}->{'bypass_role'} );
-        return $args->{'switch'}->getVlanByName( $args->{'node_info'}->{'bypass_role'} );
+        return ({role => $args->{'node_info'}->{'bypass_role'}});
     }
     else {
         return undef;
