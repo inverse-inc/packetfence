@@ -192,10 +192,10 @@ sub authorize {
 
     $args->{'isPhone'} = $isPhone;
 
-    my $autoreg = 0;
+    $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($args)) {
-        $autoreg = 1;
+        $args->{'autoreg'} = 1;
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($args);
         $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
