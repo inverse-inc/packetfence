@@ -7285,6 +7285,10 @@ msgstr "URI"
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.time"
+msgstr "Time period"
+
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "provisioner"
 msgstr ""
