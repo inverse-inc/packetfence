@@ -804,12 +804,13 @@ Portal profiles should be managed from PacketFence's Web administrative GUI - fr
 
 * Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
 
-PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
+PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
 Example with the most common ones:
 
 * *SSID:* Guest-SSID
 * *VLAN:* 100
+* *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
 
 CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
