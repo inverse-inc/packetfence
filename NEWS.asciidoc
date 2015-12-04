@@ -18,6 +18,7 @@ Enhancements
 ++++++++++++
 * pf::CHI::compute_with_undef now supports cache options 
 * Use the fingerbank cache instead of caching its result globally.
+* Update dependency to 2.1 for fingerbank.
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
