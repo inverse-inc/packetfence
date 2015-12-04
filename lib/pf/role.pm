@@ -569,7 +569,7 @@ sub getNodeInfoForAutoReg {
 
     my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
 
-    my ($result, $role) = $self->filterVlan('NodeInfoForAutoReg', $args);
+    my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
