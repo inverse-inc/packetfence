@@ -90,24 +90,9 @@ sub _query {
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
-    my $cache = pf::CHI->new( namespace => 'fingerbank' );
-
-    # Doing a shallow copy of the args hashref to modify the 'MAC' value and make it OUI rather than full MAC
-    my $cached_args = { %$args };
-    my $mac = $cached_args->{'mac'};
-    $mac =~ s/[:|\s|-]//g;      # Removing separators
-    $mac = lc($mac);            # Lowercasing
-    $mac = substr($mac, 0, 6);  # Only keep first 6 characters (OUI)
-    $cached_args->{'mac'} = $mac;
-
-    return $cache->compute_with_undef($cached_args, 
-        sub {
-            $logger->debug("Fingerbank result not in cache (either not present or expired). Querying Fingerbank for result");
-            my $fingerbank = fingerbank::Query->new;
-            return $fingerbank->match($args);
-        },
-        {expires_in => FINGERBANK_CACHE_EXPIRE}
-    );
+    my $cache = pf::CHI->new( namespace => 'fingerbank', expires_in => FINGERBANK_CACHE_EXPIRE );
+    my $fingerbank = fingerbank::Query->new(cache => $cache);
+    return $fingerbank->match($args);
 }
 
 =head2 _trigger_violations
