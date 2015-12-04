@@ -59,7 +59,7 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new pf::radius object");
     my ( $class, %argv ) = @_;
-    my $self = bless {}, $class;
+    my $self = bless { stash => {} }, $class;
     return $self;
 }
 
@@ -664,6 +664,26 @@ sub _handleAccountingFloatingDevices{
         # disable floating device mode on the port
         $floatingDeviceManager->disableMABFloating($switch, $port);
     }
+}
+
+=item stash
+
+Stash for holding information that needs to pass between calls
+
+=cut
+
+sub stash {
+    my ($self, @args) = @_;
+    my $stash = $self->{stash};
+    if (@args) {
+        my $new_stash = @args > 1 ? {@args} : $args[0];
+        croak('stash takes a hash or hashref') unless ref $new_stash;
+        foreach my $key ( keys %$new_stash ) {
+          $stash->{$key} = $new_stash->{$key};
+        }
+    }
+
+    return $stash;
 }
 
 =item logger
