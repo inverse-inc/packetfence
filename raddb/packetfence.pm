@@ -154,6 +154,7 @@ sub post_auth {
 
             # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
             my $attributes = {@$elements};
+            my $radcheck = delete $attributes->{RAD_CHECK} || {};
 
             # If attribute is a reference to a HASH (Multivalue attribute) we overwrite the value and point to list reference
             # 'Cisco-AVPair',
@@ -172,6 +173,7 @@ sub post_auth {
                }
             }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+            %RAD_CHECK = (%RAD_CHECK, %$radcheck); # the
         } else {
             return server_error_handler();
         }
