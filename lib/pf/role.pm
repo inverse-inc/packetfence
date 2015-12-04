@@ -36,6 +36,7 @@ use pf::lookup::person;
 use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
+use Data::Thunk;
 
 our $VERSION = 1.04;
 
@@ -778,6 +779,7 @@ Filter the vlan based off vlan filters
 sub filterVlan {
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
+    $args->{'owner'}= lazy { person_view($node_info->{'pid'}) };
     return $filter->filter($scope, $args);
 }
 
