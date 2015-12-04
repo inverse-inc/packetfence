@@ -1,4 +1,155 @@
-commit df19b26d3682b33c72bffdff6e18bb5a0d9a8816
+commit be0b7c65e110b9c9225de3e58187db1b6bd7d550
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Dec 4 14:58:22 2015 -0500
+
+    Updated changelogs for 5.5.2
+
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 220aa633f60ad131e3109f365eadae14e55af972
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Dec 4 14:54:40 2015 -0500
+
+    Updated NEWS for 5.5.2
+
+M	NEWS.asciidoc
+
+commit a5971defb53622832189f56dd8bd704bba7d7e4f
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Fri Dec 4 14:50:38 2015 -0500
+
+    NEWS entries for 5.5.2
+
+M	NEWS.asciidoc
+
+commit 8b632b453baec985a6f0c9463163c3c97c6ceae4
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Dec 4 14:36:57 2015 -0500
+
+    Updated pf-release for 5.5.2.
+
+M	NEWS.asciidoc
+M	conf/pf-release
+
+commit 2ab7e784ca9bd6c14dd753bed3de862243b9f761
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Dec 4 13:53:22 2015 -0500
+
+    Fingerbank version bump
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 8a3cba93e95c2c8a8c307a54c931fa3cefbf254c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Nov 30 14:46:59 2015 -0500
+
+    Use getClient
+
+M	lib/pf/fingerbank.pm
+
+commit ad88ff80ffa11e90fa44fc3a3678a25f162bc111
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Dec 2 16:54:36 2015 -0500
+
+    remove cache key creation from fingerbank module
+
+M	lib/pf/fingerbank.pm
+
+commit 7f5e2e67ffdb9cda53cf179e88c8343230db27b0
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Dec 1 14:22:59 2015 -0500
+
+    expire combination match when changing combinations
+
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Fingerbank.pm
+
+commit 8a91f86144ba115e2176d58e9c8b5d97085ffb81
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 30 15:13:30 2015 -0500
+
+    expire query keys after updating a model
+
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Fingerbank.pm
+
+commit 3c437022bbe18c5030716eb4765d721f1af5066b
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 30 15:13:13 2015 -0500
+
+    give fingerbank cache instead of caching its result
+
+M	lib/pf/fingerbank.pm
+
+commit 11097b4610169ff3f067d85509334c1ddeb72eb8
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Thu Dec 3 13:21:29 2015 -0500
+
+    fix deauth source ip not detected properly when not vip is assigned
+    
+    fixes #1035
+
+M	lib/pf/Switch.pm
+
+commit 731ef379886fe5e0ad038f773650f74ff751b5df
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Wed Dec 2 14:28:49 2015 -0500
+
+    rename trap to reevaluate_access in violations.conf
+
+M	conf/violations.conf.example
+
+commit fe358504e340381698e63ec35f6620758e71b1aa
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Tue Dec 1 15:07:06 2015 -0500
+
+    set combination attributes to empty if needed
+
+M	html/pfappserver/lib/pfappserver/Model/Config/Fingerbank/Combination.pm
+
+commit 0d5c96f7a54ae15e6286873dd844d374fa3f2dd8
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 30 12:06:58 2015 -0500
+
+    use compute_with_undef for fingerbank lookup
+
+M	lib/pf/fingerbank.pm
+
+commit 97e0f60c9fd48696d3a45046d30623f5accf12f4
+Author: Julien Semaan <jul.semaan@gmail.com>
+Date:   Mon Nov 30 11:52:08 2015 -0500
+
+    support options in compute_with_undef
+
+M	lib/pf/Role/CHI/Driver/ComputeWithUndef.pm
+
+commit 00bfe185ebba4226296d950798ff98103554d41b
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Nov 30 10:22:17 2015 -0500
+
+    Spelling.
+
+M	NEWS.asciidoc
+
+commit 93190bfe39f05f3926e0a2509cc150975aed136c
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Nov 30 10:20:59 2015 -0500
+
+    Added bugfixes to NEWS.asciidoc for 5.5.1.
+
+M	NEWS.asciidoc
+
+commit c8761451d43cc59f73e4393e276286661bd98c0e
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Nov 27 14:53:28 2015 -0500
+
+    Updated changelogs prior to 5.5.1 release.
+
+M	ChangeLog
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 8240e9053563df643ee5a9ae56054b9453923fbc
 Author: Julien Semaan <jul.semaan@gmail.com>
 Date:   Fri Nov 27 12:01:45 2015 -0500
 
@@ -6,7 +157,7 @@ Date:   Fri Nov 27 12:01:45 2015 -0500
 
 M	sbin/pfdns
 
-commit c9b2b10bcc41654164b40da0d492feff239ef8e9
+commit 270bec23f224fced7566724a43335969d54413eb
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Fri Nov 27 11:49:16 2015 -0500
 
@@ -14,114 +165,21 @@ Date:   Fri Nov 27 11:49:16 2015 -0500
 
 M	addons/packages/packetfence.spec
 
-commit 0d7bf2f76d748287e06b9a08afc52aa175249058
+commit 305c8961085420e2547804fddd465fe931946cd3
 Author: Louis Munro <lmunro@inverse.ca>
-Date:   Fri Nov 27 11:32:46 2015 -0500
+Date:   Fri Nov 27 11:48:26 2015 -0500
 
-    Post 5.5 release procedure.
+    Updated pf-release for 5.5.1.
 
-M	NEWS.asciidoc
-M	UPGRADE.asciidoc
 M	conf/pf-release
-A	db/pf-schema-X.Y.Z.sql
-A	db/upgrade-X.X.X-X.Y.Z.sql
 
-commit 18837fd4823c12e27b0851f4b8f3db142a3c4bf8
-Author: James Rouzier <jrouzier@inverse.ca>
-Date:   Wed Nov 25 10:56:13 2015 -0500
-
-    Fix syntax error
-
-M	lib/pf/vlan.pm
-
-commit 38fae926a9074876d2673c05f084b5e7a053ad0c
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Wed Nov 25 08:58:42 2015 -0500
-
-    Let's revert "Remove unnecessary so-called "logic"" for necessary so-called "logic"
-    
-    This reverts commit 80d9ebf986074745446495d7dfe25ab281decb4e.
-    
-    Conflicts:
-    	lib/pf/vlan.pm
-
-M	lib/pf/vlan.pm
-
-commit f830a6bc5529d5d9d98623fd87fd3163bb8a56de
+commit 90f1ca3bc6b08dcf62f02424c6ba5c63b2161674
 Author: Durand Fabrice <oeufdure@gmail.com>
 Date:   Tue Nov 24 18:52:44 2015 -0500
 
     Fixed missing violation_view_top call in radius filter
 
 M	lib/pf/access_filter/radius.pm
-
-commit 7e0af2943ba2177c60f1d2cfae3befd7124f1714
-Author: Antoine Amacher <aamacher@inverse.ca>
-Date:   Tue Nov 24 15:12:52 2015 -0500
-
-    full path
-
-M	UPGRADE.asciidoc
-
-commit bf6a06bbfa0e9cc2bbd6075d323d9b7c2007268a
-Author: Antoine Amacher <aamacher@inverse.ca>
-Date:   Tue Nov 24 15:10:44 2015 -0500
-
-    UPGRADE guide for #989
-
-M	UPGRADE.asciidoc
-
-commit 222f25ec9d7aae3ea23ad576e0d94a382eb3058a
-Author: Antoine Amacher <aamacher@inverse.ca>
-Date:   Tue Nov 24 14:56:01 2015 -0500
-
-    add configuration for dACL
-
-M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
-
-commit e9b2981ee145ade889a7735250c3e7de747ac592
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Tue Nov 24 14:36:25 2015 -0500
-
-    Adapted log line in returnRadiusAccessAccept
-
-M	lib/pf/Switch.pm
-
-commit 99deac48c6005e7bf4ccb195b8e4b129864bc83e
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Tue Nov 24 12:43:53 2015 -0500
-
-    Added [mac: ] prefix in the log for process_dhcpv6
-
-M	lib/pf/api.pm
-
-commit aeb5db95195b081c8fd81a7991edb902f4185b05
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Tue Nov 24 11:03:32 2015 -0500
-
-    Stop packetfence-redis-cache when we remove packetfence (packaging)
-
-M	addons/packages/packetfence.spec
-
-commit f999ddf415a6e52fede118fc4040ee87c0050cbc
-Author: Julien Semaan <jul.semaan@gmail.com>
-Date:   Tue Nov 24 10:54:17 2015 -0500
-
-    Remove pfconfig overlay clearing
-    
-    In a cluster, it would cause namespaces on other servers to be not refreshed
-    Would have required to add cluster sync inside pfconfig which is not worth it for a feature nobody uses
-
-M	lib/pf/cmd/pf/pfconfig.pm
-M	lib/pfconfig/manager.pm
-
-commit a95ee6445e58ed6dda0583c170787a35b95ad0d2
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Mon Nov 23 16:25:14 2015 -0500
-
-    Removed useless log
-
-M	lib/pf/Switch/AeroHIVE.pm
 
 commit 4d85246f960a0d75a00a7744ee93f02c573c4ce7
 Author: Julien Semaan <jul.semaan@gmail.com>
