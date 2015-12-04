@@ -37,6 +37,120 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
+sub supportsFloatingDevice { return $TRUE }
+
+=head2 _connect
+
+Connect to the switch using SSH
+
+=cut
+
+sub _connect {
+    my ($self) = @_;
+    my $logger = get_logger;
+    my $ssh;
+
+    # 'normal' users won't have the right to enable so we need to use manager to enable
+    my $enable_user = "manager";
+
+    eval {
+        $ssh = Net::SSH2->new();
+        $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
+        $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;
+    };
+
+    if ($@) {
+        $logger->info("Unable to connect to ".$self->{_ip}." using SSH. Failed with $@");
+        return;
+    }
+
+
+    my $chan = $ssh->channel();
+    $chan->shell();
+    print $chan "\n";
+    $logger->ḑebug("SSH output : $_") while <$chan>;
+    print $chan "en\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    print $chan "$enable_user\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    print $chan $self->{_cliEnablePwd}."\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    
+    return ($ssh, $chan);
+}
+
+=head2 disableMABByIfIndex
+
+Enable MAC authentication on a given port
+
+=cut
+
+sub enableMABByIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = get_logger();
+
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
+
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+
+    print $chan "aaa port-access mac-based $ifIndex\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+
+    $ssh->disconnect();
+
+    return 1;
+}
+
+=head2 disableMABByIfIndex
+
+Disable MAC authentication on a given port
+
+=cut
+
+sub disableMABByIfIndex {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = get_logger;
+
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
+
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    print $chan "no aaa port-access mac-based $ifIndex\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    
+    $ssh->disconnect();
+
+    return 1;
+}
+
+=head2 setTaggedVlans
+
+Tag a list of VLANs on a port
+
+=cut
+
+sub setTaggedVlans {
+    my ( $self, $ifIndex, $switch_locker, @vlans ) = @_;
+    my $logger = get_logger;
+
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
+
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+
+    foreach my $vlan (@vlans){
+        print $chan "vlan $vlan tagged $ifIndex\n";
+        $logger->debug("SSH output : $_") while <$chan>;
+    }
+
+    $ssh->disconnect();
+
+    return 1;
+}
 
 sub getMaxMacAddresses {
     my ( $self, $ifIndex ) = @_;
