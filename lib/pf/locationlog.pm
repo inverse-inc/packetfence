@@ -384,7 +384,7 @@ sub locationlog_insert_start {
         $vlan = $locationlog_mac->{'vlan'};
     }
     if (!(defined($role)) && defined($locationlog_mac->{'role'})) {
-        $vlan = $locationlog_mac->{'role'};
+        $role = $locationlog_mac->{'role'};
     }
     if ( defined($mac) ) {
         db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql',
