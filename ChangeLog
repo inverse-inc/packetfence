@@ -1,3 +1,19 @@
+commit 679e1ffa49d877b76b9ebc359abc4b1a2bfcaf3f
+Author: Louis Munro <lm@louismunro.com>
+Date:   Fri Dec 4 15:07:35 2015 -0500
+
+    Fixed incorrect dependency operator
+
+M	addons/packages/packetfence.spec
+
+commit 622951b4afd8d047837f9adf60b1cee0ba2ab569
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Dec 4 14:59:44 2015 -0500
+
+    Updated zie Changelog for 5.5.2.
+
+M	ChangeLog
+
 commit be0b7c65e110b9c9225de3e58187db1b6bd7d550
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Fri Dec 4 14:58:22 2015 -0500
