@@ -30,6 +30,8 @@ use pf::Switch::constants;
 use pf::util;
 use pf::constants;
 use pf::config;
+use pf::log;
+use Net::SSH2;
 
 # CAPABILITIES
 # access technology supported
@@ -68,7 +70,7 @@ sub _connect {
     my $chan = $ssh->channel();
     $chan->shell();
     print $chan "\n";
-    $logger->ḑebug("SSH output : $_") while <$chan>;
+    $logger->debug("SSH output : $_") while <$chan>;
     print $chan "en\n";
     $logger->debug("SSH output : $_") while <$chan>;
     print $chan "$enable_user\n";
