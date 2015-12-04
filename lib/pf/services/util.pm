@@ -47,6 +47,7 @@ sub daemonize {
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
     POSIX::_exit(0) if ($pid);
+    Log::Log4perl::MDC->put( 'tid', $$ );
     if ( !POSIX::setsid() ) {
         $logger->error("could not start a new session: $!");
     }
