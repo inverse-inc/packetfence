@@ -7,11 +7,12 @@
         'app/raphael/g.pie-min',
         'app/graphs',
         'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
         'app/jquery.ba-hashchange',
         'admin/reports'
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
         'admin/reports'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]
