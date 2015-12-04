@@ -42,6 +42,7 @@ use Time::HiRes;
 use pf::util::statsd qw(called);
 use pf::StatsD;
 use Data::Thunk;
+use Hash::Merge qw (merge);
 
 our $VERSION = 1.03;
 
@@ -197,7 +198,7 @@ sub authorize {
         $autoreg = 1;
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($args);
-        $args->{'node_info'}{keys %autoreg_node_defaults} = values %autoreg_node_defaults;
+        $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node failed");
