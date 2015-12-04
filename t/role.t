@@ -78,7 +78,7 @@ $mock->mock('violation_count_reevaluate_access', sub { return (1); });
 $mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $role;
-($role) = $role_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
+$role = $role_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
 is($role->{role}, 'isolation', "determine vlan for node with violation");
 
 # violation_count_reevaluate_access will return 0
@@ -94,7 +94,7 @@ $mock->mock('node_attributes', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
-($role) = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001'});
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001'});
 is($role->{role}, 'normal', "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
@@ -104,17 +104,17 @@ $mock->mock('node_attributes', sub {
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
-($role) = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
 is($role->{role}, 'registration', "obtain registrationVlan for an unreg node");
 
 my $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
 
-my ($role) = $role_obj->filterVlan('RegistrationRole',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
+$role = $role_obj->filterVlan('RegistrationRole',{ switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'OPEN'});
 is($role, 'registration', "obtain registration role for the device");
 
-($role) = $role_obj->filterVlan('RegistrationRole',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
+$role = $role_obj->filterVlan('RegistrationRole',{switch => $switch, IfIndex => '10000', mac => 'aa:bb:cc:dd:ee:ff', node_info => $node_attributes, connection_type => 'Wireless-802.11-NoEAP', username => 'pf', ssid => 'TEST'});
 is($role, 'registration2', "obtain registration role for the device");
 
 #($vlan,$wasInline) = $role_obj->getRegisteredRole($switch);
