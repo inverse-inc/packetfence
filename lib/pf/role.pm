@@ -355,7 +355,7 @@ sub getRegistrationRole {
 
 =head2 getRegisteredRole
 
-Returns normal Role
+Returns registered Role
 
 This sub is meant to be overridden in lib/pf/role/custom.pm if the default version doesn't do the right thing for you.
 It will try to match a role based on a username (if provided) or on the node MAC address and return the according
@@ -780,7 +780,9 @@ sub filterVlan {
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
     $args->{'owner'}= lazy { person_view($args->{'node_info'}->{'pid'}) };
-    return $filter->filter($scope, $args);
+    my $role = $filter->filter($scope, $args);
+    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
+    return $role;
 }
 
 
