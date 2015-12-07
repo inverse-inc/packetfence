@@ -754,6 +754,15 @@ sub switch_access {
     }
 }
 
+=item _addRadiusAudit
+
+=cut
+
+sub _addRadiusAudit {
+    my ($self) = @_;
+    return (RADIUS_AUDIT => $self->stash->{RADIUS_AUDIT});
+}
+
 =back
 
 =head1 AUTHOR
