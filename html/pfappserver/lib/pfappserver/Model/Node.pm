@@ -180,7 +180,7 @@ sub view {
         if ($node->{iplog}->{'ip'}) {
             $node->{iplog}->{active} = 1;
         } else {
-            my $last_iplog = pop @iplog_history;
+            my $last_iplog = shift @iplog_history;
             $node->{iplog}->{ip} = $last_iplog->{ip};
             $node->{iplog}->{end_time} = $last_iplog->{end_time};
         }
