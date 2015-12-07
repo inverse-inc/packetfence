@@ -221,6 +221,7 @@ sub sync_files {
     my ($files, %options) = @_;
     my $asynchronous = $options{async};
     require pf::api::jsonrpcclient;
+    my @failed;
     foreach my $server (@cluster_servers){
         next if($server->{host} eq $host_id);
         my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
@@ -237,11 +238,12 @@ sub sync_files {
                 }
             };
             if($@){
-              pf::log::get_logger->error("Failed to sync file : $file . $@");
+                pf::log::get_logger->error("Failed to sync file : $file . $@");
+                push @failed, $server->{host};
             }
         }
     }
-
+    return \@failed;
 }
 
 =head2 sync_storages
