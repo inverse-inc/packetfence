@@ -91,7 +91,13 @@ after create => sub {
     my ($self, $c) = @_;
     if (is_success($c->response->status) && $c->request->method eq 'POST') {
         my $model = $self->getModel($c);
-        my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
+        my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
+
+        if(@$failed_syncs) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to sync file on ".join(', ', @$failed_syncs);
+        }
+
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Config::Profile')->action_for('view'),
@@ -434,8 +440,9 @@ sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES
         $c->detach;
     }
 
-    my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
-    my $status_msg = "Copied " . ($entries_copied - $dir_copied) . " files";
+    my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
+
+    my $status_msg = "Copied " . ($local_result->{entries_copied} - $local_result->{dir_copied}) . " files";
     $c->stash->{status_msg} = $status_msg;
 }
 
@@ -443,7 +450,11 @@ sub copyDefaultFiles {
     my ($self, $c) = @_;
     my $to_dir = $self->_makeFilePath($c);
     my $from_dir = $self->_makeDefaultFilePath($c);
-    return dircopy($from_dir, $to_dir);
+    my $local_result = {};
+    ($local_result->{entries_copied}, $local_result->{dir_copied}, undef) = dircopy($from_dir, $to_dir);
+    my $failed_syncs = pf::cluster::send_dir_copy($from_dir, $to_dir);
+
+    return ($local_result, $failed_syncs);
 }
 
 sub _sync_file {
