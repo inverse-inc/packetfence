@@ -25,7 +25,6 @@ use fingerbank::Model::Endpoint;
 use pf::cluster;
 use pf::constants;
 
-use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
@@ -105,7 +104,8 @@ sub _trigger_violations {
 
     my $mac = $query_args->{'mac'};
 
-    my $apiclient = pf::client::getClient;
+    require pf::client;
+    my $apiclient = pf::client::getClient();
 
     my %violation_data = (
         'mac'   => $mac,
