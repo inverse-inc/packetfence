@@ -1,3 +1,21 @@
+commit 1dff9110dfd092733bed19b8c4d263a1c6a490e7
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 7 09:44:16 2015 -0500
+
+    Fixed date for 5.5.2 release.
+
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
+commit 0b6785ae6009cca3d27a72f70ae174cb720a4eea
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Fri Dec 4 15:09:11 2015 -0500
+
+    Fixed Changelog for 5.5.2.
+
+M	ChangeLog
+
 commit 679e1ffa49d877b76b9ebc359abc4b1a2bfcaf3f
 Author: Louis Munro <lm@louismunro.com>
 Date:   Fri Dec 4 15:07:35 2015 -0500
