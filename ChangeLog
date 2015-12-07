@@ -1,3 +1,19 @@
+commit 995c2d87b0dcff04dc85b5247f8512400dca8a5a
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 7 11:39:51 2015 -0500
+
+    Fixed circular dependency.
+
+M	lib/pf/fingerbank.pm
+
+commit 9ef43f46bee446e6f54614658a078aa5579a22fc
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 7 09:44:59 2015 -0500
+
+    Updated Changelog.
+
+M	ChangeLog
+
 commit 1dff9110dfd092733bed19b8c4d263a1c6a490e7
 Author: Louis Munro <lmunro@inverse.ca>
 Date:   Mon Dec 7 09:44:16 2015 -0500
