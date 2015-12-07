@@ -3784,6 +3784,13 @@ Role definition
 
 image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
+Troubleshooting ignored RADIUS replies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
+* RADIUS secret is properly configured in PacketFence and the WLC controller.
+* The SSL certificate used by PacketFence is not expired.
+
 D-Link
 ~~~~~~
 
