@@ -25,6 +25,7 @@ use File::Spec::Functions;
 use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
+use pf::cluster;
 
 Readonly our %FILTER_FILES =>
   (
@@ -109,14 +110,17 @@ sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PRO
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     $self->validatePathParts($c, @pathparts);
-    $c->stash->{success} = 'true';
     my $upload = $c->request->upload('qqfile');
     my $file_name = $upload->filename;
     push @pathparts,$file_name;
     $c->stash->{path} = $file_name;
     $c->forward('path_exists');
     $self->validatePathParts($c, @pathparts);
-    $upload->copy_to($self->_makeFilePath($c, @pathparts));
+    my $full_path = $self->_makeFilePath($c, @pathparts);
+    $upload->copy_to($full_path);
+    if ( $self->_sync_file( $c, $full_path) ) {
+        $c->stash->{success} = 'true';
+    }
 }
 
 sub validatePathParts {
@@ -216,6 +220,8 @@ sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     my $path = $self->_makeFilePath($c, @pathparts);
     $c->stash->{current_view} = 'JSON';
     write_file($path, $file_content);
+    # Sync file in cluster if necessary
+    $self->_sync_file($c, $path);
 }
 
 sub show_preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
@@ -271,7 +277,15 @@ sub _makeDefaultFilePath {
 
 sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
+
     $c->stash->{current_view} = 'JSON';
+
+    if($cluster_enabled){
+        $c->response->status(HTTP_NOT_IMPLEMENTED);
+        $c->stash->{status_msg} = "Cannot delete a file in cluster mode. Please use the command line to remove it from each server.";
+        $c->detach;
+    }
+
     my $file_path = $self->_makeFilePath($c, @pathparts);
     unlink($file_path);
 }
@@ -282,6 +296,8 @@ sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES
     my $file_path = $self->_makeFilePath($c,@pathparts);
     my $default_file_path = $self->_makeDefaultFilePath($c, @pathparts);
     copy($default_file_path, $file_path);
+    # Sync file in cluster if necessary
+    $self->_sync_file($c, $file_path);
 }
 
 sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
@@ -330,6 +346,8 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PR
         $c->forward('path_exists');
         $c->stash->{current_view} = 'JSON';
         copy($from_path, $to_path);
+        # Sync file in cluster if necessary
+        $self->_sync_file($c, $to_path);
     }
     else {
         my (undef, $path, undef) = fileparse($from);
@@ -408,7 +426,14 @@ sub _readDirRecursive {
 
 sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c) = @_;
+
     $c->stash->{current_view} = 'JSON';
+    if($cluster_enabled){
+        $c->response->status(HTTP_NOT_IMPLEMENTED);
+        $c->stash->{status_msg} = "Cannot revert all files in cluster mode. Please use the command line to copy the files from the default profile or revert files individually.";
+        $c->detach;
+    }
+
     my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
     my $status_msg = "Copied " . ($entries_copied - $dir_copied) . " files";
     $c->stash->{status_msg} = $status_msg;
@@ -419,6 +444,20 @@ sub copyDefaultFiles {
     my $to_dir = $self->_makeFilePath($c);
     my $from_dir = $self->_makeDefaultFilePath($c);
     return dircopy($from_dir, $to_dir);
+}
+
+sub _sync_file {
+    my ($self, $c, $file) = @_;
+    if($cluster_enabled){
+        $c->log->info("Synching $file in cluster");
+        my $failed = pf::cluster::sync_files([$file]);
+        if(@$failed){
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to sync file on ".join(', ', @$failed);
+            return $FALSE;
+        }
+    }
+    return $TRUE;
 }
 
 =head1 COPYRIGHT
