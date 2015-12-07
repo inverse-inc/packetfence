@@ -457,6 +457,12 @@ sub copyDefaultFiles {
     return ($local_result, $failed_syncs);
 }
 
+=head2 _sync_file
+
+Sync a file to the other cluster members if configured to do so (cluster enabled)
+
+=cut
+
 sub _sync_file {
     my ($self, $c, $file) = @_;
     if($cluster_enabled){
