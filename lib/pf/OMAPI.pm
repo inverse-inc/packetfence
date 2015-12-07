@@ -49,6 +49,14 @@ port of the dhcp server
 
 has port => (is => 'rw', default => sub { 7911 } );
 
+=head2 timeout
+
+Timeout to read from the OMAPI
+
+=cut
+
+has timeout => (is => 'rw');
+
 =head2 buffer
 
 The reference to the buffer of message
@@ -226,10 +234,19 @@ sub connect {
     return 1 if $self->connected;
     my ($received_startup_message,$len);
     my $sock = $self->sock;
-    $len = $sock->read($received_startup_message,8);
-    my ($version,$headerLength) = unpack('N2',$received_startup_message);
-    my $startup_message = pack("N2",$version,$headerLength);
-    $len = $sock->send($startup_message) || die "error sending startup message";
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout sending on OMAPI socket"); };
+        alarm $self->timeout;
+        $len = $sock->read($received_startup_message,8);
+        my ($version,$headerLength) = unpack('N2',$received_startup_message);
+        my $startup_message = pack("N2",$version,$headerLength);
+        $len = $sock->send($startup_message) || die "error sending startup message";
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        die $@;
+    }
 
     unless ($self->send_auth()) {
         $self->connected(0);
@@ -296,7 +313,18 @@ send the message
 sub send {
     my ($self) = @_;
     $self->_build_message;
-    return $self->sock->send(${$self->buffer});
+    my $result;
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout sending on OMAPI socket"); };
+        alarm $self->timeout;
+        $result = $self->sock->send(${$self->buffer});
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        pf::log::get_logger->error($@);
+    }
+    return $result;
 }
 
 =head2 get_reply
@@ -308,7 +336,16 @@ get the reply of the message
 sub get_reply {
     my ($self) = @_;
     my $data;
-    $self->sock->recv($data,64*1024);
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout reading on OMAPI socket"); };
+        alarm $self->timeout;
+        $self->sock->recv($data,64*1024);
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        pf::log::get_logger->error($@);
+    }
     return $self->parse_stream($data) ;
 }
 
@@ -357,7 +394,7 @@ Creates a socket
 
 sub _build_sock {
     my ($self) = @_;
-    my $sock = IO::Socket::INET->new(PeerAddr => $self->host, PeerPort => $self->port, Proto => 'tcp') || die "Can't bind : $@\n";
+    my $sock = IO::Socket::INET->new(PeerAddr => $self->host, PeerPort => $self->port, Timeout => $self->timeout, Proto => 'tcp') || die "Can't bind : $@\n";
     return $sock;
 }
 
