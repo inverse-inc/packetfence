@@ -31,12 +31,26 @@ Enhancements
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
+Version 5.5.2 released on 2015-12-07
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+* pf::CHI::compute_with_undef now supports cache options 
+* Use the fingerbank cache instead of caching its result globally.
+* Update dependency to 2.1 for fingerbank.
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+* Completed renaming of trap to reevaluate_access in violations.conf.example
+* Fixed deauthentication source IP not detected properly when no vip is assigned on the management interface (#1035)
+* Use proper API client when triggering a violation within pf::fingerbank
+
 Version 5.5.1 released on 2015-11-27
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
-
 * pfdns will now resolve its own domain correctly
 * Fixed missing violation_view_top call in radius filter
 * Fixed equals operator in LDAP rule
