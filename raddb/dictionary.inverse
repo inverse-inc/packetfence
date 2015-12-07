@@ -20,6 +20,8 @@ ATTRIBUTE       PacketFence-Source                     7       string
 ATTRIBUTE       PacketFence-Status                     8       string
 ATTRIBUTE       PacketFence-Role                       9       string
 ATTRIBUTE       PacketFence-Profile                   10       string
+ATTRIBUTE       PacketFence-Mac                       11       string
+ATTRIBUTE       PacketFence-Port                      12       string
 
 END-VENDOR      Inverse
 
