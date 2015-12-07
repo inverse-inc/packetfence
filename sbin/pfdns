@@ -166,8 +166,7 @@ sub run_child {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         _run_child($id);
-    } else {
-    }
+    } 
 }
 
 populate_ipset_cache($IPSET_SESSION);
