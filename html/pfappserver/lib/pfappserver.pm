@@ -42,6 +42,8 @@ BEGIN {
 }
 use pf::config::cached;
 use pf::CHI;
+use pf::SwitchFactory;
+pf::SwitchFactory::preLoadModules();
 
 extends 'Catalyst';
 
