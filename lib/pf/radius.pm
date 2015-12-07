@@ -80,7 +80,7 @@ sub authorize {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-
+    my $RAD_REPLY_REF;
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
@@ -91,8 +91,10 @@ sub authorize {
             "Can't instantiate switch ($switch_ip). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        goto AUDIT;
     }
+
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
     Log::Log4perl::MDC->put( 'mac', $mac );
@@ -143,7 +145,8 @@ sub authorize {
     my $weActOnThisCall = $self->_doWeActOnThisCall($args);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
+        goto CLEANUP;
     }
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
@@ -172,7 +175,8 @@ sub authorize {
     # verify if switch supports this connection type
     if (!$self->_isSwitchSupported($args)) {
         # if not supported, return
-        return $self->_switchUnsupportedReply($args);
+        $RAD_REPLY_REF = $self->_switchUnsupportedReply($args);
+        goto CLEANUP;
     }
 
 
@@ -211,16 +215,16 @@ sub authorize {
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
-        return $self->_authorizeVoip($args);
+        $RAD_REPLY_REF = $self->_authorizeVoip($args);
+        goto CLEANUP;
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
         $logger->warn("Should perform access control on switch ($switch_id) but the switch "
             ."is not in production -> Returning ACCEPT");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
+        goto CLEANUP;
     }
 
     # Check if a floating just plugged in
@@ -252,10 +256,15 @@ sub authorize {
     }
 
     my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
+
+CLEANUP:
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
+AUDIT:
+
+    push @$RAD_REPLY_REF, $self->_addRadiusAudit;
     return $RAD_REPLY_REF;
 }
 
