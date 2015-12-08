@@ -109,6 +109,18 @@ sub remove {
     return $result;
 }
 
+sub clear {
+    my ( $self ) = @_;
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
+    my $result = $db->do( "DELETE FROM keyed" );
+    $db->disconnect();
+    return $result;
+}
+
 =back
 
 =head1 AUTHOR
