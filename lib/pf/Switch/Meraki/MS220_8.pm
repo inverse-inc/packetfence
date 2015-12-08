@@ -15,6 +15,8 @@ Developed and tested on a MS220_8 switch
 
 =head1 BUGS AND LIMITATIONS
 
+The firmware allow only for VLAN enforcement at the moment. We cannot push the predfine policies from PacketFence.
+
 =cut
 
 use strict;
@@ -33,6 +35,7 @@ use pf::roles::custom;
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_view);
 use pf::violation;
 use pf::locationlog;
@@ -47,7 +50,7 @@ use pf::locationlog;
 sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
-sub supportsExtrnalPortal { return $TRUE; }
+sub supportsExternalPortal { return $FALSE; }
 sub supportsWebFormRegistration { return $FALSE }
 
 =head2 getVersion - obtain image version information from switch
@@ -82,91 +85,25 @@ sub parseUrl {
 
 }
 
-=item returnRoleAttribute
+=head2 deauthenticateMacRadius
 
-What RADIUS Attribute (usually VSA) should the role returned into.
-
-=cut
-
-sub returnRoleAttribute {
-    return 'Airespace-ACL-Name';
-}
-
-=head2 deauthTechniques
-
-Return the reference to the deauth technique or the default deauth technique.
+Method to deauth a wired node with CoA.
 
 =cut
 
-sub deauthTechniques {
-    my ($self, $method) = @_;
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
     my $logger = $self->logger;
-    my $default = $SNMP::RADIUS;
-    my %tech = (
-        $SNMP::RADIUS => 'deauthenticateMacDefault',
-    );
 
-    if (!defined($method) || !defined($tech{$method})) {
-        $method = $default;
-    }
-    return $method,$tech{$method};
+
+    # perform CoA
+    my $acctsessionid = node_accounting_current_sessionid($mac);
+    $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
 sub parseSwitchIdFromRequest {
     my($class, $req) = @_;
     return $$req->param('ap_mac');
-}
-
-=head2 returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation to return specific attributes.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-
-    my $radius_reply_ref = {};
-
-    $args->{'unfiltered'} = $TRUE;
-    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
-    my $status = shift @super_reply;
-    my %radius_reply = @super_reply;
-    $radius_reply_ref = \%radius_reply;
-
-    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-    my $role = $self->getRoleByName($args->{'user_role'});
-    if(defined($role) && $role ne "" && isenabled($self->{_RoleMap})){
-        my $mac = $args->{'mac'};
-        my $node_info = $args->{'node_info'};
-        my $violation = pf::violation::violation_view_top($mac);
-        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
-            my $session_id = generate_session_id(6);
-            my $chi = pf::CHI->new(namespace => 'httpd.portal');
-            $chi->set($session_id,{
-                client_mac => $mac,
-                wlan => $args->{'ssid'},
-                switch_id => $self->{_id},
-            });
-            pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $self->{'_portalURL'}."/cep$session_id";
-            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
-            push @av_pairs, "url-redirect=".$redirect_url;
-
-            # remove the role if any as we push the redirection ACL along with it's role
-            delete $radius_reply_ref->{$self->returnRoleAttribute()};
-        }
-
-    }
-
-    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
 =head2 deauthenticateMacDefault
@@ -190,6 +127,39 @@ sub deauthenticateMacDefault {
     # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
     # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac );
+}
+
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
 }
 
 =head2 radiusDisconnect
@@ -269,19 +239,7 @@ sub radiusDisconnect {
             ( $node_info->{'status'} eq 'reg' )
            ) {
 
-            my $vsa = [
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "audit-session-id=$node_info->{'sessionid'}",
-                },
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "subscriber:command=reauthenticate",
-                },
-            ];
-            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+            $response = perform_coa($connection_info, $attributes_ref);
 
         }
         else {
