@@ -48,7 +48,7 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
-use pfconfig::log;
+use pf::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::StdHash', 'pfconfig::cached' );
 
@@ -81,7 +81,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ( $self, $key ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     unless ( defined($key) ) {
         my $caller = ( caller(1) )[3];
@@ -109,7 +109,7 @@ Call it using tied(%hash)->keys
 
 sub keys {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
         return $self->_get_from_socket( $self->{_namespace}, "keys" );
@@ -127,7 +127,7 @@ Proxies to pfconfig
 
 sub FIRSTKEY {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     return $self->compute_from_subcache("__PFCONFIG_FIRST_KEY__", sub {
         my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
@@ -144,7 +144,7 @@ Proxies to pfconfig
 
 sub NEXTKEY {
     my ( $self, $last_key ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     return $self->compute_from_subcache("__PFCONFIG_NEXT_KEY_${last_key}__", sub {
         return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
@@ -160,7 +160,7 @@ Stores it without any saving capability
 
 sub STORE {
     my ( $self, $key, $value ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     $self->{_internal_elements} = {} unless ( defined( $self->{_internal_elements} ) );
 
