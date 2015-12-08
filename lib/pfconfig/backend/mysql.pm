@@ -19,7 +19,7 @@ use Sereal::Decoder;
 use DBI;
 use pfconfig::config;
 use Try::Tiny;
-use pfconfig::log;
+use pf::log;
 
 use base 'pfconfig::backend';
 
@@ -36,13 +36,13 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
-    }; 
+    };
     if($@) {
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
@@ -58,7 +58,7 @@ Handle a database error
 
 sub _db_error {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
 
@@ -70,9 +70,9 @@ Get an element by key
 
 sub get {
     my ( $self, $key ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return undef;
     }
@@ -101,9 +101,9 @@ Set an element by key
 
 sub set {
     my ( $self, $key, $value ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
@@ -130,7 +130,7 @@ Remove an element by key
 sub remove {
     my ( $self, $key ) = @_;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
@@ -148,7 +148,7 @@ Clear out the backend
 sub clear {
     my ( $self ) = @_;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
@@ -165,7 +165,7 @@ List keys in the backend
 
 sub list {
     my ( $self ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
@@ -193,7 +193,7 @@ List keys matching a regular expression
 
 sub list_matching {
     my ( $self, $expression ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
