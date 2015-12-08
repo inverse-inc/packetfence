@@ -61,7 +61,9 @@ fallback.
 
 use strict;
 use warnings;
+
 use Net::SNMP;
+
 use base ('pf::Switch');
 
 sub description { 'Brocade Switches' }
@@ -86,7 +88,6 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
-
 
 =item getVersion
 
@@ -152,7 +153,6 @@ sub dot1xPortReauthenticate {
     }
     return (defined($result));
 }
-
 
 =item parseTrap
 
