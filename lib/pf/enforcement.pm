@@ -186,7 +186,7 @@ sub _should_we_reassign_vlan {
 
     $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex ".(defined $role ? "${role}" : "(undefined)"));
 
-    my $vlan_obj = new pf::role::custom();
+    my $role_obj = new pf::role::custom();
 
     # TODO avoidable load?
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
@@ -205,7 +205,7 @@ sub _should_we_reassign_vlan {
         node_info => pf::node::node_attributes($mac),
     };
 
-    my $newRole = $vlan_obj->fetchRoleForNode( $args );
+    my $newRole = $role_obj->fetchRoleForNode( $args );
     my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
 
     if (defined($newCorrectVlan)) {

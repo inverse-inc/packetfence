@@ -179,13 +179,13 @@ sub authorize {
     }
 
 
-    my $vlan_obj = new pf::role::custom();
+    my $role_obj = new pf::role::custom();
 
     # Vlan Filter
     my $node_info = node_view($mac);
     $args->{'ssid'} = $ssid;
     $args->{'node_info'} = $node_info;
-    my $result = $vlan_obj->filterVlan('IsPhone',$args);
+    my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || ($result != 0);
@@ -194,10 +194,10 @@ sub authorize {
 
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
-    if ($vlan_obj->shouldAutoRegister($args)) {
+    if ($role_obj->shouldAutoRegister($args)) {
         $args->{'autoreg'} = 1;
         # automatic registration
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($args);
+        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
         $args->{'node_info'} = merge($args->{'node_info'}, \%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
@@ -232,7 +232,7 @@ sub authorize {
     $self->_handleAccessFloatingDevices($args);
 
     # Fetch VLAN depending on node status
-    my $role = $vlan_obj->fetchRoleForNode($args);
+    my $role = $role_obj->fetchRoleForNode($args);
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $args->{'vlan'} = $vlan;
