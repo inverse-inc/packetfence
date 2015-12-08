@@ -19,7 +19,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pfconfig::log;
+use pf::log;
 use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';
@@ -48,8 +48,6 @@ sub cleanup_after_read {
     my ($self, $id, $item) = @_;
     $self->expand_list($item, $self->{expandable_params});
 }
-
-=back
 
 =head1 AUTHOR
 
