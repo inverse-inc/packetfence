@@ -199,6 +199,53 @@ sub isVoIPEnabled {
     return ( $self->{_VoIPEnabled} == 1 );
 }
 
+=item wiredeauthTechniques
+
+Returns the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($this, $method, $connection_type) = @_;
+    my $logger = $this->logger;
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'dot1xPortReauthenticate',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+}
+
+=item deauthenticateMacRadius
+
+Deauthenticate a wired endpoint using RADIUS CoA
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($this, $ifIndex,$mac) = @_;
+
+    $this->radiusDisconnect($mac);
+}
+
 =back
 
 =head1 AUTHOR
