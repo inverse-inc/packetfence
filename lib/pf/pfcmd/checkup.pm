@@ -1069,7 +1069,8 @@ Make sure that the minimum parameters have been defined in access filter rules
 =cut
 
 sub vlan_filter_rules {
-    my %ConfigVlanFilters = %pf::vlan_filter::ConfigVlanFilters;
+    require pf::access_filter::vlan;
+    my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
