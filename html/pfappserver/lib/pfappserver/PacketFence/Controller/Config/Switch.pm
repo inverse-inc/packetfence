@@ -15,6 +15,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::util qw(sort_ip);
+use pf::SwitchFactory;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -84,6 +85,8 @@ after list => sub {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
+        $switch->{type} = $pf::SwitchFactory::SwitchConfig{$id}->{type}; 
+        $switch->{mode} = $pf::SwitchFactory::SwitchConfig{$id}->{mode}; 
     }
 };
 
