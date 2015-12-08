@@ -27,9 +27,7 @@ use pf::filter_engine::profile;
 use pf::factory::condition::profile;
 use pfconfig::cached_scalar;
 use List::Util qw(first);
-use Time::HiRes;
-use pf::util::statsd qw(called);
-use pf::StatsD;
+use pf::StatsD::Timer;
 
 =head1 SUBROUTINES
 
@@ -63,9 +61,9 @@ Massages the profile values before creating the object
 =cut
 
 sub _from_profile {
+    my $timer = pf::StatsD::Timer->new;
     my ($self,$profile_name) = @_;
     my $logger = get_logger();
-    my $start = Time::HiRes::gettimeofday();
     $profile_name = "default" unless exists $Profiles_Config{$profile_name};
     $logger->info("Instantiate profile $profile_name");
     my $profile_ref    = $Profiles_Config{$profile_name};
@@ -84,7 +82,6 @@ sub _from_profile {
     $profile{name} = $profile_name;
     $profile{template_path} = $profile_name;
     my $instance =  pf::Portal::Profile->new( \%profile );
-    $pf::StatsD::statsd->end( called() . ".timing" , $start, 0.25 );
     return $instance;
 }
 
