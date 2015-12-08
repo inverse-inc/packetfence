@@ -33,7 +33,7 @@ use warnings;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pfconfig::timeme;
-use pfconfig::log;
+use pf::log;
 use pfconfig::util qw($undef_element);
 use pfconfig::constants;
 use Sereal::Encoder;
@@ -185,7 +185,7 @@ Will receive the amount of lines of the reply then the reply as a Sereal string
 
 sub _get_from_socket {
     my ( $self, $what, $method, %additionnal_info ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     $method = $method || $self->{element_socket_method};
 
@@ -248,7 +248,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ($self)         = @_;
-    my $logger         = pfconfig::log::get_logger;
+    my $logger         = get_logger;
     my $what           = $self->{_namespace};
     my $control_file   = pfconfig::util::control_file_path($what);
     my $file_timestamp = ( stat($control_file) )[9];
