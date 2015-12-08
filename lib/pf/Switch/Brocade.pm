@@ -2,32 +2,27 @@ package pf::Switch::Brocade;
 
 =head1 NAME
 
-pf::Switch::Brocade - Object oriented module to access SNMP enabled Brocade Switches
+pf::Switch::Brocade
 
 =head1 SYNOPSIS
 
-The pf::Switch::Brocade module implements an object oriented interface
-to access SNMP enabled Brocade switches.
+Base module for Brocade network equipment
 
 =head1 STATUS
 
-=over 
-
-=item Supports
+=head2 SUPPORTS
 
 =over
 
-=item 802.1X and MAC-Authentication with and without VoIP
+=item MAC-Authentication - with and without VoIP
+
+=item 802.1x - with and without VoIP
+
+=item RADIUS CoA (requires at least 08.0.30d)
 
 =back
 
-Stacked switch support has not been tested.
-
-=back
-
-Tested on a Brocade ICX 6450 Version 07.4.00T311.
-
-=head1 BUGS AND LIMITATIONS
+=head2 BUGS AND LIMITATIONS
 
 =over
 
@@ -52,9 +47,15 @@ fallback.
 
 =back
 
-=head1 CONFIGURATION AND ENVIRONMENT
+=head2 NOTES
 
-F<conf/switches.conf>
+=over
+
+=item Stacked switch support has not been tested.
+
+=item Tested on a Brocade ICX 6450 Version 07.4.00T311.
+
+=back
 
 =cut
 
