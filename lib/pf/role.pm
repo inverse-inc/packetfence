@@ -56,7 +56,7 @@ Usually you don't want to call this constructor but use the pf::role::custom sub
 sub new {
     my ( $class, %argv ) = @_;
     my $logger = $class->get_logger();
-    $logger->debug("instantiating new pf::vlan object");
+    $logger->debug("instantiating new pf::role object");
     my $self = bless {}, $class;
     return $self;
 }
