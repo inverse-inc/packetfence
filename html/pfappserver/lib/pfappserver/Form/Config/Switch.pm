@@ -46,7 +46,7 @@ has_field 'type' =>
    type => 'Select',
    label => 'Type',
    element_class => ['chzn-select'],
-   required_when => { 'id' => sub { $_[0] ne 'default' } },
+   required_when => { 'id' => sub { $_[0] eq 'default' } },
    messages => { required => 'Please select the type of the switch.' },
   );
 has_field 'mode' =>
@@ -54,8 +54,6 @@ has_field 'mode' =>
    type => 'Select',
    label => 'Mode',
    required => 1,
-   tags => { after_element => \&help_list,
-             help => "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>" },
   );
 has_field 'deauthMethod' =>
   (
@@ -67,17 +65,20 @@ has_field 'VlanMap' =>
   (
    type => 'Toggle',
    label => 'Role by VLAN ID',
+   default => undef,
   );
 
 has_field 'RoleMap' =>
   (
    type => 'Toggle',
    label => 'Role by Switch Role',
+   default => undef,
   );
 has_field 'AccessListMap' =>
   (
    type => 'Toggle',
    label => 'Role by access list',
+   default => undef,
   );
 has_field 'VoIPEnabled' =>
   (
@@ -163,7 +164,7 @@ has_block 'radius' =>
   );
 has_field 'radiusSecret' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret Passphrase',
   );
 
@@ -207,7 +208,6 @@ has_field macSearchesMaxNb =>
   (
    type => 'PosInteger',
    label => 'Maximum MAC addresses',
-   default => 30,
    tags => {
        after_element => \&help,
        help => 'Maximum number of MAC addresses retrived from a port'
@@ -218,7 +218,6 @@ has_field macSearchesSleepInterval  =>
   (
    type => 'PosInteger',
    label => 'Sleep interval',
-   default => 2,
    tags => {
        after_element => \&help,
        help => 'Sleep interval between queries of MAC addresses'
@@ -262,9 +261,8 @@ has_field 'SNMPAuthProtocolRead' =>
   );
 has_field 'SNMPAuthPasswordRead' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Read',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolRead' =>
   (
@@ -273,9 +271,8 @@ has_field 'SNMPPrivProtocolRead' =>
   );
 has_field 'SNMPPrivPasswordRead' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Read',
-   password => 0,
   );
 has_field 'SNMPUserNameWrite' =>
   (
@@ -289,9 +286,8 @@ has_field 'SNMPAuthProtocolWrite' =>
   );
 has_field 'SNMPAuthPasswordWrite' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Write',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolWrite' =>
   (
@@ -300,9 +296,8 @@ has_field 'SNMPPrivProtocolWrite' =>
   );
 has_field 'SNMPPrivPasswordWrite' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Write',
-   password => 0,
   );
 has_field 'SNMPVersionTrap' =>
   (
@@ -328,9 +323,8 @@ has_field 'SNMPAuthProtocolTrap' =>
   );
 has_field 'SNMPAuthPasswordTrap' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Trap',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolTrap' =>
   (
@@ -339,9 +333,8 @@ has_field 'SNMPPrivProtocolTrap' =>
   );
 has_field 'SNMPPrivPasswordTrap' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Trap',
-   password => 0,
   );
 
 ## CLI
@@ -368,16 +361,14 @@ has_field 'cliUser' =>
   );
 has_field 'cliPwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
-   password => 0,
   );
 
 has_field 'cliEnablePwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Enable Password',
-   password => 0,
   );
 
 ## Web Services
@@ -403,9 +394,8 @@ has_field 'wsUser' =>
   );
 has_field 'wsPwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
-   password => 0,
   );
 
 has_field controllerIp =>
@@ -484,8 +474,6 @@ sub field_list {
           {
            type => 'Text',
            label => $role,
-           required_when => { 'id' => sub { $_[0] eq 'default' } },
-           messages => { required => 'Please specify the corresponding VLAN for each role.' }
           };
         push(@$list, $role.'Vlan' => $field);
     }
@@ -535,13 +523,19 @@ sub update_fields {
             my $placeholder = $self->placeholders->{$field->name};
             if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
-                    if ($field->name eq 'type') {
-                        $field->default($placeholder);
-                    } else {
-                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
-                        $field->element_attr({ 'data-placeholder' => $val });
-                    }
-                } elsif ($field->name ne 'id') {
+                    my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
+                    $field->element_attr({ 'data-placeholder' => $val });
+                }
+                elsif ( 
+                    # if there is no value defined in the switch and the place holder is defined
+                    ( ( !defined($init_object->{$field->name}) && pf::util::isenabled($placeholder) )
+                    # or that the value in the switch is enabled
+                        || pf::util::isenabled($field->value) ) 
+                    # we only apply this to Checkbox and Toggle
+                    && ($field->type eq "Checkbox" || $field->type eq "Toggle") ) {
+                    $field->element_attr({ checked => "checked" });
+                }
+                elsif ($field->name ne 'id') {
                     $field->element_attr({ placeholder => $placeholder });
                 }
             }
@@ -596,6 +590,7 @@ sub options_type {
         push @modules, { group => $vendor,
                          options => \@switches };
     }
+    push @modules, {'' => 'Inherit'};
 
     return @modules;
 }
