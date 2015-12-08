@@ -22,6 +22,9 @@ Readonly::Scalar our $CONFIG_FILE_PATH => "/usr/local/pf/conf/pfconfig.conf";
 Readonly::Scalar our $SOCKET_PATH => "/usr/local/pf/var/run/pfconfig.sock";
 Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
+
+Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
+
 =bac
 
 =head1 AUTHOR

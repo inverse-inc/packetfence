@@ -163,7 +163,7 @@ sub init_cache {
 
     my $cfg    = pfconfig::config->new->section('general');
 
-    my $name = $cfg->{backend} || "mysql";
+    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
 
     my $type   = "pfconfig::backend::$name";
 
