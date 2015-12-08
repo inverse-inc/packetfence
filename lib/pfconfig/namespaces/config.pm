@@ -28,7 +28,7 @@ use strict;
 use warnings;
 
 use JSON::MaybeXS;
-use pfconfig::log;
+use pf::log;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -42,7 +42,7 @@ sub _parse_error {
     my ($self) = @_;
     my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
     print STDERR "$message\n";
-    pfconfig::log::get_logger->error($message);
+    get_logger->error($message);
     $self->{parse_error} = $message;
 }
 
@@ -76,7 +76,7 @@ sub build {
 
 sub do_defaults {
     my ($self)  = @_;
-    my $logger  = pfconfig::log::get_logger;
+    my $logger  = get_logger;
     my %tmp_cfg = %{ $self->{cfg} };
     unless ( defined( $self->{default_section} ) ) {
         $logger->debug("No default section defined when building $self->{file}");
