@@ -68,7 +68,7 @@ sub new {
     #Get the name of the function enclosing this call
     $args->{'stat'} //= (caller(1))[3] . ".timing";
     my $start = Time::HiRes::gettimeofday();
-    my $self  = {start_time => $start, sample_rate => 1.0, %$args};
+    my $self  = {%$args};
     return bless $self, $class;
 }
 
