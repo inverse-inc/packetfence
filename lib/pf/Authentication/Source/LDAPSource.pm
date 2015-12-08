@@ -117,7 +117,7 @@ sub authenticate {
       scope => $self->{'scope'},
       attrs => ['dn']
     );
-  }
+  };
 
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
