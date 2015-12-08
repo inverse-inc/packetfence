@@ -1,17 +1,17 @@
-package pf::Switch::Meraki::MS220_8P;
+package pf::Switch::Meraki::MS220_8;
 
 =head1 NAME
 
-pf::Switch::Meraki::MS220_8P
+pf::Switch::Meraki::MS220_8
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::MS220_8P module implements an object oriented interface to
-manage the connection with MS220_8P switch model.
+The pf::Switch::Meraki::MS220_8 module implements an object oriented interface to
+manage the connection with MS220_8 switch model.
 
 =head1 STATUS
 
-Developed and tested on a MS220_8P switch
+Developed and tested on a MS220_8 switch
 
 =head1 BUGS AND LIMITATIONS
 
@@ -49,7 +49,7 @@ use pf::locationlog;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki switch MS220_8P' }
+sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsWebFormRegistration { return $FALSE }
