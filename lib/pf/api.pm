@@ -186,17 +186,17 @@ sub unreg_node_for_pid : Public {
 }
 
 sub synchronize_locationlog : Public {
-    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid ,$stripped_user_name, $realm) = @_;
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid ,$stripped_user_name, $realm, $role) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm));
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
 sub insert_close_locationlog : Public {
-    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
+    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role);
     my $logger = pf::log::get_logger();
 
-    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm));
+    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
 sub open_iplog : Public {
@@ -372,9 +372,17 @@ Set the vlan for the node on the switch
 sub _node_determine_and_set_into_VLAN {
     my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
+    my $args = {
+        mac => $mac,
+        node_info => pf::node::node_attributes($mac),
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+    };
 
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+    my $role = $role_obj->fetchRoleForNode($args);
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     my %locker_ref;
     $locker_ref{$switch->{_ip}} = &share({});

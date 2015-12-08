@@ -44,7 +44,7 @@ use pf::node;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
 
@@ -162,7 +162,7 @@ sub _vlan_reevaluation {
 
 Returns true or false whether or not we should request vlan adjustment
 
-Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
+Evaluates node's VLAN through L<pf::role>'s fetchRoleForNode (which can be redefined by L<pf::role::custom>)
 
 =cut
 
@@ -182,10 +182,11 @@ sub _should_we_reassign_vlan {
     my $connection_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
     my $user_name       = $locationlog_entry->{'dot1x_username'};
     my $ssid            = $locationlog_entry->{'ssid'};
+    my $role            = $locationlog_entry->{'role'};
 
-    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
+    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex ".(defined $role ? "${role}" : "(undefined)"));
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     # TODO avoidable load?
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
@@ -194,24 +195,44 @@ sub _should_we_reassign_vlan {
         return $FALSE;
     }
 
-    my ( $newCorrectVlan, $wasInline )
-        = $vlan_obj->fetchVlanForNode( $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid );
+    my $args = {
+        mac => $mac,
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+        user_name => $user_name,
+        ssid => $ssid,
+        node_info => pf::node::node_attributes($mac),
+    };
 
-    if (!defined($newCorrectVlan)) {
-        return $TRUE;
-    } elsif ( $newCorrectVlan eq '-1' ) {
-        $logger->info(
-            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
+    my $newRole = $role_obj->fetchRoleForNode( $args );
+    my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
+
+    if (defined($newCorrectVlan)) {
+        if ( $newCorrectVlan eq '-1' ) {
+            $logger->info(
+                "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+            );
+            return $TRUE;
+        } elsif (defined($currentVlan)) {
+            if ( $newCorrectVlan ne $currentVlan ) {
+                $logger->info(
+                    "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                );
+                return $TRUE;
+            } else {
+                return $FALSE;
+            }
+        }
+    } elsif (defined($role)) {
+        if ($role ne $newRole) {
+            $logger->info(
+                "Reassignment required (current Role = $role but should be in Role $newRole)"
+            );
+            return $TRUE;
+        }
     }
-    elsif ( $newCorrectVlan ne $currentVlan ) {
-        $logger->info(
-            "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
-    }
-    $logger->debug("No VLAN reassignment required.");
+    $logger->debug("No reassignment required.");
     return $FALSE;
 }
 

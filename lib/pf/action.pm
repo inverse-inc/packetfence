@@ -351,7 +351,7 @@ sub action_autoregister {
         $logger->debug("Calling autoreg on already registered node. Doing nothing.");
     }
     else {
-        require pf::vlan::custom;
+        require pf::role::custom;
         if(!pf::node::node_register($mac, "default")){
             $logger->error("auto-registration of node $mac failed");
             return;

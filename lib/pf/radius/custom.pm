@@ -26,7 +26,7 @@ use pf::node;
 use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 

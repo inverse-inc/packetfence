@@ -15,7 +15,7 @@ use strict;
 use warnings;
 #
 use lib qw(/root/code/packetfence/lib );
-use pf::vlan;
+use pf::role;
 
 BEGIN {
     #include test libs
@@ -36,7 +36,7 @@ my $node_info = {
     bypass_role => "default"
 };
 
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( 1, "default" ),
     "check_bypass returns the bypass_vlan and bypass_role"
 );
@@ -45,7 +45,7 @@ $node_info = {
     bypass_role => "default"
 };
 
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( undef, "default" ),
     "check_bypass returns the undef bypass_vlan and bypass_role"
 );
@@ -54,7 +54,7 @@ $node_info = {
     bypass_vlan => 1,
 };
 
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( 1, undef ),
     "check_bypass returns the bypass_vlan and undef bypass_role"
 );
@@ -62,19 +62,19 @@ is( pf::vlan::_check_bypass($mac, $node_info),
 $node_info = {
 };
 
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( undef, undef ),
     "check_bypass returns the undef bypass_vlan and undef bypass_role"
 );
 
 undef $node_info; 
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( undef, undef ),
     "check_bypass returns the undef bypass_vlan and undef bypass_role when passed undef node_info"
 );
 
 undef $mac;
-is( pf::vlan::_check_bypass($mac, $node_info),
+is( pf::role::_check_bypass($mac, $node_info),
     ( undef, undef ),
     "check_bypass returns the undef bypass_vlan and undef bypass_role when passed undef mac"
 );

@@ -173,7 +173,7 @@
 /usr/local/pf/lib/pf/radius/custom.pm
 /usr/local/pf/lib/pf/roles/custom.pm
 /usr/local/pf/lib/pf/soh/custom.pm
-/usr/local/pf/lib/pf/vlan/custom.pm
+/usr/local/pf/lib/pf/role/custom.pm
 /usr/local/pf/lib/pf/web/custom.pm
 /usr/local/pf/raddb/clients.conf
 /usr/local/pf/raddb/packetfence.pm

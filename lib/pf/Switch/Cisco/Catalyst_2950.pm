@@ -100,7 +100,7 @@ sub description { 'Cisco Catalyst 2950' }
 use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 
 =head1 SUBROUTINES
 
@@ -987,7 +987,7 @@ sub dot1xPortReauthenticate {
         . "switch: $self->{_ip} ifIndex: $ifIndex"
     );
 
-    # TODO extract the following behavior in a method call in pf::vlan so it can be overridden easily
+    # TODO extract the following behavior in a method call in pf::role so it can be overridden easily
     # by following behavior I mean the "don't bounce on VoIP violations" behavior
 
     # If VoIP isn't enabled on this switch: bounce
@@ -1018,9 +1018,10 @@ sub dot1xPortReauthenticate {
     );
 
     $mac = $locationlog[0]->{'mac'};
-    my $vlan_obj = new pf::vlan::custom();
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $self, $ifIndex, $WIRED_802_1X);
+    my $role_obj = new pf::role::custom();
 
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::node_attributes($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X});
+    my $vlan = $self->getVlanByName($role->{role});
     $self->_setVlan(
         $ifIndex, 
         $vlan,

@@ -2783,7 +2783,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     }
     my $hasPhone = $self->hasPhoneAtIfIndex($ifIndex);
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
     if ( !$hasPhone ) {
         $logger->info( "no VoIP phone is currently connected at " . $switch_ip
             . " ifIndex $ifIndex. Flipping port admin status"
@@ -2989,6 +2989,25 @@ Return the specific role attribute of the switch.
 sub returnRoleAttributes {
     my ($self, $role) = @_;
     return ($self->returnRoleAttribute() => $role);
+}
+
+=item handleRadiusDeny
+
+Return RLM_MODULE_USERLOCK if the vlan id is -1
+
+=cut
+
+sub handleRadiusDeny {
+    my ($self, $args) =@_;
+    my $logger = $self->logger();
+
+    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+        $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
+        $self->disconnectRead();
+        $self->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
+    }
+    return undef;
 }
 
 

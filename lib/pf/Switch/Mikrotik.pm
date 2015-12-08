@@ -201,6 +201,10 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
     # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {

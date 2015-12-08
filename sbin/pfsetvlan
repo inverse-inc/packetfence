@@ -70,7 +70,7 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::violation;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -930,7 +930,7 @@ sub handleTrap {
     my $logger     = get_logger('pfsetvlan::handling');
     my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     # }}}2
 
@@ -950,7 +950,7 @@ sub handleTrap {
         $switch->disconnectWrite();
         return;
     }
-    my $weActOnThisTrap = $vlan_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
+    my $weActOnThisTrap = $role_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
 
     if ( $weActOnThisTrap == 0 ) {
         $logger->info("doWeActOnThisTrap returns false. Stop $trapType handling");
@@ -1099,8 +1099,8 @@ sub handleTrap {
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
-                        my ($fetchedVlan,$wasInline) =  $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port, $WIRED_SNMP_TRAPS);
-
+                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), swicth => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS});
+                        my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                         if (( $locationlog[0]->{'vlan'} == $vlan )
                             && ($vlan == $fetchedVlan)
                            ) {
@@ -1290,9 +1290,10 @@ sub handleTrap {
                 $logger->debug("$oldPC has still open locationlog entry at $switch_id ifIndex $switch_port. Closing it");
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_id ifIndex $switch_port");
-                my ($correctVlanForThisNode,$wasInline) = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
-                );
+                my $role = $role_obj->fetchRoleForNode({
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                });
+                my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
                 #set the right VLAN
@@ -1317,9 +1318,10 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
-                my ($correctVlanForThisNode,$wasInline) = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
-                );
+                my $role = $role_obj->fetchRoleForNode({
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                });
+                my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
                         "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
@@ -1634,7 +1636,7 @@ sub handleTrap {
                     my $hasPhone = $switch->hasPhoneAtIfIndex($switch_port);
                     node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, $connection_type );
 
-                    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+                    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
                     if ( !$hasPhone ) {
                         $logger->info(
                             "no VoIP phone is currently connected at " . $switch->{_id} . " ifIndex $switch_port. " .
@@ -1798,7 +1800,7 @@ sub node_update_PF {
     my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode) = @_;
     my $logger = get_logger('pfsetvlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     #lowercase MAC
     $mac = lc($mac);
@@ -1816,10 +1818,10 @@ sub node_update_PF {
     }
 
     #should we auto-register?
-    if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS)) {
+    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
         # auto-register
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $switch_port,
-            $mac, $vlan, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS);
+        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
+            mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
@@ -1838,9 +1840,10 @@ sub node_determine_and_set_into_VLAN {
     my $logger = get_logger('pfsetvlan::handling');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type});
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(
         $ifIndex,

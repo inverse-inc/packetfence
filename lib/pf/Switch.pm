@@ -30,7 +30,7 @@ use pf::node;
 use pf::cluster;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
-use pf::roles::custom $ROLE_API_LEVEL;
+use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
 use pf::Switch::constants;
 use pf::util;
@@ -2488,7 +2488,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     my ($self, $ifIndex, $mac) = @_;
     my $logger = $self->logger;
 
-    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
 
     $logger->warn("Until CoA is implemented we will bounce the port on VLAN re-assignment traps for MAC-Auth");
 
@@ -2732,6 +2732,10 @@ sub returnRadiusAccessAccept {
 
     my $radius_reply_ref = {};
 
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
     # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
@@ -2786,6 +2790,25 @@ Return the specific role attribute of the switch.
 sub returnRoleAttributes {
     my ($self, $role) = @_;
     return ($self->returnRoleAttribute() => $role);
+}
+
+=item handleRadiusDeny
+
+Return RLM_MODULE_USERLOCK if the vlan id is -1
+
+=cut
+
+sub handleRadiusDeny {
+    my ($self, $args) =@_;
+    my $logger = $self->logger();
+ 
+    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+        $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
+        $self->disconnectRead();
+        $self->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
+    }
+    return undef;
 }
 
 =item deauthTechniques
@@ -2883,8 +2906,8 @@ sub wiredeauthTechniques {
 }
 
 sub synchronize_locationlog {
-    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role) = @_;
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role);
 }
 
 

@@ -1,6 +1,6 @@
 # Vlan filter configuration
 # 
-# you can trigger rule on specific scope (NormalVlan, RegistrationVlan, ViolationVlan, AutoRegister, InlineVlan, NodeInfoForAutoReg, IsPhone)
+# you can trigger rule on specific scope (RegisteredRole, RegistrationRole, ViolationRole, AutoRegister, InlineRole, NodeInfoForAutoReg, IsPhone)
 # CAUTION: The IsPhone scope is only available on RADIUS based switches
 #
 # Make a simple rule like this:
@@ -11,7 +11,7 @@
 # value = default
 #
 # [1:category]
-# scope = NormalVlan
+# scope = RegisteredRole
 # role = nointernet
 #
 # It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is
@@ -35,7 +35,7 @@
 # value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 #
 # [2:2&3&4]
-# scope = NormalVlan
+# scope = RegisteredRole
 # role = nointernet
 #
 # It means that when PacketFence tries to get the normal VLAN for the node and if the category of the node is 
@@ -102,11 +102,11 @@
 #### Refuse User Auth without machine Auth ####
 #
 #[3:EthernetEAP&!machine&!EAPTLS]
-#scope = NormalVlan
+#scope = RegisteredRole
 #role = refuse
 #
 #[4:EthernetEAP&!machine]
-#scope = RegistrationVlan
+#scope = RegistrationRole
 #role = refuse
 #
 #### EAP TLS Autoregister ####
@@ -122,7 +122,7 @@
 # Web API call:
 #
 # [3:3]
-# scope = NormalVlan
+# scope = RegisteredRole
 # action = trigger_violation
 # action_param = mac = $mac, tid = 1100010, type = INTERNAL
 #

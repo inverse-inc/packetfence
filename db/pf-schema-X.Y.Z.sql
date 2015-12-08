@@ -3,8 +3,8 @@
 --
 
 SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 5;
-SET @SUBMINOR_VERSION = 2;
+SET @MINOR_VERSION = 6;
+SET @SUBMINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -281,6 +281,7 @@ CREATE TABLE `locationlog` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
   `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',
@@ -302,6 +303,7 @@ CREATE TABLE `locationlog_archive` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
   `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',

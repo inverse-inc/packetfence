@@ -61,7 +61,7 @@ our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
     Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t useragent.t util.t util-dhcp.t util-radius.t
-    vlan.t web.t
+    role.t web.t
 );
 
 our @unit_failing_tests = qw(

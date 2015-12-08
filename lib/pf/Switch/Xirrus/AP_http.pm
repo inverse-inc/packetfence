@@ -91,6 +91,10 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     my $radius_reply_ref = {};
 
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
+
     my $node = $args->{'node_info'};
 
     my $violation = pf::violation::violation_view_top($args->{'mac'});

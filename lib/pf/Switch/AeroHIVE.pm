@@ -46,7 +46,7 @@ use pf::constants;
 use pf::config;
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
-use pf::roles::custom $ROLE_API_LEVEL;
+use pf::roles::custom $ROLES_API_LEVEL;
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
@@ -233,6 +233,10 @@ sub returnRadiusAccessAccept {
     my $logger = $self->logger;
 
     my $radius_reply_ref = {};
+
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
 
     $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned.");
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {

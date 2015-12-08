@@ -151,8 +151,8 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         %connection_group %connection_group_to_str
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
-        $ROLE_API_LEVEL
+        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
+        $ROLES_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_CHAINED
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
@@ -341,12 +341,12 @@ Readonly our $HTTPS => 'https';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
-Readonly::Scalar our $VLAN_API_LEVEL => 1.04;
+Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
 Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
-Readonly::Scalar our $ROLE_API_LEVEL => 0.90;
+Readonly::Scalar our $ROLES_API_LEVEL => 0.90;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
