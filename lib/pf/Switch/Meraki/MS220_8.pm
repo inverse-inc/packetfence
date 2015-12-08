@@ -15,11 +15,6 @@ Developed and tested on a MS220_8 switch
 
 =head1 BUGS AND LIMITATIONS
 
-=head2 client IP cannot be computed from parseUrl
-
-The Meraki sends a NATed IP address in the URL even though the client is bridged.
-The only workaround is to have the DHCP traffic forwarded to PacketFence.
-
 =cut
 
 use strict;
@@ -52,6 +47,7 @@ use pf::locationlog;
 sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+sub supportsExtrnalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $FALSE }
 
 =head2 getVersion - obtain image version information from switch
