@@ -1,3 +1,6 @@
+[general]
+backend=mysql
+
 [mysql]
 host=localhost
 user=pf
