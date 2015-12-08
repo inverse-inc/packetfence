@@ -22,7 +22,6 @@ use pf::util;
 use pf::freeradius;
 use pf::file_paths;
 use Module::Load;
-use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
 use List::MoreUtils qw(any);
@@ -30,7 +29,7 @@ use pf::CHI;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use NetAddr::IP;
-use pf::StatsD;
+use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
 our %SwitchConfig;
@@ -67,8 +66,8 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 =cut
 
 sub instantiate {
+    my $timer = pf::StatsD::Timer->new;
     my ( $class, $switchRequest ) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $logger = get_logger();
     my @requestedSwitches;
     my $requestedSwitch;
@@ -121,7 +120,6 @@ sub instantiate {
     }
     unless (defined($requestedSwitch)) {
         $logger->error("WARNING ! Unknown switch(es) ". join(" ",@requestedSwitches));
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
         return 0;
     }
 
@@ -158,7 +156,6 @@ sub instantiate {
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
                   . "The type is unknown or the perl module has compilation errors. ");
         $pf::StatsD::statsd->increment(called() . ".error" );
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return 0;
     }
     $module = untaint_chain($module);
@@ -177,8 +174,7 @@ sub instantiate {
          %$switchOverlay,
     });
     });
-    
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
+
     return $result;
 }
 
