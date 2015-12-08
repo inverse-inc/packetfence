@@ -1,17 +1,17 @@
-package pf::Switch::Meraki::MS220-8P;
+package pf::Switch::Meraki::MS220_8P;
 
 =head1 NAME
 
-pf::Switch::Meraki::MS220-8P
+pf::Switch::Meraki::MS220_8P
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::MS220-8P module implements an object oriented interface to
-manage the connection with MS220-8P switch model.
+The pf::Switch::Meraki::MS220_8P module implements an object oriented interface to
+manage the connection with MS220_8P switch model.
 
 =head1 STATUS
 
-Developed and tested on a MS220-8P switch
+Developed and tested on a MS220_8P switch
 
 =head1 BUGS AND LIMITATIONS
 
@@ -25,7 +25,7 @@ The only workaround is to have the DHCP traffic forwarded to PacketFence.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Meraki::AP_http');
+use base ('pf::Switch');
 
 use Net::SNMP;
 use Try::Tiny;
@@ -49,10 +49,21 @@ use pf::locationlog;
 
 # CAPABILITIES
 # access technology supported
-sub description { 'Meraki switch MS220-8P' }
+sub description { 'Meraki switch MS220_8P' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsWebFormRegistration { return $FALSE }
+
+=head2 getVersion - obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->info("we don't know how to determine the version through SNMP !");
+    return '1';
+}
 
 =head2 parseUrl
 
@@ -130,7 +141,7 @@ sub returnRadiusAccessAccept {
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
     my $role = $self->getRoleByName($args->{'user_role'});
-    if(defined($role) && $role ne ""){
+    if(defined($role) && $role ne "" && isenabled($self->{_RoleMap})){
         my $mac = $args->{'mac'};
         my $node_info = $args->{'node_info'};
         my $violation = pf::violation::violation_view_top($mac);
@@ -222,7 +233,7 @@ sub radiusDisconnect {
         $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
-    my $port_to_disconnect = '1700';
+    my $port_to_disconnect = ($self->{'_controllerPort'});
     if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
         $logger->info("controllerPort is set, we will use port $self->{_controllerPort} to perform deauth");
         $port_to_disconnect = $self->{'_controllerPort'};
@@ -287,15 +298,8 @@ sub radiusDisconnect {
             $attributes_ref = {
                 'Calling-Station-Id' => $mac,
             };
-            my $vsa = [
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "audit-session-id=$node_info->{'sessionid'}",
-                },
-            ];
 
-            $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
+            $response = perform_disconnect($connection_info, $attributes_ref);
         } 
     } catch {
         chomp;
