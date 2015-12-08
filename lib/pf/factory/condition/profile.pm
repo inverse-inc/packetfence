@@ -38,6 +38,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'uri'                 => {type => 'equals',        key  => 'last_uri'},
     'vlan'                => {type => 'equals',        key  => 'last_vlan'},
     'connection_sub_type' => {type => 'equals',        key  => 'last_connection_sub_type'},
+    'time'                => {type => 'time'},
 );
 
 sub modules {
@@ -71,6 +72,10 @@ sub instantiate {
                 $condition = pf::condition::exists_in->new({lookup => \%lookup});
             }
             return pf::condition::key->new(key => $data->{key}, condition => $condition);
+        }
+        elsif ($type eq 'time') {
+            my $c = pf::condition::time_period->new({value => $data->{value}});
+            return $c;
         }
         else{
             my $subclass = $class->getModuleName($type);
