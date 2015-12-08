@@ -20,7 +20,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Data::Dumper;
-use pfconfig::log;
+use pf::log;
 use pf::file_paths;
 
 use base 'pfconfig::namespaces::config';
@@ -34,16 +34,13 @@ sub init {
 sub build_child {
     my ($self) = @_;
 
-    my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{$self->{cfg}};
 
     $self->{cfg} = \%tmp_cfg;
 
     return \%tmp_cfg;
 
 }
-
-
-=back
 
 =head1 AUTHOR
 
