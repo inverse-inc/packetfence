@@ -87,6 +87,24 @@ services that this service needs in order to start
 
 has dependsOnServices => (is => 'ro', default => sub { [qw( httpd.admin)] } );
 
+=head2 orderIndex
+
+Value to use when sorting services for the start or stop order.
+Lower values start first and are stopped last.
+
+=cut
+
+has orderIndex => ( is => 'ro', builder => 1, lazy => 1 );
+
+sub _build_orderIndex { 
+    my ($self) = @_;
+    require pf::config;
+    my $name = $self->name;
+    $name =~ s/\./_/g ; 
+    my $index = $pf::config::Config{'services'}{"${name}_order"} // 100 ;
+    return $index;
+}
+
 =head2 executable
 
 executable of service

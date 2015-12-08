@@ -416,142 +416,292 @@ locationlog=0D
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
+# services.dhcpd_order
+#
+# Order in which to start this service 
+dhcpd_order=21
+#
 # services.haproxy
 #
 # Should haproxy be started?
 haproxy=enabled
+#
+# services.haproxy_order
+#
+# Order in which to start this service 
+haproxy_order=00
 #
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?
 pfdns=enabled
 #
+# services.pfdns_order
+#
+# Order in which to start this service 
+pfdns_order=17
+#
 # services.snort
 #
 # Should snort be managed by PacketFence?
 snort=enabled
+#
+# services.snort_order
+#
+# Order in which to start this service 
+snort_order=80
 #
 # services.suricata
 #
 # Should suricata be managed by PacketFence?
 suricata=enabled
 #
+# services.suricata_order
+#
+# Order in which to start this service 
+suricata_order=80
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
 radiusd=enabled
+#
+# services.radiusd_order
+#
+# Order in which to start this service 
+radiusd_order=12
 #
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
 iptables=enabled
 #
+# services.iptables_order
+#
+# Order in which to start this service 
+iptables_order=01
+#
 # services.pfbandwidthd
 #
 # Should pfbandwidthd be managed by PacketFence?
 pfbandwidthd=disabled
+#
+# services.pfbandwitdth_order
+#
+# Order in which to start this service 
+pfbandwidthd_order=89
 #
 # services.httpd_admin
 #
 # Should httpd.admin be started?
 httpd_admin=enabled
 #
+# services.httpd_admin_order
+#
+# Order in which to start this service 
+httpd_admin_order=00
+#
 # services.httpd_portal
 #
 # Should httpd.portal be started?
 httpd_portal=enabled
+#
+# services.httpd_portal_order
+#
+# Order in which to start this service 
+httpd_portal_order=20
 #
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
 #
+# services.httpd_webservices_order
+#
+# Order in which to start this service 
+httpd_webservices_order=22
+#
 # services.httpd_aaa
 #
 # Should httpd.aaa be started?
 httpd_aaa=enabled
+#
+# services.httpd_aaa_order
+#
+# Order in which to start this service 
+httpd_aaa_order=10
 #
 # services.httpd_proxy
 #
 # Should httpd.proxy be started?
 httpd_proxy=enabled
 #
+# services.httpd_proxy_order
+#
+# Order in which to start this service 
+httpd_proxy_order=19
+#
 # services.httpd_graphite
 #
 # Should httpd.graphite be started?
 httpd_graphite=enabled
+#
+# services.httpd_graphite_order
+#
+# Order in which to start this service 
+httpd_graphite_order=99
 #
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
 pfsetvlan=disabled
 #
+# services.pfsetvlan_order
+#
+# Order in which to start this service 
+pfsetvlan_order=13
+#
 # services.snmptrapd
 #
 # Should snmptrapd be managed by PacketFence?
 snmptrapd=disabled
+#
+# services.snmptrapd_order
+#
+# Order in which to start this service 
+snmptrapd_order=14
 #
 # services.pfqueue
 #
 # Should pfqueue be managed by PacketFence?
 pfqueue=enabled
 #
+# services.pfqueue_order
+#
+# Order in which to start this service 
+pfqueue_order=16
+#
 # services.pfmon
 #
 # Should pfmon be managed by PacketFence?
 pfmon=enabled
 #
+# services.pfmon_order
+#
+# Order in which to start this service 
+pfmon_order=51
+#
 # services.redis_cache
 #
 # Should redis be managed by PacketFence?
 redis_cache=enabled
+#
+# services.redis_cache_order
+#
+# Order in which to start this service 
+redis_cache_order=00
 # services.redis_queue
 #
 # Should redis be managed by PacketFence?
 redis_queue=enabled
+#
+# services.redis_queue_order
+#
+# Order in which to start this service 
+redis_queue_order=15
 #
 # services.pfdhcplistener
 #
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfdhcplistener_order
+#
+# Order in which to start this service 
+pfdhcplistener_order=18
+#
 # services.keepalived
 #
 # Should keepalived be started?
 keepalived=enabled
+#
+# services.keepalived_order
+#
+# Order in which to start this service 
+keepalived_order=50
 # services.winbindd
 #
 # Should winbindd be started?
 winbindd=enabled
+#
+# services.winbindd_order
+#
+# Order in which to start this service 
+winbindd_order=11
 # services.carbon-cache
 #
 # Should carbon-cache be started?
 carbon-cache=enabled
+#
+# services.carbon-cache_order
+#
+# Order in which to start this service 
+carbon-cache_order=90
 #
 # services.carbon-relay
 #
 # Should carbon-relay be started?
 carbon-relay=enabled
 #
+# services.carbon-relay_order
+#
+# Order in which to start this service 
+carbon-relay_order=91
+#
 # services.collectd
 #
 # Should collectd be started?
 collectd=enabled
+#
+# services.collectd_order
+#
+# Order in which to start this service 
+collectd_order=92
+#
+# services.collectd_order
+#
+# Order in which to start this service 
+pfdetect_order=88
 #
 # services.statsd
 #
 # Should statsd be started?
 statsd=enabled
 #
+# services.statsd_order
+#
+# Order in which to start this service 
+statsd_order=93
+#
 # services.radsniff
 #
 # Should radsniff be started?
 radsniff3=enabled
 #
+# services.radsniff3_order
+#
+# Order in which to start this service 
+radsniff3_order=94
+#
 # services.p0f
 #
 # Should p0f be started?
 p0f=enabled
+#
+# services.p0f_order
+#
+# Order in which to start this service 
+p0f_order=81
 #
 # services.snort_binary
 #

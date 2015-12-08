@@ -14,6 +14,7 @@ pf::services::manager::pfdns
 use strict;
 use warnings;
 use Moo;
+use pf::config; 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 

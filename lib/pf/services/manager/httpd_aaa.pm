@@ -14,10 +14,12 @@ pf::services::manager::httpd_aaa
 use strict;
 use warnings;
 use Moo;
+use pf::config 
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.aaa' } );
+
 
 =head1 AUTHOR
 

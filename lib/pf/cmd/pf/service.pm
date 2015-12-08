@@ -88,15 +88,24 @@ our %ACTION_MAP = (
 
 our $ignore_checkup = $FALSE;
 
+sub _byIndexOrder { 
+    $a->new->orderIndex <=> $b->new->orderIndex;
+}
+
 sub parseArgs {
     my ($self) = @_;
     my ($service, $action, $option) = $self->args;
     return 0 unless defined $service && defined $action && exists $ACTION_MAP{$action};
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
-    my @services;
-    if ($service eq 'pf') {
-        @services = @pf::services::ALL_SERVICES;
+    my ( @services, @managers );
+    if ($service eq 'pf' and $action eq "start") {
+        @managers = sort _byIndexOrder @pf::services::MANAGERS;
+        @services = map { $_->new->name } @managers; 
+    }
+    elsif ($service eq 'pf' and $action eq "stop") {
+        @managers = reverse sort _byIndexOrder @pf::services::MANAGERS;
+        @services = map { $_->new->name } @managers;
     }
     else {
         @services = ($service);
