@@ -38,9 +38,8 @@ use pf::floatingdevice::custom;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
-use Time::HiRes;
 use pf::util::statsd qw(called);
-use pf::StatsD;
+use pf::StatsD::Timer;
 use Data::Thunk;
 use Hash::Merge qw (merge);
 
@@ -77,9 +76,9 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
 sub authorize {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
 
@@ -92,7 +91,6 @@ sub authorize {
             "Can't instantiate switch ($switch_ip). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
@@ -109,9 +107,10 @@ sub authorize {
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
-    my $before = Time::HiRes::gettimeofday();
-    $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
-    $pf::StatsD::statsd->end(called() . ".getIfIndex.timing" , $before, 0.25);
+    {
+        my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex.timing"});
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    }
 
     my $args = {
         switch => $switch,
@@ -144,7 +143,6 @@ sub authorize {
     my $weActOnThisCall = $self->_doWeActOnThisCall($args);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
     }
 
@@ -174,7 +172,6 @@ sub authorize {
     # verify if switch supports this connection type
     if (!$self->_isSwitchSupported($args)) {
         # if not supported, return
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return $self->_switchUnsupportedReply($args);
     }
 
@@ -214,7 +211,6 @@ sub authorize {
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return $self->_authorizeVoip($args);
     }
 
@@ -224,7 +220,6 @@ sub authorize {
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
@@ -261,8 +256,6 @@ sub authorize {
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
-
     return $RAD_REPLY_REF;
 }
 
@@ -271,9 +264,9 @@ sub authorize {
 =cut
 
 sub accounting {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
@@ -329,7 +322,6 @@ sub accounting {
         }
     }
 
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
@@ -340,9 +332,9 @@ Update the location log based on the accounting information
 =cut
 
 sub update_locationlog_accounting {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05 });
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
@@ -373,7 +365,6 @@ sub update_locationlog_accounting {
         my $node_info = node_attributes($mac);
         $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $node_info->{category});
     }
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
 }
 
@@ -504,16 +495,14 @@ Returns the same structure as authorize(), see it's POD doc for details.
 =cut
 
 sub _authorizeVoip {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05 });
     my ($self, $args) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
 
     if (!$args->{'switch'}->supportsRadiusVoip()) {
         $logger->warn("Returning failure to RADIUS.");
         $args->{'switch'}->disconnectRead();
         $args->{'switch'}->disconnectWrite();
-
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
         return [
             $RADIUS::RLM_MODULE_FAIL,
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
@@ -524,7 +513,6 @@ sub _authorizeVoip {
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
     $args->{'switch'}->disconnectWrite();
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.05 );
     return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
 }
 
@@ -586,34 +574,30 @@ sub _switchUnsupportedReply {
 }
 
 sub _handleStaticPortSecurityMovement {
+    my $timer = pf::StatsD::Timer->new;
     my ($self,$args) = @_;
-    my $start = Time::HiRes::gettimeofday();
     my $logger = $self->logger;
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($args->{'mac'});
     #Nothing to do if there is no location log
     unless( defined($locationlog_mac) ){
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return undef;
     }
 
     my $old_switch_id = $locationlog_mac->{'switch'};
     #Nothing to do if it is the same switch
-    if ( $old_switch_id eq $args->{'switch'}->{_id} ) { 
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
+    if ( $old_switch_id eq $args->{'switch'}->{_id} ) {
         return undef;
     }
 
     my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id);
     if (!$oldSwitch) {
         $logger->error("Can not instantiate switch $old_switch_id !");
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return;
     }
     my $old_port   = $locationlog_mac->{'port'};
     if (!$oldSwitch->isStaticPortSecurityEnabled($old_port)){
         $logger->debug("Stopping port-security handling in radius since old location is not port sec enabled");
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
         return;
     }
     my $old_vlan   = $locationlog_mac->{'vlan'};
@@ -636,7 +620,6 @@ sub _handleStaticPortSecurityMovement {
     } else {
         $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
     }
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.25 );
     locationlog_update_end_mac($args->{'mac'});
 }
 
