@@ -21,7 +21,7 @@ use JSON::MaybeXS;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
 use File::Slurp qw(read_file);
-use pfconfig::log;
+use pf::log;
 use pf::file_paths;
 use pf::util;
 use List::MoreUtils qw(uniq);
@@ -74,7 +74,7 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my %Config         = %{ $self->{cfg} };
     my %Doc_Config     = %{ $self->{doc_config} };
