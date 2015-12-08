@@ -47,7 +47,7 @@ use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pfconfig::timeme;
-use pfconfig::log;
+use pf::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::Array', 'pfconfig::cached' );
 
@@ -80,7 +80,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ( $self, $index ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $result = $self->compute_from_subcache($index, sub {
       my $reply = $self->_get_from_socket("$self->{_namespace};$index");
@@ -101,7 +101,7 @@ Proxies the call to pfconfig
 
 sub FETCHSIZE {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $result = $self->compute_from_subcache("__PFCONFIG_ARRAY_SIZE__", sub {
         my $reply = $self->_get_from_socket( $self->{_namespace}, "array_size" );
         return defined $reply ? $reply->{size} : 0;
