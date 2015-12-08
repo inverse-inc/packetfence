@@ -778,6 +778,7 @@ Filter the vlan based off vlan filters
 
 sub filterVlan {
     my ($self, $scope, $args) = @_;
+    my $start = Time::HiRes::gettimeofday();
     my $filter = pf::access_filter::vlan->new;
     $args->{'owner'}= lazy { person_view($args->{'node_info'}->{'pid'}) };
     my $role = $filter->filter($scope, $args);
