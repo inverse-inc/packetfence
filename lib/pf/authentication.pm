@@ -39,9 +39,8 @@ use List::MoreUtils qw(none any);
 use pf::util;
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
-use pf::StatsD;
+use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use Time::HiRes;
 
 # The results...
 #
@@ -274,14 +273,13 @@ our %ACTION_VALUE_FILTERS = (
 );
 
 sub match {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1});
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
-    my $start = Time::HiRes::gettimeofday();
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
     if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
-        $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     }
 
     # Calling 'match' with empty/invalid rule class. Using default
@@ -312,7 +310,6 @@ sub match {
                 my $value = $found_action->value;
                 my $type  = $found_action->type;
                 $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
-                $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
                 return $value;
             }
 
@@ -326,7 +323,6 @@ sub match {
         last;
     }
 
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.1 );
     return $actions;
 }
 
