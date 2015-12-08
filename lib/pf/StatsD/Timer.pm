@@ -24,6 +24,11 @@ use Time::HiRes;
 sub new {
     my ($proto, $args) = @_;
     my $class = ref($proto) || $proto;
+    $args //= {};
+    $args->{start_time} //= Time::HiRes::gettimeofday;
+    $args->{sample_rate} //= 0.25;
+    #Get the name of the function enclosing this call
+    $args->{'stat'} //= (caller(1))[3] . ".timing";
     my $start = Time::HiRes::gettimeofday();
     my $self  = {start_time => $start, sample_rate => 1.0, %$args};
     return bless $self, $class;
