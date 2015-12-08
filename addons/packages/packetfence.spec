@@ -1100,7 +1100,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
-%config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
+%config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 # logfiles
