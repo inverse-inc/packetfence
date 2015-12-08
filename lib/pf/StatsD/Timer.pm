@@ -10,6 +10,44 @@ pf::StatsD::Timer -
 
 pf::StatsD::Timer
 
+Is a scoped statsd timer
+
+=head1 SYNOPSIS
+
+Simple usage example
+
+    sub function {
+        my $timer = pf::StatsD::Timer->new;
+        ...
+        # Will send stats for function when $timer goes out of scope
+    }
+
+How to use multiple timers with the same function
+
+    sub function {
+        my $timer = pf::StatsD::Timer->new;
+        ...
+        my $result = do {
+            my $timer2 = pf::StatsD::Timer->new({'stat' => 'nameofstat.timing'});
+            # $timer2 will go our of scope at the end of the do block
+            # the do black will return the results of other_function();
+            other_function();
+        };
+        ...
+        # Will send stats for function when $timer goes out of scope
+    }
+
+
+How to use time different parts of a function
+
+    sub function {
+        my $timer = pf::StatsD::Timer->new;
+        ... # Send stats in t
+        $timer->send_timing("work");
+        ...
+        # Will send stats for function when $timer goes out of scope
+    }
+
 =cut
 
 use strict;
