@@ -28,6 +28,12 @@ sub init {
     # abstact
 }
 
+=head2 _get_db
+
+Get a connection to the database
+
+=cut
+
 sub _get_db {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
@@ -44,11 +50,23 @@ sub _get_db {
     return $db;
 }
 
+=head2 _db_error
+
+Handle a database error
+
+=cut
+
 sub _db_error {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
+
+=head2 get
+
+Get an element by key
+
+=cut
 
 sub get {
     my ( $self, $key ) = @_;
@@ -75,6 +93,12 @@ sub get {
     return $element;
 }
 
+=head2 set
+
+Set an element by key
+
+=cut
+
 sub set {
     my ( $self, $key, $value ) = @_;
     my $logger = pfconfig::log::get_logger;
@@ -97,6 +121,12 @@ sub set {
     return $result;
 }
 
+=head2 remove
+
+Remove an element by key
+
+=cut
+
 sub remove {
     my ( $self, $key ) = @_;
     my $db = $self->_get_db();
@@ -108,6 +138,12 @@ sub remove {
     $db->disconnect();
     return $result;
 }
+
+=head2 clear
+
+Clear out the backend
+
+=cut
 
 sub clear {
     my ( $self ) = @_;
