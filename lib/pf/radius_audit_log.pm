@@ -47,10 +47,20 @@ our $logger = get_logger();
 our @FIELDS = qw(
     mac
     user_name
+    switch_id
+    switch_mac
+    radius_source_ip_address
+    switch_ip_address
+    stripped_user_name
     auth_type
+    eap_type
+    connection_type
     source
+    ssid
+    is_phone
+    auto_reg
     role
-    status
+    auth_status
     unreg
     ifindex
     reason
@@ -59,9 +69,12 @@ our @FIELDS = qw(
     event_type
     uuid
     nas_ip_address
+    nas_identifier
     nas_port_type
     called_station_id
     calling_station_id
+    pf_domain
+    realm
     radius_reply
 );
 
