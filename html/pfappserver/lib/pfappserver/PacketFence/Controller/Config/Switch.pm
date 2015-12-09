@@ -175,6 +175,24 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
+=head2 remove_group
+
+=cut
+
+
+sub remove_group :Chained('object') :PathPart('remove_group'): Args(0) {
+    my ($self,$c) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my $itemKey = $model->itemKey;
+    my ($status,$result) = $self->getModel($c)->update($c->stash->{$idKey}, { group => undef });
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2015 Inverse inc.

@@ -56,6 +56,10 @@ var SwitchView = function(options) {
     var delete_s = $.proxy(this.deleteConfirm, this);
     options.parent.on('click', '#switches [href$="/delete"]', delete_s);
 
+    // Remove the group from the switch
+    var remove_group = $.proxy(this.removeGroup, this);
+    options.parent.on('click', '#modalSwitch [href$="/remove_group"]', remove_group);
+
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
 
@@ -225,6 +229,20 @@ SwitchView.prototype.updateSwitch = function(e) {
             errorSibling: modal_body.children().first()
         });
     }
+};
+
+SwitchView.prototype.removeGroup = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var a = $(e.target);
+    this.switches.get({
+        url: a.attr('href'),
+        success: function(data) {
+            showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
+        },
+        errorSibling: $('#modalSwitch .modal-body').children().first(),
+    });
 };
 
 SwitchView.prototype.list = function() {

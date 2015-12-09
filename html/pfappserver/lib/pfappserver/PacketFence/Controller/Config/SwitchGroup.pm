@@ -54,6 +54,13 @@ after qw(view create clone update list index) => sub {
     $c->stash->{template} =~ s/switchgroup/switch/g;
 };
 
+after qw(view update) => sub {
+    my ($self, $c) = @_;
+    use Data::Dumper;
+    my $cs = $c->model("Config::Switch")->configStore;
+    my %members = map { $_->{id} => $_ } $cs->search("group", $c->stash->{item}->{id}, "id");
+    $c->stash->{item}->{members} = \%members;
+};
 
 sub after_list {
     my ($self, $c) = @_;
@@ -71,5 +78,6 @@ sub after_list {
     $c->stash->{items} = \@switches; 
     $c->stash->{searchable} = 0;
 };
+
 
 1;
