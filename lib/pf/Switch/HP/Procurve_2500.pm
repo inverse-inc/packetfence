@@ -89,20 +89,20 @@ Enable MAC authentication on a given port
 
 sub enableMABByIfIndex {
     my ( $self, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
-    $logger->info("Enabling MAB on $ifIndex");
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
 
-    if ( !$self->connectWrite() ) {
-        return 0;
-    }
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
 
-    my $OID_hpicfUsrAuthMacAuthAdminStatus = '1.3.6.1.4.1.11.2.14.11.5.1.19.2.1.1.3';
+    print $chan "aaa port-access mac-based $ifIndex\n";
+    $logger->debug("SSH output : $_") while <$chan>;
 
-    $logger->trace("SNMP set_request for hpicfUsrAuthMacAuthAdminStatus: $OID_hpicfUsrAuthMacAuthAdminStatus");
-    my $result = $self->{_sessionWrite}->set_request(
-        -varbindlist => [ "$OID_hpicfUsrAuthMacAuthAdminStatus.$ifIndex", Net::SNMP::INTEGER, 1 ] );
-    return ( defined($result) );
+    $ssh->disconnect();
+
+    return 1;
 }
 
 =head2 disableMABByIfIndex
@@ -113,21 +113,19 @@ Disable MAC authentication on a given port
 
 sub disableMABByIfIndex {
     my ( $self, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger;
 
-    if ( !$self->connectWrite() ) {
-        return 0;
-    }
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
 
-    $logger->info("Disabling MAB on $ifIndex");
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    print $chan "no aaa port-access mac-based $ifIndex\n";
+    $logger->debug("SSH output : $_") while <$chan>;
+    
+    $ssh->disconnect();
 
-    # ProCurve port-access mac-based 1.3.6.1.4.1.11.2.14.11.5.1.19.2.1.1.3
-    my $OID_hpicfUsrAuthMacAuthAdminStatus = '1.3.6.1.4.1.11.2.14.11.5.1.19.2.1.1.3';
-
-    $logger->trace("SNMP set_request for hpicfUsrAuthMacAuthAdminStatus: $OID_hpicfUsrAuthMacAuthAdminStatus");
-    my $result = $self->{_sessionWrite}->set_request(
-        -varbindlist => [ "$OID_hpicfUsrAuthMacAuthAdminStatus.$ifIndex", Net::SNMP::INTEGER, 2 ] );
-    return ( defined($result) );
+    return 1;
 }
 
 =head2 setTaggedVlans
@@ -137,49 +135,23 @@ Tag a list of VLANs on a port
 =cut
 
 sub setTaggedVlans {
-    my ( $this, $ifIndex, @vlans ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $OID_rcVlanPortMembers = '1.3.6.1.2.1.17.7.1.4.3.1.2'; #RC-VLAN-MIB
-    if ( !$this->connectRead() ) {
-        return 0;
-    }
-    if ( !$this->connectWrite() ) {
-        return 0;
-    }
+    my ( $self, $ifIndex, $switch_locker, @vlans ) = @_;
+    my $logger = get_logger;
 
-    my $result;
-    {
-        # since all VLANs are located in separated OIDs we need to fetch the portList for each VLAN
-        my $fetch_vlan_port_list_ref = [];
-        foreach my $vlan (@vlans) {
-            push @$fetch_vlan_port_list_ref, "$OID_rcVlanPortMembers.$vlan";
-        }
+    my ($ssh, $chan) = $self->_connect();
+    return unless($ssh);
 
-        $logger->debug("SNMP get_request for rcVlanPortMembers");
-        $this->{_sessionRead}->translate(0);
-        $result = $this->{_sessionRead}->get_request( -varbindlist => $fetch_vlan_port_list_ref );
-        $this->{_sessionRead}->translate(1);
+    print $chan "conf\n";
+    $logger->debug("SSH output : $_") while <$chan>;
 
-        # now we traverse every portList and set the proper port bit to 1 for every VLAN
-        my $set_vlan_port_list_ref = [];
-        foreach my $vlan (@vlans) {
-            my $updated_port_member_list = $this->modifyBitmask(
-                $result->{"$OID_rcVlanPortMembers.$vlan"}, $ifIndex - 1, 1
-            );
-
-            push @$set_vlan_port_list_ref,
-                "$OID_rcVlanPortMembers.$vlan", Net::SNMP::OCTET_STRING, $updated_port_member_list;
-        }
-        $logger->trace( "SNMP set_request for OID_rcVlanPortMembers: $OID_rcVlanPortMembers");
-        $result = $this->{_sessionWrite}->set_request(-varbindlist => $set_vlan_port_list_ref);
+    foreach my $vlan (@vlans){
+        print $chan "vlan $vlan tagged $ifIndex\n";
+        $logger->debug("SSH output : $_") while <$chan>;
     }
 
-    # if $result is defined, it works we can return $TRUE
-    return $TRUE if (defined($result));
+    $ssh->disconnect();
 
-    # otherwise report failure
-    $logger->warn("Tagging VLANs failed with " . $this->{_sessionWrite}->error());
-    return;
+    return 1;
 }
 
 sub getMaxMacAddresses {
