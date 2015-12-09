@@ -1425,6 +1425,154 @@ PacketFence switch configuration:
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
 
+Identity Networking Policy
+++++++++++++++++++++++++++
+
+Starting from version 15.2(1)E (IOS) and 3.4.0E (IOSXE) , Cisco introduce the Identity Based Networking Services.
+It mean that you can create a authentication workflow on the switch and create interfaces templates.
+
+
+Global config settings:
+
+  dot1x system-auth-control 
+
+On each interface for 802.1x with Mac Authentcation:
+
+  dot1x timeout tx-period 5
+  source template identity-template
+
+On each interface for Mac Authentication:
+
+  source template identity-template
+
+AAA groups and configuration:
+
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813 
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+Radius server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+CoA configuration:
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
+Activate SNMP on the switch:
+
+  snmp-server community public RO
+
+Activate http and https server
+
+  ip http server
+  ip http secure-server
+
+Activate ip device tracking
+
+  ip device tracking
+
+Interface Template (802.1x Mac Authentication):
+
+  template identity-template
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode multi-domain
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate 7200
+   service-policy type control subscriber DOT1X_MAB
+
+Interface Template (Mac Authentication):
+
+  template identity-template
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode single-host
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate 7200
+   service-policy type control subscriber MACAUTH
+
+Policy Map:
+
+  On the 2 following configurations if the radius server is down then we allow the access.
+
+  for 802.1X with Mac Authentication fallback:
+
+  policy-map type control subscriber DOT1X_MAB
+   event session-started match-all
+    10 class always do-until-failure
+     10 authenticate using dot1x priority 10
+   event authentication-failure match-first
+    10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+     10 authorize
+     20 pause reauthentication
+    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+     10 pause reauthentication
+     20 authorize
+    30 class DOT1X_FAILED do-until-failure
+     10 terminate dot1x
+     20 authenticate using mab priority 20
+    40 class DOT1X_NO_RESP do-until-failure
+     10 terminate dot1x
+     20 authenticate using mab priority 20
+    50 class MAB_FAILED do-until-failure
+     10 terminate mab
+     20 authentication-restart 10800
+    60 class always do-until-failure
+     10 terminate dot1x
+     20 terminate mab
+     30 authentication-restart 10800
+   event agent-found match-all
+    10 class always do-until-failure
+     10 terminate mab
+     20 authenticate using dot1x priority 10
+   event authentication-success match-all
+    10 class always do-until-failure
+     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
+  for Mac Authentication only:
+
+  policy-map type control subscriber MACAUTH
+   event session-started match-all
+    10 class always do-until-failure
+     10 authenticate using mab priority 10
+   event authentication-failure match-first
+    10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+     10 authorize
+     20 pause reauthentication
+    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+     10 pause reauthentication
+     20 authorize
+    30 class always do-until-failure
+     10 terminate mab
+     20 authentication-restart 30
+   event inactivity-timeout match-all
+    10 class always do-until-failure
+     10 clear-session
+   event authentication-success match-all
+    10 class always do-until-failure
+     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
 Router ISR 1800 Series 
 ++++++++++++++++++++++
 
