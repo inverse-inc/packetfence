@@ -1522,9 +1522,9 @@ Interface Template (801.1x):
 
 Policy Map:
 
-  On the 3 following configurations if the radius server is down then we allow the access.
+On the 3 following configurations if the radius server is down then we allow the access.
 
-  for 802.1X with Mac Authentication fallback:
+for 802.1X with Mac Authentication fallback:
 
   policy-map type control subscriber DOT1X_MAB
    event session-started match-all
@@ -1558,7 +1558,7 @@ Policy Map:
     10 class always do-until-failure
      10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
 
-  for Mac Authentication only:
+for Mac Authentication only:
 
   policy-map type control subscriber MACAUTH
    event session-started match-all
@@ -1581,7 +1581,7 @@ Policy Map:
     10 class always do-until-failure
      10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
 
- for 802.1X Only:
+for 802.1X Only:
 
   policy-map type control subscriber DOT1X
    event session-started match-all
