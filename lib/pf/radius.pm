@@ -264,7 +264,7 @@ CLEANUP:
 
 AUDIT:
 
-    push @$RAD_REPLY_REF, $self->_addRadiusAudit;
+    push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
 }
 
@@ -743,13 +743,53 @@ sub switch_access {
     }
 }
 
+our %ARGS_TO_RADIUS_ATTRIBUTES = (
+    mac => 'PacketFence-Mac',
+    user_name => 'PacketFence-UserName',
+    ifIndex => 'PacketFence-IfIndex',
+    is_phone => 'PacketFence-IsPhone',
+    ssid => 'PacketFence-SSID',
+    autoreg => 'PacketFence-AutoReg',
+    eap_type => 'PacketFence-Eap-Type',
+    connection_type => 'PacketFence-Connection-Type',
+    user_role => 'PacketFence-Role',
+);
+
+our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
+    status => 'PacketFence-Status',
+);
+
+our %SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
+    _id => 'PacketFence-Switch-Id',
+    _ip => 'PacketFence-Switch-Ip-Address',
+    _switchMac => 'PacketFence-Switch-Mac',
+);
+
 =item _addRadiusAudit
 
 =cut
 
 sub _addRadiusAudit {
-    my ($self) = @_;
-    return (RADIUS_AUDIT => $self->stash->{RADIUS_AUDIT});
+    my ($self, $args) = @_;
+    my $stash = {};
+    _update_audit_stash($stash, \%ARGS_TO_RADIUS_ATTRIBUTES, $args);
+    my $switch = $args->{switch};
+    if ($switch) {
+        _update_audit_stash($stash, \%SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES, $switch);
+    }
+    my $node = $args->{node_info};
+    if($node) {
+        _update_audit_stash($stash, \%NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES, $node);
+    }
+    return (RADIUS_AUDIT => $stash);
+}
+
+sub _update_audit_stash {
+    my ($stash, $lookup, $args) = @_;
+    foreach my $key (keys %$lookup) {
+        next unless exists $args->{$key} && defined $args->{$key};
+        $stash->{$lookup->{$key}} = $args->{$key};
+    }
 }
 
 =back
