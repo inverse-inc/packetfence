@@ -1436,15 +1436,6 @@ Global config settings:
 
   dot1x system-auth-control 
 
-On each interface for 802.1x with Mac Authentcation:
-
-  dot1x timeout tx-period 5
-  source template identity-template-mab
-
-On each interface for Mac Authentication:
-
-  source template identity-template-macauth
-
 AAA groups and configuration:
 
   aaa new-model 
@@ -1512,9 +1503,26 @@ Interface Template (Mac Authentication):
    authentication timer reauthenticate 7200
    service-policy type control subscriber MACAUTH
 
+Interface Template (801.1x):
+
+  template identity-template-dot1x
+   dot1x pae authenticator
+   spanning-tree portfast edge
+   switchport access vlan 1
+   switchport mode access
+   switchport voice vlan 100
+   mab
+   access-session host-mode single-host
+   access-session control-direction in
+   access-session closed
+   access-session port-control auto
+   authentication periodic
+   authentication timer reauthenticate 7200
+   service-policy type control subscriber DOT1X
+
 Policy Map:
 
-  On the 2 following configurations if the radius server is down then we allow the access.
+  On the 3 following configurations if the radius server is down then we allow the access.
 
   for 802.1X with Mac Authentication fallback:
 
@@ -1572,6 +1580,48 @@ Policy Map:
    event authentication-success match-all
     10 class always do-until-failure
      10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
+ for 802.1X Only:
+
+  policy-map type control subscriber DOT1X
+   event session-started match-all
+    10 class always do-until-failure
+     10 authenticate using dot1x priority 10
+   event authentication-failure match-first
+    10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+     10 authorize
+     20 pause reauthentication
+    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+     10 pause reauthentication
+     20 authorize
+    30 class DOT1X_FAILED do-until-failure
+     10 terminate dot1x
+    40 class DOT1X_NO_RESP do-until-failure
+     10 terminate dot1x
+    60 class always do-until-failure
+     10 terminate dot1x
+     20 authentication-restart 10800
+   event agent-found match-all
+    10 class always do-until-failure
+     10 authenticate using dot1x priority 10
+   event authentication-success match-all
+    10 class always do-until-failure
+     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+
+On each interface for 802.1x with Mac Authentcation:
+
+  dot1x timeout tx-period 5
+  source template identity-template-mab
+
+On each interface for Mac Authentication:
+
+  source template identity-template-macauth
+
+On each interface for 802.1x:
+
+  dot1x timeout tx-period 5
+  source template identity-template-dot1x
+
 
 Router ISR 1800 Series 
 ++++++++++++++++++++++
