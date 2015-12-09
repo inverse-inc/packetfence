@@ -675,29 +675,9 @@ sub _handleAccountingFloatingDevices{
     }
 }
 
-=item stash
-
-Stash for holding information that needs to pass between calls
-
-=cut
-
-sub stash {
-    my ($self, @args) = @_;
-    my $stash = $self->{stash};
-    if (@args) {
-        my $new_stash = @args > 1 ? {@args} : $args[0];
-        croak('stash takes a hash or hashref') unless ref $new_stash;
-        foreach my $key ( keys %$new_stash ) {
-          $stash->{$key} = $new_stash->{$key};
-        }
-    }
-
-    return $stash;
-}
-
 =item logger
 
-Return the current logger for the switch
+Return the current logger for the object
 
 =cut
 
