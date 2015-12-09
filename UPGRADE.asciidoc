@@ -149,6 +149,18 @@ Also in violations.conf, the parameter whitelisted_categories has been renamed i
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Billing configuration change
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameter `billing_engine` of the Portal Profiles has been deprecated.
+Remove it from all your profiles configuration in `/usr/local/pf/conf/profiles.conf`.
+
+The billing engine of PacketFence has been reworked completely.
+
+It will require to reconfigure existing billing providers from scratch as there is no retro-compatibility with the previous configuration.
+
+Please see the Administration Guide for details on how to configure the billing engine.
+
 Mod_qos configuration changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
