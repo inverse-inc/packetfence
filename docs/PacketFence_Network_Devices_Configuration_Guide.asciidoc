@@ -1439,11 +1439,11 @@ Global config settings:
 On each interface for 802.1x with Mac Authentcation:
 
   dot1x timeout tx-period 5
-  source template identity-template
+  source template identity-template-mab
 
 On each interface for Mac Authentication:
 
-  source template identity-template
+  source template identity-template-macauth
 
 AAA groups and configuration:
 
@@ -1480,7 +1480,7 @@ Activate ip device tracking
 
 Interface Template (802.1x Mac Authentication):
 
-  template identity-template
+  template identity-template-mab
    dot1x pae authenticator
    spanning-tree portfast edge
    switchport access vlan 1
@@ -1497,7 +1497,7 @@ Interface Template (802.1x Mac Authentication):
 
 Interface Template (Mac Authentication):
 
-  template identity-template
+  template identity-template-macauth
    dot1x pae authenticator
    spanning-tree portfast edge
    switchport access vlan 1
