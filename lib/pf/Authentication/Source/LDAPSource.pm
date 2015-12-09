@@ -417,7 +417,7 @@ sub ldap_filter_for_conditions {
       foreach my $condition (@{$conditions}) {
           my $str;
           my $operator = $condition->{'operator'};
-          my $value = escape_filter_value($condition->{'value'});
+          my $value = utf8_decoder escape_filter_value($condition->{'value'});
           my $attribute = $condition->{'attribute'};
 
           if ($operator eq $Conditions::EQUALS) {

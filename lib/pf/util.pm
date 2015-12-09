@@ -32,6 +32,7 @@ use NetAddr::IP;
 use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
+use Encode;
 
 our ( %local_mac );
 
@@ -67,6 +68,7 @@ BEGIN {
         safe_file_update
         fix_file_permissions
         strip_username
+        utf8_decoder
     );
 }
 
@@ -1093,6 +1095,40 @@ sub strip_username {
         return ($2,$1);
     }
     return $username;
+}
+
+sub utf8_decoder {
+    my $obj = shift;
+
+    eval { my %h = %$obj; };
+    if (! $@) {
+        for my $k (keys %$obj) {
+            my $v = $obj->{$k};
+            $obj->{$k} = utf8_decoder($v);
+        }
+        return $obj;
+    }
+    elsif (ref $obj eq 'ARRAY') {
+        undef $@;
+        my $len = @$obj;
+        for my $idx (0 .. $len-1) {
+            $obj->[$idx] = utf8_decoder($obj->[$idx]);
+        }
+        return $obj;
+    }
+    elsif (ref $obj eq q{}) {
+        undef $@;
+        try {
+                return decode('UTF-8', $obj);
+        }
+        catch {
+                return $obj;
+        }
+    }
+    else {
+        undef $@;
+        return $obj;
+    }
 }
 
 =back

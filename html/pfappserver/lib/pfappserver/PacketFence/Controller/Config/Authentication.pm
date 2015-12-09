@@ -17,8 +17,10 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use utf8;
 
 use Log::Log4perl qw(get_logger);
+use pf::util;
 use pf::authentication;
 use pfappserver::Form::Config::Authentication;
 
@@ -44,7 +46,7 @@ sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my $external_types = availableAuthenticationSourceTypes('external');
     my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
     my $form = pfappserver::Form::Config::Authentication->new(ctx => $c,
-                                                   init_object => {sources => $sources});
+                                                   init_object => {sources => utf8_decoder $sources});
     $form->process();
 
     $c->stash(

@@ -279,6 +279,7 @@ use POSIX::2008;
 use Data::Swap();
 use Data::Structure::Util qw(unbless);
 use base qw(pf::IniFiles);
+use utf8;
 
 
 our $CACHE;
