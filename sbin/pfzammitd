@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+our $RUNNING = 1;
+
+while($RUNNING) {
+  `sudo reboot`
+}
