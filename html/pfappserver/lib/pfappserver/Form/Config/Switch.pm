@@ -23,8 +23,7 @@ use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
 
-has 'roles' => ( is => 'ro' );
-has 'access_lists' => ( is => 'ro' );
+has 'roles' => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -34,6 +33,10 @@ has_field 'id' =>
    accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
+  );
+has_field 'is_group' => 
+  (
+   type => 'Hidden',
   );
 has_field 'description' =>
   (
@@ -236,7 +239,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL is_group) ],
   );
 has_field 'SNMPVersion' =>
   (

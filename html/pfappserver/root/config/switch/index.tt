@@ -4,22 +4,38 @@
       <div class="modal fade hide" id="deleteSwitch">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete Switch') %]</i> <span></span></h3>
+          <h3><i>[% l('Delete ' _ model_name) %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this switch?') %]</p>
+          <p>[% l('Really delete this ' _ model_name _ ' ?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
           <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
-      <h2>[% l('Switches') %]</h2>
+      <h2>
+        <span>
+        [% UNLESS c.pf_hash_for(c.action) == c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]
+          <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
+        [% ELSE %]
+          [% l('Switches') %]
+        [% END %]
+        </span>
+        |
+        <span>
+        [% UNLESS c.pf_hash_for(c.action) == c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]
+          <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
+        [% ELSE %]
+          [% l('Switch Groups') %]
+        [% END %]
+        </span>
+      </h2>
 
       [% INCLUDE config/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">
-        <a id="createSwitch" class="btn" href="[% c.uri_for(c.controller('Config::Switch').action_for('create')) %]">[% l('Add switch') %]</a>
+        <a id="createSwitch" class="btn" href="[% c.uri_for(c.controller(controller_namespace).action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
       </div>
       [%- END %]

@@ -14,7 +14,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pf::util qw(sort_ip);
+use pf::util qw(sort_ip isenabled);
 use pf::SwitchFactory;
 
 BEGIN {
@@ -57,10 +57,14 @@ sub begin :Private {
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
+    $c->stash->{roles} = $roles;
 
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $roles);
     $c->stash->{switch_default} = $switch_default;
+    
+    $c->stash->{model_name} = "Switch";
+    $c->stash->{controller_namespace} = "Config::Switch";
+    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
 }
 
 =head2 after list
@@ -69,15 +73,21 @@ Check which switch is also defined as a floating device and sort switches by IP 
 
 =cut
 
-after list => sub {
+after qw(list search) => sub {
+    my ($self, $c) = @_;
+    $self->after_list($c);
+};
+
+sub after_list {
     my ($self, $c) = @_;
     $c->stash->{action} ||= 'list';
 
     my ($status, $floatingdevice, $ip);
     my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
-    my %switches;
+    my @switches;
     foreach my $switch (@{$c->stash->{items}}) {
+        next if(isenabled($switch->{is_group}));
         my $id = $switch->{id};
         if ($id) {
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
@@ -88,8 +98,11 @@ after list => sub {
         my $cs = $c->model('Config::Switch')->configStore;
         $switch->{type} = $cs->full_config_raw($id)->{type}; 
         $switch->{mode} = $cs->full_config_raw($id)->{mode}; 
+        push @switches, $switch;
     }
-};
+    $c->stash->{items} = \@switches; 
+    $c->stash->{searchable} = 1;
+}
 
 =head2 search
 

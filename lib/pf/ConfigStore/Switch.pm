@@ -18,7 +18,7 @@ use pf::log;
 use pf::file_paths;
 use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
-use List::MoreUtils qw(part);
+use List::MoreUtils qw(part any);
 use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
@@ -106,8 +106,10 @@ sub cleanupBeforeCommit {
     my $parent_config = $self->full_config_raw($self->_inherit_from($switch));
     use Data::Dumper ; pf::log::get_logger->info(Dumper($switch));
     if($id ne "default") {
+        my @non_inheritable_attributes = qw(is_group);
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
+            next if(any {$_ eq $key} @non_inheritable_attributes);
             if(defined($value) && $value eq $parent_config->{$key}){
                 $switch->{$key} = undef;
             }
