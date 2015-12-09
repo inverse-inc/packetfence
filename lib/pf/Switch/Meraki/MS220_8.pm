@@ -29,20 +29,10 @@ use warnings;
 
 use base ('pf::Switch');
 
-use Net::SNMP;
-use Try::Tiny;
-
-use pf::Switch::constants;
 use pf::constants;
-use pf::web::util;
 use pf::config;
-use pf::roles::custom;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_view);
-use pf::violation;
-use pf::locationlog;
 
 
 =head1 SUBROUTINES
