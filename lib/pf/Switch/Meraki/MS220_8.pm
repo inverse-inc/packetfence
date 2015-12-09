@@ -11,7 +11,7 @@ manage the connection with MS220_8 switch model.
 
 =head1 STATUS
 
-Developed and tested on a MS220_8 switch
+Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
