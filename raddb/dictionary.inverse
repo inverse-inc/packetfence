@@ -10,18 +10,30 @@ VENDOR          Inverse                        29464
 
 BEGIN-VENDOR    Inverse
 
+# PF RPC config attributes
 ATTRIBUTE       PacketFence-RPC-Server                 1       string
 ATTRIBUTE       PacketFence-RPC-Port                   2       string
 ATTRIBUTE       PacketFence-RPC-User                   3       string
 ATTRIBUTE       PacketFence-RPC-Pass                   4       string
 ATTRIBUTE       PacketFence-RPC-Proto                  5       string
-ATTRIBUTE       PacketFence-Domain                     6       string
-ATTRIBUTE       PacketFence-Source                     7       string
-ATTRIBUTE       PacketFence-Status                     8       string
-ATTRIBUTE       PacketFence-Role                       9       string
-ATTRIBUTE       PacketFence-Profile                   10       string
-ATTRIBUTE       PacketFence-Mac                       11       string
-ATTRIBUTE       PacketFence-Port                      12       string
+# PF Audit attributes
+ATTRIBUTE       PacketFence-Mac                        6       string
+ATTRIBUTE       PacketFence-UserName                   7       string
+ATTRIBUTE       PacketFence-Switch-Id                  8       string
+ATTRIBUTE       PacketFence-Switch-Mac                 9       string
+ATTRIBUTE       PacketFence-Switch-Ip-Address         10       string
+ATTRIBUTE       PacketFence-Eap-Type                  11       string
+ATTRIBUTE       PacketFence-Connection-Type           12       string
+ATTRIBUTE       PacketFence-Source                    13       string
+ATTRIBUTE       PacketFence-SSID                      14       string
+ATTRIBUTE       PacketFence-IsPhone                   15       string
+ATTRIBUTE       PacketFence-AutoReg                   16       string
+ATTRIBUTE       PacketFence-Role                      17       string
+ATTRIBUTE       PacketFence-Status                    18       string
+ATTRIBUTE       PacketFence-IfIndex                   19       string
+ATTRIBUTE       PacketFence-Profile                   20       string       
+ATTRIBUTE       PacketFence-Domain                    21       string
+ATTRIBUTE       PacketFence-Radius-Reply              22       string
 
 END-VENDOR      Inverse
 
