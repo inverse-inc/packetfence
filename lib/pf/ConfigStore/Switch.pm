@@ -27,7 +27,7 @@ sub configFile { $pf::file_paths::switches_config_file };
 
 sub pfconfigNamespace {'config::Switch'}
 
-sub default_section { 'dinde' }
+sub default_section { undef }
 
 use pf::freeradius;
 
@@ -46,10 +46,8 @@ sub cleanupAfterRead {
     my $logger = get_logger();
 
     my $config = $self->cachedConfig;
-    use Data::Dumper ; print Dumper($switch);
-    # if the uplink attribute is set to dynamic or not set and the default one is dynamic
-    if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic')
-        || ($config->val("default", "uplink") eq "dynamic") ) {
+    # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
+    if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink}         = undef;
     }
@@ -73,6 +71,11 @@ sub _splitInlineTrigger {
     my ($trigger) = @_;
     my ( $type, $value ) = split( /::/, $trigger );
     return { type => $type, value => $value };
+}
+
+sub _inherit_from {
+    my ($self, $switch) = @_;
+    return $switch->{group} ? $switch->{group} : "default";
 }
 
 =item cleanupBeforeCommit
@@ -100,16 +103,42 @@ sub cleanupBeforeCommit {
         $switch->{inlineTrigger} = join( ',', @triggers );
     }
 
-    my $config = $self->cachedConfig;
-    
+    my $parent_config = $self->full_config_raw($self->_inherit_from($switch));
+    use Data::Dumper ; pf::log::get_logger->info(Dumper($switch));
     if($id ne "default") {
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
-            if(defined($value) && $value eq $config->val("default", $key)){
+            if(defined($value) && $value eq $parent_config->{$key}){
                 $switch->{$key} = undef;
             }
         }
     }
+}
+
+sub parent_config_raw {
+    my ($self, $id) = @_;
+    return $self->full_config_raw($self->_inherit_from($self->read($id)));
+}
+
+sub full_config_raw {
+    my ($self, $id) = @_;
+    
+    if($id ne "default"){
+        my $switch = $self->read_raw($id);
+        my $parent_config = $self->full_config_raw($self->_inherit_from($switch), $self->read_raw($self->_inherit_from($switch)));
+
+        while (my ($key, $value) = each %$parent_config){
+            if(!defined($switch->{$key})){
+                $switch->{$key} = $value;
+            }
+        }
+        return $switch;
+    }
+    else {
+        return $self->read_raw($id);
+    }
+
+
 }
 
 =item remove

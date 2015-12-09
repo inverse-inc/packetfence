@@ -25,7 +25,6 @@ use List::MoreUtils qw(any);
 
 has 'roles' => ( is => 'ro' );
 has 'access_lists' => ( is => 'ro' );
-has 'placeholders' => ( is => 'ro' );
 
 ## Definition
 has_field 'id' =>
@@ -49,11 +48,22 @@ has_field 'type' =>
    required_when => { 'id' => sub { $_[0] eq 'default' } },
    messages => { required => 'Please select the type of the switch.' },
   );
+
+has_field 'group' =>
+  (
+   type => 'Select',
+   label => 'Switch Group',
+   options_method => \&options_groups,
+   element_class => ['chzn-select'],
+   tags => { after_element => \&help,
+             help => 'Changing the group requires to save to see the new default values' },
+  );
 has_field 'mode' =>
   (
    type => 'Select',
    label => 'Mode',
-   required => 1,
+   required_when => { 'id' => sub { $_[0] eq 'default' } },
+   element_class => ['chzn-select'],
   );
 has_field 'deauthMethod' =>
   (
@@ -226,7 +236,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -514,13 +524,20 @@ sub update_fields {
     my $self = shift;
     my $init_object = $self->init_object;
     my $id = $init_object->{id} if $init_object;
+    my $inherit_from = $init_object->{group} || "default";
+    my $cs = pf::ConfigStore::Switch->new;
+    my $placeholders = $cs->parent_config_raw($id);
+    $cs->cleanupAfterRead($id, $placeholders);
+
+    use Data::Dumper ; pf::log::get_logger->info(Dumper($placeholders));
+    
     if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    } elsif ($self->placeholders) {
+    } elsif ($placeholders) {
         foreach my $field ($self->fields) {
-            my $placeholder = $self->placeholders->{$field->name};
+            my $placeholder = $placeholders->{$field->name};
             if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
                     my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
@@ -528,7 +545,8 @@ sub update_fields {
                 }
                 elsif ( 
                     # if there is no value defined in the switch and the place holder is defined
-                    ( ( !defined($init_object->{$field->name}) && pf::util::isenabled($placeholder) )
+                    # We check that it is not disabled because of special cases like uplink_dynamic
+                    ( ( !defined($init_object->{$field->name}) && !pf::util::isdisabled($placeholder) )
                     # or that the value in the switch is enabled
                         || pf::util::isenabled($field->value) ) 
                     # we only apply this to Checkbox and Toggle
@@ -595,6 +613,19 @@ sub options_type {
     return @modules;
 }
 
+sub options_groups {
+    my $self = shift;
+    my @couples;
+    push @couples, ('' => 'None');
+    my $cs = pf::ConfigStore::Switch->new;
+    my @groups = $cs->search_with_sub(sub {
+        pf::util::isenabled($_[0]->{is_group}); 
+    }, "id");
+    push @couples, map { $_->{id} => $_->{description} } @groups;
+
+    return @couples;
+}
+
 =head2 options_mode
 
 =cut
@@ -603,6 +634,7 @@ sub options_mode {
     my $self = shift;
 
     my @modes = map { $_ => $self->_localize($_) } @SNMP::MODES;
+    push @modes, ('' => '');
 
     return \@modes;
 }

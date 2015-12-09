@@ -21,6 +21,7 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use pfconfig::log;
 use pf::file_paths;
+use List::MoreUtils qw(any);
 
 use base 'pfconfig::namespaces::config';
 
@@ -44,11 +45,15 @@ sub build_child {
         SNMPCommunityTrap => 'public'
     };
 
+    my @non_inheritable_attributes = qw(is_group);
+
     foreach my $section_name ( keys %tmp_cfg ) {
         unless ( $section_name eq "default" ) {
-            foreach my $element_name ( keys %{ $tmp_cfg{default} } ) {
+            my $inherit_from = $tmp_cfg{$section_name}{group} || "default";
+            foreach my $element_name ( keys %{ $tmp_cfg{$inherit_from} } ) {
+                next if(any {$_ eq $element_name} @non_inheritable_attributes);
                 unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
-                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{default}{$element_name};
+                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$inherit_from}{$element_name};
                 }
             }
         }

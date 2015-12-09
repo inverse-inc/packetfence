@@ -59,7 +59,7 @@ sub begin :Private {
     $roles = undef unless(is_success($status));
 
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", placeholders => $switch_default, roles => $roles);
+    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
 
@@ -85,8 +85,9 @@ after list => sub {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
-        $switch->{type} = $pf::SwitchFactory::SwitchConfig{$id}->{type}; 
-        $switch->{mode} = $pf::SwitchFactory::SwitchConfig{$id}->{mode}; 
+        my $cs = $c->model('Config::Switch')->configStore;
+        $switch->{type} = $cs->full_config_raw($id)->{type}; 
+        $switch->{mode} = $cs->full_config_raw($id)->{mode}; 
     }
 };
 

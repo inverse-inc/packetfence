@@ -173,6 +173,20 @@ reads a section
 
 sub read {
     my ($self, $id, $idKey ) = @_;
+    my $data = $self->read_raw($id, $idKey);
+    $self->cleanupAfterRead($id,$data);
+    return $data;
+}
+
+
+=head2 read_raw
+
+reads a section without doing post-read cleanup
+
+=cut
+
+sub read_raw {
+    my ($self, $id, $idKey ) = @_;
     my $data;
     my $config = $self->cachedConfig;
     $id = $self->_formatId($id);
@@ -190,7 +204,6 @@ sub read {
             }
             $data->{$param} = $val;
         }
-        $self->cleanupAfterRead($id,$data);
     }
     return $data;
 }
@@ -454,8 +467,18 @@ sub commitCluster {
 =cut
 
 sub search {
-    my ($self, $field, $value) = @_;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll};
+    my ($self, $field, $value, $idKey) = @_;
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
+
+}
+
+=head2 search
+
+=cut
+
+sub search_with_sub {
+    my ($self, $sub, $idKey) = @_;
+    return grep { $sub->($_) } @{$self->readAll($idKey)};
 
 }
 
