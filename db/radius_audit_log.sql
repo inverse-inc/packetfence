@@ -22,7 +22,7 @@ CREATE TABLE radius_audit_log (
   is_phone char(1) NULL,
   auto_reg char(1) NULL,
   role varchar(255) NULL,
-  auth_status (255) NULL,
+  auth_status varchar(255) NULL,
   unreg varchar(255) NULL,
   ifindex varchar(255) NULL,
   reason varchar(255) NULL,
