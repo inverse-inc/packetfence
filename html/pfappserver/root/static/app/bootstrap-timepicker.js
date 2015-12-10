@@ -773,6 +773,8 @@
      * =========================== */
 
     $.fn.timepicker = function (option) {
+        var args = Array.apply(null, arguments);
+        args.shift();
         return this.each(function () {
             var $this = $(this)
             , data = $this.data('timepicker')
@@ -780,8 +782,8 @@
             if (!data) {
                 $this.data('timepicker', (data = new Timepicker(this, options)));
             }
-            if (typeof option == 'string') {
-                data[option]();
+            if (typeof option == 'string' && typeof data[option] == 'function') {
+                data[option].apply(data, args);
             }
         })
     }
