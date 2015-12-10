@@ -127,6 +127,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
         $c->stash(current_view => 'JSON');
     } else {
         my $query = $form->value;
+        $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
         ($status, $result) = $model->search($query, $pageNum, $perPage);
         if (is_success($status)) {
             $c->stash(form => $form, action => 'search');
@@ -186,6 +187,26 @@ sub remove_group :Chained('object') :PathPart('remove_group'): Args(0) {
     my $idKey = $model->idKey;
     my $itemKey = $model->itemKey;
     my ($status,$result) = $self->getModel($c)->update($c->stash->{$idKey}, { group => undef });
+    $self->getModel($c)->commit();
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
+}
+
+=head2 add_to_group
+
+=cut
+
+
+sub add_to_group :Chained('object') :PathPart('add_to_group'): Args(1) {
+    my ($self,$c,$group) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my $itemKey = $model->itemKey;
+    my ($status,$result) = $self->getModel($c)->update($c->stash->{$idKey}, { group => $group });
+    $self->getModel($c)->commit();
     $c->stash(
         status_msg   => $result,
         current_view => 'JSON',

@@ -60,6 +60,10 @@ var SwitchView = function(options) {
     var remove_group = $.proxy(this.removeGroup, this);
     options.parent.on('click', '#modalSwitch [href$="/remove_group"]', remove_group);
 
+    // Add a group to the switch group
+    var add_to_group = $.proxy(this.addToGroup, this);
+    options.parent.on('click', '#modalSwitch #addNewMember', add_to_group);
+
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
 
@@ -76,7 +80,7 @@ var SwitchView = function(options) {
         });
 
         $('[data-provide="typeahead"]').typeahead({
-            source: that.searchSwitch,
+            source: $.proxy(that.searchSwitch, that),
             minLength: 2,
             items: 11,
             matcher: function(item) { return true; }
@@ -243,6 +247,25 @@ SwitchView.prototype.addToGroup = function(e) {
     e.preventDefault();
 
     var that = this;
+    var button = $(e.target);
+    var newMemberId = $('#newMember').val();
+    this.switches.get({
+        url: "/config/switch/"+newMemberId+"/add_to_group/"+button.attr('data-group'),
+        success: function(data) {
+            that.readSwitch({
+              preventDefault: function(){},
+              target: {
+                href: "/config/switchgroup/"+button.attr('data-group')+"/read",
+              },
+            });
+/*            a.closest('.switchGroupMember').remove();
+            if ($('.switchGroupMember').size() == 0){
+              $('#switchMembersEmpty').removeClass('hidden');
+            }*/
+            showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
+        },
+        errorSibling: $('#modalSwitch .modal-body').children().first(),
+    });
 }
 
 SwitchView.prototype.removeGroup = function(e) {
@@ -255,7 +278,7 @@ SwitchView.prototype.removeGroup = function(e) {
         success: function(data) {
             a.closest('.switchGroupMember').remove();
             if ($('.switchGroupMember').size() == 0){
-              $('#switchMembersEmpty').removeClass('hidden');
+              $('#switchMembersEmpty').closest('tr').removeClass('hidden');
             }
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
         },
@@ -459,6 +482,33 @@ SwitchView.prototype.deleteConfirm = function(e) {
     return false;
 };
 
-SwitchView.prototype.searchSwitch = function(e){
-   console.log("Searching zi switches...");
+SwitchView.prototype.searchSwitch = function(query, process){
+  console.log(this);
+    this.switches.post({
+        url: '/config/switch/search',
+        data: {
+            'json': 1,
+            'all_or_any': 'any',
+            'searches.0.name': 'id',
+            'searches.0.op': 'like',
+            'searches.0.value': query,
+/*            'searches.1.name': 'email',
+            'searches.1.op': 'like',
+            'searches.1.value': query*/
+        },
+        success: function(data) {
+            console.log(data)
+            var results = $.map(data.items, function(i) {
+                return i.id;
+            });
+            var input = $('#modalSwitch #newMember');
+            var control = input.closest('.control-group');
+            if (results.length == 0)
+                control.addClass('error');
+            else
+                control.removeClass('error');
+            console.log(results);
+            process(results);
+        }
+    });
 }

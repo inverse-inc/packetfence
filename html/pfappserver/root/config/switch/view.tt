@@ -21,21 +21,56 @@
   <div class="modal-body">
 
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#switchDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
+      [% IF item.members %]
+      <li [% IF item.members %]class="active"[% END %]><a href="#switchGroupMembers" data-toggle="tab">[% l('Members') %]</a></li>
+      [% END %]
+      <li [% UNLESS item.members %]class="active"[% END %]><a href="#switchDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
       <li><a href="#switchRoles" data-toggle="tab">[% l('Roles') %]</a></li>
       <li><a href="#switchInline" data-toggle="tab">[% l('Inline') %]</a></li>
       <li><a href="#switchRADIUS" data-toggle="tab">[% l('RADIUS') %]</a></li>
       <li><a href="#switchSNMP" data-toggle="tab">[% l('SNMP') %]</a></li>
       <li><a href="#switchCLI" data-toggle="tab">[% l('CLI') %]</a></li>
       <li><a href="#switchWS" data-toggle="tab">[% l('Web Services') %]</a></li>
-      [% IF item.members %]
-      <li><a href="#switchGroupMembers" data-toggle="tab">[% l('Members') %]</a></li>
-      [% END %]
     </ul>
 
     <div class="tab-content">
 
-      <div class="tab-pane fade in active" id="switchDefinition">
+      <div class="tab-pane fade [% IF item.members %]in active[% END %]" id="switchGroupMembers">
+        <div class="control-group">
+          <label class="control-label" for="pid">Add member</label>
+          <div class="controls">
+            <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
+            <button name="addNewMember" id="addNewMember" data-group="[% item.id %]" class="btn btn-mini btn-success">+</button>
+          </div>
+        </div>
+        <table class="table table-stripped table-condensed">
+          <tr>
+            <th> </th>
+            <th>Identifier</th>
+            <th>Description</th>
+          </tr>
+          <tr class="[% ' hidden' IF item.members.keys.size > 0 %]">
+            <td colspan="3">
+            <div id="switchMembersEmpty" class="unwell unwell-horizontal">
+              <p>
+                <i class="icon-group icon-large"></i>
+                [% l('There are no members in this group') %]
+              </p>
+            </div>
+            </td>
+          </tr>
+          [% FOREACH member IN item.members.keys %]
+            <tr class="switchGroupMember">
+              <td id="switchMemberOptions">
+                <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">[% l('X') %]</a>
+              </td>
+              <td>[% member %]</td>
+              <td>[% item.members.$member.description %]</td>
+            </tr>
+          [% END %]
+        </table>
+      </div><!--tab-pane-->
+      <div class="tab-pane fade [% UNLESS item.members %]in active[% END %]" id="switchDefinition">
         [% form.field('id').render | none UNLESS item && item.id.defined %]
         [% form.block('definition').render | none %]
       </div><!-- tab-pane -->
@@ -109,40 +144,6 @@
         [% form.block('ws').render | none %]
       </div><!--tab-pane-->
 
-      <div class="tab-pane fade" id="switchGroupMembers">
-        <div class="control-group">
-          <label class="control-label" for="pid">Owner</label>
-          <div class="controls">
-            <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
-          </div>
-        </div>
-        <table class="table table-stripped table-condensed">
-          <tr>
-            <th> </th>
-            <th>Identifier</th>
-            <th>Description</th>
-          </tr>
-          <tr>
-            <td colspan="3">
-            <div id="switchMembersEmpty" class="unwell unwell-horizontal[% ' hidden' IF item.members.keys.size > 0 %]">
-              <p>
-                <i class="icon-group icon-large"></i>
-                [% l('There are no members in this group') %]
-              </p>
-            </div>
-            </td>
-          </tr>
-          [% FOREACH member IN item.members.keys %]
-            <tr class="switchGroupMember">
-              <td id="switchMemberOptions">
-                <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">[% l('X') %]</a>
-              </td>
-              <td>[% member %]</td>
-              <td>[% item.members.$member.description %]</td>
-            </tr>
-          [% END %]
-        </table>
-      </div><!--tab-pane-->
 
     </div><!--tab-content-->
   </div><!--modal-body-->
