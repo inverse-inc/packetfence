@@ -23,13 +23,6 @@ has_field 'id' =>
    messages => { required => 'Please specify a group name' },
   );
 
-has_field 'is_group' => 
-  (
-   type => 'Hidden',
-   value => 'Y',
-   default => 'Y',
-  );
-
 has_field 'group' =>
   (
    type => 'Hidden',

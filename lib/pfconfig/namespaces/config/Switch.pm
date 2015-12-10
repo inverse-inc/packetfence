@@ -51,20 +51,17 @@ sub build_child {
     # default is always first
     push @keys, "default";
     # then all the groups
-    my @groups = grep { pf::util::isenabled( $tmp_cfg{$_}->{is_group}) } keys %tmp_cfg;
+    my @groups = $self->GroupMembers("group");
     push @keys, @groups;
     # then everyone else
     push @keys, keys(%tmp_cfg);
     # Only keep unique elements
     @keys = uniq(@keys);
 
-    my @non_inheritable_attributes = qw(is_group);
-
     foreach my $section_name ( @keys ) {
         unless ( $section_name eq "default" ) {
             my $inherit_from = $tmp_cfg{$section_name}{group} || "default";
             foreach my $element_name ( keys %{ $tmp_cfg{$inherit_from} } ) {
-                next if(any {$_ eq $element_name} @non_inheritable_attributes);
                 unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
                     $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$inherit_from}{$element_name};
                 }

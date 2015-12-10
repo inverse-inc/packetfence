@@ -12,10 +12,8 @@ Is the Generic class for the cached config
 
 =cut
 
-use Moo;
+use Moo::Role;
 use namespace::autoclean;
-
-BEGIN {extends 'pf::ConfigStore';}
 
 =head2 Fields
 
@@ -52,7 +50,12 @@ sub _formatId {
    return $self->group . " " . $id;
 }
 
-__PACKAGE__->meta->make_immutable;
+sub _cleanupId {
+    my ($self, $id) = @_;
+    my $quoted_group = quotemeta($self->group);
+    $id =~ s/^$quoted_group //g;
+    return $id;
+}
 
 =back
 

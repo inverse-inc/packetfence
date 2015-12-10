@@ -35,12 +35,29 @@ __PACKAGE__->config(
     },
 );
 
-after qw(begin) => sub {
+=head2 begin
+
+Setting the current form instance and model
+
+=cut
+
+sub begin :Private {
     my ($self, $c) = @_;
+    my ($model, $status, $switch_default, $roles);
+
+    $model = $c->model("Config::SwitchGroup");
+    ($status, $switch_default) = $model->read('default');
+    ($status, $roles) = $c->model('Roles')->list;
+    $roles = undef unless(is_success($status));
+    $c->stash->{roles} = $roles;
+
+    $c->stash->{current_model_instance} = $model;
+    $c->stash->{switch_default} = $switch_default;
+    
     $c->stash->{model_name} = "Switch Group";
     $c->stash->{controller_namespace} = "Config::SwitchGroup";
     $c->stash->{current_form_instance} = $c->form("Config::SwitchGroup", roles => $c->stash->{roles});
-};
+}
 
 after qw(view create clone update list index) => sub {
     my ($self, $c) = @_;
@@ -69,7 +86,6 @@ sub after_list {
     my @switches;
     foreach my $switch (@{$c->stash->{items}}) {
         my $id = $switch->{id};
-        next unless(isenabled($switch->{is_group}));
         my $cs = $c->model('Config::Switch')->configStore;
         $switch->{type} = $cs->full_config_raw($id)->{type}; 
         $switch->{mode} = $cs->full_config_raw($id)->{mode}; 

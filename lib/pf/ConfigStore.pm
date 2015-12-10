@@ -165,6 +165,14 @@ format the id
 
 sub _formatId { return $_[1]; }
 
+=head2 _formatId
+
+Cleanup the id
+
+=cut
+
+sub _cleanupId { return $_[1]; }
+
 =head2 read
 
 reads a section
@@ -193,7 +201,7 @@ sub read_raw {
     if ( $config->SectionExists($id) ) {
         $data = {};
         my @default_params = $config->Parameters($config->{$self->default_section}) if exists $config->{$self->default_section};
-        $data->{$idKey} = $id if defined $idKey;
+        $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
         foreach my $param (uniq $config->Parameters($id),@default_params) {
             my $val;
             my @vals = $config->val($id, $param);

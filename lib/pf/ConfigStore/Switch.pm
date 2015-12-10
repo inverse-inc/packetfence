@@ -22,6 +22,8 @@ use List::MoreUtils qw(part any);
 use pfconfig::manager;
 
 extends qw(pf::ConfigStore Exporter);
+with 'pf::ConfigStore::Hierarchy';
+
 
 sub configFile { $pf::file_paths::switches_config_file };
 
@@ -73,11 +75,6 @@ sub _splitInlineTrigger {
     return { type => $type, value => $value };
 }
 
-sub _inherit_from {
-    my ($self, $switch) = @_;
-    return $switch->{group} ? $switch->{group} : "default";
-}
-
 =item cleanupBeforeCommit
 
 Clean data before update or creating
@@ -106,10 +103,8 @@ sub cleanupBeforeCommit {
     my $parent_config = $self->full_config_raw($self->_inherit_from($switch));
     use Data::Dumper ; pf::log::get_logger->info(Dumper($switch));
     if($id ne "default") {
-        my @non_inheritable_attributes = qw(is_group);
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
-            next if(any {$_ eq $key} @non_inheritable_attributes);
             if(defined($value) && $value eq $parent_config->{$key}){
                 $switch->{$key} = undef;
             }
@@ -117,31 +112,6 @@ sub cleanupBeforeCommit {
     }
 }
 
-sub parent_config_raw {
-    my ($self, $id) = @_;
-    return $self->full_config_raw($self->_inherit_from($self->read($id)));
-}
-
-sub full_config_raw {
-    my ($self, $id) = @_;
-    
-    if($id ne "default"){
-        my $switch = $self->read_raw($id);
-        my $parent_config = $self->full_config_raw($self->_inherit_from($switch), $self->read_raw($self->_inherit_from($switch)));
-
-        while (my ($key, $value) = each %$parent_config){
-            if(!defined($switch->{$key})){
-                $switch->{$key} = $value;
-            }
-        }
-        return $switch;
-    }
-    else {
-        return $self->read_raw($id);
-    }
-
-
-}
 
 =item remove
 
@@ -178,6 +148,7 @@ before rewriteConfig => sub {
     push @newSections, sort @$rest if defined $rest;
     $config->{sects} = \@newSections;
 };
+
 
 __PACKAGE__->meta->make_immutable;
 

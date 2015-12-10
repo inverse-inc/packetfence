@@ -86,6 +86,7 @@ sub after_list {
     my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     my @switches;
+    my $groupsModel = $c->model("Config::SwitchGroup");
     foreach my $switch (@{$c->stash->{items}}) {
         next if(isenabled($switch->{is_group}));
         my $id = $switch->{id};

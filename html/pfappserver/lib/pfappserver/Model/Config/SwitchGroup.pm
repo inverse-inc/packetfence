@@ -1,39 +1,35 @@
-package pf::ConfigStore::Interface;
+package pfappserver::Model::Config::SwitchGroup;
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
+pfappserver::Model::Config::SwitchGroup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+pfappserver::Model::Config::SwitchGroup;
 
 =cut
 
-use Moo;
+use Moose;
 use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
+use pf::ConfigStore::SwitchGroup;
 
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
+extends 'pfappserver::Base::Model::Config';
 
-sub group { 'interface' };
-
-sub pfconfigNamespace {'config::Pf'};
 
 =head2 Methods
 
 =over
 
-=item _buildCachedConfig
+=item _buildConfigStore
 
 =cut
 
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
+sub _buildConfigStore { pf::ConfigStore::SwitchGroup->new; }
 
 __PACKAGE__->meta->make_immutable;
+
 
 =back
 
@@ -61,4 +57,5 @@ USA.
 =cut
 
 1;
+
 

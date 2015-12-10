@@ -34,10 +34,6 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the IP address/MAC address/Range (CIDR) of the switch.' },
   );
-has_field 'is_group' => 
-  (
-   type => 'Hidden',
-  );
 has_field 'description' =>
   (
    type => 'Text',
@@ -239,7 +235,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL is_group) ],
+   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -620,10 +616,9 @@ sub options_groups {
     my $self = shift;
     my @couples;
     push @couples, ('' => 'None');
-    my $cs = pf::ConfigStore::Switch->new;
-    my @groups = $cs->search_with_sub(sub {
-        pf::util::isenabled($_[0]->{is_group}); 
-    }, "id");
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my @groups = @{$cs->readAll("id")};
+    use Data::Dumper ; pf::log::get_logger->info(Dumper(\@groups));
     push @couples, map { $_->{id} => $_->{description} } @groups;
 
     return @couples;
