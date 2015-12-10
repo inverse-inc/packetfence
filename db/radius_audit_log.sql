@@ -26,7 +26,7 @@ CREATE TABLE radius_audit_log (
   auth_status varchar(255) NULL,
   unreg varchar(255) NULL,
   ifindex varchar(255) NULL,
-  reason varchar(255) NULL,
+  reason TEXT NULL,
   nas_port varchar(255) NULL,
   profile varchar(255) NULL,
   event_type varchar(255) NULL,
