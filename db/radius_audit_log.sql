@@ -38,6 +38,7 @@ CREATE TABLE radius_audit_log (
   calling_station_id varchar(255) NULL,
   pf_domain varchar(255) NULL,
   realm varchar(255) NULL,
+  radius_request TEXT,
   radius_reply TEXT,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
