@@ -227,6 +227,7 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Catalyst::Plugin::Unicode::Encoding)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
+Requires: perl(SQL::Abstract::More)
 Requires(pre): perl-aliased => 0.30
 Requires(pre): perl-version
 # for Catalyst stand-alone server
