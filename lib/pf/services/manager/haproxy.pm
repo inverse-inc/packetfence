@@ -45,6 +45,7 @@ sub generateConfig {
     $tags{'template'} = "$conf_dir/haproxy.conf";
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
+    $tags{'var_dir'} = $var_dir;
     if ($OS eq 'debian') {
         $tags{'os_path'} = '/etc/haproxy/errors/';
     } else {

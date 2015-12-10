@@ -3,6 +3,7 @@ global
 	user haproxy
 	group haproxy
 	daemon
+	pidfile %%var_dir%%/run/haproxy.pid
 	log %%active_active_ip%% local0
 	stats socket /tmp/proxystats level admin
 	maxconn 4000
