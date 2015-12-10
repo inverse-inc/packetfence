@@ -231,6 +231,12 @@ SwitchView.prototype.updateSwitch = function(e) {
     }
 };
 
+SwitchView.prototype.addToGroup = function(e) {
+    e.preventDefault();
+
+    var that = this;
+}
+
 SwitchView.prototype.removeGroup = function(e) {
     e.preventDefault();
 
@@ -239,6 +245,10 @@ SwitchView.prototype.removeGroup = function(e) {
     this.switches.get({
         url: a.attr('href'),
         success: function(data) {
+            a.closest('.switchGroupMember').remove();
+            if ($('.switchGroupMember').size() == 0){
+              $('#switchMembersEmpty').removeClass('hidden');
+            }
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
         },
         errorSibling: $('#modalSwitch .modal-body').children().first(),
