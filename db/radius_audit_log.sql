@@ -8,6 +8,7 @@ CREATE TABLE radius_audit_log (
   id int NOT NULL AUTO_INCREMENT,
   created_at TIMESTAMP NOT NULL,
   mac char(17) NOT NULL,
+  ip varchar(255) NULL,
   user_name varchar(255) NULL,
   switch_id varchar(255) NULL,
   switch_mac varchar(255) NULL,

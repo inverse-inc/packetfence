@@ -1,6 +1,8 @@
 server packetfence {
 
     authorize {
+        rewrite.calling_station_id
+        set.called_station_ssid
         suffix
         ntdomain
         preprocess
@@ -68,9 +70,12 @@ server packetfence {
                 PacketFence-RPC-Proto = ${rpc_proto}
             }
             packetfence
+            sql
         }
-        sql
         Post-Auth-Type REJECT {
+            if (!EAP-Type || (EAP-Type != EAP-TTLS  && EAP-Type != PEAP)) {
+                sql
+            }
             attr_filter.access_reject
         }
     }
