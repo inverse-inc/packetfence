@@ -1,23 +1,23 @@
-<div id="reports" class="navbar">
+<div id="report_radius_audit_log" class="navbar">
   <div class="navbar-inner">
     <div class=" container">
       <div class="nav-collapse collapse navbar-responsive-collapse">
 
-        <form class="navbar-search pull-left input-daterange datepicker" action="">
-          <input type="text" class="input-small" name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
-          <input type="text" name="unregdate.time" id="start.time" value="[% start.time %]" class="timepicker-default input-small" placeholder="HH:MM">
+        <form class="navbar-search pull-left input-daterange datetimepicker" action="">
+          <input type="text" class="input-small datepicker" id="start_date"  name="start_date" value="[% start_date %]" data-date-format="yyyy-mm-dd" />
+          <input type="text" name="start_time" id="start_time" value="[% start_time %]" class="timepicker-default input-small" placeholder="HH:MM">
           <i class="icon-arrow-right"></i>
-          <input type="text" class="input-small" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% start.date %]" />
-          <input type="text" name="end.time" id="end.time" value="[% end.time %]" class="timepicker-default input-small" placeholder="HH:MM">
+          <input type="text" class="input-small datepicker" id="end_date" name="end_date" value="[% end_date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
+          <input type="text" name="end.time" id="end_time" value="[% end_time %]" class="timepicker-default input-small" placeholder="HH:MM">
         </form>
       </div>
 
-      <ul class="nav pull-right">
-        <li><a href="#[% last30mins %]">[% l('Last 30 minutes') %]</a></li>
-        <li><a href="#[% last1hour %]">[% l('Last 1 hour') %]</a></li>
-        <li><a href="#[% last6hours %]">[% l('Last 6 hours') %]</a></li>
-        <li><a href="#[% last12hours %]">[% l('Last 12 hours') %]</a></li>
-        <li><a href="#[% last24hours %]">[% l('Last 24 hours') %]</a></li>
+      <ul class="nav pull-right radiud_audit_log_datetimepicker">
+        <li><a href="#last30mins">[% l('Last 30 minutes') %]</a></li>
+        <li><a href="#last1hour">  [% l('Last 1 hour') %]</a></li>
+        <li><a href="#last6hours"> [% l('Last 6 hours') %]</a></li>
+        <li><a href="#last12hours">[% l('Last 12 hours') %]</a></li>
+        <li><a href="#last24hours">[% l('Last 24 hours') %]</a></li>
       </ul>
     </div>
     <div class=" container">
