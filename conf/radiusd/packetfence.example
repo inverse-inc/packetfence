@@ -69,6 +69,7 @@ server packetfence {
             }
             packetfence
         }
+        sql
         Post-Auth-Type REJECT {
             attr_filter.access_reject
         }
