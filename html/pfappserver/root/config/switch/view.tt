@@ -110,6 +110,12 @@
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchGroupMembers">
+        <div class="control-group">
+          <label class="control-label" for="pid">Owner</label>
+          <div class="controls">
+            <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
+          </div>
+        </div>
         <table class="table table-stripped table-condensed">
           <tr>
             <th> </th>

@@ -74,6 +74,13 @@ var SwitchView = function(options) {
         $('#inlineTrigger tr:not(.hidden) select').each(function() {
             that.updateInlineTrigger($(this));
         });
+
+        $('[data-provide="typeahead"]').typeahead({
+            source: that.searchSwitch,
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
+        });
     });
 
     // Update the trigger fields when adding a new trigger
@@ -99,6 +106,7 @@ var SwitchView = function(options) {
 
     // pagination search
     options.parent.on('click', '#switches [href*="/switch/search/"]', $.proxy(this.searchPagination, this));
+
 
 };
 
@@ -450,3 +458,7 @@ SwitchView.prototype.deleteConfirm = function(e) {
     modal.modal({ show: true });
     return false;
 };
+
+SwitchView.prototype.searchSwitch = function(e){
+   console.log("Searching zi switches...");
+}
