@@ -9,7 +9,9 @@
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/jquery.ba-hashchange',
-        'admin/reports'
+        'admin/reports',
+        'admin/config/items',
+        'app/chosen.jquery.min'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',
