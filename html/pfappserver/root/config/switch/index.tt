@@ -14,24 +14,17 @@
           <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
-      <h2>
-        <span>
-        [% UNLESS c.pf_hash_for(c.action) == c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]
-          <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
-        [% ELSE %]
-          [% l('Switches') %]
-        [% END %]
-        </span>
-        |
-        <span>
-        [% UNLESS c.pf_hash_for(c.action) == c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]
-          <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
-        [% ELSE %]
-          [% l('Switch Groups') %]
-        [% END %]
-        </span>
-      </h2>
-
+      
+      <div class="tab-content">
+        <ul style="font-size:130%" class="nav nav-tabs">
+          <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
+            <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
+          </li>
+          <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
+            <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
+          </li>
+        </ul>
+      </div>
       [% INCLUDE config/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
