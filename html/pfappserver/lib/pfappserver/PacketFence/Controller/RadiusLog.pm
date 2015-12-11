@@ -23,10 +23,10 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 __PACKAGE__->config(
     action_args => {
         '*' => { model => 'RadiusLog' },
-        advanced_search => { model => 'Search::RadiusLog', form => 'AdvancedSearch' },
-        'simple_search' => { model => 'Search::RadiusLog', form => 'AdvancedSearch' },
-        search => { model => 'Search::RadiusLog', form => 'AdvancedSearch' },
-        'index' => { model => 'Search::RadiusLog', form => 'AdvancedSearch' },
+        advanced_search => { model => 'RadiusLog', form => 'RadiusLogSearch' },
+        'simple_search' => { model => 'RadiusLog', form => 'RadiusLogSearch' },
+        search => { model => 'RadiusLog', form => 'RadiusLogSearch' },
+        'index' => { model => 'RadiusLog', form => 'RadiusLogSearch' },
     }
 );
 
@@ -50,11 +50,29 @@ Perform an advanced search using the Search::RadiusLog model
 
 sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c, $pageNum, $perPage) = @_;
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
+    my ($status, $result, $status_msg);
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+        $c->stash(current_view => 'JSON');
+    } else {
+        my $query = $form->value;
+        $c->stash($query);
+        use Data::Dumper;$c->log->info(Dumper($query));
+        ($status, $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
+        }
+    }
     $c->stash({
         columns => \@pf::radius_audit_log::FIELDS,
+        display_columns => [qw(mac created_at)],
     });
+    $c->response->status($status);
 }
 
 =head2 simple_search
@@ -110,6 +128,9 @@ sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
 
 sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c) = @_;
+    $c->stash({
+        fields => \@pf::radius_audit_log::FIELDS,
+    });
 }
 
 =head1 AUTHOR
