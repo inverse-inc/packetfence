@@ -239,7 +239,7 @@ sub update {
 sub _update_section {
     my ($self, $section, $assignments) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $config->{$self->default_section} if exists $config->{$self->default_section};
+    my $default_section = $config->{$self->default_section} if(defined($self->default_section) && exists($config->{$self->default_section}));
     my $imported = $config->{imported} if exists $config->{imported};
     my $use_default = $default_section && $section ne $default_section;
     while ( my ($param, $value) = each %$assignments ) {
