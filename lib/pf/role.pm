@@ -378,9 +378,8 @@ sub getRegisteredRole {
 
     my ($vlan, $role, $result, $person, $source, $portal);
 
-    $person = $args->{'user_name'} || $args->{'node_info'}->{'pid'};
-    if (defined($person)) {
-        $person = pf::person::person_view_simple($person);
+    if (defined($args->{'node_info'}->{'pid'})) {
+        $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
         if (defined($person->{'source'}) && $person->{'source'} ne '') {
             $source = $person->{'source'};
         }
