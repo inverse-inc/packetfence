@@ -47,6 +47,9 @@
       <table id="items" class="table table-condensed table-striped items">
            <thead>
              <tr>
+               <td colspan="[% display_columns.size + 1%]">[% pagination("search", page_num, per_page,page_count) | none%]</td>
+             </tr>
+             <tr>
                [% header('id', l('id')) | none %]
                [% FOREACH display_column IN display_columns  %]
                  [% header(display_column, l(display_column)) | none %]
@@ -62,8 +65,8 @@
             </tr>
         [% END %]
         <tfoot>
-            <tr>
-                <td colspan="[% display_column.size + 1%]">[% pagination("search", page_num, per_page,page_count) | none%]</td>
-            </tr>
+           <tr>
+              <td colspan="[% display_columns.size + 1%]">[% pagination("search", page_num, per_page,page_count) | none%]</td>
+           </tr>
         <tfoot>
       </table>
