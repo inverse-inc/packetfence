@@ -34,7 +34,7 @@
       <div class="nav-collapse collapse navbar-responsive-collapse">
 
         <form name="search" class="navbar-search pull-left input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
-          <div class="input-daterange datepicker">
+          <div class="input-daterange ">
               <input type="text" class="input-small datepicker" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
               <input type="text" name="start.time" id="start_time" value="[% start.time %]" class="timepicker-default input-small" placeholder="HH:MM">
               <i class="icon-arrow-right"></i>
