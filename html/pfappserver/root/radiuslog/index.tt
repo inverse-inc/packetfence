@@ -1,0 +1,60 @@
+  <div class="modal modal-large fade hide" id="modalItem">
+  </div>
+
+[% MACRO header(column, title, class) BLOCK -%]
+[% new_direction = 'asc';
+    IF by == column && direction == 'asc';
+      new_direction = 'desc';
+    END;
+    params = { by => column, direction => new_direction };
+    %]
+      <!--th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th-->
+      <th[% " class=\"$class\"" IF class %]>[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</th>
+[% END -%]
+[%- BLOCK search_options %]
+  <div>
+  <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
+  [% FOREACH column IN columns %]
+    <option value="[%column%]">[% l(column) %]</option>
+  [% END %]
+  </select>
+  <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
+    <option value="equal">[% l('is') %]</option>
+    <option value="not_equal">[% l('is not') %]</option>
+    <option value="starts_with">[% l('starts with') %]</option>
+    <option value="ends_with">[% l('ends with') %]</option>
+    <option value="like">[% l('matches') %]</option>
+  </select>
+  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String...">
+  </div>
+[% END -%]
+<div id="report_radius_audit_log" class="navbar">
+  <div class="navbar-inner">
+    <div class=" container">
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+
+        <form name="search" class="navbar-search pull-left input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
+          <div class="input-daterange datepicker">
+              <input type="text" class="input-small datepicker" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
+              <input type="text" name="start.time" id="start_time" value="[% start.time %]" class="timepicker-default input-small" placeholder="HH:MM">
+              <i class="icon-arrow-right"></i>
+              <input type="text" class="input-small datepicker" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
+              <input type="text" name="end.time" id="end_time" value="[% end.time %]" class="timepicker-default input-small" placeholder="HH:MM">
+          </div>
+          [% PROCESS search_options disabled = 0 %]
+          <div class="btn-group pull-right">
+            <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+          </div>
+        </form>
+      </div>
+
+      <ul class="nav pull-right radiud_audit_log_datetimepicker">
+        <li><a href="#last30mins">[% l('Last 30 minutes') %]</a></li>
+        <li><a href="#last1hour">  [% l('Last 1 hour') %]</a></li>
+        <li><a href="#last6hours"> [% l('Last 6 hours') %]</a></li>
+        <li><a href="#last12hours">[% l('Last 12 hours') %]</a></li>
+        <li><a href="#last24hours">[% l('Last 24 hours') %]</a></li>
+      </ul>
+    </div>
+</div>
+[% INCLUDE radiuslog/search.tt %]

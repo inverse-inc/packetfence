@@ -38,8 +38,8 @@ __PACKAGE__->config(
 
 sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ( $self, $c ) = @_;
-    $c->stash(template => 'radiuslog/search.tt', from_form => "#empty");
-    $c->go('search');
+#    $c->stash(template => 'radiuslog/search.tt', from_form => "#empty");
+    $c->forward('search');
 }
 
 =head2 search
