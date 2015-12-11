@@ -8,8 +8,8 @@ sub topLevelGroup { return "default" }
 
 sub _inherit_from {
     my ($self, $switch) = @_;
-    my $group = $switch->{group} ? $switch->{group} : $self->topLevelGroup;
-    return $self->_formatGroup($group);
+    my $group = $switch->{group} ? $self->_formatGroup($switch->{group}) : $self->topLevelGroup;
+    return $group;
 }
 
 sub _formatGroup {
