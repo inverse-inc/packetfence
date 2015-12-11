@@ -87,8 +87,9 @@ sub after_list {
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     my @switches;
     my $groupsModel = $c->model("Config::SwitchGroup");
+    my $groupPrefix = $groupsModel->configStore->group;
     foreach my $switch (@{$c->stash->{items}}) {
-        next if(isenabled($switch->{is_group}));
+        next if($switch->{id} =~ /^$groupPrefix /);
         my $id = $switch->{id};
         if ($id) {
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
