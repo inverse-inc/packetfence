@@ -9,6 +9,7 @@ CREATE TABLE radius_audit_log (
   created_at TIMESTAMP NOT NULL,
   mac char(17) NOT NULL,
   ip varchar(255) NULL,
+  computer_name varchar(255) NULL,
   user_name varchar(255) NULL,
   stripped_user_name varchar(255) NULL,
   realm varchar(255) NULL,

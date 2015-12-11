@@ -33,7 +33,7 @@ ATTRIBUTE       PacketFence-Status                    18       string
 ATTRIBUTE       PacketFence-IfIndex                   19       string
 ATTRIBUTE       PacketFence-Profile                   20       string       
 ATTRIBUTE       PacketFence-Domain                    21       string
-ATTRIBUTE       PacketFence-Radius-Reply              22       string
+ATTRIBUTE       PacketFence-Computer-Name             22       string
 
 END-VENDOR      Inverse
 
