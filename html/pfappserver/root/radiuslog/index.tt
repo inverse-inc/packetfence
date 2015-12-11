@@ -1,16 +1,6 @@
   <div class="modal modal-large fade hide" id="modalItem">
   </div>
 
-[% MACRO header(column, title, class) BLOCK -%]
-[% new_direction = 'asc';
-    IF by == column && direction == 'asc';
-      new_direction = 'desc';
-    END;
-    params = { by => column, direction => new_direction };
-    %]
-      <!--th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th-->
-      <th[% " class=\"$class\"" IF class %]>[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</th>
-[% END -%]
 [%- BLOCK search_options %]
   <div>
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
