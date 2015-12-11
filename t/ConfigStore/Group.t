@@ -22,15 +22,15 @@ BEGIN {
     use PfFilePaths;
 }
 
-
-use_ok("pf::ConfigStore::Group");
+use_ok("pf::ConfigStore");
+use_ok("ConfigStore::GroupTest");
 
 
 my $config = new_ok("pf::ConfigStore",[configFile => './data/group.conf']);
 
-my $group1 = new_ok("pf::ConfigStore::Group",[group => 'group1',configFile => './data/group.conf']);
+my $group1 = new_ok("ConfigStore::GroupTest",[group => 'group1',configFile => './data/group.conf']);
 
-my $group2 = new_ok("pf::ConfigStore::Group",[group => 'group2',configFile => './data/group.conf']);
+my $group2 = new_ok("ConfigStore::GroupTest",[group => 'group2',configFile => './data/group.conf']);
 
 
 is_deeply($group1->readAllIds,[qw(section1 section2)],"group1 sections");
