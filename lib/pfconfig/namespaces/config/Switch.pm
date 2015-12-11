@@ -60,7 +60,7 @@ sub build_child {
 
     foreach my $section_name ( @keys ) {
         unless ( $section_name eq "default" ) {
-            my $inherit_from = $tmp_cfg{$section_name}{group} || "default";
+            my $inherit_from = $tmp_cfg{$section_name}{group} ? "group ".$tmp_cfg{$section_name}{group} : "default";
             foreach my $element_name ( keys %{ $tmp_cfg{$inherit_from} } ) {
                 unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
                     $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$inherit_from}{$element_name};
