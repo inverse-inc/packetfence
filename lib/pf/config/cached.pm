@@ -415,6 +415,8 @@ sub RewriteConfig {
         local $self->{sects} = Config::IniFiles::_deepcopy($self->{sects});
         local $self->{group} = Config::IniFiles::_deepcopy($self->{group});
         local $self->{mysects} = Config::IniFiles::_deepcopy($self->{mysects});
+        local $self->{e} = Config::IniFiles::_deepcopy($self->{e});
+        local $self->{mye} = Config::IniFiles::_deepcopy($self->{mye});
         $self->removeDefaultValues();
         $result = $self->SUPER::RewriteConfig();
     } else {
