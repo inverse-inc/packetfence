@@ -18,6 +18,7 @@ use namespace::autoclean;
 use pf::radius_audit_log;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
+use POSIX qw(ceil);
 
 =head1 METHODS
 
@@ -47,26 +48,61 @@ sub view_entries {
 
 sub search {
     my ($self, $params) = @_;
+    $params->{page_num} ||= 1;
+    $params->{per_page} ||= 25;
     my $sqla = SQL::Abstract::More->new;
+    my @where_options = $self->_build_where($params);
+    my @additional_options = ($self->_build_limit($params),$self->_build_order_by($params));
+    my $table = $self->table;
     my ($sql, @bind) = $sqla->select(
-        -from => $self->table,
-        $self->_build_where($params),
-        $self->_build_limit($params),
-        $self->_build_order_by($params),
+        -from => $table,
+        @where_options,
+        @additional_options
     );
     my @items =  radius_audit_log_custom($sql, @bind);
-    return ($STATUS::OK,\@items);
+    ($sql, @bind) = $sqla->select(
+        -from => $table,
+        -columns => [qw(count(*)|count)],
+        @where_options,
+    );
+    my @count =  radius_audit_log_custom($sql, @bind);
+    my %results;
+    my $count = 0;
+    if($count[0]) {
+        $count = $count[0]->{count};
+    }
+    my $per_page = $params->{per_page};
+    $results{items} = \@items;
+    $results{count} = $count;
+    $results{pages_count} = ceil( $count / $per_page );
+    $results{per_page} = $per_page;
+    $results{page_num} = $params->{page_num};
+    return ($STATUS::OK,\%results);
 }
 
 sub _build_where {
     my ($self, $params) = @_;
-    my $searches = $params->{searches};
+    my %where;
+    my $searches = $params->{searches} || [];
     my $all_or_any = $params->{all_or_any} // "any";
-    my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
     my @clauses = map { $self->_build_clause($_) } @$searches;
-    return -where => {
-        $relational_op => \@clauses,
-    };
+    if( @clauses) {
+        my $relational_op = $all_or_any eq "any" ? "-or" : "-and";
+        $where{$relational_op} =  \@clauses;
+    }
+    $self->_add_date_range($params, \%where);
+    return -where => \%where;
+}
+
+sub _add_date_range {
+    my ($self, $params, $where) = @_;
+    my $start = $params->{start};
+    my $end = $params->{end};
+    if (defined $start && defined $end) {
+        my $start_date = "$start->{date} $start->{time}";
+        my $end_date = "$end->{date} $end->{time}";
+        $where->{created_at} = {-between => [$start_date, $end_date]};
+    }
 }
 
 sub _build_limit {
@@ -79,7 +115,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [];
+    return -order_by => [qw(id)];
 }
 
 our %OP_MAP = (
@@ -100,11 +136,12 @@ our %OP_MAP = (
 sub _build_clause {
     my ($self, $query) = @_;
     my $op = $query->{op};
+    my $value = $query->{value};
+    my $name = $query->{name};
+    return unless defined $op && defined $value && defined $name;
     die "$op is not a supported search operation"
         unless exists $OP_MAP{$op};
     my $sql_op = $OP_MAP{$op};
-    my $value = $query->{value};
-    my $name = $query->{name};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
         my $escaped = $value =~ s/([%_])/\\$1/g;
