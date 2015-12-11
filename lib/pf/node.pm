@@ -485,7 +485,9 @@ sub node_add {
     {
         $data{$field} = $DEFAULT_NODE_VALUES{$field} if ( !defined $data{$field} );
     }
-    $data{status} = _cleanup_status_value($data{status});
+
+    _cleanup_attributes(\%data);
+
     if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
         $data{regdate} = mysql_date();
     }
@@ -889,7 +891,7 @@ sub node_modify {
         $existing->{autoreg} = 'no';
     }
 
-    $existing->{'status'} = _cleanup_status_value($existing->{'status'});
+    _cleanup_attributes($existing);
 
     my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
     my $new_status = $existing->{'status'};
@@ -1341,6 +1343,17 @@ sub node_last_reg {
     return ($val);
 }
 
+=head2 _cleanup_attributes
+
+Cleans up any inconsistency in the info attributes
+
+=cut
+
+sub _cleanup_attributes {
+    my ($info) = @_;
+    $info->{voip} ||= $NO_VOIP;
+    $info->{'status'} = _cleanup_status_value($info->{'status'});
+}
 
 =back
 
