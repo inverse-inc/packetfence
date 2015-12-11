@@ -606,7 +606,7 @@ sub options_type {
                          options => \@switches };
     }
 
-    return ({group => '', options => ['']}, @modules);
+    return ({group => '', options => [{value => '', label => ''}]}, @modules);
 }
 
 sub options_groups {
