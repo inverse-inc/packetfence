@@ -44,8 +44,6 @@ use pf::node;
 sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
-sub supportsExternalPortal { return $FALSE; }
-sub supportsWebFormRegistration { return $FALSE }
 
 =head2 getVersion - obtain image version information from switch
 
@@ -57,33 +55,6 @@ sub getVersion {
     $logger->info("we don't know how to determine the version through SNMP !");
     return '1';
 }
-
-=head2 parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req, $r) = @_;
-    my $logger = $self->logger;
-    
-    return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
-
-}
-
-sub parseSwitchIdFromRequest {
-    my($class, $req) = @_;
-    return $$req->param('ap_mac');
-}
-
 
 =head2 parseRequest
 
