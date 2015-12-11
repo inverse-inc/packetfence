@@ -70,7 +70,7 @@ sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     }
     $c->stash({
         columns => \@pf::radius_audit_log::FIELDS,
-        display_columns => [qw(mac created_at)],
+        display_columns => [qw(mac created_at user_name switch_id nas_port_type auth_status)],
     });
     $c->response->status($status);
 }
