@@ -528,8 +528,6 @@ sub update_fields {
     my $placeholders = $cs->parentConfigRaw($id);
     $cs->cleanupAfterRead($id, $placeholders);
 
-    use Data::Dumper ; pf::log::get_logger->info(Dumper($placeholders));
-    
     if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
