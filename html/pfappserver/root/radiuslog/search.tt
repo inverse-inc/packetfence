@@ -1,3 +1,39 @@
+[%- MACRO pagination(action, pageNumber, perPage, pageCount)  BLOCK -%]
+[% 
+    firstPage = pageNumber - 3;
+    IF firstPage < 1; firstPage = 1; END;
+    lastPage = firstPage + 6;
+    IF lastPage > pageCount;
+        lastPage = pageCount;
+        firstPage = lastPage - 6;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+%]
+<div>
+    <div class="pagination pagination-right">
+        <ul>
+          [% IF pageNumber == 1 %]
+          <li class="disabled"><a>&larr;</a></li>
+          [% ELSE %]
+          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
+          [% END %]
+          [% currentPage = firstPage %]
+          [% WHILE currentPage <= lastPage %]
+            [%IF currentPage == pageNumber %]
+              <li class="disabled"><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+            [% ELSE  %]
+              <li><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+            [%END%]
+          [%currentPage = currentPage + 1%]
+          [% END %]
+          [% IF pageNumber == lastPage %]
+          <li class="disabled"><a >&rarr;</a></li>
+          [% ELSE %]
+          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
+          [% END %]
+        </ul>
+    </div>
+[%- END -%]
 [% MACRO header(column, title, class) BLOCK -%]
 [% new_direction = 'asc';
     IF by == column && direction == 'asc';
@@ -25,4 +61,9 @@
                [% END %]
             </tr>
         [% END %]
+        <tfoot>
+            <tr>
+                <td colspan="[% display_column.size + 1%]">[% pagination("search", page_num, per_page,page_count) | none%]</td>
+            </tr>
+        <tfoot>
       </table>
