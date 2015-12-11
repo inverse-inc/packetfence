@@ -74,7 +74,7 @@ sub search {
     my $per_page = $params->{per_page};
     $results{items} = \@items;
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = ceil( $count / $per_page );
     $results{per_page} = $per_page;
     $results{page_num} = $params->{page_num};
     return ($STATUS::OK,\%results);
