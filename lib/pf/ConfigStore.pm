@@ -120,7 +120,7 @@ Get all the sections as an array of hash refs
 sub readAll {
     my ($self,$idKey) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $config->{$self->default_section} if exists $config->{$self->default_section};
+    my $default_section = $config->{$self->default_section}  if(defined($self->default_section) && exists($config->{$self->default_section}));
     my @sections;
     foreach my $id ($self->_Sections()) {
         my $section = $self->read($id,$idKey);
@@ -200,7 +200,7 @@ sub readRaw {
     $id = $self->_formatId($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my @default_params = $config->Parameters($config->{$self->default_section}) if exists $config->{$self->default_section};
+        my @default_params = $config->Parameters($config->{$self->default_section})  if(defined($self->default_section) && exists($config->{$self->default_section}));
         $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
         foreach my $param (uniq $config->Parameters($id),@default_params) {
             my $val;
@@ -363,13 +363,13 @@ sub sortItems {
 
 =cut
 
-sub cleanupAfterRead { }
+sub cleanupAfterRead { return $_[1] }
 
 =head2 cleanupBeforeCommit
 
 =cut
 
-sub cleanupBeforeCommit { }
+sub cleanupBeforeCommit { return $_[1] }
 
 =head2 expand_list
 
