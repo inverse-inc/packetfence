@@ -14,7 +14,7 @@ Group
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use Test::NoWarnings;
 BEGIN {
