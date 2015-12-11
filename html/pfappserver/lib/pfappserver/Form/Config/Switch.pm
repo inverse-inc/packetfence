@@ -43,7 +43,7 @@ has_field 'type' =>
   (
    type => 'Select',
    label => 'Type',
-   element_class => ['chzn-select'],
+   element_class => ['chzn-deselect'],
    required_when => { 'id' => sub { $_[0] eq 'default' } },
    messages => { required => 'Please select the type of the switch.' },
   );
@@ -62,7 +62,7 @@ has_field 'mode' =>
    type => 'Select',
    label => 'Mode',
    required_when => { 'id' => sub { $_[0] eq 'default' } },
-   element_class => ['chzn-select'],
+   element_class => ['chzn-deselect'],
   );
 has_field 'deauthMethod' =>
   (
@@ -605,9 +605,8 @@ sub options_type {
         push @modules, { group => $vendor,
                          options => \@switches };
     }
-    push @modules, {'' => 'Inherit'};
 
-    return @modules;
+    return ({group => '', options => ['']}, @modules);
 }
 
 sub options_groups {
@@ -616,7 +615,6 @@ sub options_groups {
     push @couples, ('' => 'None');
     my $cs = pf::ConfigStore::SwitchGroup->new;
     my @groups = @{$cs->readAll("id")};
-    use Data::Dumper ; pf::log::get_logger->info(Dumper(\@groups));
     push @couples, map { $_->{id} => $_->{description} } @groups;
 
     return @couples;
@@ -630,9 +628,8 @@ sub options_mode {
     my $self = shift;
 
     my @modes = map { $_ => $self->_localize($_) } @SNMP::MODES;
-    push @modes, ('' => '');
 
-    return \@modes;
+    return ('' => '', @modes);
 }
 
 =head2 options_deauthMethod
