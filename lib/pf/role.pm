@@ -376,8 +376,18 @@ sub getRegisteredRole {
 
     my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
 
-    my ($vlan, $role, $result);
+    my ($vlan, $role, $result, $person, $source, $portal);
 
+    $person = $args->{'user_name'} || $args->{'node_info'}->{'pid'};
+    if (defined($person)) {
+        $person = pf::person::person_view_simple($person);
+        if (defined($person->{'source'}) && $person->{'source'} ne '') {
+            $source = $person->{'source'};
+        }
+        if (defined($person->{'portal'}) && $person->{'portal'} ne '') {
+            $portal = $person->{'portal'};
+        }
+    }
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("Triggering provisioner check");
@@ -441,7 +451,6 @@ sub getRegisteredRole {
                 stripped_user_name => $stripped_user,
                 rule_class => 'authentication',
             };
-            my $source;
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
             # create a person entry for pid if it doesn't exist
             if ( !pf::person::person_exist($args->{'user_name'}) ) {
@@ -455,6 +464,7 @@ sub getRegisteredRole {
                 'source'  => $source,
                 'portal'  => $profile->getName,
             );
+            $portal = $profile->getName;
             my %info = (
                 'autoreg' => 'no',
                 'pid' => $args->{'user_name'},
@@ -473,7 +483,7 @@ sub getRegisteredRole {
         $role = $args->{'node_info'}->{'category'};
         $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
-    return ({role => $role});
+    return ({role => $role, source => $source, portal => $portal});
 }
 
 =head2 getInlineRole

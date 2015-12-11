@@ -234,6 +234,9 @@ sub authorize {
     my $role = $role_obj->fetchRoleForNode($args);
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role}) || 0;
 
+    $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
+    $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
+
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
@@ -757,6 +760,8 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
 
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
     status => 'PacketFence-Status',
+    source => 'PacketFence-Source',
+    portal => 'PacketFence-Profile',
 );
 
 our %SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
