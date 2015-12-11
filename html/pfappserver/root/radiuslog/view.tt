@@ -12,6 +12,6 @@
         [% END %]
     </table>
   </div>
-  <div class="modal-close">
+  <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
   <div>
