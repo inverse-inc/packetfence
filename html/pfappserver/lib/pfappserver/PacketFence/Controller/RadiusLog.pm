@@ -61,7 +61,7 @@ sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     } else {
         my $query = $form->value;
         $c->stash($query);
-        use Data::Dumper;$c->log->info(Dumper($query));
+        $query->{page_num} = $pageNum;
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);
