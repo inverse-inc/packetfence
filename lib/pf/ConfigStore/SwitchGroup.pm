@@ -22,9 +22,14 @@ with 'pf::ConfigStore::Hierarchy';
 
 sub group { 'group' };
 
-sub rawConfigStore { pf::ConfigStore::Switch->new }
+sub globalConfigStore { pf::ConfigStore::Switch->new }
 
 sub pfconfigNamespace {'config::Switch'};
+
+sub _formatGroup {
+    my ($self, $group) = @_;
+    return $group;
+}
 
 =head2 Methods
 

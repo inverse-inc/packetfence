@@ -2,27 +2,33 @@ package pf::ConfigStore::Hierarchy;
 
 use Moo::Role;
 
-sub rawConfigStore { return $_[0] }
+sub globalConfigStore { return $_[0] }
 
 sub topLevelGroup { return "default" }
 
 sub _inherit_from {
     my ($self, $switch) = @_;
-    return $switch->{group} ? "group ".$switch->{group} : "default";
+    my $group = $switch->{group} ? $switch->{group} : $self->topLevelGroup;
+    return $self->_formatGroup($group);
 }
 
-sub parent_config_raw {
+sub _formatGroup {
+    my ($self, $group) = @_;
+    return $group;
+}
+
+sub parentConfigRaw {
     my ($self, $id) = @_;
-    return $self->full_config_raw($self->_inherit_from($self->read($id)));
+    return $self->fullConfigRaw($self->_inherit_from($self->read($id)));
 }
 
-sub full_config_raw {
+sub fullConfigRaw {
     my ($self, $id) = @_;
     
-    my $cs = $self->rawConfigStore;
+    my $cs = $self->globalConfigStore;
     if($id ne $self->topLevelGroup){
-        my $switch = $cs->read_raw($id);
-        my $parent_config = $cs->full_config_raw($self->_inherit_from($switch), $cs->read_raw($self->_inherit_from($switch)));
+        my $switch = $self->readRaw($id);
+        my $parent_config = $self->fullConfigRaw($self->_inherit_from($switch));
 
         while (my ($key, $value) = each %$parent_config){
             if(!defined($switch->{$key})){
@@ -32,8 +38,20 @@ sub full_config_raw {
         return $switch;
     }
     else {
-        return $cs->read_raw($id);
+        return $cs->readRaw($id);
     }
+}
+
+sub fullConfig {
+    my ($self, $id) = @_;
+    my $config = $self->fullConfigRaw($id);
+    return $self->cleanupAfterRead($config);
+}
+
+sub parentConfig {
+    my ($self, $id) = @_;
+    my $config = $self->parentConfigRaw($id);
+    return $self->cleanupAfterRead($config);
 }
 
 1;

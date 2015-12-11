@@ -98,8 +98,8 @@ sub after_list {
             }
         }
         my $cs = $c->model('Config::Switch')->configStore;
-        $switch->{type} = $cs->full_config_raw($id)->{type}; 
-        $switch->{mode} = $cs->full_config_raw($id)->{mode}; 
+        $switch->{type} = $cs->fullConfigRaw($id)->{type}; 
+        $switch->{mode} = $cs->fullConfigRaw($id)->{mode}; 
         push @switches, $switch;
     }
     $c->stash->{items} = \@switches; 

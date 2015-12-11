@@ -69,6 +69,12 @@ sub cleanupAfterRead {
 
 }
 
+sub _formatGroup {
+    my ($self, $group) = @_;
+    # We prepend group to all groups except the default one
+    return $group eq $self->topLevelGroup ? $group : "group ".$group;
+}
+
 sub _splitInlineTrigger {
     my ($trigger) = @_;
     my ( $type, $value ) = split( /::/, $trigger );
@@ -100,7 +106,7 @@ sub cleanupBeforeCommit {
         $switch->{inlineTrigger} = join( ',', @triggers );
     }
 
-    my $parent_config = $self->full_config_raw($self->_inherit_from($switch));
+    my $parent_config = $self->parentConfigRaw();
     use Data::Dumper ; pf::log::get_logger->info(Dumper($switch));
     if($id ne "default") {
         # Put the elements to undef if they are the same as in the inheritance

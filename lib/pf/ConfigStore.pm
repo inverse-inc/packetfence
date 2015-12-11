@@ -181,19 +181,19 @@ reads a section
 
 sub read {
     my ($self, $id, $idKey ) = @_;
-    my $data = $self->read_raw($id, $idKey);
+    my $data = $self->readRaw($id, $idKey);
     $self->cleanupAfterRead($id,$data);
     return $data;
 }
 
 
-=head2 read_raw
+=head2 readRaw
 
 reads a section without doing post-read cleanup
 
 =cut
 
-sub read_raw {
+sub readRaw {
     my ($self, $id, $idKey ) = @_;
     my $data;
     my $config = $self->cachedConfig;

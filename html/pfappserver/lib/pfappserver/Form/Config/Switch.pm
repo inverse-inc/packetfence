@@ -525,7 +525,7 @@ sub update_fields {
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
     my $cs = pf::ConfigStore::Switch->new;
-    my $placeholders = $cs->parent_config_raw($id);
+    my $placeholders = $cs->parentConfigRaw($id);
     $cs->cleanupAfterRead($id, $placeholders);
 
     use Data::Dumper ; pf::log::get_logger->info(Dumper($placeholders));
