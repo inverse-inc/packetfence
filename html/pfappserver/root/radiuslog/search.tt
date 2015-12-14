@@ -14,30 +14,29 @@
         IF firstPage < 1; firstPage = 1; END;
     END;
 %]
-<div>
-    <div class="pagination pagination-right">
-        <ul>
-          [% IF pageNumber == 1 %]
-          <li class="disabled"><a>&larr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
-          [% END %]
-          [% currentPage = firstPage %]
-          [% WHILE currentPage <= lastPage %]
-            [%IF currentPage == pageNumber %]
-              <li class="disabled"><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [% ELSE  %]
-              <li><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [%END%]
-          [%currentPage = currentPage + 1%]
-          [% END %]
-          [% IF pageNumber == lastPage %]
-          <li class="disabled"><a >&rarr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
-          [% END %]
-        </ul>
-    </div>
+<div class="pagination pagination-right">
+  <ul>
+    [% IF pageNumber == 1 %]
+    <li class="disabled"><a>&larr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
+    [% END %]
+    [% currentPage = firstPage %]
+    [% WHILE currentPage <= lastPage %]
+      [%IF currentPage == pageNumber %]
+        <li class="disabled"><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+      [% ELSE  %]
+        <li><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+      [%END%]
+    [%currentPage = currentPage + 1%]
+    [% END %]
+    [% IF pageNumber == lastPage %]
+    <li class="disabled"><a >&rarr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
+    [% END %]
+  </ul>
+</div>
 [%- END -%]
 [% MACRO header(column, title, class) BLOCK -%]
 [% new_direction = 'asc';
@@ -45,7 +44,7 @@
       new_direction = 'desc';
     END;
     params = { by => column, direction => new_direction };
-    %]
+%]
       <!--th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th-->
       <th[% " class=\"$class\"" IF class %]>[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</th>
 [% END -%]
@@ -63,7 +62,7 @@
            </thead>
         [% FOREACH item IN items %]
             <tr>
-                <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a>
+                <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
                [% FOREACH display_column IN display_columns  %]
                  <td>[%item.$display_column %]</td>
                [% END %]
@@ -73,5 +72,5 @@
            <tr>
              <td colspan="[% display_columns.size + 1%]">[% pagination(c.controller(), "search", page_num, per_page,page_count) | none%]</td>
            </tr>
-        <tfoot>
+        </tfoot>
       </table>
