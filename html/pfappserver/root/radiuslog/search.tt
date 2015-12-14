@@ -1,11 +1,16 @@
 [%- MACRO pagination(controller, action, pageNumber, perPage, pageCount)  BLOCK -%]
 [% 
-    firstPage = pageNumber - 3;
+# Number of pages to show before and after the middle page in the list
+    pageWrap = 3;
+    pageWrapTotal = pageWrap * 2;
+# Calculate the first of the list
+    firstPage = pageNumber - pageWrap;
     IF firstPage < 1; firstPage = 1; END;
-    lastPage = firstPage + 6;
+# Calculate the last page
+    lastPage = firstPage + pageWrapTotal;
     IF lastPage > pageCount;
         lastPage = pageCount;
-        firstPage = lastPage - 6;
+        firstPage = lastPage - pageWrapTotal;
         IF firstPage < 1; firstPage = 1; END;
     END;
 %]
