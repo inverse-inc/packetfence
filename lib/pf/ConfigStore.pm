@@ -479,16 +479,6 @@ sub search {
 
 }
 
-=head2 search
-
-=cut
-
-sub search_with_sub {
-    my ($self, $sub, $idKey) = @_;
-    return grep { $sub->($_) } @{$self->readAll($idKey)};
-
-}
-
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
