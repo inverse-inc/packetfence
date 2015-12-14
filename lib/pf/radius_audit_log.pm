@@ -47,6 +47,7 @@ our $logger = get_logger();
 our @FIELDS = qw(
     mac
     ip
+    computer_name
     user_name
     stripped_user_name
     realm
