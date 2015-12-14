@@ -186,7 +186,6 @@ sub read {
     return $data;
 }
 
-
 =head2 readRaw
 
 reads a section without doing post-read cleanup
