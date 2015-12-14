@@ -258,10 +258,6 @@ SwitchView.prototype.addToGroup = function(e) {
                 href: "/config/switchgroup/"+button.attr('data-group')+"/read",
               },
             });
-/*            a.closest('.switchGroupMember').remove();
-            if ($('.switchGroupMember').size() == 0){
-              $('#switchMembersEmpty').removeClass('hidden');
-            }*/
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
         },
         errorSibling: $('#modalSwitch .modal-body').children().first(),
@@ -483,7 +479,6 @@ SwitchView.prototype.deleteConfirm = function(e) {
 };
 
 SwitchView.prototype.searchSwitch = function(query, process){
-  console.log(this);
     this.switches.post({
         url: '/config/switch/search',
         data: {
@@ -492,12 +487,8 @@ SwitchView.prototype.searchSwitch = function(query, process){
             'searches.0.name': 'id',
             'searches.0.op': 'like',
             'searches.0.value': query,
-/*            'searches.1.name': 'email',
-            'searches.1.op': 'like',
-            'searches.1.value': query*/
         },
         success: function(data) {
-            console.log(data)
             var results = $.map(data.items, function(i) {
                 return i.id;
             });
@@ -507,7 +498,6 @@ SwitchView.prototype.searchSwitch = function(query, process){
                 control.addClass('error');
             else
                 control.removeClass('error');
-            console.log(results);
             process(results);
         }
     });
