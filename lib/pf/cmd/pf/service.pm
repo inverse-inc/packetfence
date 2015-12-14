@@ -107,6 +107,10 @@ sub parseArgs {
         @managers = reverse sort _byIndexOrder @pf::services::MANAGERS;
         @services = map { $_->new->name } @managers;
     }
+    elsif ($service eq 'pf' ) {
+        @managers = @pf::services::MANAGERS;
+        @services = map { $_->new->name  } @managers;
+    }
     else {
         @services = ($service);
     }
