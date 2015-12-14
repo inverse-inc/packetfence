@@ -20,6 +20,7 @@ use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part any);
 use pfconfig::manager;
+use pf::freeradius;
 
 extends qw(pf::ConfigStore Exporter);
 with 'pf::ConfigStore::Hierarchy';
@@ -31,11 +32,22 @@ sub pfconfigNamespace {'config::Switch'}
 
 sub default_section { undef }
 
-use pf::freeradius;
-
 =head2 Methods
 
-=over
+=cut
+
+=item commit
+
+Repopulate the radius_nas table after commiting
+
+=cut
+
+sub commit {
+    my ($self) = @_;
+    my ($result, $error) = $self->SUPER::commit();
+    pf::log::get_logger->info("commiting via Switch configstore");
+    freeradius_populate_nas_config( \%pf::SwitchFactory::SwitchConfig );
+}
 
 =item cleanupAfterRead
 
@@ -131,13 +143,6 @@ sub remove {
         return undef;
     }
     return $self->SUPER::remove($id);
-}
-
-sub commit {
-    my ( $self ) = @_;
-    my ($result,$error) = $self->SUPER::commit();
-    pfconfig::manager->new->expire('config::Switch');
-    return ($result,$error);
 }
 
 before rewriteConfig => sub {
