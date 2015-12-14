@@ -120,7 +120,7 @@ sub cleanupBeforeCommit {
 
     my $parent_config = $self->parentConfigRaw();
     use Data::Dumper ; pf::log::get_logger->info(Dumper($switch));
-    if($id ne "default") {
+    if($id ne $self->topLevelGroup) {
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
             if(defined($value) && $value eq $parent_config->{$key}){
