@@ -45,6 +45,14 @@ function init() {
             end_time_input.timepicker("setTime", end_time.toTimeString());
 
         });
+        $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
+            var match = /(.+)Empty/.exec(event.delegateTarget.id);
+            var id = match[1];
+            var emptyId = match[0];
+            $('#'+id).trigger('addrow');
+            $('#'+emptyId).addClass('hidden');
+            return false;
+        });
 
     /* Build graph when loading section */
         var id = $(this).find('.chart').attr('id');
