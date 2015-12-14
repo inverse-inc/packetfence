@@ -68,6 +68,12 @@ sub parentConfig {
     return $self->cleanupAfterRead($config);
 }
 
+sub members {
+    my ($self, $id, $idKey) = @_;
+    my @values = $self->globalConfigStore->search($self->parentAttribute, $id, $idKey);
+    return @values;
+}
+
 =back
 
 =head1 COPYRIGHT

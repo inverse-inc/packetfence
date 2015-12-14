@@ -14,6 +14,7 @@ pfappserver::Model::Config::SwitchGroup;
 use Moose;
 use namespace::autoclean;
 use pf::ConfigStore::SwitchGroup;
+use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -27,6 +28,23 @@ extends 'pfappserver::Base::Model::Config';
 =cut
 
 sub _buildConfigStore { pf::ConfigStore::SwitchGroup->new; }
+
+sub remove {
+    my ($self, $id) = @_;
+    pf::log::get_logger->info("Deleting $id");
+    my @childs = $self->configStore->members($id, $self->idKey);
+    use Data::Dumper ;pf::log::get_logger->info(Dumper(\@childs));
+    if(@childs){
+        my @switch_ids = map { $_->{id} } @childs;
+        my $switch_csv = join(', ', @switch_ids);
+        my $status_msg = ["Cannot remove group [_1] because it is still used by the following switches : [_2]",$id, $switch_csv];
+        my $status =  HTTP_PRECONDITION_FAILED;
+        return ($status, $status_msg);
+    }
+    else {
+        return $self->SUPER::remove($id);
+    }
+}
 
 __PACKAGE__->meta->make_immutable;
 
