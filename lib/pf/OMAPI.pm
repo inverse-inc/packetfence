@@ -24,6 +24,7 @@ use warnings;
 use Moo;
 use MIME::Base64;
 use Net::IP;
+use pf::log;
 use Digest::HMAC_MD5 qw(hmac_md5);
 use IO::Socket::INET;
 use IO::Socket::Timeout;
@@ -302,7 +303,7 @@ Return undef if invalid, return the reply if valid
 sub validate_reply {
     my ($self, $reply) = @_;
     if (! $reply && ( 0+$! == ETIMEDOUT || 0+$! == EWOULDBLOCK )) {
-        pf::log::get_logger->error("Timeout while reading from the OMAPI socket");
+        get_logger->error("Timeout while reading from the OMAPI socket");
         return undef;
     }
     return $reply;
