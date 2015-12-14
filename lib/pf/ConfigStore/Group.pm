@@ -50,6 +50,10 @@ sub _formatId {
    return $self->group . " " . $id;
 }
 
+=item _cleanupId
+
+=cut
+
 sub _cleanupId {
     my ($self, $id) = @_;
     my $quoted_group = quotemeta($self->group);
