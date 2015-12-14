@@ -609,6 +609,12 @@ sub options_type {
     return ({group => '', options => [{value => '', label => ''}]}, @modules);
 }
 
+=head2 options_groups
+
+Extract the switch groups from the configuration
+
+=cut
+
 sub options_groups {
     my $self = shift;
     my @couples;

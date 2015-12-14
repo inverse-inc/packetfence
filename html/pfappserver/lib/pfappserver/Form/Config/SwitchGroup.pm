@@ -14,14 +14,26 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Switch';
 
 ## Definition
+
+=head2 id
+
+Override the field from switch to change the label
+
+=cut
+
 has_field 'id' =>
   (
    type => 'Text',
    label => 'Group name',
-   accept => ['default'],
    required => 1,
    messages => { required => 'Please specify a group name' },
   );
+
+=head2 group
+
+Overide the field from switch so a group cannot be specified
+
+=cut
 
 has_field 'group' =>
   (

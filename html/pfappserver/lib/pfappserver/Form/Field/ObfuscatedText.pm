@@ -2,12 +2,11 @@ package pfappserver::Form::Field::ObfuscatedText;
 
 =head1 NAME
 
-pfappserver::Form::Field::IPAddress - IP address input field
+pfappserver::Form::Field::ObfuscatedText
 
 =head1 DESCRIPTION
 
-This field extends the default Text field and checks if the input
-value is an IP address.
+This field extends the Text field to obfuscate the content but still support placeholders
 
 =cut
 
