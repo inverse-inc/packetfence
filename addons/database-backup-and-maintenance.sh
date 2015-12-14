@@ -70,6 +70,8 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     
     /usr/local/pf/addons/database-cleaner.pl --table=auth_log --date-field=attempted_at --older-than="1 WEEK"
 
+    /usr/local/pf/addons/database-cleaner.pl --table=radius_audit_log --date-field=created_at --older-than="1 WEEK"
+
     # lets optimize on Sunday
     DOW=`date +%w`
     if [ $DOW -eq 0 ]
