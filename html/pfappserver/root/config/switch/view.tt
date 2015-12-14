@@ -1,14 +1,3 @@
-
-<style>
-  #modalSwitch{
-    width:650px;
-  }
-
-  #switchMemberOptions{
-    text-align:center;
-  }
-</style>
-
 [% form.block('triggers').render | none %]
 
 <form autocomplete="off" name="modalSwitch" id="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
