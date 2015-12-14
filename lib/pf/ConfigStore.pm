@@ -165,7 +165,7 @@ format the id
 
 sub _formatId { return $_[1]; }
 
-=head2 _formatId
+=head2 _cleanupId
 
 Cleanup the id
 
