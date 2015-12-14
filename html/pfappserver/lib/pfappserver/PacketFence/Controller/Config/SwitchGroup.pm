@@ -59,6 +59,7 @@ sub begin :Private {
     $c->stash->{current_form_instance} = $c->form("Config::SwitchGroup", roles => $c->stash->{roles});
 }
 
+# Allows to reuse the switch templates by mapping the actions to the config/switch templates
 after qw(view create clone update list index) => sub {
     my ($self, $c) = @_;
     my %map = (
@@ -71,13 +72,19 @@ after qw(view create clone update list index) => sub {
     $c->stash->{template} =~ s/switchgroup/switch/g;
 };
 
+# Allows to find the members and add them to the item
 after qw(view update) => sub {
     my ($self, $c) = @_;
-    use Data::Dumper;
     my $cs = $c->model("Config::Switch")->configStore;
     my %members = map { $_->{id} => $_ } $cs->search("group", $c->stash->{item}->{id}, "id");
     $c->stash->{item}->{members} = \%members;
 };
+
+=head2 after_list
+
+Override parent method to do the setup with the SwitchGroup model
+
+=cut
 
 sub after_list {
     my ($self, $c) = @_;

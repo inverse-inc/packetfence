@@ -180,8 +180,11 @@ sub index :Path :Args(0) {
 
 =head2 remove_group
 
-=cut
+Usage /config/switch/:id/remove_group
 
+Remove the group associated to a switch
+
+=cut
 
 sub remove_group :Chained('object') :PathPart('remove_group'): Args(0) {
     my ($self,$c) = @_;
@@ -199,8 +202,11 @@ sub remove_group :Chained('object') :PathPart('remove_group'): Args(0) {
 
 =head2 add_to_group
 
-=cut
+Usage /config/switch/:id/add_to_group/:group_id
 
+Add the switch to a group
+
+=cut
 
 sub add_to_group :Chained('object') :PathPart('add_to_group'): Args(1) {
     my ($self,$c,$group) = @_;

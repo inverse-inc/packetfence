@@ -29,6 +29,12 @@ extends 'pfappserver::Base::Model::Config';
 
 sub _buildConfigStore { pf::ConfigStore::SwitchGroup->new; }
 
+=head2 remove
+
+Override the parent method to validate we don't remove a group that has childs
+
+=cut
+
 sub remove {
     my ($self, $id) = @_;
     pf::log::get_logger->info("Deleting $id");
