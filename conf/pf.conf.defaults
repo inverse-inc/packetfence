@@ -960,7 +960,7 @@ host=localhost
 # omapi.timeout
 #
 # The timeout on the OMAPI socket
-timeout=1
+timeout=0.5
 
 [provisioning]
 #
