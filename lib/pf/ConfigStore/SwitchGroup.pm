@@ -24,18 +24,6 @@ sub group { 'group' };
 
 sub globalConfigStore { pf::ConfigStore::Switch->new }
 
-sub pfconfigNamespace {'config::Switch'};
-
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::ConfigStore::Switch->new->cachedConfig() }
-
 __PACKAGE__->meta->make_immutable;
 
 =back
