@@ -408,6 +408,14 @@ traplog=0D
 # example:
 # locationlog=180D
 locationlog=0D
+#
+# expire.radius_audit_log
+#
+# Time which you would like to keep radius audit log entries
+# A value of 0D disables expiration.
+# example:
+# radius_audit_log=180D
+radius_audit_log=0D
 
 [services]
 #
@@ -1222,6 +1230,21 @@ locationlog_cleanup_batch=100
 #
 # locationlog cleanup timeout
 locationlog_cleanup_timeout=10s
+#
+# maintenance.radius_audit_log_cleanup_interval
+#
+# radius_audit_log cleanup interval
+radius_audit_log_cleanup_interval=60s
+#
+# maintenance.radius_audit_log_cleanup_batch
+#
+# radius_audit_log cleanup batch
+radius_audit_log_cleanup_batch=100
+#
+# maintenance.radius_audit_log_cleanup_timeout
+#
+# radius_audit_log cleanup timeout
+radius_audit_log_cleanup_timeout=10s
 #
 # maintenance.node_cleanup_interval
 #
