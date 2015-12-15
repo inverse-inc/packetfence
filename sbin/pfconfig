@@ -43,7 +43,9 @@ use POSIX qw(:signal_h);
 use pf::services::util;
 use pfconfig::constants;
 use Sereal::Encoder;
-use Errno qw(EINTR);
+use Errno qw(EINTR EAGAIN);
+use bytes;
+use pf::util::networking qw(send_data_with_length);
 $pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
@@ -161,7 +163,7 @@ while($RUNNING) {
     };
     if($@){
         print STDERR "$line : $@";
-        send_output("undef", $socket) if $socket;
+        send_output(undef, $socket) if $socket;
     }
 }
 
@@ -223,7 +225,7 @@ sub get_hash_element {
         else{
             print STDERR "Unknown key $query->{key}";
             $logger->error("Unknown key $query->{key}");
-            $elem = "undef";
+            $elem = undef;
         }
     }
     else{
@@ -242,7 +244,7 @@ sub get_from_cache_or_croak {
     else{
         print STDERR "Unknown key in cache $key \n";
         $logger->error("Unknown key $key");
-        send_output("undef", $socket);
+        send_output(undef, $socket);
         return undef;
     }
 
@@ -319,7 +321,7 @@ sub get_array_element {
         else{
             print STDERR "Unknown index in $query->{key}";
             $logger->error("Unknown index in $query->{key}");
-            $elem = "undef";
+            $elem = undef;
         }
     }
     else {
@@ -359,16 +361,11 @@ sub encode_output {
 
 sub send_output {
     my ($data, $socket) = @_;
-    unless($data eq "undef"){
-        my $data = encode_output($data);
-        my $lines = $data =~ tr/\n// || 0;
-        $lines += 1;
-        print $socket $lines."\n";
-        print $socket $data;
-    }
-    else{
-        print $socket "1\n";
-        print $socket "$data";
+    my $encoded_data = encode_output($data);
+    my $bytes_to_send = length($encoded_data);
+    my $bytes_sent  = send_data_with_length($socket,$encoded_data);
+    if($bytes_to_send != $bytes_sent) {
+        $logger->error("Could not send all bytes the client. $bytes_sent of $bytes_to_send sent");
     }
 }
 
