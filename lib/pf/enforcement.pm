@@ -76,6 +76,7 @@ sub reevaluate_access {
     }
 
     $logger->info("re-evaluating access ($function called)");
+    $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");

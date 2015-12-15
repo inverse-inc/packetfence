@@ -887,7 +887,7 @@ httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm 
 # advanced.reevaluate_access_reasons
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
+reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
 #
 # advanced.pfcmd_error_color
 #

@@ -281,7 +281,7 @@ sub update {
         if ($previous_node_ref->{status} ne $node_ref->{status} || $previous_category_id ne $category_id) {
             # Node has been registered or deregistered
             # or the role has changed and is not currently using 802.1X
-            reevaluate_access($mac, "node_modify");
+            reevaluate_access($mac, "admin_modify");
         }
     }
     else {
