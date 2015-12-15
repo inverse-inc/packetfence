@@ -28,6 +28,7 @@ use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
+use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 
 use constant {
@@ -318,6 +319,7 @@ sub extract_modules {
     const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
+    const('pf::radius_audit_log', 'Radius Aduit Log', \@pf::radius_audit_log::FIELDS);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
