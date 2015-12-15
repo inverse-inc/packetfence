@@ -83,6 +83,7 @@ sub process_next_job {
     my ($queue, $task_id) = $redis->brpop($queue_name, 1);
     if ($queue) {
         my $data = $redis->hget($task_id, 'data');
+        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
         if($data) {
             local $@;
             eval {
@@ -102,9 +103,9 @@ sub process_next_job {
                 $logger->error($@);
             }
         } else {
-                $logger->error("Invalid task id $task_id provided");
+            $redis->hincrby($PFQUEUE_COUNTER, "${task_counter_id}:misses", 1, sub { });
+            $logger->error("Invalid task id $task_id provided");
         }
-        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
         $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
         $redis->del($task_id, sub {});
         $redis->wait_all_responses();
