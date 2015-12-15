@@ -32,6 +32,7 @@ Enhancements
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
+* Always reevaluate the access if the order come from the admin gui (#1056)
 
 Version 5.5.2 released on 2015-12-07
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
