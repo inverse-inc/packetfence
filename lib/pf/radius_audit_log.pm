@@ -82,6 +82,45 @@ our @FIELDS = qw(
     radius_reply
 );
 
+our @NODE_FIELDS = qw(
+    mac
+    ip
+    computer_name
+    user_name
+    stripped_user_name
+    realm
+    calling_station_id
+    auth_status
+    role
+    unreg
+    profile
+    source
+    auto_reg
+    is_phone
+    pf_domain
+    uuid
+);
+
+our @SWITCH_FIELDS = qw(
+    switch_id
+    switch_mac
+    switch_ip_address
+    radius_source_ip_address
+    called_station_id
+    nas_port_type
+    ssid
+    nas_port_id
+    ifindex
+    nas_port
+    connection_type
+    nas_ip_address
+    nas_identifier
+    auth_status
+    reason
+    auth_type
+    eap_type
+);
+
 our $FIELD_LIST = join(", ",@FIELDS);
 
 our $INSERT_LIST = join(", ", ("?") x @FIELDS);

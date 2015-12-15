@@ -129,6 +129,8 @@ sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
 sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c) = @_;
     $c->stash({
+        switch_fields => \@pf::radius_audit_log::SWITCH_FIELDS,
+        node_fields => \@pf::radius_audit_log::NODE_FIELDS,
         fields => \@pf::radius_audit_log::FIELDS,
     });
 }
