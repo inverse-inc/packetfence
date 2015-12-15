@@ -108,7 +108,8 @@ Like fullConfigRaw but with cleanupAfterRead executed after
 sub fullConfig {
     my ($self, $id) = @_;
     my $config = $self->fullConfigRaw($id);
-    return $self->cleanupAfterRead($config);
+    $self->cleanupAfterRead($id, $config);
+    return $config;
 }
 
 =head2 parentConfig
@@ -120,7 +121,8 @@ Like parentConfigRaw but with cleanupAfterRead executed after
 sub parentConfig {
     my ($self, $id) = @_;
     my $config = $self->parentConfigRaw($id);
-    return $self->cleanupAfterRead($config);
+    $self->cleanupAfterRead($id, $config);
+    return $config;
 }
 
 =head2 members
