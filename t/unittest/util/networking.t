@@ -1,18 +1,17 @@
 =head1 NAME
 
-example pf test
+util::networking test
 
 =cut
 
 =head1 DESCRIPTION
 
-example pf test script
+util::networking test
 
 =cut
 
 use strict;
 use warnings;
-#
 use lib '/usr/local/pf/lib';
 
 BEGIN {
@@ -112,5 +111,3 @@ USA.
 =cut
 
 1;
-
-

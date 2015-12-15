@@ -81,7 +81,7 @@ sub send_data_with_length {
     my $bytes_to_send = length $packed_data;
     my $bytes_sent = syswrite_all($socket, $packed_data);
     if(defined $bytes_sent && $bytes_sent > 4) {
-        #substracting the four bytes appened to the begining
+        #substracting the four bytes appended to the begining
         $bytes_sent -= 4;
     }
     return $bytes_sent;
