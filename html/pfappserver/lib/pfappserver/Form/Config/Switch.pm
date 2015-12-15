@@ -520,13 +520,13 @@ For other switches, add placeholders with values from default switch.
 =cut
 
 sub update_fields {
-    my $self = shift;
-    my $init_object = $self->init_object;
+    my ($self, $init_object) = @_;
+    $init_object = $init_object || $self->init_object;
     my $id = $init_object->{id} if $init_object;
     my $inherit_from = $init_object->{group} || "default";
-    my $cs = pf::ConfigStore::Switch->new;
-    my $placeholders = $cs->parentConfigRaw($id);
-    $cs->cleanupAfterRead($id, $placeholders);
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $placeholders = $cs->fullConfig($inherit_from);
+    use Data::Dumper; pf::log::get_logger->info(Dumper($placeholders));
 
     if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {

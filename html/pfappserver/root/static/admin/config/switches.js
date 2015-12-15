@@ -46,7 +46,7 @@ var SwitchView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readSwitch, this);
-    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], #createSwitch', read);
+    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);

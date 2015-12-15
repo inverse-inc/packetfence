@@ -99,9 +99,12 @@ sub after_list {
         }
         my $cs = $c->model('Config::Switch')->configStore;
         $switch->{type} = $cs->fullConfigRaw($id)->{type}; 
+        $switch->{group} ||= $cs->topLevelGroup;
         $switch->{mode} = $cs->fullConfigRaw($id)->{mode}; 
         push @switches, $switch;
     }
+    $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
+    unshift @{$c->stash->{switch_groups}}, $groupsModel->configStore->topLevelGroup;
     $c->stash->{items} = \@switches; 
     $c->stash->{searchable} = 1;
 }
@@ -220,6 +223,14 @@ sub add_to_group :Chained('object') :PathPart('add_to_group'): Args(1) {
         current_view => 'JSON',
     );
     $c->response->status($status);
+}
+
+sub create_in_group :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
+    my ($self, $c, $group) = @_;
+    $c->forward('create');
+    $c->stash->{item}->{group} = $group;
+    $c->stash->{form}->field('group')->value($group);
+    $c->stash->{form}->update_fields($c->stash->{item});
 }
 
 =head1 COPYRIGHT
