@@ -42,5 +42,9 @@ CREATE TABLE radius_audit_log (
   uuid varchar(255) NULL,
   radius_request TEXT,
   radius_reply TEXT,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  KEY `created_at` (created_at),
+  KEY `mac` (mac),
+  KEY `ip` (ip),
+  KEY `user_name` (user_name)
 ) ENGINE=InnoDB;
