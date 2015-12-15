@@ -67,16 +67,16 @@ sub begin :Private {
     $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
 }
 
-=head2 after list
-
-Check which switch is also defined as a floating device and sort switches by IP addresses.
-
-=cut
-
 after qw(list search) => sub {
     my ($self, $c) = @_;
     $self->after_list($c);
 };
+
+=head2 after_list
+
+Check which switch is also defined as a floating device and sort switches by IP addresses.
+
+=cut
 
 sub after_list {
     my ($self, $c) = @_;
@@ -231,6 +231,14 @@ sub add_to_group :Chained('object') :PathPart('add_to_group'): Args(1) {
     );
     $c->response->status($status);
 }
+
+=head2 create_in_group
+
+Usage /config/switch/create_in_group/:group_id
+
+Create a switch directly in a group
+
+=cut
 
 sub create_in_group :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
     my ($self, $c, $group) = @_;
