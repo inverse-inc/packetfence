@@ -16,19 +16,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "30 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "60 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "7 days"
 msgstr ""
@@ -37,7 +37,7 @@ msgstr ""
 msgid "802.1X Username"
 msgstr ""
 
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 msgid "90 days"
 msgstr ""
 
@@ -304,6 +304,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "Add a condition."
 msgstr ""
 
@@ -434,6 +435,7 @@ msgid "Alerting"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "All"
 msgstr ""
 
@@ -471,6 +473,7 @@ msgid "Amount of time before the violation can reoccur. This is useful to allow 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr ""
 
@@ -849,6 +852,7 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/radiuslog/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1601,6 +1605,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes for "
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Display [_1] entries per page"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
@@ -2401,6 +2409,26 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 1 hour"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 12 hours"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 24 hours"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 30 minutes"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 6 hours"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -3028,6 +3056,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node IP"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/view.tt
+msgid "Node Information"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -3815,7 +3847,16 @@ msgid "Quantity"
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/radiuslog/view.tt
 msgid "RADIUS"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "RADIUS_LOG"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "RADIUS_LOG_READ"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3844,7 +3885,12 @@ msgid "REPORTS"
 msgstr "Reports"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/admin/reports.tt
 msgid "Radius"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Radius Audit Log"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
@@ -4484,6 +4530,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "Search"
 msgstr ""
 
@@ -5071,6 +5118,10 @@ msgstr ""
 
 # html/pfappserver/root/config/switch/list.tt
 msgid "Switch ID"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/view.tt
+msgid "Switch Information"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -6667,6 +6718,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "ends with"
 msgstr ""
 
@@ -6915,6 +6967,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -6935,6 +6988,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -7101,6 +7155,7 @@ msgstr "Management"
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "matches"
 msgstr ""
 
@@ -8000,6 +8055,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "starts with"
 msgstr ""
 
