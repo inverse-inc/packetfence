@@ -119,6 +119,13 @@ Search the switch configuration entries
 
 sub search : Local : AdminRole('SWITCHES_READ') {
     my ($self, $c, $pageNum, $perPage) = @_;
+
+    my $groupsModel = $c->model("Config::SwitchGroup");
+    # Changing default to empty value as switches inheriting from it don't have a group attribute
+    if($c->request->param("searches.0.value") eq $groupsModel->configStore->topLevelGroup){
+        $c->request->param("searches.0.value", "");
+    }
+
     $pageNum = 1 unless $pageNum;
     $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result, $violations);
