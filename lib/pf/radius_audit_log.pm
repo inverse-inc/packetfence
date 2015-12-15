@@ -101,6 +101,8 @@ our @NODE_FIELDS = qw(
     uuid
 );
 
+our @RADIUS_FIELDS = qw(radius_request radius_reply);
+
 our @SWITCH_FIELDS = qw(
     switch_id
     switch_mac

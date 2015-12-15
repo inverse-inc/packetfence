@@ -131,7 +131,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_RE
     $c->stash({
         switch_fields => \@pf::radius_audit_log::SWITCH_FIELDS,
         node_fields => \@pf::radius_audit_log::NODE_FIELDS,
-        fields => \@pf::radius_audit_log::FIELDS,
+        radius_fields => \@pf::radius_audit_log::RADIUS_FIELDS,
     });
 }
 
