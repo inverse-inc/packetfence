@@ -35,14 +35,14 @@
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add switch to group') %] <span class="caret"></span></a>
             <ul class="dropdown-menu">
               [% FOREACH group IN switch_groups %]
-              <li><a class="createSwitch" href="[% c.uri_for(c.controller(controller_namespace).action_for('create_in_group'), group) %]">[% group %]</a></li>
+              <li><a class="createSwitch" href="[% c.uri_for(c.controller.action_for('create_in_group'), group) %]">[% group %]</a></li>
               [% #Add a separator after the default group %]
               [% IF group == "default" %]<li role="separator" class="divider"></li>[% END %]
               [% END %]
             </ul>
           </div>
         [% ELSE %]
-          <a class="btn createSwitch" href="[% c.uri_for(c.controller(controller_namespace).action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
+          <a class="btn createSwitch" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
         [% END %]
       </div>
       [%- END %]
