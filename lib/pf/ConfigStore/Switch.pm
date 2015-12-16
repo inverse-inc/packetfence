@@ -47,6 +47,7 @@ sub commit {
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Switch configstore");
     freeradius_populate_nas_config( \%pf::SwitchFactory::SwitchConfig );
+    return ($result, $error);
 }
 
 =item cleanupAfterRead
