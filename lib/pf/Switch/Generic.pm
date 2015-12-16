@@ -24,6 +24,9 @@ use pf::config;
 
 =cut
 
+# Description
+sub description { return "Generic" }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
