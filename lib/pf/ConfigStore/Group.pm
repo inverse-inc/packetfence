@@ -41,11 +41,11 @@ sub _Sections {
     return grep { s/^\Q$group\E // }  $self->cachedConfig->Sections($group);
 }
 
-=item _formatId
+=item _formatSectionName
 
 =cut
 
-sub _formatId {
+sub _formatSectionName {
    my ($self,$id) = @_;
    return $self->group . " " . $id;
 }
