@@ -90,7 +90,10 @@ our @NODE_FIELDS = qw(
     stripped_user_name
     realm
     calling_station_id
+    auth_type
+    eap_type
     auth_status
+    reason
     role
     unreg
     profile
@@ -117,10 +120,6 @@ our @SWITCH_FIELDS = qw(
     connection_type
     nas_ip_address
     nas_identifier
-    auth_status
-    reason
-    auth_type
-    eap_type
 );
 
 our $FIELD_LIST = join(", ",@FIELDS);
