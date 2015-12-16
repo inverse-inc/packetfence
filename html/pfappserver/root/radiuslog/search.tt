@@ -64,7 +64,15 @@
             <tr>
                 <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
                [% FOREACH display_column IN display_columns  %]
-                 <td>[%item.$display_column %]</td>
+                 [% IF (display_column == 'auth_status') %]
+                     [% IF (item.$display_column == 'Reject') %]
+                       <td><img src="/static/app/red.png"></td>
+                     [% ELSE %]
+                        <td><img src="/static/app/green.png"></td>
+                     [% END %]
+                 [% ELSE %]
+                     <td>[%item.$display_column %]</td>
+                 [% END %]
                [% END %]
             </tr>
         [% END %]
