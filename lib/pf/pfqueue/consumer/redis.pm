@@ -21,7 +21,7 @@ use pf::log;
 use pf::Sereal qw($DECODER);
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
 extends qw(pf::pfqueue::consumer);
 
 has 'redis' => (is => 'rw', lazy => 1, builder => 1);
@@ -103,7 +103,7 @@ sub process_next_job {
                 $logger->error($@);
             }
         } else {
-            $redis->hincrby($PFQUEUE_COUNTER, "${task_counter_id}:misses", 1, sub { });
+            $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1, sub { });
             $logger->error("Invalid task id $task_id provided");
         }
         $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
