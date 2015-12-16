@@ -14,6 +14,7 @@ pf::cmd::pf::pfconfig
    list                | list all pfconfig namespaces
    show <namespace>    | rebuild and display a pfconfig namespace
    get <namespace>     | display a pfconfig namespace from pfconfig process
+   clear_backend       | clear the backend of pfconfig
 
 =head1 DESCRIPTION
 
@@ -125,6 +126,19 @@ sub action_get {
     my $obj = pfconfig::cached->new;
     my $response = $obj->_get_from_socket($namespace, "element");
     print Dumper($response);
+    return $EXIT_SUCCESS;
+}
+
+=head2 action_clear_backend
+
+Clear the pfconfig backend
+
+=cut
+
+sub action_clear_backend {
+    my ($self) = @_;
+    my $manager = pfconfig::manager->new;
+    $manager->{cache}->clear();
     return $EXIT_SUCCESS;
 }
 

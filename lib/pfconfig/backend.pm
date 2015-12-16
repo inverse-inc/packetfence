@@ -89,6 +89,17 @@ sub remove {
     return $self->{cache}->remove($key);
 }
 
+=head2
+
+Remove an element in the backend
+
+=cut
+
+sub clear {
+    my ( $self ) = @_;
+    return $self->{cache}->clear();
+}
+
 =back
 
 =head1 AUTHOR

@@ -36,7 +36,6 @@ use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
-use pfconfig::backend::mysql;
 use pfconfig::log;
 use pf::util;
 use Time::HiRes qw(stat time);
@@ -162,7 +161,20 @@ sub init_cache {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    $self->{cache} = pfconfig::backend::mysql->new;
+    my $cfg    = pfconfig::config->new->section('general');
+
+    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
+
+    my $type   = "pfconfig::backend::$name";
+
+    $type = untaint_chain($type);
+
+    # load the module to instantiate
+    if ( !( eval "$type->require()" ) ) {
+        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+    }
+
+    $self->{cache} = $type->new();
 
     $self->{memory}       = {};
     $self->{memorized_at} = {};
