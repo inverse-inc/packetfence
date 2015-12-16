@@ -239,6 +239,7 @@ sub firewallsso : Public {
                     sub {
                         $logger->debug("Doing cached firewall SSO for '$cache_key' with expiration of $cache_timeout");
                         $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+                        return 1;
                     }
                 );
             }
