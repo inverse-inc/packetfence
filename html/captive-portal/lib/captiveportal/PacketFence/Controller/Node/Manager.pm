@@ -22,17 +22,18 @@ Catalyst Controller.
 =cut
 
 
-=head2 index
+=head2 unreg
 
 =cut
 
 sub unreg :Local :Args(1) {
     my ($self, $c, $mac) = @_;
-    my $username = $c->session->{username};
     my $node = node_view($mac);
+    my $username = lc($c->session->{username});
+    my $owner = lc($node->{pid});
     if ($username && $node) {
-        $c->log->info("$username attempting to unregister $mac");
-        if (($username ne $default_pid && $username ne $admin_pid ) && $username eq $node->{pid}) {
+        $c->log->info("'$username' attempting to unregister $mac owned by '$owner'");
+        if (($username ne $default_pid && $username ne $admin_pid ) && $username eq $owner) {
             node_deregister($mac, %$node);
             reevaluate_access($mac, "node_modify");
             $c->response->redirect("/status");
@@ -45,7 +46,6 @@ sub unreg :Local :Args(1) {
         $self->showError($c,"Not logged in or node ID $mac is not known");
     }
 }
-
 
 =head1 AUTHOR
 
