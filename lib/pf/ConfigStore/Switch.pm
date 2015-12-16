@@ -122,7 +122,7 @@ sub cleanupBeforeCommit {
     if($id ne $self->topLevelGroup) {
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
-            if(defined($value) && $value eq $parent_config->{$key}){
+            if(defined($value) && defined($parent_config->{$key}) && $value eq $parent_config->{$key}){
                 $switch->{$key} = undef;
             }
         }
