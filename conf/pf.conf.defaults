@@ -956,6 +956,11 @@ port=7911
 #
 # The OMAPI host
 host=localhost
+#
+# omapi.timeout
+#
+# The timeout on the OMAPI socket
+timeout=0.5
 
 [provisioning]
 #

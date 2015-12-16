@@ -7141,6 +7141,10 @@ msgid "omapi.host"
 msgstr "OMAPI host"
 
 # conf/documentation.conf
+msgid "omapi.timeout"
+msgstr "OMAPI timeout"
+
+# conf/documentation.conf
 msgid "omapi.ip2mac_lookup"
 msgstr "Enabled ip2mac lookup using OMAPI"
 
