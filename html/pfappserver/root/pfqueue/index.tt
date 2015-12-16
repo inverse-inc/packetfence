@@ -4,8 +4,8 @@
     <thead>
       <tr><th colspan="3">[%l('Queue Counts')%]</th></tr>
       <tr>
-        <th>Queue</th>
-        <th>Name</th>
+        <th>[% l('Queue') %]</th>
+        <th>[% l('Count') %]</th>
       </tr>
     </thead>
     [% FOREACH counter IN queue_counts %]
@@ -20,9 +20,9 @@
     <thead>
       <tr><th colspan="3">[%l('Outstanding Task Counters')%]</th></tr>
       <tr>
-        <th>Queue</th>
-        <th>Name</th>
-        <th>Count</th>
+        <th>[% l('Queue') %]</th>
+        <th>[% l('Task type') %]</th>
+        <th>[% l('Count') %]</th>
       </tr>
     </thead>
     [% FOREACH counter IN counters %]
@@ -45,9 +45,9 @@
     <thead>
       <tr><th colspan="3">[%l('Expired Task Counters')%]</th></tr>
       <tr>
-        <th>Queue</th>
-        <th>Name</th>
-        <th>Count</th>
+        <th>[% l('Queue') %]</th>
+        <th>[% l('Task type') %]</th>
+        <th>[% l('Count') %]</th>
       </tr>
     </thead>
     [% FOREACH counter IN miss_counters %]
