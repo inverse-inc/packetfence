@@ -1,6 +1,6 @@
 [% form.block('triggers').render | none %]
 
-<form autocomplete="off" name="modalSwitch" id="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+<form autocomplete="off" name="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   [%- IF item.id.defined %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
