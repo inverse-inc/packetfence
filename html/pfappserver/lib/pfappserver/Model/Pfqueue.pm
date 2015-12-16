@@ -72,6 +72,17 @@ sub redis_options {
     return \%options;
 }
 
+sub queue_counts {
+    my ($self) = @_;
+    my $config = pf::util::pfqueue::load_config_hash;
+    my $redis = $self->redis;
+    my @queue_counts;
+    foreach my $queue (map {s/^queue (.*)$//;$1} grep {/^queue /} keys %$config) {
+        push @queue_counts,{ name => $queue, count => $redis->llen("${PFQUEUE_QUEUE_PREFIX}${queue}") };
+    }
+    return \@queue_counts;
+}
+
 
 =head1 COPYRIGHT
 

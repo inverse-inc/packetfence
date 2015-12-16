@@ -2,6 +2,22 @@
 <div>
   <table class="table table-condensed table-striped">
     <thead>
+      <tr><th colspan="3">[%l('Queue Counts')%]</th></tr>
+      <tr>
+        <th>Queue</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    [% FOREACH counter IN queue_counts %]
+      <tr>
+        <td> [% counter.name %]</td>
+        <td> [% counter.count %]</td>
+      </tr>
+    [% END %]
+  </table>
+  [% IF counters.size > 0 %]
+  <table class="table table-condensed table-striped">
+    <thead>
       <tr><th colspan="3">[%l('Outstanding Task Counters')%]</th></tr>
       <tr>
         <th>Queue</th>
@@ -9,14 +25,22 @@
         <th>Count</th>
       </tr>
     </thead>
-  [% FOREACH counter IN counters %]
-    <tr>
-      <td> [% counter.queue %]</td>
-      <td>[% counter.name %] </td>
-      <td> [% counter.count %]</td>
-    </tr>
-  [% END %]
+    [% FOREACH counter IN counters %]
+      <tr>
+        <td> [% counter.queue %]</td>
+        <td>[% counter.name %] </td>
+        <td> [% counter.count %]</td>
+      </tr>
+    [% END %]
   </table>
+  [% ELSE %]
+  <div class="unwell">
+   <p> <i class="icon-group icon-large"></i>
+     [% l('No Task Counters.') %]
+   </p>
+  </div>
+  [% END %]
+  [% IF miss_counters.size > 0 %]
   <table class="table table-condensed table-striped">
     <thead>
       <tr><th colspan="3">[%l('Expired Task Counters')%]</th></tr>
@@ -26,12 +50,23 @@
         <th>Count</th>
       </tr>
     </thead>
-  [% FOREACH counter IN miss_counters %]
+    [% FOREACH counter IN miss_counters %]
+      <tr>
+        <td> [% counter.queue %]</td>
+        <td>[% counter.name %] </td>
+        <td> [% counter.count %]</td>
+      </tr>
+    [% END %]
+  </table>
+  [% ELSE %]
     <tr>
-      <td> [% counter.queue %]</td>
-      <td>[% counter.name %] </td>
-      <td> [% counter.count %]</td>
+      <td colspan="3">
+      <div class="unwell">
+       <p> <i class="icon-group icon-large"></i>
+         [% l('No Expired Task Counters.') %]
+       </p>
+      </div>
+      </td>
     </tr>
   [% END %]
-  </table>
 </div>

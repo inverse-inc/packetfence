@@ -31,6 +31,7 @@ sub index :Path : Args(0) {
     $c->stash({
         counters => $model->counters,
         miss_counters => $model->miss_counters,
+        queue_counts => $model->queue_counts,
     });
 }
 
