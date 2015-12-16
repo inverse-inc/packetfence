@@ -362,13 +362,13 @@ sub sortItems {
 
 =cut
 
-sub cleanupAfterRead { return $_[1] }
+sub cleanupAfterRead { }
 
 =head2 cleanupBeforeCommit
 
 =cut
 
-sub cleanupBeforeCommit { return $_[1] }
+sub cleanupBeforeCommit { }
 
 =head2 expand_list
 
