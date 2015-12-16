@@ -143,6 +143,32 @@ foreach my $network ( keys %ConfigNetworks ) {
 
 tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
 
+our $PARENT_PID = $$;
+my %CHILDREN;
+my $IS_CHILD = 0;
+my $CHILDREN_TO_START = $Config{advanced}{pfdns_processes};
+
+sub start_children {
+    my $i = 1;
+    while($i <= $CHILDREN_TO_START){
+        run_child($i);
+        $i++;
+    }
+}
+
+sub run_child {
+    my ($id) = @_;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $id;
+        $SIG{CHLD} = "IGNORE";
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        _run_child($id);
+    } 
+}
+
 populate_ipset_cache($IPSET_SESSION);
 
 my $ns = new Net::DNS::Nameserver(
@@ -153,8 +179,12 @@ my $ns = new Net::DNS::Nameserver(
     ) || die "couldn't create nameserver object\n";
 
 
-while($RUNNING) {
-    $ns->loop_once(10);
+sub _run_child {
+    my ($id) = @_;
+    $0 = "$0 - $id";
+    while($RUNNING) {
+        $ns->loop_once(10);
+    }
 }
 
 END {
@@ -164,6 +194,7 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
+    $logger->trace(sub { "Process $0 handling request" });
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
@@ -343,6 +374,10 @@ sub isolzone {
 }
 
 sub normal_sighandler {
+    foreach my $pid (keys %CHILDREN){
+        kill(SIGKILL, $pid);
+    }
+    deletepid();
     $RUNNING = 0;
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
@@ -373,6 +408,22 @@ sub add_to_ipset_cache {
 sub is_in_ipset_cache {
     my ($session,$ip,$port) = @_;
     return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
+}
+
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
+}
+
+start_children();
+while($RUNNING){
+    sleep 1;
+    foreach my $pid (keys %CHILDREN){
+        unless(kill(0,$pid)){
+            $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
+            run_child($CHILDREN{$pid});
+            delete $CHILDREN{$pid};
+        }
+    }
 }
 
 =head1 COPYRIGHT
