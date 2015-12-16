@@ -137,10 +137,10 @@ sub authenticate {
 
   my $user = $result->entry(0);
 
-  {
+  $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.bind.timing"});
-    $result = $connection->bind($user->dn, password => $password);
-  }
+    $connection->bind($user->dn, password => $password)
+  };
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
@@ -307,7 +307,7 @@ sub match_in_subclass {
           filter => $filter,
           scope => $self->{'scope'},
           attrs => \@attributes
-        );
+        )
     };
 
     if ($result->is_error) {
