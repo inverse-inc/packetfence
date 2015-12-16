@@ -108,7 +108,6 @@ $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 daemonize($PROGRAM_NAME) if ($daemonize);
 
 my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
-my $running_w_dhcpd = $FALSE;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
@@ -120,10 +119,6 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
         foreach my $network (keys %ConfigNetworks) {
             my %net = %{$ConfigNetworks{$network}};
             my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
-            if(isenabled($net{dhcpd}) && $network_obj->contains($net_addr)){
-                $running_w_dhcpd = $TRUE;
-                $logger->info("The listener process is on the same server as the DHCP server.");
-            }
 
             # are we listening on an inline interface ?
             next if (!pf::config::is_network_type_inline($network));
@@ -197,7 +192,6 @@ sub process_pkt {
                 dest_mac => clean_mac($l2->{'dest_mac'}),
                 src_ip => $l3->{'src_ip'},
                 dest_ip => $l3->{'dest_ip'},
-                running_w_dhcpd => $running_w_dhcpd,
                 is_inline_vlan => $is_inline_vlan,
                 interface => $interface,
                 interface_ip => $interface_ip,
