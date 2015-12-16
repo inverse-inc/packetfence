@@ -21,6 +21,8 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use pfconfig::log;
 use pf::file_paths;
+use pf::util;
+use List::MoreUtils qw(any uniq);
 
 use base 'pfconfig::namespaces::config';
 
@@ -44,11 +46,24 @@ sub build_child {
         SNMPCommunityTrap => 'public'
     };
 
-    foreach my $section_name ( keys %tmp_cfg ) {
+
+    my @keys;
+    # default is always first
+    push @keys, "default";
+    # then all the groups
+    my @groups = $self->GroupMembers("group");
+    push @keys, @groups;
+    # then everyone else
+    push @keys, keys(%tmp_cfg);
+    # Only keep unique elements
+    @keys = uniq(@keys);
+
+    foreach my $section_name ( @keys ) {
         unless ( $section_name eq "default" ) {
-            foreach my $element_name ( keys %{ $tmp_cfg{default} } ) {
+            my $inherit_from = $tmp_cfg{$section_name}{group} ? "group ".$tmp_cfg{$section_name}{group} : "default";
+            foreach my $element_name ( keys %{ $tmp_cfg{$inherit_from} } ) {
                 unless ( exists $tmp_cfg{$section_name}{$element_name} ) {
-                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{default}{$element_name};
+                    $tmp_cfg{$section_name}{$element_name} = $tmp_cfg{$inherit_from}{$element_name};
                 }
             }
         }

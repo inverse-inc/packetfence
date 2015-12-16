@@ -32,6 +32,7 @@
         'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'css/bootstrapSwitch',
+        'admin/config/switches',
         'admin/config/violations',
         ] -%]
 

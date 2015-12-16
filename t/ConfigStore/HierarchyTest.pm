@@ -1,41 +1,31 @@
-package pf::ConfigStore::Interface;
+package ConfigStore::HierarchyTest;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
+ConfigStore::HierarchyTest
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+Class used to test the Hierarchy role of the Configstore
 
 =cut
 
 use Moo;
-use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
+use pf::ConfigStore;
+use pf::ConfigStore::Hierarchy;
 
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
+extends qw(pf::ConfigStore);
+with qw(pf::ConfigStore::Hierarchy);
 
-sub group { 'interface' };
+sub default_section { undef }
 
-sub pfconfigNamespace {'config::Pf'};
+sub topLevelGroup { "group default" }
 
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
-
-__PACKAGE__->meta->make_immutable;
-
-=back
+sub _formatGroup {
+    return "group ".$_[1];
+}
 
 =head1 COPYRIGHT
 

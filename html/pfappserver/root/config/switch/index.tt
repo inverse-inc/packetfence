@@ -1,25 +1,48 @@
-      <div class="modal fade hide" id="modalSwitch">
+      <div class="modal modal-large fade hide" id="modalSwitch">
       </div>
 
       <div class="modal fade hide" id="deleteSwitch">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>[% l('Delete Switch') %]</i> <span></span></h3>
+          <h3><i>[% l('Delete ' _ model_name) %]</i> <span></span></h3>
         </div>
         <div class="modal-body">
-          <p>[% l('Really delete this switch?') %]</p>
+          <p>[% l('Really delete this ' _ model_name _ ' ?') %]</p>
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
           <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
-      <h2>[% l('Switches') %]</h2>
-
+      
+      <div class="tab-content">
+        <ul style="font-size:130%" class="nav nav-tabs">
+          <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
+            <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
+          </li>
+          <li [% IF controller_namespace == 'Config::SwitchGroup' %]class="active" [% END %]>
+            <a href="[% c.pf_hash_for(c.controller('Config::SwitchGroup').action_for('index'),[]) %]">[% l('Switch Groups') %]</a>
+          </li>
+        </ul>
+      </div>
       [% INCLUDE config/switch/list.tt %]
 
       [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">
-        <a id="createSwitch" class="btn" href="[% c.uri_for(c.controller('Config::Switch').action_for('create')) %]">[% l('Add switch') %]</a>
+
+        [% IF controller_namespace == 'Config::Switch' %]
+          <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add switch to group') %] <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              [% FOREACH group IN switch_groups %]
+              <li><a class="createSwitch" href="[% c.uri_for(c.controller.action_for('create_in_group'), group) %]">[% group %]</a></li>
+              [% #Add a separator after the default group %]
+              [% IF group == "default" %]<li role="separator" class="divider"></li>[% END %]
+              [% END %]
+            </ul>
+          </div>
+        [% ELSE %]
+          <a class="btn createSwitch" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
+        [% END %]
       </div>
       [%- END %]

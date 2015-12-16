@@ -1,41 +1,22 @@
-package pf::ConfigStore::Interface;
+package pfappserver::Controller::Config::SwitchGroup;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
-
-=cut
+pfappserver::Controller::Config::SwitchGroup
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+Place all customization for Controller::Config::SwitchGroup here
 
 =cut
 
-use Moo;
-use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
+use Moose;
 
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::SwitchGroup'; }
 
-sub group { 'interface' };
+=head1 AUTHOR
 
-sub pfconfigNamespace {'config::Pf'};
-
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
-
-__PACKAGE__->meta->make_immutable;
-
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -60,5 +41,7 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable;
+
+1;

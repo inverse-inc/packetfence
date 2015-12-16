@@ -1,41 +1,47 @@
-package pf::ConfigStore::Interface;
+package pfappserver::Form::Config::SwitchGroup;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
-
-=cut
+pfappserver::Form::Config::Switch - Web form for a switch
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+Form definition to create or update a network switch.
 
 =cut
 
-use Moo;
-use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::Switch';
 
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
+## Definition
 
-sub group { 'interface' };
+=head2 id
 
-sub pfconfigNamespace {'config::Pf'};
-
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
+Override the field from switch to change the label
 
 =cut
 
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
+has_field 'id' =>
+  (
+   type => 'Text',
+   label => 'Group name',
+   required => 1,
+   messages => { required => 'Please specify a group name' },
+  );
 
-__PACKAGE__->meta->make_immutable;
+=head2 group
 
-=back
+Overide the field from switch so a group cannot be specified
+
+=cut
+
+has_field 'group' =>
+  (
+   type => 'Hidden',
+   value => '',
+   default => '',
+  );
+
 
 =head1 COPYRIGHT
 
@@ -60,5 +66,6 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
+1;

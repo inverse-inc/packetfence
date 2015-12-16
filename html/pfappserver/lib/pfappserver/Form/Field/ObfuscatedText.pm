@@ -1,41 +1,22 @@
-package pf::ConfigStore::Interface;
+package pfappserver::Form::Field::ObfuscatedText;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
-
-=cut
+pfappserver::Form::Field::ObfuscatedText
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+This field extends the Text field to obfuscate the content but still support placeholders
 
 =cut
 
-use Moo;
+use HTML::FormHandler::Moose;
+extends 'HTML::FormHandler::Field::Text';
+
+use pf::util;
 use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
 
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
-
-sub group { 'interface' };
-
-sub pfconfigNamespace {'config::Pf'};
-
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
-
-__PACKAGE__->meta->make_immutable;
-
-=back
+has '+type_attr'        => ( default => 'password' );
 
 =head1 COPYRIGHT
 
@@ -60,5 +41,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-

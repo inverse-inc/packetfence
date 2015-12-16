@@ -1,13 +1,13 @@
-package pf::ConfigStore::Interface;
+package pf::ConfigStore::SwitchGroup;
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
+pf::ConfigStore::SwitchGroup
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+pf::ConfigStore::SwitchGroup;
 
 =cut
 
@@ -16,22 +16,13 @@ use namespace::autoclean;
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Group;
 
-extends 'pf::ConfigStore';
+extends 'pf::ConfigStore::Switch';
 with 'pf::ConfigStore::Group';
+with 'pf::ConfigStore::Hierarchy';
 
-sub group { 'interface' };
+sub group { 'group' };
 
-sub pfconfigNamespace {'config::Pf'};
-
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
+sub globalConfigStore { pf::ConfigStore::Switch->new }
 
 __PACKAGE__->meta->make_immutable;
 
@@ -61,4 +52,5 @@ USA.
 =cut
 
 1;
+
 

@@ -1,41 +1,44 @@
-package pf::ConfigStore::Interface;
+package pf::Switch::Generic;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
+pf::Switch::Generic
+
+=head1 SYNOPSIS
+
+Implements a generic switch which supports RADIUS MAB + 802.1x in wired + wireless
 
 =cut
 
-=head1 DESCRIPTION
+use strict;
+use warnings;
 
-pf::ConfigStore::Switch;
+use base ('pf::Switch');
 
-=cut
+use pf::constants;
+use pf::config;
 
-use Moo;
-use namespace::autoclean;
-use pf::ConfigStore::Pf;
-use pf::ConfigStore::Group;
-
-extends 'pf::ConfigStore';
-with 'pf::ConfigStore::Group';
-
-sub group { 'interface' };
-
-sub pfconfigNamespace {'config::Pf'};
-
-=head2 Methods
+=head1 SUBROUTINES
 
 =over
 
-=item _buildCachedConfig
-
 =cut
 
-sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
+# Description
+sub description { return "Generic" }
 
-__PACKAGE__->meta->make_immutable;
+# CAPABILITIES
+# access technology supported
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
 
 =back
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -62,3 +65,6 @@ USA.
 
 1;
 
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

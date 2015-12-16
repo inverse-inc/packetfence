@@ -14,7 +14,8 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pf::util qw(sort_ip);
+use pf::util qw(sort_ip isenabled);
+use pf::SwitchFactory;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -56,27 +57,39 @@ sub begin :Private {
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
+    $c->stash->{roles} = $roles;
 
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", placeholders => $switch_default, roles => $roles);
     $c->stash->{switch_default} = $switch_default;
+    
+    $c->stash->{model_name} = "Switch";
+    $c->stash->{controller_namespace} = "Config::Switch";
+    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
 }
 
-=head2 after list
+after qw(list search) => sub {
+    my ($self, $c) = @_;
+    $self->after_list($c);
+};
+
+=head2 after_list
 
 Check which switch is also defined as a floating device and sort switches by IP addresses.
 
 =cut
 
-after list => sub {
+sub after_list {
     my ($self, $c) = @_;
     $c->stash->{action} ||= 'list';
 
     my ($status, $floatingdevice, $ip);
     my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
-    my %switches;
+    my @switches;
+    my $groupsModel = $c->model("Config::SwitchGroup");
+    my $groupPrefix = $groupsModel->configStore->group;
     foreach my $switch (@{$c->stash->{items}}) {
+        next if($switch->{id} =~ /^$groupPrefix /);
         my $id = $switch->{id};
         if ($id) {
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
@@ -84,8 +97,17 @@ after list => sub {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
+        my $cs = $c->model('Config::Switch')->configStore;
+        $switch->{type} = $cs->fullConfigRaw($id)->{type}; 
+        $switch->{group} ||= $cs->topLevelGroup;
+        $switch->{mode} = $cs->fullConfigRaw($id)->{mode}; 
+        push @switches, $switch;
     }
-};
+    $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
+    unshift @{$c->stash->{switch_groups}}, $groupsModel->configStore->topLevelGroup;
+    $c->stash->{items} = \@switches; 
+    $c->stash->{searchable} = 1;
+}
 
 =head2 search
 
@@ -97,6 +119,13 @@ Search the switch configuration entries
 
 sub search : Local : AdminRole('SWITCHES_READ') {
     my ($self, $c, $pageNum, $perPage) = @_;
+
+    my $groupsModel = $c->model("Config::SwitchGroup");
+    # Changing default to empty value as switches inheriting from it don't have a group attribute
+    if($c->request->param("searches.0.value") eq $groupsModel->configStore->topLevelGroup){
+        $c->request->param("searches.0.value", "");
+    }
+
     $pageNum = 1 unless $pageNum;
     $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result, $violations);
@@ -110,6 +139,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
         $c->stash(current_view => 'JSON');
     } else {
         my $query = $form->value;
+        $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
         ($status, $result) = $model->search($query, $pageNum, $perPage);
         if (is_success($status)) {
             $c->stash(form => $form, action => 'search');
@@ -156,6 +186,66 @@ sub index :Path :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{action} = 'list';
     $c->forward('list');
+}
+
+=head2 remove_group
+
+Usage /config/switch/:id/remove_group
+
+Remove the group associated to a switch
+
+=cut
+
+sub remove_group :Chained('object') :PathPart('remove_group'): Args(0) {
+    my ($self,$c) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my $itemKey = $model->itemKey;
+    my ($status,$result) = $self->getModel($c)->update($c->stash->{$idKey}, { group => undef });
+    $self->getModel($c)->commit();
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
+}
+
+=head2 add_to_group
+
+Usage /config/switch/:id/add_to_group/:group_id
+
+Add the switch to a group
+
+=cut
+
+sub add_to_group :Chained('object') :PathPart('add_to_group'): Args(1) {
+    my ($self,$c,$group) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my $itemKey = $model->itemKey;
+    my ($status,$result) = $self->getModel($c)->update($c->stash->{$idKey}, { group => $group });
+    $self->getModel($c)->commit();
+    $c->stash(
+        status_msg   => $result,
+        current_view => 'JSON',
+    );
+    $c->response->status($status);
+}
+
+=head2 create_in_group
+
+Usage /config/switch/create_in_group/:group_id
+
+Create a switch directly in a group
+
+=cut
+
+sub create_in_group :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
+    my ($self, $c, $group) = @_;
+    $c->forward('create');
+    $c->stash->{item}->{group} = $group;
+    $c->stash->{form}->field('group')->value($group);
+    $c->stash->{form}->update_fields($c->stash->{item});
 }
 
 =head1 COPYRIGHT

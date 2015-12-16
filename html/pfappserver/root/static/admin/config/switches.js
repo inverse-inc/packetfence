@@ -46,7 +46,7 @@ var SwitchView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readSwitch, this);
-    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], #createSwitch', read);
+    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], .createSwitch', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
@@ -55,6 +55,14 @@ var SwitchView = function(options) {
     // Delete the switch
     var delete_s = $.proxy(this.deleteConfirm, this);
     options.parent.on('click', '#switches [href$="/delete"]', delete_s);
+
+    // Remove the group from the switch
+    var remove_group = $.proxy(this.removeGroup, this);
+    options.parent.on('click', 'form[name="modalSwitch"] [href$="/remove_group"]', remove_group);
+
+    // Add a group to the switch group
+    var add_to_group = $.proxy(this.addToGroup, this);
+    options.parent.on('click', 'form[name="modalSwitch"] #addNewMember', add_to_group);
 
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
@@ -69,6 +77,13 @@ var SwitchView = function(options) {
     options.parent.on('show', '#modalSwitch', function(e) {
         $('#inlineTrigger tr:not(.hidden) select').each(function() {
             that.updateInlineTrigger($(this));
+        });
+
+        $('[data-provide="typeahead"]').typeahead({
+            source: $.proxy(that.searchSwitch, that),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
         });
     });
 
@@ -95,6 +110,7 @@ var SwitchView = function(options) {
 
     // pagination search
     options.parent.on('click', '#switches [href*="/switch/search/"]', $.proxy(this.searchPagination, this));
+
 
 };
 
@@ -225,6 +241,45 @@ SwitchView.prototype.updateSwitch = function(e) {
             errorSibling: modal_body.children().first()
         });
     }
+};
+
+SwitchView.prototype.addToGroup = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var button = $(e.target);
+    var newMemberId = $('#newMember').val();
+    this.switches.get({
+        url: "/config/switch/"+newMemberId+"/add_to_group/"+button.attr('data-group'),
+        success: function(data) {
+            that.readSwitch({
+              preventDefault: function(){},
+              target: {
+                href: "/config/switchgroup/"+button.attr('data-group')+"/read",
+              },
+            });
+            showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
+        },
+        errorSibling: $('#modalSwitch .modal-body').children().first(),
+    });
+}
+
+SwitchView.prototype.removeGroup = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var a = $(e.target);
+    this.switches.get({
+        url: a.attr('href'),
+        success: function(data) {
+            a.closest('.switchGroupMember').remove();
+            if ($('.switchGroupMember').size() == 0){
+              $('#switchMembersEmpty').closest('tr').removeClass('hidden');
+            }
+            showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
+        },
+        errorSibling: $('#modalSwitch .modal-body').children().first(),
+    });
 };
 
 SwitchView.prototype.list = function() {
@@ -422,3 +477,28 @@ SwitchView.prototype.deleteConfirm = function(e) {
     modal.modal({ show: true });
     return false;
 };
+
+SwitchView.prototype.searchSwitch = function(query, process){
+    this.switches.post({
+        url: '/config/switch/search',
+        data: {
+            'json': 1,
+            'all_or_any': 'any',
+            'searches.0.name': 'id',
+            'searches.0.op': 'like',
+            'searches.0.value': query,
+        },
+        success: function(data) {
+            var results = $.map(data.items, function(i) {
+                return i.id;
+            });
+            var input = $('#modalSwitch #newMember');
+            var control = input.closest('.control-group');
+            if (results.length == 0)
+                control.addClass('error');
+            else
+                control.removeClass('error');
+            process(results);
+        }
+    });
+}
