@@ -2,6 +2,7 @@
 <div>
   <table class="table">
     <thead>
+      <tr><th colspan="3">[%l('Outstanding Task Counters')%]</th></tr>
       <tr>
         <th>Queue</th>
         <th>Name</th>
@@ -9,6 +10,23 @@
       </tr>
     </thead>
   [% FOREACH counter IN counters %]
+    <tr>
+      <td> [% counter.queue %]</td>
+      <td>[% counter.name %] </td>
+      <td> [% counter.count %]</td>
+    </tr>
+  [% END %]
+  </table>
+  <table class="table">
+    <thead>
+      <tr><th colspan="3">[%l('Expired Task Counters')%]</th></tr>
+      <tr>
+        <th>Queue</th>
+        <th>Name</th>
+        <th>Count</th>
+      </tr>
+    </thead>
+  [% FOREACH counter IN miss_counters %]
     <tr>
       <td> [% counter.queue %]</td>
       <td>[% counter.name %] </td>
