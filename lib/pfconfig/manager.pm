@@ -45,6 +45,7 @@ use POSIX;
 use POSIX::2008;
 use List::MoreUtils qw(first_index);
 use Tie::IxHash;
+use pfconfig::config;
 
 =head2 config_builder
 
