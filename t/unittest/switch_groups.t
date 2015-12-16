@@ -30,8 +30,6 @@ use Test::NoWarnings;
 
 use pf::SwitchFactory;
 
-#use Data::Dumper ; print Dumper(\%pf::SwitchFactory::SwitchConfig);
-
 my $switch;
 
 $switch = pf::SwitchFactory->instantiate("172.16.8.21" );

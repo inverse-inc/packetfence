@@ -39,7 +39,6 @@ sub remove {
     my ($self, $id) = @_;
     pf::log::get_logger->info("Deleting $id");
     my @childs = $self->configStore->members($id, $self->idKey);
-    use Data::Dumper ;pf::log::get_logger->info(Dumper(\@childs));
     if(@childs){
         my @switch_ids = map { $_->{id} } @childs;
         my $switch_csv = join(', ', @switch_ids);
