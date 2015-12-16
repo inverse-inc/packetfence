@@ -1,4 +1,4 @@
-      <div class="modal fade hide" id="modalSwitch">
+      <div class="modal modal-large fade hide" id="modalSwitch">
       </div>
 
       <div class="modal fade hide" id="deleteSwitch">

@@ -58,11 +58,11 @@ var SwitchView = function(options) {
 
     // Remove the group from the switch
     var remove_group = $.proxy(this.removeGroup, this);
-    options.parent.on('click', '#modalSwitch [href$="/remove_group"]', remove_group);
+    options.parent.on('click', 'form[name="modalSwitch"] [href$="/remove_group"]', remove_group);
 
     // Add a group to the switch group
     var add_to_group = $.proxy(this.addToGroup, this);
-    options.parent.on('click', '#modalSwitch #addNewMember', add_to_group);
+    options.parent.on('click', 'form[name="modalSwitch"] #addNewMember', add_to_group);
 
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
