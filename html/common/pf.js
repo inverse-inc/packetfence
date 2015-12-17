@@ -59,18 +59,18 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   var errorDetected, loaded, netdetect, checker, initNetDetect;
 
   netdetect = $('#netdetect');
-  netdetect.onerror = function() {
+  netdetect.error(function() {
     errorDetected = true;
     loaded = false;
-  };
-  netdetect.onload = function() {
+  });
+  netdetect.load(function() {
     errorDetected = false;
     loaded = true;
-  };
+  });
   initNetDetect = function() {
     errorDetected = loaded = undefined;
     var netdetect = $('#netdetect');
-    netdetect.src = "http://" + external_ip + image_path + "?r=" + Date.now();
+    netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
     setTimeout(checker, retry_delay * 1000);
   };
   checker = function() {
@@ -83,7 +83,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
     }
     else {
       // Check the width or height of the image since we do not know if it is loaded
-      if (netdetect.width || netdetect.height) {
+      if (netdetect.width() || netdetect.height()) {
         networkAccessCallback(destination_url);
       } else {
         initNetDetect();
