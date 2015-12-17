@@ -415,7 +415,7 @@ locationlog=0D
 # A value of 0D disables expiration.
 # example:
 # radius_audit_log=180D
-radius_audit_log=0D
+radius_audit_log=1W
 
 [services]
 #
