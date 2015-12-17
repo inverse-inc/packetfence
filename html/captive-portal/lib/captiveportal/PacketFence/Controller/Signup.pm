@@ -442,7 +442,6 @@ sub doNullSelfRegistration : Private {
     $info{'pid'} = $username;
     $c->stash->{pid} = $username;
     $c->stash->{info} = \%info;
-    use Data::Dumper;$c->log->info("FUCK $username $default_pid");
     $c->session(
         "username"     => $username,
         "source_id"    => $source->id,
