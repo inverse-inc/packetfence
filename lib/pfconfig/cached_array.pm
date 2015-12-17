@@ -102,12 +102,12 @@ Proxies the call to pfconfig
 sub FETCHSIZE {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
-
     my $result = $self->compute_from_subcache("__PFCONFIG_ARRAY_SIZE__", sub {
-      return $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
+        my $reply = $self->_get_from_socket( $self->{_namespace}, "array_size" );
+        return defined $reply ? $reply->{size} : 0;
     });
 
-    return $result;
+    return $result // 0;
 }
 
 =head2 EXISTS
@@ -121,8 +121,8 @@ sub EXISTS {
     my ( $self, $index ) = @_;
 
     return $self->compute_from_subcache("__PFCONFIG_ARRAY_EXISTS_${index}__", sub {
-        return $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) )
-        ->{result};
+        my $reply =  $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) );
+        return defined $reply ? $reply->{result} : undef;
     });
 }
 
