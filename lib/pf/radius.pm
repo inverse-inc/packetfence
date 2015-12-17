@@ -59,7 +59,7 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new pf::radius object");
     my ( $class, %argv ) = @_;
-    my $self = bless { stash => {} }, $class;
+    my $self = bless { }, $class;
     return $self;
 }
 
