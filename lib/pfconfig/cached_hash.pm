@@ -177,7 +177,8 @@ Proxies to pfconfig
 sub EXISTS {
     my ( $self, $key ) = @_;
     return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
-        return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
+        my $reply =  $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) );
+        return defined $reply ? $reply->{result} : undef;
     });
 }
 
