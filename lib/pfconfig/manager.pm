@@ -78,10 +78,6 @@ sub get_namespace {
 
     my @args;
     ($name, @args) = pfconfig::util::parse_namespace($name);
-    my $args_size = @args;
-    if($args_size){
-        $self->add_namespace_to_overlay($full_name);
-    }
 
     my $type   = "pfconfig::namespaces::$name";
 
@@ -97,20 +93,6 @@ sub get_namespace {
     return $elem;
 }
 
-sub add_namespace_to_overlay {
-    my ($self, $namespace) = @_;
-    my $logger = pfconfig::log::get_logger;
-    $logger->info("We're doing namespace overlaying for $namespace");
-
-    my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
-
-    my $ns_index = first_index {$_ eq $namespace} @$namespaces;
-    if($ns_index == -1){
-        push @$namespaces, $namespace;
-    }
-    $self->{cache}->set('_namespace_overlay', $namespaces);
-}
-
 sub is_overlayed_namespace {
     my ($self, $base_namespace) = @_;
     if($base_namespace =~ /.*\(.+\)/){
@@ -122,9 +104,10 @@ sub is_overlayed_namespace {
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
 
+    # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
-    my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
+    my $namespaces_ref = $self->all_overlayed_namespaces();
     my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
@@ -134,6 +117,11 @@ sub overlayed_namespaces {
         }
     }
     return @overlayed_namespaces;
+}
+
+sub all_overlayed_namespaces {
+    my ($self) = @_;
+    return [ $self->{cache}->list_matching('\(.*\)') ];
 }
 
 =head2 new
@@ -391,7 +379,7 @@ sub list_namespaces {
     my ( $self, $what ) = @_;
 
     my $static_namespaces = $self->list_static_namespaces();
-    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
+    my $overlayed_namespaces = $self->all_overlayed_namespaces || [];
     return (@$static_namespaces, @$overlayed_namespaces);
 }
 

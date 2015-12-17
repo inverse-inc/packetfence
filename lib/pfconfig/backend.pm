@@ -100,6 +100,28 @@ sub clear {
     return $self->{cache}->clear();
 }
 
+=head2 list
+
+List all the keys in the backend
+
+=cut
+
+sub list {
+    my ( $self ) = @_;
+    return $self->{cache}->get_keys();
+}
+
+sub list_matching {
+    my ( $self, $expression ) = @_;
+    my @keys = $self->list();
+
+    my @valid_keys;
+    foreach my $key (@keys){
+        push @valid_keys, $key if($key =~ /$expression/);
+    }
+    return @valid_keys;
+}
+
 =back
 
 =head1 AUTHOR

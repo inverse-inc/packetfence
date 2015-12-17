@@ -157,6 +157,50 @@ sub clear {
     return $result;
 }
 
+sub list {
+    my ( $self ) = @_;
+    my $logger = pfconfig::log::get_logger;
+    my $db = $self->_get_db();
+    unless($db){
+        $self->_db_error();
+        return 0;
+    }
+    my $statement = $db->prepare( "SELECT id FROM keyed");
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
+    my @keys = @{$statement->fetchall_arrayref()};
+    @keys = map { $_->[0] } @keys;
+    $db->disconnect();
+    return @keys;
+}
+
+sub list_matching {
+    my ( $self, $expression ) = @_;
+    my $logger = pfconfig::log::get_logger;
+    my $db = $self->_get_db();
+    unless($db){
+        $self->_db_error();
+        return 0;
+    }
+    my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
+    my @keys = @{$statement->fetchall_arrayref()};
+    @keys = map { $_->[0] } @keys;
+    $db->disconnect();
+    return @keys;
+}
+
 =back
 
 =head1 AUTHOR

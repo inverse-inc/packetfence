@@ -55,6 +55,17 @@ sub get {
     return $value;
 }
 
+=head2 list
+
+List all the keys in the backend
+
+=cut
+
+sub list {
+    my ( $self ) = @_;
+    return keys %{ $self->{cache}->get_bulk() };
+}
+
 =back
 
 =head1 AUTHOR
