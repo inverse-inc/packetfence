@@ -45,7 +45,7 @@ frontend  main localhost:3306
 backend mysql
     mode tcp
     option tcplog
-    %%mysql_backend%%
+%%mysql_backend%%
 
 
 %%http%%

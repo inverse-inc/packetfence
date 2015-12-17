@@ -63,11 +63,11 @@ sub generateConfig {
                 # the second server (the one without the VIP) will be the prefered MySQL server
                 if ($i == 0) {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check
+    server MySQL$i $mysql_back:3306 check
 EOT
                 } else {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check backup
+    server MySQL$i $mysql_back:3306 check backup
 EOT
                 }
             $i++;
