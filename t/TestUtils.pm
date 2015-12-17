@@ -252,7 +252,7 @@ sub get_all_unittests {
 
 =head2 get_networkdevices_classes
 
-Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm
+Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm and Generic.pm
 
 =cut
 
@@ -261,8 +261,8 @@ sub get_networkdevices_classes {
     my @modules = get_networkdevices_modules();
     my @classes;
     foreach my $module (@modules) {
-        # skip constants.pm
-        next if $module =~ /constants\.pm$/;
+        # skip constants.pm and Generic.pm
+        next if ($module =~ /constants\.pm$/ || $module =~ /Generic\.pm$/);
         # get rid of path
         $module =~ s|^/usr/local/pf/lib/||;
         # get rid of ending .pm
