@@ -1,0 +1,42 @@
+[%- MACRO pagination(controller, action, pageNumber, perPage, pageCount)  BLOCK -%]
+[%
+# Number of pages to show before and after the middle page in the list
+    pageWrap = 3;
+    pageWrapTotal = pageWrap * 2;
+# Calculate the first of the list
+    firstPage = pageNumber - pageWrap;
+    #Take care of wrap around
+    IF firstPage < 1; firstPage = 1; END;
+# Calculate the last page
+    lastPage = firstPage + pageWrapTotal;
+    #Take care of wrap around
+    IF lastPage > pageCount;
+        lastPage = pageCount;
+        firstPage = lastPage - pageWrapTotal;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+%]
+<div class="pagination pagination-right">
+  <ul>
+    [% IF pageNumber == 1 %]
+    <li class="disabled"><a>&larr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
+    [% END %]
+    [% currentPage = firstPage %]
+    [% WHILE currentPage <= lastPage %]
+      [%IF currentPage == pageNumber %]
+        <li class="disabled"><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+      [% ELSE  %]
+        <li><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
+      [%END%]
+    [%currentPage = currentPage + 1%]
+    [% END %]
+    [% IF pageNumber == lastPage %]
+    <li class="disabled"><a >&rarr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
+    [% END %]
+  </ul>
+</div>
+[%- END -%]
