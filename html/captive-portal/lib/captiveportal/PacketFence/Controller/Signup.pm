@@ -577,7 +577,7 @@ sub validationError {
 
 =head2 validateMandatoryFields
 
-TODO: documention
+Validate the mandatory fields
 
 =cut
 
