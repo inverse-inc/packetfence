@@ -71,7 +71,7 @@ our @FIELDS = qw(
     auth_type
     eap_type
     role
-    unreg
+    node_status
     profile
     source
     auto_reg
@@ -95,7 +95,7 @@ our @NODE_FIELDS = qw(
     auth_status
     reason
     role
-    unreg
+    node_status
     profile
     source
     auto_reg

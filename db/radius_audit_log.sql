@@ -33,7 +33,7 @@ CREATE TABLE radius_audit_log (
   auth_type varchar(255) NULL,
   eap_type varchar(255) NULL,
   role varchar(255) NULL,
-  unreg varchar(255) NULL,
+  node_status varchar(255) NULL,
   profile varchar(255) NULL,
   source varchar(255) NULL,
   auto_reg char(1) NULL,

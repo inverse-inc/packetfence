@@ -8268,8 +8268,8 @@ msgstr ""
 
 # pf::radius_audit_log (Radius Aduit Log)
 # pfappserver::Model::Node (availableStatus)
-msgid "unreg"
-msgstr "unregistered"
+msgid "node_status"
+msgstr "Node status"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
