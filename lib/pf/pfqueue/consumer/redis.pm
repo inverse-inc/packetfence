@@ -21,7 +21,7 @@ use pf::log;
 use pf::Sereal qw($DECODER);
 use Moo;
 use pf::util::pfqueue qw(task_counter_id);
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
+use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_EXPIRED_COUNTER);
 extends qw(pf::pfqueue::consumer);
 
 has 'redis' => (is => 'rw', lazy => 1, builder => 1);
@@ -83,6 +83,7 @@ sub process_next_job {
     my ($queue, $task_id) = $redis->brpop($queue_name, 1);
     if ($queue) {
         my $data = $redis->hget($task_id, 'data');
+        my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
         if($data) {
             local $@;
             eval {
@@ -94,8 +95,6 @@ sub process_next_job {
                         "pf::task::$type"->doTask($args);
                     };
                     die $@ if $@;
-                    my $task_counter_id = task_counter_id($queue, $type, $args);
-                    $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1);
                 } else {
                     $logger->error("Invalid object stored in queue");
                 }
@@ -104,10 +103,25 @@ sub process_next_job {
                 $logger->error($@);
             }
         } else {
-                $logger->error("Invalid task id $task_id provided");
+            $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1, sub { });
+            $logger->error("Invalid task id $task_id provided");
         }
-        $redis->del($task_id);
+        $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, sub { });
+        $redis->del($task_id, sub {});
+        $redis->wait_all_responses();
     }
+}
+
+=head2 _get_task_counter_id_from_task_id
+
+Extract the task counter from the task id
+
+=cut
+
+sub _get_task_counter_id_from_task_id {
+    my ($id) = @_;
+    $id =~ /^Task:[^:]+:(.*)$/;
+    return $1;
 }
 
 =head2 _build_redis

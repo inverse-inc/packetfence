@@ -16,9 +16,13 @@ use strict;
 use warnings;
 use base qw(Exporter);
 
-our @EXPORT_OK = qw($PFQUEUE_COUNTER);
+our @EXPORT_OK = qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
 
 our $PFQUEUE_COUNTER = "TaskCounters";
+
+our $PFQUEUE_EXPIRED_COUNTER = "ExpiredCounters";
+
+our $PFQUEUE_QUEUE_PREFIX = "Queue:";
 
 =head1 AUTHOR
 

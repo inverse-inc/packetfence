@@ -30,6 +30,8 @@ sub index :Path : Args(0) {
     my $model = $c->model('Pfqueue');
     $c->stash({
         counters => $model->counters,
+        miss_counters => $model->miss_counters,
+        queue_counts => $model->queue_counts,
     });
 }
 
@@ -39,6 +41,7 @@ sub counters :Args {
     $c->stash({
         current_view => 'JSON',
         counters => $model->counters,
+        miss_counters => $model->miss_counters,
     });
 }
 
