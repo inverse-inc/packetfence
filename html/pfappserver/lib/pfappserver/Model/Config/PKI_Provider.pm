@@ -16,11 +16,34 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use pf::ConfigStore::PKI_Provider;
+use pf::ConfigStore::Provisioning;
 
 extends 'pfappserver::Base::Model::Config';
 
 
 sub _buildConfigStore { pf::ConfigStore::PKI_Provider->new }
+
+=head2 remove
+
+Override the parent method to validate we don't remove a PKI provider that is used in a provisioner
+
+=cut
+
+sub remove {
+    my ($self, $id) = @_;
+    pf::log::get_logger->info("Deleting $id");
+    my @results = pf::ConfigStore::Provisioning->new->search("pki_provider", $id, "id");
+    if(@results){
+        my @ids = map { $_->{id} } @results;
+        my $csv = join(', ', @ids);
+        my $status_msg = ["Cannot remove provider [_1] because it is still used by the following provisioners : [_2]",$id, $csv];
+        my $status =  HTTP_PRECONDITION_FAILED;
+        return ($status, $status_msg);
+    }
+    else {
+        return $self->SUPER::remove($id);
+    }
+}
 
 __PACKAGE__->meta->make_immutable;
 
