@@ -1,8 +1,28 @@
 # Look in /usr/local/pf/conf/chi.conf.defaults
 # for allowed parameters 
 # Also look in the CHI and the CHI::Driver::<Class>
-# documentation for allow parameters for cache storage
+# documentation for allowed parameters for cache storage
 #
+#[storage ldap_auth]
+#
+# storage ldap_auth.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=10m
+#
+#[storage httpd.admin]
+#
+# storage httpd.admin.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=1d
+#
+#[storage httpd.portal]
+#
+# storage httpd.portal.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=6h
 
 #An example configuration for a new storage type
 #[storage file]
