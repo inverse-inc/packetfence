@@ -12,6 +12,8 @@ pf::cmd::pf::pfconfig
    expire <namespace>  | expire a pfconfig namespace 
    reload              | reload all pfconfig namespaces
    list                | list all pfconfig namespaces
+   list_overlayed      | list overlayed namespaces
+   list_backend        | list namespaces persisted in the backend - can be passed a regex
    show <namespace>    | rebuild and display a pfconfig namespace
    get <namespace>     | display a pfconfig namespace from pfconfig process
    clear_backend       | clear the backend of pfconfig
@@ -128,6 +130,7 @@ sub action_list_overlayed {
     }
     return $EXIT_SUCCESS;
 }
+
 =head2 action_list_backend
 
 List pfconfig namespaces persisted in the backend
