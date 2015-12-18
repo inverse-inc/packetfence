@@ -69,6 +69,9 @@ If an invalid string is passed then the array will be undef and $msg will have h
 
 sub parse_condition_string {
     local $_ = shift;
+    pos() = 0;
+    #Reduce whitespace
+    /\G\s*/gc;
     my $expr = eval {_parse_expr()};
     if ($@) {
         return (undef, $@);
@@ -79,7 +82,8 @@ sub parse_condition_string {
 
     #Check if there are any thing left
     if (/\G./gc) {
-        return (undef, "Unexpected data at " . pos);
+        my $position = pos;
+        return (undef,format_parse_error("Invalid character(s)",$_ , $position - 1));
     }
     return ($expr, '');
 }
@@ -146,13 +150,35 @@ sub _parse_fact {
         my $expr = _parse_expr();
 
         #Checking for )
-        die "No ')' at " . pos unless /\G\s*\)/gc;
+        die format_parse_error("No closing ')' found", $_, pos) unless /\G\s*\)/gc;
         return $expr;
     }
 
     #It is a simple id
     return $1 if (/\G\s*([a-zA-Z0-9_]+)/gc);
-    die "Invalid characters";
+    die format_parse_error("Invalid character(s)", $_, pos() );
+}
+
+our $MARKER  = '^';
+our $HIGH_LIGHT = '~';
+
+
+=head2 format_parse_error
+
+format the parse to make easier to
+
+=cut
+
+sub format_parse_error {
+    my ($error_msg, $string, $postion) = @_;
+    my $msg = "parse error: $error_msg\n$string\n";
+    my $string_length = length($string);
+    if ($postion == 0 ) {
+        return  $msg . "$MARKER " . $HIGH_LIGHT x ($string_length - 2) . "\n";
+    }
+    my $pre_hilight = $HIGH_LIGHT x ($postion - 1)  . " ";
+    my $post_hilight = " " . $HIGH_LIGHT x ( $string_length - length($pre_hilight) - 2);
+    return "${msg}${pre_hilight}${MARKER}${post_hilight}\n";
 }
 
 =head1 AUTHOR
