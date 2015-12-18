@@ -33,7 +33,15 @@ Once you created the application, note the client key and client secret for usag
 
 Step 3: Gathering the install URL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-From your OPSWAT GEARS console, click '+Devices' at the top. Then click on Enable 'GEARS client on another device'. At the bottom you will see the URL to install the agent. Keep that URL in order to configure it in PacketFence
+From your OPSWAT GEARS console, click '+Devices' at the top. Then click on Enable 'GEARS client on another device'.
+
+Then click 'Download or send link for guest Gears clients'
+
+image::docs/images/opswat-add-devices.png[scaledwidth="100%",alt="OPSWAT Add device"]
+
+Then note the URL at the bottom of the screen.
+
+image::docs/images/opswat-add-guest-devices.png[scaledwidth="100%",alt="OPSWAT Add guest device"]
 
 Step 4: API access
 ~~~~~~~~~~~~~~~~~~
