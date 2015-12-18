@@ -122,8 +122,7 @@ sub overlayed_namespaces {
     # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
-    my $namespaces_ref = $self->all_overlayed_namespaces();
-    my @namespaces = @$namespaces_ref;
+    my @namespaces = @{ $self->all_overlayed_namespaces() };
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
