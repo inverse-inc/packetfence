@@ -15,7 +15,7 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'client_id' =>
   (
    type => 'Text',
-   label => 'Client Id',
+   label => 'Client Key',
    required => 1,
   );
 
