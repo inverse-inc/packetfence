@@ -150,12 +150,16 @@ sub _parse_fact {
         my $expr = _parse_expr();
 
         #Checking for )
-        die format_parse_error("No closing ')' found", $_, pos) unless /\G\s*\)/gc;
-        return $expr;
+        return $expr if /\G\s*\)/gc;
+        #Reduce whitespace
+        /\G\s*/gc;
+        die format_parse_error("No closing ')' invalid character or end of line found", $_, pos);
     }
 
     #It is a simple id
     return $1 if (/\G\s*([a-zA-Z0-9_]+)/gc);
+    #Reduce whitespace
+    /\G\s*/gc;
     die format_parse_error("Invalid character(s)", $_, pos() );
 }
 
