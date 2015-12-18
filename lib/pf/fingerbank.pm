@@ -31,8 +31,6 @@ use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
 
-use constant FINGERBANK_CACHE_EXPIRE => 86400;    # Expires cache entry after 86400s (1 day)
-
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
 =head1 METHODS
@@ -90,7 +88,7 @@ sub _query {
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
-    my $cache = pf::CHI->new( namespace => 'fingerbank', expires_in => FINGERBANK_CACHE_EXPIRE );
+    my $cache = pf::CHI->new( namespace => 'fingerbank' );
     my $fingerbank = fingerbank::Query->new(cache => $cache);
     return $fingerbank->match($args);
 }
