@@ -787,7 +787,7 @@ sub _addRadiusAudit {
     if($node) {
         _update_audit_stash($stash, \%NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES, $node);
     }
-    $stash->{'PacketFence-Connection-Type'} = str_to_connection_type($stash->{'PacketFence-Connection-Type'})
+    $stash->{'PacketFence-Connection-Type'} = connection_type_to_str($stash->{'PacketFence-Connection-Type'})
       if exists $stash->{'PacketFence-Connection-Type'} && defined $stash->{'PacketFence-Connection-Type'};
     return (RADIUS_AUDIT => $stash);
 }
