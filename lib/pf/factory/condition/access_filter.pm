@@ -46,6 +46,7 @@ __PACKAGE__->modules;
 sub instantiate {
     my ($class, $data) = @_;
     my $filter = $data->{filter};
+    return unless defined $filter;
     if ($filter eq 'time') {
         my $c = pf::condition::time_period->new({value => $data->{value}});
         if ($data->{operator} eq 'is_not') {
