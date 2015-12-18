@@ -42,6 +42,13 @@ sub import {
             $logger->fatal(@_);
             die @_; # Now terminate really
         };
+        #Install logging in the warn handler
+        $SIG{__WARN__} = sub {
+            local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+            my $logger = get_logger("");
+            $logger->warn(@_);
+            warn(@_);
+        };
     }
     Log::Log4perl::MDC->put( 'tid', $$ );
     {
