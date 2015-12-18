@@ -39,16 +39,25 @@ sub build {
     foreach my $rule (@{$config->{ordered_sections}}) {
         my $logger = get_logger();
         my $data = $AccessFiltersConfig{$rule};
-        if ($rule =~ /^\w+:(.*)$/) {
+        if ($rule =~ /^[^:]+:(.*)$/) {
+            my $condition = $1;
             $logger->info("Building rule '$rule'");
-            my ($parsed_conditions, $msg) = parse_condition_string($1);
-            next unless defined $parsed_conditions;
+            my ($parsed_conditions, $msg) = parse_condition_string($condition);
+            unless (defined $parsed_conditions) {
+                warn("Error building rule '$rule' \n$msg");
+                next;
+            }
             $data->{_rule} = $rule;
             push @filter_data, [$parsed_conditions, $data];
         }
         else {
             $logger->info("Building condition '$rule'");
-            $self->{prebuilt_conditions}{$rule} = pf::factory::condition::access_filter->instantiate($data);
+            my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
+            unless (defined $condition) {
+                warn("Error building condition '$rule'\n");
+                next;
+            }
+            $self->{prebuilt_conditions}{$rule} = $condition;
         }
     }
 
@@ -63,10 +72,16 @@ sub build {
 
 sub build_filter {
     my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
-    push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
-        answer    => $data,
-        condition => $self->build_filter_condition($parsed_conditions)
-    });
+    my $condition = eval { $self->build_filter_condition($parsed_conditions) };
+    if ($condition) {
+        push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
+            answer    => $data,
+            condition => $condition,
+        });
+    } else {
+        get_logger->error($@) if $@;
+        warn("Error build rule '$data->{_rule}'\n");
+    }
 }
 
 sub build_filter_condition {
@@ -81,9 +96,7 @@ sub build_filter_condition {
         my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
         return $module->new({conditions => $conditions});
     }
-    else {
-        return $self->{prebuilt_conditions}->{$parsed_condition};
-    }
+    return $self->{prebuilt_conditions}->{$parsed_condition};
 }
 
 =head1 AUTHOR
