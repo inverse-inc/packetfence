@@ -157,6 +157,12 @@ sub clear {
     return $result;
 }
 
+=head2 list
+
+List keys in the backend
+
+=cut
+
 sub list {
     my ( $self ) = @_;
     my $logger = pfconfig::log::get_logger;
@@ -178,6 +184,12 @@ sub list {
     $db->disconnect();
     return @keys;
 }
+
+=head2 list_matching
+
+List keys matching a regular expression
+
+=cut
 
 sub list_matching {
     my ( $self, $expression ) = @_;

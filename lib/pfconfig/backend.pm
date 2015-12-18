@@ -111,6 +111,12 @@ sub list {
     return $self->{cache}->get_keys();
 }
 
+=head2 list_matching
+
+List all the keys matching a regular expression
+
+=cut
+
 sub list_matching {
     my ( $self, $expression ) = @_;
     my @keys = $self->list();
