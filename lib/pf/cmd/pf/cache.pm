@@ -15,7 +15,7 @@ Namespaces:
   httpd.portal
   pfdns
   switch.overlay
-  switch
+
 
 Options:
 
