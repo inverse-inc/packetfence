@@ -1122,6 +1122,11 @@ sub copy_directory : Public {
     return dircopy($source_dir, $dest_dir);
 }
 
+sub rest_ping :Public :RestPath(/rest/ping){
+    my ($class, $args) = @_;
+    return "pong - ".$args->{message};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
