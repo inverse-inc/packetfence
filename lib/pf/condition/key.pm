@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 extends qw(pf::condition);
 use pf::constants;
+use Scalar::Util qw(reftype);
 
 =head2 key
 
@@ -49,7 +50,7 @@ Match a sub condition using the value in a hash
 
 sub match {
     my ($self,$arg) = @_;
-    return $FALSE unless defined $arg && ref ($arg) eq 'HASH';
+    return $FALSE unless defined $arg && reftype ($arg) eq 'HASH';
     my $key = $self->key;
     return $FALSE unless exists $arg->{$key};
     return $self->condition->match($arg->{$key});
