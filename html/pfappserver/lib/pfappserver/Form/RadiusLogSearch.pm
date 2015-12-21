@@ -34,6 +34,8 @@ has_field 'start' =>
 has_field 'start.date' =>
   (
    type => 'DatePicker',
+   label => 'Start Date',
+   required => 1,
   );
 
 =item start.time
@@ -43,6 +45,8 @@ has_field 'start.date' =>
 has_field 'start.time' =>
   (
    type => 'TimePicker',
+   label => 'Start Time',
+   required => 1,
   );
 
 =item end
@@ -61,6 +65,8 @@ has_field 'end' =>
 has_field 'end.date' =>
   (
    type => 'DatePicker',
+   label => 'End Date',
+   required => 1,
   );
 
 =item end.time
@@ -70,6 +76,8 @@ has_field 'end.date' =>
 has_field 'end.time' =>
   (
    type => 'TimePicker',
+   label => 'End Time',
+   required => 1,
   );
 
 =item per_page
