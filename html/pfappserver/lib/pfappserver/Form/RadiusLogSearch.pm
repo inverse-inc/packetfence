@@ -12,6 +12,8 @@ Form definition to create or update a node.
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::log;
+use List::MoreUtils qw(true);
 extends 'pfappserver::Base::Form';
 
 =head2 Form Fields
@@ -22,10 +24,9 @@ extends 'pfappserver::Base::Form';
 
 =cut
 
-has_field 'start' =>
-  (
-   type => 'Compound',
-  );
+has_field 'start' => (
+    type                => 'Compound',
+);
 
 =item start.date
 
@@ -173,6 +174,17 @@ has_field 'searches.value' =>
    type => 'Text',
    do_label => 0,
   );
+
+sub validate {
+    my ($self) = @_;
+    $self->SUPER::validate();
+    my $value = $self->value;
+    my $searches = $value->{searches} || [];
+    if (true {defined $_->{value}} @$searches) {
+        $self->field('start')->add_error("Start date not provided") unless defined $value->{start};
+        $self->field('end')->add_error("End date not provided") unless defined $value->{end};
+    }
+}
 
 =back
 
