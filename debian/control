@@ -11,7 +11,7 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  ca-certificates, freeradius (>= 2.2.10), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}), packetfence-ntlm-wrapper (>= ${Source-Version}),
  fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${Source-Version}),
