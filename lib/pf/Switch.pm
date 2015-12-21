@@ -23,7 +23,6 @@ use Try::Tiny;
 
 our $VERSION = 2.10;
 
-use pf::CHI;
 use pf::constants;
 use pf::config;
 use pf::locationlog;
@@ -43,8 +42,6 @@ use pf::StatsD;
 use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
-
-our $CHI_CACHE = pf::CHI->new( namespace => 'switch' );
 
 =head1 SUBROUTINES
 

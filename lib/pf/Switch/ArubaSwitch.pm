@@ -125,7 +125,7 @@ sub getIfIndexByNasPortId {
 
     my @ifDescTemp = split(':',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $result = $pf::Switch::CHI_CACHE->compute($self->{'_id'}.".".$OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDescTemp[1]$/i ) {
