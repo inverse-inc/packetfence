@@ -52,12 +52,14 @@ sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c, $pageNum, $perPage) = @_;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
-    my ($status, $result, $status_msg);
+    my ($status, $result);
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
-        $status_msg = $form->field_errors;
-        $c->stash(current_view => 'JSON');
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $form->field_errors
+        );
     } else {
         my $query = $form->value;
         $c->stash($query);
