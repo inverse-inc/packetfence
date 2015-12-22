@@ -24,6 +24,7 @@ sub factory_for {'pf::condition'}
 our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'is'                => 'pf::condition::equals',
     'is_not'            => 'pf::condition::not_equals',
+    'includes'          => 'pf::condition::includes',
     'match'             => 'pf::condition::matches',
     'regex'             => 'pf::condition::regex',
     'match_not'         => 'pf::condition::not_matches',
