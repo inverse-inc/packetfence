@@ -66,14 +66,14 @@ sub new {
     $args->{start_time} //= Time::HiRes::gettimeofday;
     $args->{sample_rate} //= 0.25;
     #Get the name of the function enclosing this call
-    $args->{'stat'} //= (caller(1))[3] . ".timing";
+    $args->{'stat'} //= (caller(1))[3];
     my $self  = {%$args};
     return bless $self, $class;
 }
 
 sub send_timing {
     my ($self, $sub_stat) = @_;
-    $pf::StatsD::statsd->end($self->{'stat'} . ".$sub_stat", $self->{'start_time'}, $self->{'sample_rate'});
+    $pf::StatsD::statsd->end($self->{'stat'} . ".$sub_stat" . ".timing", $self->{'start_time'}, $self->{'sample_rate'});
 }
 
 =head2 DESTROY
@@ -82,7 +82,7 @@ sub send_timing {
 
 sub DESTROY {
     my ($self) = @_;
-    $pf::StatsD::statsd->end($self->{'stat'}, $self->{'start_time'}, $self->{'sample_rate'});
+    $pf::StatsD::statsd->end($self->{'stat'} . ".timing" , $self->{'start_time'}, $self->{'sample_rate'});
 }
 
 =head1 AUTHOR
