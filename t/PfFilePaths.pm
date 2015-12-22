@@ -20,6 +20,7 @@ BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
     use pf::file_paths;
+    use pfconfig::constants;
     remove_tree('/tmp/chi');
     my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
     $test_dir ||= catdir($install_dir,'t');
@@ -31,6 +32,8 @@ BEGIN {
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
     $pf::file_paths::violations_config_file = catfile($test_dir,'data/violations.conf');
+
+    $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_dir, 'data/pfconfig.conf');
 }
 
 # we need to load the proper data in pfconfig
