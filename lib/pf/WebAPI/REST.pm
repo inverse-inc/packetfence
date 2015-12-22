@@ -63,7 +63,7 @@ sub handler {
     my $method_sub;
     
     if(my $rest_method = $self->dispatch_to->restPath($method)){
-        pf::log::get_logger->info("Found method $rest_method for REST path $method");
+        pf::log::get_logger->debug("Found method for REST path $method");
         $method_sub = $rest_method;
     }
     # We fallback to using the method name
