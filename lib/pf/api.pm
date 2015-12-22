@@ -44,6 +44,7 @@ use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
 use pf::access_filter::dhcp;
+use pfconfig::config;
 
 use List::MoreUtils qw(uniq);
 use File::Copy::Recursive qw(dircopy);
@@ -1125,6 +1126,22 @@ sub copy_directory : Public {
 sub rest_ping :Public :RestPath(/rest/ping){
     my ($class, $args) = @_;
     return "pong - ".$args->{message};
+}
+
+sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
+    my ($class, $args) = @_;
+    my $backend = pfconfig::config->new->get_backend();
+    my $ping_key = $args->{device_id}."-last-ping";
+    my $previous_ping = $backend->get($ping_key);
+    my $current_ping = time;
+    if($previous_ping){
+        pf::log::get_logger->info("Updating device $args->{device_id} last seen time from $previous_ping to $current_ping");
+    }
+    else {
+        pf::log::get_logger->info("First time seeing device $args->{device_id}.");
+    }
+    $backend->set($ping_key, $current_ping);
+    return {rp_time => 60};
 }
 
 =head1 AUTHOR
