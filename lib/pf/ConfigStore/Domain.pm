@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::domain_config_file };
+sub configFile { $domain_config_file };
 
 sub pfconfigNamespace {'config::Domain'}
 

@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::pfdetect_config_file };
+sub configFile { $pfdetect_config_file };
 
 sub pfconfigNamespace {'config::Pfdetect'}
 

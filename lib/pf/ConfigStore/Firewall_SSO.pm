@@ -17,7 +17,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::firewall_sso_config_file };
+sub configFile { $firewall_sso_config_file };
 
 sub pfconfigNamespace { 'config::Firewall_SSO' }
 

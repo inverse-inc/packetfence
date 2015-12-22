@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::apache_filters_config_file };
+sub configFile { $apache_filters_config_file };
 
 sub pfconfigNamespace {'config::ApacheFilters'}
 

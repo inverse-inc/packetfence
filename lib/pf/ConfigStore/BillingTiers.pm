@@ -18,7 +18,7 @@ use pf::file_paths;
 use pf::util;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::billing_tiers_config_file };
+sub configFile { $billing_tiers_config_file };
 
 sub pfconfigNamespace {'config::BillingTiers'}
 
