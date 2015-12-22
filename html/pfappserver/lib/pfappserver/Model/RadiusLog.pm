@@ -32,8 +32,9 @@ View a radius audit log entry
 sub view {
     my ($self, $id) = @_;
     my $item = radius_audit_log_view($id);
-    return ($STATUS::OK,$item) if $item;
-    return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]);
+    return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]) unless defined $item;
+    _unscape_item($item);
+    return ($STATUS::OK,$item);
 }
 
 sub view_entries {
@@ -60,6 +61,9 @@ sub search {
         @additional_options
     );
     my @items =  radius_audit_log_custom($sql, @bind);
+    foreach my $item (@items) {
+        _unscape_item($item);
+    }
     ($sql, @bind) = $sqla->select(
         -from => $table,
         -columns => [qw(count(*)|count)],
@@ -78,6 +82,13 @@ sub search {
     $results{per_page} = $per_page;
     $results{page_num} = $params->{page_num};
     return ($STATUS::OK,\%results);
+}
+
+sub _unscape_item {
+    my ($item) = @_;
+    foreach my $key (keys %$item) {
+        $item->{$key} =~ s/=([a-zA-Z0-9]{2})/chr(hex($1))/ge;
+    }
 }
 
 sub _build_where {
