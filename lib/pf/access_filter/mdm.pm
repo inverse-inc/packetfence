@@ -26,15 +26,18 @@ tie our %MdmFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::MdmScope
 
 sub filterRule {
     my ($self, $rule, $args) = @_;
-    my $logger = $self->logger;
     if(defined $rule) {
-        $logger->info(evalLine($rule->{'log'},$args)) if defined($rule->{'log'});
         if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
             $self->dispatchAction($rule, $args);
-            return $pf::config::TRUE;
+        }
+        my $scope = $rule->{scope};
+        if (defined($rule->{'flag'}) && $rule->{'flag'} ne '') {
+            my $flag = $rule->{'flag'};
+            $flag =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
+            return $flag;
         }
     }
-    return $pf::config::FALSE;
+    return undef;
 }
 
 =head2 getEngineForScope

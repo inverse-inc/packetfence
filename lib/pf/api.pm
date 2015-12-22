@@ -44,6 +44,7 @@ use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
 use pf::access_filter::dhcp;
+use pf::access_filter::mdm;
 use pfconfig::config;
 
 use List::MoreUtils qw(uniq);
@@ -1142,6 +1143,23 @@ sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
     }
     $backend->set($ping_key, $current_ping);
     return {rp_time => 60};
+}
+
+sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
+    my ($class, $args) = @_;
+    my $products = $args->{detected_products};
+    my $filter = pf::access_filter::mdm->new;
+    use Data::Dumper;
+    my @flags;
+    foreach my $product (@$products){
+        print Dumper($product);
+        my $result = $filter->filter('OpswatProduct', $product);
+        if($result){
+            push @flags, $result;
+        }
+    }
+    my $result = $filter->filter('OpswatReport', {flags => \@flags});
+    print Dumper($result);
 }
 
 =head1 AUTHOR
