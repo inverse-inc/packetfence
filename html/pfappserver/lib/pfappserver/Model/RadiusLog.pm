@@ -33,7 +33,7 @@ sub view {
     my ($self, $id) = @_;
     my $item = radius_audit_log_view($id);
     return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]) unless defined $item;
-    _unscape_item($item);
+    _unescape_item($item);
     return ($STATUS::OK,$item);
 }
 
@@ -62,7 +62,7 @@ sub search {
     );
     my @items =  radius_audit_log_custom($sql, @bind);
     foreach my $item (@items) {
-        _unscape_item($item);
+        _unescape_item($item);
     }
     ($sql, @bind) = $sqla->select(
         -from => $table,
@@ -84,9 +84,10 @@ sub search {
     return ($STATUS::OK,\%results);
 }
 
-sub _unscape_item {
+sub _unescape_item {
     my ($item) = @_;
     foreach my $key (keys %$item) {
+        next if exists $pf::radius_audit_log::RADIUS_FIELDS{keys};
         $item->{$key} =~ s/=([a-zA-Z0-9]{2})/chr(hex($1))/ge;
     }
 }

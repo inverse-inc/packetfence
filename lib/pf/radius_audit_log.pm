@@ -106,6 +106,8 @@ our @NODE_FIELDS = qw(
 
 our @RADIUS_FIELDS = qw(radius_request radius_reply);
 
+our %RADIUS_FIELDS = map { $_ => 1 } @RADIUS_FIELDS;
+
 our @SWITCH_FIELDS = qw(
     switch_id
     switch_mac
