@@ -67,7 +67,6 @@ sub new {
     $args->{sample_rate} //= 0.25;
     #Get the name of the function enclosing this call
     $args->{'stat'} //= (caller(1))[3] . ".timing";
-    my $start = Time::HiRes::gettimeofday();
     my $self  = {%$args};
     return bless $self, $class;
 }
