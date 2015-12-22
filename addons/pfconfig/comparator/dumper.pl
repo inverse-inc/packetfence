@@ -89,6 +89,14 @@ our %configs;
 }
 
 {
+  use pf::access_filter::mdm;
+
+  my @variables = ('%ConfigMdmFilters');
+  $configs{'pf::access_filter::mdm'} = dump_module("pf::access_filter::mdm", @variables);
+
+}
+
+{
   use pf::authentication;
 
   my @exported = (@pf::authentication::EXPORT, '%authentication_lookup', '%TYPE_TO_SOURCE');

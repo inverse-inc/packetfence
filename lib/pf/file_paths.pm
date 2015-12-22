@@ -75,6 +75,7 @@ our (
     $radius_filters_config_file,
     $billing_tiers_config_file,
     $dhcp_filters_config_file,
+    $mdm_filters_config_file,
 );
 
 BEGIN {
@@ -127,6 +128,7 @@ BEGIN {
         $radius_filters_config_file
         $billing_tiers_config_file
         $dhcp_filters_config_file
+        $mdm_filters_config_file
     );
 }
 
@@ -193,6 +195,7 @@ $wmi_config_file = catfile($conf_dir,"wmi.conf");
 $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
+$mdm_filters_config_file = catfile($conf_dir,"mdm_filters.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -225,6 +228,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
     $pki_provider_config_file,
     $radius_filters_config_file,
     $dhcp_filters_config_file,
+    $mdm_filters_config_file,
 );
 
 
