@@ -169,21 +169,7 @@ sub init_cache {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my $cfg    = pfconfig::config->new->section('general');
-
-    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
-
-    my $type   = "pfconfig::backend::$name";
-
-    $type = untaint_chain($type);
-
-    # load the module to instantiate
-    if ( !( eval "$type->require()" ) ) {
-        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
-    }
-
-    $self->{cache} = $type->new();
-
+    $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
     $self->{memorized_at} = {};
 }
