@@ -108,7 +108,7 @@ sub authorize {
     }
 
     {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex.timing"});
+        my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex"});
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
     }
 

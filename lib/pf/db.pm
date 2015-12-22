@@ -179,7 +179,7 @@ sub get_db_handle {
 
 sub db_data {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
-    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query.timing", sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
 
     my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
 
@@ -216,7 +216,7 @@ sub db_data {
 # afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
-    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query.timing", sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
     my $logger = get_logger();
 
     # argument validation

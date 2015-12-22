@@ -92,7 +92,7 @@ sub available_attributes {
 sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
-  my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.timing"});
+  my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}"});
   my $before; # will hold time before StatsD calls
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
@@ -110,7 +110,7 @@ sub authenticate {
   my $filter = "($self->{'usernameattribute'}=$username)";
 
   $result = do {
-    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search.timing"});
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search"});
     $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
@@ -138,7 +138,7 @@ sub authenticate {
   my $user = $result->entry(0);
 
   $result = do {
-    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.bind.timing"});
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.bind"});
     $connection->bind($user->dn, password => $password)
   };
 
@@ -164,7 +164,7 @@ if all connections fail
 sub _connect {
   my $self = shift;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
-  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing"});
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -223,7 +223,7 @@ sub _connect {
 sub match {
     my ($self, $params) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing"});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
     if($self->is_match_cacheable) {
         my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
                 $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
@@ -282,7 +282,7 @@ Conditions that match are added to C<$matching_conditions>.
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing", sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
@@ -301,7 +301,7 @@ sub match_in_subclass {
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     my $result = do {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search.timing", sample_rate => 0.1});
+        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search", sample_rate => 0.1});
         $connection->search(
           base => $self->{'basedn'},
           filter => $filter,
@@ -445,7 +445,7 @@ for the usernameattribute - to match it in the source.
 sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
-  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing", sample_rate => 0.1});
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
   my (@ldap_conditions, $expression);
   $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
@@ -499,7 +499,7 @@ sub bind_with_credentials {
     my ($self,$connection) = @_;
     my $result;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing", sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     if ($self->{'binddn'} && $self->{'password'}) {
         $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     } else {
@@ -518,7 +518,7 @@ sub bind_with_credentials {
 sub search_attributes_in_subclass {
     my ($self, $username) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.timing", sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
       return ($FALSE, $COMMUNICATION_ERROR_MSG);

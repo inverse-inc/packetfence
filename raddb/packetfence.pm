@@ -73,7 +73,7 @@ RADIUS calls this method to authorize clients.
 =cut
 
 sub authorize {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() . ".timing"});
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() });
     # For debugging purposes only
     #&log_request_attributes;
     # is it EAP-based Wired MAC Authentication?
@@ -113,7 +113,7 @@ Once we authenticated the user's identity, we perform PacketFence's Network Acce
 =cut
 
 sub post_auth {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() . ".timing"});
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() });
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
         my $mac;
@@ -310,7 +310,7 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() . ".timing"});
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() });
     my $radius_return_code = eval {
         my $rc = $RADIUS::RLM_MODULE_REJECT;
         my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
