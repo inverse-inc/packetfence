@@ -34,6 +34,7 @@ use pf::version;
 use File::Slurp;
 use pf::file_paths;
 use pf::factory::condition::profile;
+use pf::condition_parser qw(parse_condition_string);
 
 use lib $conf_dir;
 
@@ -1072,7 +1073,10 @@ sub vlan_filter_rules {
     require pf::access_filter::vlan;
     my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
-        if ($rule =~ /^\w+:(.*)$/) {
+        if ($rule =~ /^[^:]+:(.*)$/) {
+            my ($condition, $msg) = parse_condition_string($1);
+            add_problem ( $FATAL, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
+                if !defined $condition;
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
             add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
