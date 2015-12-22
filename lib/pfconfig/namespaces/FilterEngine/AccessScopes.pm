@@ -56,6 +56,14 @@ sub build {
             $data->{_rule} = $rule;
             push @filter_data, [$parsed_conditions, $data];
         }
+        elsif ($data->{operator} eq "any_matches_conditions"){
+            $logger->info("Building condition '$rule'");
+            my ($parsed_conditions, $msg) = parse_condition_string($data->{conditions});
+            $self->{prebuilt_conditions}{$rule} = pf::condition::any_matches_condition->new(
+                condition => $self->build_filter_condition($parsed_conditions),
+                attribute => $data->{filter},
+            );
+        }
         else {
             $logger->info("Building condition '$rule'");
             my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
@@ -66,6 +74,9 @@ sub build {
             $self->{prebuilt_conditions}{$rule} = $condition;
         }
     }
+
+    
+    use Data::Dumper;
 
     foreach my $filter_data (@filter_data) {
         $self->build_filter(\%filters_scopes, @$filter_data);
@@ -115,7 +126,9 @@ sub build_filter_condition {
         my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
         return $module->new({conditions => $conditions});
     }
-    return $self->{prebuilt_conditions}->{$parsed_condition};
+    else {
+        return $self->{prebuilt_conditions}{$parsed_condition};
+    }
 }
 
 =head1 AUTHOR

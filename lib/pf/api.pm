@@ -47,8 +47,12 @@ use pf::access_filter::dhcp;
 use pf::access_filter::mdm;
 use pfconfig::config;
 
+<<<<<<< HEAD
 use List::MoreUtils qw(uniq);
 use File::Copy::Recursive qw(dircopy);
+=======
+use List::MoreUtils qw(uniq any);
+>>>>>>> added compliance check to opwat reporting
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
@@ -1147,19 +1151,21 @@ sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
 
 sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
     my ($class, $args) = @_;
+    my $logger = pf::log::get_logger;
+
     my $products = $args->{detected_products};
     my $filter = pf::access_filter::mdm->new;
     use Data::Dumper;
     my @flags;
     foreach my $product (@$products){
-        print Dumper($product);
-        my $result = $filter->filter('OpswatProduct', $product);
-        if($result){
-            push @flags, $result;
-        }
+        $logger->debug("Evaluating product : ",$product);
+        push @flags, $filter->filter('OpswatProduct', $product);
     }
-    my $result = $filter->filter('OpswatReport', {flags => \@flags});
-    print Dumper($result);
+    push @flags, $filter->filter('OpswatReport', { flags => \@flags });
+    $logger->info("Flags found via MDM engine : ".join(', ',@flags));
+    return {
+        compliant => (any { $_ eq "non-compliant" } @flags) ? 0 : 1,
+    };
 }
 
 =head1 AUTHOR

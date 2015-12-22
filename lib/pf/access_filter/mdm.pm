@@ -40,6 +40,46 @@ sub filterRule {
     return undef;
 }
 
+=head2 filter
+
+ Filter the arguements passed
+
+=cut
+
+sub filter {
+    my ($self, $scope, $args) = @_;
+    my @rules = $self->test($scope, $args);
+    my @results;
+    foreach my $rule (@rules){
+        push @results, $self->filterRule($rule, $args);
+    }
+    return @results;
+}
+
+=head2 test
+
+Test all the rules
+
+=cut
+
+sub test {
+    my ($self, $scope, $args) = @_;
+    my $logger = $self->logger;
+    my $engine = $self->getEngineForScope($scope);
+    if ($engine) {
+        my @answers = $engine->match_all($args);
+        if (@answers > 0) {
+            $logger->info("Matched rules ".join(', ', map {$_->{_rule}} @answers));
+        }
+        else {
+            $logger->debug(sub {"No rule matched for scope $scope"});
+        }
+        return @answers;
+    }
+    $logger->debug(sub {"No engine found for $scope"});
+    return undef;
+}
+
 =head2 getEngineForScope
 
  gets the engine for the scope
