@@ -87,7 +87,7 @@ sub search {
 sub _unescape_item {
     my ($item) = @_;
     foreach my $key (keys %$item) {
-        next if exists $pf::radius_audit_log::RADIUS_FIELDS{keys};
+        next if exists $pf::radius_audit_log::RADIUS_FIELDS{$key};
         $item->{$key} =~ s/=([a-zA-Z0-9]{2})/chr(hex($1))/ge;
     }
 }
