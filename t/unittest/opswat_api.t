@@ -55,6 +55,85 @@ my $last_ping = $backend->get($ping_key);
 ok(($last_ping <= time && $last_ping >= $before_ping ),
     "Last ping is before now and after ping call");
 
+my $payload = {
+    detected_products => [
+        {
+            categories => [6],
+            method_outputs => [
+                {
+                    result => {
+                        method => 1001,
+                        is_recent => 1,
+                    },
+                },
+                {
+                    result => {
+                        method => 1000,
+                        enabled => 1,
+                    },
+                },
+            ],
+        },
+        {
+            categories => [5],
+            method_outputs => [
+                {
+                    result => {
+                        method => 1001,
+                        is_recent => 1,
+                    },
+                },
+                {
+                    result => {
+                        method => 1000,
+                        enabled => 1,
+                    },
+                },
+            ],
+        },
+    ],
+};
+
+$result = pf::api->mdm_opswat_report($payload);
+is_deeply($result, {compliant => 1},
+    "Compliant payload yields proper result");
+
+$payload = {
+    detected_products => []
+};
+
+$result = pf::api->mdm_opswat_report($payload);
+
+is_deeply($result, {compliant => 0},
+    "Payload with no products is not compliant (no antivirus)");
+
+$payload = {
+    detected_products => [
+        {
+            categories => [5],
+            method_outputs => [
+                {
+                    result => {
+                        method => 1001,
+                        is_recent => 0,
+                    },
+                },
+                {
+                    result => {
+                        method => 1000,
+                        enabled => 0,
+                    },
+                },
+            ],
+        },
+    ],
+};
+
+$result = pf::api->mdm_opswat_report($payload);
+
+is_deeply($result, {compliant => 0},
+    "Payload with not recent antivirus definitions is not compliant");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

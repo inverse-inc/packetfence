@@ -32,6 +32,7 @@ BEGIN {
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
     $pf::file_paths::violations_config_file = catfile($test_dir,'data/violations.conf');
+    $pf::file_paths::mdm_filters_config_file = catfile($test_dir,'data/mdm_filters.conf');
 
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_dir, 'data/pfconfig.conf');
 }
