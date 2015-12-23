@@ -945,3 +945,20 @@ CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) N
 --
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
+--
+-- Creating auth_log table
+--
+
+CREATE TABLE auth_log (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `process_name` varchar(255) NOT NULL,
+  `mac` varchar(17) NOT NULL,
+  `pid` varchar(255) NOT NULL default "default",
+  `status` varchar(255) NOT NULL default "incomplete",
+  `attempted_at` datetime NOT NULL,
+  `completed_at` datetime,
+  `source` varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  KEY pid (pid)
+) ENGINE=InnoDB;
