@@ -14,9 +14,9 @@ ALTER TABLE `locationlog` ADD `role` varchar(255) default NULL AFTER vlan;
 
 ALTER TABLE `locationlog_archive` ADD `role` varchar(255) default NULL AFTER vlan;
 
----
---- Creating auth_log table
----
+--
+-- Creating auth_log table
+--
 
 CREATE TABLE auth_log (
   `id` int NOT NULL AUTO_INCREMENT,
