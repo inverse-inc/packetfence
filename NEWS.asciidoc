@@ -20,6 +20,7 @@ New Features
 Enhancements
 ++++++++++++
 
+* Added configurable timeout for send/receive operations on the OMAPI socket
 * Return a hash that contain role and optionally the vlan id from fetchRoleForNode.
 * Test if the role changed to define if we have to reevaluate the access.
 * New columns bypass_vlan and bypass_role are allowed to be import for nodes
