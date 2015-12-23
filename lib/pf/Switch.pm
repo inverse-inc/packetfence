@@ -44,8 +44,6 @@ use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
 
-our $CHI_CACHE = pf::CHI->new( namespace => 'switch' );
-
 =head1 SUBROUTINES
 
 =over
@@ -3075,6 +3073,17 @@ Return the current logger for the switch
 sub logger {
     my ($proto) = @_;
     return get_logger( ref($proto) || $proto );
+}
+
+=item cache
+
+Return the cache for the namespace switch
+
+=cut
+
+sub cache {
+   my ($self) = @_;
+   return pf::CHI->new( namespace => 'switch' );
 }
 
 =back

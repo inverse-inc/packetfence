@@ -3010,6 +3010,16 @@ sub handleRadiusDeny {
     return undef;
 }
 
+=item cache
+
+Return the cache for the namespace switch
+
+=cut
+
+sub cache {
+   my ($self) = @_;
+   return pf::CHI->new( namespace => 'switch' );
+}
 
 =back
 
