@@ -22,8 +22,6 @@ extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1,);
 
-has '+shouldCheckup' => ( default => sub { 0 }  );
-
 has '+dependsOnServices' => (is => 'ro', default => sub { [] } );
 
 has 'redis_config_template' => (is => 'rw', builder => 1, lazy => 1);

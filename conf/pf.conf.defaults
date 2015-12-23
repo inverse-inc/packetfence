@@ -429,7 +429,7 @@ haproxy=enabled
 # services.haproxy_order
 #
 # Order in which to start this service 
-haproxy_order=00
+haproxy_order=01
 #
 # services.pfdns
 #
@@ -479,7 +479,7 @@ iptables=enabled
 # services.iptables_order
 #
 # Order in which to start this service 
-iptables_order=01
+iptables_order=05
 #
 # services.pfbandwidthd
 #
@@ -608,7 +608,7 @@ redis_queue=enabled
 # services.redis_queue_order
 #
 # Order in which to start this service 
-redis_queue_order=15
+redis_queue_order=06
 #
 # services.pfdhcplistener
 #
