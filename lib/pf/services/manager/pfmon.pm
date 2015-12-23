@@ -15,7 +15,6 @@ use strict;
 use warnings;
 use Moo;
 use pf::cluster;
-use pf::config; 
 
 extends 'pf::services::manager';
 

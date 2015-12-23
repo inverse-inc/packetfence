@@ -14,7 +14,6 @@ pf::services::manager::pfbandwidthd
 use strict;
 use warnings;
 use Moo;
-use pf::config; 
 
 extends 'pf::services::manager';
 

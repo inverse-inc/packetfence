@@ -14,7 +14,6 @@ pf::services::manager::httpd_webservices
 use strict;
 use warnings;
 use Moo;
-use pf::config; 
 
 extends 'pf::services::manager::httpd';
 

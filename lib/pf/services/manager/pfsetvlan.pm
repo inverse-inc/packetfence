@@ -14,7 +14,6 @@ pf::services::manager::pfsetvlan
 use strict;
 use warnings;
 use Moo;
-use pf::config;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfsetvlan' } );
