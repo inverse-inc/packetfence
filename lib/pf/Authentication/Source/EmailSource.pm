@@ -64,7 +64,15 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq "user_email") {
+            if ( $condition->matches("user_email", $params->{user_email}) ) {
+                push(@{ $matching_conditions }, $condition);
+                return $params->{user_email};
+            }
+        }
+    }
+    return undef;
 }
 
 =head2 mandatoryFields
