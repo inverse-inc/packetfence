@@ -188,7 +188,7 @@ sub authorize {
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
     # either the switch detects that this is a phone or we take the result from the vlan filters
-    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || ($result != 0);
+    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port) || defined($result);
 
     $args->{'isPhone'} = $isPhone;
 
@@ -233,7 +233,7 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
-    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role}) || 0;
 
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};

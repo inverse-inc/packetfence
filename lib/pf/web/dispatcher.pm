@@ -55,7 +55,7 @@ sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = get_logger();
 
-    my $hostname = $r->hostname;
+    my $hostname = $r->hostname || $r->connection->local_ip();
     my $uri = $r->uri;
     my $url = $r->construct_url;
     my $user_agent = $r->headers_in->{'User-Agent'};
