@@ -205,6 +205,8 @@ sub doEmailSelfRegistration : Private {
         $profile->getName,
         %info,
       );
+    
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # if we are on-site: register the node
     if ( !$session->{preregistration} ) {
@@ -334,6 +336,8 @@ sub doSponsorSelfRegistration : Private {
         $profile->getName,
         %info,
       );
+    
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # on-site: redirection will show pending page (unless there's a violation for the node)
     if ( !$c->session->{"preregistration"} ) {
@@ -414,6 +418,7 @@ sub doSmsSelfRegistration : Private {
     }
 
     # set node in pending mode with the appropriate role
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
     $info{'status'} = $pf::node::STATUS_PENDING;
     $info{'unregdate'} = pf::activation::view_by_code($code)->{expiration};
     node_modify( $portalSession->clientMac(), %info );

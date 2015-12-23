@@ -46,19 +46,21 @@ sub index : Path : Args(0) {
     my $portalSession = $c->portalSession;
     if ( $request->param("pin") ) {
         $logger->info("Entering guest authentication by SMS");
+        my $profile = $c->profile;
+        my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
+        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+
         my ( $auth_return, $err, $activation_record ) = $self->sms_validation($c);
         if ( $auth_return != 1 ) {
+            pf::auth_log::change_record_status($source->id, $portalSession->clientMac, $pf::auth_log::FAILED);
             $c->stash(
                 txt_auth_error => i18n_format( $GUEST::ERRORS{$err} ) );
             utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach('showSmsConfirmation');
         }
-        my $profile = $c->profile;
         my %info;
         $logger->info("Valid PIN -- Registering user");
         my $pid = $activation_record->{pid} || "default";
-        my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
-        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
 
         if ($source) {
@@ -67,6 +69,7 @@ sub index : Path : Args(0) {
             $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
             $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
+            pf::auth_log::record_completed_guest($source->id, $portalSession->clientMac, $pf::auth_log::COMPLETED);
             $c->session->{"username"} = $pid;
             $c->session->{"unregdate"} = $info{'unregdate'};
             $c->session->{source_id} = $source->{id};

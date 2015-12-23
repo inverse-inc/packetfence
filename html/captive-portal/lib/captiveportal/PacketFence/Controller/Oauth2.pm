@@ -5,6 +5,7 @@ use pf::config;
 use pf::util qw(isenabled);
 use pf::web;
 use Net::OAuth2::Client;
+use pf::auth_log;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -39,6 +40,7 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
+    pf::auth_log::record_oauth_attempt($provider, $c->portalSession->clientMac);
     $c->response->redirect($self->oauth2_client($c,$provider)->authorize);
 }
 
@@ -169,6 +171,7 @@ sub oauth2Result : Path : Args(1) {
         $logger->warn(
             "OAuth2: failed to receive the token from the provider: $@");
         $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to get the token");
+        pf::auth_log::change_record_status($provider, $c->portalSession->clientMac, $pf::auth_log::FAILED);
         $c->detach(Authenticate => 'showLogin');
     }
 
@@ -236,11 +239,13 @@ sub oauth2Result : Path : Args(1) {
                 $logger->info(
                     "OAuth2: failed to validate the token, redireting to login page"
                 );
+                pf::auth_log::change_record_status($provider, $c->portalSession->clientMac, $pf::auth_log::FAILED);
                 $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
                 $c->detach(Authenticate => 'showLogin');
             }
         }
 
+        pf::auth_log::record_completed_oauth($provider, $c->portalSession->clientMac, $pid, $pf::auth_log::COMPLETED);
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->session->{source_match} = undef;

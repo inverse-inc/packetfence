@@ -67,6 +67,8 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
     /usr/local/pf/addons/database-cleaner.pl --table=radacct_log --date-field=timestamp --older-than="1 WEEK"
+    
+    /usr/local/pf/addons/database-cleaner.pl --table=auth_log --date-field=attempted_at --older-than="1 WEEK"
 
     # lets optimize on Sunday
     DOW=`date +%w`
