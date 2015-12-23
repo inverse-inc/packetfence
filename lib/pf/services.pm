@@ -40,14 +40,20 @@ our %MANAGERS = map { $_->new->name => $_ } @MANAGERS;
 
 our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd') } @MANAGERS;
 
+# all service managers except for keepalived
 our @ALL_SERVICES = sub {
-    my @services = sort map {
-      my $name = $_->new->name;
-      unless($name eq 'keepalived') {$name}
-    } @MANAGERS;
+    my @services;
+    for (@MANAGERS) {
+        my $name = $_->new->name;
+        unless ( $name eq 'keepalived' ) {
+            push @services, $name;
+        }
+    }
+    @services = sort @services;
     push @services, 'keepalived';
     return @services;
-}->();
+  }
+  ->();
 
 our %ALLOWED_ACTIONS = (
     stop    => undef,

@@ -57,6 +57,7 @@ sub _build_radiusdManagers {
             launcher => $listens->{$id}->{launcher},
             forceManaged => $self->isManaged,
             options => $listens->{$id},
+            orderIndex => $self->orderIndex,
         })
     } keys %$listens;
 

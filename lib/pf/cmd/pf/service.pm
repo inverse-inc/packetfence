@@ -89,7 +89,7 @@ our %ACTION_MAP = (
 our $ignore_checkup = $FALSE;
 
 sub _byIndexOrder { 
-    $a->new->orderIndex <=> $b->new->orderIndex;
+    $a->orderIndex <=> $b->orderIndex;
 }
 
 sub parseArgs {
@@ -99,17 +99,8 @@ sub parseArgs {
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
     my ( @services, @managers );
-    if ($service eq 'pf' and $action eq "start") {
-        @managers = sort _byIndexOrder @pf::services::MANAGERS;
-        @services = map { $_->new->name } @managers; 
-    }
-    elsif ($service eq 'pf' and $action eq "stop") {
-        @managers = reverse sort _byIndexOrder @pf::services::MANAGERS;
-        @services = map { $_->new->name } @managers;
-    }
-    elsif ($service eq 'pf' ) {
-        @managers = @pf::services::MANAGERS;
-        @services = map { $_->new->name  } @managers;
+    if ($service eq 'pf' ) {
+        @services = @pf::services::ALL_SERVICES;
     }
     else {
         @services = ($service);
@@ -150,7 +141,7 @@ sub postPfStartService {
 
 sub startService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
+    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -257,15 +248,8 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
-    #push redis_cache to back of the list
-    my %exclude = (
-        redis_cache => undef,
-    );
-    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name } ? 0 : 1 } @managers;
-    @managers = ();
-    @managers = @$infront_managers if $infront_managers;
-    push @managers, @$push_managers if $push_managers;
+    my @managers = reverse sort _byIndexOrder getManagers(\@services);
+
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;

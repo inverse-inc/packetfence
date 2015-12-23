@@ -36,6 +36,7 @@ sub _build_pfdhcplistenerManagers {
             name => "pfdhcplistener_$_",
             launcher => "sudo %1\$s -i '$_' -d &",
             forceManaged => $self->isManaged,
+            orderIndex => $self->orderIndex,
         })
     } uniq @listen_ints, @dhcplistener_ints;
     return \@managers;
