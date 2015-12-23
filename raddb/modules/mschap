@@ -143,10 +143,11 @@ mschap chrooted_mschap {
 	# attribute, and do prefix/suffix checks in order to obtain
 	# the "best" user name for the request.
 	#
-    # Call ntlm_auth through the logging wrapper. Make sure to preserve the -- separator to distinguish between
-    # the args to the wrapper and those to the ntlm_auth executable itself
-	ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/local/pf/bin/ntlm_auth_wrapper -- \
-        --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"	
+    	# Call ntlm_auth through the logging wrapper. Make sure to preserve the -- separator to distinguish between
+    	# the args to the wrapper and those to the ntlm_auth executable itself
+        ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/local/pf/bin/ntlm_auth_wrapper -- \
+        --request-nt-key --username=%{%{mschap:User-Name:-None}:-%{Stripped-User-Name}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+	
 	
 	# ntlm_auth should take less than three seconds.
 	# If it takes longer than that, something is probably wrong.
