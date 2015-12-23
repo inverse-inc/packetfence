@@ -628,7 +628,7 @@ keepalived=enabled
 # services.keepalived_order
 #
 # Order in which to start this service 
-keepalived_order=50
+keepalived_order=100
 # services.winbindd
 #
 # Should winbindd be started?
