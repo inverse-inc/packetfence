@@ -17,6 +17,8 @@ Version X.Y.Z released on XXXX-YY-ZZ
 New Features
 ++++++++++++
 
+* The pfdns service now forks to process multiple requests in parallel
+
 Enhancements
 ++++++++++++
 
