@@ -72,7 +72,7 @@ sub match_in_subclass {
             }
         }
     }
-    return undef;
+    return $params->{'username'};
 }
 
 =head2 mandatoryFields
