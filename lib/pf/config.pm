@@ -123,6 +123,8 @@ our (
     %ConfigDetect,
 #billing_tiers.conf
     %ConfigBillingTiers,
+#adminroles.conf
+    %ConfigAdminRoles,
 );
 
 BEGIN {
@@ -174,6 +176,7 @@ BEGIN {
         %ConfigPKI_Provider
         %ConfigDetect
         %ConfigBillingTiers
+        %ConfigAdminRoles
     );
 }
 
@@ -241,6 +244,8 @@ tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
 
 tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
+
+tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 
 sub import {
     pf::config->export_to_level(1,@_);

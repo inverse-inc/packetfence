@@ -142,6 +142,21 @@ sub soh_authorize : Public {
     return $return;
 }
 
+sub radius_switch_access : Public {
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->switch_access(\%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius switch access failed with error: $@");
+    }
+    return $return;
+}
+
 sub update_iplog : Public {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);

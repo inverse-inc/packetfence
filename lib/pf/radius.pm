@@ -694,6 +694,59 @@ sub logger {
     return get_logger( ref($proto) || $proto );
 }
 
+=item switch_access
+
+return radius attributes or reject for switch login
+
+=cut
+
+sub switch_access {
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
+    my $start = Time::HiRes::gettimeofday();
+    my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+
+    # is switch object correct?
+    if (!$switch) {
+        $logger->warn(
+            "Can't instantiate switch ($switch_ip). This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        $pf::StatsD::statsd->end(called() . ".timing" , $start);
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    }
+
+    my $args = {
+        switch => $switch,
+        switch_mac => $switch_mac,
+        switch_ip => $switch_ip,
+        source_ip => $source_ip,
+        stripped_user_name => $stripped_user_name,
+        realm => $realm,
+        user_name => $radius_request->{'User-Name'},
+        radius_request => $radius_request,
+    };
+
+    my ( $return, $message, $source_id ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
+    if ( defined($return) && $return == 1 ) {
+        my $value = &pf::authentication::match($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
+        if ($value) {
+            if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
+                return $switch->returnAuthorizeWrite($args);
+            }
+            if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
+                return $switch->returnAuthorizeRead($args);
+            }
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
+        }
+    } else {
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failled" ) ];
+    }
+}
+
 =back
 
 =head1 AUTHOR
