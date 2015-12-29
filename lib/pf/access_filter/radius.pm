@@ -57,6 +57,7 @@ sub handleAnswerInRule {
     my ($self, $rule, $args, $radius_reply_ref) = @_;
     my $logger = $self->logger;
     my $radius_reply = {};
+    my $status = 'RLM_MODULE_OK';
     if (defined $rule) {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
         my $i = 1;
@@ -71,14 +72,17 @@ sub handleAnswerInRule {
             }
             $i++;
         }
+        if (defined($rule->{'status'}) && $rule->{'status'} ne '') {
+            $status = $rule->{'status'};
+        }
         if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
-            return ($radius_reply);
+            return ($radius_reply,$status);
         } else {
             $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
-            return ($radius_reply_ref);
+            return ($radius_reply_ref,$status);
         }
     } else {
-        return ($radius_reply_ref);
+        return ($radius_reply_ref,$status);
     }
 }
 

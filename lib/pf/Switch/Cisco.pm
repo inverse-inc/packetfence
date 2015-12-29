@@ -1581,9 +1581,15 @@ Return radius attributes to allow write access
 sub returnAuthorizeWrite {
     my ($self, $args) = @_;
     my $radius_reply_ref;
+    my $status;
     $radius_reply_ref->{'Cisco-AVPair'} = 'shell:priv-lvl=15';
     $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    $status = '$RADIUS::'.$status;
+    $status = eval($status);
+    return [$status, %$radius_reply_ref];
 
 }
 
@@ -1596,9 +1602,15 @@ Return radius attributes to allow read access
 sub returnAuthorizeRead {
     my ($self, $args) = @_;
     my $radius_reply_ref;
+    my $status;
     $radius_reply_ref->{'Cisco-AVPair'} = 'shell:priv-lvl=3';
     $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeRead', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    $status = '$RADIUS::'.$status;
+    $status = eval($status);
+    return [$status, %$radius_reply_ref];
 }
 
 =back

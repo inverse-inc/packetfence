@@ -2,6 +2,24 @@
 # 
 # you are able to rewrite the radius answer based on attributes values, by default the radius filter
 # answer will be merge with the original radius answer. (to overwrite it add merge_answer = no).
+# Also by default the status of the answer will be RLM_MODULE_OK but this status can be overwritten by
+# the status attribute.
+# The status attribute can have the following values (See http://wiki.freeradius.org/modules/Rlm_perl for more details):
+# RLM_MODULE_REJECT
+# RLM_MODULE_FAIL
+# RLM_MODULE_OK
+# RLM_MODULE_HANDLED
+# RLM_MODULE_INVALID
+# RLM_MODULE_USERLOCK
+# RLM_MODULE_NOTFOUND
+# RLM_MODULE_NOOP
+# RLM_MODULE_UPDATED
+# RLM_MODULE_NUMCODES
+#
+# you can use 3 scopes in the radius filter:
+# returnRadiusAccessAccept is when you return the answer for a device access
+# returnAuthorizeRead is when you return the answer for the switch read login access
+# returnAuthorizeWrite is when you return the answer for the switch write login access
 #
 # Make a simple rule like this:
 #
@@ -79,7 +97,7 @@
 #
 # Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
 #
-# filter can be:
+# filter can be for the scope returnRadiusAccessAccept:
 #     node_info.autoreg
 #     node_info.status
 #     node_info.device_class
@@ -121,6 +139,18 @@
 #     radius_request
 #     violation
 #     time
+#
+# filter can be for the scopes returnAuthorizeRead and returnAuthorizeWrite
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     realm
+#     user_name
+#     stripped_user_name
+#     radius_request
+#     source_ip
 #
 # operator can be:
 #     is
