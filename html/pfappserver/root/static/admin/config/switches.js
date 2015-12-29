@@ -297,7 +297,7 @@ SwitchView.prototype.list = function() {
 SwitchView.prototype.refreshPage = function() {
     var that = this;
     var pagination = $('.pagination').first();
-    var formId = pagination.attr('data-from-from') || '#search';
+    var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
     if(form.length == 0) {
@@ -330,7 +330,7 @@ SwitchView.prototype.refreshPage = function() {
 SwitchView.prototype.refreshTable = function() {
     var that = this;
     var pagination = $('.pagination').first();
-    var formId = pagination.attr('data-from-from') || '#search';
+    var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a[href]').first();
     if(form.length == 0) {

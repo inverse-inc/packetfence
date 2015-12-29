@@ -380,7 +380,7 @@ NodeView.prototype.reorderSearch = function(e) {
     var that = this;
     var link = $(e.currentTarget);
     var pagination = $('.pagination').first();
-    var formId = pagination.attr('data-from-from') || '#search';
+    var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     if(form.length == 0) {
         form = $('#search');
@@ -416,7 +416,7 @@ NodeView.prototype.searchPagination = function(e) {
     e.preventDefault();
     var link = $(e.currentTarget);
     var pagination = link.closest('.pagination');
-    var formId = pagination.attr('data-from-from') || '#search';
+    var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     if(form.length == 0) {
         form = $('#search');
@@ -449,7 +449,7 @@ NodeView.prototype.searchPagination = function(e) {
 NodeView.prototype.refreshPage = function() {
     var that = this;
     var pagination = $('.pagination').first();
-    var formId = pagination.attr('data-from-from') || '#search';
+    var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a').first();
     if(form.length == 0) {
