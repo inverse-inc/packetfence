@@ -135,7 +135,7 @@ sub do_query {
     my ($count) = person_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = ceil( $count / $per_page );
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;
