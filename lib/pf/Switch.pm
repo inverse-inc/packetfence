@@ -23,6 +23,7 @@ use Try::Tiny;
 
 our $VERSION = 2.10;
 
+use pf::CHI;
 use pf::constants;
 use pf::config;
 use pf::locationlog;
@@ -3072,6 +3073,17 @@ Return the current logger for the switch
 sub logger {
     my ($proto) = @_;
     return get_logger( ref($proto) || $proto );
+}
+
+=item cache
+
+Return the cache for the namespace switch
+
+=cut
+
+sub cache {
+   my ($self) = @_;
+   return pf::CHI->new( namespace => 'switch' );
 }
 
 =back

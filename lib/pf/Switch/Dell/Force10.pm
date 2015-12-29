@@ -53,17 +53,9 @@ sub getIfIndexByNasPortId {
     }
     my @ifDesc_val = split('/',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.17.1.4.1.2.'.$ifDesc_param;
-    $logger->warn($OID_ifDesc);
-    my $ifDescHashRef;
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ] );
+    my $cache = $self->cache;
+    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ])});
     return $result->{"$OID_ifDesc"};
-    foreach my $key ( keys %{$result} ) {
-        my $ifDesc = $result->{$key};
-        if ( $ifDesc =~ /$ifDesc_val[1]$/i ) {
-            $key =~ /^$OID_ifDesc\.(\d+)$/;
-            return $1;
-        }
-    }
 }
 
 
