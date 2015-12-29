@@ -10,7 +10,10 @@ use pf::constants;
 use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
 use pf::Authentication::constants;
-use List::MoreUtils qw(all);
+use pf::log;
+use List::MoreUtils qw(all any);
+use pf::config::util;
+use pf::util;
 
 BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }
 
@@ -42,6 +45,13 @@ sub check_password {
   my ($self, $password) = @_;
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
+  my ($stripped_username,$realm) = strip_username($self->_user);
+  my $realm_source = get_realm_source($stripped_username, $realm);
+  if($realm_source && any {$_->id eq $realm_source->id} @{$internal_sources}){
+    get_logger->info("Found realm source ".$realm_source->id." for user $stripped_username in realm $realm. Using it as the only source.");
+    $internal_sources = [$realm_source];
+  }
+  $self->{_user} = isenabled($realm_source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
   my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
 
   if ($result) {

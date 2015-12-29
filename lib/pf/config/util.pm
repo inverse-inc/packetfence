@@ -29,11 +29,12 @@ use Net::SMTP;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths;
 use pf::util;
 use pf::log;
+use pf::authentication;
 
 BEGIN {
   use Exporter ();
@@ -49,6 +50,8 @@ BEGIN {
     connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
+    get_user_sources
+    get_realm_source
   );
 }
 
@@ -375,6 +378,64 @@ sub portal_hosts {
     push @hosts, $fqdn; 
     return @hosts;
 }
+
+=head2 get_realm_source
+
+Get a source for a specific username and realm
+Will look it up in the realm configuration
+
+=cut
+
+sub get_realm_source {
+    my ($username, $realm) = @_;
+
+    $realm = "null" unless(defined($realm));
+    $realm = lc $realm;
+
+    my $realm_source;
+    if(exists $ConfigRealm{$realm}){
+        if(my $source = $ConfigRealm{$realm}{source}){
+            get_logger->info("Found auth source $source for realm $realm.");
+            $realm_source = pf::authentication::getAuthenticationSource($source);
+        }
+    }
+    elsif(exists $ConfigRealm{default} && $realm ne "null"){
+        if(my $source = $ConfigRealm{default}{source}){
+            get_logger->info("Found auth source $source for realm $realm through the default configuration.");
+            $realm_source = pf::authentication::getAuthenticationSource($source);
+        }
+    }
+
+    return $realm_source;
+
+}
+
+=head2 get_user_sources
+
+Get internal and exclusive sources for a username and realm
+
+=cut
+
+sub get_user_sources {
+    my ($profile, $username, $realm) = @_;
+
+    my $realm_source = get_realm_source($username, $realm);
+
+    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+
+    if( $realm_source && any { $_ eq $realm_source} @sources ){
+        get_logger->info("Realm source ".$realm_source->id." is part of the portal profile sources. Using it as the only auth source.");
+        return ($realm_source);
+    }
+    else {
+        get_logger->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
+        return @sources;
+    }
+
+
+}
+
+
 
 =back
 
