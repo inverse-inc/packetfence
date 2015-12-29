@@ -4664,6 +4664,122 @@ msgstr ""
 msgid "Should keepalived be started ? Keep enabled unless you know what you're doing."
 msgstr ""
 
+# conf/documentation.conf (services.carbon-cache_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.carbon-relay_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.collectd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.dhcpd_order)
+msgid "Order in which the service should be started.Lower order services start first and stop last."
+msgstr "Order in which the service should be started.Lower order services start first and stop last."
+
+# conf/documentation.conf (services.haproxy_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_aaa_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_admin_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_graphite_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_portal_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_proxy_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_webservices_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.iptables_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.keepalived_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.p0f_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfbandwidthd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfdhcplistener_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfdns_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfmon_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfqueue_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.pfsetvlan_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.radiusd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.radsniff3_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.redis_cache_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.redis_queue_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.snmptrapd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.snort_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.statsd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.suricata_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
+# conf/documentation.conf (services.winbindd_order)
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Should match the IP of a registration interface or the production DNS server if the network is Inline L3"
 msgstr ""
@@ -7463,12 +7579,20 @@ msgid "services.carbon-cache_binary"
 msgstr "carbon-cache path"
 
 # conf/documentation.conf
+msgid "services.carbon-cache_order"
+msgstr "carbon-cache service ordering"
+
+# conf/documentation.conf
 msgid "services.carbon-relay"
 msgstr "carbon-relay"
 
 # conf/documentation.conf
 msgid "services.carbon-relay_binary"
 msgstr "carbon-relay path"
+
+# conf/documentation.conf
+msgid "services.carbon-relay_order"
+msgstr "carbon-relay service ordering"
 
 # conf/documentation.conf
 msgid "services.collectd"
@@ -7479,8 +7603,16 @@ msgid "services.collectd_binary"
 msgstr "collectd path"
 
 # conf/documentation.conf
+msgid "services.collectd_order"
+msgstr "carbon-collectd service ordering"
+
+# conf/documentation.conf
 msgid "services.dhcpd"
 msgstr "dhcpd"
+
+# conf/documentation.conf
+msgid "services.dhcpd_order"
+msgstr "dhcpd service ordering"
 
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
@@ -7499,12 +7631,24 @@ msgid "services.haproxy_binary"
 msgstr "HAProxy path"
 
 # conf/documentation.conf
+msgid "services.haproxy_order"
+msgstr "haproxy service ordering"
+
+# conf/documentation.conf
 msgid "services.httpd_aaa"
 msgstr "httpd.aaa"
 
 # conf/documentation.conf
+msgid "services.httpd_aaa_order"
+msgstr "httpd.aaa service ordering"
+
+# conf/documentation.conf
 msgid "services.httpd_admin"
 msgstr "httpd.admin"
+
+# conf/documentation.conf
+msgid "services.httpd_admin_order"
+msgstr "httpd.admin service ordering"
 
 # conf/documentation.conf
 msgid "services.httpd_binary"
@@ -7513,6 +7657,10 @@ msgstr "httpd path"
 # conf/documentation.conf
 msgid "services.httpd_graphite"
 msgstr "httpd.graphite"
+
+# conf/documentation.conf
+msgid "services.httpd_graphite_order"
+msgstr "httpd.graphite service ordering"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_qos"
@@ -7567,12 +7715,24 @@ msgid "services.httpd_portal"
 msgstr "httpd.portal"
 
 # conf/documentation.conf
+msgid "services.httpd_portal_order"
+msgstr "httpd.portal service ordering"
+
+# conf/documentation.conf
 msgid "services.httpd_proxy"
 msgstr "httpd.proxy"
 
 # conf/documentation.conf
+msgid "services.httpd_proxy_order"
+msgstr "httpd.proxy service ordering"
+
+# conf/documentation.conf
 msgid "services.httpd_webservices"
 msgstr "httpd.webservices"
+
+# conf/documentation.conf
+msgid "services.httpd_webservices_order"
+msgstr "httpd.webservices service ordering"
 
 # conf/documentation.conf
 msgid "services.iptables"
@@ -7583,12 +7743,20 @@ msgid "services.iptables_binary"
 msgstr "iptables path"
 
 # conf/documentation.conf
+msgid "services.iptables_order"
+msgstr "iptables service ordering"
+
+# conf/documentation.conf
 msgid "services.keepalived"
 msgstr "Keepalived"
 
 # conf/documentation.conf
 msgid "services.keepalived_binary"
 msgstr "Keepalived path"
+
+# conf/documentation.conf
+msgid "services.keepalived_order"
+msgstr "keepalived service ordering"
 
 # conf/documentation.conf
 msgid "services.memcached"
@@ -7611,20 +7779,40 @@ msgid "services.pfbandwidthd"
 msgstr "pfbandwidthd"
 
 # conf/documentation.conf
+msgid "services.pfbandwidthd_order"
+msgstr "pfbandwidthd service ordering"
+
+# conf/documentation.conf
 msgid "services.pfdhcplistener"
 msgstr "pfdhcplistener"
+
+# conf/documentation.conf
+msgid "services.pfdhcplistener_order"
+msgstr "pfdhcplistener service ordering"
 
 # conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
 
 # conf/documentation.conf
+msgid "services.pfdns_order"
+msgstr "pfdns service ordering"
+
+# conf/documentation.conf
 msgid "services.pfmon"
 msgstr "pfmon"
 
 # conf/documentation.conf
+msgid "services.pfmon_order"
+msgstr "pfmon service ordering"
+
+# conf/documentation.conf
 msgid "services.pfsetvlan"
 msgstr "pfsetvlan"
+
+# conf/documentation.conf
+msgid "services.pfsetvlan_order"
+msgstr "pfsetvlan service ordering"
 
 # conf/documentation.conf
 msgid "services.radiusd"
@@ -7635,12 +7823,20 @@ msgid "services.radiusd_binary"
 msgstr "radiusd path"
 
 # conf/documentation.conf
+msgid "services.radiusd_order"
+msgstr "radiusd service ordering"
+
+# conf/documentation.conf
 msgid "services.radsniff3"
 msgstr "radsniff3"
 
 # conf/documentation.conf
 msgid "services.radsniff3_binary"
 msgstr "radsniff3 path"
+
+# conf/documentation.conf
+msgid "services.radsniff3_order"
+msgstr "radsniff3 service ordering"
 
 # conf/documentation.conf
 msgid "services.snmptrapd"
@@ -7651,12 +7847,20 @@ msgid "services.snmptrapd_binary"
 msgstr "snmptrapd path"
 
 # conf/documentation.conf
+msgid "services.snmptrapd_order"
+msgstr "snmptrapd service ordering"
+
+# conf/documentation.conf
 msgid "services.snort"
 msgstr "snort"
 
 # conf/documentation.conf
 msgid "services.snort_binary"
 msgstr "snort path"
+
+# conf/documentation.conf
+msgid "services.snort_order"
+msgstr "snort service ordering"
 
 # conf/documentation.conf
 msgid "services.statsd"
@@ -7667,6 +7871,54 @@ msgid "services.statsd_binary"
 msgstr "nodejs path"
 
 # conf/documentation.conf
+msgid "services.statsd_order"
+msgstr "statsd service ordering"
+
+# conf/documentation.conf
+msgid "services.pfqueue"
+msgstr "pfqueue"
+
+# conf/documentation.conf
+msgid "services.pfqueue_order"
+msgstr "pfqueue service ordering"
+
+# conf/documentation.conf
+msgid "services.redis_cache"
+msgstr "redis_cache"
+
+# conf/documentation.conf
+msgid "services.redis_cache_order"
+msgstr "redis_cache service ordering"
+
+# conf/documentation.conf
+msgid "services.redis_queue"
+msgstr "redis_queue"
+
+# conf/documentation.conf
+msgid "services.redis_queue_order"
+msgstr "redis_queue service ordering"
+
+# conf/documentation.conf
+msgid "services.redis_binary"
+msgstr "redis path"
+
+# conf/documentation.conf
+msgid "services.pfdetect_order"
+msgstr "pfdetect_order service ordering"
+
+# conf/documentation.conf
+msgid "services.p0f"
+msgstr "p0f"
+
+# conf/documentation.conf
+msgid "services.p0f_order"
+msgstr "p0f service ordering"
+
+# conf/documentation.conf
+msgid "services.p0f_binary"
+msgstr "p0f path"
+
+# conf/documentation.conf
 msgid "services.suricata"
 msgstr "suricata"
 
@@ -7675,12 +7927,20 @@ msgid "services.suricata_binary"
 msgstr "suricata path"
 
 # conf/documentation.conf
+msgid "services.suricata_order"
+msgstr "suricata service ordering"
+
+# conf/documentation.conf
 msgid "services.winbindd"
 msgstr "winbindd"
 
 # conf/documentation.conf
 msgid "services.winbindd_binary"
 msgstr "winbindd path"
+
+# conf/documentation.conf
+msgid "services.winbindd_order"
+msgstr "winbindd service ordering"
 
 # conf/documentation.conf
 msgid "servicewatch"
