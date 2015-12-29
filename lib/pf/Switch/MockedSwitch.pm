@@ -3010,7 +3010,6 @@ sub handleRadiusDeny {
     return undef;
 }
 
-<<<<<<< HEAD
 =item cache
 
 Return the cache for the namespace switch

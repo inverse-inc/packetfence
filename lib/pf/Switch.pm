@@ -3078,7 +3078,6 @@ sub logger {
     return get_logger( ref($proto) || $proto );
 }
 
-<<<<<<< HEAD
 =item cache
 
 Return the cache for the namespace switch
