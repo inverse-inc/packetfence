@@ -152,7 +152,7 @@ sub authenticate {
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
   $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.25 ); 
-  return ($TRUE, $AUTH_SUCCESS_MSG, $connection);
+  return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 
@@ -290,17 +290,12 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $start = Time::HiRes::gettimeofday();
 
-    my ($connection, $LDAPServer, $LDAPServerPort);
-    if (exists($params->{'connection'}) && $params->{'connection'} ne '') {
-        $connection = $params->{'connection'};
-    } else {
-        my $cached_connection = $self->_cached_connection;
-        unless ( $cached_connection ) {
-            $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
-            return undef;
-        }
-        ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
+    my $cached_connection = $self->_cached_connection;
+    unless ( $cached_connection ) {
+        $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
+        return undef;
     }
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
@@ -322,7 +317,7 @@ sub match_in_subclass {
     $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".search.timing" , $before, 0.1 );
 
     if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on ".$connection->host.":".$connection->port.", we skip the rule.");
+        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
         return undef;
@@ -375,7 +370,7 @@ sub match_in_subclass {
                 if ( $result->is_error ) { 
                     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
                     $logger->error(
-                        "[$self->{'id'}] Unable to execute search $filter from $value on ".$connection->host.":".$connection->port.", we skip the condition ("
+                        "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
                         . $result->error . ")."); 
                 } 
 

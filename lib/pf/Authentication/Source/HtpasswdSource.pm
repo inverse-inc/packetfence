@@ -61,7 +61,7 @@ sub authenticate {
         return ($FALSE, $AUTH_FAIL_MSG);
     }
 
-    return ($TRUE, $AUTH_SUCCESS_MSG,undef);
+    return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 =head2 match_in_subclass

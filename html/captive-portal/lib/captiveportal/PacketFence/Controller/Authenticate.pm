@@ -488,7 +488,7 @@ sub authenticationLogin : Private {
     my $profile = $c->profile;
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
-    my ( $return, $message, $source_id, $connection );
+    my ( $return, $message, $source_id );
     $logger->debug("authentication attempt");
     if ($request->{'match'} eq "status/login") {
         use pf::person;
@@ -527,16 +527,16 @@ sub authenticationLogin : Private {
         );
     } else {
         # validate login and password
-        ( $return, $message, $source_id, $connection ) =
+        ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if ( defined($return) && $return == 1 ) {
-            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
+            pf::auth_log::record_auth($source_id->id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
             # save login into session
             $c->session(
                 "username"  => $username // $default_pid,
-                "source_id" => $source_id,
-                "source_match" => $source_id,
-                "connection" => $connection,
+                "source_id" => $source_id->id,
+                "source_match" => $source_id->id,
+                "connection" => $source_id->connection;
             );
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);

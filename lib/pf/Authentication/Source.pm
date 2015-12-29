@@ -24,6 +24,7 @@ has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
+has 'connection' => (is => 'rw');
 
 =head2 has_authentication_rules
 

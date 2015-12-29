@@ -246,17 +246,17 @@ sub authenticate {
         my $connection;
         $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
-            ($result, $message, $connection) = $current_source->authenticate($username, $password);
+            ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
             $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
-            return ($result, $message, $current_source->id, $connection);
+            return ($result, $message, $current_source);
         }
     }
 
     $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
-    return ($FALSE, $message ? $message : $AUTH_FAIL_MSG, undef);
+    return ($FALSE, $message ? $message : $AUTH_FAIL_MSG);
 }
 
 =item match
