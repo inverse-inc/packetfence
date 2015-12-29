@@ -147,13 +147,6 @@ form {
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
                   <div>
-                    [% match_options = BLOCK %]
-                      <select name="all_or_any" class="input-mini">
-                        <option value="all">[% l('all') %]</option>
-                        <option value="any">[% l('any') %]</option>
-                      </select>
-                    [% END %]
-                    [% l('Match [_1] of the following conditions:', [match_options]) | none %]
                     [% per_page_options = BLOCK %]
                       <select name="per_page" class="input-mini">
                         <option value="25" [% "selected=selected" IF per_page == 25 %]>25</option>
@@ -163,6 +156,16 @@ form {
                       </select>
                     [% END %]
                     [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                  </div>
+                  <div>
+                    [% match_options = BLOCK %]
+                      <select name="all_or_any" class="input-mini">
+                        <option value="all">[% l('all') %]</option>
+                        <option value="any">[% l('any') %]</option>
+                      </select>
+                    [% END %]
+                    <br/>
+                    [% l('Match [_1] of the following conditions:', [match_options]) | none %]
                   </div>
                   <br/>
                   <div class="input-daterange datepicker">
