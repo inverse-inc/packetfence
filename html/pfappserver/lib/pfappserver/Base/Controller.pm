@@ -198,7 +198,7 @@ sub _list_items {
         $c->stash->{direction}   = $orderdirection || 'asc';
         $c->stash->{items}       = $items_ref;
         $c->stash->{field_names} = $field_names;
-        $c->stash->{pages_count} = ceil( $count / $per_page );
+        $c->stash->{page_count} = ceil( $count / $per_page );
     }
     else {
         $c->response->status($status);
