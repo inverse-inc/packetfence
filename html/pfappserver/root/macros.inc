@@ -14,3 +14,54 @@
         [%- END  -%]
     [%- END -%]
 [%- END -%]
+
+[%- MACRO pagination(action, pageNumber, pageCount, query, from_form)  BLOCK -%]
+[%
+# Number of pages to show before and after the middle page in the list
+    pageWrap = 3;
+    pageWrapTotal = pageWrap * 2;
+# Calculate the first of the list
+    firstPage = pageNumber - pageWrap;
+    #Take care of wrap around
+    IF firstPage < 1; firstPage = 1; END;
+# Calculate the last page
+    lastPage = firstPage + pageWrapTotal;
+    #Take care of wrap around
+    IF lastPage > pageCount;
+        lastPage = pageCount;
+        firstPage = lastPage - pageWrapTotal;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+%]
+<div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
+  <ul>
+    [% IF pageNumber == 1 %]
+    <li class="disabled"><a>&larr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(action, pageNumber - 1, query) %]">&larr;</a></li>
+    [% END %]
+    [%- IF firstPage > 1 -%]
+      <li><a href="[% c.uri_for(action, 1, query) %]" title="Page 1">1</a></li>
+      <li class="disabled"><a href="#">&hellip;</a></li>
+    [%- END -%]
+    [% currentPage = firstPage %]
+    [% WHILE currentPage <= lastPage %]
+      [%IF currentPage == pageNumber %]
+        <li class="disabled"><a href="[% c.uri_for(action, currentPage, query) %]">[%currentPage%]</a></li>
+      [% ELSE  %]
+        <li><a href="[% c.uri_for(action, currentPage, query) %]">[%currentPage%]</a></li>
+      [%END%]
+    [%currentPage = currentPage + 1%]
+    [% END %]
+    [%- IF lastPage < pageCount -%]
+      <li class="disabled"><a href="#">&hellip;</a></li>
+      <li><a href="[% c.uri_for(action, pageCount, query)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
+    [%- END -%]
+    [% IF pageNumber == lastPage %]
+    <li class="disabled"><a >&rarr;</a></li>
+    [% ELSE %]
+    <li><a href="[% c.uri_for(action, pageNumber + 1, query) %]">&rarr;</a></li>
+    [% END %]
+  </ul>
+</div>
+[%- END -%]

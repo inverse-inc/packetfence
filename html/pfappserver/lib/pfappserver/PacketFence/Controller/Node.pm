@@ -64,9 +64,8 @@ Perform an advanced search using the Search::Node model
 =cut
 
 sub search :Local :Args() :AdminRole('NODES_READ') {
-    my ($self, $c, $pageNum, $perPage) = @_;
+    my ($self, $c, $pageNum) = @_;
     $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
@@ -92,9 +91,10 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     }
     else {
         my $query = $form->value;
+        $query->{page_num}  = $pageNum if defined $pageNum;
         $query->{by} = 'mac' unless ($query->{by});
         $query->{direction} = 'asc' unless ($query->{direction});
-        ($status, $result) = $model->search($query, $pageNum, $perPage);
+        ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);

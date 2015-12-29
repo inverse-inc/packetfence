@@ -29,11 +29,9 @@ extends 'pfappserver::Base::Model::Search';
 =cut
 
 sub search {
-    my ($self, $params, $pageNum, $perPage) = @_;
+    my ($self, $params) = @_;
     my $logger = get_logger();
     my $builder = $self->make_builder;
-    $params->{page_num} = $pageNum;
-    $params->{per_page} = $perPage;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
     return (HTTP_OK, $results);
@@ -61,7 +59,7 @@ sub do_query {
     my ($count) = node_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = ceil( $count / $per_page );
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;
