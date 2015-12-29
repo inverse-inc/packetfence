@@ -43,7 +43,7 @@ sub authenticate_using_kerberos {
   my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'realm'} );
 
   if ($kerberos->authenticate($username, $password)) {
-    $self->connection = \$kerberos;
+    $self->connection($kerberos);
     return ($TRUE, $AUTH_SUCCESS_MSG);
   } else {
     return ($FALSE, $AUTH_FAIL_MSG);

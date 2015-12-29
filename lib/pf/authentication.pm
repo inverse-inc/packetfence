@@ -294,10 +294,7 @@ sub match {
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     } else {
-        my $source = getAuthenticationSource($source_id);
-        if (defined $source) {
-            @sources = ($source);
-        }
+        @sources = ($source_id);
     }
     foreach my $source (@sources) {
         $actions = $source->match($params);

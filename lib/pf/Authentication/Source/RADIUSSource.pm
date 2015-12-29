@@ -56,7 +56,7 @@ sub authenticate {
      if ($radius->get_error() eq 'ENONE') {
 
        if ($result) {
-        $self->connection = \$radius;
+        $self->connection($radius);
         return ($TRUE, $AUTH_SUCCESS_MSG);
       } else {
         return ($FALSE, $AUTH_FAIL_MSG);
@@ -76,7 +76,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
-    my $radius = $self->connection;
+    my $radius = $params->{'connection'};
     Authen::Radius->load_dictionary('/usr/local/pf/lib/pf/util/dictionary');
     my $username =  $params->{'username'};
 
