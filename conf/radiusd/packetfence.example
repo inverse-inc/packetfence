@@ -1,9 +1,6 @@
 server packetfence {
 
     authorize {
-        if (request:NAS-Port-Type == Virtual || request:NAS-Port-Type == Async) {
-            packetfence
-        }
         suffix
         ntdomain
         preprocess
