@@ -36,29 +36,29 @@
 <div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
   <ul>
     [% IF pageNumber == 1 %]
-    <li class="disabled"><a>&larr;</a></li>
+    <li class="disabled"><span>&larr;</span></li>
     [% ELSE %]
     <li><a href="[% c.uri_for(action, pageNumber - 1, query) %]">&larr;</a></li>
     [% END %]
     [%- IF firstPage > 1 -%]
       <li><a href="[% c.uri_for(action, 1, query) %]" title="Page 1">1</a></li>
-      <li class="disabled"><a href="#">&hellip;</a></li>
+      <li class="disabled"><span>&hellip;</span></li>
     [%- END -%]
     [% currentPage = firstPage %]
     [% WHILE currentPage <= lastPage %]
       [%IF currentPage == pageNumber %]
-        <li class="disabled"><a href="[% c.uri_for(action, currentPage, query) %]">[%currentPage%]</a></li>
+        <li class="disabled"><span>[%currentPage%]</span></li>
       [% ELSE  %]
         <li><a href="[% c.uri_for(action, currentPage, query) %]">[%currentPage%]</a></li>
       [%END%]
     [%currentPage = currentPage + 1%]
     [% END %]
     [%- IF lastPage < pageCount -%]
-      <li class="disabled"><a href="#">&hellip;</a></li>
+      <li class="disabled"><span>&hellip;</span></li>
       <li><a href="[% c.uri_for(action, pageCount, query)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
     [%- END -%]
     [% IF pageNumber == lastPage %]
-    <li class="disabled"><a >&rarr;</a></li>
+    <li class="disabled"><span>&rarr;</span></li>
     [% ELSE %]
     <li><a href="[% c.uri_for(action, pageNumber + 1, query) %]">&rarr;</a></li>
     [% END %]
