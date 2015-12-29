@@ -3333,6 +3333,12 @@ Start the sensor:
 
 The DHCP traffic should now be reflected on your PacketFence server.
 
+Switch login access
+~~~~~~~~~~~~~~~~~~~
+
+PacketFence is able to allow the access to a switch with read or write permission. It currently works with Cisco switches and in order to configure the switch you have to follow this guide http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html.
+On the packetFence side what you have to configure is an Admin Access role that contain the action SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE and assign this role to an internal user or in an Administration rule in an internal source.
+
 
 Operating System Best Practices
 -------------------------------
