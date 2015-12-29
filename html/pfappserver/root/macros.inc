@@ -32,35 +32,42 @@
         firstPage = lastPage - pageWrapTotal;
         IF firstPage < 1; firstPage = 1; END;
     END;
+    params = {};
+    params.import(query)
 %]
 <div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
   <ul>
     [% IF pageNumber == 1 %]
     <li class="disabled"><span>&larr;</span></li>
     [% ELSE %]
-    <li><a href="[% c.uri_for(action, pageNumber - 1, query) %]">&larr;</a></li>
+    [% params.page_num = pageNumber - 1 %]
+    <li><a href="[% c.uri_for(action, params) %]">&larr;</a></li>
     [% END %]
     [%- IF firstPage > 1 -%]
-      <li><a href="[% c.uri_for(action, 1, query) %]" title="Page 1">1</a></li>
+      [% params.page_num = 1 %]
+      <li><a href="[% c.uri_for(action, params) %]" title="Page 1">1</a></li>
       <li class="disabled"><span>&hellip;</span></li>
     [%- END -%]
     [% currentPage = firstPage %]
     [% WHILE currentPage <= lastPage %]
+      [% params.page_num = currentPage %]
       [%IF currentPage == pageNumber %]
         <li class="disabled"><span>[%currentPage%]</span></li>
       [% ELSE  %]
-        <li><a href="[% c.uri_for(action, currentPage, query) %]">[%currentPage%]</a></li>
+        <li><a href="[% c.uri_for(action, params) %]">[%currentPage%]</a></li>
       [%END%]
     [%currentPage = currentPage + 1%]
     [% END %]
     [%- IF lastPage < pageCount -%]
+      [% params.page_num = pageCount %]
       <li class="disabled"><span>&hellip;</span></li>
-      <li><a href="[% c.uri_for(action, pageCount, query)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
+      <li><a href="[% c.uri_for(action, params)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
     [%- END -%]
     [% IF pageNumber == lastPage %]
     <li class="disabled"><span>&rarr;</span></li>
     [% ELSE %]
-    <li><a href="[% c.uri_for(action, pageNumber + 1, query) %]">&rarr;</a></li>
+      [% params.page_num = pageNumber + 1 %]
+    <li><a href="[% c.uri_for(action, params) %]">&rarr;</a></li>
     [% END %]
   </ul>
 </div>
