@@ -19,6 +19,7 @@ use pf::violation qw (violation_view_top);
 use pf::locationlog qw(locationlog_set_session);
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
+use pf::radius::constants;
 use Scalar::Util qw(reftype);
 use Data::Thunk;
 
@@ -57,7 +58,7 @@ sub handleAnswerInRule {
     my ($self, $rule, $args, $radius_reply_ref) = @_;
     my $logger = $self->logger;
     my $radius_reply = {};
-    my $status = 'RLM_MODULE_OK';
+    my $status = $RADIUS::RLM_MODULE_OK;
     if (defined $rule) {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
         my $i = 1;
@@ -73,7 +74,8 @@ sub handleAnswerInRule {
             $i++;
         }
         if (defined($rule->{'status'}) && $rule->{'status'} ne '') {
-            $status = $rule->{'status'};
+            $status = '$RADIUS::'.$rule->{'status'};
+            $status = eval($status);
         }
         if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
             return ($radius_reply,$status);

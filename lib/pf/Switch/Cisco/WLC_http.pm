@@ -173,8 +173,6 @@ sub returnRadiusAccessAccept {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    $status = '$RADIUS::'.$status;
-    $status = eval($status);
     return [$status, %$radius_reply_ref];
 }
 

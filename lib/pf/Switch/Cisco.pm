@@ -1589,8 +1589,6 @@ sub returnAuthorizeWrite {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeWrite', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    $status = '$RADIUS::'.$status;
-    $status = eval($status);
     return [$status, %$radius_reply_ref];
 
 }
@@ -1612,8 +1610,6 @@ sub returnAuthorizeRead {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeRead', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    $status = '$RADIUS::'.$status;
-    $status = eval($status);
     return [$status, %$radius_reply_ref];
 }
 

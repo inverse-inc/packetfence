@@ -2778,8 +2778,6 @@ sub returnRadiusAccessAccept {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        $status = '$RADIUS::'.$status;
-        $status = eval($status);
     }
 
     return [$status, %$radius_reply_ref];
@@ -3104,8 +3102,6 @@ sub returnAuthorizeWrite {
     my $rule = $filter->test('returnAuthorizeWrite', $args);
     if (defined($rule)) {
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        $status = '$RADIUS::'.$status;
-        $status = eval($status);
     }
     return [$status, %$radius_reply_ref];
 
@@ -3126,8 +3122,6 @@ sub returnAuthorizeRead {
     my $rule = $filter->test('returnAuthorizeRead', $args);
     if (defined($rule)) {
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        $status = '$RADIUS::'.$status;
-        $status = eval($status);
     }
     return [$status, %$radius_reply_ref];
 }

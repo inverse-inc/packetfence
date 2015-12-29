@@ -108,16 +108,12 @@ sub returnRadiusAccessAccept {
             'Tunnel-Private-Group-ID' => -1,
         };
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        $status = '$RADIUS::'.$status;
-        $status = eval($status);
         return [$status, %$radius_reply_ref];
 
     }
     else{
         $logger->info("Returning ACCEPT");
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        $status = '$RADIUS::'.$status;
-        $status = eval($status);
         return [$status, %$radius_reply_ref];
     }
 
