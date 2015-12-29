@@ -107,7 +107,7 @@ sub handler {
     }
 
     # obtain node information provided by authentication module. We need to get the role (category here)
-    my $value = &pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
+    my $value = &pf::authentication::match($source_id->id, $params, $Actions::SET_ROLE);
 
     $logger->warn("Got role $value for username $pid");
 
@@ -116,7 +116,7 @@ sub handler {
         %info = (%info, (category => $value));
     }
 
-    $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
+    $value = &pf::authentication::match($source_id->id, $params, $Actions::SET_UNREG_DATE);
     if (defined $value) {
         $logger->trace("Got unregdate $value for username $pid");
         %info = (%info, (unregdate => $value));
