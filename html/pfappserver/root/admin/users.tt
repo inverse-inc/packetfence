@@ -120,7 +120,7 @@ form {
                 </form>
               </div><!--#simple-->
               <div class="tab-pane well" id="advanced">
-                <form id="advancedSearch" method="POST" name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
+                <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
                     <input type="hidden" name="by">
                     <input type="hidden" name="direction">
                   <table class="table-dynamic">

@@ -59,6 +59,8 @@ var UserView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="simpleUserSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
+
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
 
     this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
