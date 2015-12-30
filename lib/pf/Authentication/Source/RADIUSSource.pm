@@ -49,7 +49,7 @@ sub authenticate {
     Host => "$self->{'host'}:$self->{'port'}",
     Secret => $self->{'secret'},
   );
-
+  Authen::Radius->load_dictionary('/usr/local/pf/lib/pf/util/dictionary');
   if (defined $radius) {
      my $result = $radius->check_pwd($username, $password);
 
@@ -76,8 +76,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
-    my $radius = $params->{'connection'};
-    Authen::Radius->load_dictionary('/usr/local/pf/lib/pf/util/dictionary');
+    my $radius = $self->connection;
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {
@@ -86,7 +85,7 @@ sub match_in_subclass {
                 push(@{ $matching_conditions }, $condition);
             }
         }
-        for my $attribute ($$radius->get_attributes()) {
+        for my $attribute ($radius->get_attributes()) {
             if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
                 if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
                     push(@{ $matching_conditions }, $condition);

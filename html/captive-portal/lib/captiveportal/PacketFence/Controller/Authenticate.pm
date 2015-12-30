@@ -247,7 +247,7 @@ sub postAuthentication : Private {
     $c->forward('setRole');
     $c->forward('setUnRegDate');
     $c->log->trace("Just finished seting the node up");
-    $info->{source} = $source_id;
+    $info->{source} = $source_id->id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
     $c->log->trace("Passed by the provisioning");
@@ -261,8 +261,7 @@ Checked to see if source that was authenticated with is chained
 
 sub checkIfChainedAuth : Private {
     my ($self, $c) = @_;
-    my $source_id = $c->session->{source_id};
-    my $source = getAuthenticationSource($source_id);
+    my $source = $c->session->{source_id};
     #if not chained then leave
     return unless $source->type eq 'Chained';
     my $chainedSource = $source->getChainedAuthenticationSourceObject();
@@ -318,7 +317,7 @@ sub setupMatchParams : Private {
     my $portalSession = $c->portalSession;
     my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
-    my $params = { username => $pid, mac => $mac, connection => $c->session->{'connection'} };
+    my $params = { username => $pid, mac => $mac };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -427,7 +426,7 @@ sub createLocalAccount : Private {
         password                => $password,
     );
 
-    $logger->info("Local account for external source " . $c->session->{source_id} . " created with PID " . $auth_params->{username});
+    $logger->info("Local account for external source " . $c->session->{source_id}->id . " created with PID " . $auth_params->{username});
 }
 
 sub checkIfProvisionIsNeeded : Private {
@@ -522,7 +521,7 @@ sub authenticationLogin : Private {
         }
         $c->session(
             "username"  => $username,
-            "source_id" => $sources[0]->id,
+            "source_id" => $sources[0],
             "source_match" => \@sources,
         );
     } else {
@@ -534,9 +533,8 @@ sub authenticationLogin : Private {
             # save login into session
             $c->session(
                 "username"  => $username // $default_pid,
-                "source_id" => $source_id->id,
-                "source_match" => $source_id->id,
-                "connection" => $source_id->connection;
+                "source_id" => $source_id,
+                "source_match" => $source_id,
             );
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
@@ -653,7 +651,7 @@ sub validateMandatoryFields : Private {
     my $profile    = $c->profile;
     my ( $error_code, @error_args );
 
-    my $source = getAuthenticationSource($session->{source_id});
+    my $source = $session->{source_id};
 
     $c->log->info("Finding mandatory fields for source : ".$source->id);
 
@@ -710,7 +708,7 @@ sub _update_person {
   my @info = (
       (map { my $v = $session->{$_}; defined $v ? ($_ => $session->{$_}) :() } @PERSON_FIELDS),
       'portal'    => $profile->getName,
-      'source'    => $session->{source_id},
+      'source'    => $session->{source_id}->id,
   );
   person_modify($session->{username}, @info);
 }
