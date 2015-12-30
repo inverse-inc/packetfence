@@ -268,7 +268,7 @@ sub search {
         $count += $resultset->count;
     }
     $results{items} = \@items;
-    $results{pageCount} = int (($count + $rows) / $rows) ;
+    $results{page_count} = int (($count + $rows) / $rows) ;
     return ($status,\%results);
 }
 
