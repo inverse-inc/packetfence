@@ -100,6 +100,7 @@ sub map_column {
 sub process_query {
     my ($self,$query) = @_;
     my $new_query = $self->SUPER::process_query($query);
+    return unless defined $new_query;
     $new_query->[0] = $self->map_column($new_query->[0]);
     return $new_query;
 }

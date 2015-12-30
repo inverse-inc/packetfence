@@ -51,6 +51,7 @@ sub process_query {
     my @escape;
     my @where_args = ($query->{name}, $sql_op);
     my $value = $query->{value};
+    return unless defined $value;
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
         if($value =~ s/([%_])/\\$1/g) {
