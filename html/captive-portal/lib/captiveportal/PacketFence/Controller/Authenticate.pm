@@ -521,7 +521,7 @@ sub authenticationLogin : Private {
         }
         $c->session(
             "username"  => $username,
-            "source_id" => [$sources[0]],
+            "source_id" => $sources[0],
             "source_match" => \@sources,
         );
     } else {
@@ -533,7 +533,7 @@ sub authenticationLogin : Private {
             # save login into session
             $c->session(
                 "username"  => $username // $default_pid,
-                "source_id" => [$source_id],
+                "source_id" => $source_id,
                 "source_match" => $source_id,
             );
             # Logging USER/IP/MAC of the just-authenticated user
