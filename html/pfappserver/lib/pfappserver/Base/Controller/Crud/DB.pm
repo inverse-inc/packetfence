@@ -31,9 +31,9 @@ BEGIN {
 =cut
 
 sub list :Local :Args {
-    my ( $self, $c , $pageNum, $perPage) = @_;
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
+    my ( $self, $c) = @_;
+    my $pageNum = $c->request->param('page_num') // 1;
+    my $perPage = $c->request->param('per_page') // 25;
     my $model = $self->getModel($c);
     my ($status,$result) = $model->readAll($pageNum, $perPage);
     my $count = $model->countAll;
@@ -46,9 +46,9 @@ sub list :Local :Args {
         $c->stash(
             $itemsKey => $result,
             itemsKey  => $itemsKey,
-            pageNum   => $pageNum,
-            perPage   => $perPage,
-            pageCount => $pageCount,
+            page_num   => $pageNum,
+            per_page   => $perPage,
+            page_count => $pageCount,
         )
     }
 }
