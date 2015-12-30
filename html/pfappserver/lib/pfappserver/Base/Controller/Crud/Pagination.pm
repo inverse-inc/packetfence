@@ -19,6 +19,7 @@ use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use HTML::FormHandler::Params;
 use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 =head2 Methods
 
@@ -43,7 +44,7 @@ sub list :Local :Args {
         $c->error($c->loc($result));
     } else {
         my $itemsKey = $model->itemsKey;
-        my $pageCount = ceil( $result / $perPage);
+        my $pageCount = calc_page_count($result, $perPage);
         $c->stash(
             $itemsKey => $items,
             itemsKey  => $itemsKey,

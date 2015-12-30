@@ -15,6 +15,7 @@ pfappserver::Model::Config::Switch;
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
+use pf::util qw(calc_page_count);
 use pf::config;
 use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants is_error is_success);
@@ -113,7 +114,7 @@ sub search {
             $found_count++;
         }
     }
-    my $pageCount = ceil( $found_count / $perPage );
+    my $pageCount = calc_page_count($found_count, $perPage);
 #    my $count = @items;
 #    $end = $count - 1 if $end >= $count;
 #    @items = @items[$start..$end];
@@ -157,4 +158,3 @@ USA.
 =cut
 
 1;
-

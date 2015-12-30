@@ -17,6 +17,7 @@ use namespace::autoclean;
 use pf::RoseDB::Wrix::Manager;
 use HTTP::Status qw(:constants is_error is_success);
 use pf::log;
+use pf::util qw(calc_page_count);
 our %OP_MAP = (
     equal       => '=',
     not_equal   => '<>',
@@ -67,7 +68,7 @@ sub search {
         per_page => $perPage,
         query => [$all_or_any => \@queries]
     );
-    my $pageCount = int ($count / $perPage) + ($count % $perPage  ? 1 : 0);
+    my $pageCount = calc_page_count($count, $perPage);
     return (HTTP_OK, {
         #%$parameters,
         page_num => $pageNum,

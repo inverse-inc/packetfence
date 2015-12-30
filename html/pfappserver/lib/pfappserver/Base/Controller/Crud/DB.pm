@@ -18,6 +18,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use HTML::FormHandler::Params;
+use pf::util qw(calc_page_count);
 BEGIN {
     with 'pfappserver::Base::Controller::Crud' => {
         -excludes => [qw(list)],
@@ -37,7 +38,7 @@ sub list :Local :Args {
     my $model = $self->getModel($c);
     my ($status,$result) = $model->readAll($pageNum, $perPage);
     my $count = $model->countAll;
-    my $pageCount = int($count / $perPage) + ( $count % $perPage ? 1 : 0  );
+    my $pageCount = calc_page_count($count,$perPage);
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($c->loc($result));

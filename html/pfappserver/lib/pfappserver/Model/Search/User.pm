@@ -19,7 +19,7 @@ use pf::log;
 use pf::SearchBuilder;
 use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);
-use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
@@ -136,7 +136,7 @@ sub do_query {
     my ($count) = person_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{page_count} = ceil( $count / $per_page );
+    $results{page_count} = calc_page_count($count, $per_page);
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;

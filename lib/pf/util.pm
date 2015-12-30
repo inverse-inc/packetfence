@@ -71,6 +71,7 @@ BEGIN {
         fix_file_permissions
         strip_username
         generate_session_id
+        calc_page_count
     );
 }
 
@@ -1136,6 +1137,17 @@ sub generate_session_id {
     my ($length) = @_;
     $length //= 32;
     return substr(Digest::MD5::md5_hex(Digest::MD5::md5_hex(time(). {}. rand(). $$)), 0, $length);
+}
+
+=item $pageCount = calc_page_count($count, $perPage)
+
+Calculates the number of pages
+
+=cut
+
+sub calc_page_count {
+    my ($count, $perPage) = @_;
+    return POSIX::ceil( ($count + $perPage  - 1) / $perPage );
 }
 
 =back
