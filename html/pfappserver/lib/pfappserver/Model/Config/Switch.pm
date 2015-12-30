@@ -81,6 +81,8 @@ sub like_query {
     return $entry->{$name} =~ /\Q$value\E/;
 }
 
+sub true_query { 1 }
+
 =head2 search
 
 Search the config from query
@@ -96,7 +98,10 @@ sub search {
     my $start = ($pageNum - 1) * 25;
     my $end = $start + $perPage - 1;
     my $searchEntry = $query->{searches}->[0];
-    my $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
+    my $searchMethod = \&true_query;
+    if(defined $searchEntry->{value} ) {
+        $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
+    }
     my (@items,$item);
     my $found_count = 0;
     foreach my $id (@$ids) {
