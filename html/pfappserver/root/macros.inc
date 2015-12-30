@@ -20,6 +20,9 @@
 # Number of pages to show before and after the middle page in the list
     pageWrap = 3;
     pageWrapTotal = pageWrap * 2;
+    IF pageCount <= 0;
+        pageCount = 1;
+    END;
 # Calculate the first of the list
     firstPage = pageNumber - pageWrap;
     #Take care of wrap around
