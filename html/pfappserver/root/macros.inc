@@ -15,7 +15,7 @@
     [%- END -%]
 [%- END -%]
 
-[%- MACRO pagination(action, pageNumber, pageCount, query, from_form)  BLOCK -%]
+[%- MACRO pagination(action, pageNumber, pageCount, query, from_form, captures)  BLOCK -%]
 [%
 # Number of pages to show before and after the middle page in the list
     pageWrap = 3;
@@ -32,8 +32,12 @@
         firstPage = lastPage - pageWrapTotal;
         IF firstPage < 1; firstPage = 1; END;
     END;
+    add_captures = [];
+    IF captures.defined;
+        CALL add_captures.import(captures);
+    END;
     params = {};
-    params.import(query)
+    CALL params.import(query);
 %]
 <div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
   <ul>
@@ -41,11 +45,11 @@
     <li class="disabled"><span>&larr;</span></li>
     [% ELSE %]
     [% params.page_num = pageNumber - 1 %]
-    <li><a href="[% c.uri_for(action, params) %]">&larr;</a></li>
+    <li><a href="[% c.uri_for(action, add_captures, params) %]">&larr;</a></li>
     [% END %]
     [%- IF firstPage > 1 -%]
       [% params.page_num = 1 %]
-      <li><a href="[% c.uri_for(action, params) %]" title="Page 1">1</a></li>
+      <li><a href="[% c.uri_for(action, add_captures, params) %]" title="Page 1">1</a></li>
       <li class="disabled"><span>&hellip;</span></li>
     [%- END -%]
     [% currentPage = firstPage %]
@@ -54,20 +58,20 @@
       [%IF currentPage == pageNumber %]
         <li class="disabled"><span>[%currentPage%]</span></li>
       [% ELSE  %]
-        <li><a href="[% c.uri_for(action, params) %]">[%currentPage%]</a></li>
+        <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [%END%]
     [%currentPage = currentPage + 1%]
     [% END %]
     [%- IF lastPage < pageCount -%]
       [% params.page_num = pageCount %]
       <li class="disabled"><span>&hellip;</span></li>
-      <li><a href="[% c.uri_for(action, params)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
+      <li><a href="[% c.uri_for(action, add_captures, params)  %]" title="Page [% pageCount %]">[% pageCount %]</a></li>
     [%- END -%]
     [% IF pageNumber == lastPage %]
     <li class="disabled"><span>&rarr;</span></li>
     [% ELSE %]
       [% params.page_num = pageNumber + 1 %]
-    <li><a href="[% c.uri_for(action, params) %]">&rarr;</a></li>
+    <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
     [% END %]
   </ul>
 </div>
