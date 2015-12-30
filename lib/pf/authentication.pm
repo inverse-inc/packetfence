@@ -293,7 +293,7 @@ sub match {
 
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
-    } elsif (!(defined(ref($source_id)) && $source_id ne '') {
+    } elsif (!(defined(ref($source_id))) && $source_id ne '') {
         my $source = getAuthenticationSource($source_id);
         if (defined $source) {
             @sources = ($source);
