@@ -148,14 +148,14 @@ sub doEmailRegistration : Private {
             my %info;
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
-            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
+            $info{'unregdate'} = &pf::authentication::match([$source], $auth_params, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::match([$source], $auth_params, $Actions::SET_ROLE );
 
             pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $pf::auth_log::COMPLETED);
 
             $c->session->{"username"} = $pid;
             $c->session->{"unregdate"} = $info{'unregdate'};
-            $c->session->{source_id} = $source->{id};
+            $c->session->{source_id} = $source;
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
@@ -193,7 +193,7 @@ sub doEmailRegistration : Private {
 
             # we create a password using the actions from
             # the email authentication source;
-            my $actions = &pf::authentication::match( $source->{id}, $auth_params );
+            my $actions = &pf::authentication::match([$source], $auth_params );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -267,7 +267,7 @@ sub doSponsorRegistration : Private {
         }
         # Verify if the user has the role mark as sponsor
         my $source_match = $c->session->{source_match} || $c->session->{source_id};
-        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
+        my $value = &pf::authentication::match([$source_match], {username => $c->session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
         unless (defined $value) {
             $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
             $c->session->{username} = undef;
@@ -324,7 +324,7 @@ sub doSponsorRegistration : Private {
             pf::auth_log::record_completed_guest($source->id, $node_mac, $pf::auth_log::COMPLETED);
 
             $c->session->{"username"} = $pid;
-            $c->session->{source_id} = $source->{id};
+            $c->session->{source_id} = $source;
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
@@ -357,7 +357,7 @@ sub doSponsorRegistration : Private {
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-            my $actions = &pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
+            my $actions = &pf::authentication::match( [$source], { username => $pid, user_email => $pid } );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 

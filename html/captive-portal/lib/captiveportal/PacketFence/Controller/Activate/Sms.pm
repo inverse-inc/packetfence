@@ -66,13 +66,13 @@ sub index : Path : Args(0) {
         if ($source) {
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
-            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
+            $info{'unregdate'} = &pf::authentication::match([$source], $auth_params, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::match([$source], $auth_params, $Actions::SET_ROLE );
 
             pf::auth_log::record_completed_guest($source->id, $portalSession->clientMac, $pf::auth_log::COMPLETED);
             $c->session->{"username"} = $pid;
             $c->session->{"unregdate"} = $info{'unregdate'};
-            $c->session->{source_id} = $source->{id};
+            $c->session->{source_id} = $source;
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
             $c->stash->{sms_pin} = $request->param_encoded("pin");  # We are putting the SMS PIN in stash to use it as a password in case we create a local account
