@@ -14,6 +14,7 @@
         IF firstPage < 1; firstPage = 1; END;
     END;
 %]
+<h2></h2>
 <div class="pagination pagination-right">
   <ul>
     [% IF pageNumber == 1 %]
@@ -64,15 +65,19 @@
             <tr>
                 <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
                [% FOREACH display_column IN display_columns  %]
+                <td>
                  [% IF (display_column == 'auth_status') %]
                      [% IF (item.$display_column == 'Reject') %]
-                       <td><img src="/static/app/red.png"></td>
+                       <img src="/static/app/red.png">
                      [% ELSE %]
-                        <td><img src="/static/app/green.png"></td>
+                       <img src="/static/app/green.png">
                      [% END %]
+                 [% ELSIF display_column == 'mac' %]
+                  <a href="[% c.uri_for(c.controller('User').action_for('view'), [ item.$display_column ]) %]">[% item.$display_column %]</a>
                  [% ELSE %]
-                     <td>[%item.$display_column %]</td>
+                  [%item.$display_column %]
                  [% END %]
+                </td>
                [% END %]
             </tr>
         [% END %]

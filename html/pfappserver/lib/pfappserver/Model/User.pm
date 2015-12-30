@@ -89,7 +89,7 @@ sub read {
         return ($STATUS::OK, \@sorted_users);
     }
     else {
-        return ($STATUS::NOT_FOUND);
+        return ($STATUS::NOT_FOUND, "Item(s) not found");
     }
 }
 
