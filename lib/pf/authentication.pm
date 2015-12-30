@@ -290,17 +290,17 @@ sub match {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
         $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
     }
-
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
-    } elsif (($source_id ^ $source_id) && $source_id ne '') {
+    } elsif (defined($source_id->id)) {
+        @sources = ($source_id);
+    } else {
         my $source = getAuthenticationSource($source_id);
         if (defined $source) {
             @sources = ($source);
         }
-    } else {
-        @sources = ($source_id);
     }
+
     foreach my $source (@sources) {
         $actions = $source->match($params);
         next unless defined $actions;
