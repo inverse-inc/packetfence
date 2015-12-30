@@ -5,8 +5,6 @@
         <thead>
           <tr>
             <td colspan="2">
-              [% page_num %]
-              [% page_count %]
               [% pagination(c.controller.action_for(list_action), page_num, page_count, {}) | none %]
             </td>
           </tr>
