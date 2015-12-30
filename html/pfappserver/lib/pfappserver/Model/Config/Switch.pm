@@ -18,6 +18,7 @@ use pf::config::cached;
 use pf::config;
 use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants is_error is_success);
+use POSIX qw(ceil);
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -87,30 +88,35 @@ Search the config from query
 =cut
 
 sub search {
-    my ($self, $query, $pageNum, $perPage) = @_;
+    my ($self, $query) = @_;
     my ($status, $ids) = $self->readAllIds;
+    my ($pageNum, $perPage) = @{$query}{qw(page_num per_page)};
+    $pageNum = 1 unless defined $pageNum;
+    $perPage = 25 unless defined $perPage;
+    my $start = ($pageNum - 1) * 25;
+    my $end = $start + $perPage - 1;
     my $searchEntry = $query->{searches}->[0];
     my $searchMethod = $QUERY_METHOD_LOOKUP{$searchEntry->{op}};
     my (@items,$item);
+    my $found_count = 0;
     foreach my $id (@$ids) {
         next unless defined ($item = $self->configStore->read($id,$self->idKey));
-        push @items,$item if $self->$searchMethod($searchEntry,$item);
+        if ($self->$searchMethod($searchEntry,$item)) {
+            if($start <= $found_count && $found_count <= $end) {
+                push @items,$item;
+            }
+            $found_count++;
+        }
     }
-    my $pageCount = int( scalar @items / $perPage) + 1;
-    if(defined $pageNum || defined $perPage) {
-        my $count = @items;
-        $pageNum = 1 unless defined $pageNum;
-        $perPage = 25 unless defined $perPage;
-        my $start = ($pageNum - 1) * 25;
-        my $end = $start + $perPage - 1;
-        $end = $count - 1 if $end >= $count;
-        @items = @items[$start..$end];
-    }
+    my $pageCount = ceil( $found_count / $perPage );
+#    my $count = @items;
+#    $end = $count - 1 if $end >= $count;
+#    @items = @items[$start..$end];
     return (HTTP_OK,
         {   $self->itemsKey => \@items,
-            pageNum         => $pageNum,
-            perPage         => $perPage,
-            pageCount       => $pageCount,
+            page_num         => $pageNum,
+            per_page         => $perPage,
+            page_count       => $pageCount,
             itemsKey        => $self->itemsKey
         }
     );

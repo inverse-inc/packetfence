@@ -100,7 +100,7 @@ var SwitchView = function(options) {
 
     // pagination the switch
     var pagination = $.proxy(this.pagination, this);
-    options.parent.on('click', '#switches [href*="/list/"]', pagination);
+    options.parent.on('click', '#switches [href*="/list"]', pagination);
 
     // submit search
     options.parent.on('submit', '#switches #search', $.proxy(this.submitSearch, this));
@@ -109,7 +109,7 @@ var SwitchView = function(options) {
     options.parent.on('reset', '#switches #search', $.proxy(this.resetSearch, this));
 
     // pagination search
-    options.parent.on('click', '#switches [href*="/switch/search/"]', $.proxy(this.searchPagination, this));
+    options.parent.on('click', '#switches [href*="/switch/search"]', $.proxy(this.searchPagination, this));
 
 
 };
