@@ -115,14 +115,7 @@ form {
                     <tbody>
                       <tr class="row-fluid">
                         <td>
-                        [% per_page_options = BLOCK %]
-                          <select name="per_page" class="input-mini">
-                            [% FOREACH option IN [25,50,75,100,200,500,1000]%]
-                            <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
-                            [% END %]
-                          </select>
-                        [% END %]
-                        [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                        [% INCLUDE per_page_select.tt %]
                         </td>
                       </tr>
                       <tr class="row-fluid">
@@ -146,14 +139,7 @@ form {
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
                   <div>
-                    [% per_page_options = BLOCK %]
-                      <select name="per_page" class="input-mini">
-                        [% FOREACH option IN [25,50,75,100,200,500,1000]%]
-                        <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
-                        [% END %]
-                      </select>
-                    [% END %]
-                    [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                        [% INCLUDE per_page_select.tt %]
                   </div>
                   <div>
                     [% match_options = BLOCK %]

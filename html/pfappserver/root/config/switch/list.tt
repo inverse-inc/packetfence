@@ -4,6 +4,10 @@
             <th colspan="6">
               [% IF searchable %]
                 <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
+                  <div>
+                  [% INCLUDE per_page_select.tt %]
+                  </div>
+                  <br/>
                   <div class="pull-left">
                     [% name_value = form.field('searches.0.name').value%]
                     <select name="searches.0.name" class="input-medium">

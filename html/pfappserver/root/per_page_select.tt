@@ -1,0 +1,11 @@
+[%
+   DEFAULT per_page_options = [25,50,75,100,200,500,1000]    
+%]
+[% per_page_select = BLOCK %]
+  <select name="per_page" class="input-mini">
+    [% FOREACH option IN per_page_options %]
+    <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
+    [% END %]
+  </select>
+[% END %]
+[% l('Display [_1] entries per page', [per_page_select]) | none %]

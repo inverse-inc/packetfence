@@ -98,14 +98,7 @@ form {
               <div class="tab-pane active well" id="simple">
                 <form id="simpleUserSearch" method="POST" name="simpleUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('simple_search')) %]">
                     <div>
-                        [% per_page_options = BLOCK %]
-                          <select name="per_page" class="input-mini">
-                            [% FOREACH option IN [25,50,75,100,200,500,1000]%]
-                            <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
-                            [% END %]
-                          </select>
-                        [% END %]
-                        [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                        [% INCLUDE per_page_select.tt %]
                     </div>
                     <br/>
                   <input type="text" name="filter" placeholder="Search...">
@@ -126,14 +119,7 @@ form {
                     <thead>
                       <tr>
                         <td>
-                        [% per_page_options = BLOCK %]
-                          <select name="per_page" class="input-mini">
-                            [% FOREACH option IN [25,50,75,100,200,500,1000]%]
-                            <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
-                            [% END %]
-                          </select>
-                        [% END %]
-                        [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                        [% INCLUDE per_page_select.tt %]
                         </td>
                       <tr>
                       <tr>
