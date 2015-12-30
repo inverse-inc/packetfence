@@ -41,6 +41,8 @@ var NodeView = function(options) {
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
+    this.proxyClick($('body'), '.node [href*="node"][href$="/read"]', this.readNode);
+
     this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
 
     this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);

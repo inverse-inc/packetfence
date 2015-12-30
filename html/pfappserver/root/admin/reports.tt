@@ -12,7 +12,10 @@
         'admin/reports',
         'admin/config/items',
         'app/chosen.jquery.min',
-        'js/user'
+        'js/bootstrapSwitch',
+        'js/node',
+        'js/user',
+        'admin/nodes'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',

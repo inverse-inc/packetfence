@@ -63,19 +63,22 @@
            </thead>
         [% FOREACH item IN items %]
             <tr>
-                <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
+                <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
                [% FOREACH display_column IN display_columns  %]
-                <td>
                  [% IF (display_column == 'auth_status') %]
+                 <td>
                      [% IF (item.$display_column == 'Reject') %]
                        <img src="/static/app/red.png">
                      [% ELSE %]
                        <img src="/static/app/green.png">
                      [% END %]
+                 </td>
                  [% ELSIF display_column == 'mac' %]
-                  <a href="[% c.uri_for(c.controller('User').action_for('view'), [ item.$display_column ]) %]">[% item.$display_column %]</a>
+                 <td class="node">
+                  <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.$display_column ]) %]">[% item.$display_column %]</a>
+                 </td>
                  [% ELSE %]
-                  [%item.$display_column %]
+                   <td> [%item.$display_column %] </td>
                  [% END %]
                 </td>
                [% END %]
