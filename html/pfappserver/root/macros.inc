@@ -59,7 +59,7 @@
     [% WHILE currentPage <= lastPage %]
       [% params.page_num = currentPage %]
       [%IF currentPage == pageNumber %]
-        <li class="disabled"><span>[%currentPage%]</span></li>
+        <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [% ELSE  %]
         <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [%END%]
