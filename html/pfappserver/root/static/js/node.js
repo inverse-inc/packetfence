@@ -528,19 +528,24 @@ NodeView.prototype.toggleAllItems = function(e) {
 NodeView.prototype.submitItems = function(e) {
     var that = this;
     var target = $(e.currentTarget);
-    var status_container = $("#section").find('h2').first();
+    var section = $('#section');
+    var loader = section.prev('.loader');
+    var status_container = section.find('h2').first();
     var items = $("#items").serialize();
     if (items.length) {
-        this.nodes.post({
-            url: target.attr("data-target"),
-            data: items,
-            success: function(data) {
-                $("#section").one('section.loaded', function() {
-                    showSuccess($("#section").find('h2').first(), data.status_msg);
-                });
-                that.refreshPage();
-            },
-            errorSibling: status_container
+        loader.show();
+        section.fadeTo('fast', 0.5, function() {
+            that.nodes.post({
+                url: target.attr("data-target"),
+                data: items,
+                success: function(data) {
+                    $("#section").one('section.loaded', function() {
+                        showSuccess($("#section").find('h2').first(), data.status_msg);
+                    });
+                    that.refreshPage();
+                },
+                errorSibling: status_container
+            });
         });
     }
 };
