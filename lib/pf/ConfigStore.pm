@@ -120,7 +120,7 @@ Get all the sections as an array of hash refs
 sub readAll {
     my ($self,$idKey) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $config->{$self->default_section}  if(defined($self->default_section) && exists($config->{$self->default_section}));
+    my $default_section = $config->{default} if(defined($self->default_section) && exists($config->{default}));
     my @sections;
     foreach my $id ($self->_Sections()) {
         my $section = $self->read($id,$idKey);
@@ -199,9 +199,10 @@ sub readRaw {
     $id = $self->_formatSectionName($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my @default_params = $config->Parameters($config->{$self->default_section})  if(defined($self->default_section) && exists($config->{$self->default_section}));
+        my @default_params = $config->Parameters($config->{default})
+            if (exists $config->{default});
         $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id),@default_params) {
+        foreach my $param (uniq $config->Parameters($id), @default_params) {
             my $val;
             my @vals = $config->val($id, $param);
             if (@vals == 1 ) {
