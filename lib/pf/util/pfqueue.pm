@@ -15,17 +15,17 @@ pf::util::pfqueue - pfqueue
 use strict;
 use warnings;
 use pf::file_paths;
-use Config::IniFiles;
+use pf::log;
+use pf::config::pfqueue;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw();
     @EXPORT_OK = qw(task_counter_id);
 }
 
-=head2 task_counter_id
+=head2 $id = task_counter_id($queue, $type, $args)
 
 =cut
 
@@ -36,16 +36,6 @@ sub task_counter_id {
         $counter_id .= ":" . $args->[0];
     }
     return $counter_id;
-}
-
-=head2 load_config_hash
-
-=cut
-
-sub load_config_hash {
-    my ($self) = @_;
-    tie our %config ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
-    return \%config;
 }
 
 =head1 SUBROUTINES
