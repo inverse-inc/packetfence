@@ -37,9 +37,13 @@ sub build_child {
         my $data = delete $tmp_cfg{$queue_section};
         # Set defaults
         $data->{workers} //= 10;
-        $data->{delayed_queue_batch} //= 100;
-        # Normalize to milliseconds
-        $data->{delayed_queue_sleep} = ($data->{delayed_queue_sleep} // 100 ) * 1000;
+        $data->{has_delayed_queue} = isenabled($data->{has_delayed_queue});
+        if($data->{has_delayed_queue}) {
+            $data->{delayed_queue_batch} //= 100;
+            $data->{delayed_queue_workers} //= 1;
+            # Normalize to milliseconds
+            $data->{delayed_queue_sleep} = ($data->{delayed_queue_sleep} // 100 ) * 1000;
+        }
         push @{$tmp_cfg{queues}},{ %$data, name => $queue };
     }
     my %redis_args;
