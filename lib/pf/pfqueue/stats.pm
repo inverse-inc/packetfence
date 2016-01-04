@@ -96,9 +96,18 @@ sub queue_counts {
     my @queue_counts;
     foreach my $queue (@{$ConfigPfQueue{queues}}) {
         my $name = $queue->{name};
-        push @queue_counts,{ name => $name, count => $redis->llen("${PFQUEUE_QUEUE_PREFIX}${name}") };
+        push @queue_counts,{ name => $name, count => $self->queue_count($name) };
     }
     return \@queue_counts;
+}
+
+=head2 queue_count
+
+=cut
+
+sub queue_count {
+    my ($self, $queue) = @_;
+    return $self->redis->llen("${PFQUEUE_QUEUE_PREFIX}${queue}");
 }
 
 =head1 COPYRIGHT
