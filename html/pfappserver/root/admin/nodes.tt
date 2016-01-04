@@ -78,6 +78,23 @@ form {
               <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
               [%- END -%]
               [%- IF can_access("NODES_READ") -%]
+              <li class="nav-header">[% l('Standard Searches') %]</li>
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">Open Violations </a>
+                <form>
+                    <input type="hidden" name="searches.0.name" value="violation_status"/>
+                    <input type="hidden" name="searches.0.op" value="is"/>
+                    <input type="hidden" name="searches.0.value" value="open"/>
+                </form>
+              </li>
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">Closed Violations </a>
+                <form>
+                    <input type="hidden" name="searches.0.name" value="violation_status"/>
+                    <input type="hidden" name="searches.0.op" value="is"/>
+                    <input type="hidden" name="searches.0.value" value="closed"/>
+                </form>
+              </li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
