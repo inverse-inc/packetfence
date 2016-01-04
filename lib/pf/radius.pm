@@ -698,7 +698,7 @@ return RADIUS attributes or reject for switch login
 sub switch_access {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer = pf::StatsD::Timer->new();
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
@@ -709,7 +709,6 @@ sub switch_access {
         $logger->warn(
             "Unknown switch ($switch_ip). This request will be failed."
         );
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
     if ( isdisabled($switch->{_cliAccess})) {
