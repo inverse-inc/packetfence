@@ -12,7 +12,7 @@ Catalyst Model.
 
 use Moose;
 use namespace::autoclean;
-use pf::util::pfqueue;
+use pf::config::pfqueue;
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
 use Redis::Fast;
 
@@ -58,27 +58,16 @@ sub _counter_map {
 
 sub redis {
     my ($self) = @_;
-    return Redis::Fast->new( %{$self->redis_options});
-}
-
-sub redis_options {
-    my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
-    my $consumer_options = $config->{consumer};
-    my %options;
-    foreach my $key ( map {s/^redis_(.*)$//;$1} keys %$consumer_options ) {
-        $options{$key} = $consumer_options->{"redis_$key"};
-    }
-    return \%options;
+    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
 }
 
 sub queue_counts {
     my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
     my $redis = $self->redis;
     my @queue_counts;
-    foreach my $queue (map {s/^queue (.*)$//;$1} grep {/^queue /} keys %$config) {
-        push @queue_counts,{ name => $queue, count => $redis->llen("${PFQUEUE_QUEUE_PREFIX}${queue}") };
+    foreach my $queue (@{$ConfigPfQueue{queues}}) {
+        my $name = $queue->{name};
+        push @queue_counts,{ name => $name, count => $redis->llen("${PFQUEUE_QUEUE_PREFIX}${name}") };
     }
     return \@queue_counts;
 }
