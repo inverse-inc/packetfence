@@ -126,15 +126,18 @@ To the following
   operator=regex
   value=^00:
 
-Violations configuration changes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pf.conf configuration file changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Violations have been reworked and configuration changes are necessary in order to maintain functionnality.
-
-The following parameters have been removed from pf.conf
+The following parameters have been removed from pf.conf. Make sure to remove them from your file if configured.
 
 * alerting.wins_server
 * alerting.admin_netbiosname
+
+violations.conf configuration file changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Violations have been reworked and configuration changes are necessary in order to maintain functionnality.
 
 In violations.conf the following actions have been renamed, please update them accordingly.
 
@@ -146,8 +149,6 @@ The following action have been removed from the violations :
 * popup
 
 Also in violations.conf, the parameter whitelisted_categories has been renamed into whitelisted_roles
-
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Billing configuration change
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -166,6 +167,8 @@ Mod_qos configuration changes
 
 Mod_qos configuration has been moved from "services" to "captive_portal" section.
 Make sure to apply the appropriate changes if needed.
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.5.0).
 
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
