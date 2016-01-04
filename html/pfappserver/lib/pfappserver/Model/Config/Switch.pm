@@ -19,7 +19,6 @@ use pf::util qw(calc_page_count);
 use pf::config;
 use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants is_error is_success);
-use POSIX qw(ceil);
 
 extends 'pfappserver::Base::Model::Config';
 

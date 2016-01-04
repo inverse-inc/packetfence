@@ -18,7 +18,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use HTML::FormHandler::Params;
-use POSIX qw(ceil);
 use pf::util qw(calc_page_count);
 
 =head2 Methods
