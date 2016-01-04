@@ -8,6 +8,7 @@
     <option value="notes">[% l('Notes') %]</option>
     <option value="person_name">[% l('Person name') %]</option>
     <option value="violation">[% l('Violation name') %]</option>
+    <option value="violation_status">[% l('Violation Status') %]</option>
     <option value="user_agent">[% l('User agent') %]</option>
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="switch_ip">[% l('Source switch IP') %]</option>
