@@ -536,7 +536,7 @@ CREATE TABLE radacct (
   PRIMARY KEY  (radacctid),
   KEY username (username),
   KEY framedipaddress (framedipaddress),
-  KEY acctsessionid_username_nasip (acctsessionid,username,nasipaddress),
+  KEY acctsessionid_username_nasip (acctsessionid),
   KEY acctsessiontime (acctsessiontime),
   KEY acctuniqueid (acctuniqueid),
   KEY acctstarttime (acctstarttime),
