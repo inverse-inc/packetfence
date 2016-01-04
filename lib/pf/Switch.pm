@@ -2773,13 +2773,14 @@ sub returnRadiusAccessAccept {
     }
 
     $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( (defined($role) && $role ne "") ? "and role $role" : "" ));
+    my $status = $RADIUS::RLM_MODULE_OK;
     if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test('returnRadiusAccessAccept', $args);
-        $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     }
 
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    return [$status, %$radius_reply_ref];
 }
 
 =item returnRoleAttributes
@@ -3084,6 +3085,45 @@ Return the cache for the namespace switch
 sub cache {
    my ($self) = @_;
    return pf::CHI->new( namespace => 'switch' );
+}
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $radius_reply_ref = {};
+    my $status = $RADIUS::RLM_MODULE_FAIL;
+    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for enable access login";
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    if (defined($rule)) {
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
+    return [$status, %$radius_reply_ref];
+
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    my $radius_reply_ref ={};
+    my $status = $RADIUS::RLM_MODULE_FAIL;
+    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for read access login";
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeRead', $args);
+    if (defined($rule)) {
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    }
+    return [$status, %$radius_reply_ref];
 }
 
 =back

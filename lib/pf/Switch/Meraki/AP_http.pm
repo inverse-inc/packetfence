@@ -101,6 +101,7 @@ sub returnRadiusAccessAccept {
     my $logger = $self->logger;
 
     my $radius_reply_ref = {};
+    my $status;
 
     # should this node be kicked out?
     my $kick = $self->handleRadiusDeny($args);
@@ -119,14 +120,14 @@ sub returnRadiusAccessAccept {
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
         };
-        $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
 
     }
     else{
         $logger->info("Returning ACCEPT");
-        $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
     }
 
 }

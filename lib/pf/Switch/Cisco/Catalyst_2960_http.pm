@@ -153,9 +153,8 @@ sub returnRadiusAccessAccept {
 
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
 }
 
 =head2 radiusDisconnect

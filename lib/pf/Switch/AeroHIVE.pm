@@ -233,7 +233,7 @@ sub returnRadiusAccessAccept {
     my $logger = $self->logger;
 
     my $radius_reply_ref = {};
-
+    my $status;
     # should this node be kicked out?
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
@@ -269,9 +269,9 @@ sub returnRadiusAccessAccept {
 
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
 
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
 =item returnRoleAttribute

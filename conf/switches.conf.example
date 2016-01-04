@@ -23,6 +23,7 @@ macDetectionRole = macDetection
 voiceRole = voice
 inlineRole = inline
 VoIPEnabled = N
+cliAccess = N
 VlanMap = Y
 RoleMap = Y
 

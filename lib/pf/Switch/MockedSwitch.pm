@@ -3021,6 +3021,29 @@ sub cache {
    return pf::CHI->new( namespace => 'switch' );
 }
 
+=item returnAuthorizeWrite
+
+Return RADIUS attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "PacketFence does not support this switch for enable access login" ) ];
+
+}
+
+=item returnAuthorizeRead
+
+Return RADIUS attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "PacketFence does not support this switch for enable access login" ) ];
+}
+
 =back
 
 =head1 AUTHOR

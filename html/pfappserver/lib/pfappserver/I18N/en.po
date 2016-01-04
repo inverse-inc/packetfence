@@ -2758,6 +2758,14 @@ msgstr "Switches - Read"
 msgid "SWITCHES_UPDATE"
 msgstr "Switches - Update"
 
+# pf::admin_roles (Actions)
+msgid "SWITCH_LOGIN_READ"
+msgstr "Switches CLI - Read"
+
+# pf::admin_roles (Actions)
+msgid "SWITCH_LOGIN_WRITE"
+msgstr "Switches CLI - Write"
+
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt

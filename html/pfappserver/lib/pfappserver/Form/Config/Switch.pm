@@ -89,6 +89,13 @@ has_field 'AccessListMap' =>
    label => 'Role by access list',
    default => undef,
   );
+has_field 'cliAccess' =>
+  (
+   type => 'Toggle',
+   label => 'CLI Access Enabled',
+   tags => { after_element => \&help,
+             help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
+  );
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',
@@ -235,7 +242,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
