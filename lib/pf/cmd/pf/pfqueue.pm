@@ -27,9 +27,17 @@ use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
 use Redis::Fast;
-use pf::util::pfqueue;
+use pf::config::pfqueue;
+use pf::pfqueue::stats;
 use base qw(pf::base::cmd::action_cmd);
 our @STATS_FIELDS = qw(name queue count);
+our @COUNT_FIELDS = qw(name count);
+our $STATS_FORMAT = "  %-20s %-10s %-20s\n";
+our $COUNT_FORMAT = "  %-20s %-10s\n";
+
+sub stats {
+    return pf::pfqueue::stats->new;
+}
 
 =head2 action_clear
 
@@ -53,10 +61,8 @@ List all the queue
 
 sub action_list {
     my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
-    my $inifile = tied(%$config);
-    foreach my $queue ( map { s/^queue //;$_} $inifile->GroupMembers("queue")) {
-        print "$queue\n";
+    foreach my $queue (@{$ConfigPfQueue{queues}}) {
+        print "$queue->{name}\n";
     }
     return $EXIT_SUCCESS;
 }
@@ -69,13 +75,21 @@ Stats all the queue
 
 sub action_stats {
     my ($self) = @_;
-    my $counters = $self->counters;
-    my $format = "%-20s %-10s %-20s\n";
-    print sprintf($format, @STATS_FIELDS);
-    foreach my $counter (@$counters) {
-        print sprintf($format, @{$counter}{@STATS_FIELDS});
-    }
+    my $stats = $self->stats;
+    $self->_print_counters("Queue Counts\n", $COUNT_FORMAT, \@COUNT_FIELDS, $stats->queue_counts);
+    $self->_print_counters("Outstanding Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->counters);
+    $self->_print_counters("Expired Task Counters\n", $STATS_FORMAT, \@STATS_FIELDS, $stats->miss_counters);
+    print "\n";
     return $EXIT_SUCCESS;
+}
+
+sub _print_counters {
+    my ($self, $title, $format, $fields, $counters) = @_;
+    print "\n$title\n";
+    print sprintf($format, @$fields);
+    foreach my $counter (@$counters) {
+        print sprintf($format, @{$counter}{@$fields});
+    }
 }
 
 =head2 action_count
@@ -91,41 +105,9 @@ sub action_count {
     return $EXIT_SUCCESS;
 }
 
-sub counters {
-    my ($self) = @_;
-    my $redis = $self->redis;
-    my %counters = $redis->hgetall($PFQUEUE_COUNTER);
-    my @counters = map { &_counter_map(\%counters, $_) } sort keys %counters;
-    return \@counters;
-}
-
-sub _counter_map {
-    my ($counters, $key) = @_;
-    $key =~ /Queue:([^:]+):(.*)$/;
-    my $queue = $1;
-    my $name = $2;
-    my %counter = (
-        name => $name,
-        queue => $queue,
-        count => $counters->{$key},
-    );
-    return \%counter;
-}
-
 sub redis {
     my ($self) = @_;
-    return Redis::Fast->new( %{$self->redis_options});
-}
-
-sub redis_options {
-    my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
-    my $consumer_options = $config->{consumer};
-    my %options;
-    foreach my $key ( map {s/^redis_(.*)$//;$1} keys %$consumer_options ) {
-        $options{$key} = $consumer_options->{"redis_$key"};
-    }
-    return \%options;
+    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
 }
 
 =head1 AUTHOR
