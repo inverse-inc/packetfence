@@ -80,7 +80,7 @@ form {
               [%- IF can_access("NODES_READ") -%]
               <li class="nav-header">[% l('Standard Searches') %]</li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">Open Violations </a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Open Violations') %]</a>
                 <form>
                     <input type="hidden" name="searches.0.name" value="violation_status"/>
                     <input type="hidden" name="searches.0.op" value="is"/>
@@ -88,7 +88,7 @@ form {
                 </form>
               </li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">Closed Violations </a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Closed Violations') %]</a>
                 <form>
                     <input type="hidden" name="searches.0.name" value="violation_status"/>
                     <input type="hidden" name="searches.0.op" value="is"/>
