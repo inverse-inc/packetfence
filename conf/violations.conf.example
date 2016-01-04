@@ -19,7 +19,7 @@ snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emer
 # and all the roles names you defined in the node_category table. (see switches.conf)
 vlan=isolation
 # if you add a role/category here, nodes in these roles/categories will be immune to the violation
-whitelisted_categories=
+whitelisted_roles=
 template=generic
 
 [1100001]
