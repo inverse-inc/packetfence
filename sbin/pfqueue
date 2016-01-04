@@ -34,6 +34,7 @@ BEGIN {
 
 use pf::file_paths;
 use pf::util;
+use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
 use Config::IniFiles;
@@ -44,9 +45,6 @@ pf::client::setClient("pf::api::can_fork");
 use threads;
 use pf::factory::task;
 
-tie our %CONFIG ,'Config::IniFiles' => (-file => "$install_dir/conf/pfqueue.conf");
-
-our $config = tied %CONFIG;
 
 # initialization
 # --------------
@@ -96,7 +94,6 @@ pf::SwitchFactory::preLoadModules();
 register_tasks();
 wait_for_it();
 cleanup();
-$config = undef;
 
 END {
     if (!$args{h} && $HAS_LOCK && !$IS_CHILD) {
@@ -116,25 +113,22 @@ Register all tasks
 =cut
 
 sub register_tasks {
-    foreach my $section ($config->GroupMembers('queue')) {
-        my $name = $section;
-        next unless $name =~ s/^queue +//;
-        my $worker = $config->val($section, 'workers', 10);
+    foreach my $queue_config (@{$ConfigPfQueue{queues}} ) {
+        my $name = $queue_config->{name};
+        my $worker = $queue_config->{workers};
         foreach (1 .. $worker) {
             register_task("Queue:$name",\&process_queue, {  queue_name => "Queue:$name"});
         }
-        my $has_delayed_queue = isenabled($config->val($section, 'has_delayed_queue', 0));
-        if ($has_delayed_queue) {
+        if ($queue_config->{has_delayed_queue}) {
             my $delayed_queue = "Delayed:$name";
             my $submit_queue = "Queue:$name";
             my $parameters = {
                 'delay_queue' => $delayed_queue,
                 'submit_queue' => $submit_queue,
-                'batch' => $config->val($section, 'delayed_queue_batch', 100),
-                'batch_sleep' => $config->val($section, 'delayed_queue_sleep', 100) * 1000,
+                'batch' => $queue_config->{delayed_queue_batch},
+                'batch_sleep' => $queue_config->{delayed_queue_sleep},
             };
-            my $delayed_queue_workers = $config->val($section, 'delayed_queue_workers', 1);
-            for(1 .. $delayed_queue_workers) {
+            for(1 .. $queue_config->{delayed_queue_workers}) {
                 register_task($delayed_queue, \&process_delayed_jobs, $parameters );
             }
         }
@@ -375,7 +369,7 @@ sub child_sighandler2 {
     }
 }
 
-=head2 get_consumer($id, $param_hash)
+=head2 $consumer = get_consumer($id, $param_hash)
 
 get consumer
 
@@ -383,9 +377,8 @@ get consumer
 
 sub get_consumer {
     my ($id, $parameters) = @_;
-    my $consumer;
-    eval {
-        $consumer = pf::pfqueue::consumer::redis->new({ %{$CONFIG{"consumer"}}, %$parameters, redis_name => $id });
+    my $consumer = eval {
+        pf::pfqueue::consumer::redis->new({ %{$ConfigPfQueue{"consumer"}}, %{$parameters || {}}, redis_name => $id })
     };
     if ($@) {
         $logger->error($@);
@@ -422,3 +415,4 @@ USA.
 
 =cut
 
+1;

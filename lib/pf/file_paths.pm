@@ -56,6 +56,7 @@ our (
     $wrix_config_file,
     $firewall_sso_config_file,
     $pfdetect_config_file,
+    $pfqueue_config_file,
     $allowed_device_oui_file, $allowed_device_types_file,
     $apache_filters_config_file,
     $cache_control_file,
@@ -107,6 +108,7 @@ BEGIN {
         @stored_config_files
         $firewall_sso_config_file
         $pfdetect_config_file
+        $pfqueue_config_file
         $allowed_device_oui_file $allowed_device_types_file
         $apache_filters_config_file
         $cache_control_file
@@ -178,6 +180,7 @@ $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
+$pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
@@ -203,7 +206,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
   httpd.proxy.access httpd.proxy.error httpd.proxy.log
   httpd.proxy.reverse.access httpd.proxy.reverse.error
   httpd.webservices.access httpd.webservices.error
-  packetfence.log pfbandwidthd.log pfdetect.log
+  packetfence.log pfbandwidthd.log pfdetect.log pfqueue.log
   pfdhcplistener.log pfdns.log pfmon.log pfconfig.log
 );
 
@@ -218,7 +221,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
-    $wmi_config_file,$pfdetect_config_file,
+    $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
     $radius_filters_config_file,
     $dhcp_filters_config_file,
