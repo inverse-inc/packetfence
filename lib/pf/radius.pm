@@ -718,7 +718,10 @@ sub switch_access {
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
-
+    if ( isdisabled($switch->{_cliAccess})) {
+        $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI Access is not allowed by PacketFence on this switch") ];
+    }
     my $args = {
         switch => $switch,
         switch_mac => $switch_mac,
