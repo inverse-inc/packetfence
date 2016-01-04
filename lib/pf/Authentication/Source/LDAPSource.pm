@@ -23,9 +23,8 @@ use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config;
 use List::MoreUtils qw(uniq);
-use pf::StatsD;
+use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use Time::HiRes;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -92,7 +91,8 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
-  my $start = Time::HiRes::gettimeofday();
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}"});
   my $before; # will hold time before StatsD calls
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
@@ -109,49 +109,46 @@ sub authenticate {
 
   my $filter = "($self->{'usernameattribute'}=$username)";
 
-  $before = Time::HiRes::gettimeofday();
-  $result = $connection->search(
-    base => $self->{'basedn'},
-    filter => $filter,
-    scope => $self->{'scope'},
-    attrs => ['dn']
-  );
-  $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".search.timing" , $before, 0.25 ); 
+  $result = do {
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search"});
+    $connection->search(
+      base => $self->{'basedn'},
+      filter => $filter,
+      scope => $self->{'scope'},
+      attrs => ['dn']
+    );
+  };
 
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    $pf::StatsD::statsd->end(called() . "." .  $self->{'id'} .".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} .".error.count" );
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} .".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   my $user = $result->entry(0);
 
-  $before = Time::HiRes::gettimeofday();
-  $result = $connection->bind($user->dn, password => $password);
-  $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".bind.timing" , $before, 0.25 );
+  $result = do {
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.bind"});
+    $connection->bind($user->dn, password => $password)
+  };
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.25 ); 
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
-  $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.25 ); 
   return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
@@ -166,8 +163,9 @@ if all connections fail
 
 sub _connect {
   my $self = shift;
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
   my $connection;
-  my $start = Time::HiRes::gettimeofday();
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
@@ -197,24 +195,21 @@ sub _connect {
     # try TLS if required, return undef if it fails
     if ( $self->{'encryption'} eq TLS ) {
       my $mesg = $connection->start_tls();
-      if ( $mesg->code() ) { 
-          $logger->error("[$self->{'id'}] ".$mesg->error()); 
-          $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-          $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start );
-          return undef; 
+      if ( $mesg->code() ) {
+          $logger->error("[$self->{'id'}] ".$mesg->error());
+          $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
+          return undef;
       }
     }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
-    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
+    $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
   }
-  $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start );
   return undef;
 }
 
@@ -227,18 +222,17 @@ sub _connect {
 
 sub match {
     my ($self, $params) = @_;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
     if($self->is_match_cacheable) {
         my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
                 $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
                 my $result =   $self->SUPER::match($params);
                 return $result;
             });
-        $pf::StatsD::statsd->end(called() . "." . $self->id . ".timing" , $start, 0.1 );
         return $result;
     }
     my $result = $self->SUPER::match($params);
-    $pf::StatsD::statsd->end(called() . "." . $self->id . ".timing" , $start, 0.1 );
     return $result;
 }
 
@@ -286,13 +280,12 @@ Conditions that match are added to C<$matching_conditions>.
 =cut
 
 sub match_in_subclass {
-
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
-        $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
         return undef;
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
@@ -302,25 +295,24 @@ sub match_in_subclass {
     if (! defined($filter)) {
         $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
         return undef;
     }
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    my $before = Time::HiRes::gettimeofday();
-    my $result = $connection->search(
-      base => $self->{'basedn'},
-      filter => $filter,
-      scope => $self->{'scope'},
-      attrs => \@attributes
-    );
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".search.timing" , $before, 0.1 );
+    my $result = do {
+        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search", sample_rate => 0.1});
+        $connection->search(
+          base => $self->{'basedn'},
+          filter => $filter,
+          scope => $self->{'scope'},
+          attrs => \@attributes
+        )
+    };
 
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
         return undef;
     }
 
@@ -368,12 +360,12 @@ sub match_in_subclass {
               );
             if ($result->is_error || $result->count != 1) {
                 $entry_matches = 0;
-                if ( $result->is_error ) { 
+                if ( $result->is_error ) {
                     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
                     $logger->error(
                         "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
-                        . $result->error . ")."); 
-                } 
+                        . $result->error . ").");
+                }
 
                 if ($rule->match eq $Rules::ALL) {
                     last;
@@ -391,12 +383,10 @@ sub match_in_subclass {
             # That is normal, as we used them all to build our LDAP filter.
             $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
-            $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
             return $params->{'username'} || $params->{'email'};
         }
     }
 
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
     return undef;
 }
 
@@ -454,7 +444,8 @@ for the usernameattribute - to match it in the source.
 
 sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
-  my $start = Time::HiRes::gettimeofday();
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
   my (@ldap_conditions, $expression);
   $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
@@ -497,7 +488,6 @@ sub ldap_filter_for_conditions {
       }
   }
 
-  $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
   return $expression;
 }
 
@@ -508,16 +498,16 @@ sub ldap_filter_for_conditions {
 sub bind_with_credentials {
     my ($self,$connection) = @_;
     my $result;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     if ($self->{'binddn'} && $self->{'password'}) {
         $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     } else {
         $result = $connection->bind;
     }
-    if ($result->is_error) {    
+    if ($result->is_error) {
         $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-    } 
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
+    }
     return $result;
 }
 
@@ -527,17 +517,16 @@ sub bind_with_credentials {
 
 sub search_attributes_in_subclass {
     my ($self, $username) = @_;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
-      $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-      $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start);
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $searchresult = $connection->search(
@@ -562,8 +551,6 @@ sub search_attributes_in_subclass {
             }
         }
     }
-
-    $pf::StatsD::statsd->end(called() . "." . $self->{'id'} . ".timing" , $start, 0.1 );
     return $info;
 }
 

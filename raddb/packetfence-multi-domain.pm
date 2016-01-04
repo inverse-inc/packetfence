@@ -12,7 +12,7 @@ This module finds the Domain to use from the Realm defined in FreeRADIUS
 
 Note1:
 
-Our pf::config package loads all the earth. 
+Our pf::config package loads all the earth.
 This code is executed both in the PacketFence and PacketFence tunnel in FreeRADIUS
 We need access to the ConfigDomain hash so either we should go though the the ConfigStore directly or find a better way to load it's configuration
 
@@ -31,7 +31,7 @@ use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 use pfconfig::cached_hash;
 use pf::util::statsd qw(called);
-use pf::StatsD;
+use pf::StatsD::Timer;
 our %ConfigRealm;
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
@@ -51,10 +51,10 @@ RADIUS calls this method to authorize clients.
 =cut
 
 sub authorize {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() });
     # For debugging purposes only
     #&log_request_attributes;
 
-    my $start = Time::HiRes::gettimeofday();
     # We try to find the realm that's configured in PacketFence
     my $realm;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
@@ -66,7 +66,7 @@ sub authorize {
 
     #use Data::Dumper;
     #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
-    
+
     if( defined($realm) && defined($realm->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm->{domain};
@@ -76,12 +76,10 @@ sub authorize {
         # We use it's domain for authentication.
         $RAD_REQUEST{"PacketFence-Domain"} = $ConfigRealm{"default"}->{domain};
     }
-    # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)    
-        
-    $pf::StatsD::statsd->end("freeradius::" . called() . ".timing" , $start );
-    
+    # If it doesn't go into any of the conditions above, then the behavior will be the same as before (non chrooted ntlm_auth)
+
     return $RADIUS::RLM_MODULE_UPDATED;
-        
+
 }
 
 sub log_request_attributes {

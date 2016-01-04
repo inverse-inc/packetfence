@@ -24,9 +24,8 @@ use File::Basename;
 use pf::log;
 use pf::config;
 use pfconfig::cached_hash;
-use pf::StatsD;
+use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use Time::HiRes;
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -180,7 +179,7 @@ sub get_db_handle {
 
 sub db_data {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
 
     my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
 
@@ -190,8 +189,6 @@ sub db_data {
         push( @array, $ref );
     }
     $sth->finish();
-    
-    $pf::StatsD::statsd->end(called() . ".$query.timing" , $start, 0.1 );
     return (@array);
 }
 
@@ -219,7 +216,7 @@ sub db_data {
 # afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
     my $logger = get_logger();
 
     # argument validation
@@ -328,7 +325,6 @@ sub db_query_execute {
         $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
             .(caller(1))[3]." and we failed. Is the database running?");
         $pf::StatsD::statsd->increment(called() . ".error.count" );
-        $pf::StatsD::statsd->end(called() . ".$query.timing" , $start );
         return;
     } else {
         return $db_statement;
