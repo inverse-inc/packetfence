@@ -742,7 +742,7 @@ sub switch_access {
             if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
                 return $switch->returnAuthorizeRead($args);
             }
-            $logger->info("User $args->{'user_name'} has no role (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE) to permit to login in $args->{'switch'}{'_id'}");
+            $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
             return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
         }
     } else {
