@@ -10,10 +10,10 @@ pf::cmd::pf::pfqueue
 
   Commands:
 
-   clear <queue>    | clear the queue
-   list             | list all the current queues
-   stats            | show the stats
-   count <queue>    | show the count of the a queue
+   clear <queue>    | clear a queue
+   list             | list all queues
+   stats            | show stats of pfqueue
+   count <queue>    | show the queue count
 
 =head1 DESCRIPTION
 
@@ -100,9 +100,7 @@ sub _print_counters {
 sub action_count {
     my ($self) = @_;
     my ($queue) = $self->action_args;
-    my $redis = $self->redis;
-    my $real_queue = "Queue:$queue";
-    print $redis->llen($real_queue),"\n";
+    print $self->stats->queue_count($queue),"\n";
     return $EXIT_SUCCESS;
 }
 
