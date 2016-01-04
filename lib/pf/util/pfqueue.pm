@@ -17,12 +17,13 @@ use warnings;
 use pf::file_paths;
 use pf::log;
 use pf::config::pfqueue;
+use Redis::Fast;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(task_counter_id);
+    @EXPORT_OK = qw(task_counter_id consumer_redis_client);
 }
 
 =head2 $id = task_counter_id($queue, $type, $args)
@@ -37,6 +38,16 @@ sub task_counter_id {
     }
     return $counter_id;
 }
+
+=head2 consumer_redis_client
+
+=cut
+
+sub consumer_redis_client {
+    my ($self) = @_;
+    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
+}
+
 
 =head1 SUBROUTINES
 
