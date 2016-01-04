@@ -2,7 +2,7 @@ package pf::config::pfqueue;
 
 =head1 NAME
 
-pf::config::pfqueue -
+pf::config::pfqueue - Configuration from conf/pfqueue.conf
 
 =cut
 
