@@ -128,7 +128,7 @@ sub register_tasks {
                 'batch' => $queue_config->{delayed_queue_batch},
                 'batch_sleep' => $queue_config->{delayed_queue_sleep},
             };
-            for(1 .. $data->{delayed_queue_workers}) {
+            for(1 .. $queue_config->{delayed_queue_workers}) {
                 register_task($delayed_queue, \&process_delayed_jobs, $parameters );
             }
         }
