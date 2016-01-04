@@ -13,6 +13,7 @@ pf::pfqueue::stats - Object for collecting pfqueue stats
 use Moo;
 use namespace::autoclean;
 use pf::config::pfqueue;
+use pf::util::pfqueue qw(consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
 use Redis::Fast;
 
@@ -82,7 +83,7 @@ sub _counter_map {
 
 sub _build_redis {
     my ($self) = @_;
-    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
+    consumer_redis_client();
 }
 
 =head2 $queue_counts = $self->queue_counts();

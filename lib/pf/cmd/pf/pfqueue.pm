@@ -26,10 +26,11 @@ use warnings;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER);
-use Redis::Fast;
 use pf::config::pfqueue;
+use pf::util::pfqueue qw(consumer_redis_client);
 use pf::pfqueue::stats;
 use base qw(pf::base::cmd::action_cmd);
+
 our @STATS_FIELDS = qw(name queue count);
 our @COUNT_FIELDS = qw(name count);
 our $STATS_FORMAT = "  %-20s %-10s %-20s\n";
@@ -48,7 +49,7 @@ Clear a queue
 sub action_clear {
     my ($self) = @_;
     my ($queue) = $self->action_args;
-    my $redis = $self->redis;
+    my $redis = consumer_redis_client();
     $redis->del("Queue:$queue");
     return $EXIT_SUCCESS;
 }
@@ -103,11 +104,6 @@ sub action_count {
     my $real_queue = "Queue:$queue";
     print $redis->llen($real_queue),"\n";
     return $EXIT_SUCCESS;
-}
-
-sub redis {
-    my ($self) = @_;
-    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
 }
 
 =head1 AUTHOR
