@@ -43,7 +43,7 @@ function init() {
             var end_time_input = $('#end_time');
             end_date_input.datepicker("setDate", end_time);
             end_time_input.timepicker("setTime", end_time.toTimeString());
-
+            return false;
         });
         $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
             var match = /(.+)Empty/.exec(event.delegateTarget.id);
