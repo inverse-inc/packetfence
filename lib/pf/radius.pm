@@ -696,7 +696,7 @@ sub logger {
 
 =item switch_access
 
-return radius attributes or reject for switch login
+return RADIUS attributes or reject for switch login
 
 =cut
 
@@ -712,8 +712,7 @@ sub switch_access {
     # is switch object correct?
     if (!$switch) {
         $logger->warn(
-            "Can't instantiate switch ($switch_ip). This request will be failed. "
-            ."Are you sure your switches.conf is correct?"
+            "Unknown switch ($switch_ip). This request will be failed."
         );
         $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
@@ -734,7 +733,7 @@ sub switch_access {
     };
 
     my ( $return, $message, $source_id ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
-    if ( defined($return) && $return == 1 ) {
+    if ( defined($return) && $return == $TRUE ) {
         my $value = &pf::authentication::match($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
         if ($value) {
             if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
@@ -747,8 +746,8 @@ sub switch_access {
             return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
         }
     } else {
-        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failled");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failled" ) ];
+        $logger->info("User $args->{'user_name'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed" ) ];
     }
 }
 

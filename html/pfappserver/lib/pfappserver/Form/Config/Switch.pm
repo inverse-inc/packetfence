@@ -94,7 +94,7 @@ has_field 'cliAccess' =>
    type => 'Toggle',
    label => 'CLI Access Enabled',
    tags => { after_element => \&help,
-             help => 'Allow this switch to use PacketFence as a radius server for cli access'},
+             help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
   );
 has_field 'VoIPEnabled' =>
   (

@@ -142,6 +142,12 @@ sub soh_authorize : Public {
     return $return;
 }
 
+=head2 radius_switch_access
+
+Return RADIUS attributes to allow switch's CLI access
+
+=cut
+
 sub radius_switch_access : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();

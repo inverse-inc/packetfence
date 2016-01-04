@@ -3023,7 +3023,7 @@ sub cache {
 
 =item returnAuthorizeWrite
 
-Return radius attributes to allow write access
+Return RADIUS attributes to allow write access
 
 =cut
 
@@ -3035,7 +3035,7 @@ sub returnAuthorizeWrite {
 
 =item returnAuthorizeRead
 
-Return radius attributes to allow read access
+Return RADIUS attributes to allow read access
 
 =cut
 
