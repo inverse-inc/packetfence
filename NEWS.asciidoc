@@ -26,7 +26,6 @@ Enhancements
 * Return a hash that contain role and optionally the vlan id from fetchRoleForNode.
 * Test if the role changed to define if we have to reevaluate the access.
 * New columns bypass_vlan and bypass_role are allowed to be import for nodes
-* Code cleanup
 * Violation triggering from web admin will add even if there is still a grace period
 * Ability to add date based filter condition (is before date, is after date)
 * Avoid unneccesary calls to the database when using vlan filtering
