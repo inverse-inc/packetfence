@@ -78,10 +78,6 @@ sub get_namespace {
 
     my @args;
     ($name, @args) = pfconfig::util::parse_namespace($name);
-    my $args_size = @args;
-    if($args_size){
-        $self->add_namespace_to_overlay($full_name);
-    }
 
     my $type   = "pfconfig::namespaces::$name";
 
@@ -97,35 +93,36 @@ sub get_namespace {
     return $elem;
 }
 
-sub add_namespace_to_overlay {
-    my ($self, $namespace) = @_;
-    my $logger = pfconfig::log::get_logger;
-    $logger->info("We're doing namespace overlaying for $namespace");
+=head2 is_overlayed_namespace
 
-    my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
+Returns 0 if the namespace is static, 1 if it is an overlayed namespace
 
-    my $ns_index = first_index {$_ eq $namespace} @$namespaces;
-    if($ns_index == -1){
-        push @$namespaces, $namespace;
-    }
-    $self->{cache}->set('_namespace_overlay', $namespaces);
-}
+=cut
 
 sub is_overlayed_namespace {
     my ($self, $base_namespace) = @_;
-    if($base_namespace =~ /.*\(.+\)/){
+    if($base_namespace =~ /.*\(.+\)$/){
         return 1;
     }
     return 0;
 }
 
+=head2 overlayed_namespaces
+
+Returns the overlayed namespaces for a static namespace
+  ex : 
+    static namespace : "config::Pf"
+    overlayed namespaces : ("config::Pf(some-argument)", "config::Pf(another-argument)")
+
+=cut
+
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
 
+    # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
-    my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
-    my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
+    my @namespaces = @{ $self->all_overlayed_namespaces() };
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
@@ -134,6 +131,17 @@ sub overlayed_namespaces {
         }
     }
     return @overlayed_namespaces;
+}
+
+=head2 all_overlayed_namespaces
+
+Returns an Array ref of all the overlayed namespaces persisted in the backend
+
+=cut
+
+sub all_overlayed_namespaces {
+    my ($self) = @_;
+    return [ $self->{cache}->list_matching('\(.*\)$') ];
 }
 
 =head2 new
@@ -391,7 +399,7 @@ sub list_namespaces {
     my ( $self, $what ) = @_;
 
     my $static_namespaces = $self->list_static_namespaces();
-    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
+    my $overlayed_namespaces = $self->all_overlayed_namespaces;
     return (@$static_namespaces, @$overlayed_namespaces);
 }
 

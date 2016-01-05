@@ -12,6 +12,8 @@ pf::cmd::pf::pfconfig
    expire <namespace>  | expire a pfconfig namespace 
    reload              | reload all pfconfig namespaces
    list                | list all pfconfig namespaces
+   list_overlayed      | list overlayed namespaces
+   list_backend        | list namespaces persisted in the backend - can be passed a regex
    show <namespace>    | rebuild and display a pfconfig namespace
    get <namespace>     | display a pfconfig namespace from pfconfig process
    clear_backend       | clear the backend of pfconfig
@@ -109,6 +111,46 @@ sub action_list {
     my @namespaces = $manager->list_namespaces();
     foreach my $namespace (@namespaces){
         print "$namespace\n";
+    }
+    return $EXIT_SUCCESS;
+}
+
+=head2 action_list_overlayed
+
+List all pfconfig overlayed namespaces
+
+=cut
+
+sub action_list_overlayed {
+    my ($self) = @_;
+    my $manager = pfconfig::manager->new;
+    my @namespaces = @{ $manager->all_overlayed_namespaces() };
+    foreach my $namespace (@namespaces){
+        print "$namespace\n";
+    }
+    return $EXIT_SUCCESS;
+}
+
+=head2 action_list_backend
+
+List pfconfig namespaces persisted in the backend
+
+=cut
+
+sub action_list_backend {
+    my ($self) = @_;
+    my ($matching) = $self->action_args;
+    my $manager = pfconfig::manager->new;
+    my @keys;
+    if($matching){
+        @keys = $manager->{cache}->list_matching($matching);
+    }
+    else {
+        @keys = $manager->{cache}->list();
+    }
+    print "Namespaces : \n";
+    foreach my $key (@keys){
+        print "$key\n";
     }
     return $EXIT_SUCCESS;
 }
