@@ -2,11 +2,11 @@ package pf::pfqueue::stats;
 
 =head1 NAME
 
-pf::pfqueue::stats - Object for collecting pfqueue stats
+pf::pfqueue::stats
 
 =head1 DESCRIPTION
 
-
+Object for collecting pfqueue stats
 
 =cut
 
