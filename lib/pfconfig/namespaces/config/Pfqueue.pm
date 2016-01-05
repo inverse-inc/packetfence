@@ -20,6 +20,12 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths;
 use pf::util;
+use pf::constants::pfqueue qw(
+    $PFQUEUE_WORKERS_DEFAULT
+    $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT
+    $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT
+    $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -36,13 +42,13 @@ sub build_child {
         $queue =~ s/^queue //;
         my $data = delete $tmp_cfg{$queue_section};
         # Set defaults
-        $data->{workers} //= 10;
+        $data->{workers} //= $PFQUEUE_WORKERS_DEFAULT;
         $data->{has_delayed_queue} = isenabled($data->{has_delayed_queue});
         if($data->{has_delayed_queue}) {
-            $data->{delayed_queue_batch} //= 100;
-            $data->{delayed_queue_workers} //= 1;
+            $data->{delayed_queue_batch} //= $PFQUEUE_DELAYED_QUEUE_BATCH_DEFAULT;
+            $data->{delayed_queue_workers} //= $PFQUEUE_DELAYED_QUEUE_WORKERS_DEFAULT;
             # Normalize to milliseconds
-            $data->{delayed_queue_sleep} = ($data->{delayed_queue_sleep} // 100 ) * 1000;
+            $data->{delayed_queue_sleep} = ($data->{delayed_queue_sleep} // $PFQUEUE_DELAYED_QUEUE_SLEEP_DEFAULT ) * 1000;
         }
         push @{$tmp_cfg{queues}},{ %$data, name => $queue };
     }
