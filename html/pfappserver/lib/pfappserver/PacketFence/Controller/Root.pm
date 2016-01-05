@@ -82,7 +82,9 @@ sub end : ActionClass('RenderView') {
         $c->clear_errors;
     }
     elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
-        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+        unless($c->stash->{dont_localize_status_msg}){
+            $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+        }
     }
 }
 

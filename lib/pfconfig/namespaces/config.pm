@@ -43,6 +43,7 @@ sub _parse_error {
     my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
     print STDERR "$message\n";
     pfconfig::log::get_logger->error($message);
+    $self->{parse_error} = $message;
 }
 
 sub build {
