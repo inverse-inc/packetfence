@@ -230,9 +230,9 @@ sub radius_audit_log_view_all {
 }
 
 sub radius_audit_log_cleanup {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
-    my $start = Time::HiRes::gettimeofday();
     $logger->debug(sub { "calling radius_audit_log_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit" });
     my $now = db_now();
     my $start_time = time;
@@ -249,7 +249,6 @@ sub radius_audit_log_cleanup {
         last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
     }
     $logger->trace( "deleted $rows_deleted entries from radius_audit_log during radius_audit_log cleanup ($start_time $end_time) " );
-    $pf::StatsD::statsd->end(called() . ".timing" , $start, 0.2 );
     return (0);
 }
 
