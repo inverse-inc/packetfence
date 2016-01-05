@@ -414,8 +414,8 @@ locationlog=0D
 # Time which you would like to keep radius audit log entries
 # A value of 0D disables expiration.
 # example:
-# radius_audit_log=180D
-radius_audit_log=1W
+# radius_audit_log=30D
+radius_audit_log=30D
 
 [services]
 #
