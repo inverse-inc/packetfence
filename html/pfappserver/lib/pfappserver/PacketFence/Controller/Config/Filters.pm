@@ -48,6 +48,7 @@ our %CONFIGSTORE_MAP = (
 our %ENGINE_MAP = (
     "vlan-filters" => "FilterEngine::VlanScopes",
     "radius-filters" => "FilterEngine::RadiusScopes",
+    "apache-filters" => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
 );
 
 =head1 METHODS
@@ -77,7 +78,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     my $manager = pfconfig::manager->new;
     my $namespace = $manager->get_namespace($ENGINE_MAP{$c->stash->{id}});
     $namespace->build();
-    if(@{$namespace->{errors}} > 0){
+    if(defined($namespace->{errors}) && @{$namespace->{errors}} > 0){
         my @errors = map {$self->_clean_error($_)} @{$namespace->{errors}};
         $c->stash->{dont_localize_status_msg} = $TRUE;
         $c->stash->{status_msg} = "There are errors in the file, check server side logs for details : ".join(", ", @errors);
