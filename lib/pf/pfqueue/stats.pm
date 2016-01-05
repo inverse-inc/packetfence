@@ -53,7 +53,7 @@ sub _get_counters_for {
     my ($self, $counter_name) = @_;
     my $redis = $self->redis;
     my %counters = $redis->hgetall($counter_name);
-    my @counters = map { &_counter_map(\%counters, $_) } sort keys %counters;
+    my @counters = map { _counter_map(\%counters, $_) } sort keys %counters;
     return \@counters;
 }
 
