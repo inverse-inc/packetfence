@@ -20,10 +20,10 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(%ConfigPfQueue);
+    @EXPORT = qw(%ConfigPfqueue);
 }
 
-tie our %ConfigPfQueue, 'pfconfig::cached_hash', 'config::Pfqueue';
+tie our %ConfigPfqueue, 'pfconfig::cached_hash', 'config::Pfqueue';
 
 =head1 AUTHOR
 

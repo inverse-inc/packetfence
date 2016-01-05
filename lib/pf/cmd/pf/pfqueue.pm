@@ -62,7 +62,7 @@ List all the queue
 
 sub action_list {
     my ($self) = @_;
-    foreach my $queue (@{$ConfigPfQueue{queues}}) {
+    foreach my $queue (@{$ConfigPfqueue{queues}}) {
         print "$queue->{name}\n";
     }
     return $EXIT_SUCCESS;

@@ -113,7 +113,7 @@ Register all tasks
 =cut
 
 sub register_tasks {
-    foreach my $queue_config (@{$ConfigPfQueue{queues}} ) {
+    foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
         my $name = $queue_config->{name};
         my $worker = $queue_config->{workers};
         foreach (1 .. $worker) {
@@ -378,7 +378,7 @@ get consumer
 sub get_consumer {
     my ($id, $parameters) = @_;
     my $consumer = eval {
-        pf::pfqueue::consumer::redis->new({ %{$ConfigPfQueue{"consumer"}}, %{$parameters || {}}, redis_name => $id })
+        pf::pfqueue::consumer::redis->new({ %{$ConfigPfqueue{"consumer"}}, %{$parameters || {}}, redis_name => $id })
     };
     if ($@) {
         $logger->error($@);

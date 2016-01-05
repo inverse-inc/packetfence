@@ -45,7 +45,7 @@ sub task_counter_id {
 
 sub consumer_redis_client {
     my ($self) = @_;
-    return Redis::Fast->new( %{$ConfigPfQueue{consumer}{redis_args}});
+    return Redis::Fast->new( %{$ConfigPfqueue{consumer}{redis_args}});
 }
 
 

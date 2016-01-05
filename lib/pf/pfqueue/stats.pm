@@ -94,7 +94,7 @@ sub queue_counts {
     my ($self) = @_;
     my $redis = $self->redis;
     my @queue_counts;
-    foreach my $queue (@{$ConfigPfQueue{queues}}) {
+    foreach my $queue (@{$ConfigPfqueue{queues}}) {
         my $name = $queue->{name};
         push @queue_counts,{ name => $name, count => $self->queue_count($name) };
     }
