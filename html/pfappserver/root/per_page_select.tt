@@ -1,10 +1,11 @@
 [%
-   DEFAULT per_page_options = [25,50,75,100,200,500,1000]    
+   DEFAULT per_page_options = [25,50,75,100,200,500,1000]
 %]
 [% per_page_select = BLOCK %]
   <select name="per_page" class="input-mini">
     [% FOREACH option IN per_page_options %]
     <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
+    <option value="18446744073709551615" [% "selected=selected" IF per_page == 18446744073709551615 %]>l('All')</option>
     [% END %]
   </select>
 [% END %]
