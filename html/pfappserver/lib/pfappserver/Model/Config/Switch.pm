@@ -114,9 +114,6 @@ sub search {
         }
     }
     my $pageCount = calc_page_count($found_count, $perPage);
-#    my $count = @items;
-#    $end = $count - 1 if $end >= $count;
-#    @items = @items[$start..$end];
     return (HTTP_OK,
         {   $self->itemsKey => \@items,
             page_num         => $pageNum,
