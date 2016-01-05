@@ -24,6 +24,7 @@
         'admin/config/soh',
         'admin/config/roles',
         'admin/config/scan-wmi',
+        'admin/config/filters',
         'js/interface',
         'js/bootstrapSwitch',
         ]

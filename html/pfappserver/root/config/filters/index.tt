@@ -16,6 +16,7 @@
   <div class="tab-pane fade in active" id="[% tab %]">
     <form method="POST" id="filtersForm" action="[% c.uri_for(c.controller.action_for('update'), [ tab ]) %]">
     <div id="editor" style="position:relative;height:450px;">[% content %]</div>
+    <script>filtersView.setupEditor()</script>
     <div class="form-actions">
       <input type="submit" class="btn btn-primary" value="Save">
     </div>
@@ -23,27 +24,3 @@
   </div>
 </div>
 
-<script>
-  var editor = ace.edit("editor");
-  editor.setTheme("ace/theme/monokai");
-  editor.getSession().setMode("ace/mode/perl");
-
-  $('#filtersForm').submit(function(e){
-    e.preventDefault();
-    var jthis = $(this);
-    $.ajax({
-        url: jthis.attr("action"),
-        type: 'POST',
-        data: { content : editor.getValue() },
-    })
-    .done(function(data){
-      showSuccess(jthis, data.status_msg);
-    })
-    .fail(function(jqXHR) {
-        var status_msg = getStatusMsg(jqXHR);
-        showPermanentError(jthis, status_msg);
-    });
-    return false;
-  });
-
-</script>
