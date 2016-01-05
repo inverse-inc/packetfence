@@ -46,6 +46,7 @@ use pf::CHI;
 use pf::access_filter::dhcp;
 
 use List::MoreUtils qw(uniq);
+use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
@@ -1108,6 +1109,17 @@ sub process_dhcpv6 : Public {
     pf::fingerbank::process(\%fingerbank_query_args);
 
     pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
+}
+
+=head2 copy_directory
+
+Copy a directory on this server
+
+=cut
+
+sub copy_directory : Public {
+    my ($class, $source_dir, $dest_dir) = @_;
+    return dircopy($source_dir, $dest_dir);
 }
 
 =head1 AUTHOR

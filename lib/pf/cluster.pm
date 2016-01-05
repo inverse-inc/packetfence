@@ -211,6 +211,38 @@ sub members_ips {
     return \%data;
 }
 
+=head2 api_call_each_server
+
+Call an API method on each member of the cluster
+
+=cut
+
+sub api_call_each_server {
+    my ($asynchronous, $api_method, %api_args) = @_;
+    
+    require pf::api::jsonrpcclient;
+    my @failed;
+    foreach my $server (@cluster_servers){
+        next if($server->{host} eq $host_id);
+        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        eval {
+            pf::log::get_logger->info("Calling $api_method on $server->{host}");
+            my $result;
+            unless($asynchronous){
+                ($result) = $apiclient->call($api_method, %api_args );
+            }
+            else {
+                ($result) = $apiclient->notify($api_method, %api_args );
+            }
+        };
+        if($@){
+            pf::log::get_logger->error("Failed to call $api_method . $@");
+            push @failed, $server->{host};
+        }
+    }
+    return \@failed;
+}
+
 =head2 sync_files
 
 Sync files through all members of a cluster
@@ -219,29 +251,23 @@ Sync files through all members of a cluster
 
 sub sync_files {
     my ($files, %options) = @_;
-    my $asynchronous = $options{async};
-    require pf::api::jsonrpcclient;
-    foreach my $server (@cluster_servers){
-        next if($server->{host} eq $host_id);
-        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
-        foreach my $file (@$files){
-            eval {
-                pf::log::get_logger->info("Synching file : $file on $server->{host}");
-                my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-                my $result;
-                unless($asynchronous){
-                    ($result) = $apiclient->call( 'distant_download_configfile', %data );
-                }
-                else {
-                    ($result) = $apiclient->notify( 'distant_download_configfile', %data );
-                }
-            };
-            if($@){
-              pf::log::get_logger->error("Failed to sync file : $file . $@");
-            }
-        }
+    my @failed;
+    foreach my $file (@$files){
+        my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
+        push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
     }
+    return \@failed;
+}
 
+=head2 send_dir_copy
+
+Send a message to the other cluster servers to copy a directory from their filesystem
+
+=cut
+
+sub send_dir_copy {
+    my ($source_dir, $dest_dir, %options) = @_;
+    return api_call_each_server($options{async}, 'copy_directory', $source_dir, $dest_dir);
 }
 
 =head2 sync_storages
