@@ -37,6 +37,7 @@ Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 * Remove old entries in ipset session
 * Always reevaluate the access if the order come from the admin gui (#1056)
+* Portal profiles templates are now properly synced between members of a cluster (#942)
 
 Version 5.5.2 released on 2015-12-07
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
