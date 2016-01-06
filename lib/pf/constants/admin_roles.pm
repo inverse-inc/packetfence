@@ -179,6 +179,12 @@ our @ADMIN_ACTIONS = qw(
     TRAFFIC_SHAPING_DELETE
     TRAFFIC_SHAPING_READ
     TRAFFIC_SHAPING_UPDATE
+
+    SYSLOG_CREATE
+    SYSLOG_DELETE
+    SYSLOG_READ
+    SYSLOG_UPDATE
+
 );
 
 # Actions not allowed in readonly mode
