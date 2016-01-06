@@ -92,7 +92,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     $namespace->build();
     if(defined($namespace->{errors}) && @{$namespace->{errors}} > 0){
         my @errors = map {$self->_clean_error($_)} @{$namespace->{errors}};
-        $c->stash->{status_msg} = [ "There are errors in the file, check server side logs for details : [_1]", join(", ", @errors) ];
+        $c->stash->{status_msg} = [ "There are errors in the file, check server side logs for details : [_1]. Your file has been saved but the configuration has not been made active.", join(", ", @errors) ];
         $c->response->status(HTTP_BAD_REQUEST);
     }
     else {
@@ -101,7 +101,7 @@ sub update :Chained('object') :PathPart :Args(0) {
         # Reload it in pfconfig and sync in cluster
         my ($success, $msg) = $c->stash->{object}->commitPfconfig();
         unless($success){
-            $c->stash->{status_msg} = [ "There was an error saving the filters : [_1]", $msg ];
+            $c->stash->{status_msg} = [ "There was an error saving the filters : [_1]. Your file has been saved but the configuration has not been made active.", $msg ];
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
         }
         else {

@@ -46,6 +46,7 @@ FiltersView.prototype.enableButtons = function() {
 }
 
 FiltersView.prototype.update = function(e){
+  var that = this;
   e.preventDefault();
 
   var jthis = $(e.target);
@@ -56,6 +57,8 @@ FiltersView.prototype.update = function(e){
   })
   .done(function(data){
     showSuccess(jthis, data.status_msg);
+    that.initialValue = that.editor.getValue();
+    that.disableButtons();
   })
   .fail(function(jqXHR) {
       var status_msg = getStatusMsg(jqXHR);
