@@ -2,15 +2,18 @@
 
 <div class="tab-content">
   <ul style="font-size:130%" class="nav nav-tabs">
-  <li [% IF tab == 'vlan-filters' %]class="active"[% END %]>
-    <a href="#config/filters/vlan-filters">[% l('VLAN filters') %]</a>
-  </li>
-  <li [% IF tab == 'radius-filters' %]class="active"[% END %]>
-    <a href="#config/filters/radius-filters">[% l('RADIUS filters') %]</a>
-  </li>
-  <li [% IF tab == 'apache-filters' %]class="active"[% END %]>
-    <a href="#config/filters/apache-filters">[% l('Apache filters') %]</a>
-  </li>
+    <li [% IF tab == 'vlan-filters' %]class="active"[% END %]>
+      <a href="#config/filters/vlan-filters">[% l('VLAN filters') %]</a>
+    </li>
+    <li [% IF tab == 'radius-filters' %]class="active"[% END %]>
+      <a href="#config/filters/radius-filters">[% l('RADIUS filters') %]</a>
+    </li>
+    <li [% IF tab == 'apache-filters' %]class="active"[% END %]>
+      <a href="#config/filters/apache-filters">[% l('Apache filters') %]</a>
+    </li>
+    <li [% IF tab == 'dhcp-filters' %]class="active"[% END %]>
+      <a href="#config/filters/dhcp-filters">[% l('DHCP filters') %]</a>
+    </li>
   </ul>
 
   [%- IF can_access("FILTERS_UPDATE") %]

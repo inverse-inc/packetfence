@@ -19,9 +19,6 @@ use pf::config::cached;
 use File::Slurp;
 use pf::constants::filters qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 use pfconfig::manager;
-use pf::ConfigStore::VlanFilters;
-use pf::ConfigStore::RadiusFilters;
-use pf::ConfigStore::ApacheFilters;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
