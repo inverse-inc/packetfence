@@ -76,6 +76,12 @@ sub build {
     return \%AccessScopes;
 }
 
+=head2 _error
+
+Record and display an error that occured while building the engine
+
+=cut
+
 sub _error {
     my ($self, $msg, $add_info) = @_;
     $add_info //= "";
