@@ -1,55 +1,29 @@
-package pf::util::pfqueue;
+package pf::config::pfqueue;
 
 =head1 NAME
 
-pf::util::pfqueue - pfqueue
+pf::config::pfqueue
 
 =cut
 
 =head1 DESCRIPTION
 
-=head1 WARNING
+Configuration from conf/pfqueue.conf
 
 =cut
 
 use strict;
 use warnings;
-use pf::file_paths;
-use pf::log;
-use pf::config::pfqueue;
-use Redis::Fast;
+use pfconfig::cached_hash;
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT_OK = qw(task_counter_id consumer_redis_client);
+    @EXPORT = qw(%ConfigPfqueue);
 }
 
-=head2 $id = task_counter_id($queue, $type, $args)
-
-=cut
-
-sub task_counter_id {
-    my ($queue, $type, $args) = @_;
-    my $counter_id = "${queue}:${type}";
-    if ($type eq 'api' && ref ($args) eq 'ARRAY') {
-        $counter_id .= ":" . $args->[0];
-    }
-    return $counter_id;
-}
-
-=head2 consumer_redis_client
-
-=cut
-
-sub consumer_redis_client {
-    my ($self) = @_;
-    return Redis::Fast->new( %{$ConfigPfqueue{consumer}{redis_args}});
-}
-
-
-=head1 SUBROUTINES
+tie our %ConfigPfqueue, 'pfconfig::cached_hash', 'config::Pfqueue';
 
 =head1 AUTHOR
 
@@ -57,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

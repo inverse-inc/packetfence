@@ -12,77 +12,19 @@ Catalyst Model.
 
 use Moose;
 use namespace::autoclean;
-use pf::util::pfqueue;
-use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
-use Redis::Fast;
+use pf::pfqueue::stats;
 
 extends 'Catalyst::Model';
 
+has stats => (
+    is      => 'rw',
+    default => sub {
+        return pf::pfqueue::stats->new;
+    },
+    handles => [qw(counters miss_counters queue_counts)],
+);
+
 =head1 METHODS
-
-=head2 counters
-
-=cut
-
-sub counters {
-    my ($self) = @_;
-    return $self->_get_counters_for($PFQUEUE_COUNTER);
-}
-
-sub miss_counters {
-    my ($self) = @_;
-    return $self->_get_counters_for($PFQUEUE_EXPIRED_COUNTER);
-}
-
-sub _get_counters_for {
-    my ($self, $counter_name) = @_;
-    my $redis = $self->redis;
-    my %counters = $redis->hgetall($counter_name);
-    my @counters = map { &_counter_map(\%counters, $_) } sort keys %counters;
-    return \@counters;
-}
-
-sub _counter_map {
-    my ($counters, $key) = @_;
-    $key =~ /^\Q$PFQUEUE_QUEUE_PREFIX\E([^:]+):(.*)$/;
-    my $queue = $1;
-    my $name = $2;
-    my %counter = (
-        name => $name,
-        queue => $queue,
-        count => $counters->{$key},
-    );
-    return \%counter;
-}
-
-
-sub redis {
-    my ($self) = @_;
-    return Redis::Fast->new( %{$self->redis_options});
-}
-
-sub redis_options {
-    my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
-    my $consumer_options = $config->{consumer};
-    my %options;
-    foreach my $key ( map {s/^redis_(.*)$//;$1} keys %$consumer_options ) {
-        $options{$key} = $consumer_options->{"redis_$key"};
-    }
-    return \%options;
-}
-
-sub queue_counts {
-    my ($self) = @_;
-    my $config = pf::util::pfqueue::load_config_hash;
-    my $redis = $self->redis;
-    my @queue_counts;
-    foreach my $queue (map {s/^queue (.*)$//;$1} grep {/^queue /} keys %$config) {
-        push @queue_counts,{ name => $queue, count => $redis->llen("${PFQUEUE_QUEUE_PREFIX}${queue}") };
-    }
-    return \@queue_counts;
-}
-
 
 =head1 COPYRIGHT
 
