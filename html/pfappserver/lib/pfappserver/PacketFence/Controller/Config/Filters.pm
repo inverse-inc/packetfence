@@ -96,7 +96,15 @@ sub update :Chained('object') :PathPart :Args(0) {
     else {
         pf::config::cached::ReloadConfigs($TRUE);
         $manager->expire($c->stash->{object}->pfconfigNamespace);
-        $c->stash->{status_msg} = "Successfully installed new rules.";
+        my ($success, $msg) = $c->stash->{object}->commitPfconfig();
+        unless($success){
+            $c->stash->{dont_localize_status_msg} = $TRUE;
+            $c->stash->{status_msg} = "There was an error saving the filters : $msg";
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+        }
+        else {
+            $c->stash->{status_msg} = "Successfully installed new rules.";
+        }
     }
 
 
