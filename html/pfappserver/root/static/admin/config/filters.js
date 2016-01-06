@@ -35,7 +35,6 @@ FiltersView.prototype.update = function(e){
         var status_msg = getStatusMsg(jqXHR);
         showPermanentError(jthis, status_msg);
     });
-    return false;
 
     return false;
 }
