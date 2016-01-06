@@ -34,6 +34,12 @@ sub build {
     my ($self)            = @_;
     my $config   = $self->parentConfig;
     my %AccessFiltersConfig = %{$config->build};
+
+    $self->{errors} = [];
+    if($config->{parse_error}){
+        push @{$self->{errors}}, $config->{parse_error};
+    }
+
     $self->{prebuilt_conditions} = {};
     my (%AccessScopes, @filter_data, %filters_scopes);
     foreach my $rule (@{$config->{ordered_sections}}) {
@@ -44,7 +50,7 @@ sub build {
             $logger->info("Building rule '$rule'");
             my ($parsed_conditions, $msg) = parse_condition_string($condition);
             unless (defined $parsed_conditions) {
-                warn("Error building rule '$rule' \n$msg");
+                $self->_error("Error building rule '$rule'", $msg);
                 next;
             }
             $data->{_rule} = $rule;
@@ -54,7 +60,7 @@ sub build {
             $logger->info("Building condition '$rule'");
             my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
             unless (defined $condition) {
-                warn("Error building condition '$rule'\n");
+                $self->_error("Error building condition '$rule'");
                 next;
             }
             $self->{prebuilt_conditions}{$rule} = $condition;
@@ -70,6 +76,20 @@ sub build {
     return \%AccessScopes;
 }
 
+=head2 _error
+
+Record and display an error that occured while building the engine
+
+=cut
+
+sub _error {
+    my ($self, $msg, $add_info) = @_;
+    my $long_msg = $msg. (defined($add_info) ? " : $add_info" : '');
+    warn($long_msg."\n");
+    get_logger->error($long_msg);
+    push @{$self->{errors}}, $msg;
+}
+
 sub build_filter {
     my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
     my $condition = eval { $self->build_filter_condition($parsed_conditions) };
@@ -79,8 +99,7 @@ sub build_filter {
             condition => $condition,
         });
     } else {
-        get_logger->error($@) if $@;
-        warn("Error build rule '$data->{_rule}'\n");
+        $self->_error("Error build rule '$data->{_rule}'", $@)
     }
 }
 

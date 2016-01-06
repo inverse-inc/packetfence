@@ -4328,6 +4328,14 @@ msgstr "SoH Filters - Read"
 msgid "SOH_UPDATE"
 msgstr "SoH Filters - Update"
 
+# pf::admin_roles (Actions)
+msgid "FILTERS_READ"
+msgstr "Filter engines - Read"
+
+# pf::admin_roles (Actions)
+msgid "FILTERS_UPDATE"
+msgstr "Filter engines - Update"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/config/wrix/view.tt
