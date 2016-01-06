@@ -265,11 +265,13 @@ sub _build_dispatcherSession {
     my ($self) = @_;
     my $session = new pf::Portal::Session()->session;
     my %session_data;
+    my $logger = get_logger();
     foreach my $key ($session->param) {
-        get_logger->debug("Adding session parameter from dispatcher session to Catalyst session : $key : ".$session->param($key));
-        $session_data{$key} = $session->param($key);
+        my $value = $session->param($key);
+        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . $value // 'undef' });
+        $session_data{$key} = $value;
     }
-    get_logger->info("External captive portal detected !") if($session_data{is_external_portal});
+    $logger->info("External captive portal detected !") if($session_data{is_external_portal});
 
     return \%session_data;
     return 1;
