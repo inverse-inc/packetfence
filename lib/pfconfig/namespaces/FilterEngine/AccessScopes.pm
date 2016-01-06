@@ -78,6 +78,7 @@ sub build {
 
 sub _error {
     my ($self, $msg, $add_info) = @_;
+    $add_info //= "";
     warn($msg."\n");
     get_logger->error("$msg : $add_info");
     push @{$self->{errors}}, $msg;
