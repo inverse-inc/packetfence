@@ -93,9 +93,9 @@ Search fingerbank
 =cut
 
 sub search : Chained('scope') : PathPart('search') : Args() {
-    my ($self, $c, $pageNum, $perPage) = @_;
-    $pageNum ||= 1;
-    $perPage ||= 25;
+    my ($self, $c) = @_;
+    my $pageNum = $c->request->param('page_num') // 1;
+    my $perPage = $c->request->param('per_page') // 25;
     my $model = $self->getModel($c);
     my $search_fields = $model->search_fields;
     my $value = $c->request->param('value');
@@ -109,7 +109,7 @@ sub search : Chained('scope') : PathPart('search') : Args() {
         }
     );
     if (is_success($status)) {
-        $c->stash(%$result, pageNum => $pageNum, perPage => $perPage, action => 'search', value => $value);
+        $c->stash(%$result, page_num => $pageNum, per_page => $perPage, action => 'search', value => $value);
     }
     else {
         $c->stash(

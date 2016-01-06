@@ -1,4 +1,3 @@
-[% PROCESS config/fingerbank/pagination.tt %]
 <table id="fingerbankdevices" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list'),[scope]) %]">
   <thead>
     <tr>
@@ -16,7 +15,7 @@
     <tr>
             <th colspan="5">
               [% INCLUDE config/fingerbank/search.tt %]
-              [% pagination(action || 'list', pageNum, perPage, pageCount) | none %]
+              [% pagination(c.controller.action_for(action || 'list'), page_num, page_count, {}, '', [scope]) | none %]
             </th>
           </tr>
     <tr>

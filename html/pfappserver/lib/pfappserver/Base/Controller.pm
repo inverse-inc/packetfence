@@ -22,7 +22,7 @@ use URI::Escape::XS;
 use pfappserver::Base::Action::AdminRole;
 use pfappserver::Base::Action::SimpleSearch;
 
-use pf::util qw(load_oui download_oui);
+use pf::util qw(load_oui download_oui calc_page_count);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
 use pf::config;
@@ -198,7 +198,7 @@ sub _list_items {
         $c->stash->{direction}   = $orderdirection || 'asc';
         $c->stash->{items}       = $items_ref;
         $c->stash->{field_names} = $field_names;
-        $c->stash->{pages_count} = ceil( $count / $per_page );
+        $c->stash->{page_count} = calc_page_count($count, $per_page);
     }
     else {
         $c->response->status($status);

@@ -1,42 +1,3 @@
-[% pagination = BLOCK  %]
-    [% params = { by => by, direction => direction } %]
-    <div class="pagination pagination-right" data-from-from="[% from_form %]">
-      <ul>
-        [%-
-        IF page_num > 1;
-            page = page_num - 1;
-        ELSE;
-            page = 1;
-        END
-        -%]
-      <li [% IF page_num == 1 %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page,params)  %]">&larr;</a></li>
-      [%- first_page = page_num - 3;
-          IF first_page < 1; first_page = 1; END;
-          last_page = first_page + 6;
-          IF last_page > pages_count;
-            last_page = pages_count;
-            first_page = last_page - 6;
-            IF first_page < 1; first_page = 1; END;
-          END -%]
-      [%- IF first_page > 1 -%]
-        <li><a href="[% c.uri_for(search_action,1,per_page, params) %]" title="Page 1">1</a></li>
-        <li class="disabled"><a href="#">&hellip;</a></li>
-      [%- END -%]
-      [% page = first_page; WHILE page <= last_page -%]
-        <li[% IF page == page_num %] class="disabled" [% END %] ><a href="[% c.uri_for(search_action,page,per_page,params)  %]" title="Page [% page %]">[% page %]</a></li>
-        [%- page = page + 1 -%]
-      [%- END -%]
-      [%- IF last_page < pages_count -%]
-        <li class="disabled"><a href="#">&hellip;</a></li>
-        <li><a href="[% c.uri_for(search_action,pages_count,per_page,params)  %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
-      [%- END -%]
-      [%- IF page_num < page - 1 -%]
-        [% page = page_num + 1 %]
-      [%- END %]
-        <li [%IF page_num == last_page %] class="disabled" [% END %]  ><a href="[% c.uri_for(search_action,page,per_page,params)  %]">&rarr;</a></li>
-      </ul>
-    </div>
-[% END %]
 [% MACRO header(column, title, class) BLOCK -%]
 [% new_direction = 'asc';
     IF by == column && direction == 'asc';
@@ -44,7 +5,7 @@
     END;
     params = { by => column, direction => new_direction };
     IF c.session.nodecolumns.$column %]
-      <th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action,page_num,per_page,params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action, 1, params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
       [%- END %]
 [% END -%]
 
@@ -80,7 +41,7 @@
               </ul>
               </form>
             </div>
-            [% pagination | none %]
+            [% pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
             <form id="items" method="POST">
               <table id="nodes" class="table table-condensed table-striped">
                 <thead>
@@ -153,7 +114,7 @@
                 </tbody>
               </table>
             </form>
-            [% pagination | none %]
+            [% pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No node found') %]</p>
       </div>

@@ -1,51 +1,19 @@
-[%- MACRO pagination(action, pageNumber, perPage, pageCount)  BLOCK -%]
-[% 
-    firstPage = pageNumber - 3;
-    IF firstPage < 1; firstPage = 1; END;
-    lastPage = firstPage + 6;
-    IF lastPage > pageCount;
-        lastPage = pageCount;
-        firstPage = lastPage - 6;
-        IF firstPage < 1; firstPage = 1; END;
-    END;
-%]
-<div>
-    <div class="pagination pagination-right">
-        <ul>
-          [% IF pageNumber == 1 %]
-          <li class="disabled"><a>&larr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
-          [% END %]
-          [% currentPage = firstPage %]
-          [% WHILE currentPage <= lastPage %]
-            [%IF currentPage == pageNumber %]
-              <li class="disabled"><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [% ELSE  %]
-              <li><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [%END%]
-          [%currentPage = currentPage + 1%]
-          [% END %]
-          [% IF pageNumber == lastPage %]
-          <li class="disabled"><a >&rarr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
-          [% END %]
-        </ul>
-    </div>
-[%- END -%]
-
       <table id="switches" class="table items">
         <thead>
           <tr>
             <th colspan="6">
               [% IF searchable %]
                 <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
+                  <div>
+                  [% INCLUDE per_page_select.tt %]
+                  </div>
+                  <br/>
                   <div class="pull-left">
                     [% name_value = form.field('searches.0.name').value%]
                     <select name="searches.0.name" class="input-medium">
                       <option value="id" [% "selected='selected'" IF name_value == "id" %]>[% l('Switch ID') %]</option>
                       <option value="description" [% "selected='selected'" IF name_value == "description" %]>[% l('Description') %]</option>
+                      <option value="type" [% "selected='selected'" IF name_value == "type" %]>[% l('Switch Type') %]</option>
                       <option value="group" [% "selected='selected'" IF name_value == "group" %]>[% l('Switch Group') %]</option>
                     </select>
                     [% op_value = form.field('searches.0.op').value%]
@@ -62,7 +30,7 @@
                   </div>
                 </form>
               [% END %]
-              [% pagination(action, pageNum, perPage, pageCount) | none %]</th>
+              [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]</th>
           </tr>
           <tr>
             <th>[% l('Identifier') %]</th>
@@ -97,7 +65,7 @@
         </tbody>
         <tfoot>
           <tr>
-            <th colspan="6">[% pagination(action, pageNum, perPage, pageCount) | none %]</th>
+            <th colspan="6">[% pagination(action, page_num, page_count, {}) | none %]</th>
           </tr>
         </tfoot>
       </table>

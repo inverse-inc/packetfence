@@ -58,23 +58,11 @@ sub index :Path :Args(0) :AdminRole('USERS_READ') {
 
 =cut
 
-sub simple_search :SimpleSearch('User') :Local :Args() :AdminRole('USERS_READ') { }
-
-=head2 after _list_items
-
-The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
-
-=cut
-
-after _list_items => sub {
+sub simple_search :Local :Args() :AdminRole('USERS_READ') {
     my ( $self, $c ) = @_;
-    my ( $status, $roles, $violations );
-    ( $status, $roles ) = $c->model('Roles')->list();
-    $c->stash( roles => $roles );
-    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
-    $c->stash( violations => $violations );
-
-};
+    $c->stash($c->request->params);
+    $self->_list_items( $c, 'User' );
+}
 
 =head2 after _list_items
 

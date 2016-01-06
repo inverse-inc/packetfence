@@ -115,6 +115,11 @@ form {
                     <tbody>
                       <tr class="row-fluid">
                         <td>
+                        [% INCLUDE per_page_select.tt %]
+                        </td>
+                      </tr>
+                      <tr class="row-fluid">
+                        <td>
                          [% PROCESS search_options disabled=0 %]
                         </td>
                         <td>
@@ -134,12 +139,16 @@ form {
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
                   <div>
+                        [% INCLUDE per_page_select.tt %]
+                  </div>
+                  <div>
                     [% match_options = BLOCK %]
                       <select name="all_or_any" class="input-mini">
                         <option value="all">[% l('all') %]</option>
                         <option value="any">[% l('any') %]</option>
                       </select>
                     [% END %]
+                    <br/>
                     [% l('Match [_1] of the following conditions:', [match_options]) | none %]
                   </div>
                   <br/>

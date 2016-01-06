@@ -17,10 +17,11 @@ use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
 use pf::log;
+use pf::util qw(calc_page_count);
 use pf::SearchBuilder;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);
-use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
@@ -29,11 +30,9 @@ extends 'pfappserver::Base::Model::Search';
 =cut
 
 sub search {
-    my ($self, $params, $pageNum, $perPage) = @_;
+    my ($self, $params) = @_;
     my $logger = get_logger();
     my $builder = $self->make_builder;
-    $params->{page_num} = $pageNum;
-    $params->{per_page} = $perPage;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
     return (HTTP_OK, $results);
@@ -61,7 +60,7 @@ sub do_query {
     my ($count) = node_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = calc_page_count($count, $per_page);
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;
@@ -299,6 +298,7 @@ sub add_date_range {
 sub process_query {
     my ($self,$query) = @_;
     my $new_query = $self->SUPER::process_query($query);
+    return unless defined $new_query;
     my $old_column = $new_query->[0];
     $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column}  : $old_column;
     return $new_query;

@@ -46,6 +46,17 @@ has_field 'page_num' =>
    default => '1',
   );
 
+=item per_page
+
+=cut
+
+has_field 'per_page' =>
+  (
+   type => 'Hidden',
+   default => '25',
+   input_without_param => 25,
+  );
+
 =item by
 
 =cut

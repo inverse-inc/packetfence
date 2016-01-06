@@ -15,7 +15,7 @@
           [% IF pageNumber == 1 %]
           <li class="disabled"><span>&larr;</span></li>
           [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],pageNumber - 1,perPage) %]">&larr;</a></li>
+          <li><a href="[% c.uri_for(c.controller.action_for(action),[scope],{ page_num => pageNumber - 1}) %]">&larr;</a></li>
           [% END %]
           [% currentPage = firstPage %]
           [% WHILE currentPage <= lastPage %]

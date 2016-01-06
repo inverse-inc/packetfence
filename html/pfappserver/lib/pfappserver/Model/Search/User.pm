@@ -19,7 +19,7 @@ use pf::log;
 use pf::SearchBuilder;
 use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);
-use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
@@ -100,6 +100,7 @@ sub map_column {
 sub process_query {
     my ($self,$query) = @_;
     my $new_query = $self->SUPER::process_query($query);
+    return unless defined $new_query;
     $new_query->[0] = $self->map_column($new_query->[0]);
     return $new_query;
 }
@@ -135,7 +136,7 @@ sub do_query {
     my ($count) = person_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = calc_page_count($count, $per_page);
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;

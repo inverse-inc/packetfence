@@ -77,7 +77,7 @@ var ItemView = function(options) {
     options.parent.on('reset', 'form[name="search"]', resetSearch);
 
     var search_next = $.proxy(this.searchNext, this);
-    options.parent.on('click', id + ' [href*="/search/"]', search_next);
+    options.parent.on('click', id + ' [href*="/search"]', search_next);
 
 };
 

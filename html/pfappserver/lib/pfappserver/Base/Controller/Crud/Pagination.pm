@@ -18,6 +18,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use HTML::FormHandler::Params;
+use pf::util qw(calc_page_count);
 
 =head2 Methods
 
@@ -26,9 +27,10 @@ use HTML::FormHandler::Params;
 =cut
 
 sub list :Local :Args {
-    my ( $self, $c , $pageNum, $perPage) = @_;
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
+    my ( $self, $c) = @_;
+    my $request = $c->request;
+    my $pageNum = $request->param('page_num') // 1;
+    my $perPage = $request->param('per_page') // 25;
     my $model = $self->getModel($c);
     my ($status,$items,$result);
     ($status,$result) = $model->readAll($pageNum, $perPage);
@@ -41,13 +43,13 @@ sub list :Local :Args {
         $c->error($c->loc($result));
     } else {
         my $itemsKey = $model->itemsKey;
-        my $pageCount = int( $result / $perPage) + 1;
+        my $pageCount = calc_page_count($result, $perPage);
         $c->stash(
             $itemsKey => $items,
             itemsKey  => $itemsKey,
-            pageNum   => $pageNum,
-            perPage   => $perPage,
-            pageCount => $pageCount,
+            page_num   => $pageNum,
+            per_page   => $perPage,
+            page_count => $pageCount,
         )
     }
 }

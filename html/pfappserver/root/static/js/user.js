@@ -57,6 +57,10 @@ var UserView = function(options) {
 
     this.proxyFor($('body'), 'submit', '#modalUser form[name="modalUser"]', this.updateUser);
 
+    this.proxyFor($('body'), 'submit', 'form[name="simpleUserSearch"]', this.submitSearch);
+
+    this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
+
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
 
     this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
@@ -73,6 +77,8 @@ var UserView = function(options) {
 
     /* Update the advanced search form to the next page or resort the query */
     this.proxyClick($('body'), '[href*="#user/advanced_search"]', this.advancedSearchUpdater);
+
+    this.proxyClick($('body'), '.users .pagination a', this.searchPagination);
 
     this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.mailPasswordFromForm);
 
@@ -446,7 +452,6 @@ UserView.prototype.submitItems = function(e) {
                         $("#section").one('section.loaded', function() {
                             showSuccess($("#section").find('h2').first(), data.status_msg);
                         });
-                        $(window).hashchange();
                     },
                     always: function(data) {
                         loader.hide();
@@ -457,4 +462,68 @@ UserView.prototype.submitItems = function(e) {
             });
         }
     }
+};
+
+UserView.prototype.searchPagination = function(e) {
+    var that = this;
+    e.preventDefault();
+    var link = $(e.currentTarget);
+    var pagination = link.closest('.pagination');
+    var formId = pagination.attr('data-from-form') || '#search';
+    var form = $(formId);
+    if(form.length == 0) {
+        form = $('#search');
+    }
+//    var columns = $('#columns');
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5);
+    section.fadeTo('fast', 0.5, function() {
+        that.users.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+                section.trigger('section.loaded');
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+};
+
+UserView.prototype.submitSearch = function(e) {
+    e.preventDefault();
+    var that = this;
+    var form = $(e.currentTarget);
+    var href = form.attr("action");
+    var section = $('#section');
+    var columns = $('#columns');
+    $("body,html").animate({scrollTop:0}, 'fast');
+    var status_container = $("#section").find('h2').first();
+    var loader = section.prev('.loader');
+    loader.show();
+    section.fadeTo('fast', 0.5, function() {
+        that.users.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                loader.hide();
+                section.fadeTo('fast', 1.0);
+            },
+            success: function(data) {
+                section.html(data);
+                section.trigger('section.loaded');
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
 };

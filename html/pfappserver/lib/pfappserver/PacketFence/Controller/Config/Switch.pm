@@ -61,7 +61,7 @@ sub begin :Private {
 
     $c->stash->{current_model_instance} = $model;
     $c->stash->{switch_default} = $switch_default;
-    
+
     $c->stash->{model_name} = "Switch";
     $c->stash->{controller_namespace} = "Config::Switch";
     $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
@@ -98,14 +98,14 @@ sub after_list {
             }
         }
         my $cs = $c->model('Config::Switch')->configStore;
-        $switch->{type} = $cs->fullConfigRaw($id)->{type}; 
+        $switch->{type} = $cs->fullConfigRaw($id)->{type};
         $switch->{group} ||= $cs->topLevelGroup;
-        $switch->{mode} = $cs->fullConfigRaw($id)->{mode}; 
+        $switch->{mode} = $cs->fullConfigRaw($id)->{mode};
         push @switches, $switch;
     }
     $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
     unshift @{$c->stash->{switch_groups}}, $groupsModel->configStore->topLevelGroup;
-    $c->stash->{items} = \@switches; 
+    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 1;
 }
 
@@ -118,7 +118,7 @@ Search the switch configuration entries
 =cut
 
 sub search : Local : AdminRole('SWITCHES_READ') {
-    my ($self, $c, $pageNum, $perPage) = @_;
+    my ($self, $c) = @_;
 
     my $groupsModel = $c->model("Config::SwitchGroup");
     # Changing default to empty value as switches inheriting from it don't have a group attribute
@@ -126,8 +126,6 @@ sub search : Local : AdminRole('SWITCHES_READ') {
         $c->request->param("searches.0.value", "");
     }
 
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
     my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
@@ -140,7 +138,7 @@ sub search : Local : AdminRole('SWITCHES_READ') {
     } else {
         my $query = $form->value;
         $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
-        ($status, $result) = $model->search($query, $pageNum, $perPage);
+        ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form, action => 'search');
             $c->stash($result);
