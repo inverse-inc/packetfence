@@ -32,35 +32,44 @@ __PACKAGE__->config(
         object => { Chained => '/', PathPart => 'config/filters', CaptureArgs => 1 },
         # Configure access rights
         index   => { AdminRole => 'FILTERS_READ' },
-#        list   => { AdminRole => 'FILTERS_READ' },
-#        create => { AdminRole => 'FILTERS_CREATE' },
-        update => { AdminRole => 'FILTERS_UPDATE' },
-#        remove => { AdminRole => 'FILTERS_DELETE' },
+        view    => { AdminRole => 'FILTERS_READ' },
+        update  => { AdminRole => 'FILTERS_UPDATE' },
     },
 );
 
+our %FILTERS_IDENTIFIERS = (
+    VLAN_FILTERS => "vlan-filters",
+    RADIUS_FILTERS => "radius-filters",
+    APACHE_FILTERS => "apache-filters",
+);
+
 our %CONFIGSTORE_MAP = (
-    "vlan-filters" => pf::ConfigStore::VlanFilters->new,
-    "radius-filters" => pf::ConfigStore::RadiusFilters->new,
-    "apache-filters" => pf::ConfigStore::ApacheFilters->new,
+    $FILTERS_IDENTIFIERS{VLAN_FILTERS}   => pf::ConfigStore::VlanFilters->new,
+    $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => pf::ConfigStore::RadiusFilters->new,
+    $FILTERS_IDENTIFIERS{APACHE_FILTERS} => pf::ConfigStore::ApacheFilters->new,
 );
 
 our %ENGINE_MAP = (
-    "vlan-filters" => "FilterEngine::VlanScopes",
-    "radius-filters" => "FilterEngine::RadiusScopes",
-    "apache-filters" => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
+    $FILTERS_IDENTIFIERS{VLAN_FILTERS}   => "FilterEngine::VlanScopes",
+    $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => "FilterEngine::RadiusScopes",
+    $FILTERS_IDENTIFIERS{APACHE_FILTERS} => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
 );
 
 =head1 METHODS
 =cut
 
-sub index :Path :Args(1) {
-
+sub view :Path :Args(1) {
     my ($self, $c, $name) = @_;
     $c->stash->{tab} = $name;
     $self->object($c, $name);
+    $c->stash->{template} = "config/filters/index.tt";
     $c->stash->{content} = read_file($c->stash->{object}->configFile);
+}
 
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
+    my $name = $FILTERS_IDENTIFIERS{VLAN_FILTERS};
+    $c->forward("view", [$name]);
 }
 
 sub object {
