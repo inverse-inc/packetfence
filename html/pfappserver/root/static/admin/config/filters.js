@@ -8,15 +8,41 @@ var FiltersView = function(options) {
   var that = this;
   this.parent = options.parent;
 
-  // Save the modifications from the modal
+  // Save the modifications
   var update = $.proxy(this.update, this);
   options.parent.on('submit', '#filtersForm', update);
+  
+  // Revert the modifications
+  var revert = $.proxy(this.revert, this);
+  options.parent.on('click', '#filtersRevert', revert);
 };
 
 FiltersView.prototype.setupEditor = function(){
   this.editor = ace.edit("editor");
   this.editor.setTheme("ace/theme/monokai");
   this.editor.getSession().setMode("ace/mode/perl");
+
+  this.disableButtons();
+  
+  this.initialValue = this.editor.getValue();
+}
+
+FiltersView.prototype.revert = function(e){
+  this.editor.setValue(this.initialValue, -1);
+  this.disableButtons();
+}
+
+FiltersView.prototype.disableButtons = function() {
+  $('#filtersForm .btn').addClass('disabled');
+  
+  this.enableButtonsProxy = $.proxy(this.enableButtons, this);
+  this.editor.on("change",this.enableButtonsProxy);
+
+}
+
+FiltersView.prototype.enableButtons = function() {
+  $('#filtersForm .btn').removeClass('disabled');
+  this.editor.removeEventListener("change",this.enableButtonsProxy);
 }
 
 FiltersView.prototype.update = function(e){
