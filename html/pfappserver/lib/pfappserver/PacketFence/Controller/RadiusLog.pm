@@ -48,8 +48,8 @@ Perform an advanced search using the Search::RadiusLog model
 
 =cut
 
-sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
-    my ($self, $c, $pageNum, $perPage) = @_;
+sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
+    my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
     my ($status, $result);
@@ -63,7 +63,6 @@ sub search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
     } else {
         my $query = $form->value;
         $c->stash($query);
-        $query->{page_num} = $pageNum;
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);

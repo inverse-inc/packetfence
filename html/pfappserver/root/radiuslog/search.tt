@@ -1,44 +1,3 @@
-[%- MACRO pagination(controller, action, pageNumber, perPage, pageCount)  BLOCK -%]
-[% 
-# Number of pages to show before and after the middle page in the list
-    pageWrap = 3;
-    pageWrapTotal = pageWrap * 2;
-# Calculate the first of the list
-    firstPage = pageNumber - pageWrap;
-    IF firstPage < 1; firstPage = 1; END;
-# Calculate the last page
-    lastPage = firstPage + pageWrapTotal;
-    IF lastPage > pageCount;
-        lastPage = pageCount;
-        firstPage = lastPage - pageWrapTotal;
-        IF firstPage < 1; firstPage = 1; END;
-    END;
-%]
-<h2></h2>
-<div class="pagination pagination-right">
-  <ul>
-    [% IF pageNumber == 1 %]
-    <li class="disabled"><a>&larr;</a></li>
-    [% ELSE %]
-    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
-    [% END %]
-    [% currentPage = firstPage %]
-    [% WHILE currentPage <= lastPage %]
-      [%IF currentPage == pageNumber %]
-        <li class="disabled"><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-      [% ELSE  %]
-        <li><a href="[% c.uri_for(controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-      [%END%]
-    [%currentPage = currentPage + 1%]
-    [% END %]
-    [% IF pageNumber == lastPage %]
-    <li class="disabled"><a >&rarr;</a></li>
-    [% ELSE %]
-    <li><a href="[% c.uri_for(controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
-    [% END %]
-  </ul>
-</div>
-[%- END -%]
 [% MACRO header(column, title, class) BLOCK -%]
 [% new_direction = 'asc';
     IF by == column && direction == 'asc';
@@ -52,7 +11,9 @@
       <table id="items" class="table table-condensed table-striped items">
            <thead>
              <tr>
-               <td colspan="[% display_columns.size + 1%]">[% pagination(c.controller(), "search", page_num, per_page,page_count) | none%]</td>
+               <td colspan="[% display_columns.size + 1%]">
+            [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '') | none %]
+               </td>
              </tr>
              <tr>
                [% header('id', l('id')) | none %]
@@ -86,7 +47,9 @@
         [% END %]
         <tfoot>
            <tr>
-             <td colspan="[% display_columns.size + 1%]">[% pagination(c.controller(), "search", page_num, per_page,page_count) | none%]</td>
+               <td colspan="[% display_columns.size + 1%]">
+            [% pagination(c.controller.action_for("search"), page_num, page_count, {by => by, direction => direction}, '') | none %]
+               </td>
            </tr>
         </tfoot>
       </table>
