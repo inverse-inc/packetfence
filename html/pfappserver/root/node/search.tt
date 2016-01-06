@@ -61,6 +61,10 @@
                     [% header('category', l('Role'), 'hidden-phone') | none %]
                     [% header('bypass_vlan', l('Bypass VLAN'), 'hidden-phone') | none %]
                     [% header('bypass_role', l('Bypass Role'), 'hidden-phone') | none %]
+                    [% IF items.size > 0 && items.0.violation_status %]
+                    <th class="hidden-phone" >[% l('Violation Status') %]</th>
+                    <th class="hidden-phone" >[% l('Violation Name') %]</th>
+                    [% END %]
                   </tr>
                 </thead>
                 <tbody>
@@ -109,6 +113,10 @@
                     [%- IF c.session.nodecolumns.bypass_role %]
                     <td class="hidden-phone">[% node.bypass_role | html %]</td>
                     [%- END %]
+                    [% IF node.violation_status %]
+                    <td class="hidden-phone">[% node.violation_status | html %]</td>
+                    <td class="hidden-phone">[% node.violation_name | html %]</td>
+                    [% END %]
                   </tr>
                   [%- END -%]
                 </tbody>

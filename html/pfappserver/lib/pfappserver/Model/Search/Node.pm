@@ -275,17 +275,18 @@ my %COLUMN_MAP = (
         ]
     },
     violation_status   => {
-        table => 'violation',
+        table => 'violation_status',
         name  => 'status',
         joins => [
             {
                 'table'  => 'violation',
                 'join' => 'LEFT',
+                'as' => 'violation_status',
                 'on' =>
                 [
                     [
                         {
-                            'table' => 'violation',
+                            'table' => 'violation_status',
                             'name'  => 'mac',
                         },
                         '=',
@@ -296,6 +297,25 @@ my %COLUMN_MAP = (
                     ],
                 ],
             },
+            {
+                'table'  => 'class',
+                'join' => 'LEFT',
+                'as' => 'violation_status_class',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation_status',
+                            'name'  => 'vid',
+                        },
+                        '=',
+                        {
+                            'table' => 'violation_status_class',
+                            'name'  => 'vid',
+                        }
+                    ]
+                ],
+            }
         ]
     },
 );
@@ -330,9 +350,17 @@ sub process_query {
 
 sub add_joins {
     my ($self,$builder,$params) = @_;
-    foreach my $name (map { $_->{name} } @{$params->{searches}}) {
-        $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
-            if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
+    foreach my $search ( @{$params->{searches}}) {
+        my $name = $search->{name};
+        if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'}) {
+            $builder->from(@{$COLUMN_MAP{$name}{'joins'}});
+            if ($name eq 'violation_status') {
+                $builder->select(
+                    {table => 'violation_status', name => 'status', as => 'violation_status'},
+                    {table => 'violation_status_class', name => 'description', as => 'violation_name'}
+                );
+            }
+        }
     }
 }
 
