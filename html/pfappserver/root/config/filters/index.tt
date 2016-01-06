@@ -13,14 +13,16 @@
   </li>
   </ul>
 
-  <div class="tab-pane fade in active" id="[% tab %]">
-    <form method="POST" id="filtersForm" action="[% c.uri_for(c.controller.action_for('update'), [ tab ]) %]">
-    <div id="editor" style="position:relative;height:450px;">[% content %]</div>
-    <script>filtersView.setupEditor()</script>
-    <div class="form-actions">
-      <input type="submit" class="btn btn-primary" value="Save">
+  [%- IF can_access("FILTERS_UPDATE") %]
+    <div class="tab-pane fade in active" id="[% tab %]">
+      <form method="POST" id="filtersForm" action="[% c.uri_for(c.controller.action_for('update'), [ tab ]) %]">
+      <div id="editor" style="position:relative;height:450px;">[% content %]</div>
+      <script>filtersView.setupEditor()</script>
+      <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="Save">
+      </div>
+      </form>
     </div>
-    </form>
-  </div>
+  [% END %]
 </div>
 
