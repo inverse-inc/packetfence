@@ -424,11 +424,11 @@ sub get_user_sources {
     my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
 
     if( $realm_source && any { $_ eq $realm_source} @sources ){
-        get_logger->info("Realm source ".$realm_source->id." is part of the portal profile sources. Using it as the only auth source.");
+        get_logger->info("Realm source ".$realm_source->{id}." is part of the portal profile sources. Using it as the only auth source.");
         return ($realm_source);
     }
     else {
-        get_logger->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
+        get_logger->info("Realm source ".$realm_source->{id}." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
         return @sources;
     }
 
