@@ -11,7 +11,7 @@ Homepage: http://www.packetfence.org/
 Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
-Pre-Depends:  ca-certificates, freeradius (>= 2.2.5), freeradius-ldap, freeradius-postgresql,
+Pre-Depends:  ca-certificates, freeradius (>= 2.2.10), freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5, dhcp3-server, ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}), packetfence-ntlm-wrapper (>= ${Source-Version}),
  fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${Source-Version}),
@@ -69,7 +69,7 @@ Depends: ${misc:Depends}, vlan, make,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl, libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- liburi-escape-xs-perl, libdata-thunk-perl,
+ liburi-escape-xs-perl, libdata-thunk-perl, libsql-abstract-more,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313

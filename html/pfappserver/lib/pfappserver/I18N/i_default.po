@@ -16,19 +16,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "30 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "60 days"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "7 days"
 msgstr ""
@@ -37,7 +37,7 @@ msgstr ""
 msgid "802.1X Username"
 msgstr ""
 
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/reports-header.tt
 msgid "90 days"
 msgstr ""
 
@@ -304,6 +304,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "Add a condition."
 msgstr ""
 
@@ -434,6 +435,7 @@ msgid "Alerting"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "All"
 msgstr ""
 
@@ -471,6 +473,7 @@ msgid "Amount of time before the violation can reoccur. This is useful to allow 
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr ""
 
@@ -849,6 +852,7 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/radiuslog/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1601,6 +1605,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes for "
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Display [_1] entries per page"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
@@ -2401,6 +2409,26 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 1 hour"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 12 hours"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 24 hours"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 30 minutes"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/index.tt
+msgid "Last 6 hours"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -3028,6 +3056,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node IP"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/view.tt
+msgid "Node Information"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -3815,7 +3847,16 @@ msgid "Quantity"
 msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/radiuslog/view.tt
 msgid "RADIUS"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "RADIUS_LOG"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "RADIUS_LOG_READ"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -3844,7 +3885,12 @@ msgid "REPORTS"
 msgstr "Reports"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/admin/reports.tt
 msgid "Radius"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Radius Audit Log"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
@@ -4484,6 +4530,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "Search"
 msgstr ""
 
@@ -5071,6 +5118,10 @@ msgstr ""
 
 # html/pfappserver/root/config/switch/list.tt
 msgid "Switch ID"
+msgstr ""
+
+# html/pfappserver/root/radiuslog/view.tt
+msgid "Switch Information"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -6263,9 +6314,21 @@ msgstr ""
 msgid "apartment_number"
 msgstr ""
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "auth_status"
+msgstr "Auth Status"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "auth_type"
+msgstr "Auth Type"
+
 # pf::config (SoH Classes)
 msgid "auto-updates"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "auto_reg"
+msgstr "Auto Registration"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
@@ -6290,6 +6353,14 @@ msgstr ""
 # html/pfappserver/root/node/view.tt
 msgid "bytes"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "called_station_id"
+msgstr "Called Station ID"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "calling_station_id"
+msgstr "Calling Station ID"
 
 # pf::pfcmd::report (report_nodebandwidth)
 # pfappserver::PacketFence::Controller::Graph (nodebandwidth fields)
@@ -6351,10 +6422,12 @@ msgid "cn"
 msgstr ""
 
 # pf::Authentication::Source (common_attributes)
+# pf::radius_audit_log (Radius Aduit Log)
 msgid "computer_name"
 msgstr "Computer name"
 
 # pf::Authentication::Source (common_attributes)
+# pf::radius_audit_log (Radius Aduit Log)
 # pfappserver::PacketFence::Controller::Graph (connectiontype fields)
 msgid "connection_type"
 msgstr "Connection type"
@@ -6578,6 +6651,10 @@ msgstr ""
 msgid "distinguishedName"
 msgstr ""
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "eap_type"
+msgstr "EAP Type"
+
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "eduPersonPrimaryAffiliation"
@@ -6667,6 +6744,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "ends with"
 msgstr ""
 
@@ -6677,6 +6755,10 @@ msgstr ""
 # pf::Authentication::constants (Conditions)
 msgid "equals"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "event_type"
+msgstr "Event Type"
 
 # conf/documentation.conf
 msgid "expire"
@@ -6841,6 +6923,10 @@ msgstr ""
 msgid "ibm"
 msgstr "IBM"
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "ifindex"
+msgstr "IfIndex"
+
 # conf/documentation.conf (interface.enforcement options)
 # pf::config (Network types)
 msgid "inline"
@@ -6907,6 +6993,10 @@ msgstr ""
 msgid "internal"
 msgstr "Internal"
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "ip"
+msgstr "IP Address"
+
 # html/pfappserver/root/admin/users.tt
 msgid "ip_address"
 msgstr ""
@@ -6915,6 +7005,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -6935,9 +7026,14 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "is_phone"
+msgstr "Is a Phone"
 
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 msgid "isnot"
@@ -6968,6 +7064,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pf::config (Inline triggers)
 # pf::config (VALID_TRIGGER_TYPES)
+# pf::radius_audit_log (Radius Aduit Log)
 msgid "mac"
 msgstr "MAC Address"
 
@@ -7101,6 +7198,7 @@ msgstr "Management"
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "matches"
 msgstr ""
 
@@ -7168,6 +7266,26 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "name"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "nas_identifier"
+msgstr "NAS identifier"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "nas_ip_address"
+msgstr "NAS IP Address"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "nas_port"
+msgstr "NAS Port"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "nas_port_id"
+msgstr "NAS Port ID"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "nas_port_type"
+msgstr "NAS Port Type"
 
 # conf/documentation.conf (scan.engine options)
 # pf::config (VALID_TRIGGER_TYPES)
@@ -7309,6 +7427,10 @@ msgstr "Other"
 # pfappserver::Model::Node (availableStatus)
 msgid "pending"
 msgstr "pending"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "pf_domain"
+msgstr "Domain"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "pfcmd_vlan"
@@ -7453,6 +7575,26 @@ msgstr ""
 msgid "query.record_unmatched"
 msgstr "Record Unmatched Parameters"
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "radius_reply"
+msgstr "Radius Reply"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "radius_request"
+msgstr "Radius Request"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "radius_source_ip_address"
+msgstr "Radius Source IP Address"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "realm"
+msgstr "Realm"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "reason"
+msgstr "Reason"
+
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
@@ -7487,6 +7629,10 @@ msgstr "Device registration role"
 # pf::config (SoH Actions)
 msgid "reject"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "role"
+msgstr "Role"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
@@ -7979,6 +8125,10 @@ msgstr ""
 msgid "soh"
 msgstr "SoH Filters"
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "source"
+msgstr "Source"
+
 # html/pfappserver/root/admin/users.tt
 msgid "sponsor"
 msgstr ""
@@ -7988,6 +8138,7 @@ msgid "sponsor_email"
 msgstr ""
 
 # pf::config (Inline triggers)
+# pf::radius_audit_log (Radius Aduit Log)
 # pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "ssid"
 msgstr "Wi-Fi Network SSID"
@@ -8000,8 +8151,13 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "starts with"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "stripped_user_name"
+msgstr "Stripped User Name"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
@@ -8011,6 +8167,18 @@ msgstr ""
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "suricata"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "switch_id"
+msgstr "Switch ID"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "switch_ip_address"
+msgstr "Switch IP Address"
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "switch_mac"
+msgstr "Switch MAC"
 
 # pf::provisioner (Provisioners)
 msgid "symantec"
@@ -8098,9 +8266,10 @@ msgstr "Wireless IPS threshold"
 msgid "uid"
 msgstr ""
 
+# pf::radius_audit_log (Radius Aduit Log)
 # pfappserver::Model::Node (availableStatus)
-msgid "unreg"
-msgstr "unregistered"
+msgid "node_status"
+msgstr "Node status"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
@@ -8163,6 +8332,10 @@ msgstr "Useragent"
 msgid "user_email"
 msgstr ""
 
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "user_name"
+msgstr "User Name"
+
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source::BlackholeSource (available_attributes)
 # pf::Authentication::Source::ChainedSource (available_attributes)
@@ -8181,6 +8354,10 @@ msgstr ""
 # pf::Authentication::Source::WindowsLiveSource (available_attributes)
 msgid "username"
 msgstr ""
+
+# pf::radius_audit_log (Radius Aduit Log)
+msgid "uuid"
+msgstr "Unique ID"
 
 # pf::config (SoH Actions)
 msgid "violation"

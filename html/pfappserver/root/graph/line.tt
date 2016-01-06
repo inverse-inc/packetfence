@@ -1,3 +1,4 @@
+[% INCLUDE "admin/reports-header.tt" %]
 <div class="linegraph">
   [% FOREACH counter IN counters %]
   <div id="[% counter.id | html %]" class="counter">

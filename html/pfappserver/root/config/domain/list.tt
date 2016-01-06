@@ -8,7 +8,7 @@
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>
               [% IF item.join_status == 0 %]
               <span class="label label-success">Test join success!</span>

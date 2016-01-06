@@ -46,7 +46,7 @@
         <tbody>
           [% FOREACH switch IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ switch.id ]) %]">[% switch.id | html %]</a>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ switch.id ]) %]">[% switch.id | html %]</a>
             [% IF switch.floatingdevice && switch.floatingdevice.id %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Config::FloatingDevice').action_for('view'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
             <td class="hidden-phone">[% switch.description %]</td>
             [% IF controller_namespace == "Config::Switch" %]

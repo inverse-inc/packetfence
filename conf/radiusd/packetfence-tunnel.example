@@ -67,7 +67,9 @@ post-auth {
             PacketFence-RPC-Proto = ${rpc_proto}
         }
         packetfence
+        sql
         Post-Auth-Type REJECT {
+                sql
                 attr_filter.access_reject
         }
 }

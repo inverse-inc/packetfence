@@ -59,7 +59,7 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new pf::radius object");
     my ( $class, %argv ) = @_;
-    my $self = bless {}, $class;
+    my $self = bless { }, $class;
     return $self;
 }
 
@@ -80,7 +80,7 @@ sub authorize {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-
+    my $RAD_REPLY_REF;
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
@@ -91,8 +91,10 @@ sub authorize {
             "Can't instantiate switch ($switch_ip). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        goto AUDIT;
     }
+
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
     Log::Log4perl::MDC->put( 'mac', $mac );
@@ -143,7 +145,8 @@ sub authorize {
     my $weActOnThisCall = $self->_doWeActOnThisCall($args);
     if ($weActOnThisCall == 0) {
         $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
+        goto CLEANUP;
     }
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
@@ -172,7 +175,8 @@ sub authorize {
     # verify if switch supports this connection type
     if (!$self->_isSwitchSupported($args)) {
         # if not supported, return
-        return $self->_switchUnsupportedReply($args);
+        $RAD_REPLY_REF = $self->_switchUnsupportedReply($args);
+        goto CLEANUP;
     }
 
 
@@ -211,16 +215,16 @@ sub authorize {
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
-        return $self->_authorizeVoip($args);
+        $RAD_REPLY_REF = $self->_authorizeVoip($args);
+        goto CLEANUP;
     }
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
         $logger->warn("Should perform access control on switch ($switch_id) but the switch "
             ."is not in production -> Returning ACCEPT");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
+        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
+        goto CLEANUP;
     }
 
     # Check if a floating just plugged in
@@ -229,6 +233,9 @@ sub authorize {
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role}) || 0;
+
+    $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
+    $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
 
     $args->{'vlan'} = $vlan;
     $args->{'wasInline'} = $role->{wasInline};
@@ -251,11 +258,16 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
-    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
+    $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
+
+CLEANUP:
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
+AUDIT:
+
+    push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
 }
 
@@ -668,7 +680,7 @@ sub _handleAccountingFloatingDevices{
 
 =item logger
 
-Return the current logger for the switch
+Return the current logger for the object
 
 =cut
 
@@ -686,7 +698,7 @@ return RADIUS attributes or reject for switch login
 sub switch_access {
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my $start = Time::HiRes::gettimeofday();
+    my $timer = pf::StatsD::Timer->new();
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
@@ -697,7 +709,6 @@ sub switch_access {
         $logger->warn(
             "Unknown switch ($switch_ip). This request will be failed."
         );
-        $pf::StatsD::statsd->end(called() . ".timing" , $start);
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
     if ( isdisabled($switch->{_cliAccess})) {
@@ -734,6 +745,60 @@ sub switch_access {
         }
         $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
+    }
+}
+
+our %ARGS_TO_RADIUS_ATTRIBUTES = (
+    mac => 'PacketFence-Mac',
+    user_name => 'PacketFence-UserName',
+    ifIndex => 'PacketFence-IfIndex',
+    is_phone => 'PacketFence-IsPhone',
+    ssid => 'PacketFence-SSID',
+    autoreg => 'PacketFence-AutoReg',
+    eap_type => 'PacketFence-Eap-Type',
+    connection_type => 'PacketFence-Connection-Type',
+    user_role => 'PacketFence-Role',
+);
+
+our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
+    status => 'PacketFence-Status',
+    source => 'PacketFence-Source',
+    portal => 'PacketFence-Profile',
+    computername => 'PacketFence-Computer-Name',
+);
+
+our %SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (
+    _id => 'PacketFence-Switch-Id',
+    _ip => 'PacketFence-Switch-Ip-Address',
+    _switchMac => 'PacketFence-Switch-Mac',
+);
+
+=item _addRadiusAudit
+
+=cut
+
+sub _addRadiusAudit {
+    my ($self, $args) = @_;
+    my $stash = {};
+    _update_audit_stash($stash, \%ARGS_TO_RADIUS_ATTRIBUTES, $args);
+    my $switch = $args->{switch};
+    if ($switch) {
+        _update_audit_stash($stash, \%SWITCH_ATTRIBUTES_TO_RADIUS_ATTRIBUTES, $switch);
+    }
+    my $node = $args->{node_info};
+    if($node) {
+        _update_audit_stash($stash, \%NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES, $node);
+    }
+    $stash->{'PacketFence-Connection-Type'} = connection_type_to_str($stash->{'PacketFence-Connection-Type'})
+      if exists $stash->{'PacketFence-Connection-Type'} && defined $stash->{'PacketFence-Connection-Type'};
+    return (RADIUS_AUDIT => $stash);
+}
+
+sub _update_audit_stash {
+    my ($stash, $lookup, $args) = @_;
+    foreach my $key (keys %$lookup) {
+        next unless exists $args->{$key} && defined $args->{$key};
+        $stash->{$lookup->{$key}} = $args->{$key};
     }
 }
 

@@ -92,7 +92,7 @@ Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 2.2.8-34, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
+Requires: freeradius >= 2.2.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -227,6 +227,7 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Catalyst::Plugin::Unicode::Encoding)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
+Requires: perl(SQL::Abstract::More)
 Requires(pre): perl-aliased => 0.30
 Requires(pre): perl-version
 # for Catalyst stand-alone server

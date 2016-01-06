@@ -167,6 +167,12 @@ sub registertasks  {
         }
     );
     register_task(
+        'radius audit log cleanup','radius_audit_log_cleanup_interval',sub {
+            radius_audit_log_cleanup( $Config{'expire'}{'radius_audit_log'}, $Config{maintenance}{radius_audit_log_cleanup_batch},$Config{maintenance}{radius_audit_log_cleanup_timeout})
+              if ( $Config{'expire'}{'radius_audit_log'} );
+        }
+    );
+    register_task(
         'node cleanup','node_cleanup_interval',sub {
             node_cleanup( $Config{'expire'}{'node'} )
               if ( $Config{'expire'}{'node'} );

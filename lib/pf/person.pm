@@ -33,6 +33,7 @@ BEGIN {
         person_view
         person_count_all
         person_view_all
+        person_view_simple
         person_modify
         person_nodes
         person_violations
@@ -153,6 +154,17 @@ sub person_db_prepare {
             WHERE pid = ?
             ORDER BY start_date desc ]);
 
+    $person_statements->{'person_view_simple_sql'} = get_db_handle()->prepare(
+        qq[ SELECT pid, firstname, lastname, email, telephone, company, address,
+                   notes, sponsor, anniversary, birthday, gender, lang, nickname,
+                   cell_phone, work_phone, title, building_number,
+                   apartment_number, room_number, custom_field_1, custom_field_2,
+                   custom_field_3, custom_field_4, custom_field_5, custom_field_6,
+                   custom_field_7, custom_field_8, custom_field_9, portal, source
+            FROM person
+            WHERE pid = ? ]);
+
+
     $person_db_prepared = 1;
 }
 
@@ -219,6 +231,18 @@ sub person_view {
     my ($pid) = @_;
 
     my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid)
+        || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+sub person_view_simple {
+    my ($pid) = @_;
+
+    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_simple_sql', $pid)
         || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -385,3 +409,4 @@ USA.
 =cut
 
 1;
+
