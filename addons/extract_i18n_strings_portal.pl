@@ -104,7 +104,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2015 Inverse inc.
+# Copyright (C) 2005-2016 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -173,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

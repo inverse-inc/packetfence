@@ -250,7 +250,7 @@ sub create_in_group :Local :Args(1) :AdminRole('SWITCHES_CREATE') {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
