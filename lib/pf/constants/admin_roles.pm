@@ -162,6 +162,11 @@ our @ADMIN_ACTIONS = qw(
 
     PFMON_READ
     PFMON_UPDATE
+
+    PFITEMCONFIG_CREATE
+    PFITEMCONFIG_DELETE
+    PFITEMCONFIG_READ
+    PFITEMCONFIG_UPDATE
 );
 
 # Actions not allowed in readonly mode

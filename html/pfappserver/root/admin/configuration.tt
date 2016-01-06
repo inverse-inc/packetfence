@@ -222,6 +222,9 @@
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% list_entry('Config::AdminRoles', 'index', 'Admin Access') | none %]
               [%- END %]
+              [%- IF can_access("PFITEMCONFIG_READ") %]
+              [% list_entry('Config::PfItemConfig', 'index', 'PfItemConfig Entries') %]
+              [%- END %]
             </ul>
           </div><!--/span-->
         </div><!--/.row-fluid-->

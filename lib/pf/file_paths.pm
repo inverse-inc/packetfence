@@ -97,6 +97,7 @@ our (
     $switch_control_dir,
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
+    $pfitemconfig_config_file,
 );
 
 BEGIN {
@@ -168,6 +169,7 @@ BEGIN {
         $switch_control_dir
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
+        $pfitemconfig_config_file
     );
 }
 
@@ -207,6 +209,7 @@ $chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
 $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
+$pfitemconfig_config_file  = catfile($conf_dir,"pfitemconfig.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -301,6 +304,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dns_filters_config_file,
     $pfmon_config_file,
     $switch_filters_config_file,
+    $pfitemconfig_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
