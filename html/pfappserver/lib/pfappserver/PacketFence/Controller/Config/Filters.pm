@@ -87,6 +87,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content')); 
 
     my $manager = pfconfig::manager->new;
+    # Try to build the engine and look for any errors during the creation
     my $namespace = $manager->get_namespace($ENGINE_MAP{$c->stash->{id}});
     $namespace->build();
     if(defined($namespace->{errors}) && @{$namespace->{errors}} > 0){
@@ -96,8 +97,9 @@ sub update :Chained('object') :PathPart :Args(0) {
         $c->response->status(HTTP_BAD_REQUEST);
     }
     else {
+        # Reload the pf::config::cached cache
         pf::config::cached::ReloadConfigs($TRUE);
-        $manager->expire($c->stash->{object}->pfconfigNamespace);
+        # Reload it in pfconfig and sync in cluster
         my ($success, $msg) = $c->stash->{object}->commitPfconfig();
         unless($success){
             $c->stash->{dont_localize_status_msg} = $TRUE;
