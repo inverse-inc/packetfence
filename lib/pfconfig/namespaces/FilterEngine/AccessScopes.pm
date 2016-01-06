@@ -84,9 +84,9 @@ Record and display an error that occured while building the engine
 
 sub _error {
     my ($self, $msg, $add_info) = @_;
-    $add_info //= "";
-    warn($msg."\n");
-    get_logger->error("$msg : $add_info");
+    my $long_msg = $msg. (defined($add_info) ? " : $add_info" : '');
+    warn($long_msg."\n");
+    get_logger->error($long_msg);
     push @{$self->{errors}}, $msg;
 }
 
