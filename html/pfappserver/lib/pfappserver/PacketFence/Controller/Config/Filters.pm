@@ -2,7 +2,7 @@ package pfappserver::PacketFence::Controller::Config::Filters;
 
 =head1 NAME
 
-pfappserver::Controller::Configuration::Filters - Catalyst Controller
+pfappserver::Controller::Configuration::Filters
 
 =head1 DESCRIPTION
 
@@ -17,6 +17,7 @@ use namespace::autoclean;
 use pf::constants qw($TRUE);
 use pf::config::cached;
 use File::Slurp;
+use pf::constants::filters qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 use pfconfig::manager;
 use pf::ConfigStore::VlanFilters;
 use pf::ConfigStore::RadiusFilters;
@@ -28,7 +29,6 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-        # Reconfigure the object action from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'config/filters', CaptureArgs => 1 },
         # Configure access rights
         index   => { AdminRole => 'FILTERS_READ' },
@@ -37,25 +37,12 @@ __PACKAGE__->config(
     },
 );
 
-our %FILTERS_IDENTIFIERS = (
-    VLAN_FILTERS => "vlan-filters",
-    RADIUS_FILTERS => "radius-filters",
-    APACHE_FILTERS => "apache-filters",
-);
-
-our %CONFIGSTORE_MAP = (
-    $FILTERS_IDENTIFIERS{VLAN_FILTERS}   => pf::ConfigStore::VlanFilters->new,
-    $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => pf::ConfigStore::RadiusFilters->new,
-    $FILTERS_IDENTIFIERS{APACHE_FILTERS} => pf::ConfigStore::ApacheFilters->new,
-);
-
-our %ENGINE_MAP = (
-    $FILTERS_IDENTIFIERS{VLAN_FILTERS}   => "FilterEngine::VlanScopes",
-    $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => "FilterEngine::RadiusScopes",
-    $FILTERS_IDENTIFIERS{APACHE_FILTERS} => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
-);
-
 =head1 METHODS
+
+=head2 view
+
+View an engine configuration
+
 =cut
 
 sub view :Path :Args(1) {
@@ -66,17 +53,35 @@ sub view :Path :Args(1) {
     $c->stash->{content} = read_file($c->stash->{object}->configFile);
 }
 
+=head2 index
+
+The index of the engines configuration
+
+=cut
+
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
     my $name = $FILTERS_IDENTIFIERS{VLAN_FILTERS};
     $c->forward("view", [$name]);
 }
 
+=head2 object
+
+Build the current object (ConfigStore)
+
+=cut
+
 sub object {
     my ($self, $c, $id) = @_;
     $c->stash->{id} = $id;
     $c->stash->{object} = $CONFIGSTORE_MAP{$id};
 }
+
+=head2 update
+
+Update a filters configuration
+
+=cut
 
 sub update :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
@@ -106,10 +111,13 @@ sub update :Chained('object') :PathPart :Args(0) {
             $c->stash->{status_msg} = "Successfully installed new rules.";
         }
     }
-
-
-
 }
+
+=head2 _clean_error
+
+Cleanup the error messages coming from the filter engine object.
+
+=cut
 
 sub _clean_error {
     my ($self, $error) = @_;
