@@ -600,7 +600,8 @@ sub _is_locationlog_accurate {
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
     my $roleChanged = '0';
     if (defined($role)) {
-        $roleChanged = ($locationlog_mac->{'role'} ne $role);
+        my $old_role = $locationlog_mac->{'role'};
+        $roleChanged = ( defined ($old_role) && $old_role ne $role);
     }
     # ifIndex on wireless is not important
     my $ifIndexChanged = 0;
