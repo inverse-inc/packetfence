@@ -21,6 +21,7 @@ use List::MoreUtils qw(any);
 use List::Util qw(first);
 use pf::factory::provisioner;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::inline;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -465,12 +466,15 @@ sub webNodeRegister : Private {
     my $provisioner = $c->profile->findProvisioner($mac);
     unless ( (defined($provisioner) && $provisioner->skipDeAuth) || $c->user_cache->get("do_not_deauth") ) {
         my $node = node_view($mac);
+        my $ip = $portalSession->clientIp;
+        my $inline = pf::inline->new();
         my $switch;
-        my $last_switch_id = $node->{last_switch};
-        if( defined $last_switch_id ) {
-            $switch = pf::SwitchFactory->instantiate($last_switch_id);
+        if (!($inline->isInlineIP($ip))) {
+            my $last_switch_id = $node->{last_switch};
+            if( defined $last_switch_id ) {
+                $switch = pf::SwitchFactory->instantiate($last_switch_id);
+            }
         }
-
         if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
             $logger->info("Switch supports web form release.");
             $c->stash(

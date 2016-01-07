@@ -21,6 +21,8 @@ use pf::config;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_reevaluate_access);
 use Try::Tiny;
+use NetAddr::IP;
+use pf::util;
 
 our $VERSION = 1.01;
 
@@ -144,6 +146,28 @@ sub fetchMarkForNode {
     # At this point, we are registered and we don't have a violation: allow through
     $logger->debug("should be allowed through firewall");
     return $IPTABLES_MARK_REG;
+}
+
+=item isInlineIP
+
+Returns a true if the ip address is in a inline network.
+
+=cut
+
+
+sub isInlineIP {
+    my ($this, $ip) =@_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+        my $ip = NetAddr::IP::Lite->new(clean_ip($ip));
+        if ($net_addr->contains($ip)) {
+            return $TRUE;
+        }
+    }
+    return $FALSE;
 }
 
 =back
