@@ -251,6 +251,11 @@ Sync files through all members of a cluster
 
 sub sync_files {
     my ($files, %options) = @_;
+    unless($cluster_enabled){
+        get_logger->trace("Won't sync files because we're not in a cluster");
+        return [];
+    }
+
     my @failed;
     foreach my $file (@$files){
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
