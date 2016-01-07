@@ -50,7 +50,7 @@ Returns phone number in xxxyyyzzzz format if valid undef otherwise.
 
 sub validate_phone_number {
     my ($phone_number) = @_;
-
+    return unless defined $phone_number;
     # north american regular expression
     if ($phone_number =~ /
         ^(?:\+?(1)[-.\s]?)?   # optional 1 in front with -, ., space or nothing seperator
