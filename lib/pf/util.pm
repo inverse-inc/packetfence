@@ -1147,7 +1147,7 @@ Calculates the number of pages
 
 sub calc_page_count {
     my ($count, $perPage) = @_;
-    return POSIX::ceil( ($count + $perPage  - 1) / $perPage );
+    return int( ($count + $perPage  - 1) / $perPage );
 }
 
 =back
