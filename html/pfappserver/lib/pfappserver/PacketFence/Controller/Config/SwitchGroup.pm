@@ -53,7 +53,7 @@ sub begin :Private {
 
     $c->stash->{current_model_instance} = $model;
     $c->stash->{switch_default} = $switch_default;
-    
+
     $c->stash->{model_name} = "Switch Group";
     $c->stash->{controller_namespace} = "Config::SwitchGroup";
     $c->stash->{current_form_instance} = $c->form("Config::SwitchGroup", roles => $c->stash->{roles});
@@ -75,9 +75,11 @@ after qw(view create clone update list index) => sub {
 # Allows to find the members and add them to the item
 after qw(view update) => sub {
     my ($self, $c) = @_;
+
     my $cs = $c->model("Config::Switch")->configStore;
     my %members = map { $_->{id} => $_ } $cs->search("group", $c->stash->{item}->{id}, "id");
     $c->stash->{item}->{members} = \%members;
+    $c->stash->{tab} = $c->request->param("tab");
 };
 
 =head2 after_list
@@ -94,11 +96,11 @@ sub after_list {
     foreach my $switch (@{$c->stash->{items}}) {
         my $id = $switch->{id};
         my $cs = $c->model('Config::SwitchGroup')->configStore;
-        $switch->{type} = $cs->fullConfigRaw($id)->{type}; 
-        $switch->{mode} = $cs->fullConfigRaw($id)->{mode}; 
+        $switch->{type} = $cs->fullConfigRaw($id)->{type};
+        $switch->{mode} = $cs->fullConfigRaw($id)->{mode};
         push @switches, $switch;
     }
-    $c->stash->{items} = \@switches; 
+    $c->stash->{items} = \@switches;
     $c->stash->{searchable} = 0;
 };
 

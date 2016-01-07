@@ -255,7 +255,7 @@ SwitchView.prototype.addToGroup = function(e) {
             that.readSwitch({
               preventDefault: function(){},
               target: {
-                href: "/config/switchgroup/"+button.attr('data-group')+"/read",
+                href: "/config/switchgroup/"+button.attr('data-group')+"/read?tab=switchGroupMembers",
               },
             });
             showSuccess($('#modalSwitch .modal-body').children().first(), data.status_msg);
