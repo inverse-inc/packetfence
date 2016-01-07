@@ -15,6 +15,7 @@ can be localized.
 
 use File::Find;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use pf::web::constants;
 
 use constant {
     CONF => 'conf',
@@ -56,13 +57,51 @@ sub add_translation {
     $translations{$key} = $value;
 }
 
-=head2 parse_html
+=head2 parse_po
 
-Extract localizable strings from HTML templates.
+Parse the English PO file to extract existing translations because some keys are
+translated even for English.
 
 =cut
 
-sub parse_html {
+sub parse_po {
+    my $file = 'conf/locale/en/LC_MESSAGES/packetfence.po';
+
+    my ($key, %msg);
+    open (PO, $file);
+    my $line;
+    while (defined($line = <PO>)) {
+        chomp $line;
+        if ($line =~ m/^\s*\"(.+)\"$/) {
+            if ($key) {
+                $msg{$key} .= $1;
+            }
+        }
+        elsif ($line =~ m/^(msgid|msgstr) \"(.*)\"$/) {
+            if ($msg{msgid} && $msg{msgstr}) {
+                add_translation($msg{msgid}, $msg{msgstr});
+                delete $msg{msgid};
+                delete $msg{msgstr};
+            }
+            elsif ($1 eq 'msgid') {
+                delete $msg{msgstr};
+            }
+            $key = $1;
+            $msg{$key} = $2;
+        }
+    }
+    if ($msg{msgid} && $msg{msgstr}) {
+        add_translation($msg{msgid}, $msg{msgstr});
+    }
+}
+
+=head2 parse_tt
+
+Extract localizable strings from TT templates.
+
+=cut
+
+sub parse_tt {
     my $dir = PORTAL;
     my @templates = ();
 
@@ -78,12 +117,64 @@ sub parse_html {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/i18n\(['"](.+?(?!\\))['"](,.*)?\)/g) {
-                add_string($1, $template) unless ($1 =~ m/\${/);
+            while ($line =~ m/i18n(_format)?\(['"](.+?(?!\\))['"](,.*)?\)/g) {
+                add_string($2, $template) unless ($2 =~ m/\${/);
             }
         }
         close(TT);
     }
+}
+
+=head2 parse_mc
+
+Extract localizable strings from Models and Controllers classes.
+
+=cut
+
+sub parse_mc {
+    my $base = 'lib/pf/web/';
+    my @modules = ('lib/pf/web.pm');
+
+    my $pm = sub {
+        return unless -f && m/\.pm$/;
+        push(@modules, $File::Find::name);
+    };
+
+    find($pm, $base);
+
+    my $line;
+    foreach my $module (@modules) {
+        open(PM, $module);
+        while (defined($line = <PM>)) {
+            chomp $line;
+            if ($line =~ m/i18n(_format)?\(['"]([^\$].+?[^'"\\])["']\)/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            }
+        }
+        close(PM);
+    }
+}
+
+=head2 extract_modules
+
+Extract various localizable strings from PacketFence modules.
+
+=cut
+
+sub extract_modules {
+    my %strings = ();
+
+    sub const {
+        my ($module, $name, $arrayref) = @_;
+
+        foreach (@$arrayref) {
+            add_string($_, "$module ($name)");
+        }
+    }
+
+    const('pf::web::constants', 'Locales', \@WEB::LOCALES);
 }
 
 =head2 print_po
@@ -163,7 +254,10 @@ sub verify {
 
 #### MAIN ####
 
-&parse_html;
+&parse_po;
+&parse_tt;
+&parse_mc;
+&extract_modules;
 &print_po;
 &verify;
 
