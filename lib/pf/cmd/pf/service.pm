@@ -88,7 +88,7 @@ our %ACTION_MAP = (
 
 our $ignore_checkup = $FALSE;
 
-sub _byIndexOrder { 
+sub _byIndexOrder {
     $a->orderIndex <=> $b->orderIndex;
 }
 
@@ -141,6 +141,7 @@ sub postPfStartService {
 
 sub startService {
     my ($service,@services) = @_;
+    use sort qw(stable);
     my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
