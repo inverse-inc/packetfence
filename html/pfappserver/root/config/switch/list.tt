@@ -65,7 +65,9 @@
         </tbody>
         <tfoot>
           <tr>
-            <th colspan="6">[% pagination(action, page_num, page_count, {}) | none %]</th>
+            <th colspan="6">
+              [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]
+            </th>
           </tr>
         </tfoot>
       </table>
