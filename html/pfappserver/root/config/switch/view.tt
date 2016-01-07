@@ -18,7 +18,15 @@
       <li><a href="#switchCLI" data-toggle="tab">[% l('CLI') %]</a></li>
       <li><a href="#switchWS" data-toggle="tab">[% l('Web Services') %]</a></li>
       [% IF item.members %]
-      <li [% IF tab == "switchGroupMembers"  %]class="active"[% END %]><a href="#switchGroupMembers" data-toggle="tab">[% l('Members') %]</a></li>
+        [%- IF item.id.defined %]
+          <li [% IF tab == "switchGroupMembers"  %]class="active"[% END %]>
+            <a href="#switchGroupMembers" data-toggle="tab">[% l('Members') %]</a>
+          </li>
+        [% ELSE %]
+          <li class="disabled">
+            <a href="#switchGroupMembers" data-toggle="tab">[% l('Members') %]</a>
+          </li>
+        [% END %]
       [% END %]
     </ul>
 
@@ -99,39 +107,48 @@
       </div><!--tab-pane-->
 
       <div class="tab-pane fade [% IF tab == "switchGroupMembers" %]in active[% END %]" id="switchGroupMembers">
-        <div class="control-group">
-          <label class="control-label" for="pid">Add member</label>
-          <div class="controls">
-            <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
-            <button name="addNewMember" id="addNewMember" data-group="[% item.id %]" class="btn btn-mini btn-success">+</button>
-          </div>
-        </div>
-        <table class="table table-stripped table-condensed">
-          <tr>
-            <th> </th>
-            <th>Identifier</th>
-            <th>Description</th>
-          </tr>
-          <tr class="[% ' hidden' IF item.members.keys.size > 0 %]">
-            <td colspan="3">
-            <div id="switchMembersEmpty" class="unwell unwell-horizontal">
+        [%- IF item.id.defined %]
+            <div class="control-group">
+              <label class="control-label" for="pid">Add member</label>
+              <div class="controls">
+                <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
+                <button name="addNewMember" id="addNewMember" data-group="[% item.id %]" class="btn btn-mini btn-success">+</button>
+              </div>
+            </div>
+            <table class="table table-stripped table-condensed">
+              <tr>
+                <th> </th>
+                <th>Identifier</th>
+                <th>Description</th>
+              </tr>
+              <tr class="[% ' hidden' IF item.members.keys.size > 0 %]">
+                <td colspan="3">
+                <div id="switchMembersEmpty" class="unwell unwell-horizontal">
+                  <p>
+                    <i class="icon-group icon-large"></i>
+                    [% l('There are no members in this group') %]
+                  </p>
+                </div>
+                </td>
+              </tr>
+              [% FOREACH member IN item.members.keys %]
+                <tr class="switchGroupMember">
+                  <td id="switchMemberOptions">
+                    <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">[% l('X') %]</a>
+                  </td>
+                  <td>[% member %]</td>
+                  <td>[% item.members.$member.description %]</td>
+                </tr>
+              [% END %]
+            </table>
+        [% ELSE %]
+            <div class="unwell unwell-horizontal">
               <p>
                 <i class="icon-group icon-large"></i>
-                [% l('There are no members in this group') %]
+                [% l('Members can be added after the switch group is saved') %]
               </p>
             </div>
-            </td>
-          </tr>
-          [% FOREACH member IN item.members.keys %]
-            <tr class="switchGroupMember">
-              <td id="switchMemberOptions">
-                <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">[% l('X') %]</a>
-              </td>
-              <td>[% member %]</td>
-              <td>[% item.members.$member.description %]</td>
-            </tr>
-          [% END %]
-        </table>
+        [% END %]
       </div><!--tab-pane-->
 
     </div><!--tab-content-->
