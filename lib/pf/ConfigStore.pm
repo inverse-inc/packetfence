@@ -448,7 +448,7 @@ sub commitPfconfig {
         }
         else {
             my $manager = pfconfig::manager->new;
-            $manager->expire($self->pfconfigNamespace);            
+            $manager->expire($self->pfconfigNamespace);
         }
     }
     else{
@@ -476,6 +476,7 @@ sub commitCluster {
 
 sub search {
     my ($self, $field, $value, $idKey) = @_;
+    return unless defined $field && defined $value;
     return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
 
 }
