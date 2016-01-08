@@ -19,6 +19,7 @@ use pf::util;
 
 sub add_mac_to_log_context {
     my ($args) = @_;
+    return unless defined $args;
     my $params;
     if (@$args == 1) {
         if (ref($args->[0]) eq 'HASH') {
