@@ -135,7 +135,7 @@ sub post_auth {
         }
         my $config = _get_rpc_config();
         my $data;
-        if ( ( defined($RAD_REQUEST{'NAS-Port-Type'}) || defined($RAD_REQUEST{'Service-Type'} ) ) && ($RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User' ||  $RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) {
+        if ( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) ) {
             $data = send_rpc_request($config, "radius_switch_access", \%RAD_REQUEST);
         } else {
             $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);

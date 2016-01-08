@@ -157,7 +157,7 @@ Returns a true if the ip address is in a inline network.
 
 sub isInlineIP {
     my ($this, $ip) =@_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $logger = get_logger(ref($self));
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
