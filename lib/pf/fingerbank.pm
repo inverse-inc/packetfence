@@ -30,6 +30,7 @@ use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
+use pf::StatsD::Timer;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
@@ -40,6 +41,7 @@ our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_
 =cut
 
 sub process {
+    my $timer = pf::StatsD::Timer->new();
     my ( $query_args ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -85,6 +87,7 @@ sub process {
 =cut
 
 sub _query {
+    my $timer = pf::StatsD::Timer->new();
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -201,6 +204,7 @@ sub sync_upstream_db {
 =cut
 
 sub mac_vendor_from_mac {
+    my $timer = pf::StatsD::Timer->new();
     my ($mac) = @_;
     my $mac_oui = $mac;
     $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
