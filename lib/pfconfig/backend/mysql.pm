@@ -169,7 +169,7 @@ sub list {
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
-        return 0;
+        return ();
     }
     my $statement = $db->prepare( "SELECT id FROM keyed");
     eval {
@@ -197,7 +197,7 @@ sub list_matching {
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
-        return 0;
+        return ();
     }
     my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
     eval {
