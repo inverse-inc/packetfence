@@ -101,6 +101,7 @@ sub _query {
 =cut
 
 sub _trigger_violations {
+    my $timer = pf::StatsD::Timer->new();
     my ( $query_args, $query_result, $parents ) = @_;
     my $logger = pf::log::get_logger;
 
