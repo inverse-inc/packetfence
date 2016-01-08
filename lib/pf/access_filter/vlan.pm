@@ -76,13 +76,11 @@ evaluate action parameters
 
 sub evalParam {
     my ($self, $action_param, $args) = @_;
-    $action_param =~ s/\s//g;
-    my @params = split(',', $action_param);
+    my @params = split(/\s*,\s*/, $action_param);
     my $return = {};
-
     foreach my $param (@params) {
         $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        my @param_unit = split('=', $param);
+        my @param_unit = split(/\s*=\s*/, $param);
         $return = {%$return, @param_unit};
     }
     return $return;
