@@ -156,7 +156,7 @@ Returns a true if the ip address is in a inline network.
 
 
 sub isInlineIP {
-    my ($this, $ip) =@_;
+    my ($self, $ip) =@_;
     my $logger = get_logger(ref($self));
 
     foreach my $network ( keys %ConfigNetworks ) {
