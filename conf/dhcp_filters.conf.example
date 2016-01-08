@@ -11,7 +11,7 @@
 #
 #[mac]
 #filter = mac
-#operator = regexp
+#operator = regex
 #value = ^00:0b:ab
 #
 #[dhcp_fingerprint]
