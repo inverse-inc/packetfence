@@ -80,6 +80,7 @@ sub evalParam {
     my $return = {};
     foreach my $param (@params) {
         $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
+        $param =~ s/^\s+|\s+$//g;
         my @param_unit = split(/\s*=\s*/, $param);
         $return = {%$return, @param_unit};
     }
