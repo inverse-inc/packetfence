@@ -2505,6 +2505,11 @@ A restart of the syslog-ng daemon is then required
 
 On the PacketFence server:
 
+Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in `/etc/rsyslog.conf`:
+
+  $ModLoad imudp
+  $UDPServerRun 514
+
 Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
 
   :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
