@@ -1335,9 +1335,19 @@ graphite_port=2013
 #
 # monitoring.db_port
 #
-db_port=3306
+db_port=
 
 #
 # monitoring.db_host
 #
-db_host=localhost
+db_host=
+
+#
+# monitoring.db_user
+#
+db_user=
+
+#
+# monitoring.db_pass
+#
+db_pass=

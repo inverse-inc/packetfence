@@ -152,6 +152,10 @@ sub field_list {
                 $field->{type} = 'Email';
                 last;
             };
+            $type eq 'obfuscated' && do {
+                $field->{type} = 'ObfuscatedText';
+                last;
+            };
         }
 
         push(@$list, $name => $field);
