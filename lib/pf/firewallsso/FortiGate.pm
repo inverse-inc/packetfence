@@ -18,7 +18,7 @@ use warnings;
 use base ('pf::firewallsso');
 
 use POSIX;
-use Log::Log4perl;
+use pf::log;
 
 use pf::config;
 sub description { 'FortiGate Firewall' }
@@ -36,7 +36,7 @@ Perform a radius accounting request based on the registered status of the node a
 
 sub action {
     my ($self,$firewall_conf,$method,$mac,$ip,$timeout) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
+    my $logger = $self->logger;
 
     my $node_info = node_view($mac);
 
@@ -79,13 +79,24 @@ sub action {
     }
 }
 
+=head2 logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

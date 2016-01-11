@@ -89,6 +89,45 @@ sub remove {
     return $self->{cache}->remove($key);
 }
 
+=head2
+
+Remove an element in the backend
+
+=cut
+
+sub clear {
+    my ( $self ) = @_;
+    return $self->{cache}->clear();
+}
+
+=head2 list
+
+List all the keys in the backend
+
+=cut
+
+sub list {
+    my ( $self ) = @_;
+    return $self->{cache}->get_keys();
+}
+
+=head2 list_matching
+
+List all the keys matching a regular expression
+
+=cut
+
+sub list_matching {
+    my ( $self, $expression ) = @_;
+    my @keys = $self->list();
+
+    my @valid_keys;
+    foreach my $key (@keys){
+        push @valid_keys, $key if($key =~ /$expression/);
+    }
+    return @valid_keys;
+}
+
 =back
 
 =head1 AUTHOR
@@ -97,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

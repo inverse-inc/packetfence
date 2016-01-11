@@ -32,6 +32,7 @@ has '+launcher' => (
     }
 );
 
+
 sub generateConfig {
     generate_storage_config();
     generate_carbon_config();

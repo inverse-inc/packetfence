@@ -27,7 +27,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 my $accounting_table = 'inline_accounting';
@@ -53,8 +53,8 @@ use pf::config;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::cached;
 use pf::db;
-use pf::trigger;
 use pf::violation;
+use pf::config::violation;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -74,7 +74,7 @@ Prepares all the SQL statements related to this module
 =cut
 
 sub accounting_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing" . __PACKAGE__ . "database queries");
 
     $accounting_statements->{'accounting_update_session_for_ip'} =
@@ -156,7 +156,7 @@ sub accounting_db_prepare {
 
 sub inline_accounting_update_session_for_ip {
     my ($ip, $inbytes, $outbytes, $firstseen, $lastmodified) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $active_session_query =  db_query_execute("inline::accounting",
                                                  $accounting_statements,
@@ -180,14 +180,12 @@ sub inline_accounting_update_session_for_ip {
 
 sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $result = 0;
 
-    # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
-    my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
-    if (scalar(@tid) > 0) {
-        my $violation_id = $tid[0]{'vid'}; # only consider the first violation
-        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING $ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
+    # Check if there's at least a violation using an accounting
+    if (@BANDWIDTH_EXPIRED_VIOLATIONS > 0) {
+        $logger->debug("There is an accounting violation. analyzing inline accounting data");
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = get_db_handle();
@@ -252,7 +250,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

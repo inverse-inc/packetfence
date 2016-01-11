@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::authentication;
 use pf::error qw(is_error is_success);
 use pf::ConfigStore::Authentication;
@@ -27,7 +28,7 @@ use pf::ConfigStore::Authentication;
 sub update {
     my ($self, $source_id, $source_obj, $def_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     unless ($source_id) {
         # Add a new source
@@ -141,7 +142,7 @@ sub updateRule {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

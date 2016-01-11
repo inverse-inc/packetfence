@@ -17,13 +17,17 @@ instantiate the objects.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::config;
 use pf::node;
 use pf::authentication;
 use pf::Portal::Profile;
+use pf::filter_engine::profile;
+use pf::factory::condition::profile;
+use pfconfig::cached_scalar;
 use List::Util qw(first);
+use pf::StatsD::Timer;
 
 =head1 SUBROUTINES
 
@@ -33,23 +37,21 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
+tie our $PROFILE_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Profile';
+
 sub instantiate {
     my ( $self, $mac, $options ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $options ||= {};
     if (defined($options->{'portal'})) {
-        $logger->trace("Instantiate profile ".$options->{'portal'});
         return $self->_from_profile($options->{'portal'});
     }
-    # We apply portal profiles based on the uri, SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
-    # and try to match a portal profile using the previously fetched filters.
-    # If no match, we instantiate the default portal profile.
+
     my $node_info = node_view($mac) || {};
-    $node_info = { %$node_info, %$options } ;
-    my $filter = first { $_->match($node_info) } @Profile_Filters;
-    my $profile_name = $filter ? $filter->profile : 'default';
-    $logger->trace("Instantiate profile $profile_name");
-    return $self->_from_profile($profile_name);
+    $node_info = {%$node_info, %$options};
+
+    my $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info);
+    my $instance = $self->_from_profile($profile_name);
+    return $instance;
 }
 
 =head2 _from_profile
@@ -59,7 +61,11 @@ Massages the profile values before creating the object
 =cut
 
 sub _from_profile {
+    my $timer = pf::StatsD::Timer->new;
     my ($self,$profile_name) = @_;
+    my $logger = get_logger();
+    $profile_name = "default" unless exists $Profiles_Config{$profile_name};
+    $logger->info("Instantiate profile $profile_name");
     my $profile_ref    = $Profiles_Config{$profile_name};
     my %profile        = %$profile_ref;
     my $sources        = $profile{'sources'};
@@ -75,7 +81,8 @@ sub _from_profile {
     $profile{chained_guest_modes} = _chained_guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
     $profile{template_path} = $profile_name;
-    return pf::Portal::Profile->new( \%profile );
+    my $instance =  pf::Portal::Profile->new( \%profile );
+    return $instance;
 }
 
 =head2 _guest_modes_from_sources
@@ -126,7 +133,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

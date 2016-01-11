@@ -18,7 +18,7 @@ use pf::file_paths;
 use pf::util;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::provisioning_config_file };
+sub configFile { $provisioning_config_file };
 
 sub pfconfigNamespace {'config::Provisioning'}
 
@@ -44,6 +44,11 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $data) = @_;
+    my $real_id = $self->_formatSectionName($id);
+    my $config = $self->cachedConfig;
+    # Clear the section of any previous values
+    $config->DeleteSection($real_id);
+    $config->AddSection($real_id);
     $self->flatten_list($data, $self->_fields_expanded);
 }
 
@@ -61,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

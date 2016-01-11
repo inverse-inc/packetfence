@@ -29,7 +29,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -51,37 +50,37 @@ The 6500's security table is per port per Vlan as opposed to per port (as most o
 =cut
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     my $result;
-    if ( $this->isTrunkPort($ifIndex) ) {
+    if ( $self->isTrunkPort($ifIndex) ) {
 
-        $result = $this->setTrunkPortNativeVlan($ifIndex, $newVlan);
+        $result = $self->setTrunkPortNativeVlan($ifIndex, $newVlan);
 
         #expirer manuellement la mac-address-table
-        $this->clearMacAddressTable( $ifIndex, $oldVlan );
+        $self->clearMacAddressTable( $ifIndex, $oldVlan );
 
     } else {
         my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
         $logger->trace("SNMP set_request for vmVlan: $OID_vmVlan");
-        $result = $this->{_sessionWrite}->set_request( -varbindlist =>[ 
+        $result = $self->{_sessionWrite}->set_request( -varbindlist =>[ 
             "$OID_vmVlan.$ifIndex", Net::SNMP::INTEGER, $newVlan ] );
     }
     if ( !defined($result) ) {
-        $logger->error("Error changing VLAN on ifIndex $ifIndex: " . $this->{_sessionWrite}->error);
+        $logger->error("Error changing VLAN on ifIndex $ifIndex: " . $self->{_sessionWrite}->error);
     }
     my $returnValue = ( defined($result) );
 
     # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
     # because this switch's port-security secure MAC address table is VLAN aware
-    if ($this->isPortSecurityEnabled($ifIndex)) {
+    if ($self->isPortSecurityEnabled($ifIndex)) {
 
-        my $auth_result = $this->authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
+        my $auth_result = $self->authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
         if (!defined($auth_result) || $auth_result != 1) {
             $logger->warn("couldn't authorize MAC for new VLAN: no secure mac");
         }
@@ -98,18 +97,18 @@ Changed authVlan's deauthVlan to authVlan.
 =cut
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add an entry to the SecureMacAddrTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -128,11 +127,11 @@ sub authorizeMAC {
     }
     if (@oid_value) {
         $logger->trace("SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
-        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
+        my $result = $self->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
         if (!defined($result)) {
             $logger->warn(
                 "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
-                . "This could be normal. Error message: ".$this->{_sessionWrite}->error()
+                . "This could be normal. Error message: ".$self->{_sessionWrite}->error()
             );
         }
     }
@@ -147,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

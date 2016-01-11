@@ -5,6 +5,7 @@ use pf::config;
 use pf::util qw(isenabled);
 use pf::web;
 use Net::OAuth2::Client;
+use pf::auth_log;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -39,6 +40,7 @@ our %VALID_OAUTH_PROVIDERS = (
 
 sub auth_provider : Local('auth'): Args(1) {
     my ( $self, $c, $provider ) = @_;
+    pf::auth_log::record_oauth_attempt($provider, $c->portalSession->clientMac);
     $c->response->redirect($self->oauth2_client($c,$provider)->authorize);
 }
 
@@ -169,6 +171,7 @@ sub oauth2Result : Path : Args(1) {
         $logger->warn(
             "OAuth2: failed to receive the token from the provider: $@");
         $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to get the token");
+        pf::auth_log::change_record_status($provider, $c->portalSession->clientMac, $pf::auth_log::FAILED);
         $c->detach(Authenticate => 'showLogin');
     }
 
@@ -215,20 +218,19 @@ sub oauth2Result : Path : Args(1) {
                     $pid = $response->content() ;
                     # remove the quotes
                     $pid =~ s/"//g;
+                    $source->lookup_from_provider_info($pid, {email => $pid});
                 }
                 else{
                     # Grab JSON content
                     my $json      = new JSON;
                     my $json_text = $json->decode($response->content());
-                    if ($provider eq 'google') {
-                        $pid = $json_text->{email};
-                    } elsif ($provider eq 'windowslive'){
+                    if ($provider eq 'windowslive'){
                         $pid = $json_text->{emails}->{account};
-                    } elsif ($provider eq 'github'){
-                        # github doesn't provide email by default
-                        $pid = $json_text->{login}.'@github';
-                    } elsif ($provider eq 'facebook'){
-                        $pid = $json_text->{name}.'@facebook';
+                    } elsif ($provider eq 'github') {
+                        # The user can decide to not display his e-mail. In that case we use the username and suffix @github
+                        $pid = $json_text->{email} || $json_text->{login}.'@github';
+                    } else {
+                        $pid = $json_text->{email};
                     }
                     $logger->info("OAuth2 successfull, register and release for username $pid");
                     $source->lookup_from_provider_info($pid, $json_text);
@@ -237,11 +239,13 @@ sub oauth2Result : Path : Args(1) {
                 $logger->info(
                     "OAuth2: failed to validate the token, redireting to login page"
                 );
+                pf::auth_log::change_record_status($provider, $c->portalSession->clientMac, $pf::auth_log::FAILED);
                 $c->stash->{txt_auth_error} = i18n("OAuth2 Error: Failed to validate the token, please retry");
                 $c->detach(Authenticate => 'showLogin');
             }
         }
 
+        pf::auth_log::record_completed_oauth($provider, $c->portalSession->clientMac, $pid, $pf::auth_log::COMPLETED);
         $c->session->{"username"} = $pid;
         $c->session->{source_id} = $source->{id};
         $c->session->{source_match} = undef;
@@ -269,7 +273,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

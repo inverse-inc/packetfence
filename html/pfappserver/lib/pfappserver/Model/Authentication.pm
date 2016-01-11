@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::authentication;
 use pf::error qw(is_error is_success);
 use pf::ConfigStore::Authentication;
@@ -27,8 +28,8 @@ use pf::ConfigStore::Authentication;
 sub update {
     my ($self, $sources) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    
+    my $logger = get_logger();
+
     # Update sources order
     my %valid_sources = map { $_->{id} => $_ } @pf::ConfigStore::auth_sources;
     my @sorted_sources;
@@ -49,7 +50,7 @@ sub update {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

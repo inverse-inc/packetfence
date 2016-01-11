@@ -8,7 +8,7 @@ pf::web::filter - handle the authorization rules on the portal
 
 =head1 DESCRIPTION
 
-pf::web::filter allow, deny, redirect client based on rules. 
+pf::web::filter allow, deny, redirect client based on rules.
 
 =cut
 
@@ -18,7 +18,7 @@ use warnings;
 use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::Connection;
-use Log::Log4perl;
+use pf::log;
 use pf::config;
 use pfconfig::cached_hash;
 our (%ConfigApacheFilters);
@@ -33,7 +33,7 @@ tie %ConfigApacheFilters, 'pfconfig::cached_hash', 'config::ApacheFilters';
 =cut
 
 sub new {
-   my $logger = Log::Log4perl::get_logger("pf::web::filter");
+   my $logger = get_logger();
    $logger->debug("instantiating new pf::web::filter");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
@@ -49,7 +49,7 @@ Test all the rules
 
 sub test {
     my ($self, $r) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     my $c = $r->connection();
     foreach my $rule  ( sort keys %ConfigApacheFilters ) {
@@ -75,7 +75,7 @@ Return the reference to the function that parses the rule.
 
 sub dispatch_rule {
     my ($self, $r, $rule, $name) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if (!defined($rule)) {
         $logger->error("The rule $name you try to test doesn´t exist");
@@ -222,6 +222,17 @@ sub code {
     }
 }
 
+=item logger
+
+Return the current logger for the switch
+
+=cut
+
+sub logger {
+    my ($proto) = @_;
+    return get_logger( ref($proto) || $proto );
+}
+
 
 =back
 
@@ -233,7 +244,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

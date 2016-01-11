@@ -31,7 +31,7 @@ and voice VLANs).
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -49,24 +49,24 @@ sub description { 'Netgear GS110' }
 =cut
 
 sub getVersion {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self ) = @_;
+    my $logger = get_logger();
 
     my $OID_version = "1.3.6.1.2.1.47.1.1.1.1.10.1";    # Provided by snmpbulkwalk the switch
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return;
     }
 
     $logger->trace("SNMP get_request for OID_version: ( $OID_version )");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [
         "$OID_version"
     ] );
     $result = $result->{"$OID_version"};
 
     # Error handling
     if ( !defined($result) ) {
-        $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
+        $logger->warn("Asking for software version failed with " . $self->{_sessionRead}->error());
         return;
     }
     if ( !defined($result->{"$OID_version"}) ) {
@@ -86,8 +86,8 @@ sub getVersion {
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self, $trapString ) = @_;
+    my $logger = get_logger();
 
     my $trapHashRef;
 
@@ -116,15 +116,15 @@ sub parseTrap {
 =cut
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = get_logger();
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("The switch isn't in production mode (Do nothing): Should set ifIndex $ifIndex to VLAN $newVlan");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return;
     }
 
@@ -136,20 +136,20 @@ sub _setVlan {
     my $result;
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_ip}
+            . $self->{_ip}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        lock %{ $switch_locker_ref->{ $self->{_ip} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_ip}
+                . $self->{_ip}
                 . "} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -160,25 +160,25 @@ sub _setVlan {
 
         # calculate new settings
         my $egressPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $egressPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $ifIndex - 1, 1 );
         my $untaggedPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $untaggedPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $ifIndex - 1, 1 );
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # set all values
-        if ( !$this->connectWrite() ) {
+        if ( !$self->connectWrite() ) {
             return 0;
         }
         $logger->info(
@@ -189,59 +189,59 @@ sub _setVlan {
         # all will be parsed and acknowledged, but only the first OID will
         # actually change. Hence the tedious series of five sessions below.
 
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE, $newVlan
         ]);
         if ( !defined($result) ) {
-            $logger->error("Error setting PVID $newVlan on ifIndex $ifIndex: " . $this->{_sessionWrite}->error);
+            $logger->error("Error setting PVID $newVlan on ifIndex $ifIndex: " . $self->{_sessionWrite}->error);
         } else {
             $logger->info("Set PVID $newVlan on ifIndex $ifIndex");
         }
 
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan,
         ]);
         if ( !defined($result) ) {
-            $logger->error("Error setting untagged mask on old vlan $oldVlan: " . $this->{_sessionWrite}->error);
+            $logger->error("Error setting untagged mask on old vlan $oldVlan: " . $self->{_sessionWrite}->error);
         } else {
             $logger->info("Set untagged mask on old vlan $oldVlan");
         }
 
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan,,
         ]);
         if ( !defined($result) ) {
-            $logger->error("Error setting tagged egress mask on old vlan $oldVlan: " . $this->{_sessionWrite}->error);
+            $logger->error("Error setting tagged egress mask on old vlan $oldVlan: " . $self->{_sessionWrite}->error);
         } else {
             $logger->info("Set tagged egress mask on old vlan $oldVlan");
         }
 
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan,
         ]);
         if ( !defined($result) ) {
-            $logger->error("Error setting untagged mask on new vlan $newVlan: " . $this->{_sessionWrite}->error);
+            $logger->error("Error setting untagged mask on new vlan $newVlan: " . $self->{_sessionWrite}->error);
         } else {
             $logger->info("Set untagged mask on new vlan $newVlan");
         }
 
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan,,
         ]);     
         if ( !defined($result) ) {
-            $logger->error("Error setting tagged egress mask on new vlan $newVlan: " . $this->{_sessionWrite}->error);
+            $logger->error("Error setting tagged egress mask on new vlan $newVlan: " . $self->{_sessionWrite}->error);
         } else {
             $logger->info("Set tagged egress mask on new vlan $newVlan");
         }
 
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_ip}
+            . $self->{_ip}
             . "} unlocked in _setVlan" );
     return ( defined($result) );
 
@@ -255,7 +255,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -148,7 +148,7 @@ TODO: documention
 
 sub doEmailSelfRegistration : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger;
+    my $logger        = get_logger();
     my $portalSession = $c->portalSession;
     my $session       = $c->session;
     my $profile       = $c->profile;
@@ -205,6 +205,8 @@ sub doEmailSelfRegistration : Private {
         $profile->getName,
         %info,
       );
+    
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # if we are on-site: register the node
     if ( !$session->{preregistration} ) {
@@ -257,7 +259,7 @@ TODO: documention
 
 sub doSponsorSelfRegistration : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger;
+    my $logger        = get_logger();
     my $profile       = $c->profile;
     my $request       = $c->request;
     my $session       = $c->session;
@@ -334,6 +336,8 @@ sub doSponsorSelfRegistration : Private {
         $profile->getName,
         %info,
       );
+    
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # on-site: redirection will show pending page (unless there's a violation for the node)
     if ( !$c->session->{"preregistration"} ) {
@@ -367,7 +371,7 @@ sub doSmsSelfRegistration : Private {
     my %info;
     my $profile        = $c->profile;
     my $request        = $c->request;
-    my $logger         = get_logger;
+    my $logger         = get_logger();
     my $session        = $c->session;
     my $mac            = $portalSession->clientMac;
     my $mobileprovider = $request->param("mobileprovider");
@@ -406,7 +410,7 @@ sub doSmsSelfRegistration : Private {
     $session->{source_match} = undef;
     $c->forward(Authenticate => 'setRole');
 
-    my ( $auth_return, $err, $errargs_ref ) =
+    my ( $auth_return, $err, $code ) =
       pf::activation::sms_activation_create_send( $mac, $pid, $phone, $profile->getName, $mobileprovider );
 
     unless ($auth_return) {
@@ -414,7 +418,9 @@ sub doSmsSelfRegistration : Private {
     }
 
     # set node in pending mode with the appropriate role
+    pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
     $info{'status'} = $pf::node::STATUS_PENDING;
+    $info{'unregdate'} = pf::activation::view_by_code($code)->{expiration};
     node_modify( $portalSession->clientMac(), %info );
     $c->detach( 'Activate::Sms' => 'showSmsConfirmation' );
 
@@ -500,9 +506,7 @@ sub validateBySponsorSource : Private {
     my $request = $c->request;
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
-        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
-                                                { email => $sponsor_email },
-                                                $Actions::MARK_AS_SPONSOR );
+        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
             # sponsor check did not pass
@@ -553,25 +557,32 @@ TODO: documention
 
 sub validateMandatoryFields : Private {
     my ( $self, $c ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my ( $error_code, @error_args );
 
     my $request = $c->request;
     my $profile = $c->profile;
 
-    # Which source is being used
-    # TODO: Move to a switch case with portal rework
-    # 2015.05.08 - dwuelfrath@inverse.ca
-    my $source_type;
-    $source_type = 'email' if $request->param('by_email');
-    $source_type = 'sms' if $request->param('by_sms');
-    $source_type = 'sponsoremail' if $request->param('by_sponsor');
+    my $source;
+    # we use the fields of the chained source if needed
+    if($c->session->{chained_source}){
+        $source = getAuthenticationSource($c->session->{chained_source});
+    }
+    else {
+        # Which source is being used
+        # TODO: Move to a switch case with portal rework
+        # 2015.05.08 - dwuelfrath@inverse.ca
+        my $source_type;
+        $source_type = 'email' if $request->param('by_email');
+        $source_type = 'sms' if $request->param('by_sms');
+        $source_type = 'sponsoremail' if $request->param('by_sponsor');
+        $source = $profile->getSourceByType($source_type);
+    }
 
-    $logger->debug("Validating mandatory and custom fields for '$source_type' based self-registration");
+    $logger->info("Validating mandatory and custom fields for '".$source->id."' based self-registration");
 
     # Getting the source object
-    my $source = $profile->getSourceByType($source_type);
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
@@ -607,7 +618,7 @@ sub authenticateSelfRegistration : Private {
 
 sub showSelfRegistrationPage : Private {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
     my $profile = $c->profile;
     my $request = $c->request;
     my @sources = $profile->getExternalSources;
@@ -630,9 +641,16 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    my @mandatory_fields = $profile->getFieldsForSources(@sources);
-
-    $c->stash( mandatory_fields => \@mandatory_fields );
+    if($c->session->{chained_source}){
+        $c->log->info("Found a chained source. Will use it to compute mandatory fields");
+        my $source = getAuthenticationSource($c->session->{chained_source});
+        my @mandatory_fields = $profile->getFieldsForSources($source);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
+    else {
+        my @mandatory_fields = $profile->getFieldsForSources(@sources);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
 
     $c->stash( template => 'guest.html' );
 }
@@ -677,7 +695,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

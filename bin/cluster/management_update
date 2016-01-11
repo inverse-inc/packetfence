@@ -21,7 +21,7 @@ use pf::log;
 use Net::Interface;
 use Socket;
 
-my $logger = get_logger;
+my $logger = get_logger();
 
 $logger->info("Refreshing services for management mode");
 
@@ -31,14 +31,12 @@ my $priority = $ARGV[3];
 
 if($state eq "MASTER"){
     $logger->info("Transition to master state, starting management services.");
-    `/usr/local/pf/bin/pfcmd service pfdhcplistener start`;
     `/usr/local/pf/bin/pfcmd service pfmon start`;
     my $interface = interface_for_ip($vrrp_ip);
     `arping -c 4 -A -I $interface $vrrp_ip`;
 }
 elsif($state eq "SLAVE"){
     $logger->info("Transition to master state, stoping management services.");
-    `/usr/local/pf/bin/pfcmd service pfdhcplistener stop`;
     `/usr/local/pf/bin/pfcmd service pfmon stop`;
 }
 
@@ -72,7 +70,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

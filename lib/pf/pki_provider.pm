@@ -29,14 +29,65 @@ has cn_attribute => (is => 'rw');
 
 has revoke_on_unregistration => (is => 'rw', default => 'N');
 
-=head2 get_cert
+=head2 country
 
-Get the certificate from the pki
+What country to use for the certificate
 
 =cut
 
-sub get_cert {
-    get_logger->error("get_cert is not implemented for this PKI provider. Certificate generation will fail.");
+has country => ( is => 'rw' );
+
+=head2 state
+
+What state to use for the certificate
+
+=cut
+
+has state => ( is => 'rw' );
+
+=head2 locality
+
+What locality to use for the certificate
+
+=cut
+
+has locality => ( is => 'rw' );
+
+=head2 organization
+
+What organization to use for the certificate
+
+=cut
+
+has organization => ( is => 'rw' );
+
+=head2 organizational_unit
+
+What organizational_unit to use for the certificate
+
+=cut
+
+has organizational_unit => ( is => 'rw' );
+
+
+=head2 module_description
+
+Returns the module description
+
+Parent returns empty so that the factory use the own child module name if not defined in child module
+
+=cut
+
+sub module_description { '' }
+
+=head2 get_bundle
+
+Get the certificate bundle from the pki
+
+=cut
+
+sub get_bundle {
+    get_logger->error("get_bundle is not implemented for this PKI provider. Certificate generation will fail.");
     return $FALSE;
 }
 
@@ -62,7 +113,7 @@ sub _build_ca_cert {
     return Crypt::OpenSSL::X509->new_from_file($self->ca_cert_path);
 }
 
-=head2 _build_ca_cert
+=head2 _build_server_cert
 
 Builds an X509 object the server_cert_path
 
@@ -90,7 +141,7 @@ sub _raw_cert_string {
 
 sub _cert_cn {
     my ($self, $cert) = @_;
-    if($cert->subject =~ /CN=(.*?),/g){
+    if($cert->subject =~ /CN=(.*?)(,|$)/g){
         return $1;
     }
     else {
@@ -111,13 +162,13 @@ sub raw_ca_cert_string {
     return $self->_raw_cert_string($self->ca_cert);
 }
 
-=head2 raw_ca_cert_string
+=head2 raw_server_cert_string
 
 Get the server certificate content minus the ascii armor
 
 =cut
 
-sub raw_server_cert {
+sub raw_server_cert_string {
     my ($self) = @_;
     return $self->_raw_cert_string($self->server_cert);
 }
@@ -129,7 +180,7 @@ sub server_cn {
         return $cn;
     }
     else {
-        get_logger->error("cannot find cn of ca certificate at ".$self->server_cert_path);
+        get_logger->error("cannot find cn of server certificate at ".$self->server_cert_path);
     }
 }
 
@@ -161,7 +212,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

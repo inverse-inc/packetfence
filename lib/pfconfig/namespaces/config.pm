@@ -19,15 +19,15 @@ In order to use it with a configuration file :
 - Implement the init method and initialize at least the file attribute
 to the file path of the configuration file
 - You can also implement the build_child method that is executed after
-the build method and has access to the configuration hash through 
-the attribute cfg 
+the build method and has access to the configuration hash through
+the attribute cfg
 
 =cut
 
 use strict;
 use warnings;
 
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::log;
 
 use base 'pfconfig::namespaces::resource';
@@ -38,6 +38,14 @@ sub init {
     $self->{child_resources}   = [];
 }
 
+sub _parse_error {
+    my ($self) = @_;
+    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
+    print STDERR "$message\n";
+    pfconfig::log::get_logger->error($message);
+    $self->{parse_error} = $message;
+}
+
 sub build {
     my ($self) = @_;
 
@@ -46,8 +54,9 @@ sub build {
     my %added_params = ();
 
     $added_params{-file} = $self->{file};
+    $added_params{-allowempty} = 1;
 
-    tie %tmp_cfg, 'Config::IniFiles', %added_params;
+    tie %tmp_cfg, 'Config::IniFiles', %added_params or $self->_parse_error();
 
     @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
@@ -137,15 +146,13 @@ sub GroupMembers {
     return @members;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

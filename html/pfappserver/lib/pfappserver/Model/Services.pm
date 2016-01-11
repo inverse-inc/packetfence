@@ -8,7 +8,7 @@ use pf::config;
 use pf::error;
 use pf::util;
 use pf::services;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use HTTP::Status qw(:constants :is);
 
 =head1 NAME
@@ -224,7 +224,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

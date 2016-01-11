@@ -17,16 +17,15 @@ No port security support, no RADIUS.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
 sub description {'D-Link DES 3526'}
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     my @fields = split '\|', $trapString;
 
@@ -74,7 +73,7 @@ sub parseTrap {
             $ifIndex = hex $ifIndex;
             $trapHashRef->{'trapIfIndex'} = $ifIndex;
 
-            $trapHashRef->{'trapVlan'} = $this->getVlan( $ifIndex );
+            $trapHashRef->{'trapVlan'} = $self->getVlan( $ifIndex );
             next PARSETRAP;
         }
 
@@ -95,7 +94,7 @@ Inverse inc. <info@inverse.ca> for the updated version.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

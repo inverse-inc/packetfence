@@ -255,11 +255,11 @@ is used by the `pfcmd` CLI) with:
 VLAN assignment
 ~~~~~~~~~~~~~~~
 
-pfsetvlan uses the `getNormalVlan` function defined in `pf::vlan::custom`
+pfsetvlan uses the `getRegisteredRole` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
 ----
-sub getNormalVlan {
+sub getRegisteredRole {
     #$switch is the switch object (pf::Switch)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected

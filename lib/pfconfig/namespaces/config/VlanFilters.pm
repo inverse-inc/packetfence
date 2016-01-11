@@ -25,6 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $vlan_filters_config_file;
+    $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
 }
 
 sub build_child {
@@ -38,15 +39,13 @@ sub build_child {
 
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

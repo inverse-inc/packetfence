@@ -13,7 +13,6 @@ Tested on a Netgear M4100 on firmware 10.0.1.27
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 use pf::constants;
 use pf::config;
@@ -32,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

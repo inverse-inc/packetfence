@@ -12,7 +12,6 @@ This switch was reported to work by the community with the Procurve 2600 module.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
@@ -24,7 +23,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

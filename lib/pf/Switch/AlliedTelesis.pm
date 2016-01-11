@@ -41,7 +41,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch');
 
@@ -69,16 +68,16 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_alliedFirmwareVersion = '.1.3.6.1.4.1.89.2.4.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for oid_alliedFirmwareVersion: $oid_alliedFirmwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_alliedFirmwareVersion] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_alliedFirmwareVersion] );
     my $runtimeSwVersion = ( $result->{$oid_alliedFirmwareVersion} || '' );
 
     return $runtimeSwVersion;
@@ -92,7 +91,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

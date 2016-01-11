@@ -59,6 +59,9 @@ doc-openwrt-hostapd:
 doc-pki:
 	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook docs/PacketFence_PKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PKI_Quick_Install_Guide.pdf
 
+doc-mspki:
+	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook docs/PacketFence_MSPKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MSPKI_Quick_Install_Guide.pdf
+
 .PHONY: configurations
 
 configurations:
@@ -73,26 +76,24 @@ conf/ssl/server.crt:
 	-keyout /usr/local/pf/conf/ssl/server.key \
 	-nodes -config /usr/local/pf/conf/openssl.cnf
 
+conf/pf_omapi_key:
+	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
+
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
 
-.PHONY:sudo
-
-sudo:
-	if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ;\
-		then sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers;\
-	fi
-	if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ;\
-		then sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers;\
-	fi
-	if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd" /etc/sudoers > /dev/null  ) ; then\
-		echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd" >> /etc/sudoers;\
-	fi
-	if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then\
-		echo 'Defaults:pf !requiretty' >> /etc/sudoers;\
-	fi
+bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
+	cc -g -std=c99  -Wall  src/ntlm_auth_wrap.c -o bin/ntlm_auth_wrapper
 
 .PHONY:permissions
+
+/etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
+	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
+
+.PHONY:sudo
+
+sudo:/etc/sudoers.d/packetfence.sudoers
+
 
 permissions:
 	./bin/pfcmd fixpermissions
@@ -137,4 +138,4 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
-devel: configurations conf/ssl/server.crt bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper

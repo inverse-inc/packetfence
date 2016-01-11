@@ -14,6 +14,7 @@ use Moose;
 use namespace::autoclean;
 
 use Date::Parse;
+use pf::log;
 use pf::config::ui;
 use pf::error qw(is_error is_success);
 use pf::pfcmd::graph;
@@ -43,7 +44,7 @@ sub _round {
 
 sub countAll {
     my ($self, $module, $params) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
     my (@results, $result);
@@ -80,7 +81,7 @@ TODO: restore the interval parameter (day/month/year)
 
 sub timeBase {
     my ($self, $graph, $startDate, $endDate, $options) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my $first_time = undef;
@@ -442,7 +443,7 @@ See bin/pfcmd (report)
 
 sub ratioBase {
     my ( $self, $report, $startDate, $endDate, $options ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status, $status_msg );
 
     my $function = \&{"pf::pfcmd::report::report_${report}"};
@@ -521,7 +522,7 @@ sub _format_ratioBase {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

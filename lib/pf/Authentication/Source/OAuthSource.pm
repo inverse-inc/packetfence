@@ -18,18 +18,25 @@ has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
 has '+unique' => (default => 1);
 
+=head2 available_rule_classes
+
+OAuth sources only allow 'authentication' rules
+
+=cut
+
+sub available_rule_classes {
+    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
+}
+
 =head2 available_actions
 
-For an oauth2 source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+For an OAuth source, only the authentication actions should be available
 
 =cut
 
 sub available_actions {
-    return [
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-           ];
+    my @actions = map( { @$_ } $Actions::ACTIONS{$Rules::AUTH});
+    return \@actions;
 }
 
 =head2 available_attributes
@@ -66,7 +73,7 @@ Lookup the person information from the authentication hash received during the O
 
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->warn("Provider information lookup is not implemented on this OAuth source.");
 }
 
@@ -76,7 +83,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

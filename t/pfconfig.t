@@ -7,7 +7,19 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
+    use PfFilePaths;
+    `cp $pf::file_paths::switches_config_file $pf::file_paths::switches_config_file.tmp`;
+    $pf::file_paths::switches_config_file = "$pf::file_paths::switches_config_file.tmp";
+
+    use pfconfig::manager;
+    my $manager = pfconfig::manager->new;
+    $manager->expire('config::Switch');
+    
     use pf::log;
+}
+
+END {
+    `rm $pf::file_paths::switches_config_file`;
 }
 
 use Test::More;
@@ -28,7 +40,7 @@ my $manager = pfconfig::manager->new;
 
 # switches conf config file
 my %switches_conf_file;
-tie %switches_conf_file, 'Config::IniFiles', ( -file => '/usr/local/pf/conf/switches.conf' );
+tie %switches_conf_file, 'Config::IniFiles', ( -file => $pf::file_paths::switches_config_file );
 
 #####
 # Test resource expiration with resource dependencies
@@ -74,38 +86,6 @@ ok(($role eq $new_role), "role is set in default switch in pfconfig cached_hash"
 $role = $default_switch{registrationRole};
 
 ok(($role eq $new_role), "role is changed in default switch in pfconfig resource::default_switch");
-
-##
-# Test exists
-
-ok(exists($switches{default}), "default switch exists");
-ok(exists($switches{"127.0.0.1"}), "127.0.0.1 switch exists");
-ok(!exists($switches{zammit}), "zammit switch doesn't exists");
-
-##
-# Test undefined values
-
-ok(!defined($default_switch{zammit}), 'Undefined switch comes up as undefined');
-
-##
-# Test cached_array
-my @array_test;
-tie @array_test, 'pfconfig::cached_array', 'resource::array_test';
-
-ok(@array_test eq 3, "test array test is valid");
-
-my @array_test_result = ("first", "second", "third");
-
-ok(@array_test ~~ @array_test_result, "test arrays are the same");
-
-##
-# Test exists in array
-
-ok(exists($array_test[0]), "First element exists");
-ok(exists($array_test[1]), "Second element exists");
-ok(exists($array_test[2]), "Third element exists");
-ok(!exists($array_test[3]), "Fourth element doesn't exists");
-ok(exists($array_test[-1]), "-1 element exists");
 
 done_testing();
 

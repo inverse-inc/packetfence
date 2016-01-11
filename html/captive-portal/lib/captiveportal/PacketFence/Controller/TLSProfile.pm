@@ -43,7 +43,7 @@ Collect information about the user and the certificate to generate
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
     my $username = $c->session->{username};
-    my $logger  = get_logger;
+    my $logger  = get_logger();
     my $profile = $c->profile;
     my $request = $c->request;
     my $mac = $c->portalSession->clientMac;
@@ -54,6 +54,18 @@ sub index : Path : Args(0) {
         $c->detach();
     }
 
+    my ( $provisioner, $pki_provider, $pki_provider_type );
+    $provisioner = $c->profile->findProvisioner($mac);
+    if ( $provisioner ) {
+        $pki_provider = $provisioner->getPkiProvider();
+        $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
+    }
+
+    unless ( $provisioner && $pki_provider ) {
+        $c->log->error("No provisioner or pki_provider was found!");
+        $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
+    }
+
     if ( $c->request->method eq 'POST' ) {
         $c->log->info("Processing TLSProfile post");
         $c->detach('cert_process');
@@ -62,7 +74,7 @@ sub index : Path : Args(0) {
     my $source_id = $c->session->{source_id};
     my $source = getAuthenticationSource($source_id);
     my $attributes = $source->search_attributes($c->session->{username});
-    my $certificate_email = $attributes ? $attributes->get_value('mail') : $FALSE;
+    my $certificate_email = $attributes ? $attributes->{'email'} : $FALSE;
 
     if( $certificate_email ) {
         $c->session->{certificate_email} = $certificate_email;
@@ -71,18 +83,18 @@ sub index : Path : Args(0) {
 
     $c->stash(
         certificate_pwd     => word(4,6),
-        template            => 'pki.html',
+        template            => "pki_provider/$pki_provider_type.html",
     );
     $c->detach();
 }
 
-=head2 get_cert
+=head2 get_bundle
 
-Use PkiProvider{get_cert} method to send the request in order to generate the certificate
+Use PkiProvider{get_bundle} method to send the request in order to generate the certificate
 
 =cut
 
-sub get_cert : Private {
+sub get_bundle : Private {
     my ($self, $c) = @_;
     my ($provisioner,$pki_provider);
     my $portalSession = $c->portalSession;
@@ -93,7 +105,7 @@ sub get_cert : Private {
         $c->log->error("No provisioner or pki_provider was found!");
         $self->showError($c,"An error has occured while trying to save your certificate, please contact your local support staff");
     }
-    my $cert_content = $pki_provider->get_cert({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
+    my $cert_content = $pki_provider->get_bundle({ certificate_email => $stash->{certificate_email}, certificate_cn => $stash->{certificate_cn}, certificate_pwd => $stash->{certificate_pwd} });
     $c->log->debug(sub { "cert_content from pki service $cert_content" });
 
     unless(defined($cert_content)){
@@ -121,23 +133,28 @@ sub cert_process : Private {
     $c->forward( 'CaptivePortal' => 'endPortalSession' );
 }
 
-=head2 validate_form
+=head2 process_form
 
-Validate informations input by the user
+Process form information inputed by the user
 
 =cut
 
 sub process_form : Private {
     my ($self, $c) = @_;
     my $logger = $c->log;
+
     my $portalSession = $c->portalSession;
     my $mac    = $portalSession->clientMac;
     my $passwd = $c->request->param('certificate_pwd');
+    my $provisioner = $c->profile->findProvisioner($mac);
+    my $pki_provider = $provisioner->getPkiProvider();
+    my $pki_provider_type = $pf::factory::pki_provider::MODULES{ref($pki_provider)}{'type'};
+
     if(!defined $passwd || $passwd eq '') {
         $c->stash(txt_validation_error => 'No Password given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => 'pki.html',
+            template            => "pki_provider/$pki_provider_type.html",
         );
         $c->detach();
     }
@@ -153,13 +170,11 @@ sub process_form : Private {
         $c->stash(txt_validation_error => 'No e-mail given');
         $c->stash(
             certificate_pwd     => $passwd,
-            template            => 'pki.html',
+            template            => "pki_provider/$pki_provider_type.html",
         );
         $c->detach();
     }
 
-    my $provisioner   = $c->profile->findProvisioner($mac);
-    my $pki_provider = $provisioner->getPkiProvider();
     my $node_info = node_view($mac);
     my $certificate_cn = $pki_provider->user_cn($node_info);
     my $user_cache = $c->user_cache;
@@ -194,7 +209,7 @@ sub prepare_profile : Private {
     my $server_cn = $provisioner->getPkiProvider()->server_cn();
     my $ca_cn = $provisioner->getPkiProvider()->ca_cn();
 
-    $c->forward('get_cert');
+    $c->forward('get_bundle');
     my $b64_cert = encode_base64($stash->{cert_content});
 
     @$pki_session{qw(ca_cn server_cn ca_content b64_cert)} = (
@@ -212,7 +227,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

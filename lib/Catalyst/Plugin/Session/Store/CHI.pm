@@ -116,7 +116,7 @@ sub setup_session {
     if($expires_in) {
         $expire = ref($expires_in) ? $expires_in->seconds : $expires_in;
     } else {
-        $chi->expire_in($expire);
+        $chi->expires_in($expire);
     }
     $config->{expires} = $expire;
 }
@@ -191,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

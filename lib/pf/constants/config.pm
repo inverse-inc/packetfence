@@ -42,6 +42,7 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_WIN_LIVE
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
+  $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_CHAINED
   %NET_INLINE_TYPES
 );
@@ -75,6 +76,7 @@ Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_TWITTER   => 'twitter';
 Readonly our $SELFREG_MODE_NULL   => 'null';
+Readonly our $SELFREG_MODE_KICKBOX   => 'kickbox';
 Readonly our $SELFREG_MODE_CHAINED   => 'chained';
 
 Readonly our %NET_INLINE_TYPES =>  (
@@ -90,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

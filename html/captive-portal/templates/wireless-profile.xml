@@ -19,19 +19,21 @@
                                 <array>
                                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                                 </array>
+                                [% IF provisioner.eap_type.defined and provisioner.eap_type == "13" %]
                                 <key>TLSTrustedServerNames</key>
                                 <array>
                                     <string>[% server_cn %]</string>
                                 </array>
+                                [% END %]
                         </dict>
                         [% END %]
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         [% IF provisioner.broadcast %]
-                        <false/>
-                        [% ELSE %]
                         <true/>
+                        [% ELSE %]
+                        <false/>
                         [% END %]
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>

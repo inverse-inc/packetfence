@@ -34,10 +34,9 @@ use warnings;
 
 use Date::Parse;
 use Crypt::GeneratePassword qw(word);
-use Log::Log4perl;
+use pf::log;
 use POSIX;
 use Readonly;
-use Switch;
 
 use pf::nodecategory;
 use pf::Authentication::constants;
@@ -103,7 +102,7 @@ Instantiate SQL statements to be prepared
 =cut
 
 sub password_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing pf::password database queries");
 
     $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
@@ -272,7 +271,7 @@ Defaults to 0 (no per user limit)
 
 sub generate {
     my ( $pid, $actions, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my %data;
     $data{'pid'} = $pid;
@@ -366,7 +365,7 @@ Modify the password actions
 
 sub modify_actions {
     my ( $password, $actions ) = @_;
-    my $logger        = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger        = get_logger();
     my @ACTION_FIELDS = qw(
         valid_from expiration
         access_duration access_level category sponsor unregdate
@@ -401,7 +400,7 @@ Return values:
 sub validate_password {
     my ( $pid, $password ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $query = db_query_execute(
         PASSWORD,
@@ -453,12 +452,11 @@ sub _check_password {
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
 
-    switch ($hash_string) {
-        case /^$bcrypt_re/ { return _check_bcrypt(@_) }
+    if ($hash_string =~ /^$bcrypt_re/) {
+        return _check_bcrypt(@_);
+    } else {
         # I am leaving room for additional cases (NT hashes, md5 etc.)
-        else {
-            return $plaintext eq $hash_string ? $TRUE : $FALSE;
-        }
+        return $plaintext eq $hash_string ? $TRUE : $FALSE;
     }
 }
 
@@ -478,15 +476,15 @@ sub password_get_hash_type {
 }
 
 sub _hash_password {
-    my ( $plaintext, %params ) = @_;
+    my ($plaintext, %params) = @_;
     my $logger = pf::log::get_logger;
-
-    switch ( $params{"algorithm"} ) {
-        case /$PLAINTEXT/ { return $plaintext }
-        case /$BCRYPT/    { return bcrypt( $plaintext, %params ) }
-        else {
-            $logger->error( "Unsupported hash algorithm " . $params{"algorithm"} );
-        }
+    my $algorithm = $params{"algorithm"};
+    if ($algorithm =~ /$PLAINTEXT/) {
+        return $plaintext;
+    } elsif ($algorithm =~ /$BCRYPT/) {
+        return bcrypt($plaintext, %params);
+    } else {
+        $logger->error("Unsupported hash algorithm " . $params{"algorithm"});
     }
 }
 
@@ -551,7 +549,7 @@ Reset (change) a password for a user in the password table.
 
 sub reset_password {
     my ( $pid, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Making sure pid/password are "ok"
     if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
@@ -577,7 +575,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

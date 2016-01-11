@@ -104,6 +104,7 @@ has_field 'voip' =>
    type => 'Checkbox',
    label => 'Voice Over IP',
    checkbox_value => 'yes',
+   input_without_param => 'no',
   );
 has_field 'last_dot1x_username' =>
   (
@@ -191,7 +192,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

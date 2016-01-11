@@ -4,7 +4,6 @@ use namespace::autoclean;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
-use Log::Log4perl;
 use POSIX;
 
 use pf::constants;
@@ -47,6 +46,9 @@ sub index : Path : Args(0) {
     my $logger  = $c->log;
     if ( defined $code ) {
         $c->forward( 'code', [$code] );
+    } else {
+        $self->showError($c,"An activation code is required");
+        $c->detach;
     }
 }
 
@@ -56,7 +58,7 @@ sub code : Path : Args(1) {
     my $profile       = $c->profile;
     my $node_mac;
     my $request = $c->request;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
 
     # validate code
     my $activation_record = pf::activation::validate_code($code);
@@ -124,7 +126,7 @@ TODO: documention
 sub doEmailRegistration : Private {
     my ( $self, $c, $code ) = @_;
     my $request           = $c->request;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $activation_record = $c->stash->{activation_record};
     my $profile           = $c->profile;
     my $node_mac          = $c->portalSession->guestNodeMac;
@@ -144,7 +146,15 @@ sub doEmailRegistration : Private {
         # if we have a MAC, guest was on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
             my %info;
+
+            # Setting access timeout and role (category) dynamically
+            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
+
+            pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $pf::auth_log::COMPLETED);
+
             $c->session->{"username"} = $pid;
+            $c->session->{"unregdate"} = $info{'unregdate'};
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
@@ -183,8 +193,7 @@ sub doEmailRegistration : Private {
 
             # we create a password using the actions from
             # the email authentication source;
-            my $actions =
-              &pf::authentication::match( $source->{id}, $auth_params );
+            my $actions = &pf::authentication::match( $source->{id}, $auth_params );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -220,7 +229,7 @@ TODO: documention
 
 sub doSponsorRegistration : Private {
     my ( $self, $c, $code ) = @_;
-    my $logger            = get_logger;
+    my $logger            = get_logger();
     my $request           = $c->request;
     my $activation_record = $c->stash->{activation_record};
     my $portalSession     = $c->portalSession;
@@ -258,8 +267,7 @@ sub doSponsorRegistration : Private {
         }
         # Verify if the user has the role mark as sponsor
         my $source_match = $c->session->{source_match} || $c->session->{source_id};
-        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}},
-            $Actions::MARK_AS_SPONSOR);
+        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
         unless (defined $value) {
             $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
             $c->session->{username} = undef;
@@ -311,10 +319,14 @@ sub doSponsorRegistration : Private {
             # register the node
             %info = %{$node_info};
 
+            $c->session->{'unregdate'} = $info{'unregdate'};
+
+            pf::auth_log::record_completed_guest($source->id, $node_mac, $pf::auth_log::COMPLETED);
+
             $c->session->{"username"} = $pid;
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info; 
+            $c->stash->{info}=\%info;
             $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
             $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
 
@@ -345,8 +357,7 @@ sub doSponsorRegistration : Private {
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using
             # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-            my $actions = &pf::authentication::match( $source->{id},
-                { username => $pid, user_email => $pid } );
+            my $actions = &pf::authentication::match( $source->{id}, { username => $pid, user_email => $pid } );
             $info{'password'} =
               pf::password::generate( $pid, $actions );
 
@@ -375,7 +386,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

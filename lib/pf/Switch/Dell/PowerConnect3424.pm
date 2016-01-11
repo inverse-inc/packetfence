@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Data::Dumper;
-use Log::Log4perl;
 use Net::Telnet;
 
 use base ('pf::Switch::Dell');
@@ -27,33 +26,33 @@ use base ('pf::Switch::Dell');
 sub description { 'Dell PowerConnect 3424' }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '112';
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
     my $session;
 
     eval {
-        $session = new Net::Telnet( Host => $this->{_ip}, Timeout => 20 );
+        $session = new Net::Telnet( Host => $self->{_ip}, Timeout => 20 );
 
         #$session->dump_log();
         $session->waitfor('/Password:/');
-        $session->print( $this->{_cliPwd} );
+        $session->print( $self->{_cliPwd} );
         $session->waitfor('/>/');
     };
     if ($@) {
         $logger->error(
-            "ERROR: Can not connect to switch $this->{'_ip'} using Telnet");
+            "ERROR: Can not connect to switch $self->{'_ip'} using Telnet");
         return 1;
     }
 
     $session->print('enable');
     $session->waitfor('/Password:/');
-    $session->print( $this->{_cliEnablePwd} );
+    $session->print( $self->{_cliEnablePwd} );
     $session->waitfor('/#/');
     $session->print('configure');
     $session->waitfor('/\(config\)#/');
@@ -75,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

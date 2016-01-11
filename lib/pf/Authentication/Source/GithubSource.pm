@@ -15,6 +15,7 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Github');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
+has 'scope' => (isa => 'Str', is => 'rw', default => 'user,user:email');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://github.com');
@@ -35,7 +36,7 @@ Lookup the person information from the authentication hash received during the O
 sub lookup_from_provider_info {
     my ( $self, $pid, $info ) = @_;
     my ($first_name, $last_name) = split(' ', $info->{name});
-    person_modify( $pid, firstname => $first_name, lastname => $last_name );
+    person_modify( $pid, firstname => $first_name, lastname => $last_name, email => $info->{email} );
 }
 
 =head1 AUTHOR
@@ -44,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,93 @@
+#!/bin/sh
+#
+# redis        init file for starting up the redis daemon
+#
+# chkconfig:   - 20 80
+# description: Starts and stops the redis daemon.
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+PF_DIR=/usr/local/pf
+name="packetfence-redis-cache"
+exec="/usr/bin/redis-server"
+shut="/usr/bin/redis-shutdown"
+pidfile="$PF_DIR/var/run/redis_cache.pid"
+REDIS_CONFIG="$PF_DIR/conf/redis_cache.conf"
+
+
+start() {
+    [ -f $REDIS_CONFIG ] || exit 6
+    [ -x $exec ] || exit 5
+    echo -n $"Starting $name: "
+    daemon --user pf "$exec $REDIS_CONFIG --daemonize yes --pidfile $pidfile"
+    retval=$?
+    echo
+    return $retval
+}
+
+stop() {
+    echo -n $"Stopping $name: "
+    [ -x $shut ] && $shut
+    retval=$?
+    if [ -f $pidfile ]
+    then
+        # shutdown haven't work, try old way
+        killproc -p $pidfile "redis-server"
+        retval=$?
+    else
+        success "$name shutdown"
+    fi
+    echo
+    return $retval
+}
+
+restart() {
+    stop
+    start
+}
+
+reload() {
+    false
+}
+
+rh_status() {
+    status -p $pidfile $name
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart}"
+        exit 2
+esac
+exit $?

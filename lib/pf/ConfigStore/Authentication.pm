@@ -83,7 +83,7 @@ deleted.
 
 sub deleteSource {
     my $id = shift;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my %Profiles_Config;
     tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
@@ -110,7 +110,7 @@ Write the configuration file to disk
 
 sub writeAuthenticationConfigFile {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $cached_authentication_config = $self->cachedConfig;
     # Remove deleted sections
     my %new_sources = map { $_->id => undef } @auth_sources;
@@ -145,6 +145,7 @@ sub writeAuthenticationConfigFile {
             # Since 'description' is defined in the parent section, set the paramater through the object
             # for proper cfgtialization
             $cached_authentication_config->newval($rule_id, 'description', $rule->{'description'});
+            $cached_authentication_config->newval($rule_id, 'class', $rule->{'class'});
             $cfg{$rule_id}{match} = $rule->{'match'};
 
             my $index = 0;
@@ -195,7 +196,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

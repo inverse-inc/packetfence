@@ -18,7 +18,6 @@ This module is currently only a placeholder, see pf::Switch::Nortel.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Nortel');
@@ -31,7 +30,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

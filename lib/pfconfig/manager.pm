@@ -31,13 +31,11 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
-#use Cache::BDB;
-use Cache::Memcached;
+use JSON::MaybeXS;
 use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
-use pfconfig::backend::mysql;
 use pfconfig::log;
 use pf::util;
 use Time::HiRes qw(stat time);
@@ -45,8 +43,8 @@ use File::Find;
 use pfconfig::util;
 use POSIX;
 use POSIX::2008;
-use JSON;
 use List::MoreUtils qw(first_index);
+use Tie::IxHash;
 
 =head2 config_builder
 
@@ -80,10 +78,6 @@ sub get_namespace {
 
     my @args;
     ($name, @args) = pfconfig::util::parse_namespace($name);
-    my $args_size = @args;
-    if($args_size){
-        $self->add_namespace_to_overlay($full_name);
-    }
 
     my $type   = "pfconfig::namespaces::$name";
 
@@ -99,27 +93,36 @@ sub get_namespace {
     return $elem;
 }
 
-sub add_namespace_to_overlay {
-    my ($self, $namespace) = @_;
-    my $logger = pfconfig::log::get_logger;
-    $logger->info("We're doing namespace overlaying for $namespace");
+=head2 is_overlayed_namespace
 
-    my $namespaces = $self->{cache}->get('_namespace_overlay') || ();
+Returns 0 if the namespace is static, 1 if it is an overlayed namespace
 
-    my $ns_index = first_index {$_ eq $namespace} @$namespaces;
-    if($ns_index == -1){
-        push @$namespaces, $namespace;
+=cut
+
+sub is_overlayed_namespace {
+    my ($self, $base_namespace) = @_;
+    if($base_namespace =~ /.*\(.+\)$/){
+        return 1;
     }
-    $self->{cache}->set('_namespace_overlay', $namespaces);
+    return 0;
 }
+
+=head2 overlayed_namespaces
+
+Returns the overlayed namespaces for a static namespace
+  ex : 
+    static namespace : "config::Pf"
+    overlayed namespaces : ("config::Pf(some-argument)", "config::Pf(another-argument)")
+
+=cut
 
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
-    if($base_namespace =~ /.*\(.+\)/){
-        return ();
-    }
-    my $namespaces_ref = $self->{cache}->get('_namespace_overlay');
-    my @namespaces = defined($namespaces_ref) ? @$namespaces_ref : ();
+
+    # An overlayed namespace can't have overlayed namespaces
+    return () if $self->is_overlayed_namespace($base_namespace);
+
+    my @namespaces = @{ $self->all_overlayed_namespaces() };
     my @overlayed_namespaces;
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
@@ -130,9 +133,15 @@ sub overlayed_namespaces {
     return @overlayed_namespaces;
 }
 
-sub clear_overlayed_namespaces {
+=head2 all_overlayed_namespaces
+
+Returns an Array ref of all the overlayed namespaces persisted in the backend
+
+=cut
+
+sub all_overlayed_namespaces {
     my ($self) = @_;
-    $self->{cache}->set('_namespace_overlay', undef);
+    return [ $self->{cache}->list_matching('\(.*\)$') ];
 }
 
 =head2 new
@@ -160,7 +169,20 @@ sub init_cache {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    $self->{cache} = pfconfig::backend::mysql->new;
+    my $cfg    = pfconfig::config->new->section('general');
+
+    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
+
+    my $type   = "pfconfig::backend::$name";
+
+    $type = untaint_chain($type);
+
+    # load the module to instantiate
+    if ( !( eval "$type->require()" ) ) {
+        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+    }
+
+    $self->{cache} = $type->new();
 
     $self->{memory}       = {};
     $self->{memorized_at} = {};
@@ -189,9 +211,9 @@ sub touch_cache {
         close($fh);
     }
     if ( -e $filename ) {
-        sysopen( my $fh, $filename, O_RDWR | O_CREAT );
-        POSIX::2008::futimens( fileno $fh );
-        close($fh);
+        my $command = 'touch --date=@'.time.' '."'".$filename."'";
+        $command = untaint_chain($command);
+        `$command`;
     }
     my ( undef, undef, $uid, $gid ) = getpwnam('pf');
     chown( $uid, $gid, $filename );
@@ -235,6 +257,27 @@ sub get_cache {
 
 }
 
+=head2 post_process_element
+
+Post processes an element fetched from the cache backend
+For now, it is used only to transform non-ordered hashes into ordered ones so forked processes have the same ordering of the keys
+
+=cut
+
+sub post_process_element {
+    my ($self, $element) = @_;
+    if(ref($element) eq 'HASH'){
+        tie my %copy, 'Tie::IxHash';
+        my @keys = keys(%$element);
+        @keys = sort(@keys);
+        foreach my $key (@keys){
+            $copy{$key} = $element->{$key};
+        }
+        return \%copy;
+    }
+    return $element;
+}
+
 =head2 cache_resource
 
 Builds the resource associated to a namespace and then caches it in the L1 and L2
@@ -247,6 +290,8 @@ sub cache_resource {
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
+    # inflates the element if necessary
+    $result = $self->post_process_element($result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
@@ -306,6 +351,10 @@ Expire a namespace in the cache and rebuild it
 If the namespace has child resources, it expires them too.
 Will expire the memory cache after building
 
+If expiring an overlayed namespace, it doesn't expire it's child resources as it's considered as a final resource to not duplicate expiration during it's associated namespace.
+
+To fully expire a namespace with it's child resources and overlayed namespaces, the non-overlayed namespace must be passed to expire
+
 =cut
 
 sub expire {
@@ -321,19 +370,21 @@ sub expire {
         $self->cache_resource($what);
     }
 
-    my $namespace = $self->get_namespace($what);
-    if ( $namespace->{child_resources} ) {
-        foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
-            $logger->info("Expiring child resource $child_resource. Master resource is $what");
-            $self->expire($child_resource, $light);
+    unless($self->is_overlayed_namespace($what)){
+        my $namespace = $self->get_namespace($what);
+        if ( $namespace->{child_resources} ) {
+            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
+                $logger->info("Expiring child resource $child_resource. Master resource is $what");
+                $self->expire($child_resource, $light);
+            }
         }
-    }
 
-    # expire overlayed namespaces
-    my @overlayed_namespaces = $self->overlayed_namespaces($what);
-    foreach my $namespace (@overlayed_namespaces){
-        $logger->info("Expiring overlayed resource from base resource $what.");
-        $self->expire($namespace, $light);
+        # expire overlayed namespaces
+        my @overlayed_namespaces = $self->overlayed_namespaces($what);
+        foreach my $namespace (@overlayed_namespaces){
+            $logger->info("Expiring overlayed resource from base resource $what.");
+            $self->expire($namespace, $light);
+        }
     }
 }
 
@@ -346,7 +397,15 @@ Has an ignore list declared below
 
 sub list_namespaces {
     my ( $self, $what ) = @_;
-    my @skip = ( 'config', 'resource', 'config::template', );
+
+    my $static_namespaces = $self->list_static_namespaces();
+    my $overlayed_namespaces = $self->all_overlayed_namespaces;
+    return (@$static_namespaces, @$overlayed_namespaces);
+}
+
+our %skip = ( 'config'=> 1, 'resource'=> 1, 'config::template'=> 1, 'FilterEngine::AccessScopes' => 1 );
+
+sub list_static_namespaces {
     my $namespace_dir = "/usr/local/pf/lib/pfconfig/namespaces";
     my @modules;
     find(
@@ -360,7 +419,7 @@ sub list_namespaces {
                 $module =~ s/\//::/g;
                 return if $module =~ /::\..*$/;
                 return if $module =~ /^\..*$/;
-                return if grep( /^$module$/, @skip );
+                return if exists $skip{$module};
                 push @modules, $module;
             },
             no_chdir => 1
@@ -368,8 +427,25 @@ sub list_namespaces {
         $namespace_dir
     );
     @modules = sort @modules;
-    my $overlayed_namespaces = $self->{cache}->get('_namespace_overlay') || [];
-    return (@modules, @$overlayed_namespaces);
+    return \@modules;
+}
+
+sub list_top_namespaces {
+    my ( $self ) = @_;
+    my $static_namespaces = $self->list_static_namespaces();
+    my @children;
+    my @top_level_namespaces;
+
+    foreach my $namespace (@$static_namespaces){
+        my $o = $self->get_namespace($namespace);
+        push @children, @{$o->{child_resources}} if $o->{child_resources};
+    }
+
+    foreach my $namespace (@$static_namespaces){
+        push @top_level_namespaces, $namespace unless any { $_ eq $namespace } @children;
+    }
+
+    return @top_level_namespaces;
 }
 
 =head2 preload_all
@@ -399,7 +475,7 @@ Method that expires all the namespaces defined by list_namespaces
 sub expire_all {
     my ($self, $light) = @_;
     my $logger = pfconfig::log::get_logger;
-    my @namespaces = $self->list_namespaces;
+    my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
         if(defined($light) && $light){
             $logger->info("Light expiring $namespace");
@@ -418,7 +494,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

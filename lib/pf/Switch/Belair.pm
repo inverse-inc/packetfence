@@ -39,7 +39,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::constants;
 use pf::config;
@@ -67,19 +66,19 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_beActiveBank = '.1.3.6.1.4.1.15768.3.1.1.3.1';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_beActiveBank");
 
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_beActiveBank] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_beActiveBank] );
     if (defined($result)) {
         #Fetch the active version
         my $oid_beBank = '1.3.6.1.4.1.15768.3.1.1.3.5.1.2.' . $result->{$oid_beActiveBank};
-        $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_beBank] );
+        $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_beBank] );
 
         if (defined($result)) {
             return $result->{$oid_beBank};
@@ -97,9 +96,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled.  TrapString was: $trapString");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -117,7 +116,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -135,8 +134,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -157,7 +156,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

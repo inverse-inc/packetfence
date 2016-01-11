@@ -15,7 +15,6 @@ This modules extends pf::Switch::Cisco::Aironet
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::config;
@@ -34,8 +33,8 @@ Specifices the type of deauth
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -54,12 +53,12 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     $mac = format_mac_as_cisco($mac);
 
     # perform CoA
-    $this->radiusDisconnect($mac);
+    $self->radiusDisconnect($mac);
 }
 
 =head2 radiusDisconnect
@@ -70,26 +69,26 @@ Send a CoA to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
         return;
     }
 
-    $logger->info("[$mac] deauthenticating");
+    $logger->info("deauthenticating");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("[$mac] controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
@@ -101,10 +100,10 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -121,8 +120,8 @@ sub radiusDisconnect {
 
     } catch {
         chomp;
-        $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
@@ -142,7 +141,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

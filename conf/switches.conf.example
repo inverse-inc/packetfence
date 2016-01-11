@@ -6,6 +6,7 @@
 # http://www.fsf.org/licensing/licenses/gpl.html
 
 [default]
+type=Generic
 description=Switches Default Values
 vlans = 1,2,3,4,5
 normalVlan = 1
@@ -21,7 +22,8 @@ isolationRole = isolation
 macDetectionRole = macDetection
 voiceRole = voice
 inlineRole = inline
-VoIPEnabled = no
+VoIPEnabled = N
+cliAccess = N
 VlanMap = Y
 RoleMap = Y
 

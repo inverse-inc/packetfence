@@ -17,9 +17,9 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
-use Log::Log4perl qw(get_logger);
 use HTML::FormHandler::Params;
 use fingerbank::Config;
+use pf::fingerbank;
 
 with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [qw(list)] };
 with 'pfappserver::Base::Controller::Crud::Pagination';
@@ -48,6 +48,33 @@ sub action_defaults {
     );
 }
 
+after [qw(create update clone)] => sub {
+    my ($self, $c) = @_;
+    if ((is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
+        pf::fingerbank::sync_local_db();
+        my $cache = pf::CHI->new( namespace => 'fingerbank');
+        my $model_name = $self->getModel($c)->fingerbankModel();
+        foreach my $key ($cache->get_keys()){
+            if($key =~ /^$model_name\_/){
+                $c->log->debug("Expiring $key since $model_name has changed.");
+                $cache->expire($key);
+            }
+            # special case, we need to expire results from the CombinationMatch view
+            elsif($model_name eq "Combination" && $key =~ /^CombinationMatch_/){
+                $c->log->debug("Expiring $key since $model_name has changed.");
+                $cache->expire($key);
+            }
+        }
+    }
+};
+
+after [qw(remove)] => sub {
+    my ($self, $c) = @_;
+    $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
+    pf::fingerbank::sync_local_db();
+};
+
 =head2 scope
 
 Sets the scope of the fingerbank lookup
@@ -66,9 +93,9 @@ Search fingerbank
 =cut
 
 sub search : Chained('scope') : PathPart('search') : Args() {
-    my ($self, $c, $pageNum, $perPage) = @_;
-    $pageNum ||= 1;
-    $perPage ||= 25;
+    my ($self, $c) = @_;
+    my $pageNum = $c->request->param('page_num') // 1;
+    my $perPage = $c->request->param('per_page') // 25;
     my $model = $self->getModel($c);
     my $search_fields = $model->search_fields;
     my $value = $c->request->param('value');
@@ -82,7 +109,7 @@ sub search : Chained('scope') : PathPart('search') : Args() {
         }
     );
     if (is_success($status)) {
-        $c->stash(%$result, pageNum => $pageNum, perPage => $perPage, action => 'search', value => $value);
+        $c->stash(%$result, page_num => $pageNum, per_page => $perPage, action => 'search', value => $value);
     }
     else {
         $c->stash(
@@ -120,6 +147,7 @@ sub get_module_name {
     my $module = $class;
     $module =~ s/^pfappserver::Controller::// if $class =~ /^pfappserver::Controller::/;
     $module =~ s/^pfappserver::PacketFence::Controller::// if $class =~ /^pfappserver::PacketFence::Controller::/;
+    $module =~ s/\=HASH\(0x.*\)$//;
     return $module;
 }
 
@@ -145,7 +173,7 @@ sub get_model_name {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

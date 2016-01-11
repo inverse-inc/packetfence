@@ -20,7 +20,6 @@ has_field username => (
 has_field password => (
     type => 'Password',
     required => 1,
-    password => 0,
 );
 
 has_field host => (
@@ -60,7 +59,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

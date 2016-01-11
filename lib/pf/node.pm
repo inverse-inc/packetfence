@@ -19,10 +19,9 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl qw(get_logger);
-use Log::Log4perl::Level;
+use pf::log;
 use Readonly;
-use pf::StatsD;
+use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 
 use constant NODE => 'node';
@@ -71,7 +70,6 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_custom_search
-        node_mac_wakeup
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -82,12 +80,12 @@ BEGIN {
 }
 
 use pf::constants;
+use pf::config::violation;
 use pf::config;
 use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
-use pf::violation;
 use pf::Portal::ProfileFactory;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -105,7 +103,7 @@ TODO: This list is incomlete
 =cut
 
 sub node_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("Preparing pf::node database queries");
 
     $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
@@ -137,7 +135,7 @@ sub node_db_prepare {
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role_id=?,
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
-            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, device_type=?, device_class=?,
+            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=?, sessionid=?, machine_account=?
         WHERE mac=?
@@ -150,7 +148,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
-            user_agent, computername, dhcp_fingerprint, dhcp_vendor, device_type, device_class,
+            user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
@@ -206,7 +204,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
-            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.device_type, node.device_class,
+            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class,
             node.last_arp, node.last_dhcp,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
@@ -227,6 +225,7 @@ sub node_db_prepare {
        SELECT
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
+           IF(ISNULL(locationlog.connection_sub_type), '', locationlog.connection_sub_type) as last_connection_sub_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
            locationlog.stripped_user_name as stripped_user_name, locationlog.realm as realm,
            locationlog.start_time as last_start_time,
@@ -296,7 +295,7 @@ sub node_db_prepare {
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where
                 ( status="reg" and unregdate != 0 and unregdate < now() ) or
-                ( status="pending" and unregdate < now() ) ]);
+                ( status="pending" and unregdate != 0 and unregdate < now() ) ]);
 
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
@@ -415,8 +414,9 @@ sub node_view_reg_pid {
 # delete and return 1
 #
 sub node_delete {
+    my $timer = pf::StatsD::Timer->new;
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = get_logger();
 
     $mac = clean_mac($mac);
 
@@ -437,33 +437,51 @@ sub node_delete {
     return (1);
 }
 
+our %DEFAULT_NODE_VALUES = (
+    'autoreg'          => 'no',
+    'bypass_vlan'      => '',
+    'computername'     => '',
+    'detect_date'      => '0000-00-00 00:00:00',
+    'dhcp_fingerprint' => '',
+    'last_arp'         => '0000-00-00 00:00:00',
+    'last_dhcp'        => '0000-00-00 00:00:00',
+    'lastskip'         => '0000-00-00 00:00:00',
+    'notes'            => '',
+    'pid'              => $default_pid,
+    'regdate'          => '0000-00-00 00:00:00',
+    'sessionid'        => '',
+    'status'           => $STATUS_UNREGISTERED,
+    'unregdate'        => '0000-00-00 00:00:00',
+    'user_agent'       => '',
+    'voip'             => 'no',
+);
+
 #
 # clean input parameters and add to node table
 #
 sub node_add {
+    my $timer = pf::StatsD::Timer->new;
     my ( $mac, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("node add called");
 
     $mac = clean_mac($mac);
-    return (0) if ( !valid_mac($mac) );
+    if ( !valid_mac($mac) ) {
+        return (0);
+    }
 
     if ( node_exist($mac) ) {
         $logger->warn("attempt to add existing node $mac");
         return (2);
     }
 
-    foreach my $field (
-        'pid',      'voip',        'bypass_vlan',
-        'status',   'detect_date', 'regdate',      'unregdate',
-        'lastskip', 'user_agent',  'computername', 'dhcp_fingerprint',
-        'last_arp', 'last_dhcp',   'notes',        'autoreg',
-        'sessionid'
-        )
+    foreach my $field (keys %DEFAULT_NODE_VALUES)
     {
-        $data{$field} = "" if ( !defined $data{$field} );
+        $data{$field} = $DEFAULT_NODE_VALUES{$field} if ( !defined $data{$field} );
     }
-    $data{status} = _cleanup_status_value($data{status});
+
+    _cleanup_attributes(\%data);
+
     if ( ( $data{status} eq $STATUS_REGISTERED ) && ( $data{regdate} eq '' ) ) {
         $data{regdate} = mysql_date();
     }
@@ -475,14 +493,20 @@ sub node_add {
         return (0);
     }
 
-    db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
+    my $statement = db_query_execute( NODE, $node_statements, 'node_add_sql', $mac,
         $data{pid},              $data{category_id}, $data{status},      $data{voip},
         $data{bypass_vlan},      $data{bypass_role_id}, $data{detect_date}, $data{regdate},
         $data{unregdate},        $data{lastskip},    $data{user_agent},  $data{computername},
         $data{dhcp_fingerprint}, $data{last_arp},    $data{last_dhcp},   $data{notes},
         $data{autoreg},          $data{sessionid}
-    ) || return (0);
-    return (1);
+    );
+
+    if ($statement) {
+        return (1);
+    }
+    else {
+        return (0);
+    }
 }
 
 #
@@ -519,6 +543,7 @@ sub _cleanup_status_value {
     unless ( defined $status && exists $ALLOW_STATUS{$status} ) {
         my $logger = get_logger();
         $logger->warn("The status was set to " . (defined $status ? $status : "'undef'") . " changing it $STATUS_UNREGISTERED" );
+        $pf::StatsD::statsd->increment(called() . ".warn.count" );
         $status = $STATUS_UNREGISTERED;
     }
     return $status;
@@ -534,7 +559,6 @@ It's a simpler and faster version of node_view with fewer fields returned.
 
 sub node_attributes {
     my ($mac) = @_;
-
     $mac = clean_mac($mac);
     my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
@@ -579,7 +603,7 @@ sub _node_view_old {
     $mac = clean_mac($mac);
 
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    #my $logger = get_logger();
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -601,10 +625,10 @@ New implementation in 3.2.0.
 =cut
 
 sub node_view {
+    my $timer = pf::StatsD::Timer->new;
     my ($mac) = @_;
-
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    #my $logger = get_logger();
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -613,7 +637,9 @@ sub node_view {
     $query->finish();
 
     # if no node info returned we exit
-    return if (!defined($node_info_ref));
+    if (!defined($node_info_ref)) {
+        return undef;
+    }
 
     $query = db_query_execute(NODE, $node_statements, 'node_last_locationlog_sql', $mac) || return (0);
     my $locationlog_info_ref = $query->fetchrow_hashref();
@@ -625,15 +651,16 @@ sub node_view {
     $node_info_ref = {
         %$node_info_ref,
         %$locationlog_info_ref,
-        'nbopenviolations' => violation_count($mac),
+        'nbopenviolations' => pf::violation::violation_count($mac),
     };
 
     return ($node_info_ref);
 }
 
 sub node_count_all {
+    my $timer = pf::StatsD::Timer->new;
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -684,12 +711,13 @@ sub node_count_all {
     $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
     #$logger->debug($node_count_all_sql);
 
-    return db_data(NODE, $node_statements, 'node_count_all_sql_custom');
+    my @data =  db_data(NODE, $node_statements, 'node_count_all_sql_custom');
+    return @data;
 }
 
 sub node_custom_search {
     my ($sql) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug($sql);
     $node_statements->{'node_custom_search_sql_customer'} = $sql;
     return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
@@ -702,8 +730,9 @@ Warning: The connection_type field is translated into its human form before retu
 =cut
 
 sub node_view_all {
+    my $timer = pf::StatsD::Timer->new;
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -752,7 +781,8 @@ sub node_view_all {
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    return translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
+    my @data = translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
+    return @data;
 }
 
 =item node_view_with_fingerprint
@@ -763,8 +793,9 @@ node_attributes_with_fingerprint code.  This code will disappear in 2013.
 =cut
 
 sub node_view_with_fingerprint {
+    my $timer = pf::StatsD::Timer->new;
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->warn("DEPRECATED! You should migrate the caller to the faster node_attributes_with_fingerprint");
     my $query = db_query_execute(NODE, $node_statements, 'node_view_with_fingerprint_sql', $mac) || return (0);
@@ -776,12 +807,16 @@ sub node_view_with_fingerprint {
 }
 
 sub node_modify {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
     my ( $mac, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
+
 
     # validation
     $mac = clean_mac($mac);
-    return (0) if ( !valid_mac($mac) );
+    if ( !valid_mac($mac) ) {
+        return (0);
+    }
 
     # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
     my $auto_registered = 0;
@@ -820,26 +855,26 @@ sub node_modify {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
-           return (0);
        }
         if ( defined($data{'category'}) && $data{'category'} ne '' ) {
             $new_role_id = nodecategory_lookup($data{'category'});
         } else {
             $new_role_id = $data{'category_id'};
         }
-        my $node_info = node_view($mac);
-        pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if ($node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
 
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
+    # If we are in inline mode then reevaluate the ipset session to clean old info
+    my $node_info = node_view($mac);
+    pf::ipset::iptables_update_set($mac, $old_role_id, $new_role_id) if ($node_info->{'last_connection_type'} eq $connection_type_to_str{$INLINE});
 
     # Autoregistration handling
     if (!defined($data{'autoreg'}) && (!defined($existing->{autoreg}) || $existing->{autoreg} ne 'yes' )) {
         $existing->{autoreg} = 'no';
     }
 
-    $existing->{'status'} = _cleanup_status_value($existing->{'status'});
+    _cleanup_attributes($existing);
 
     my $new_mac    = clean_mac(lc( $existing->{'mac'} ));
     my $new_status = $existing->{'status'};
@@ -859,27 +894,33 @@ sub node_modify {
     }
 
     my $sth = db_query_execute( NODE, $node_statements,
-        'node_modify_sql',             $new_mac,
-        $existing->{pid},              $existing->{category_id},
-        $existing->{status},           $existing->{voip},
-        $existing->{bypass_vlan},      $existing->{bypass_role_id},
-        $existing->{detect_date},      $existing->{regdate},
-        $existing->{unregdate},        $existing->{lastskip},
-        $existing->{time_balance},     $existing->{bandwidth_balance},
-        $existing->{user_agent},       $existing->{computername},
-        $existing->{dhcp_fingerprint}, $existing->{dhcp_vendor},
-        $existing->{device_type},      $existing->{device_class},
-        $existing->{last_arp},         $existing->{last_dhcp},
-        $existing->{notes},            $existing->{autoreg},
-        $existing->{sessionid},        $existing->{machine_account},
+        'node_modify_sql',              $new_mac,
+        $existing->{pid},               $existing->{category_id},
+        $existing->{status},            $existing->{voip},
+        $existing->{bypass_vlan},       $existing->{bypass_role_id},
+        $existing->{detect_date},       $existing->{regdate},
+        $existing->{unregdate},         $existing->{lastskip},
+        $existing->{time_balance},      $existing->{bandwidth_balance},
+        $existing->{user_agent},        $existing->{computername},
+        $existing->{dhcp_fingerprint},  $existing->{dhcp_vendor},
+        $existing->{dhcp6_fingerprint}, $existing->{dhcp6_enterprise},
+        $existing->{device_type},       $existing->{device_class},
+        $existing->{last_arp},          $existing->{last_dhcp},
+        $existing->{notes},             $existing->{autoreg},
+        $existing->{sessionid},         $existing->{machine_account},
         $mac
     );
-    return ( $sth->rows );
+    if($sth) {
+        return ( $sth->rows );
+    }
+    $logger->error("Unable to modify node '" . $mac // 'undef' . "'");
+    return undef;
 }
 
 sub node_register {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
     my ( $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -915,7 +956,7 @@ sub node_register {
             $logger->error("modify of node $mac failed");
             return (0);
         }
-           $logger->info("[$mac] autoregister a node that is already registered, do nothing.");
+           $logger->info("autoregister a node that is already registered, do nothing.");
            return 1;
        }
     }
@@ -942,10 +983,10 @@ sub node_register {
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
         if ( isenabled($scan->{'registration'})) {
-            violation_add( $mac, $SCAN_VID );
+            pf::violation::violation_add( $mac, $SCAN_VID );
         }
         if (isenabled($scan->{'post_registration'})) {
-                violation_add( $mac, $POST_SCAN_VID );
+                pf::violation::violation_add( $mac, $POST_SCAN_VID );
         }
     }
 
@@ -953,8 +994,9 @@ sub node_register {
 }
 
 sub node_deregister {
+    my $timer = pf::StatsD::Timer->new;
     my ($mac, %info) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $pf::StatsD::statsd->increment( called() . ".called" );
 
     $info{'status'}    = 'unreg';
@@ -988,11 +1030,16 @@ called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
 =cut
 
 sub nodes_maintenance {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $timer = pf::StatsD::Timer->new;
+    my $logger = get_logger();
 
     $logger->debug("nodes_maintenance called");
 
-    my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
+    my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') ;
+    unless ($expire_unreg_query ) {
+        return (0);
+    }
+
     while (my $row = $expire_unreg_query->fetchrow_hashref()) {
         my $currentMac = $row->{mac};
         node_deregister($currentMac);
@@ -1050,8 +1097,9 @@ sub node_expire_lastdhcp {
 }
 
 sub node_cleanup {
+    my $timer = pf::StatsD::Timer->new;
     my ($time) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("calling node_cleanup with time=$time");
 
     foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
@@ -1078,8 +1126,9 @@ Updates the bandwidth balance of a node and close the violations that use the ba
 =cut
 
 sub node_update_bandwidth {
+    my $timer = pf::StatsD::Timer->new;
     my ($mac, $bytes) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Validate arguments
     $mac = clean_mac($mac);
@@ -1093,38 +1142,11 @@ sub node_update_bandwidth {
     }
     elsif ($sth->rows == 1) {
         # Close any existing violation related to bandwidth
-        my @tid = pf::trigger::trigger_view_tid($pf::config::ACCOUNTING_POLICY_BANDWIDTH);
-        foreach my $violation (@tid) {
-            violation_force_close($mac, $violation->{'vid'});
+        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
+            pf::violation::violation_force_close($mac, $vid);
         }
     }
-
     return ($sth->rows);
-}
-
-=item * node_mac_wakeup
-
-Sub invoked each time a MAC as activity (eiher from dhcp or traps).
-
-in: mac address
-
-out: void
-
-=cut
-
-
-sub node_mac_wakeup {
-    my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    # Is there a violation for the Vendor of this MAC?
-    my $dec_oui = macoui2nb($mac);
-    $logger->debug( "sending VENDORMAC::$dec_oui trigger" );
-    pf::violation::violation_trigger( $mac, $dec_oui, "VENDORMAC" );
-
-    my $dec_mac = mac2nb($mac);
-    $logger->debug( "sending MAC::$dec_mac trigger" );
-    pf::violation::violation_trigger( $mac, $dec_mac, "MAC" );
 }
 
 sub node_search {
@@ -1146,10 +1168,11 @@ in: mac address
 
 sub is_node_voip {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->trace("Asked whether node $mac is a VoIP Device or not");
     my $node_info = node_attributes($mac);
+
     if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
     } else {
@@ -1167,10 +1190,11 @@ in: mac address
 
 sub is_node_registered {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->trace("Asked whether node $mac is registered or not");
     my $node_info = node_attributes($mac);
+
     if ($node_info->{'status'} eq $STATUS_REGISTERED) {
         return $TRUE;
     } else {
@@ -1187,8 +1211,9 @@ returns category_id, undef if no category was required or 0 if no category is fo
 =cut
 
 sub _node_category_handling {
+    my $timer = pf::StatsD::Timer->new;
     my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if (defined($data{'category_id'})) {
         # category_id has priority over category
@@ -1224,12 +1249,14 @@ The MAC address is currently not used.
 =cut
 
 sub is_max_reg_nodes_reached {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
     my ($mac, $pid, $category, $category_id) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # default_pid is a special case: no limit for this user
-    return $FALSE if ($pid eq $default_pid || $pid eq $admin_pid);
-
+    if ($pid eq $default_pid || $pid eq $admin_pid) {
+        return $FALSE;
+    }
     # per-category max node per pid limit
     if ( $category || $category_id ) {
         my $category_info;
@@ -1264,8 +1291,8 @@ sub is_max_reg_nodes_reached {
 
 =item node_last_reg
 
-Return the last mac that has been register
-May be sometimes usefull for custom
+Return the last mac that has been registered.
+May sometimes be useful for customization.
 
 =cut
 
@@ -1276,6 +1303,17 @@ sub node_last_reg {
     return ($val);
 }
 
+=head2 _cleanup_attributes
+
+Cleans up any inconsistency in the info attributes
+
+=cut
+
+sub _cleanup_attributes {
+    my ($info) = @_;
+    $info->{voip} ||= $NO_VOIP;
+    $info->{'status'} = _cleanup_status_value($info->{'status'});
+}
 
 =back
 
@@ -1287,7 +1325,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -45,6 +45,7 @@ sub generateConfig {
     $tags{'template'} = "$conf_dir/haproxy.conf";
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
+    $tags{'var_dir'} = $var_dir;
     if ($OS eq 'debian') {
         $tags{'os_path'} = '/etc/haproxy/errors/';
     } else {
@@ -62,11 +63,11 @@ sub generateConfig {
                 # the second server (the one without the VIP) will be the prefered MySQL server
                 if ($i == 0) {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check
+    server MySQL$i $mysql_back:3306 check
 EOT
                 } else {
                 $tags{'mysql_backend'} .= <<"EOT";
-        server MySQL$i $mysql_back:3306 check backup
+    server MySQL$i $mysql_back:3306 check backup
 EOT
                 }
             $i++;
@@ -88,7 +89,7 @@ frontend portal-http-mgmt
         default_backend portal-mgmt-backend
 
 frontend portal-https-mgmt
-        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend portal-mgmt-backend
 
@@ -118,7 +119,7 @@ frontend portal-http-$cluster_ip
         default_backend $cluster_ip-backend
 
 frontend portal-https-$cluster_ip
-        bind $cluster_ip:443 ssl crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         reqadd X-Forwarded-Proto:\\ https
         default_backend $cluster_ip-backend
 
@@ -162,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

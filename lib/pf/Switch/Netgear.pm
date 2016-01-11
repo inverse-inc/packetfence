@@ -9,7 +9,6 @@ pf::Switch::Netgear - Object oriented module to access and configure enabled Net
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -22,7 +21,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

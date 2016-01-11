@@ -24,7 +24,7 @@ accessing data in the array
 
 This class is used with tiying
 
-Example : 
+Example :
 my @array;
 tie @array, 'pfconfig::cached_array', 'resource::authentication_sources';
 print $hash{_ip};
@@ -35,7 +35,7 @@ lib/pfconfig/namespaces/ and served though pfconfig
 The access to index 0 then generates a GET though pfconfig
 that uses a UNIX socket
 
-In order to call a method on this tied object 
+In order to call a method on this tied object
 my $zammit = tied(%hash)->zammit
 
 =cut
@@ -45,7 +45,7 @@ use warnings;
 
 use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use pfconfig::log;
 use pfconfig::cached;
@@ -82,13 +82,11 @@ sub FETCH {
     my ( $self, $index ) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my $subcache_value = $self->get_from_subcache($index);
-    return $subcache_value if defined($subcache_value);
-
-    my $reply = $self->_get_from_socket("$self->{_namespace};$index");
-    my $result = defined($reply) ? $self->_get_from_socket("$self->{_namespace};$index")->{element} : undef;
-
-    $self->set_in_subcache( $index, $result );
+    my $result = $self->compute_from_subcache($index, sub {
+      my $reply = $self->_get_from_socket("$self->{_namespace};$index");
+      my $result = defined($reply) ? $reply->{element} : undef;
+      return $result;
+    });
 
     return $result;
 
@@ -104,10 +102,12 @@ Proxies the call to pfconfig
 sub FETCHSIZE {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
+    my $result = $self->compute_from_subcache("__PFCONFIG_ARRAY_SIZE__", sub {
+        my $reply = $self->_get_from_socket( $self->{_namespace}, "array_size" );
+        return defined $reply ? $reply->{size} : 0;
+    });
 
-    my $result = $self->_get_from_socket( $self->{_namespace}, "array_size" )->{size};
-
-    return $result;
+    return $result // 0;
 }
 
 =head2 EXISTS
@@ -120,11 +120,12 @@ Proxies the call to pfconfig
 sub EXISTS {
     my ( $self, $index ) = @_;
 
-    return $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) )
-        ->{result};
+    return $self->compute_from_subcache("__PFCONFIG_ARRAY_EXISTS_${index}__", sub {
+        my $reply =  $self->_get_from_socket( $self->{_namespace}, "array_index_exists", ( index => $index ) );
+        return defined $reply ? $reply->{result} : undef;
+    });
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -132,7 +133,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

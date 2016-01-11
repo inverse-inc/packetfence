@@ -11,7 +11,9 @@ use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::log;
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all any);
+use pf::config::util;
+use pf::util;
 
 BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }
 
@@ -43,10 +45,17 @@ sub check_password {
   my ($self, $password) = @_;
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-  my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password, @{$internal_sources});
+  my ($stripped_username,$realm) = strip_username($self->_user);
+  my $realm_source = get_realm_source($stripped_username, $realm);
+  if($realm_source && any {$_->id eq $realm_source->id} @{$internal_sources}){
+    get_logger->info("Found realm source ".$realm_source->id." for user $stripped_username in realm $realm. Using it as the only source.");
+    $internal_sources = [$realm_source];
+  }
+  $self->{_user} = isenabled($realm_source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
+  my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
 
   if ($result) {
-      my $value = &pf::authentication::match($source_id, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
+      my $value = &pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
       $self->_roles([split /\s*,\s*/,$value]) if defined $value;
       return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
   }
@@ -75,7 +84,7 @@ sub AUTOLOAD {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

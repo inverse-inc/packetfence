@@ -18,7 +18,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant REPORT => 'pfcmd::report';
 
@@ -92,7 +92,7 @@ TODO: list incomplete
 =cut
 
 sub report_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
+    my $logger = get_logger();
 
     $report_statements->{'report_inactive_all_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
@@ -168,16 +168,16 @@ sub report_db_prepare {
     $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
         SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
         FROM node as n
-            JOIN node_useragent AS nu USING (mac) 
+            JOIN node_useragent AS nu USING (mac)
         WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
     ]);
 
     $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
         SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
         FROM node as n
-            JOIN node_useragent AS nu USING (mac) 
+            JOIN node_useragent AS nu USING (mac)
             LEFT JOIN iplog USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != '' 
+        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
             AND (iplog.end_time=0 OR iplog.end_time > now())
     ]);
 
@@ -201,8 +201,8 @@ sub report_db_prepare {
                     INNER JOIN node ON node.mac=locationlog.mac
                     WHERE locationlog.end_time IS NULL
                 )*100,1
-            ) AS percent 
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+            ) AS percent
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
         WHERE locationlog.end_time IS NULL
         GROUP BY connection_type
     ]);
@@ -210,39 +210,39 @@ sub report_db_prepare {
     $report_statements->{'report_connectiontype_active_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type,count(*) as connections,
             ROUND(COUNT(*)/
-                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
-                    INNER JOIN iplog ON node.mac=iplog.mac 
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
+                    INNER JOIN iplog ON node.mac=iplog.mac
                     WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time IS NULL
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
-        WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time IS NULL 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
+        WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time IS NULL
         GROUP BY connection_type
     ]);
-   
+
     $report_statements->{'report_connectiontypereg_all_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, count(*) as connections,
-            ROUND( COUNT(*) / 
-                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
+            ROUND( COUNT(*) /
+                (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
                     WHERE node.status = "reg" AND locationlog.end_time IS NULL
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac 
-        WHERE node.status = "reg" AND locationlog.end_time IS NULL 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
+        WHERE node.status = "reg" AND locationlog.end_time IS NULL
         GROUP BY connection_type
     ]);
 
     $report_statements->{'report_connectiontypereg_active_sql'} = get_db_handle()->prepare(qq[
         SELECT connection_type, count(*) as connections,
-            ROUND( COUNT(*) / 
+            ROUND( COUNT(*) /
                 (SELECT COUNT(*) FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
-                    WHERE node.status = "reg" AND (iplog.end_time =0 OR iplog.end_time > now()) 
+                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
+                    WHERE node.status = "reg" AND (iplog.end_time =0 OR iplog.end_time > now())
                         AND locationlog.end_time IS NULL
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac 
-        WHERE node.status = "reg" AND (iplog.end_time = 0 OR iplog.end_time > now()) AND locationlog.end_time IS NULL 
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
+        WHERE node.status = "reg" AND (iplog.end_time = 0 OR iplog.end_time > now()) AND locationlog.end_time IS NULL
         GROUP BY connection_type
     ]);
 
@@ -264,31 +264,31 @@ sub report_db_prepare {
 
     $report_statements->{'report_ssid_all_sql'} = get_db_handle()->prepare(qq [
         SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
-            (SELECT COUNT(*) 
+            (SELECT COUNT(*)
                 FROM locationlog
                     INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
                 WHERE ssid != "")
-            *100,1) as percent 
+            *100,1) as percent
         FROM locationlog
            INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
         WHERE ssid != ""
-        GROUP BY ssid 
+        GROUP BY ssid
         ORDER BY nodes
     ]);
 
     $report_statements->{'report_ssid_active_sql'} = get_db_handle()->prepare(qq [
        SELECT ssid,count(*) as nodes, ROUND(COUNT(*)/
-           (SELECT COUNT(*) 
+           (SELECT COUNT(*)
                 FROM locationlog
                     INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
-                    INNER JOIN iplog ON node.mac=iplog.mac 
+                    INNER JOIN iplog ON node.mac=iplog.mac
                 WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
-           )*100,1) as percent 
+           )*100,1) as percent
        FROM locationlog
            INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time IS NULL
-           INNER JOIN iplog ON node.mac=iplog.mac 
-       WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now()) 
-       GROUP BY ssid 
+           INNER JOIN iplog ON node.mac=iplog.mac
+       WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+       GROUP BY ssid
        ORDER BY nodes
     ]);
 
@@ -329,7 +329,7 @@ sub report_db_prepare {
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
+                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
                     FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
                     INNER JOIN node n ON n.mac = LOWER(CONCAT(
                         SUBSTRING(radacct.callingstationid,1,2),':',
@@ -359,7 +359,7 @@ sub report_db_prepare {
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
-                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
+                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
                     FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
                     INNER JOIN node n ON n.mac = LOWER(CONCAT(
                         SUBSTRING(radacct.callingstationid,1,2),':',
@@ -496,7 +496,7 @@ sub report_os_all {
                     percent     => $static_percent,
                     count       => $statics
                     };
-                
+
             }
         }
         if ( $record->{'count'} > 0 ) {
@@ -1073,7 +1073,7 @@ sub translate_connection_type {
     my @data = @_;
 
     return unless (@data);
-    my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
+    my $logger = get_logger();
 
     # determine if we are translating connection_type or last_connection_type
     my $field;
@@ -1118,7 +1118,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

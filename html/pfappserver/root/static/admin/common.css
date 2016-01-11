@@ -147,3 +147,7 @@ li.drop-row,
 .list-defaults span {
   margin:3px;
 }
+
+.modalBillingTier {
+  width:700px;
+}

@@ -22,7 +22,6 @@ use Apache2::ServerRec;
 
 use APR::Table;
 use APR::URI;
-use Log::Log4perl;
 use Template;
 use URI::Escape::XS qw(uri_escape);
 
@@ -43,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

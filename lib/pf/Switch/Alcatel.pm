@@ -30,7 +30,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use Try::Tiny;
 use base ('pf::Switch');
@@ -68,9 +67,9 @@ For now it returns the voiceRole untagged since Alcatel supports multiple untagg
 =cut
 
 sub getVoipVsa{
-    my ($this) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) ); 
-    my $voiceRole = $this->getRoleByName('voice');
+    my ($self) = @_; 
+    my $logger = $self->logger; 
+    my $voiceRole = $self->getRoleByName('voice');
     $logger->info("Accepting phone with untagged Access-Accept on role $voiceRole");
     
     # Return the normal response except we force the voiceVlan to be sent
@@ -87,12 +86,12 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
 
 
     # perform CoA
-    $this->radiusDisconnect($mac);
+    $self->radiusDisconnect($mac);
 }
 
 =head2 returnRoleAttribute
@@ -102,7 +101,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Filter-Id';
 }
@@ -114,8 +113,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques { 
-   my ($this, $method, $connection_type) = @_;
-   my $logger = Log::Log4perl::get_logger( ref($this) );
+   my ($self, $method, $connection_type) = @_;
+   my $logger = $self->logger;
 
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::RADIUS;
@@ -158,7 +157,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -184,7 +183,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         my $node_info = node_attributes($mac);
@@ -229,7 +228,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

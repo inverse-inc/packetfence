@@ -16,7 +16,7 @@ F</usr/local/pf/bin/pfcmd> to parse the options.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use Regexp::Common qw(net);
 
@@ -39,7 +39,7 @@ my $pid_re = qr{(?:
 
 sub parseCommandLine {
     my ($commandLine) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::pfcmd");
+    my $logger = get_logger();
     $logger->debug("starting to parse '$commandLine'");
 
     $commandLine =~ s/\s+$//;
@@ -315,7 +315,7 @@ sub parseCommandLine {
         'service'         => qr{ ^ ( dhcpd | pfdns | pfdetect | pfbandwidthd
                                      | pf | pfdhcplistener | pfmon
                                      | pfsetvlan | radiusd | snmptrapd
-                                     | snort | suricata | haproxy | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | httpd\.aaa | memcached | iptables | keepalived | winbindd)
+                                     | snort | suricata | haproxy | httpd\.webservices | httpd\.admin | httpd\.portal | httpd\.portal\.catalyst | httpd\.proxy | httpd\.aaa | iptables | keepalived | winbindd | redis_queue | pfqueue)
                                    \s+
                                    ( restart | start | status | stop
                                      | watch )
@@ -498,7 +498,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

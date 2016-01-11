@@ -19,6 +19,7 @@ extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.aaa' } );
 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -26,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

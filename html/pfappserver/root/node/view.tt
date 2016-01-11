@@ -69,7 +69,21 @@
             [% IF node.last_switch -%]
             <div class="control-group">
               <label class="control-label">[% l('Switch/AP') %]</label>
-              <div class="controls"><span class="uneditable">[% IF switches.${node.last_switch} %]<a href="" data-toggle="tooltip" title="[% switches.${node.last_switch}.type | html %] ([% switches.${node.last_switch}.mode | html %])">[% node.last_switch | html %]</a>[% ELSE %][% node.last_switch | html %][% END %]</span>
+              <div class="controls">
+                <span class="uneditable">
+                  [% IF switches.${node.last_switch} %]
+                    <a href="" data-toggle="tooltip" title="[% switches.${node.last_switch}.description | html %] ([% switches.${node.last_switch}.type | html %])">[% node.last_switch %]</a>
+                  [% ELSE %]
+                    [% node.last_switch | html %]
+                  [% END %]
+                  <br/>
+                  [% IF item.ssid %] 
+                    <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
+                  [% ELSE %]
+                    [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
+                    [% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %]
+                  [% END %]
+                </span>
                   [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port | html %]</span>[% END %]
                   [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan | html %]</span>[% END %]
                   <span class="label">On [% node.last_start_time | html %]</span></div>
@@ -151,6 +165,7 @@
                     <th>[% l('Switch/AP') %]</th>
                     <th>[% l('Connection Type') %]</th>
                     <th>[% l('Connection Sub Type') %]</th>
+                    <th>[% l('Username') %]</th>
                     <th>[% l('Start') %]</th>
                     <th>[% l('End') %]</th>
                   </tr>
@@ -158,13 +173,27 @@
                 <tbody>
                   [% FOR item IN node.locationlog.history %]
                   <tr[% IF item.end_time %] class="muted"[% END %]>
-                    <td>[% IF switches.${item.switch} %]<a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type | html %] ([% switches.${item.switch}.mode | html %])">[% item.switch %]</a>[% ELSE %][% item.switch | html %][% END %]<br/>[% IF item.ssid %] <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>[% ELSE %][% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %][% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %][% END %]</td>
+                    <td>
+                      [% IF switches.${item.switch} %]
+                        <a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type | html %] ([% switches.${item.switch}.description | html %])">[% item.switch %]</a>
+                      [% ELSE %]
+                        [% item.switch | html %]
+                      [% END %]
+                      <br/>
+                      [% IF item.ssid %] 
+                        <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
+                      [% ELSE %]
+                        [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
+                        [% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %]
+                      [% END %]
+                    </td>
                     <td>[% l(item.connection_type) %]</td>
                     <td>
                     [% IF item.connection_sub_type.defined %]
                       [% l(item.connection_sub_type) %]
                     [% END %]
                     </td>
+                    <td>[% item.dot1x_username | html %]</td>
                     <td>[% item.start_time | html %]</td>
                     <td>[% item.end_time | html %]</td>
                   </tr>
@@ -187,7 +216,6 @@
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          [% IF can_access("NODES_DELETE") %]<a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
           [% IF can_access("NODES_UPDATE") %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF can_access("NODES_UPDATE") %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]

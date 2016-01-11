@@ -6,7 +6,7 @@ pf::Switch::Cisco::SG300
 
 =head1 SYNOPSIS
 
-The pf::Switch::Cisco::SG300 module implements an object oriented interface to 
+The pf::Switch::Cisco::SG300 module implements an object oriented interface to
 manage Cisco SG300 switches
 
 =head1 STATUS
@@ -23,19 +23,21 @@ Developed and tested on SG300 running 1.1.2.0
 
 =item VoIP with MAC authentication
 
+=back
+
+=back
+
 =cut
 
 use strict;
 use warnings;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
-use Log::Log4perl;
+use pf::log;
 
 sub description { 'Cisco SG300' }
 
 =head1 SUBROUTINES
-
-=over
 
 =cut
 
@@ -52,13 +54,13 @@ For now it returns the voiceVlan untagged since Cisco supports multiple untagged
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return (
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $this->{_voiceVlan},
+        'Tunnel-Private-Group-ID' => $self->{_voiceVlan},
     );
 }
 
@@ -81,15 +83,13 @@ Just returns the NAS-Port
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this)); 
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     $logger->debug("Found $NAS_port for ifindex");
 
     return $NAS_port;
 }
-
-=back
 
 =head1 AUTHOR
 
@@ -97,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

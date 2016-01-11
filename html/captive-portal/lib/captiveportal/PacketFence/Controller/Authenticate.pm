@@ -3,16 +3,20 @@ package captiveportal::PacketFence::Controller::Authenticate;
 use Moose;
 use namespace::autoclean;
 use pf::constants;
+use pf::constants::eap_type qw($EAP_TLS);
 use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;
 use pf::util;
+use pf::config::util;
 use pf::locationlog;
 use pf::authentication;
+use pf::Authentication::constants;
 use HTML::Entities;
 use List::MoreUtils qw(any uniq);
 use pf::config;
 use pf::person qw(person_modify);
+use Email::Valid;
 
 our @PERSON_FIELDS = grep {
     $_ ne 'pid'
@@ -231,16 +235,22 @@ sub postAuthentication : Private {
     if ( !pf::person::person_exist($pid) ) {
         person_add($pid);
     }
+
+    # if PID is a valid e-mail we add it to the appropriate field
+    if(Email::Valid->address($pid)){
+        person_modify($pid, email => $pid);
+    }
+
     node_modify($portalSession->clientMac, (pid => $pid));
 
     $c->forward('setupMatchParams');
     $c->forward('setRole');
     $c->forward('setUnRegDate');
-    $c->log->info("Just finished seting the node up");
+    $c->log->trace("Just finished seting the node up");
     $info->{source} = $source_id;
     $info->{portal} = $profile->getName;
     $c->forward('checkIfProvisionIsNeeded');
-    $c->log->info("Passed by the provisioning");
+    $c->log->trace("Passed by the provisioning");
 }
 
 =head2 checkIfChainedAuth
@@ -257,6 +267,7 @@ sub checkIfChainedAuth : Private {
     return unless $source->type eq 'Chained';
     my $chainedSource = $source->getChainedAuthenticationSourceObject();
     if( $chainedSource && $self->isGuestSigned($c,$chainedSource)) {
+        $c->session->{chained_source} = $source->id;
         $self->setAllowedGuestModes($c,$chainedSource);
         $c->detach(Signup => 'showSelfRegistrationPage');
     }
@@ -307,7 +318,7 @@ sub setupMatchParams : Private {
     my $portalSession = $c->portalSession;
     my $pid = $c->stash->{info}->{pid};
     my $mac = $portalSession->clientMac;
-    my $params = { username => $pid };
+    my $params = { username => $pid, mac => $mac };
 
     # TODO : add current_time and computer_name
     my $locationlog_entry = locationlog_view_open_mac($mac);
@@ -329,8 +340,8 @@ sub setRole : Private {
     my $source_match = $session->{source_match} || $session->{source_id};
 
     # obtain node information provided by authentication module. We need to get the role (category here)
-    my $value =
-      &pf::authentication::match( $source_match, $params, $Actions::SET_ROLE );
+    # as web_node_register() might not work if we've reached the limit
+    my $value = &pf::authentication::match( $source_match, { %$params, rule_class => 'authentication' }, $Actions::SET_ROLE );
 
     # This appends the hashes to one another. values returned by authenticator wins on key collision
     if ( defined $value ) {
@@ -383,7 +394,11 @@ sub createLocalAccount : Private {
     my $actions = &pf::authentication::match( $c->session->{source_id}, $auth_params );
 
     # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
-    my $action = pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $c->session->{unregdate}});
+    my $action = pf::Authentication::Action->new({
+        type    => $Actions::SET_UNREG_DATE, 
+        value   => $c->session->{unregdate},
+        class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
+    });
     # Hack alert: We may already have a "SET_UNREG_DATE" action in the array and since the way the authentication framework is working is by going
     # through the actions on a first hit match, we want to make sure the unregistration date we computed (because we are taking care of the access duration,
     # dynamic date, ...) will be the first in the actions array.
@@ -423,7 +438,7 @@ sub checkIfProvisionIsNeeded : Private {
     if (defined( my $provisioner = $profile->findProvisioner($mac))) {
         $c->log->info("Found provisioner " . $provisioner->id . " for $mac");
         my $info = $c->stash->{info};
-        if($provisioner->getPkiProvider) {
+        if($provisioner->getPkiProvider && ($provisioner->{eap_type} eq $EAP_TLS) ) {
             $c->log->info("Detected PKI provider for $mac.");
             $c->session->{info} = $c->stash->{info};
             $c->response->redirect('/tlsprofile');
@@ -490,10 +505,13 @@ sub authenticationLogin : Private {
     }
     $c->stash( profile => $profile );
 
-    my @sources = $self->getSources($c);
 
     my $username = _clean_username($request->param("username"));
+    my $realm;
+    ($username, $realm) = strip_username($username);
     my $password = $request->param("password");
+
+    my @sources = $self->getSources($c, $username, $realm);
 
     if(isenabled($profile->reuseDot1xCredentials)) {
         my $mac       = $portalSession->clientMac;
@@ -510,15 +528,19 @@ sub authenticationLogin : Private {
     } else {
         # validate login and password
         ( $return, $message, $source_id ) =
-          pf::authentication::authenticate( $username, $password, @sources );
+          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if ( defined($return) && $return == 1 ) {
+            pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
             # save login into session
             $c->session(
                 "username"  => $username // $default_pid,
                 "source_id" => $source_id,
                 "source_match" => $source_id,
             );
+            # Logging USER/IP/MAC of the just-authenticated user
+            $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
         } else {
+            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
             $c->error($message);
         }
     }
@@ -531,7 +553,7 @@ Return the source to use to login
 =cut
 
 sub getSources : Private {
-    my ($self,$c) = @_;
+    my ($self,$c,$stripped_username,$realm) = @_;
     my @sources;
     my $use_local_source = $c->stash->{use_local_source};
     my $profile = $c->stash->{profile};
@@ -546,6 +568,15 @@ sub getSources : Private {
             @sources =
                 ( $profile->getInternalSources, $profile->getExclusiveSources );
         }
+    }
+
+    my $realm_source = get_realm_source($stripped_username, $realm);
+    if( $realm_source && any { $_ eq $realm_source} @sources ){
+        $c->log->info("Realm source is part of the portal profile sources. Using it as the only auth source.");
+        return ($realm_source);
+    }
+    elsif ( $realm_source ) {
+        $c->log->info("Realm source ".$realm_source->id." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
     }
     return @sources;
 }
@@ -566,7 +597,7 @@ sub showLogin : Private {
     $c->stash(
         template        => 'login.html',
         username        => $request->param_encoded("username") ,
-        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ),
+        null_source     => is_in_list( $SELFREG_MODE_NULL, $guestModes ) || is_in_list( $SELFREG_MODE_KICKBOX, $guestModes ),
         oauth2_github   => is_in_list( $SELFREG_MODE_GITHUB, $guestModes ),
         oauth2_google   => is_in_list( $SELFREG_MODE_GOOGLE, $guestModes ),
         no_username     => $profile->noUsernameNeeded,
@@ -575,12 +606,17 @@ sub showLogin : Private {
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
+        billing         => $c->profile->hasBilling(),
         guest_allowed   => $guest_allowed,
     );
 
-    my @mandatory_fields = $profile->getFieldsForSources(@sources);
+    # When in a chained source, we prompt mandatory fields on the second source
+    my $chain_activated = any { $_->type eq 'Chained' } @sources;
+    unless($chain_activated){
+        my @mandatory_fields = $profile->getFieldsForSources(@sources);
+        $c->stash( mandatory_fields => \@mandatory_fields );
+    }
 
-    $c->stash( mandatory_fields => \@mandatory_fields );
 }
 
 sub _clean_username {
@@ -596,20 +632,35 @@ sub _clean_username {
 
 sub validationError {
     my ( $self, $c, $error_code, @error_args ) = @_;
-    $c->stash->{'txt_validation_error'} =
-      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
-    utf8::decode($c->stash->{'txt_validation_error'});
+    $self->createValidationErrorMessage( $c, $error_code, @error_args );
     $c->detach('showLogin');
 }
 
+sub createValidationErrorMessage {
+    my ( $self, $c, $error_code, @error_args ) = @_;
+    $c->stash->{'txt_validation_error'} =
+      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
+    utf8::decode($c->stash->{'txt_validation_error'});
+}
+
 sub validateMandatoryFields : Private {
-    my ( $self, $c ) = @_;
+    my ( $self, $c, %options ) = @_;
+    # we detach by default
+    $options{detach} = defined($options{detach}) ? $options{detach} : 1;
     my $request = $c->request;
     my $session = $c->session;
     my $profile    = $c->profile;
     my ( $error_code, @error_args );
 
     my $source = getAuthenticationSource($session->{source_id});
+
+    $c->log->info("Finding mandatory fields for source : ".$source->id);
+
+    # When in a chained source, we prompt mandatory fields on the second source
+    if($source->type eq "Chained"){
+        return;
+    }
+
     my @mandatory_fields = $profile->getFieldsForSources($source);
     my %mandatory_fields = map { $_ => undef } @mandatory_fields;
     my @missing_fields = grep { !$request->param($_) } @mandatory_fields;
@@ -628,7 +679,12 @@ sub validateMandatoryFields : Private {
     }
 
     if ( defined $error_code && $error_code != 0 ) {
-        $self->validationError( $c, $error_code, @error_args );
+        if($options{detach}){
+            $self->validationError( $c, $error_code, @error_args );
+        }
+        else {
+            $self->createValidationErrorMessage( $c, $error_code, @error_args );
+        }
     } else {
         $c->forward('setupSession');
         _update_person($session,$profile);
@@ -664,7 +720,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

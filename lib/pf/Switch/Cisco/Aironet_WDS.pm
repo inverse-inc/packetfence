@@ -48,7 +48,7 @@ For more information see: https://supportforums.cisco.com/thread/2148888
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Net::Appliance::Session;
 use Net::SNMP;
 use Try::Tiny;
@@ -86,7 +86,7 @@ Diverges from L<pf::Switch::Cisco::WLC> in the following aspects:
 # The Service-Type entry was causing the WDS enabled Aironet to crash (IOS 12.3.8JEC3)
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -120,7 +120,7 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 
 sub getCurrentApFromMac {
     my ( $self, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $session;
     try {
@@ -199,8 +199,8 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 
 # Same as in pf::Switch::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
         if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
@@ -224,7 +224,7 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
     );
     return;
@@ -237,8 +237,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -259,7 +259,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

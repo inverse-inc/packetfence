@@ -22,10 +22,10 @@ pf::api::jsonrpcclient
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use pf::config;
 use pf::log;
 use WWW::Curl::Easy;
-use JSON::XS;
 use Moo;
 use HTTP::Status qw(:constants);
 
@@ -114,6 +114,9 @@ sub call {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code == 200) {
             $response = decode_json($response_body);
+            if(exists($response->{error})){
+                die $response->{error}{message};
+            }
         } else {
             $response = decode_json($response_body);
             die $response->{error}{message};
@@ -233,7 +236,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

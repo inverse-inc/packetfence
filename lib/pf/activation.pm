@@ -123,7 +123,7 @@ TODO: This list is incomplete
 =cut
 
 sub activation_db_prepare {
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->debug("Preparing pf::activation database queries");
 
     $activation_statements->{'activation_view_sql'} = get_db_handle()->prepare(qq[
@@ -301,7 +301,7 @@ invalidate all unverified activation codes for a given mac and contact_info
 
 sub invalidate_codes {
     my ($mac, $pid, $contact_info) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     if ($mac) {
         # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and contact_info
@@ -347,7 +347,7 @@ Returns the activation code
 
 sub create {
     my ($mac, $pid, $pending_addr, $type, $portal, $provider_id) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     # invalidate older codes for the same MAC / contact_info
     invalidate_codes($mac, $pid, $pending_addr);
@@ -387,7 +387,7 @@ generate proper activation code. Created to encapsulate flexible hash types.
 
 sub _generate_activation_code {
     my (%data) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     if ($HASH_FORMAT == $SIMPLE_MD5) {
         my $code;
@@ -441,7 +441,7 @@ Send an email with the activation code
 
 sub send_email {
     my ($activation_code, $template, %info) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
@@ -458,10 +458,6 @@ sub send_email {
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
 
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-    $options{ENCODING} = "utf8";
-
     my $import_succesfull = try { require MIME::Lite::TT; };
     if (!$import_succesfull) {
         $logger->error(
@@ -470,6 +466,11 @@ sub send_email {
         );
         return $FALSE;
     }
+
+    my %TmplOptions = (
+        INCLUDE_PATH    => "$conf_dir/templates/",
+        ENCODING        => 'utf8',
+    );
     utf8::decode($info{'subject'});
     my $msg = MIME::Lite::TT->new(
         From        =>  $info{'from'},
@@ -477,10 +478,11 @@ sub send_email {
         Cc          =>  $info{'cc'},
         Subject     =>  encode("MIME-Header", $info{'subject'}),
         Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
+        TmplOptions =>  \%TmplOptions,
         TmplParams  =>  \%info,
+        TmplUpgrade =>  1,
     );
+    $msg->attr("Content-Type" => "text/html; charset=UTF-8;");
 
     my $result = 0;
     try {
@@ -512,7 +514,7 @@ sub create_and_send_activation_code {
 # returns the validated activation record hashref or undef
 sub validate_code {
     my ($activation_code) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $activation_record = find_unverified_code($activation_code);
     if (!defined($activation_record) || ref($activation_record eq 'HASH')) {
@@ -541,7 +543,7 @@ Change the status of a given pending activation code to VERIFIED which means it 
 
 sub set_status_verified {
     my ($activation_code) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     my $activation_record = find_code($activation_code);
     modify_status($activation_record->{'code_id'}, $VERIFIED);
@@ -579,7 +581,7 @@ sub sms_activation_create_send {
       }
     }
 
-    return ($success, $err);
+    return ($success, $err, $activation_code);
 }
 
 =head2 send_sms -
@@ -631,7 +633,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

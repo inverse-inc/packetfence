@@ -25,7 +25,6 @@ Using the default success page of AeroHIVE works.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use pf::constants;
 use pf::config;
 use pf::node;
@@ -46,7 +45,7 @@ sub supportsWebFormRegistration { return $TRUE }
 
 sub parseUrl {
     my($self, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     # need to synchronize the locationlog event if we'll reject
     $self->synchronize_locationlog("0", "0", clean_mac($$req->param('Calling-Station-Id')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
@@ -63,36 +62,45 @@ Overriding the default implementation for the external captive portal
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
+    my $status;
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
 
-    my $node = node_view($mac);
+    my $node = $args->{'node_info'};
 
-    my $violation = pf::violation::violation_view_top($mac);
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+
+    my $violation = pf::violation::violation_view_top($args->{'mac'});
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("[$mac] is unregistered. Refusing access to force the eCWP");
+        $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
         }; 
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref]; 
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
 
     }
     else{
-        $logger->info("[$mac] Returning ACCEPT");
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+        $logger->info("Returning ACCEPT");
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
     }
 
 }
 
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->debug("[$mac] Creating web release form");
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
 
     my $node = node_view($mac);
     my $last_ssid = $node->{last_ssid};
@@ -121,7 +129,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

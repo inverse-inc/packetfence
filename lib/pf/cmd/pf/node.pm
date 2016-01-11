@@ -33,6 +33,7 @@ use base qw(pf::base::cmd::action_cmd);
 use pf::node;
 use pf::util;
 use pf::log;
+use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 my $pid_re = qr{(?:
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
@@ -124,11 +125,32 @@ sub action_add {
     my ($self) = @_;
     my $mac = $self->{mac};
     if (node_exist($mac)) {
+        print STDOUT "Node '$mac' already exists\n";
         return $EXIT_FAILURE;
     }
     my ($result) = node_add($mac,%{$self->{params}});
-    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
+    return $EXIT_SUCCESS if $result == 1;
+    print STDOUT "Unable to add node '$mac'\n";
+    return $EXIT_FAILURE;
 }
+
+
+=head2 _validate_attributes
+
+checks to see if the status is valid
+
+=cut
+
+sub _validate_attributes {
+    my ($self, $attributes) = @_;
+    my $status = $attributes->{status};
+    if ( defined $status && !exists $pf::node::ALLOW_STATUS{$status}) {
+        print "status of '$status' is invalid\n";
+        return $FALSE;
+    }
+    return $TRUE;
+}
+
 
 =head2 parse_add
 
@@ -139,11 +161,20 @@ parse and validate the arguments for 'pfcmd node add' command
 sub parse_add {
     my ($self,$mac,@args) = @_;
     unless (valid_mac($mac)) {
-        print STDERR "invalid mac $mac";
-        return;
+        print STDERR "invalid mac $mac\n";
+        return $FALSE;
     }
     $self->{mac} = $mac;
-    return $self->_parse_attributes(@args);
+    unless ($self->_parse_attributes(@args)) {
+        print STDERR "problem with parsing node attributes\n";
+        return $FALSE;
+    }
+    unless ($self->_validate_attributes($self->{params})) {
+        print STDERR "invalid attributes provided\n";
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 =head2 action_count
@@ -203,7 +234,9 @@ sub action_edit {
         return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
-    return $result == 1 ? $EXIT_SUCCESS : $EXIT_FAILURE;
+    return $EXIT_SUCCESS if $result == 1;
+    print STDOUT "Unable to modify node '$mac'\n";
+    return $EXIT_FAILURE;
 }
 
 =head2 parse_edit
@@ -227,6 +260,7 @@ sub action_delete {
     my ($self) = @_;
     my ($mac) = $self->action_args;
     unless (node_exist($mac)) {
+        print STDERR "node '$mac' does not exist\n";
         return $EXIT_FAILURE;
     }
     my $r = node_delete($mac);
@@ -310,7 +344,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

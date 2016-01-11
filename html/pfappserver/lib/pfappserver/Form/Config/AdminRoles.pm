@@ -18,7 +18,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
-use pf::log;
 
 has roles => ( is => 'rw', default => sub { [] } );
 
@@ -92,7 +91,7 @@ sub options_actions {
     my %groups;
     my @options;
     foreach my $role (@ADMIN_ACTIONS) {
-        $role =~ m/^(.+?)(_(READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
+        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
     }
@@ -140,7 +139,7 @@ sub ACCEPT_CONTEXT {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

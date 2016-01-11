@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2015 Inverse inc.
+# Copyright (C) 2005-2016 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
@@ -15,9 +15,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2015-06-15 20:27+0000\n"
-"Last-Translator: lzammit <lzammit@inverse.ca>\n"
-"Language-Team: French (http://www.transifex.com/p/packetfence/language/fr/)\n"
+"PO-Revision-Date: 2015-10-01 18:16+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
+"Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -631,7 +631,7 @@ msgstr "DN de connexion"
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Block Interval"
-msgstr "Bloc d´intervale"
+msgstr "Bloc d´intervalle"
 
 # html/pfappserver/root/node/view.tt
 msgid "Browser"
@@ -654,10 +654,6 @@ msgstr "Role Bypass"
 # html/pfappserver/root/admin/nodes.tt
 msgid "Bypass VLAN"
 msgstr "VLAN de contournement"
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "CAD"
-msgstr "CAD"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "CLI"
@@ -2067,9 +2063,13 @@ msgid ""
 " be automagically created."
 msgstr "Hôte où est exécuté le moteur d'analyse. Pour des raisons de performance, nous vous recommandons d'exécuter le moteur d'analyse sur un autre serveur. Une règle d'autorisation de pare-feu sera automatiquement créé."
 
+# conf/documentation.conf (monitoring.statsd_host)
+msgid "Host to which StatsD metrics are sent."
+msgstr "Hôte sur lequel les paramètres StatsD sont envoyés."
+
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
-msgstr "Hôte auquel les métriques de graphite sont envoyées"
+msgstr "Hôte sur lequel les métriques de graphite sont envoyées"
 
 # conf/documentation.conf (general.hostname)
 msgid ""
@@ -2368,7 +2368,7 @@ msgstr "Sources Interne"
 
 # conf/documentation.conf (maintenance.ldap_auth_cache_cleanup_interval)
 msgid "Interval at which Packetfence purges the ldap_auth cache"
-msgstr "Intervale à auquel Packetfence va purger le cache ldap_auth"
+msgstr "Intervalle à laquelle Packetfence va purger le cache ldap_auth"
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "Interval at which Packetfence runs accounting maintenance"
@@ -2406,7 +2406,7 @@ msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des no
 msgid ""
 "Interval at which Packetfence runs the polling enforcement on the "
 "provisioners."
-msgstr "Intervalle auquel PacketFence exécute l'enforcement sur les provisionners."
+msgstr "Intervalle a laquelle PacketFence exécute l'enforcement sur les provisionners."
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "Interval at which Packetfence runs traplog cleanup"
@@ -2815,7 +2815,7 @@ msgstr "Modifier le mot de passe"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Monitoring"
-msgstr "Surveillance"
+msgstr "Supervision"
 
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
@@ -3657,9 +3657,13 @@ msgstr "Port du service"
 msgid "Port of the soap webservice."
 msgstr "Port du service web SOAP."
 
+# conf/documentation.conf (monitoring.statsd_port)
+msgid "Port on the StatsD host to which metrics are sent."
+msgstr "Port sur l'hôte StatsD à laquelle les paramètres sont envoyés."
+
 # conf/documentation.conf (monitoring.graphite_port)
 msgid "Port on the graphite host to which metrics are sent."
-msgstr "Port auquel les métriques graphite sont envoyées"
+msgstr "Port sur lequel les métriques graphite sont envoyées"
 
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
@@ -4466,7 +4470,7 @@ msgstr "Mot de passe"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Secret Passphrase"
-msgstr "Phrase secrète"
+msgstr "Secret partagé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
@@ -5023,10 +5027,6 @@ msgid ""
 "only applies to bcrypt."
 msgstr "Le facteur coût à appliquer au hachage de mot de passe le cas échéant. Actuellement cela s'applique uniquement aux bcrypt."
 
-# conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
-msgstr "La monnaie des transactions MiraPay"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "The domain to use for the authentication in that realm"
 msgstr "Le domaine à utiliser pour l'authentification dans ce \"realm\""
@@ -5038,10 +5038,6 @@ msgstr "L'utilisateur suivant a bien été créé "
 # html/pfappserver/root/user/list_password.tt
 msgid "The following users have been created"
 msgstr "Les utilisateurs suivant ont bien été créés"
-
-# conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
-msgstr "Le mot de passe de hachage pour MiraPay"
 
 # conf/documentation.conf (provisioning.ssid)
 msgid "The hidden SSID where the user should connect to after registration"
@@ -5085,31 +5081,11 @@ msgid ""
 "128m"
 msgstr "La taille maximum autorisée pour stocker des objets. Ca doit être entre 1k et 128m"
 
-# conf/documentation.conf (billing.authorizenet_login)
-msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
-msgstr "ID unique de l'API de connexion (fournie par Authorize.net)"
-
-# conf/documentation.conf (billing.authorizenet_trankey)
-msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
-msgstr "Clef de transaction de Authorize.net (fournie par Authorize.net)"
-
 # html/pfappserver/root/node/create.tt
 msgid ""
 "The node will be automatically registered. If the MAC matches an existing "
 "node, it will also be modified and registered."
 msgstr "Le nœud sera automatiquement enregistré. Si la MAC correspond à un nœud existant, il sera également modifié et enregistré."
-
-# conf/documentation.conf (billing.authorizenet_posturl)
-msgid "The payment gateway processing URL (Provided by Authorize.net)"
-msgstr "L'URL de la passerelle de paiement (fournie par Authorize.net)"
-
-# conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
-msgstr "La passerelle de paiement pour le traitement URL MiraPay"
-
-# conf/documentation.conf (billing.gateway)
-msgid "The payment gateway to process the payments"
-msgstr "La passerelle pour traiter les paiements"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
@@ -5139,14 +5115,6 @@ msgstr "Le rôle à attribuer à des consoles de jeux. Si aucun n'est sélection
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr "La règle n´a pas été trouvée. "
-
-# conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
-msgstr "L'identifiant du terminal de MiraPay"
-
-# conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
-msgstr "L'identifiant de group de MiraPay"
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 msgid "The username to use for login to the captive portal."
@@ -5346,10 +5314,6 @@ msgstr "URL pour aller chercher la base de données du projet Fingerbank sur int
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
 msgid "URL to submit unmatched parameter to upstream Fingerbank project"
 msgstr "URL pour soumettre des entrées inconnu au projet Fingerbank sur internet"
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "USD"
-msgstr "USD"
 
 # pf::admin_roles (Actions groups)
 msgid "USERAGENTS"
@@ -6161,10 +6125,6 @@ msgstr "Une des"
 msgid "apartment_number"
 msgstr "Numéro d´appartement"
 
-# conf/documentation.conf (billing.gateway options)
-msgid "authorize_net"
-msgstr "Authorize.net"
-
 # pf::config (SoH Classes)
 msgid "auto-updates"
 msgstr "mise à jour automatique"
@@ -6180,42 +6140,6 @@ msgstr "bcrypt"
 # conf/documentation.conf
 msgid "billing"
 msgstr "Facturation"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_login"
-msgstr "Nom d'utilisateur Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_posturl"
-msgstr "URL Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_trankey"
-msgstr "Clé Authorize.net"
-
-# conf/documentation.conf
-msgid "billing.gateway"
-msgstr "Passerelle"
-
-# conf/documentation.conf
-msgid "billing.mirapay_currency"
-msgstr "Monnaie de MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_hash_password"
-msgstr "Mot de passe de MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id"
-msgstr "Identifiant du terminal MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id_group"
-msgstr "Identifiant du groupe MiraPay"
-
-# conf/documentation.conf
-msgid "billing.mirapay_url"
-msgstr "URL de MiraPay"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -6794,7 +6718,7 @@ msgstr "Redirection de ports"
 
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
-msgstr "Réautentifier le noeud"
+msgstr "Réauthentifier le noeud"
 
 # conf/documentation.conf (interface.enforcement options)
 msgid "inlinel2"
@@ -6910,7 +6834,7 @@ msgstr "magenta"
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "mail"
-msgstr "Envoyer un courriel"
+msgstr "mail"
 
 # html/pfappserver/root/user/view.tt
 msgid "mail_btn"
@@ -6979,7 +6903,7 @@ msgstr "Intervalle de maintenance des noeuds"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr "Intervale de temps pour appliquer la conformité des appareils"
+msgstr "Intervalle de temps pour appliquer la conformité des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
@@ -6991,7 +6915,7 @@ msgstr "Nombre maximum de violation traitées simultanément"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_interval"
-msgstr "Intervale de maintenance"
+msgstr "Intervalle de maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
@@ -7054,10 +6978,6 @@ msgstr "microsoft"
 msgid "minutes"
 msgstr "minutes"
 
-# conf/documentation.conf (billing.gateway options)
-msgid "mirapay"
-msgstr "MiraPay"
-
 # pf::provisioner (Provisioners)
 msgid "mobileconfig"
 msgstr "Appareils Apple"
@@ -7072,7 +6992,7 @@ msgstr "Opérateur téléphonique"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
-msgstr "surveillance "
+msgstr "supervise"
 
 # conf/documentation.conf
 msgid "monitoring"
@@ -7084,7 +7004,7 @@ msgstr "hôte de la base de donnée"
 
 # conf/documentation.conf
 msgid "monitoring.db_port"
-msgstr "port de connection de la base de données"
+msgstr "port de connexion à la base de données"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_host"
@@ -7092,7 +7012,15 @@ msgstr "hôte graphite"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_port"
-msgstr "port de connection de graphite"
+msgstr "port de connexion de graphite"
+
+# conf/documentation.conf
+msgid "monitoring.statsd_host"
+msgstr "Hôte StatsD de Supervision "
+
+# conf/documentation.conf
+msgid "monitoring.statsd_port"
+msgstr "StatsD port de supervision"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
@@ -7195,7 +7123,7 @@ msgstr "Activer la recherche ip2mac utilisant OMAPI"
 
 # conf/documentation.conf
 msgid "omapi.key_base64"
-msgstr "Clé base64 OMPAI"
+msgstr "Clé base64 OMAPI"
 
 # conf/documentation.conf
 msgid "omapi.key_name"

@@ -27,7 +27,6 @@ Services managed by PacketFence:
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
-  memcached        | memcached daemon
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
@@ -37,6 +36,7 @@ Services managed by PacketFence:
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   radsniff3        | radsniff3 daemo
+  redis_queue      | Redis for pfqueue
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   statsd           | statsd service
@@ -69,7 +69,7 @@ use pf::config;
 use pf::config::util;
 use pf::util;
 use pf::constants;
-use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use constant {
@@ -88,14 +88,18 @@ our %ACTION_MAP = (
 
 our $ignore_checkup = $FALSE;
 
+sub _byIndexOrder {
+    $a->orderIndex <=> $b->orderIndex;
+}
+
 sub parseArgs {
     my ($self) = @_;
     my ($service, $action, $option) = $self->args;
     return 0 unless defined $service && defined $action && exists $ACTION_MAP{$action};
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
-    my @services;
-    if ($service eq 'pf') {
+    my ( @services, @managers );
+    if ($service eq 'pf' ) {
         @services = @pf::services::ALL_SERVICES;
     }
     else {
@@ -137,7 +141,8 @@ sub postPfStartService {
 
 sub startService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
+    use sort qw(stable);
+    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -178,7 +183,7 @@ sub checkup {
     # if there is a fatal problem, exit with status 255
     foreach my $entry (@problems) {
         if (!$ignore_checkup && $entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
-            exit(255);
+            exit($EXIT_FATAL);
         }
     }
 
@@ -244,16 +249,8 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
-    #push memcached to back of the list
-    my %exclude = (
-        memcached => undef,
-        pfcache   => undef,
-    );
-    my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name eq 'memcached' } ? 0 : 1 } @managers;
-    @managers = ();
-    @managers = @$infront_managers if $infront_managers;
-    push @managers, @$push_managers if $push_managers;
+    my @managers = reverse sort _byIndexOrder getManagers(\@services);
+
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
@@ -357,7 +354,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

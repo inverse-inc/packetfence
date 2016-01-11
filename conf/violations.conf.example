@@ -6,7 +6,7 @@
 [defaults]
 priority=4
 max_enable=3
-actions=email,log
+actions=email_admin,log
 auto_enable=Y
 enabled=N
 grace=120m
@@ -19,7 +19,7 @@ snort_rules=local.rules,emerging-attack_response.rules,emerging-botcc.rules,emer
 # and all the roles names you defined in the node_category table. (see switches.conf)
 vlan=isolation
 # if you add a role/category here, nodes in these roles/categories will be immune to the violation
-whitelisted_categories=
+whitelisted_roles=
 template=generic
 
 [1100001]
@@ -30,7 +30,7 @@ template=failed_scan
 max_enable=4
 button_text=Scan my computer again
 trigger=Nessus::10861,Nessus::10943,Nessus::11177,Nessus::11231,Nessus::11302,Nessus::11304,Nessus::11528,Nessus::11595,Nessus::11664,Nessus::11787,Nessus::11790,Nessus::11803,Nessus::11808,Nessus::11835,Nessus::11878,Nessus::11886,Nessus::11887,Nessus::11921,Nessus::12051,Nessus::12052,Nessus::12054,Nessus::12092,Nessus::12208,Nessus::12209,Nessus::13641,Nessus::13852,Nessus::14724,Nessus::15460,Nessus::15894,Nessus::15970,Nessus::16324,Nessus::16326,Nessus::16327,Nessus::16328,Nessus::16329,Nessus::18020,Nessus::18021,Nessus::18023,Nessus::18025,Nessus::18027,Nessus::18028,Nessus::18215,Nessus::18482,Nessus::18483,Nessus::18490,Nessus::18502,Nessus::18681,Nessus::18682,Nessus::19401,Nessus::19402,Nessus::19406,Nessus::19408,Nessus::20005,Nessus::20172,Nessus::20299,Nessus::20368,Nessus::20382,Nessus::20389,Nessus::20390,Nessus::20904,Nessus::20905,Nessus::21213,Nessus::21332,Nessus::21685,Nessus::21687,Nessus::22030,Nessus::22034,Nessus::22183,Nessus::22184,Nessus::22185,Nessus::22186,Nessus::22187,Nessus::22192,Nessus::22194,Nessus::22332,Nessus::22449,Nessus::22530,Nessus::23644,Nessus::23646,Nessus::23647,Nessus::23833,Nessus::23835,Nessus::23837,Nessus::23838,Nessus::23999,Nessus::24000
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=Y
 # for faster remediation, it is recommended to leave an offending client in the registration vlan (where it is scanned)
 vlan=registration
@@ -43,7 +43,7 @@ template=failed_scan
 max_enable=4
 button_text=Scan my computer again
 trigger=OpenVAS::1.3.6.1.4.1.25623.1.0.90023,OpenVAS::1.3.6.1.4.1.25623.1.0.14259,OpenVAS::1.3.6.1.4.1.25623.1.0.800618,OpenVAS::1.3.6.1.4.1.25623.1.0.90011
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=Y
 # for faster remediation, it is recommended to leave an offending client in the registration vlan (where it is scanned)
 vlan=registration
@@ -58,7 +58,7 @@ vlan=registration
 desc=MAC Vendor isolation example
 template=banned_devices
 trigger=MAC_VENDOR::42
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 
 #
@@ -71,7 +71,7 @@ enabled=N
 desc=Ancient OS isolation example
 template=banned_os
 trigger=DEVICE::28,DEVICE::29,DEVICE::30,DEVICE::31,DEVICE::32
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 
 #
@@ -84,14 +84,14 @@ enabled=N
 desc=Browser isolation example
 template=banned_devices
 trigger=USER_AGENT::101,USER_AGENT::102
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 
 [1100006]
 desc=P2P Isolation (snort example)
 template=p2p
-trigger=Detect::2001808,Detect::2000334,Detect::2000357,Detect::2000369,Detect::2000330,Detect::2000331,Detect::2000332,Detect::2000333,Detect::2001296,Detect::2001297,Detect::2001298,Detect::2001299,Detect::2001305,Detect::2001300,Detect::2001664,Detect::2002760,Detect::2002761,Detect::2001796,Detect::2001812
-actions=trap,email,log
+trigger=Suricata::ET P2P
+actions=reevaluate_access,email_admin,log
 enabled=N
 
 [1100007]
@@ -105,27 +105,21 @@ enabled=N
 desc=Disable NATing Routers and APs
 template=nat
 trigger=Detect::1100005,Detect::1100006,Detect::1100007,DEVICE::4
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 
-#
-# Example config to be alerted of the presence of one specific MAC address in the network.
-# Useful for stolen devices if you happen to know the MAC of a stolen device.
-# Trigger format: The number is a decimal representation of the MAC.
-# To generate such a representation you can use perl -e 'print hex("f04da2cbd9c5"),"\n";'. Ignore the warning.
-#
 [1100009]
 desc=MAC isolation example
 template=banned_devices
-trigger=MAC::264216234416581
-actions=email,log
+trigger=MAC::^01:23:45
+actions=email_admin,log
 enabled=N
 
 [1100010]
 desc=Rogue DHCP
 template=roguedhcp
 trigger=internal::1100010
-actions=email,log
+actions=email_admin,log
 enabled=Y
 
 [1100011]
@@ -135,10 +129,23 @@ trigger=Accounting::TOT20GBM
 grace=0
 window=dynamic
 
+[1100012]
+desc=Device based Bandwidth Limit example (Android, 1GB/month)
+template=bandwidth_limit
+trigger=(Device::202&Accounting::TOT1GBM)
+grace=0
+window=dynamic
+
+[1100013]
+desc=Hostname change
+trigger=internal::hostname_change
+actions=log
+enabled=Y
+
 [1100020]
 desc=Wireless IPS
 trigger=internal::1100020
-actions=email,log
+actions=email_admin,log
 enabled=Y
 
 #
@@ -151,7 +158,7 @@ desc=System Scan
 max_enable=0
 grace=1s
 template=system_scan
-actions=trap,log
+actions=reevaluate_access,log
 button_text=Scan
 enabled=Y
 auto_enable=Y
@@ -165,7 +172,7 @@ max_enable=1
 grace=0
 template=time_expiration
 trigger=Accounting::TimeExpired
-actions=trap,log
+actions=reevaluate_access,log
 enabled=Y
 auto_enable=N
 vlan=registration
@@ -177,7 +184,7 @@ max_enable=1
 grace=0
 template=bandwidth_expiration
 trigger=Accounting::BandwidthExpired
-actions=trap,log
+actions=reevaluate_access,log
 enabled=Y
 auto_enable=N
 vlan=registration
@@ -209,14 +216,14 @@ vlan=registration
 [1300000]
 desc=Generic
 priority=8
-actions=trap,log
+actions=reevaluate_access,log
 template=generic
 enabled=Y
 
 [1300001]
 desc=Spam
 priority=6
-actions=trap,log
+actions=reevaluate_access,log
 template=spam
 enabled=Y
 
@@ -241,9 +248,8 @@ desc=Malware
 priority=4
 template=malware
 enabled=N
-actions=trap,email,log
-# For conficker: Detect::2008802,Detect::2008803,Detect::2009024,Detect::2009114,Detect::2009200,Detect::2009201
-trigger=Detect::2008802,Detect::2008803,Detect::2009024,Detect::2009114,Detect::2009200,Detect::2009201
+actions=reevaluate_access,email_admin,log
+trigger=Suricata::ET MALWARE
 
 [2000032]
 desc=LSASS Exploit
@@ -259,8 +265,8 @@ priority=3
 auto_enable=N
 template=trojan
 enabled=N
-trigger=Detect::2002029,Detect::2002030,Detect::2002031,Detect::2002032,Detect::2002033,Detect::2000345,Detect::2000347,Detect::2000348,Detect::2000349,Detect::2000350,Detect::2000351,Detect::2000352
-actions=trap,email,log
+trigger=Suricata::ET TROJAN
+actions=reevaluate_access,email_admin,log
 
 # The following signatures replace the generic portscan detector.  It was notoriously noisy, expecially
 # for BitTorrent clients.  These new signatures look for most of the "worm-like" scanning behaviors.
@@ -295,56 +301,13 @@ enabled=N
 auto_enable=N
 trigger=Detect::2001569,Detect::2001579,Detect::2001580,Detect::2001581,Detect::2001582,Detect::2001583
 
-# The following are peer-to-peer (P2P) signatures.  They can be exceedingly loud, but seem fairly accurate in our experience.
-# Since P2P is not considered illicit on all networks, they are all shipped disabled - set disable=N to enable.
-[2000334]
-desc=P2P (BitTorrent)
-priority=8
-template=p2p
-enabled=N
-max_enable=1
-trigger=Detect::2000334,Detect::2000357,Detect::2000369
-actions=email,log,trap
-
-[2001808]
-desc=P2P (Limewire)
-priority=8
-template=p2p
-enabled=N
-max_enable=1
-trigger=Detect::2001808
-
-[2000330]
-desc=P2P (eDonkey)
-priority=8
-template=p2p
-enabled=N
-max_enable=1
-trigger=Detect::2000330,Detect::2000331,Detect::2000332,Detect::2000333,Detect::2001296,Detect::2001297,Detect::2001298,Detect::2001299,Detect::2001305,Detect::2001300
-
-[2001664]
-desc=P2P (Gnutella)
-priority=8
-template=p2p
-enabled=N
-max_enable=1
-trigger=Detect::2001664,Detect::2002760,Detect::2002761
-
-[2001812]
-desc=P2P (Kazaa)
-priority=8      
-template=p2p
-enabled=N
-max_enable=1
-trigger=Detect::2001796,Detect::2001812
-
 #
 # 3000000 - 3099999 Device bans
 #
 [3000001]
 desc=Block all mobile devices
 template=banned_devices
-actions=email,log,trap
+actions=email_admin,log,reevaluate_access
 enabled=N
 priority=10
 trigger=DEVICE::11
@@ -352,7 +315,7 @@ trigger=DEVICE::11
 [3000002]
 desc=Block Apple iPod, iPhone or iPad
 template=banned_devices
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 priority=10
 trigger=DEVICE::193
@@ -360,7 +323,7 @@ trigger=DEVICE::193
 [3000003]
 desc=Block BlackBerries
 template=banned_devices
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 priority=10
 trigger=DEVICE::192
@@ -368,7 +331,7 @@ trigger=DEVICE::192
 [3000004]
 desc=Block PS3 and PSP
 template=banned_devices
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 priority=10
 trigger=DEVICE::274
@@ -376,7 +339,7 @@ trigger=DEVICE::274
 [3000005]
 desc=Block Slingbox
 template=banned_devices
-actions=trap,email,log
+actions=reevaluate_access,email_admin,log
 enabled=N
 priority=10
 trigger=DEVICE::143

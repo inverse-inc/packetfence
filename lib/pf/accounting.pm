@@ -15,7 +15,7 @@ pf::accounting is a module to add the RADIUS accounting fonctionnalities and ena
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use constant ACCOUNTING => 'accounting';
@@ -51,10 +51,10 @@ use pf::constants;
 use pf::config;
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
+use pf::config::violation;
 use pf::db;
 use pf::violation;
 use pf::util;
-use pf::trigger;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -85,7 +85,7 @@ Initialize database prepared statements
 =cut
 
 sub accounting_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::accounting');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::accounting database queries");
 
     $accounting_statements->{'acct_current_sessionid_sql'} = get_db_handle()->prepare(qq[
@@ -358,17 +358,13 @@ Check in the accounting tables for potential bandwidth abuse
 =cut
 
 sub acct_maintenance {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->info("getting violations triggers for accounting cleanup");
 
-    my @triggers = trigger_view_type($TRIGGER_TYPE_ACCOUNTING);
-
-    foreach my $acct_triggers (@triggers) {
-        my $acct_policy = $acct_triggers->{'tid_start'};
-        my @tid = trigger_view_tid($acct_policy);
-        my $vid = $tid[0]{'vid'};
-
-        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/ && isenabled($acct_triggers->{'enabled'})) {
+    foreach my $info (@ACCOUNTING_TRIGGERS) {
+        my $acct_policy = $info->{trigger};
+        my $vid = $info->{violation};
+        if ($acct_policy =~ /$ACCOUNTING_TRIGGER_RE/) {
 
             my $direction = $1;
             my $bwInBytes = pf::util::unpretty_bandwidth($2,$3);
@@ -390,6 +386,8 @@ sub acct_maintenance {
             else {
                 $interval = "all";
             }
+
+            $logger->info("Found timeframed accounting policy : $acct_policy for violation $vid");
 
             # Grab the list of the mac address first without caring about the violations
             my $releaseDate = "1";
@@ -434,8 +432,7 @@ sub acct_maintenance {
             }
         }
         elsif (($acct_policy ne $ACCOUNTING_POLICY_TIME &&
-               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH) &&
-                isenabled($acct_triggers->{'enabled'})) {
+               $acct_policy ne $ACCOUNTING_POLICY_BANDWIDTH)) {
             $logger->warn("Invalid trigger for accounting maintenance: $acct_policy");
         }
     }
@@ -683,7 +680,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

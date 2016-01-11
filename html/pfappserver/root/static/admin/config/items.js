@@ -55,7 +55,7 @@ var ItemView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], .createItem', read);
+    options.parent.on('click', id + ' .item [href$="/read"], ' + id + ' [href$="/clone"], .createItem', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
@@ -77,7 +77,7 @@ var ItemView = function(options) {
     options.parent.on('reset', 'form[name="search"]', resetSearch);
 
     var search_next = $.proxy(this.searchNext, this);
-    options.parent.on('click', id + ' [href*="/search/"]', search_next);
+    options.parent.on('click', id + ' [href*="/search"]', search_next);
 
 };
 

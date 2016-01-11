@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-pfdetect - listen to snort alerts and create PF violations
+pfdetect - listen to alerts and create PF violations
 
 =head1 SYNOPSIS
 
-pfdetect -p <snortpipe> [options]
+pfdetect [options]
 
  Options:
    -d     Daemonize
@@ -19,7 +19,7 @@ use warnings;
 use File::Basename qw(basename);
 use Getopt::Std;
 use Pod::Usage;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause _exit);
 
 BEGIN {
     # log4perl init
@@ -36,17 +36,22 @@ use pf::db;
 use pf::iplog;
 use pf::node;
 use pf::person;
-use pf::trigger;
 use pf::util;
 use pf::services::util;
 use pf::violation;
+use pf::SwitchFactory;
+
+pf::SwitchFactory::preLoadModules();
+use pf::factory::detect::parser;
+use pf::client;
+use pfconfig::cached_hash;
 
 # initialization
 # --------------
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = "pfdetect";
 
-my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+my $logger = get_logger( $PROGRAM_NAME );
 
 # init signal handlers
 POSIX::sigaction(
@@ -73,85 +78,139 @@ POSIX::sigaction(
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts( 'dhp:', \%args );
+getopts( 'dh:', \%args );
 
 my $daemonize = $args{d};
-my $snortpipe = $args{p};
-my $snortpipe_fh;
 my $portscan_sid = 1200003;
 
-pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
+pod2usage( -verbose => 1 ) if ( $args{h} );
 
 my ($line, $sid, $descr, $priority, $date, $srcmac, $srcip, $dstip);
 
 daemonize($PROGRAM_NAME) if ($daemonize);
+our $PARENT_PID = $$;
 
 $logger->info("initialized");
 
-if ( !open( $snortpipe_fh, '<', "$snortpipe" ) ) {
-    $logger->logdie("unable to open snort pipe ($snortpipe): $!");
-} else {
-    $logger->info("listening on $snortpipe");
+my %CHILDREN;
+my $IS_CHILD = 0;
+my $running = 1;
+
+sub start_detectors {
+    foreach my $id (keys %ConfigDetect) {
+        run_detector($id);
+    }
 }
 
-while (<$snortpipe_fh>) {
+=head2 run_detector
 
-    $logger->info("alert received: $_");
-    if ( $_
-        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
-        )
-    {
-        $date  = $1;
-        $sid   = $2;
-        $descr = $3;
-        $srcip = $4;
-        $dstip = $6;
-    } elsif ( $_
-        =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
-        )
-    {
-        $date  = $1;
-        $sid   = $portscan_sid;
-        $srcip = $3;
-        $descr = "PORTSCAN";
-    } elsif ( $_
-        =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
-        )
-    {
-        $date  = $1;
-        $sid   = $portscan_sid;
-        $srcip = $3;
-        $descr = "PORTSCAN";
+creates a new child to run a task
+
+=cut
+
+sub run_detector {
+    my ($id) = @_;
+    my $detector = $ConfigDetect{$id};
+    $detector->{id} = $id;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $detector->{id};
+        $SIG{CHLD} = "IGNORE";
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        _run_detector($detector);
     } else {
-        $logger->warn("unknown input: $_ ");
-        next;
     }
-
-    $srcmac = pf::iplog::ip2mac($srcip);
-
-    if ($srcmac) {
-
-        $logger->info("pfdetect: violation $sid [$descr]: $srcmac");
-        violation_trigger($srcmac, $sid, "detect", ( ip => $srcip ));
-    } else {
-        $logger->warn(
-            "pfdetect: $srcip MAC NOT FOUND for violation $sid [$descr]");
-    }
-    #reload all cached configs after each iteration
-    pf::config::cached::ReloadConfigs();
 }
+
+=head2 _run_detector
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _run_detector {
+    my ($detector) = @_;
+    $0 = "pfdetect - ".$detector->{id};
+
+    my $alert_pipe = $detector->{path};
+    my $alert_pipe_fh;
+
+    if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
+        $logger->error("unable to open alert pipe ($alert_pipe): $!");
+        _exit(1);
+    } else {
+        $logger->info("listening on $alert_pipe");
+    }
+
+    my $parser_type = $detector->{type};
+
+    my $parser = pf::factory::detect::parser->new($parser_type);
+
+    my $client = pf::client->getClient();
+
+    while (<$alert_pipe_fh>) {
+        last unless $running;
+
+        my $line = $_;
+        $logger->info("alert received: '$line'");
+        my $data = $parser->parse($line);
+        unless($data) {
+            $logger->warn("unknown input: $line ");
+            next;
+        }
+        while (my ($type, $value) = each %{$data->{events}}) {
+            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
+        }
+
+        #Stop running if parent is no longer alive
+        unless(is_parent_alive()) {
+            $logger->error("Parent is no longer running shutting down");
+            $running = 0;
+        }
+
+        #reload all cached configs after each iteration
+        pf::config::cached::ReloadConfigs();
+    }
+
+    $logger->trace("$$ shutting down");
+    _exit(0);
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
+}
+
+start_detectors();
+while($running){
+    sleep 1;
+    foreach my $pid (keys %CHILDREN){
+        unless(kill(0,$pid)){
+            get_logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
+            run_detector($CHILDREN{$pid});
+            delete $CHILDREN{$pid};
+        }
+    }
+}
+
 
 END {
     deletepid();
-    if (defined($snortpipe_fh)) {
-        $logger->info("stopping pfdetect");
-        close($snortpipe_fh);
-    }
 }
 
 exit(0);
 
 sub normal_sighandler {
+    foreach my $pid (keys %CHILDREN){
+        kill(SIGKILL, $pid);
+    }
     deletepid();
     $logger->logdie( "caught SIG" . $_[0] . " - terminating" );
 }
@@ -165,7 +224,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -42,6 +42,13 @@ sub import {
             $logger->fatal(@_);
             die @_; # Now terminate really
         };
+        #Install logging in the warn handler
+        $SIG{__WARN__} = sub {
+            local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+            my $logger = get_logger("");
+            $logger->warn(@_);
+            warn(@_);
+        };
     }
     Log::Log4perl::MDC->put( 'tid', $$ );
     {
@@ -59,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

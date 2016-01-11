@@ -15,18 +15,17 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 
 sub getVersion {
-    my ($this)          = @_;
+    my ($self)          = @_;
     my $oid_swOpCodeVer = '1.3.6.1.4.1.259.6.10.74.1.1.3.1.6.1';
-    my $logger          = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger          = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for swOpCodeVer: $oid_swOpCodeVer");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => [$oid_swOpCodeVer] );
     if ( exists( $result->{$oid_swOpCodeVer} )
         && ( $result->{$oid_swOpCodeVer} ne 'noSuchInstance' ) )
@@ -37,9 +36,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
     if ( $trapString
         =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/
         )
@@ -72,50 +71,50 @@ sub parseTrap {
 }
 
 sub getTrunkPorts {
-    my ($this) = @_;
+    my ($self) = @_;
     my $OID_vlanPortMode = '1.3.6.1.4.1.259.6.10.74.1.12.2.1.2';
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
     $logger->trace("SNMP get_table for vlanPortMode: $OID_vlanPortMode");
     my $result
-        = $this->{_sessionRead}->get_table( -baseoid => $OID_vlanPortMode );
+        = $self->{_sessionRead}->get_table( -baseoid => $OID_vlanPortMode );
     if ( defined($result) ) {
         foreach my $key ( keys %{$result} ) {
             if ( $result->{$key} == 2 ) {
                 $key =~ /^$OID_vlanPortMode\.(\d+)$/;
                 push @trunkPorts, $1;
-                $logger->info( "Switch " . $this->{_id} . " trunk port: $1" );
+                $logger->info( "Switch " . $self->{_id} . " trunk port: $1" );
             }
         }
     } else {
         $logger->error(
-            "Problem while reading vlanPortMode for switch " . $this->{_id} );
+            "Problem while reading vlanPortMode for switch " . $self->{_id} );
         return -1;
     }
     return @trunkPorts;
 }
 
 sub getUpLinks {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     my @upLinks;
 
-    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
-        @upLinks = $this->getTrunkPorts();
+    if ( lc(@{ $self->{_uplink} }[0]) eq 'dynamic' ) {
+        @upLinks = $self->getTrunkPorts();
     } else {
-        @upLinks = @{ $this->{_uplink} };
+        @upLinks = @{ $self->{_uplink} };
     }
     return @upLinks;
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
@@ -125,22 +124,22 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex);
     if ( !defined($dot1dBasePort) ) {
         return 0;
     }
-    my $id = $this->{_id};
+    my $id = $self->{_id};
     $logger->trace( "locking - trying to lock \$switch_locker{$id} in _setVlan" );
     {
         lock %{ $switch_locker_ref->{ $id } };
         $logger->trace( "locking - \$switch_locker{$id} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -151,32 +150,32 @@ sub _setVlan {
 
         # calculate new settings
         my $egressPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $egressPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $ifIndex - 1, 1 );
         my $untaggedPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $untaggedPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $ifIndex - 1, 1 );
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # set all values
-        if ( !$this->connectWrite() ) {
+        if ( !$self->connectWrite() ) {
             return 0;
         }
 
         $logger->trace(
             "SNMP set_request for egressPorts, untaggedPorts and Pvid for new vlan"
         );
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                 Net::SNMP::OCTET_STRING,
@@ -192,12 +191,12 @@ sub _setVlan {
         if ( !defined($result) ) {
             $logger->error(
                 "error setting egressPorts, untaggedPorts and Pvid for new vlan: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
         }
 
         $logger->trace(
             "SNMP set_request for egressPorts, untaggedPorts for old vlan");
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
                 Net::SNMP::OCTET_STRING,
@@ -210,7 +209,7 @@ sub _setVlan {
         if ( !defined($result) ) {
             $logger->error(
                 "error setting egressPorts, untaggedPorts for old vlan: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
         }
     }
     $logger->trace( "locking - \$switch_locker{$id} unlocked in _setVlan" );
@@ -223,7 +222,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

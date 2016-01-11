@@ -95,6 +95,8 @@ sub init_object {
         { 'enabled' => 0, name => 'unregdate', label => 'Unregistration Date' },
         { 'enabled' => 0, name => 'voip', label => 'Voice Over IP (yes/no)' },
         { 'enabled' => 0, name => 'notes', label => 'Notes' },
+        { 'enabled' => 0, name => 'bypass_role', label => 'Bypass Role' },
+        { 'enabled' => 0, name => 'bypass_vlan', label => 'Bypass VLAN' },
        ]
       };
 
@@ -128,7 +130,7 @@ sub default_default_category_id {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -28,24 +28,24 @@ database storage purpose.
 =cut
 
 sub _attributesToString {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
 
     # We first set the transport type
-    my $type = $this->transport;
+    my $type = $self->transport;
 
     # SNMP is kind of unique and can only apply on a wired connection without anything else
-    $type .= ( (lc($this->transport) eq "wired") && ($this->isSNMP) ) ? "-SNMP" : "";
+    $type .= ( (lc($self->transport) eq "wired") && ($self->isSNMP) ) ? "-SNMP" : "";
 
     # Handling mac authentication for both NoEAP and EAP connections
-    if ( $this->isMacAuth ) {
+    if ( $self->isMacAuth ) {
         $type .= "-MacAuth";
-        $type .= ( $this->isEAP ) ? "-EAP" : "-NoEAP";
+        $type .= ( $self->isEAP ) ? "-EAP" : "-NoEAP";
     }
 
     # Handling 802.1X
-    $type .= ( $this->is8021X ) ? "-8021X" : "";
+    $type .= ( $self->is8021X ) ? "-8021X" : "";
 
-    $this->type($type);
+    $self->type($type);
 }
 
 =head2 _stringToAttributes
@@ -55,23 +55,23 @@ We set the according attributes based on the printable string received in parame
 =cut
 
 sub _stringToAttributes {
-    my ( $this, $type ) = @_;
+    my ( $self, $type ) = @_;
 
     # We set the transport type
-    ( lc($type) =~ /^wireless/ ) ? $this->transport("Wireless") : $this->transport("Wired");
+    ( lc($type) =~ /^wireless/ ) ? $self->transport("Wireless") : $self->transport("Wired");
 
     # We check if SNMP
-    ( (lc($type) =~ /^wired/) && (lc($type) =~ /^snmp/) ) ? $this->isSNMP($TRUE) : $this->isSNMP($FALSE);
+    ( (lc($type) =~ /^wired/) && (lc($type) =~ /^snmp/) ) ? $self->isSNMP($TRUE) : $self->isSNMP($FALSE);
 
     # We check if mac authentication
-    ( lc($type) =~ /^macauth/ ) ? $this->isMacAuth($TRUE) : $this->isMacAuth($FALSE);
+    ( lc($type) =~ /^macauth/ ) ? $self->isMacAuth($TRUE) : $self->isMacAuth($FALSE);
 
     # We check if EAP
     # (We do this check using NoEAP because we don't want to fetch EAP in NoEAP string... you know!)
-    ( lc($type) =~ /^noeap/ ) ? $this->isEAP($FALSE) : $this->isEAP($TRUE);
+    ( lc($type) =~ /^noeap/ ) ? $self->isEAP($FALSE) : $self->isEAP($TRUE);
 
     # We check if 802.1X
-    ( lc($type) =~ /^8021x/ ) ? $this->is8021X($TRUE) : $this->is8021X($FALSE);
+    ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
 }
 
 =head2 attributesToBackwardCompatible
@@ -81,19 +81,19 @@ Only for backward compatibility while we introduce the new connection types.
 =cut
 
 sub attributesToBackwardCompatible {
-    my ( $this ) = @_;
+    my ( $self ) = @_;
 
     # Wireless MacAuth
-    return $WIRELESS_MAC_AUTH if ( (lc($this->transport) eq "wireless") && ($this->isMacAuth) );
+    return $WIRELESS_MAC_AUTH if ( (lc($self->transport) eq "wireless") && ($self->isMacAuth) );
 
     # Wireless 802.1X
-    return $WIRELESS_802_1X if ( (lc($this->transport) eq "wireless") && ($this->is8021X) );
+    return $WIRELESS_802_1X if ( (lc($self->transport) eq "wireless") && ($self->is8021X) );
 
     # Wired MacAuth
-    return $WIRED_MAC_AUTH if ( (lc($this->transport) eq "wired") && ($this->isMacAuth) );
+    return $WIRED_MAC_AUTH if ( (lc($self->transport) eq "wired") && ($self->isMacAuth) );
 
     # Wired 802.1X
-    return $WIRED_802_1X if ( (lc($this->transport) eq "wired") && ($this->is8021X) );
+    return $WIRED_802_1X if ( (lc($self->transport) eq "wired") && ($self->is8021X) );
 
     # Default
     return;
@@ -104,19 +104,19 @@ sub attributesToBackwardCompatible {
 =cut
 
 sub identifyType {
-    my ( $this, $nas_port_type, $eap_type, $mac, $user_name, $switch ) = @_;
+    my ( $self, $nas_port_type, $eap_type, $mac, $user_name, $switch ) = @_;
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
-    ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $this->transport("Wireless") : $this->transport("Wired");
+    ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $self->transport("Wireless") : $self->transport("Wired");
 
     # Handling EAP connection
     if(defined($eap_type) && ($eap_type ne 0)) {
-        $this->isEAP($TRUE);
-        $this->subType($eap_type);
+        $self->isEAP($TRUE);
+        $self->subType($eap_type);
     }
     else {
-        $this->isEAP($FALSE);
+        $self->isEAP($FALSE);
     }
 
     # Handling mac authentication versus 802.1X connection
@@ -125,20 +125,20 @@ sub identifyType {
     # We use the User-Name RADIUS Access-Request attribute to differentiate both of theses scenarios. Since mac authentication use
     # the mac address as username, we can assume that we are dealing with a mac authentication connection if these two attributes
     # are equals.
-    if ( $this->isEAP ) {
+    if ( $self->isEAP ) {
         $mac =~ s/[^[:xdigit:]]//g;
-        ( lc($mac) eq lc($user_name) ) ? $this->isMacAuth($TRUE) : $this->is8021X($TRUE);
+        ( lc($mac) eq lc($user_name) ) ? $self->isMacAuth($TRUE) : $self->is8021X($TRUE);
     }
     # We can safely assume that every NoEAP connection in a RADIUS context is a mac authentication connection
     else {
-        $this->isMacAuth($TRUE);
+        $self->isMacAuth($TRUE);
     }
 
     # Override connection type using custom switch module
-    $switch->identifyConnectionType($this);
+    $switch->identifyConnectionType($self);
 
     # We create the printable string for type
-    $this->_attributesToString;
+    $self->_attributesToString;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -150,7 +150,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

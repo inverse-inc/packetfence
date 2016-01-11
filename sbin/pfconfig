@@ -31,12 +31,11 @@ BEGIN {
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
 use pfconfig::timeme;
-use Switch;
 use List::MoreUtils qw(first_index);
 use File::Basename qw(basename);
 use Getopt::Std;
@@ -44,7 +43,9 @@ use POSIX qw(:signal_h);
 use pf::services::util;
 use pfconfig::constants;
 use Sereal::Encoder;
-use Errno qw(EINTR);
+use Errno qw(EINTR EAGAIN);
+use bytes;
+use pf::util::networking qw(send_data_with_length);
 $pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
@@ -116,6 +117,19 @@ my $daemonize = $args{d};
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
+our %DISPATCH = (
+    'expire'             => \&expire,
+    'element'            => \&get_element,
+    'hash_element'       => \&get_hash_element,
+    'keys'               => \&get_keys,
+    'next_key'           => \&get_next_key,
+    'key_exists'         => \&get_key_exists,
+    'array_element'      => \&get_array_element,
+    'array_size'         => \&get_array_size,
+    'array_index_exists' => \&get_array_index_exists,
+    'sleep'              => \&server_sleep,
+);
+
 while($RUNNING) {
     my $socket;
     my $line;
@@ -138,25 +152,18 @@ while($RUNNING) {
             # where
             #  - line = 'config' return the whole config hash
             #  - line = 'config;value' return the value in the config hash
-
-            switch ($query->{method}) {
-                case 'expire' { expire($query, $socket) }
-                case 'element' { get_element($query, $socket) }
-                case 'hash_element' { get_hash_element($query, $socket) }
-                case 'keys' { get_keys($query, $socket) }
-                case 'next_key' { get_next_key($query, $socket) }
-                case 'key_exists' { get_key_exists($query, $socket) }
-                case 'array_element' { get_array_element($query, $socket) }
-                case 'array_size' { get_array_size($query, $socket) }
-                case 'array_index_exists' { get_array_index_exists($query, $socket) }
-                case 'sleep' { sleep(10) }
-                else { print STDERR "Unknown method $query->{method}"; print "undef" }
+            my $method = $query->{method};
+            if (exists $DISPATCH{$method}) {
+                $DISPATCH{$method}->($query, $socket);
+            } else {
+                print STDERR "Unknown method $query->{method}";
+                print "undef";
             }
         }
     };
     if($@){
         print STDERR "$line : $@";
-        send_output("undef", $socket) if $socket;
+        send_output(undef, $socket) if $socket;
     }
 }
 
@@ -218,7 +225,7 @@ sub get_hash_element {
         else{
             print STDERR "Unknown key $query->{key}";
             $logger->error("Unknown key $query->{key}");
-            $elem = "undef";
+            $elem = undef;
         }
     }
     else{
@@ -237,7 +244,7 @@ sub get_from_cache_or_croak {
     else{
         print STDERR "Unknown key in cache $key \n";
         $logger->error("Unknown key $key");
-        send_output("undef", $socket);
+        send_output(undef, $socket);
         return undef;
     }
 
@@ -305,8 +312,6 @@ sub get_array_element {
 
     my $elem = get_from_cache_or_croak($keys[0], $socket) || return;
 
-    $logger->info("GOT FROM CACHE : ".Dumper($elem));
-
     # if we want an index we handle it here
     if(defined($keys[1])){
         my $sub_elem = $$elem[$keys[1]];
@@ -316,7 +321,7 @@ sub get_array_element {
         else{
             print STDERR "Unknown index in $query->{key}";
             $logger->error("Unknown index in $query->{key}");
-            $elem = "undef";
+            $elem = undef;
         }
     }
     else {
@@ -356,18 +361,23 @@ sub encode_output {
 
 sub send_output {
     my ($data, $socket) = @_;
-    unless($data eq "undef"){
-        my $data = encode_output($data);
-        my $lines = $data =~ tr/\n// || 0;
-        $lines += 1;
-        print $socket $lines."\n";
-        print $socket $data;
-    }
-    else{
-        print $socket "1\n";
-        print $socket "$data";
+    my $encoded_data = encode_output($data);
+    my $bytes_to_send = length($encoded_data);
+    my $bytes_sent  = send_data_with_length($socket,$encoded_data);
+    if($bytes_to_send != $bytes_sent) {
+        $logger->error("Could not send all bytes the client. $bytes_sent of $bytes_to_send sent");
     }
 }
+
+=head2 server_sleep
+
+=cut
+
+sub server_sleep {
+    my ($query, $socket) = @_;
+    sleep 10;
+}
+
 
 =head2 normal_sighandler
 
@@ -387,7 +397,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

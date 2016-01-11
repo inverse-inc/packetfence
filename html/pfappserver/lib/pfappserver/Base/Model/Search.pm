@@ -51,6 +51,7 @@ sub process_query {
     my @escape;
     my @where_args = ($query->{name}, $sql_op);
     my $value = $query->{value};
+    return unless defined $value;
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
         if($value =~ s/([%_])/\\$1/g) {
@@ -108,7 +109,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

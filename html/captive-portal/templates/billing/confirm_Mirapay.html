@@ -1,0 +1,11 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html %]
+
+[% INCLUDE billing/tier.html %]
+<hr>
+
+    [%# ERROR %]
+    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
+    <iframe src="[% mirapay_url %]" height="100%" width="100%" frameborder="0"></iframe>
+
+[% INCLUDE footer.html %]

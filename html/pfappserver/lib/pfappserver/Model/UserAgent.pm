@@ -19,6 +19,7 @@ use namespace::autoclean;
 use Time::localtime;
 use Time::Local;
 
+use pf::log;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::useragent qw(node_useragent_count_searchable node_useragent_view_all_searchable);
@@ -41,7 +42,7 @@ sub field_names {
 sub countAll {
     my ( $self,  %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status, $status_msg );
     my $count;
     eval {
@@ -63,7 +64,7 @@ sub countAll {
 sub search {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @items;
@@ -80,7 +81,7 @@ sub search {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

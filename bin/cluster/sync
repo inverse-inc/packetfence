@@ -6,8 +6,19 @@ Script to synchronize cluster either as the master node or as a slave node
 
 =head1 SYNOPSIS
 
-bin/cluster/sync --as-master to push out the configuration to the other nodes
-bin/cluster/sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password> to sync the configuration from a master server to this server
+  To push out the configuration to the other nodes :
+   sync --as-master
+
+  Options :
+   --file : use with --as-master to push out only a single file
+   --with-fingerbank-db : use with --as-master to push the Fingerbank
+                          database during the sync (can be long)
+
+  To sync the configuration from a master server to this server :
+   sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
+
+Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
+
 
 =head1 DESCRIPTION
 
@@ -21,7 +32,19 @@ use warnings;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
-use pf::log;
+
+BEGIN {
+  use Log::Log4perl qw(get_logger);
+  my $log_conf = q(
+  log4perl.rootLogger              = INFO, SCREEN
+  log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+  log4perl.appender.SCREEN.stderr  = 0
+  log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+  log4perl.appender.SCREEN.layout.ConversionPattern = %p : %m %n
+  );
+  Log::Log4perl::init(\$log_conf);
+}
+
 use pf::api::jsonrpcclient;
 use Getopt::Long;
 use pf::api::jsonrpcclient;
@@ -29,21 +52,31 @@ use pf::config::cached;
 use pfconfig::constants;
 use pf::file_paths;
 use pf::cluster;
+use fingerbank::FilePath;
+use Pod::Usage;
 
-my ($master_server, $as_master, $api_user, $api_password);
+
+my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file, $help);
 GetOptions (
-    "from=s"   => \$master_server, 
+    "from=s"   => \$master_server,
     "api-user=s" => \$api_user,
     "api-password=s" => \$api_password,
-    "as-master" => \$as_master
-); 
+    "as-master" => \$as_master,
+    "with-fingerbank-db" => \$with_fingerbank_db,
+    "file=s" => \$file,
+    "h" => \$help,
+);
+
+if($help){
+  pod2usage( -verbose => 1 );
+}
 
 unless($master_server || $as_master){
-    print STDERR "You should either set --from or --as-master \n";
+    get_logger->error("You should either set --from or --as-master");
     exit;
 }
 
-my $logger = get_logger;
+my $logger = get_logger();
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -62,58 +95,46 @@ foreach my $store (@tmp_stores){
     push @stores, $store;
 }
 
-my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", "/usr/local/fingerbank/conf/fingerbank.conf");
+my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
 
-open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt') 
-  or print "WARN : Couldn't open the list of additionnal files to sync.";
-while (my $row = <$fh>) {
-    chomp $row;
-    push @files, $row;
+if (-e '/usr/local/pf/conf/cluster-files.txt') {
+    open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt')
+      or get_logger->warn("Couldn't open the list of additionnal files to sync.");
+
+    while (my $row = <$fh>) {
+        chomp $row;
+        push @files, $row;
+    }
+    close($fh);
 }
-close($fh);
 
 if($as_master){
-    print "Synching cluster with this node as the configuration master\n";
-
-    my $apiclient = pf::api::jsonrpcclient->new();
-
-    foreach my $store (@stores){
-        eval {
-            print "Synching storage : $store\n";
-            my $cs = $store->new;
-            my $pfconfig_namespace = $cs->pfconfigNamespace;
-            my $config_file = $cs->configFile;
-            my %data = (
-                namespace => $pfconfig_namespace,
-                conf_file => $config_file,          
-            );
-            my ($result) = $apiclient->call( 'expire_cluster', %data );
-        };
-        if($@){
-            print STDERR "Failed to sync store : $store \n";
+    if($file){
+        unless($file =~ /^\//){
+            get_logger->fatal("File path has to be absolute.");
+            exit 1;
+        }
+        unless(-e $file){
+            get_logger->fatal("File does not exist.");
+            exit 1;
+        }
+        get_logger->info("Synching file $file with other nodes in the cluster");
+        pf::cluster::sync_files([$file]);
+    }
+    else {
+        get_logger->info("Synching cluster with this node as the configuration master");
+        pf::cluster::sync_storages(\@stores);
+        pf::cluster::sync_files(\@files);
+        if($with_fingerbank_db) {
+            pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE]);
         }
     }
 
-
-    foreach my $server (@cluster_servers){
-        next if($server->{host} eq $host_id);
-        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
-        foreach my $file (@files){
-            eval {
-                print "Synching file : $file on $server->{host} \n";
-                my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
-                my ($result) = $apiclient->call( 'distant_download_configfile', %data );
-            };
-            if($@){
-              print STDERR "Failed to sync file : $file . $@\n";
-            }
-        }
-    }
 }
 
 if($master_server){
-    print "Synching this server from node $master_server \n";
-    
+    get_logger->info("Synching this server from node $master_server");
+
     my $apiclient = pf::api::jsonrpcclient->new(host => $master_server, proto => 'https', username => $api_user, password => $api_password);
 
     foreach my $store (@stores) {
@@ -124,7 +145,7 @@ if($master_server){
 
     foreach my $file (@files){
         eval {
-            print "Synching file : $file\n";
+            get_logger->info("Synching file : $file");
             my %data = ( conf_file => $file );
             my ($result) = $apiclient->call( 'download_configfile', %data );
             open(my $fh, '>', $file);
@@ -133,7 +154,7 @@ if($master_server){
             `chown pf.pf $file`;
         };
         if($@){
-            print STDERR "Failed to sync file : $file . $@\n";
+            get_logger->error("Failed to sync file : $file . $@");
         }
     }
 
@@ -150,7 +171,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

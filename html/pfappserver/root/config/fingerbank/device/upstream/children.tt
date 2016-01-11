@@ -1,6 +1,6 @@
 [% FOREACH item IN items %]
   <tr>
-    <td>
+    <td class="item">
         <a href="[% c.uri_for(c.controller.action_for('view'), [item.id ]) %]">[% item.id | html %]</a>
         <a data-target="#children_[%item.id%]" href="[% c.uri_for(c.controller.action_for('children'), [item.id] ) %]" >+</a>
     </td>

@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use HTML::Entities;
-use Log::Log4perl;
 use WWW::Curl::Easy;
 use XML::Simple;
 use Encode qw(decode);
@@ -146,7 +145,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

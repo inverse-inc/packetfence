@@ -16,7 +16,6 @@ This module was not developed by Inverse. Unknown firmware revision used for dev
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::SMC');
@@ -27,34 +26,34 @@ sub description { 'SMC TigerStack 6224M' }
 use pf::Switch::constants;
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $OID_swProdVersion = '1.3.6.1.4.1.202.20.43.1.1.5.4.0';    #swProdVersion
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->debug("SNMP get_request for swProdVersion: $OID_swProdVersion");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => [$OID_swProdVersion] );
     return ( $result->{$OID_swProdVersion} || '' );
 }
 
 sub isPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # portSecPortStatus
     # by looking at other SMC MIBS, I noticed that portSecPortStatus is always like .1.3.6.1.4.1.202.20.yy.1.17.2.1.1.2
     # Only yy is different from one SMC switch type to another
     my $OID_portSecPortStatus = '1.3.6.1.4.1.202.20.43.1.17.2.1.1.2';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     #determine if port security is enabled
     $logger->trace("SNMP get_request for portSecPortStatus: $OID_portSecPortStatus.$ifIndex");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_portSecPortStatus.$ifIndex" ] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_portSecPortStatus.$ifIndex" ] );
     return ( exists(
              $result->{"$OID_portSecPortStatus.$ifIndex"} )
         && ( $result->{"$OID_portSecPortStatus.$ifIndex"} ne 'noSuchInstance' )
@@ -71,7 +70,7 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENCE
 

@@ -37,7 +37,6 @@ IfIndex on this platform is not the same as port # or dot1d port.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
@@ -62,8 +61,8 @@ method do per-IOS translations.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # 50017 is ifIndex 17
     if ($NAS_port =~ s/^500//) {
@@ -83,7 +82,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

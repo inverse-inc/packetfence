@@ -11,6 +11,7 @@ pftest <cmd> [options]
  Commands
   authentication              | checks authentication sources
   mysql                       | runs the mysql tuner
+  profile_filter              | checks which profile will be used for a mac
 
 Please view "pftest.pl help <command>" for details on each option
 
@@ -34,7 +35,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

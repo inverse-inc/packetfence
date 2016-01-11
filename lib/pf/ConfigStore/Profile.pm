@@ -29,6 +29,8 @@ sub configFile { $profiles_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}
 
+sub default_section { 'default' }
+
 =head2 remove
 
 Delete an existing item
@@ -70,14 +72,14 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners scans);
+    return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners billing_tiers scans);
 }
 
 __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

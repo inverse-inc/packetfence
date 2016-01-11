@@ -19,10 +19,21 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use POSIX;
+use JSON;
 use Time::HiRes qw(time);
+use pfconfig::cached_scalar;
+use pf::error qw(is_success is_error);
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::User_Agent;
+use pf::violation_config;
+use pf::node;
+use pf::StatsD::Timer;
+
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -33,6 +44,10 @@ Readonly::Scalar our $STATUS_OPEN => 'open';
 Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
 use constant VIOLATION => 'violation';
+
+use pf::factory::condition::violation;
+pf::factory::condition::violation->modules;
+tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
 
 BEGIN {
     use Exporter ();
@@ -57,7 +72,7 @@ BEGIN {
         violation_modify
         violation_trigger
         violation_count
-        violation_count_trap
+        violation_count_reevaluate_access
         violation_view_top
         violation_delete
         violation_exist_open
@@ -80,11 +95,11 @@ use pf::class qw(class_view);
 use pf::config;
 use pf::enforcement;
 use pf::db;
-use pf::node;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::util;
 use pf::config::util;
 use pf::client;
+use pf::violation_config;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $violation_db_prepared = 0;
@@ -104,7 +119,7 @@ This list is incomplete.
 =cut
 
 sub violation_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::violation database queries");
 
     $violation_statements->{'violation_desc_sql'} = get_db_handle()->prepare(qq [ desc violation ]);
@@ -179,8 +194,8 @@ sub violation_db_prepare {
     $violation_statements->{'violation_count_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and status="open" ]);
 
-    $violation_statements->{'violation_count_trap_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='trap' and mac=? and status!="closed" ]);
+    $violation_statements->{'violation_count_reevaluate_access_sql'} = get_db_handle()->prepare(
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status!="closed" ]);
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
@@ -207,7 +222,7 @@ sub violation_desc {
 #
 sub violation_modify {
     my ( $id, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     return (0) if ( !$id );
     my $existing = violation_exist_id($id);
@@ -275,10 +290,10 @@ sub violation_count {
     return ($val);
 }
 
-sub violation_count_trap {
+sub violation_count_reevaluate_access {
     my ($mac) = @_;
 
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_trap_sql', $mac)
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_reevaluate_access_sql', $mac)
         || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
@@ -329,7 +344,7 @@ sub violation_view {
 
 sub violation_count_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     violation_db_prepare() if (!$violation_db_prepared);
@@ -404,13 +419,13 @@ sub violation_view_all_active {
 
 #
 sub violation_add {
+    my $timer = pf::StatsD::Timer->new;
     my ( $mac, $vid, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     return (0) if ( !$vid );
     violation_clear_warnings();
     violation_clear_errors();
 
-    #print Dumper(%data);
     #defaults
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
@@ -454,14 +469,16 @@ sub violation_add {
 
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
-        if ( $remaining_time > 0 ) {
+        if ( $remaining_time > 0 && $data{'force'} ne $TRUE ) {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
             return (-1);
+        } elsif ( $remaining_time > 0 && $data{'force'} eq $TRUE ) {
+            my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
+            $logger->info($msg);
         } else {
             my $msg = "grace expired on violation $vid for node $mac";
-            $logger->warn($msg);
             $logger->info($msg);
         }
     }
@@ -481,6 +498,7 @@ sub violation_add {
         violation_add_errors($msg);
         $logger->error($msg);
     }
+
     return (0);
 }
 
@@ -522,6 +540,71 @@ sub violation_clear_errors { @ERRORS = (); }
 
 sub violation_last_errors { @ERRORS }
 
+sub info_for_violation_engine {
+    # NEED TO HANDLE THE NEW TID
+    my ($mac,$type,$tid) = @_;
+    my $node_info = pf::node::node_view($mac);
+
+    my $cache = pf::CHI->new( namespace => 'fingerbank' );
+
+    $type = lc($type);
+
+    my $devices = [];
+    my ($device_id);
+    if($type eq "device"){
+        $device_id = $tid;
+    }
+    else {
+        my ($device_result, $device) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+        if(is_success($device_result)){
+            $device_id = $device->id
+        }
+    }
+    if(defined($device_id)){
+        $devices = $cache->compute("fingerbank::Model::Device_parents_$device_id", sub {
+            my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
+            $devices = $device->{parents_ids};
+            push @$devices, $device->{id};
+            @$devices = map {$_.""} @$devices;
+            return $devices;
+        });
+    }
+
+    my $attr_map = {
+        dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
+        dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+        user_agent => "fingerbank::Model::User_Agent",
+    };
+    my $results = {};
+    foreach my $attr (keys %$attr_map){
+        my $model = $attr_map->{$attr};
+        my $query = {value => $node_info->{$attr}};
+        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+            my ($status, $result) = $model->find([$query]); 
+            return is_success($status) ? $result->id : undef;
+        });
+    }
+    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub { 
+        return pf::fingerbank::mac_vendor_from_mac($mac);
+    });
+
+    my $info = {
+      device_id => $devices,
+      dhcp_fingerprint_id => $results->{dhcp_fingerprint},
+      dhcp_vendor_id => $results->{dhcp_vendor},
+      mac => $mac,
+      mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
+      user_agent_id => $results->{user_agent},
+    };
+
+    my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
+    if( $trigger_info->{type} ne 'includes' ){
+        $info->{$trigger_info->{key}} = $tid;
+    }
+    
+    return $info;
+}
+
 =item * violation_trigger
 
 Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required
@@ -531,8 +614,10 @@ Returns 1 if at least one violation is added, 0 otherwise.
 =cut
 
 sub violation_trigger {
+    my $timer = pf::StatsD::Timer->new;
     my ( $mac, $tid, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
+    $logger->trace("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
 
@@ -551,25 +636,15 @@ sub violation_trigger {
         return 0;
     }
 
-    require pf::trigger;
-    my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
-    if ( !scalar(@trigger_info) ) {
-        $logger->debug("violation not added, no trigger found for ${type}::${tid} or violation is disabled");
-        return 0;
-    }
+    my $info = info_for_violation_engine($mac,$type,$tid);
+
+    $logger->debug(sub { use Data::Dumper; "Infos for violation engine : ".Dumper($info) });
+    my @vids = $VIOLATION_FILTER_ENGINE->match_all($info);
 
     my $addedViolation = 0;
-    foreach my $row (@trigger_info) {
-        # if trigger row is not an hash reference, has no vid or its vid is non numeric, we report and skip
-        if (ref($row) ne 'HASH' || !defined($row->{'vid'}) || $row->{'vid'} !~ /^\d+$/) {
-            $logger->warn("Invalid violation / trigger configuration. Error on trigger ${type}::${tid}");
-            next;
-        }
-        my $vid = $row->{'vid'};
-
-        # if the node's category is whitelisted, skip
-        if (_is_node_category_whitelisted($row, $mac)) {
-            $logger->info("Not adding violation ${vid} node $mac is immune because of its category");
+    foreach my $vid (@vids) {
+        if (_is_node_category_whitelisted($vid, $mac)) {
+            $logger->info("Not adding violation ${vid} node $mac is whitelisted because of its role");
             next;
         }
 
@@ -654,7 +729,7 @@ sub violation_delete {
 #
 sub violation_close {
     my ( $mac, $vid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
     require pf::class;
     my $class_info = pf::class::class_view($vid);
 
@@ -683,7 +758,7 @@ sub violation_close {
 #
 sub violation_force_close {
     my ( $mac, $vid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
@@ -733,15 +808,17 @@ sub violation_view_last_closed {
 =cut
 
 sub _is_node_category_whitelisted {
-    my ($trigger_info, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my ($vid, $mac) = @_;
+    my $logger = get_logger();
+
+    my $class = $pf::violation_config::Violation_Config{$vid};
 
     # if whitelist is empty, node is not whitelisted
-    if (!defined($trigger_info->{'whitelisted_categories'}) || $trigger_info->{'whitelisted_categories'} eq '') {
+    if (!defined($class->{'whitelisted_roles'}) || @{$class->{'whitelisted_roles'}} == 0) {
         return 0;
     }
 
-    # Grabbing the node's informations (incl. category)
+    # Grabbing the node's informations (incl. role)
     # Note: consider extracting out of here and putting in violation_trigger and passing node_info hashref instead
     my $node_info = node_attributes($mac);
     if(!defined($node_info) || ref($node_info) ne 'HASH') {
@@ -750,15 +827,15 @@ sub _is_node_category_whitelisted {
     }
 
     # trying to match node's category on whitelisted categories
-    my $category_found = 0;
-    # whitelisted_categories is of the form "cat1,cat2,cat3,etc."
-    foreach my $category (split(",", $trigger_info->{'whitelisted_categories'})) {
-        if (lc($category) eq lc($node_info->{'category'})) {
-            $category_found = 1;
+    my $role_found = 0;
+    # whitelisted_roles is of the form "cat1,cat2,cat3,etc."
+    foreach my $role (@{$class->{'whitelisted_roles'}}) {
+        if (lc($role) eq lc($node_info->{'category'})) {
+            $role_found = 1;
         }
     }
 
-    return $category_found;
+    return $role_found;
 }
 
 =item violation_maintenance
@@ -769,7 +846,7 @@ Check if we should close violations based on release_date
 
 sub violation_maintenance {
     my ($batch,$timelimit) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::violation');
+    my $logger = get_logger();
 
     $logger->debug("Looking at expired violations... batching $batch timelimit $timelimit");
     my $start_time = time;
@@ -815,7 +892,7 @@ sub violation_run_delayed {
 
 sub _violation_run_delayed {
     my ($violation) = @_;
-    my $logger = pf::log::get_logger();
+    my $logger = get_logger();
     my $mac = $violation->{mac};
     my $vid = $violation->{vid};
     my %data = (status => 'open');
@@ -843,7 +920,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -23,7 +23,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 use List::MoreUtils qw(natatime);
 use Time::HiRes qw(time);
@@ -67,7 +67,7 @@ Prepares all the SQL statements related to this module
 =cut
 
 sub freeradius_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::freeradius database queries");
     my $dbh = get_db_handle();
     if($dbh) {
@@ -99,7 +99,7 @@ Empties the radius_nas table
 =cut
 
 sub _delete_all_nas {
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
     $logger->debug("emptying radius_nas table");
 
     db_query_execute(FREERADIUS, $freeradius_statements, 'freeradius_delete_all_sql')
@@ -109,7 +109,7 @@ sub _delete_all_nas {
 
 sub _delete_expired {
     my ($timestamp) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
     $logger->debug("emptying radius_nas table");
 
     db_query_execute(FREERADIUS, $freeradius_statements, 'freeradius_delete_expired_sql', $timestamp)
@@ -125,7 +125,7 @@ Add a new NAS (FreeRADIUS client) record
 
 sub _insert_nas_bulk {
     my (@rows) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
     return 0 unless @rows;
     my $row_count = @rows;
     my $sql = "REPLACE INTO radius_nas ( nasname, shortname, secret, description, config_timestamp, start_ip, end_ip, range_length) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)" . ",( ?, ?, ?, ?, ?, ?, ?, ?)" x ($row_count -1)    ;
@@ -145,7 +145,7 @@ Add a new NAS (FreeRADIUS client) record
 
 sub _insert_nas {
     my ($nasname, $shortname, $secret, $description) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
 
     db_query_execute(
         FREERADIUS, $freeradius_statements, 'freeradius_insert_nas', $nasname, $shortname, $secret, $description
@@ -161,7 +161,7 @@ Populates the radius_nas table with switches in switches.conf.
 
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
-    my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my $logger = get_logger();
     return unless db_ping;
     my ($switch_config,$timestamp) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
@@ -217,7 +217,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

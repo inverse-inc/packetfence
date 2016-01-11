@@ -1,34 +1,30 @@
-[storage DEFAULT]
-storage=file
+# Look in /usr/local/pf/conf/chi.conf.defaults
+# for allowed parameters 
+# Also look in the CHI and the CHI::Driver::<Class>
+# documentation for allowed parameters for cache storage
+#
+#[storage ldap_auth]
+#
+# storage ldap_auth.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=10m
+#
+#[storage httpd.admin]
+#
+# storage httpd.admin.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=1d
+#
+#[storage httpd.portal]
+#
+# storage httpd.portal.expires_in
+#
+# Amount of time from the current time to expire an entry
+#expires_in=6h
 
-[storage DEFAULT l1_cache]
-storage=memcached
-
-[storage ldap_auth]
-expires_in=10m
-
-[storage ldap_auth l1_cache]
-expires_on_backend=1
-
-[storage httpd.admin]
-expires_in=1d
-
-[storage httpd.admin l1_cache]
-expires_on_backend=1
-
-[storage httpd.portal]
-expires_in=10m
-
-[storage httpd.portal l1_cache]
-expires_on_backend=1
-
-[storage memcached]
-driver=Memcached
-servers=127.0.0.1:11211
-global=1
-compress_threshold=10000
-
-[storage file]
-driver=File
-root_dir=/usr/local/pf/var/cache
-
+#An example configuration for a new storage type
+#[storage file]
+#driver=File
+#root_dir=/usr/local/pf/var/cache

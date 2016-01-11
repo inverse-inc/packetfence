@@ -32,7 +32,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
@@ -107,10 +107,10 @@ sub ACCEPT_CONTEXT {
     my ( $self, $c, @args ) = @_;
     my $class = ref $self || $self;
     my $previous_model = $c->session->{$class};
-    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal});
-    my $model;
     my $request       = $c->request;
     my $r = $request->{'env'}->{'psgi.input'};
+    return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
+    my $model;
     my $remoteAddress = $request->address;
     my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
@@ -158,6 +158,8 @@ sub _build_destinationUrl {
 
     my $host = URI::URL->new($url)->host();
 
+    get_logger->debug("Destination URL host is : $host");
+
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the portal profile
     if ( any { $_ eq $host } @portal_hosts) {
@@ -171,7 +173,7 @@ sub _build_destinationUrl {
 
 sub _build_clientIp {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     # we fetch CGI's remote address
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
@@ -182,6 +184,7 @@ sub _build_clientIp {
         my $session_ip = $self->dispatcherSession->{_client_ip};
         if(defined($session_ip)){
             $logger->info("Detected external portal client. Using the IP $session_ip address in it's session.");
+            Log::Log4perl::MDC->put( 'ip', $session_ip );
             return $session_ip;
         }
         else{
@@ -200,6 +203,7 @@ sub _build_clientIp {
     # if this is NOT from one of the expected proxy IPs return the IP
     if ( ( !$proxied_lookup{$directly_connected_ip} )
         && !( $directly_connected_ip ne '127.0.0.1' ) ) {
+        Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
         return $directly_connected_ip;
     }
 
@@ -208,21 +212,26 @@ sub _build_clientIp {
     # behind a proxy?
     if ( defined($forwarded_for) ) {
         my @proxied_ip = split( ',', $forwarded_for );
+        my $ip = $proxied_ip[0];
         $logger->debug(
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
-              . "Returning: $proxied_ip[0] according to HTTP Headers" );
-        return $proxied_ip[0];
+              . "Returning: $ip according to HTTP Headers" );
+        Log::Log4perl::MDC->put( 'ip', $ip);
+        return $ip;
     }
 
     $logger->debug(
         "Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers"
-    );
+
+     );
+    Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
     return $directly_connected_ip;
 }
 
 sub _build_clientMac {
     my ($self) = @_;
     my $clientIp = $self->clientIp;
+    my $mac;
     if (defined $clientIp) {
         $clientIp = clean_ip($clientIp);
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
@@ -235,12 +244,14 @@ sub _build_clientMac {
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
                 pf::iplog::open($ip->addr(), $fake_mac);
-                return $fake_mac;
+                $mac = $fake_mac;
+                last;
             }
         }
-        return pf::iplog::ip2mac( $clientIp );
+        $mac = pf::iplog::ip2mac( $clientIp ) unless defined $mac;
     }
-    return undef;
+    Log::Log4perl::MDC->put( 'mac',  defined $mac ? $mac : 'unknown' );
+    return $mac;
 }
 
 sub _build_profile {
@@ -254,11 +265,13 @@ sub _build_dispatcherSession {
     my ($self) = @_;
     my $session = new pf::Portal::Session()->session;
     my %session_data;
+    my $logger = get_logger();
     foreach my $key ($session->param) {
-        get_logger->debug("Adding session parameter from dispatcher session to Catalyst session : $key : ".$session->param($key));
-        $session_data{$key} = $session->param($key);
+        my $value = $session->param($key);
+        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . $value // 'undef' });
+        $session_data{$key} = $value;
     }
-    get_logger->info("External captive portal detected !") if($session_data{is_external_portal});
+    $logger->info("External captive portal detected !") if($session_data{is_external_portal});
 
     return \%session_data;
     return 1;

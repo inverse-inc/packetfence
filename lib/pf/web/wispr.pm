@@ -21,10 +21,11 @@ use Apache2::Request;
 use Apache2::Access;
 use Apache2::Connection;
 use Apache2::Const;
-use Log::Log4perl;
+use pf::log;
 use Template;
 
 use pf::authentication;
+use pf::Authentication::constants;
 use pf::config;
 use pf::iplog;
 use pf::node;
@@ -49,7 +50,7 @@ sub handler {
 
     my $r = (shift);
     my $req = Apache2::Request->new($r);
-    my $logger = Log::Log4perl->get_logger('auth_handler');
+    my $logger = get_logger();
 
     $logger->trace("hitting wispr");
 
@@ -155,7 +156,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

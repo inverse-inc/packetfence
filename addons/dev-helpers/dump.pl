@@ -11,7 +11,7 @@ dump add documentation
 
 =head1 SYNOPSIS
 
-dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters|scan|wmi>
+dump.pl <apachefilters|config|defaultconfig|doc_config|floatingdevices|firewallsso|profiles_filters|profiles|sources|switch <id>|switches|admin_roles|chiconfig|vlan_filters|scan|wmi|radius_filter|dhcp_filter>
 
 =head1 DESCRIPTION
 
@@ -76,8 +76,8 @@ use Data::Dumper;
 __PACKAGE__->mark_as_loaded();
 
 sub _run {
-    require pf::vlan::filter;
-    print Data::Dumper::Dumper(\%pf::vlan::filter::ConfigVlanFilters);
+    require pf::access_filter::vlan;
+    print Data::Dumper::Dumper(\%pf::access_filter::vlan::ConfigVlanFilters);
 }
 
 
@@ -181,6 +181,26 @@ sub _run {
     print Data::Dumper::Dumper(\%pf::config::ConfigWmi);
 }
 
+package pf::dump::radius_filters;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::access_filter::radius;
+    print Data::Dumper::Dumper(\%pf::access_filter::radius::ConfigRadiusFilters);
+}
+
+package pf::dump::dhcp_filters;
+use base qw(pf::dump::cmd);
+use Data::Dumper;
+__PACKAGE__->mark_as_loaded();
+
+sub _run {
+    require pf::access_filter::dhcp;
+    print Data::Dumper::Dumper(\%pf::access_filter::dhcp::ConfigDhcpFilters);
+}
+
 package main;
 use strict;
 use warnings;
@@ -195,7 +215,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -3,7 +3,7 @@ server packetfence-tunnel {
 authorize {	
         suffix
         ntdomain
-        packetfence-multi-domain
+        %%multi_domain%%
         eap {
                 ok = return
         }
@@ -42,6 +42,7 @@ authorize {
 
 authenticate {
         Auth-Type MS-CHAP {
+            packetfence     # increment the StatsD counter
             if(PacketFence-Domain){
                 chrooted_mschap
             }
@@ -66,7 +67,9 @@ post-auth {
             PacketFence-RPC-Proto = ${rpc_proto}
         }
         packetfence
+        sql
         Post-Auth-Type REJECT {
+                sql
                 attr_filter.access_reject
         }
 }

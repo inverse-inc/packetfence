@@ -1,6 +1,7 @@
 package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
+use pf::Authentication::constants;
 use pf::config;
 use pf::log;
 use pf::node;
@@ -40,7 +41,7 @@ sub begin : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger;
+    my $logger  = get_logger();
     my $pid     = $c->session->{"username"};
     my $request = $c->request;
 
@@ -174,7 +175,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,7 +25,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify an identifier for the source.' },
-   apply => [ { check => qr/^\S+$/, message => 'The name must not contain spaces.' } ],
+   apply => [ { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
   );
 has_field 'description' =>
   (
@@ -42,6 +42,10 @@ has_field 'rules.id' =>
   (
    type => 'Hidden',
    widget_wrapper => 'None',
+  );
+has_field 'rules.class' =>
+  (
+   type => 'Text',
   );
 has_field 'rules.description' =>
   (
@@ -67,7 +71,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

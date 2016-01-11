@@ -14,7 +14,6 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use fingerbank::DB;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -29,10 +28,10 @@ sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
+    my $apiclient = pf::client::getClient();
+    $apiclient->notify('fingerbank_update_upstream_db');
 
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status");
 }
 
 =head2 submit
@@ -46,10 +45,10 @@ sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
 
     $c->stash->{current_view} = 'JSON';
 
-    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
+    my $apiclient = pf::client::getClient();
+    $apiclient->notify('fingerbank_submit_unmatched');
 
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status");
 }
 
 =head1 AUTHOR
@@ -58,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

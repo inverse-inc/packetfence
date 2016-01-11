@@ -11,6 +11,7 @@ pf::Authentication::Source::SQLSource
 use pf::constants qw($TRUE $FALSE);
 use pf::password;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::Authentication::Action;
 use pf::Authentication::Source;
 
@@ -44,10 +45,10 @@ sub authenticate {
    my $result = pf::password::validate_password($username, $password);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
-     return ($TRUE, 'Successful authentication using SQL');
+     return ($TRUE, $AUTH_SUCCESS_MSG);
    }
 
-   return ($FALSE, 'Unable to authenticate successfully using SQL.');
+   return ($FALSE, $AUTH_FAIL_MSG);
  }
 
 =head2 match
@@ -81,36 +82,51 @@ sub match {
 
         my $access_duration = $result->{'access_duration'};
         if (defined $access_duration) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION,
-                                                        value => $access_duration});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ACCESS_DURATION,
+                value   => $access_duration,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
+            });
             push(@actions, $action);
         }
 
         my $access_level = $result->{'access_level'};
         if (defined $access_level ) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
-                                                        value => $access_level});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ACCESS_LEVEL,
+                value   => $access_level,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_LEVEL),
+            });
             push(@actions, $action);
         }
 
         my $sponsor = $result->{'sponsor'};
         if ($sponsor == 1) {
-            $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
-                                                        value => 1});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::MARK_AS_SPONSOR,
+                value   => 1,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::MARK_AS_SPONSOR),
+            });
             push(@actions, $action);
         }
 
         my $unregdate = $result->{'unregdate'};
         if (defined $unregdate) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
-                                                        value => $unregdate});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_UNREG_DATE,
+                value   => $unregdate,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
+            });
             push(@actions, $action);
         }
 
         my $category = $result->{'category'};
         if (defined $category) {
-            $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
-                                                        value => $category});
+            $action = pf::Authentication::Action->new({
+                type    => $Actions::SET_ROLE,
+                value   => $category,
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+            });
             push(@actions, $action);
         }
 
@@ -126,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

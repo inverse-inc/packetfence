@@ -112,6 +112,9 @@ PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/captiveportal_modperl_require.pl
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
+PerlLoadModule pf::WebAPI::InitHandler
+PerlLoadModule pf::web::billinghook
+PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
@@ -170,6 +173,8 @@ my @internal_nets = @pf::config::internal_nets;
 my @portal_ints = @pf::config::portal_ints;
 my $vhost;
 
+$SetEnvIf = "User-Agent collectd is_collectd";
+
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
@@ -197,10 +202,32 @@ $MaxClients = pf::services::manager::httpd::calculate_max_clients(pf::services::
 $StartServers = "4";
 $MinSpareServers = "2";
 
-if( pf::config::isenabled ($PfConfig->{services}{httpd_mod_qos})) {
+if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_qos})) {
     my $qos = $MaxClients * .7;
     $QS_SrvMaxConnClose = $qos;
-    $QS_SrvMaxConnPerIP = $PfConfig->{services}{httpd_mod_qos_maximum_connections_per_device};
+    $QS_SrvMaxConnPerIP = $PfConfig->{captive_portal}{httpd_mod_qos_maximum_connections_per_device};
+}
+
+if( pf::config::isenabled ($PfConfig->{captive_portal}{httpd_mod_evasive})) {
+    if( pf::config::os_detection() eq 'debian' ) {
+        $LoadModule = "evasive20_module /usr/lib/apache2/modules/mod_evasive20.so";
+    } else {
+        $LoadModule = "evasive20_module modules/mod_evasive20.so";
+    }
+    $DOSHashTableSize = $PfConfig->{captive_portal}{httpd_mod_evasive_hash_table_size};
+    $DOSPageCount = $PfConfig->{captive_portal}{httpd_mod_evasive_page_count};
+    $DOSSiteCount = $PfConfig->{captive_portal}{httpd_mod_evasive_site_count};
+    $DOSPageInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_page_interval};
+    $DOSSiteInterval = $PfConfig->{captive_portal}{httpd_mod_evasive_site_interval};
+    $DOSBlockingPeriod = $PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period};
+    $DOSEmailNotify = $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} if (defined($PfConfig->{captive_portal}{httpd_mod_evasive_email_notify}) && $PfConfig->{captive_portal}{httpd_mod_evasive_email_notify} ne '');
+    my $syscmd = $PfConfig->{captive_portal}{httpd_mod_evasive_system_command};
+    $syscmd =~ s/\%t/$PfConfig->{captive_portal}{httpd_mod_evasive_blocking_period}/;
+    $DOSSystemCommand = $syscmd;
+    $DOSLogDir = $install_dir."/logs/";
+    foreach my $ip (@{$PfConfig->{captive_portal}{httpd_mod_evasive_white_list}} ) {
+        push (@DOSWhitelist, $ip);
+    }
 }
 
 $HostnameLookups = "off";
@@ -286,7 +313,7 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
          Include => "${var_dir}/conf/captive-portal-common.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
@@ -313,6 +340,10 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
              },
              "/content" => {
                 "Allow" => "from all",
+             },
+             "/hook/billing" => {
+                "SetHandler" => "modperl",
+                "PerlResponseHandler" => "pf::web::billinghook",
              },
              @status_options,
              @allowed_from_all_options,
@@ -324,7 +355,7 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot => "${install_dir}/html/captive-portal/lib",
          ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-         CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+         CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
          Include => "${var_dir}/conf/captive-portal-common.conf",
          AllowEncodedSlashes => "on",
          Alias        => "/static ${install_dir}/html/captive-portal/root/static",
@@ -351,6 +382,10 @@ foreach my $interface ( uniq @internal_nets, @portal_ints ) {
              },
              "/content" => {
                 "Allow" => "from all",
+             },
+             "/hook/billing" => {
+                "SetHandler" => "modperl",
+                "PerlResponseHandler" => "pf::web::billinghook",
              },
              @status_options,
              @allowed_from_all_options,
@@ -377,7 +412,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
         DocumentRoot => "${install_dir}/html/captive-portal/lib",
         ErrorLog     => "${install_dir}/logs/httpd.portal.error",
-        CustomLog    => "${install_dir}/logs/httpd.portal.access combined",
+        CustomLog    => "${install_dir}/logs/httpd.portal.access combined env=!is_collectd",
         Location     => {
             "/modstatus" => {
                 SetHandler => 'server-status',

@@ -16,11 +16,12 @@ use warnings;
 use pf::config;
 use List::MoreUtils qw(any);
 use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
+use pf::cluster;
+use pf::constants::api;
 
 my @MODULES = __PACKAGE__->modules;
 
-our $DEFAULT_CLIENT = "pf::api::jsonrpcclient";
-our $CURRENT_CLIENT = $DEFAULT_CLIENT;
+our $CURRENT_CLIENT = $pf::constants::api::DEFAULT_CLIENT;
 
 =head2 setClient
 
@@ -41,7 +42,12 @@ gets the currently configured client
 =cut
 
 sub getClient {
+    $CURRENT_CLIENT ||= $pf::constants::api::DEFAULT_CLIENT;
     $CURRENT_CLIENT->new;
+}
+
+sub getManagementClient {
+    $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
 }
  
 =head1 AUTHOR
@@ -50,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

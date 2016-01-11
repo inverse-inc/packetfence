@@ -242,7 +242,8 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->session->{gateway} = $c->model('Config::System')->getDefaultGateway if (!defined($c->session->{gateway}));
 
         my $interfaces_ref = $c->model('Interface')->get('all');
-        $c->stash(interfaces => $interfaces_ref);
+        $c->stash->{interfaces} = $interfaces_ref;
+        $c->stash->{seen_networks} = $c->model('Interface')->map_interface_to_networks($c->stash->{interfaces});
     }
 }
 
@@ -479,7 +480,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -30,7 +30,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use Log::Log4perl;
 use Net::Appliance::Session;
 
 use pf::constants;
@@ -67,9 +66,9 @@ For now it returns the voiceVlan untagged since Juniper supports multiple untagg
 =cut
 
 sub getVoipVsa{
-    my ($this) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) ); 
-    my $voiceVlan = $this->{'_voiceVlan'};
+    my ($self) = @_; 
+    my $logger = $self->logger; 
+    my $voiceVlan = $self->{'_voiceVlan'};
     $logger->info("Accepting phone with untagged Access-Accept on voiceVlan $voiceVlan");
     
     # Return the normal response except we force the voiceVlan to be sent
@@ -89,10 +88,10 @@ Method to deauth a wired node with RADIUS Disconnect.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
 
-    $this->radiusDisconnect($mac );
+    $self->radiusDisconnect($mac );
 }
 
 =head2 radiusDisconnect
@@ -103,7 +102,7 @@ Send a Disconnect request to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -125,7 +124,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
        
         my $acctsessionid = node_accounting_current_sessionid($mac);
@@ -166,8 +165,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques { 
-   my ($this, $method, $connection_type) = @_;
-   my $logger = Log::Log4perl::get_logger( ref($this) );
+   my ($self, $method, $connection_type) = @_;
+   my $logger = $self->logger;
 
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::RADIUS;
@@ -203,30 +202,30 @@ Connects to the switch and configures the specified port to be RADIUS floating d
 =cut
 
 sub enableMABFloatingDevice{
-    my ($this, $ifIndex) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $ifIndex) = @_; 
+    my $logger = $self->logger;
     
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $this->{_cliTransport},        
+            Transport => $self->{_cliTransport},        
             Platform  => "JUNOS",    
         );
         
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );  
     };  
     
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
     }   
 
-    my $port = $this->getIfName($ifIndex);
+    my $port = $self->getIfName($ifIndex);
 
     my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 16383";
     my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
@@ -262,30 +261,30 @@ Connects to the switch and removes the RADIUS floating device configuration
 =cut
 
 sub disableMABFloatingDevice{
-    my ($this, $ifIndex) = @_; 
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $ifIndex) = @_; 
+    my $logger = $self->logger;
     
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $this->{_cliTransport},        
+            Transport => $self->{_cliTransport},        
             Platform  => "JUNOS",    
         );
         
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );  
     };  
     
     if ($@) {
-        $logger->error("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $@");
+        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
     }   
 
-    my $port = $this->getIfName($ifIndex);
+    my $port = $self->getIfName($ifIndex);
 
     my $command_mac_limit = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
     my $command_disconnect_flap = "set protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
@@ -319,11 +318,11 @@ sub disableMABFloatingDevice{
 # Uncomment the two next methods to activate it.
 #sub supportsLldp { return $TRUE; }
 #sub getPhonesLLDPAtIfIndex {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger = $self->logger;
 #
 #    # if can't SNMP read abort
-#    return if ( !$this->connectRead() );
+#    return if ( !$self->connectRead() );
 #    
 #    # LLDP info takes a few seconds to appear in the SNMP table after the switch makes the radius request
 #    # Sleep for 2 seconds to make sure the info is there
@@ -340,7 +339,7 @@ sub disableMABFloatingDevice{
 #        "SNMP get_next_request for lldpRemSysCapEnabled: "
 #        . "$oid_lldpRemSysCapEnabled"
 #    );
-#    my $result = $this->{_sessionRead}->get_table(
+#    my $result = $self->{_sessionRead}->get_table(
 #        -baseoid => "$oid_lldpRemSysCapEnabled"
 #    );
 #    # Cap entries look like this:
@@ -355,14 +354,14 @@ sub disableMABFloatingDevice{
 #            my $lldpRemTimeMark = $1;
 #            my $lldpRemIndex = $2;
 #            # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
-#            if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+#            if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
 #                $logger->debug("Found phone on lldp port : ".$lldpPort);
 #                # we have a phone on the port. Get the MAC
 #                $logger->trace(
 #                    "SNMP get_request for lldpRemPortId: "
 #                    . "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
 #                );
-#                my $portIdResult = $this->{_sessionRead}->get_request(
+#                my $portIdResult = $self->{_sessionRead}->get_request(
 #                    -varbindlist => [
 #                        "$oid_lldpRemPortId.$lldpRemTimeMark.$lldpPort.$lldpRemIndex"
 #                    ]
@@ -387,7 +386,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

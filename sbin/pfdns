@@ -25,6 +25,7 @@ use POSIX qw(:signal_h);
 use Try::Tiny;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
+use Net::DNS::Resolver;
 
 BEGIN {
     # log4perl init
@@ -41,6 +42,9 @@ use pf::pfdns::constants;
 use pf::CHI;
 use pf::ConfigStore::Interface;
 use pf::cluster;
+use pf::SwitchFactory;
+
+pf::SwitchFactory::preLoadModules();
 
 # initialization
 # --------------
@@ -49,7 +53,7 @@ use pf::cluster;
 # init signal handlers
 our $PROGRAM_NAME = $0 = "pfdns";
 
-my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+my $logger = get_logger( $PROGRAM_NAME );
 
 POSIX::sigaction(
     &POSIX::SIGHUP,
@@ -104,12 +108,12 @@ my $cs = pf::ConfigStore::Interface->new;
 foreach my $interface ( @{$cs->readAllIds} ) {
     my $full_interface = "interface $interface";
     my $ip = $Config{$full_interface}{'vip'} || $Config{$full_interface}{'ip'};
-    if ( 
-        defined ($Config{$full_interface}{'enforcement'}) && 
-        ( 
-          ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) 
-          || is_type_inline($Config{$full_interface}{'enforcement'}) 
-        ) 
+    if (
+        defined ($Config{$full_interface}{'enforcement'}) &&
+        (
+          ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN)
+          || is_type_inline($Config{$full_interface}{'enforcement'})
+        )
     ){
         # if cluster is enabled we return the VIP when queried on the server interface
         # we also listen on the VIP in case it's needed
@@ -137,6 +141,34 @@ foreach my $network ( keys %ConfigNetworks ) {
     }
 }
 
+tie our %domain_dns_servers, 'pfconfig::cached_hash', 'resource::domain_dns_servers';
+
+our $PARENT_PID = $$;
+my %CHILDREN;
+my $IS_CHILD = 0;
+my $CHILDREN_TO_START = $Config{advanced}{pfdns_processes};
+
+sub start_children {
+    my $i = 1;
+    while($i <= $CHILDREN_TO_START){
+        run_child($i);
+        $i++;
+    }
+}
+
+sub run_child {
+    my ($id) = @_;
+    my $pid = fork();
+    if($pid) {
+        $CHILDREN{$pid} = $id;
+        $SIG{CHLD} = "IGNORE";
+    } elsif ($pid == 0) {
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        _run_child($id);
+    } 
+}
+
 populate_ipset_cache($IPSET_SESSION);
 
 my $ns = new Net::DNS::Nameserver(
@@ -147,8 +179,12 @@ my $ns = new Net::DNS::Nameserver(
     ) || die "couldn't create nameserver object\n";
 
 
-while($RUNNING) {
-    $ns->loop_once(10);
+sub _run_child {
+    my ($id) = @_;
+    $0 = "$0 - $id";
+    while($RUNNING) {
+        $ns->loop_once(10);
+    }
 }
 
 END {
@@ -158,6 +194,7 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
+    $logger->trace(sub { "Process $0 handling request" });
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
@@ -185,7 +222,7 @@ sub regzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        if ( ($qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
+        if ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
             my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
@@ -205,19 +242,35 @@ sub regzone {
             }
 
         }
-        elsif ($query =~ /$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}/) {
+        elsif ($qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
             my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
             $rcode = "NOERROR";
         } else {
-            my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
-            my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
-            my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
-            my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
-            push @ans, $rr;
-            push @ans, $rr2;
-            $rcode = "NOERROR";
+            #Check if the answer already exist
+            my ($ttl, $rdata);
+            my $query = $CHI_CACHE->get($qname);
+            if ($query) {
+                foreach my $rr ($query->answer) {
+                    next unless $rr->type eq "A";
+                    $rdata= $rr->address;
+                    push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
+                }
+                if(@ans) {
+                    $rcode = "NOERROR";
+                } else {
+                    $rcode = "NXDOMAIN";
+                }
+            } else {
+                my ($ttl, $rdata) = ($TTL, $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}.".");
+                my $rr = new Net::DNS::RR("$qname $ttl IN CNAME $rdata");
+                my $rdata2 = (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost};
+                my $rr2 = new Net::DNS::RR("$rdata $ttl $qclass $qtype $rdata2");
+                push @ans, $rr;
+                push @ans, $rr2;
+                $rcode = "NOERROR";
+            }
         }
     } elsif ($qtype eq "NS") {
         my $rr = new Net::DNS::RR(
@@ -227,6 +280,24 @@ sub regzone {
         );
         push @ans, $rr;
         $rcode = "NOERROR";
+    } elsif ($qtype eq "SRV") {
+        #Handle SRV record to be able to contact Active Directory in the reg vlan
+        $rcode = "NXDOMAIN";
+        foreach my $key ( keys %domain_dns_servers ) {
+            if ($qname =~ /(.*)_msdcs.$key/i) {
+                my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
+                my $reply = $resolver->search($qname, $qtype);
+                foreach my $answer ($reply->answer) {
+                    my $query = $CHI_CACHE->compute($answer->target, sub { $resolver->search($answer->target, 'A') });
+                    if ($query) {
+                        get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
+                        add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
+                    }
+                }
+                $rcode = "NOERROR";
+                push @ans, $reply->answer;
+            }
+        }
     } else{
         $rcode = "NXDOMAIN";
     }
@@ -303,6 +374,10 @@ sub isolzone {
 }
 
 sub normal_sighandler {
+    foreach my $pid (keys %CHILDREN){
+        kill(SIGKILL, $pid);
+    }
+    deletepid();
     $RUNNING = 0;
     $logger->debug( "pfdns: caught SIG" . $_[0] . " - terminating" );
 }
@@ -335,9 +410,25 @@ sub is_in_ipset_cache {
     return exists $IPSET_CACHE{join(':',$session,$ip,$port)};
 }
 
+sub is_parent_alive {
+    kill (0,$PARENT_PID)
+}
+
+start_children();
+while($RUNNING){
+    sleep 1;
+    foreach my $pid (keys %CHILDREN){
+        unless(kill(0,$pid)){
+            $logger->error("Child $pid ($CHILDREN{$pid}) is dead. Respawning it.");
+            run_child($CHILDREN{$pid});
+            delete $CHILDREN{$pid};
+        }
+    }
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
@@ -357,4 +448,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-

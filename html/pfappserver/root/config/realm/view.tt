@@ -12,6 +12,7 @@
         [% form.field('id').render | none UNLESS item.id %]
         [% form.field('options').render | none %]
         [% form.field('domain').render | none %]
+        [% form.field('source').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">

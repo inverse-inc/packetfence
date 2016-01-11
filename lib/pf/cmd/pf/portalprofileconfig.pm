@@ -30,7 +30,7 @@ use pf::ConfigStore::Profile;
 
 sub configStoreName { "pf::ConfigStore::Profile" }
 
-sub display_fields { qw(id description logo billing_engine redirecturl always_use_redirecturl mandatory_fields locale) }
+sub display_fields { qw(id description logo redirecturl always_use_redirecturl mandatory_fields locale) }
 
 sub idKey { 'id' }
 
@@ -42,7 +42,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,7 +24,7 @@ accessing data in the hash
 
 This class is used with tiying
 
-Example : 
+Example :
 my %hash;
 tie %hash, 'pfconfig::cached_hash', 'resource::default_switch';
 print $hash{_ip};
@@ -35,7 +35,7 @@ lib/pfconfig/namespaces/ and served though pfconfig
 The access to the attribute _ip then generates a GET though pfconfig
 that uses a UNIX socket
 
-In order to call a method on this tied object 
+In order to call a method on this tied object
 my @keys = tied(%hash)->keys
 
 =cut
@@ -45,7 +45,7 @@ use warnings;
 
 use Tie::Hash;
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use pfconfig::log;
@@ -77,7 +77,7 @@ Access an element by key in the hash
 Will serve it from it's subcache (per process) if it has it and it's still valid
 Other than that it proxies the call to pfconfig
 
-=cut 
+=cut
 
 sub FETCH {
     my ( $self, $key ) = @_;
@@ -89,17 +89,12 @@ sub FETCH {
         return undef;
     }
 
-    my $subcache_value;
-    $subcache_value = $self->get_from_subcache($key);
-    return $subcache_value if defined($subcache_value);
-
     return $self->{_internal_elements}{$key} if defined( $self->{_internal_elements}{$key} );
 
-    my $result;
-    my $reply = $self->_get_from_socket("$self->{_namespace};$key");
-    $result = defined($reply) ? $reply->{element} : undef;
-
-    $self->set_in_subcache( $key, $result );
+    my $result = $self->compute_from_subcache($key, sub {
+        my $reply = $self->_get_from_socket("$self->{_namespace};$key");
+        my $result = defined($reply) ? $reply->{element} : undef;
+    });
 
     return $result;
 }
@@ -116,9 +111,11 @@ sub keys {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
 
-    my @keys = @{ $self->_get_from_socket( $self->{_namespace}, "keys" ) };
+    my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "keys" );
+    });
 
-    return @keys;
+    return @$keys;
 }
 
 =head2 FIRSTKEY
@@ -131,8 +128,11 @@ Proxies to pfconfig
 sub FIRSTKEY {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
-    my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
-    return $first_key ? $first_key->{next_key} : undef;
+
+    return $self->compute_from_subcache("__PFCONFIG_FIRST_KEY__", sub {
+        my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
+        return $first_key ? $first_key->{next_key} : undef;
+    });
 }
 
 =head2 FIRSTKEY
@@ -145,7 +145,10 @@ Proxies to pfconfig
 sub NEXTKEY {
     my ( $self, $last_key ) = @_;
     my $logger = pfconfig::log::get_logger;
-    return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
+
+    return $self->compute_from_subcache("__PFCONFIG_NEXT_KEY_${last_key}__", sub {
+        return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
+    });
 }
 
 =head2 STORE
@@ -173,8 +176,10 @@ Proxies to pfconfig
 
 sub EXISTS {
     my ( $self, $key ) = @_;
-    my @keys = $self->keys;
-    return $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) )->{result};
+    return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
+        my $reply =  $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) );
+        return defined $reply ? $reply->{result} : undef;
+    });
 }
 
 =head2 values
@@ -195,11 +200,11 @@ sub values {
     return @values;
 }
 
-=item search
+=head2 search
 
 Used to search for an element in our hash that has a specific value in one of it's field
 
-Ex (%h is us) : 
+Ex (%h is us) :
 my %h = {
   'test' => {'result' => '2'},
   'test2' => {'result' => 'success'}
@@ -214,10 +219,12 @@ Call it using tied(%hash)->search('result', 'success')
 
 sub search {
     my ($self, $field, $value ) = @_;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+    my $elements = $self->compute_from_subcache("__PFCONFIG_HASH_SEARCH_${field}_${value}__", sub {
+        my @elements = grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } $self->values;
+        return \@elements;
+    });
+    return @$elements;
 }
-
-=back
 
 =head1 AUTHOR
 
@@ -225,7 +232,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -40,7 +40,6 @@ Recommanded Firmware is K.15.06.0008
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::HP::Procurve_2500');
@@ -75,8 +74,8 @@ TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
 }
@@ -88,8 +87,8 @@ Is VoIP enabled for this device
 =cut
 
 sub isVoIPEnabled {
-    my ($this) = @_;
-    return ( $this->{_VoIPEnabled} == 1 );
+    my ($self) = @_;
+    return ( $self->{_VoIPEnabled} == 1 );
 }
 
 =back
@@ -100,7 +99,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -28,6 +28,12 @@ sub init {
     # abstact
 }
 
+=head2 _get_db
+
+Get a connection to the database
+
+=cut
+
 sub _get_db {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
@@ -44,11 +50,23 @@ sub _get_db {
     return $db;
 }
 
+=head2 _db_error
+
+Handle a database error
+
+=cut
+
 sub _db_error {
     my ($self) = @_;
     my $logger = pfconfig::log::get_logger;
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
+
+=head2 get
+
+Get an element by key
+
+=cut
 
 sub get {
     my ( $self, $key ) = @_;
@@ -75,6 +93,12 @@ sub get {
     return $element;
 }
 
+=head2 set
+
+Set an element by key
+
+=cut
+
 sub set {
     my ( $self, $key, $value ) = @_;
     my $logger = pfconfig::log::get_logger;
@@ -97,6 +121,12 @@ sub set {
     return $result;
 }
 
+=head2 remove
+
+Remove an element by key
+
+=cut
+
 sub remove {
     my ( $self, $key ) = @_;
     my $db = $self->_get_db();
@@ -109,6 +139,80 @@ sub remove {
     return $result;
 }
 
+=head2 clear
+
+Clear out the backend
+
+=cut
+
+sub clear {
+    my ( $self ) = @_;
+    my $db = $self->_get_db();
+    unless($db){ 
+        $self->_db_error();
+        return 0;
+    }
+    my $result = $db->do( "DELETE FROM keyed" );
+    $db->disconnect();
+    return $result;
+}
+
+=head2 list
+
+List keys in the backend
+
+=cut
+
+sub list {
+    my ( $self ) = @_;
+    my $logger = pfconfig::log::get_logger;
+    my $db = $self->_get_db();
+    unless($db){
+        $self->_db_error();
+        return ();
+    }
+    my $statement = $db->prepare( "SELECT id FROM keyed");
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
+    my @keys = @{$statement->fetchall_arrayref()};
+    @keys = map { $_->[0] } @keys;
+    $db->disconnect();
+    return @keys;
+}
+
+=head2 list_matching
+
+List keys matching a regular expression
+
+=cut
+
+sub list_matching {
+    my ( $self, $expression ) = @_;
+    my $logger = pfconfig::log::get_logger;
+    my $db = $self->_get_db();
+    unless($db){
+        $self->_db_error();
+        return ();
+    }
+    my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
+    eval {
+        $statement->execute();
+    };
+    if($@){
+        $logger->error("Couldn't select from table. Error : $@");
+        return undef;
+    }
+    my @keys = @{$statement->fetchall_arrayref()};
+    @keys = map { $_->[0] } @keys;
+    $db->disconnect();
+    return @keys;
+}
+
 =back
 
 =head1 AUTHOR
@@ -117,7 +221,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

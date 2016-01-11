@@ -81,7 +81,7 @@ sub build_update_subfields {{
        'TimePicker' =>
        {
         element_class => ['timepicker-default', 'input-small'],
-        element_attr => {placeholder => 'MM:HH'},
+        element_attr => {placeholder => 'HH:MM'},
        },
       },
 }}
@@ -159,7 +159,7 @@ sub ACCEPT_CONTEXT {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

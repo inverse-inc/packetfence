@@ -26,7 +26,13 @@ BEGIN {
 __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'config/wrix', CaptureArgs => 1 }
+        object => { Chained => '/', PathPart => 'config/wrix', CaptureArgs => 1 },
+        view   => { AdminRole => 'WRIX_READ' },
+        list   => { AdminRole => 'WRIX_READ' },
+        create => { AdminRole => 'WRIX_CREATE' },
+        clone  => { AdminRole => 'WRIX_CREATE' },
+        update => { AdminRole => 'WRIX_UPDATE' },
+        remove => { AdminRole => 'WRIX_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
@@ -64,42 +70,41 @@ sub export :Local {
 }
 
 sub search :Local :Args() {
-    my ($self, $c, $pageNum, $perPage) = @_;
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
-    my ($status, $status_msg, $result);
+    my ($self, $c) = @_;
+    if ($c->request->method ne 'POST') {
+        $c->detach('list');
+    }
     my $form = $self->getForm($c);
-    if ($c->request->method eq 'POST') {
-        $form->process(params => $c->request->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $status_msg = $form->field_errors;
-            $c->stash(current_view => 'JSON');
-        } else {
-            my $model = $self->getModel($c);
-            my $query = $form->value;
-            if (grep { defined $_->{'value'} } @{$query->{'searches'}}) {
-                # At least one search criteria has a value
-                ($status, $result) = $model->search($pageNum, $perPage, $query);
-                if (is_success($status)) {
-                    $c->stash(form => $form);
-                    $c->stash($result);
-                }
-            }
-            else {
-                $c->forward('list');
+    my ($status_msg, $result);
+    my $status = HTTP_OK;
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $c->stash({
+            current_view => 'JSON',
+            status_msg => $form->field_errors,
+        });
+        $status = HTTP_BAD_REQUEST;
+    } else {
+        my $model = $self->getModel($c);
+        my $query = $form->value;
+        if (grep { defined $_->{'value'} } @{$query->{'searches'}}) {
+            # At least one search criteria has a value
+            ($status, $result) = $model->search($query);
+            if (is_success($status)) {
+                $c->stash(form => $form);
+                $c->stash($result);
             }
         }
-        $c->stash(status_msg => $status_msg);
-        $c->response->status($status);
-    } else {
-        $c->forward('list');
+        else {
+            $c->forward('list');
+        }
     }
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

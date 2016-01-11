@@ -16,6 +16,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::log;
+use pf::util qw(calc_page_count);
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Config';
@@ -268,7 +269,7 @@ sub search {
         $count += $resultset->count;
     }
     $results{items} = \@items;
-    $results{pageCount} = int (($count + $rows) / $rows) ;
+    $results{page_count} = calc_page_count($count, $rows);
     return ($status,\%results);
 }
 
@@ -287,7 +288,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

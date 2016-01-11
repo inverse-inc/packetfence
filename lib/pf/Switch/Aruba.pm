@@ -59,7 +59,6 @@ use warnings;
 use base ('pf::Switch');
 
 use POSIX;
-use Log::Log4perl;
 use Net::Telnet;
 use Try::Tiny;
 
@@ -87,6 +86,8 @@ sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -96,14 +97,14 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
     if ( $sysDescr =~ m/V(\d{1}\.\d{2}\.\d{2})/ ) {
         return $1;
@@ -115,9 +116,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     # wlsxNUserEntryDeAuthenticated: 1.3.6.1.4.1.14823.2.3.1.11.1.2.1017
 
@@ -145,14 +146,14 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
-        $logger->info("[$mac] (".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
+        $logger->info("(".$self->{'_id'}.") not in production mode... we won't perform deauthentication");
         return 1;
     }
 
-    $logger->debug("[$mac] (".$self->{'_id'}.") deauthenticate using RADIUS Disconnect-Request deauth method");
+    $logger->debug("(".$self->{'_id'}.") deauthenticate using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect($mac);
 }
 
@@ -167,16 +168,16 @@ Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthentic
 =cut
 
 sub _deauthenticateMacWithTelnet {
-    my ( $this, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
 
-    if ( !$this->isProductionMode() ) {
-        $logger->info("[$mac] (".$this->{'_id'}.") not in production mode ... we won't write to the bnsMobileStationTable");
+    if ( !$self->isProductionMode() ) {
+        $logger->info("(".$self->{'_id'}.") not in production mode ... we won't write to the bnsMobileStationTable");
         return 1;
     }
 
-    if ( !$this->connectRead() ) {
-        $logger->error("(".$this->{'_id'}.") Can not connect using SNMP to Aruba Controller ");
+    if ( !$self->connectRead() ) {
+        $logger->error("(".$self->{'_id'}.") Can not connect using SNMP to Aruba Controller ");
         return 1;
     }
 
@@ -186,25 +187,25 @@ sub _deauthenticateMacWithTelnet {
     }
 
     if (defined($is_dot1x) && $is_dot1x) {
-        $logger->debug("[$mac] deauthenticate using 802.1x deauth method");
-        $this->_dot1xDeauthenticateMAC($mac);
+        $logger->debug("deauthenticate using 802.1x deauth method");
+        $self->_dot1xDeauthenticateMAC($mac);
     } else {
         # Any other authentication method lets kick out with traditionnal approach
-        $logger->debug("[$mac] deauthenticate using non-802.1x deauth method");
-        $this->_deauthenticateMAC($mac);
+        $logger->debug("deauthenticate using non-802.1x deauth method");
+        $self->_deauthenticateMAC($mac);
     }
 }
 
 # old code used to find user authentication method then kick him out accordingly, not required anymore
 #use constant AUTH_DOT1X => 4;
 #sub deauthenticateMac {
-#    my ($this, $mac) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my ($self, $mac) = @_;
+#    my $logger = $self->logger;
 #    my $OID_nUserAuthenticationMethod = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.6'; # from WLSX-USER-MIB
 #    ...
 #    # Query the controller to get the type of authentication the user is using
 #    $logger->trace("SNMP get_table for nUserAuthenticationMethod: $OID_nUserAuthenticationMethod");
-#    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserAuthenticationMethod");
+#    my $result = $self->{_sessionRead}->get_table(-baseoid => "$OID_nUserAuthenticationMethod");
 #    # is there at least one result?
 #    if (keys %{$result}) {
 #
@@ -222,11 +223,11 @@ sub _deauthenticateMacWithTelnet {
 #                } else {
 #                    if ($result->{$macIpToUserAuthMethod} == AUTH_DOT1X) {
 #                        $logger->trace("using 802.1x deauth method");
-#                        $this->_dot1xDeauthenticateMAC($mac);
+#                        $self->_dot1xDeauthenticateMAC($mac);
 #                    } else {
 #                        # Any other authentication method lets kick out with traditionnal approach
 #                        $logger->trace("using non-802.1x deauth method");
-#                        $this->_deauthenticateMAC($mac);
+#                        $self->_deauthenticateMAC($mac);
 #                    }
 #                    $count++;
 #                }
@@ -248,18 +249,18 @@ De-authenticate a MAC from controller when user is in 802.1x mode using Telnet.
 =cut
 
 sub _dot1xDeauthenticateMAC {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
 
-    my $session = $this->getTelnetSession;
+    my $session = $self->getTelnetSession;
     if (!$session) {
-        $logger->error("[$mac] (".$this->{'_id'}.") Can't connect to Aruba Controller  using ".$this->{_cliTransport});
+        $logger->error("(".$self->{'_id'}.") Can't connect to Aruba Controller  using ".$self->{_cliTransport});
         return;
     }
 
     my $cmd = "aaa user delete mac $mac";
 
-    $logger->info("[$mac] deauthenticating 802.1x with: $cmd");
+    $logger->info("deauthenticating 802.1x with: $cmd");
     $session->cmd($cmd);
 
     $session->close();
@@ -286,18 +287,18 @@ and without an IP in the table.
 =cut
 
 sub _deauthenticateMAC {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $OID_nUserApBSSID = '1.3.6.1.4.1.14823.2.2.1.4.1.2.1.11'; # from WLSX-USER-MIB
 
     # Query the controller to get the MAC address of the AP to which the client is associated
     $logger->trace("SNMP get_table for nUserApBSSID: $OID_nUserApBSSID");
-    my $result = $this->{_sessionRead}->get_table(-baseoid => "$OID_nUserApBSSID");
+    my $result = $self->{_sessionRead}->get_table(-baseoid => "$OID_nUserApBSSID");
     if (keys %{$result}) {
 
-        my $session = $this->getTelnetSession;
+        my $session = $self->getTelnetSession;
         if (!$session) {
-            $logger->error("[$mac] (".$this->{'_id'}.") Can't connect to Aruba Controller using ".$this->{_cliTransport});
+            $logger->error("(".$self->{'_id'}.") Can't connect to Aruba Controller using ".$self->{_cliTransport});
             return;
         }
 
@@ -314,7 +315,7 @@ sub _deauthenticateMAC {
                     my $apSSID = uc("$1:$2:$3:$4:$5:$6");
                     my $cmd = "stm kick-off-sta $mac $apSSID";
 
-                    $logger->info("[$mac] deauthenticating from SSID $apSSID with: $cmd");
+                    $logger->info("deauthenticating from SSID $apSSID with: $cmd");
                     $session->cmd($cmd);
                     $count++;
                 } else {
@@ -325,38 +326,38 @@ sub _deauthenticateMAC {
 
         $session->close();
         if ($count > 1) {
-            $logger->warn("[$mac] We deauthenticated more than one client with this mac");
+            $logger->warn("We deauthenticated more than one client with this mac");
         } elsif ($count == 0) {
-            $logger->info("[$mac] no one was deauthenticated (request with this mac)");
+            $logger->info("no one was deauthenticated (request with this mac)");
         }
     } else {
-        $logger->error("[$mac] Can not get AP SSID from Aruba Controller for this MAC");
+        $logger->error("Can not get AP SSID from Aruba Controller for this MAC");
         return;
     }
 }
 
 # TODO: extract in a more generic place?
 sub getTelnetSession {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     # use telnet to deauthenticate the client
-    # FIXME: we do not honor the $this->{_cliTransport} parameter
+    # FIXME: we do not honor the $self->{_cliTransport} parameter
     my $session;
     eval {
         $session = Net::Telnet->new(
-            Host    => $this->{_controllerIp} || $this->{_ip},
+            Host    => $self->{_controllerIp} || $self->{_ip},
             Timeout => 5,
             Prompt  => '/[\$%#>]$/'
         );
         $session->waitfor('/User: /');
-        $session->put( $this->{_cliUser} . "\n" );
+        $session->put( $self->{_cliUser} . "\n" );
         $session->waitfor('/Password:/');
-        $session->put( $this->{_cliPwd} . "\n" );
+        $session->put( $self->{_cliPwd} . "\n" );
         $session->waitfor( $session->prompt );
         $session->put( "en\n" );
         $session->waitfor('/Password:/');
-        $session->put( $this->{_cliEnablePwd} . "\n" );
+        $session->put( $self->{_cliEnablePwd} . "\n" );
         $session->waitfor( $session->prompt );
     };
 
@@ -377,8 +378,8 @@ Aruba specific parser. See pf::Switch for base implementation.
 =cut
 
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $radius_request) = @_;
+    my $logger = $self->logger;
 
     # Aruba-Essid-Name VSA
     if (defined($radius_request->{'Aruba-Essid-Name'})) {
@@ -386,51 +387,10 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Please let us know so we can add support for it."
     );
     return;
-}
-
-=item returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation because Aruba doesn't support
-assigning VLANs and Roles at the same time.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    my $radius_reply_ref = {};
-
-    $logger->debug("[$mac] Network device (".$this->{'_id'}.") supports roles. Evaluating role to be returned.");
-    my $role = $this->getRoleByName($user_role);
-
-    # Roles are configured and the user should have one
-    if (defined($role)  && isenabled($this->{_RoleMap})) {
-
-        $radius_reply_ref = {
-            $this->returnRoleAttribute => $role,
-        };
-
-        $logger->info("[$mac] Returning ACCEPT with role: $role");
-    }
-
-    # if Roles aren't configured, return VLAN information
-    if (isenabled($this->{_VlanMap})) {
-        $radius_reply_ref = {
-             %$radius_reply_ref,
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-
-        $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
-    }
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
 =item returnRoleAttribute
@@ -440,7 +400,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Aruba-User-Role';
 }
@@ -452,8 +412,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -480,7 +440,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -511,7 +471,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
@@ -573,7 +533,7 @@ Extract VLAN from the radius attributes.
 
 sub extractVLAN {
     my ($self, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
     return ($radius_request->{'Aruba-User-Vlan'});
 }
 
@@ -591,8 +551,8 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my($self, $req) = @_;
+    my $logger = $self->logger;
     return ($$req->param('mac'),$$req->param('essid'),$$req->param('ip'),$$req->param('url'),undef,undef);
 }
 
@@ -609,7 +569,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

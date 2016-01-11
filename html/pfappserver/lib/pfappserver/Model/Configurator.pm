@@ -18,6 +18,7 @@ use Moose;
 use Readonly;
 use namespace::autoclean;
 
+use pf::log;
 use pf::config;
 use pf::error;
 use pf::util;
@@ -39,7 +40,7 @@ Readonly::Scalar our $UPGRADE => 'upgrade';
 
 sub checkForRootUser {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $status_msg;
 
@@ -58,7 +59,7 @@ sub checkForRootUser {
 
 sub checkForUpgrade {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $filehandler;
 
@@ -105,7 +106,7 @@ sub checkForUpgrade {
 
 sub update_currently_at {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     open PFRELEASE, '<', "$conf_dir/pf-release";
     my @pfrelease  = <PFRELEASE>;
@@ -126,7 +127,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

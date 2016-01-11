@@ -16,23 +16,22 @@ use warnings;
 
 use base ('pf::Switch');
 use Net::SNMP;
-use Log::Log4perl;
 
 use pf::Switch::constants;
 use pf::util;
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_swDlinkEquipmentCapacitySwVersion
         = '1.3.6.1.4.1.171.12.11.1.9.4.1.8.1';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for oid_swDlinkEquipmentCapacitySwVersion: $oid_swDlinkEquipmentCapacitySwVersion"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [$oid_swDlinkEquipmentCapacitySwVersion] );
     my $runtimeSwVersion
         = ( $result->{$oid_swDlinkEquipmentCapacitySwVersion} || '' );
@@ -41,9 +40,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     if ( $trapString
         =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])\|.1.3.6.1.2.1.2.2.1.1.([0-9]+)/
@@ -72,7 +71,7 @@ sub parseTrap {
         $trapHashRef->{'trapIfIndex'} =~ s/ //g;
         $trapHashRef->{'trapIfIndex'} = hex( $trapHashRef->{'trapIfIndex'} );
         $trapHashRef->{'trapVlan'}
-            = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+            = $self->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     } elsif ($trapString =~ /[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.13\.22[|]\.1\.3\.6\.1\.4\.1\.171\.10\.73\.30\.9\.1\.1\.1 = $SNMP::MAC_ADDRESS_FORMAT/) {
 
@@ -87,9 +86,9 @@ sub parseTrap {
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
@@ -99,26 +98,26 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex);
     if ( !defined($dot1dBasePort) ) {
         return 0;
     }
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_id} } };
+        lock %{ $switch_locker_ref->{ $self->{_id} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_id}
+                . $self->{_id}
                 . "} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -129,32 +128,32 @@ sub _setVlan {
 
         # calculate new settings
         my $egressPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $egressPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $ifIndex - 1, 1 );
         my $untaggedPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $untaggedPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $ifIndex - 1, 1 );
 
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # set all values
-        if ( !$this->connectWrite() ) {
+        if ( !$self->connectWrite() ) {
             return 0;
         }
         $logger->trace(
             "SNMP set_request for dot1qPvid, dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
                 Net::SNMP::OCTET_STRING,
@@ -173,19 +172,19 @@ sub _setVlan {
 
         if ( !defined($result) ) {
             $logger->error(
-                "error setting VLAN: " . $this->{_sessionWrite}->error );
+                "error setting VLAN: " . $self->{_sessionWrite}->error );
         }
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} unlocked in _setVlan" );
     return ( defined($result) );
 
 }
 
 sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     return 1;
 }
 
@@ -196,7 +195,7 @@ Treker Chen <treker.chen@gmail.com>
 =head1 COPYRIGHT
 
 Copyright (C) 2008 Treker Chen
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -9,6 +9,7 @@ pf::Authentication::Condition
 =cut
 
 use Moose;
+use pf::log;
 
 use pf::Authentication::constants;
 
@@ -52,7 +53,7 @@ sub matches {
             $time_v = int(sprintf("%d%02d%02d", $vyear, $vmon, $vday));
         }
 
-        my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+        my $logger = get_logger();
         $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $self->{'attribute'}, $self->{'operator'}, $self->{'value'}, $v));
 
         if ($self->{'operator'} eq $Conditions::EQUALS ||
@@ -97,7 +98,7 @@ sub matches {
             }
         }
         else {
-            my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+            my $logger = get_logger();
             $logger->error("Support for operator " . $self->{operator} . " is not implemented.");
         }
     }
@@ -111,7 +112,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

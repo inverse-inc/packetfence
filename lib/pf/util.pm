@@ -29,8 +29,12 @@ use List::MoreUtils qw(all);
 use Try::Tiny;
 use pf::file_paths;
 use NetAddr::IP;
+use File::Temp;
 use Date::Parse;
 use Crypt::OpenSSL::X509;
+use Encode qw(encode);
+use MIME::Lite::TT;
+use Digest::MD5;
 
 our ( %local_mac );
 
@@ -62,6 +66,12 @@ BEGIN {
         is_prod_interface
         valid_ip_range
         cert_has_expired
+        cert_is_self_signed
+        safe_file_update
+        fix_file_permissions
+        strip_username
+        generate_session_id
+        calc_page_count
     );
 }
 
@@ -442,6 +452,41 @@ sub readpid {
     }
 }
 
+=item safe_file_update($file, $content)
+
+This safely modifies the contents of a file using a rename
+
+=cut
+
+sub safe_file_update {
+    my ($file, $contents) = @_;
+    my ($volume, $dir, $filename) = File::Spec->splitpath($file);
+    $dir = '.' if $dir eq '';
+    # Creates a new file in the same directory to ensure it is on the same filesystem
+    my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    syswrite $temp, $contents;
+    $temp->flush;
+    close $temp;
+    unless( rename ($temp->filename, $file) ) {
+        my $logger = pf::log::get_logger();
+        $logger->error("cannot save contents to $file '$!'");
+        die "cannot save contents to $file";
+    }
+    $temp->unlink_on_destroy(0);
+    fix_file_permissions($file);
+}
+
+=item fix_file_permissions(@files)
+
+fix the file permissions of the files
+
+=cut
+
+sub fix_file_permissions {
+    my ($file) = @_;
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
+}
+
 sub parse_template {
     my ( $tags, $template, $destination, $comment_char ) = @_;
     my $logger = get_logger();
@@ -451,6 +496,8 @@ sub parse_template {
     while (<$template_fh>) {
         study $_;
         foreach my $tag ( keys %{$tags} ) {
+#            use Data::Dumper;
+#            print Dumper($tag, $tags->{$tag});
             $_ =~ s/%%$tag%%/$tags->{$tag}/ig;
         }
         push @parsed, $_;
@@ -718,7 +765,7 @@ with code 1, 2 or 3 without reporting it as an error.
 sub pf_run {
     my ($command, %options) = @_;
     my $logger = get_logger();
-    
+
     # REVIEW AND DISCUSS THIS ! IS IT OK TO DO THIS ?
     # IMO yes.
     # Also this comment needs to be removed before the merge
@@ -753,7 +800,7 @@ sub pf_run {
 
     my $loggable_command = $command;
     if(defined($options{log_strip})){
-        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g; 
+        $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g;
     }
     # died with an OS problem
     if ($CHILD_ERROR == -1) {
@@ -873,9 +920,10 @@ sub pf_chown {
 
 sub untaint_chain {
     my ($chain) = @_;
-    if ($chain =~ /^(.+)$/) {
+    if (defined $chain && $chain =~ /^(.+)$/) {
         return $1;
     }
+    return undef;
 }
 
 sub valid_mac_or_ip {
@@ -966,7 +1014,7 @@ sub normalize_time {
 
 Used to search for an element in a hash that has a specific value in one of it's field
 
-Ex : 
+Ex :
 my %h = {
   'test' => {'result' => '2'},
   'test2' => {'result' => 'success'}
@@ -1011,6 +1059,97 @@ sub cert_has_expired {
     return time > $expiration;
 }
 
+=item cert_is_self_signed
+
+Check if a certicate is self-signed
+
+=cut
+
+sub cert_is_self_signed {
+    my ($path) = @_;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $self_signed = $cert->is_selfsigned;
+    return $self_signed;
+}
+
+=item strip_username
+
+Will strip a username matching pattern user@realm or \\realm\user
+
+Returns ($user,$realm) if found or ($user) if not matching any realm pattern
+
+=cut
+
+sub strip_username {
+    my ($username) = @_;
+    return $username unless(defined($username));
+
+    # user@domain
+    if($username =~ /(.*)\@(.*)/){
+        return ($1,$2);
+    }
+    # user%domain
+    elsif($username =~ /(.*)\%(.*)/){
+        return ($1,$2);
+    }
+    # \\domain\user
+    elsif($username =~ /\\\\(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    # domain\user
+    elsif($username =~ /(.*)\\(.*)/) {
+        return ($2,$1);
+    }
+    return $username;
+}
+
+sub send_email {
+    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
+    my $logger = get_logger();
+    my %options;
+    $options{INCLUDE_PATH} = "$conf_dir/templates/";
+    $options{ENCODING} = "utf8";
+
+    utf8::decode($subject);
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $from,
+        To          =>  $to,
+        Cc          =>  $info{'cc'},
+        Subject     =>  encode("MIME-Header", $subject),
+        Template    =>  "emails-$template.html",
+        'Content-Type' => 'text/html; charset="utf-8"',
+        TmplOptions =>  \%options,
+        TmplParams  =>  \%info,
+    );
+
+    my $result = 0;
+    try {
+      $msg->send('smtp', $smtp_server, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to ".$to." (".$subject.")");
+    }
+    catch {
+      $logger->error("Can't send email to ".$to.": $!");
+    };
+}
+
+sub generate_session_id {
+    my ($length) = @_;
+    $length //= 32;
+    return substr(Digest::MD5::md5_hex(Digest::MD5::md5_hex(time(). {}. rand(). $$)), 0, $length);
+}
+
+=item $pageCount = calc_page_count($count, $perPage)
+
+Calculates the number of pages
+
+=cut
+
+sub calc_page_count {
+    my ($count, $perPage) = @_;
+    return int( ($count + $perPage  - 1) / $perPage );
+}
+
 =back
 
 =head1 AUTHOR
@@ -1021,7 +1160,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

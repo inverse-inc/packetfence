@@ -23,7 +23,6 @@ SNMPv3 support is untested.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch');
@@ -59,14 +58,14 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
 
     # sysDescr sample output:
@@ -82,9 +81,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     # wlsxNUserEntryDeAuthenticated: 1.3.6.1.4.1.14823.2.3.1.11.1.2.1017
 
@@ -106,21 +105,21 @@ deauthenticate a MAC address from wireless network (including 802.1x)
 =cut
 
 sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $OID_stationDeauthMacAddress = '1.3.6.1.4.1.21013.1.2.22.3.0'; # from XIRRUS-MIB
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to the stationDeauthMacAddress");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     $logger->trace("SNMP set_request for stationDeauthMacAddress: $OID_stationDeauthMacAddress");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [
             "$OID_stationDeauthMacAddress",
             Net::SNMP::OCTET_STRING,
@@ -128,7 +127,7 @@ sub deauthenticateMacDefault {
         ] );
 
     # TODO: validate result
-    $logger->info("deauthenticate mac $mac from access point : " . $this->{_ip});
+    $logger->info("deauthenticate mac $mac from access point : " . $self->{_ip});
     return ( defined($result) );
 
 }
@@ -143,7 +142,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -170,7 +169,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -201,7 +200,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -244,8 +243,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',
@@ -267,7 +266,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

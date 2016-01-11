@@ -30,7 +30,7 @@ use pf::node;
 use pf::nodecategory;
 use pf::iplog;
 use pf::locationlog;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use pf::node;
 use pf::person;
 use pf::enforcement qw(reevaluate_access);
@@ -180,7 +180,7 @@ sub view {
         if ($node->{iplog}->{'ip'}) {
             $node->{iplog}->{active} = 1;
         } else {
-            my $last_iplog = pop @iplog_history;
+            my $last_iplog = shift @iplog_history;
             $node->{iplog}->{ip} = $last_iplog->{ip};
             $node->{iplog}->{end_time} = $last_iplog->{end_time};
         }
@@ -227,7 +227,7 @@ Create and register a node
 sub create {
     my ($self, $data) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result) = ($STATUS::CREATED);
     my $mac = $data->{mac};
     my $pid = $data->{pid} || $default_pid;
@@ -281,7 +281,7 @@ sub update {
         if ($previous_node_ref->{status} ne $node_ref->{status} || $previous_category_id ne $category_id) {
             # Node has been registered or deregistered
             # or the role has changed and is not currently using 802.1X
-            reevaluate_access($mac, "node_modify");
+            reevaluate_access($mac, "admin_modify");
         }
     }
     else {
@@ -301,7 +301,7 @@ See pf::import::nodes
 sub importCSV {
     my ($self, $data, $user) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $message);
     my $filename = $data->{nodes_file}->filename;
     my $tmpfilename = $data->{nodes_file}->tempname;
@@ -371,6 +371,12 @@ sub importCSV {
                'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
                'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
               );
+            if (exists $index{'bypass_vlan'}) {
+                    $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
+            }
+            if (exists $index{'bypass_role'}) {
+                $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
+            }
             if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
                 $logger->debug("Register MAC $mac ($pid)");
                 $result = node_register($mac, $pid, %data);
@@ -485,7 +491,7 @@ sub violations {
 sub addViolation {
     my ($self, $mac, $vid) = @_;
 
-    if (violation_add($mac, $vid)) {
+    if (violation_add($mac, $vid, ('force' => $TRUE))) {
         return ($STATUS::OK, 'The violation was successfully added.');
     }
     else {
@@ -774,7 +780,7 @@ sub bulkApplyRole {
             $count++;
         }
     }
-    return ($STATUS::OK, ["Role was changed for [_1] node(s)", $count]);
+    return ($STATUS::OK, ["Role was changed to $name for [_1] node(s)", $count]);
 }
 
 =head2 bulkApplyBypassRole
@@ -818,7 +824,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

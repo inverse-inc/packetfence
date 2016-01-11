@@ -14,7 +14,7 @@ pf::class contains the functions necessary to manage the violation classes.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant CLASS => 'class';
 
@@ -43,7 +43,7 @@ our $class_db_prepared = 0;
 our $class_statements = {};
 
 sub class_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::class database queries");
 
     $class_statements->{'class_view_sql'} = get_db_handle()->prepare(
@@ -107,7 +107,7 @@ sub class_view_actions {
 
 sub class_add {
     my $id = $_[0];
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $logger = get_logger();
     if ( class_exist($id) ) {
         $logger->warn("attempt to add existing class $id");
         return (2);
@@ -119,14 +119,14 @@ sub class_add {
 
 sub class_delete {
     my ($id) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $logger = get_logger();
     db_query_execute(CLASS, $class_statements, 'class_delete_sql', $id) || return (0);
     $logger->debug("class $id deleted");
     return (1);
 }
 
 sub class_cleanup {
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $logger = get_logger();
     db_query_execute(CLASS, $class_statements, 'class_cleanup_sql') || return (0);
     $logger->debug("class cleanup completed");
     return (1);
@@ -134,7 +134,7 @@ sub class_cleanup {
 
 sub class_modify {
     my $id = shift(@_);
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $logger = get_logger();
     push( @_, $id );
     if ( class_exist($id) ) {
         $logger->debug("modify existing existing class $id");
@@ -146,10 +146,9 @@ sub class_modify {
 
 sub class_merge {
     my $id = $_[0];
-    my $triggers = pop(@_);
     my $actions = pop(@_);
-    my $whitelisted_categories = pop(@_);
-    my $logger = Log::Log4perl::get_logger('pf::class');
+    my $whitelisted_roles = pop(@_);
+    my $logger = get_logger();
 
     # delete existing violation actions
     if ( !pf::action::action_delete_all($id) ) {
@@ -173,14 +172,6 @@ sub class_merge {
         }
     }
 
-    # Add scan table id's -> violation class maps
-    if ( scalar( @{$triggers} ) > 0 ) {
-        require pf::trigger;
-        foreach my $array ( @{$triggers} ) {
-            my ( $tid_start, $tid_end, $type ) = @{$array};
-            pf::trigger::trigger_add($id, $tid_start, $tid_end, $type, $whitelisted_categories);
-        }
-    }
 }
 
 =head1 AUTHOR
@@ -191,7 +182,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

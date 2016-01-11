@@ -58,6 +58,15 @@ has_field 'access_token_param' =>
    required => 1,
    default => pf::Authentication::Source::GithubSource->meta->get_attribute('access_token_param')->default,
   );
+has_field 'scope' =>
+  (
+   type => 'Text',
+   label => 'Scope',
+   required => 1,
+   default => pf::Authentication::Source::GithubSource->meta->get_attribute('scope')->default,
+   tags => { after_element => \&help,
+             help => 'The permissions the application requests.' },
+  );
 has_field 'protected_resource_url' =>
   (
    type => 'Text',
@@ -103,7 +112,7 @@ has_field 'create_local_account' => (
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

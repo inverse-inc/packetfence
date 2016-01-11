@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 3;
+SET @MINOR_VERSION = 6;
 SET @SUBMINOR_VERSION = 0;
 
 --
@@ -127,7 +127,7 @@ INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gamin
 
 CREATE TABLE node (
   mac varchar(17) NOT NULL,
-  pid varchar(255) NOT NULL default "admin",
+  pid varchar(255) NOT NULL default "default",
   category_id int default NULL,
   detect_date datetime NOT NULL default "0000-00-00 00:00:00",
   regdate datetime NOT NULL default "0000-00-00 00:00:00",
@@ -142,7 +142,9 @@ CREATE TABLE node (
   last_arp datetime NOT NULL default "0000-00-00 00:00:00",
   last_dhcp datetime NOT NULL default "0000-00-00 00:00:00",
   dhcp_fingerprint varchar(255) default NULL,
+  dhcp6_fingerprint varchar(255) default NULL,
   dhcp_vendor varchar(255) default NULL,
+  dhcp6_enterprise varchar(255) default NULL,
   device_type varchar(255) default NULL,
   device_class varchar(255) default NULL,
   bypass_vlan varchar(50) default NULL,
@@ -279,6 +281,7 @@ CREATE TABLE `locationlog` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
   `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',
@@ -300,6 +303,7 @@ CREATE TABLE `locationlog_archive` (
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(8) NOT NULL default '',
   `vlan` varchar(50) default NULL,
+  `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
   `connection_sub_type` varchar(50) default NULL,
   `dot1x_username` varchar(255) NOT NULL default '',
@@ -579,9 +583,9 @@ BEGIN
   DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
-  SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
+  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct_log
+    FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
     AND nasipaddress = p_nasipaddress;
@@ -700,9 +704,9 @@ BEGIN
   DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
-  SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
+  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct_log
+    FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
     AND nasipaddress = p_nasipaddress;
@@ -937,7 +941,73 @@ CREATE TABLE keyed (
 CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
 
 --
+-- Table structure for table 'radius_audit_log'
+--
+
+CREATE TABLE radius_audit_log (
+  id int NOT NULL AUTO_INCREMENT,
+  created_at TIMESTAMP NOT NULL,
+  mac char(17) NOT NULL,
+  ip varchar(255) NULL,
+  computer_name varchar(255) NULL,
+  user_name varchar(255) NULL,
+  stripped_user_name varchar(255) NULL,
+  realm varchar(255) NULL,
+  event_type varchar(255) NULL,
+  switch_id varchar(255) NULL,
+  switch_mac varchar(255) NULL,
+  switch_ip_address varchar(255) NULL,
+  radius_source_ip_address varchar(255),
+  called_station_id varchar(255) NULL,
+  calling_station_id varchar(255) NULL,
+  nas_port_type varchar(255) NULL,
+  ssid varchar(255) NULL,
+  nas_port_id varchar(255) NULL,
+  ifindex varchar(255) NULL,
+  nas_port varchar(255) NULL,
+  connection_type varchar(255) NULL,
+  nas_ip_address varchar(255) NULL,
+  nas_identifier varchar(255) NULL,
+  auth_status varchar(255) NULL,
+  reason TEXT NULL,
+  auth_type varchar(255) NULL,
+  eap_type varchar(255) NULL,
+  role varchar(255) NULL,
+  node_status varchar(255) NULL,
+  profile varchar(255) NULL,
+  source varchar(255) NULL,
+  auto_reg char(1) NULL,
+  is_phone char(1) NULL,
+  pf_domain varchar(255) NULL,
+  uuid varchar(255) NULL,
+  radius_request TEXT,
+  radius_reply TEXT,
+  PRIMARY KEY (id),
+  KEY `created_at` (created_at),
+  KEY `mac` (mac),
+  KEY `ip` (ip),
+  KEY `user_name` (user_name)
+) ENGINE=InnoDB;
+
+--
 -- Updating to current version
 --
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
+--
+-- Creating auth_log table
+--
+
+CREATE TABLE auth_log (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `process_name` varchar(255) NOT NULL,
+  `mac` varchar(17) NOT NULL,
+  `pid` varchar(255) NOT NULL default "default",
+  `status` varchar(255) NOT NULL default "incomplete",
+  `attempted_at` datetime NOT NULL,
+  `completed_at` datetime,
+  `source` varchar(255) NOT NULL,
+  PRIMARY KEY (id),
+  KEY pid (pid)
+) ENGINE=InnoDB;

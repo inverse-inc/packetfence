@@ -13,21 +13,24 @@ Methods to interact with Fingerbank librairy
 use strict;
 use warnings;
 
-use Switch;
+use JSON::MaybeXS;
 
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
 use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 use fingerbank::Query;
+use fingerbank::FilePath;
+use fingerbank::Model::Endpoint;
+use pf::cluster;
+use pf::constants;
 
-use pf::api::jsonrpcclient;
+use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
-
-use constant FINGERBANK_CACHE_EXPIRE => 300;    # Expires cache entry after 300s (5 minutes)
+use pf::StatsD::Timer;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
@@ -38,15 +41,29 @@ our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_
 =cut
 
 sub process {
+    my $timer = pf::StatsD::Timer->new();
     my ( $query_args ) = @_;
     my $logger = pf::log::get_logger;
+
+    if($query_args->{mac}){
+        my $node_info = pf::node::node_view($query_args->{mac});
+        if($node_info){
+            my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
+            foreach my $param (@base_params){
+                $query_args->{$param} = $query_args->{$param} // $node_info->{$param} || '';
+            }
+            # ip is a special case as it's not in the node_info
+            my $ip = pf::iplog::mac2ip($query_args->{mac});
+            $query_args->{ip} = $query_args->{ip} // $ip unless $ip eq 0;
+        }
+    }
 
     my $mac = $query_args->{'mac'};
 
     # Querying for a resultset
     my $query_result = _query($query_args);
 
-    if ( is_error($query_result) ) {
+    unless(defined($query_result)) {
         $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
         return "unknown";
     }
@@ -70,23 +87,13 @@ sub process {
 =cut
 
 sub _query {
+    my $timer = pf::StatsD::Timer->new();
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
     my $cache = pf::CHI->new( namespace => 'fingerbank' );
-
-    # Doing a shallow copy or the args hashref to remove 'mac' from it.
-    # We are using the args as the cache key and don't want to have 'mac' since it is too specific
-    my $cached_args = { %$args };
-    delete $cached_args->{'mac'};
-
-    return $cache->compute($cached_args, {expires_in => FINGERBANK_CACHE_EXPIRE},
-        sub {
-            $logger->debug("Fingerbank result not in cache (either not present or expired). Querying Fingerbank for result");
-            my $fingerbank = fingerbank::Query->new;
-            return $fingerbank->match($args);
-        }
-    );
+    my $fingerbank = fingerbank::Query->new(cache => $cache);
+    return $fingerbank->match($args);
 }
 
 =head2 _trigger_violations
@@ -94,70 +101,22 @@ sub _query {
 =cut
 
 sub _trigger_violations {
+    my $timer = pf::StatsD::Timer->new();
     my ( $query_args, $query_result, $parents ) = @_;
     my $logger = pf::log::get_logger;
 
     my $mac = $query_args->{'mac'};
 
-    my $apiclient = pf::api::jsonrpcclient->new;
+    my $apiclient = pf::client::getClient;
 
-    foreach my $trigger_type ( @fingerbank_based_violation_triggers ) {
-        my $trigger_data;
-        switch ( $trigger_type ) {
-            case 'Device' {
-                next if !$query_result->{'device'}{'id'};
-                $trigger_data = $query_result->{'device'}{'id'};
-            }
+    my %violation_data = (
+        'mac'   => $mac,
+        'tid'   => 'new_dhcp_info',
+        'type'  => 'internal',
+    );
 
-            case 'MAC_Vendor' {
-                next if !$mac;
-                my $mac_oui = $mac;
-                $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
-                $mac_oui = lc($mac_oui);            # Lowercasing
-                $mac_oui = substr($mac_oui, 0, 6);  # Only keep first 6 characters (OUI)
-                my $trigger_query;
-                $trigger_query->{'mac'} = $mac_oui;
-                my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
-                next if is_error($status);
-                $trigger_data = $result->id;
-            }
+    $apiclient->notify('trigger_violation', %violation_data);
 
-            else {
-                next if !$query_args->{lc($trigger_type)};
-                my $trigger_query;
-                $trigger_query->{'value'} = $query_args->{lc($trigger_type)};
-                my ( $status, $result ) = "fingerbank::Model::$trigger_type"->find([$trigger_query, { columns => ['id'] }]);
-                next if is_error($status);
-                $trigger_data = $result->id;
-            }
-        }
-
-        next if !$trigger_data;
-
-        my %violation_data = (
-            'mac'   => $mac,
-            'tid'   => $trigger_data,
-            'type'  => $trigger_type,
-        );
-
-        $logger->debug("Trying to trigger a violation type '$trigger_type' for MAC '$mac' with data '$trigger_data'");
-        $apiclient->notify('trigger_violation', %violation_data);
-    }
-
-    # Parent(s) based violations
-    if ( @$parents ) {
-        $logger->debug("Device of ID '" . $query_result->{'device'}{'id'} . "' with MAC address '$mac' does have parent(s). Trying to trigger violation type 'Device' for each of them");
-        foreach my $parent ( @$parents ) {
-            my %violation_data = (
-                'mac'   => $mac,
-                'tid'   => $parent,
-                'type'  => 'Device',
-            );
-
-            $logger->debug("Trying to trigger a violation type 'Device' based on parent(s) for MAC address '$mac' with data '$parent'");
-            $apiclient->notify('trigger_violation', %violation_data);
-        }
-    }
 }
 
 =head2 _parse_parents
@@ -215,18 +174,50 @@ sub is_a {
 
     $logger->debug("Trying to determine the kind of device for '$device_type' device type");
 
-    my $fingerbank = fingerbank::Query->new;
+    my $endpoint = fingerbank::Model::Endpoint->new(name => $device_type, version => undef, score => undef);
 
-    return "Windows" if ( $fingerbank->isWindows($device_type) );
+    return "Windows" if ( $endpoint->isWindows($device_type) );
     # Macintosh / Mac OS
-    return "Macintosh" if ( $fingerbank->isMacOS($device_type) );
+    return "Macintosh" if ( $endpoint->isMacOS($device_type) );
     # Android
-    return "Generic Android" if ( $fingerbank->isAndroid($device_type) );
+    return "Generic Android" if ( $endpoint->isAndroid($device_type) );
     # Apple IOS
-    return "Apple iPod, iPhone or iPad" if ( $fingerbank->isIOS($device_type) );
+    return "Apple iPod, iPhone or iPad" if ( $endpoint->isIOS($device_type) );
 
     # Unknown (we were not able to match)
     return "unknown";
+}
+
+sub sync_configuration {
+    pf::cluster::sync_files([$fingerbank::FilePath::CONF_FILE]);
+}
+
+sub sync_local_db {
+    pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+}
+
+sub sync_upstream_db {
+    pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+}
+
+=head2 mac_vendor_from_mac
+
+=cut
+
+sub mac_vendor_from_mac {
+    my $timer = pf::StatsD::Timer->new();
+    my ($mac) = @_;
+    my $mac_oui = $mac;
+    $mac_oui =~ s/[:|\s|-]//g;          # Removing separators
+    $mac_oui = lc($mac_oui);            # Lowercasing
+    $mac_oui = substr($mac_oui, 0, 6);  # Only keep first 6 characters (OUI)
+    my $trigger_query;
+    $trigger_query->{'mac'} = $mac_oui;
+    my ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->find([$trigger_query, { columns => ['id'] }]);
+    return undef if is_error($status);
+
+    ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->read($result->id);
+    return $result;
 }
 
 =head1 AUTHOR
@@ -235,7 +226,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

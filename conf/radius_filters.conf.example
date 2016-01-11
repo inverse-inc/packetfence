@@ -1,0 +1,186 @@
+# Radius filter configuration
+# 
+# you are able to rewrite the radius answer based on attributes values, by default the radius filter
+# answer will be merge with the original radius answer. (to overwrite it add merge_answer = no).
+# Also by default the status of the answer will be RLM_MODULE_OK but this status can be overwritten by
+# the status attribute.
+# The status attribute can have the following values (See http://wiki.freeradius.org/modules/Rlm_perl for more details):
+# RLM_MODULE_REJECT
+# RLM_MODULE_FAIL
+# RLM_MODULE_OK
+# RLM_MODULE_HANDLED
+# RLM_MODULE_INVALID
+# RLM_MODULE_USERLOCK
+# RLM_MODULE_NOTFOUND
+# RLM_MODULE_NOOP
+# RLM_MODULE_UPDATED
+# RLM_MODULE_NUMCODES
+#
+# you can use 3 scopes in the radius filter:
+# returnRadiusAccessAccept is when you return the answer for a device access
+# returnAuthorizeRead is when you return the answer for the switch read login access
+# returnAuthorizeWrite is when you return the answer for the switch write login access
+#
+# Make a simple rule like this:
+#
+#[macauth]
+#filter = connection_type
+#operator = is
+#value = WIRED_MAC_AUTH
+#
+#[mac]
+#filter = mac
+#operator = is
+#value = 00:11:22:33:44:55
+#
+#This rule will return the VLAN ID id 42 for this specific MAC address
+#
+#[1:macauth&mac]
+#scope = returnRadiusAccessAccept
+#merge_answer = no
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => 42
+#
+# This rule will return access-accept if there is no violation
+#
+#[violation]
+#filter = violation
+#operator = defined
+#
+#[2:macauth&!violation]
+#scope = returnRadiusAccessAccept
+#
+# Advanced rule:
+#
+# This rule will return the vlan id associated to the user role and Cisco-AVPair where the attributes
+# has been evaluated.
+# merge_answer mean to not merge the original answer with radius filter answer.
+#[3:macauth&!violation]
+#scope = returnRadiusAccessAccept
+#merge_answer = no
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => $vlan
+#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#
+# All the answer in the rule is computed by PacketFence so you can set static and dynamic values
+# Let say you defined this answer and the $user_role value is set to default:
+#
+#answer1 = Tunnel-Medium-Type => 6
+#answer2 = Tunnel-Type => 13
+#answer3 = Tunnel-Private-Group-ID => ${switch._vlans.$user_role}
+#answer4 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+#
+# PacketFence will first evaluate simple variables like $user_role to default then it will evaluate
+# ${switch._vlans.default} to 1 (see switch hash above).
+#
+#'node_info => {
+#        'autoreg' => 'no',
+#        ....
+#},
+#'switch' => {
+#    '_vlans' => {
+#        'inline' => '6',
+#        'isolation' => '2',
+#        'normal' => '1',
+#        'default' => '1',
+#        'registration' => '3',
+#        'voice' => '5',
+#        'macDetection' => '4',
+#    },
+#    '_portalURL' => 'http://192.168.1.2',
+#    ....
+#},
+#'wasInline' => 0,
+#...
+#
+# Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
+#
+# filter can be for the scope returnRadiusAccessAccept:
+#     node_info.autoreg
+#     node_info.status
+#     node_info.device_class
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_type
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     ifIndex
+#     mac
+#     connection_type
+#     username
+#     ssid
+#     vlan
+#     wasInline
+#     user_role
+#     radius_request
+#     violation
+#     time
+#
+# filter can be for the scopes returnAuthorizeRead and returnAuthorizeWrite
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     realm
+#     user_name
+#     stripped_user_name
+#     radius_request
+#     source_ip
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#     date_is_before
+#     date_is_after
+#
+# attribute can be:
+#
+# - for connection_type
+#    Wireless-802.11-EAP
+#    Wireless-802.11-NoEAP
+#    Ethernet-EAP
+#    Ethernet-NoEAP
+#    SNMP-Traps
+#    Inline
+#    WIRED_MAC_AUTH
+#
+#
+# - for the radius_request
+#    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#
+#
+# The value of a time is specific and follow this logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to test the current date for Monday to Friday, 9am to 11am and for 2pm to 4pm:
+# [timeofday]
+# filter = time
+# operator = is
+# value = wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}

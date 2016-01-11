@@ -46,7 +46,7 @@ a.active {
 /* mixing noneditable fields in forms, inspired from .uneditable-input */
 form .uneditable {
     display: inline-block;
-    n0height: 18px;
+    height: 18px;
     line-height: 18px;
     padding-top: 5px;
     margin-bottom: 5px;

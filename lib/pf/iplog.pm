@@ -17,10 +17,7 @@ use strict;
 use warnings;
 
 use Date::Parse;
-use Log::Log4perl;
-use Log::Log4perl::Level;
-use IO::Interface::Simple;
-use Time::Local;
+use pf::log;
 
 use constant IPLOG => 'iplog';
 use constant IPLOG_CACHE_EXPIRE => 60;
@@ -43,7 +40,6 @@ use pf::node qw(node_add_simple node_exist);
 use pf::util;
 use pf::CHI;
 use pf::OMAPI;
-use pf::log;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $iplog_db_prepared = 0;
@@ -52,7 +48,7 @@ our $iplog_db_prepared = 0;
 our $iplog_statements = {};
 
 sub iplog_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::iplog database queries");
 
     # We could have used the iplog_list_open_by_ip_sql statement but for performances, we enforce the LIMIT 1
@@ -82,15 +78,15 @@ sub iplog_db_prepare {
     # UNIX_TIMESTAMPs are used by graphs for dashboard and reports purposes
     $iplog_statements->{'iplog_history_by_ip_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
-                FROM iplog 
-                WHERE ip = ? 
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog
+                WHERE ip = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
-                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp 
-                FROM iplog_history 
-                WHERE ip = ? 
+                (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
+                FROM iplog_history
+                WHERE ip = ?
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
     );
@@ -101,13 +97,13 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_ip_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
+                FROM iplog
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog_history 
+                FROM iplog_history
                 WHERE ip = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
@@ -119,14 +115,14 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_mac_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
-                WHERE mac = ? 
+                FROM iplog
+                WHERE mac = ?
                 ORDER BY start_time DESC) AS a
              UNION ALL
              SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog_history 
-                WHERE mac = ? 
+                FROM iplog_history
+                WHERE mac = ?
                 ORDER BY start_time DESC) AS b
              ORDER BY start_time DESC LIMIT 25 ]
     );
@@ -137,7 +133,7 @@ sub iplog_db_prepare {
     $iplog_statements->{'iplog_history_by_mac_with_date_sql'} = get_db_handle()->prepare(
         qq [ SELECT * FROM
                 (SELECT *, UNIX_TIMESTAMP(start_time) AS start_timestamp, UNIX_TIMESTAMP(end_time) AS end_timestamp
-                FROM iplog 
+                FROM iplog
                 WHERE mac = ? AND start_time < FROM_UNIXTIME(?) AND (end_time > FROM_UNIXTIME(?) OR end_time = 0)
                 ORDER BY start_time DESC) AS a
              UNION ALL
@@ -215,14 +211,14 @@ sub ip2mac {
     if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
         $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
         $mac = _ip2mac_omapi($ip);
-        $logger->info("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
+        $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($mac) {
         $logger->debug("Trying to match MAC address to IP '$ip' using SQL 'iplog' table");
         $mac = _ip2mac_sql($ip);
-        $logger->info("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
+        $logger->debug("Matched IP '$ip' to MAC address '$mac' using SQL 'iplog' table") if $mac;
     }
 
     if ( !$mac ) {
@@ -284,18 +280,18 @@ sub mac2ip {
     if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
         $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
         $ip = _mac2ip_omapi($mac);
-        $logger->info("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
+        $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
     }
 
     # If we don't have a result from OMAPI, we use the SQL 'iplog' table
     unless ($ip) {
         $logger->debug("Trying to match IP address to MAC '$mac' using SQL 'iplog' table");
         $ip = _mac2ip_sql($mac);
-        $logger->info("Matched MAC '$mac' to IP address '$ip' using SQL 'iplog' table") if $ip;
+        $logger->debug("Matched MAC '$mac' to IP address '$ip' using SQL 'iplog' table") if $ip;
     }
 
     if ( !$ip ) {
-        $logger->warn("Unable to match IP address to MAC '$mac'");
+        $logger->trace("Unable to match IP address to MAC '$mac'");
         return (0);
     }
 
@@ -361,17 +357,17 @@ sub _history_by_ip {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
             $ip, $params{'end_time'}, $params{'start_time'}, $ip, $params{'end_time'}, $params{'start_time'}
         );
-    } 
+    }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_ip_with_date_sql',
             $ip, $params{'date'}, $params{'date'}, $ip, $params{'date'}, $params{'date'}
         );
-    } 
+    }
 
     else {
         # We are passing the arguments twice to match the prepare statement of the query
@@ -393,14 +389,14 @@ sub _history_by_mac {
 
     if ( defined($params{'start_time'}) && defined($params{'end_time'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
             $mac, $params{'end_time'}, $params{'start_time'}, $mac, $params{'end_time'}, $params{'start_time'}
         );
-    } 
+    }
 
     elsif ( defined($params{'date'}) ) {
         # We are passing the arguments twice to match the prepare statement of the query
-        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql', 
+        return db_data(IPLOG, $iplog_statements, 'iplog_history_by_mac_with_date_sql',
             $mac, $params{'date'}, $params{'date'}, $mac, $params{'date'}, $params{'date'}
         );
     }
@@ -435,7 +431,7 @@ sub view {
 
 Consult the 'iplog' SQL table for a given IP address.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::view> 
+Not meant to be used outside of this class. Refer to L<pf::iplog::view>
 
 =cut
 
@@ -585,7 +581,7 @@ sub open {
 
 Insert a new 'iplog' table entry.
 
-Not meant to be used outside of this class. Refer to L<pf::iplog::open> 
+Not meant to be used outside of this class. Refer to L<pf::iplog::open>
 
 =cut
 
@@ -648,7 +644,7 @@ sub close {
 
 sub cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iplog');
+    my $logger = get_logger();
     $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
     my $now = db_now();
     my $start_time = time;
@@ -676,7 +672,7 @@ return undef if omapi is disabled
 
 sub _get_omapi_client {
     my ($self) = @_;
-    return unless pf::config::is_omapi_enabled;
+    return unless pf::config::is_omapi_lookup_enabled;
 
     return pf::OMAPI->new( $Config{omapi} );
 }
@@ -697,7 +693,7 @@ sub _lookup_cached_omapi {
             my $data = _get_lease_from_omapi($type, $id);
             return unless $data && $data->{op} == 3;
             #Do not return if the lease is expired
-            return if $data->{obj}->{ends} < timegm( localtime()  );
+            return if $data->{obj}->{ends} < time;
             return $data;
         }
     );
@@ -733,7 +729,7 @@ sub _expire_lease {
     my ($cache_object) = @_;
     my $lease = $cache_object->value;
     return 1 unless defined $lease && defined $lease->{obj}->{ends};
-    return $lease->{obj}->{ends} < timegm( localtime()  );
+    return $lease->{obj}->{ends} < time;
 }
 
 =head1 AUTHOR
@@ -744,7 +740,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

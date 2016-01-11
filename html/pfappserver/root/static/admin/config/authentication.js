@@ -137,6 +137,18 @@ $(function() { // DOM ready
                     $('#id').focus();
                 });
                 modal.modal({ shown: true });
+
+                var rule_class = $('#class');
+                var actions_table = $('#ruleActions');
+                var action_row = actions_table.children('tbody').children('tr');
+                if (rule_class.find(':selected').attr('value') == 'administration') {
+                    action_row.find('option[data-rule-class="administration"]').removeClass('hidden');
+                    action_row.find('option[data-rule-class="authentication"]').addClass('hidden');
+                } else if (rule_class.find(':selected').attr('value') == 'authentication') {
+                    action_row.find('option[data-rule-class="authentication"]').removeClass('hidden');
+                    action_row.find('option[data-rule-class="administration"]').addClass('hidden');
+                }
+
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -218,6 +230,27 @@ $(function() { // DOM ready
         }
 
         return false;
+    });
+
+    /* Update available and configured actions when selecting a rule class */
+    $('#section').on('change', '#class', function(event) {
+        var that = $(this);
+        var table = $('#ruleActions');
+
+        table.find('tr').siblings(':not(.hidden)').remove();
+
+        var row_model = table.children('tbody').children('.hidden').first();
+        if (that.find(':selected').attr('value') == 'administration') {
+            row_model.find('option[data-rule-class="administration"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="authentication"]').addClass('hidden');
+        } else if (that.find(':selected').attr('value') == 'authentication') {
+            row_model.find('option[data-rule-class="authentication"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="administration"]').addClass('hidden');
+        }
+
+        table.trigger("addrow");
+        table.find('tr').find('[href="#delete"]').addClass('hidden');
+
     });
 
     /* Initial creation of a rule condition when no condition is defined */

@@ -15,7 +15,6 @@ This modules extends pf::Switch::Cisco::Catalyst_3500XL
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Catalyst_3500XL');
@@ -28,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

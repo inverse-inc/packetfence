@@ -25,7 +25,6 @@ use pf::violation_config;
 use pf::util;
 use pf::config::util;
 use pf::services;
-use pf::trigger;
 use pf::authentication;
 use NetAddr::IP;
 use pf::web::filter;
@@ -34,6 +33,8 @@ use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
 use pf::file_paths;
+use pf::factory::condition::profile;
+use pf::condition_parser qw(parse_condition_string);
 
 use lib $conf_dir;
 
@@ -121,9 +122,11 @@ sub sanity_check {
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
     scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
 
-    billing() if ( isenabled($Config{'registration'}{'billing_engine'}) );
+    billing();
 
     database();
+    omapi();
+    authentication();
     network();
     fingerbank();
     inline() if (is_inline_enforcement_enabled());
@@ -153,6 +156,8 @@ sub service_exists {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
         if ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
+        } elsif ($service =~ /redis_(.*)/) {
+            $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
         }
         if ( !-e $exe ) {
             add_problem( $FATAL, "$exe for $service does not exist !" );
@@ -363,6 +368,55 @@ sub scan_openvas {
     if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
         add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
                 "scan.openvas_reportformatid field in pf.conf");
+    }
+}
+
+=item omapi
+
+Validation related to the OMAPI configuration
+
+=cut
+
+sub omapi {
+    if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
+        add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
+    }
+}
+
+sub authentication {
+    authentication_rules_classes();
+}
+
+sub authentication_rules_classes {
+    foreach my $authentication_source_id ( keys %ConfigAuthentication ) {
+        if( $authentication_source_id =~ /\./ ) {
+            add_problem( $FATAL, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
+        }
+        next if !$ConfigAuthentication{$authentication_source_id}{'rules'};
+
+        my $authentication_source = $ConfigAuthentication{$authentication_source_id};
+        my $rules = $authentication_source->{'rules'};
+        foreach my $rule_id ( keys %$rules ) {
+            my $rule = $authentication_source->{'rules'}->{$rule_id};
+
+            # Check if rule class is configured
+            add_problem( $WARN, "Rule '$rule_id' does not have any configured class. Defaulting to 'authentication'" ) if !$rule->{'class'};
+            next if !$rule->{'class'};
+
+            # Check if rule class is allowed on this type of authentication source
+            my $authenticationSourceObject = pf::authentication::getAuthenticationSource($authentication_source_id);
+            my %available_rule_classes =  map { $_ => 1 } @{ $authenticationSourceObject->available_rule_classes };
+            add_problem( $WARN, "Rule class '" . $rule->{'class'} . "' is not allowed on a '" . $authentication_source->{'type'} . "' source type. It will be ignored." ) if !exists($available_rule_classes{$rule->{'class'}});
+
+            # Check if configured rule action(s) is/are allowed based on the configured class
+            my $actions = $rule->{'actions'};
+            my %allowed_actions = map { $_ => 1 } @{ $Actions::ACTIONS{$rule->{'class'}} };
+            foreach my $action_id ( keys %$actions ) {
+                my $action = $rule->{'actions'}->{$action_id};
+                $action = substr($action, 0, index($action, '='));
+                add_problem( $WARN, "Action '$action_id' of rule '$rule_id' is not part of the '" . $rule->{'class'} . "' rule class allowed actions. It will be ignored." ) if !exists($allowed_actions{$action});
+            }
+        }
     }
 }
 
@@ -649,11 +703,10 @@ sub extensions {
 
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
-        { 'name' => 'VLAN', 'module' => 'pf::vlan::custom', 'api' => $VLAN_API_LEVEL, },
-        { 'name' => 'Billing', 'module' => 'pf::billing::custom', 'api' => $BILLING_API_LEVEL, },
+        { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
         { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
-        { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLE_API_LEVEL, },
+        { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },
     );
 
     foreach my $extension_ref ( @extensions ) {
@@ -686,7 +739,7 @@ sub extensions {
     # catastrophic chains of extension failures that are confusing to users
 
     # we ignore "version check failed" or "version x required"
-    # as it means that pf::vlan::custom's version is not good which we already catched above
+    # as it means that pf::role::custom's version is not good which we already catched above
     #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
     #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
     #}
@@ -777,31 +830,13 @@ Checking for violations configurations
 =cut
 
 sub violations {
-
-    my $deprecated_disable_seen = $FALSE;
-    foreach my $violation ( keys %Violation_Config ) {
-
-        # parse triggers if they exist
-        if ( defined $Violation_Config{$violation}{'trigger'} ) {
-            try {
-                # TODO we are parsing triggers both on checkup and when we parse the configuration on startup
-                # we probably can do something smarter here (but can't find right maintenance / efficiency balance now)
-                parse_triggers($Violation_Config{$violation}{'trigger'});
-            } catch {
-                add_problem($WARN, "Violation $violation is ignored: $_");
-            };
+    require pfconfig::namespaces::FilterEngine::Violation;
+    my $engine = pfconfig::namespaces::FilterEngine::Violation->new;
+    $engine->build();
+    while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
+        foreach my $trigger (@$triggers){
+            add_problem($WARN, "Invalid trigger $trigger for violation $violation");
         }
-
-        if ( defined $Violation_Config{$violation}{'disable'} ) {
-            $deprecated_disable_seen = $TRUE;
-        }
-    }
-
-    if ($deprecated_disable_seen) {
-        add_problem( $FATAL,
-            "violations.conf's disable parameter is deprecated in favor of enabled. " .
-            "Make sure to update your configuration. Read UPGRADE for details and an upgrade script."
-        );
     }
 }
 
@@ -812,29 +847,43 @@ Checking for switches configurations
 =cut
 
 sub switches {
+    require pf::ConfigStore::Switch;
+    my $configStore = pf::ConfigStore::Switch->new;
     my %switches_conf;
-    tie %switches_conf, 'pf::config::cached', ( -file => "$conf_dir/switches.conf", -default => 'default' );
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         add_problem( $FATAL, "switches.conf | Error reading switches.conf" );
     }
+    my $cachedConfig = $configStore->cachedConfig;
+    $cachedConfig->toHash(\%switches_conf);
+    $cachedConfig->cleanupWhitespace(\%switches_conf);
 
-    # remove trailing whitespaces
-    tied(%switches_conf)->cleanupWhitespace(\%switches_conf);
-
+    my $default_section = $switches_conf{default};
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
         next if ( $section =~ /^default$/i );
+        my $is_group = $section =~ /^group/;
+        my $data = $switches_conf{$section};
+        my $group_section = {};
+        if (exists $data->{group}) {
+            my $group = "group $data->{group}";
+            if (exists $switches_conf{$group}) {
+                $group_section = $switches_conf{$group};
+                add_problem( $WARN, "switches.conf | Switch $section has group parameter" ) if $is_group;
+            } else {
+                add_problem( $FATAL, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
+            }
+        }
         if ( $section eq '127.0.0.1' ) {
             add_problem( $WARN, "switches.conf | Switch 127.0.0.1 is defined but it had to be removed" );
         }
-
+        my $type = _first_value('type', $data, $group_section, $default_section);
+        my $mode = _first_value('mode', $data, $group_section, $default_section);
         # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
-        if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
+        if ( ref($type) eq 'ARRAY' || ref($mode) eq 'ARRAY' ) {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
-        my $type = $switches_conf{$section}{'type'} ;
         if ( (!defined $type) || $type eq '' ) {
             add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
@@ -845,16 +894,19 @@ sub switches {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         }
-        # check for valid switch IP
-        unless ( valid_mac_or_ip($section) || valid_ip_range($section) ) {
+        # check for valid switch ID
+        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
+        next if $is_group;
 
         # check SNMP version
-        my $SNMPVersion = ( $switches_conf{$section}{'SNMPVersion'}
-                || $switches_conf{$section}{'version'}
-                || $switches_conf{'default'}{'SNMPVersion'}
-                || $switches_conf{'default'}{'version'} );
+        my $SNMPVersion = ( $data->{'SNMPVersion'}
+                || $data->{'version'}
+                || $default_section->{'SNMPVersion'}
+                || $default_section->{'version'}
+                || $group_section->{'SNMPVersion'}
+                || $group_section->{'version'} );
         if ( !defined($SNMPVersion) ) {
             add_problem( $WARN, "switches.conf | Switch SNMP version is missing for switch $section"
                     . "Please provide one specific to the switch or in default." );
@@ -863,8 +915,7 @@ sub switches {
         }
 
         # check SNMP Trap version
-        my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'}
-                || $switches_conf{'default'}{'SNMPVersionTrap'});
+        my $SNMPVersionTrap = _first_value('SNMPVersionTrap', $data, $group_section, $default_section);
         if (!defined($SNMPVersionTrap)) {
             add_problem( $WARN, "switches.conf | Switch SNMP Trap version is missing for switch $section"
                     . "Please provide one specific to the switch or in default." );
@@ -879,25 +930,24 @@ sub switches {
                 SNMPPrivProtocolTrap SNMPPrivPasswordTrap
             )) {
                 add_problem( $WARN, "switches.conf | $_ is missing for switch $section" )
-                    if (!defined($switches_conf{$section}{$_}));
+                    unless defined _first_value($_, $data, $group_section, $default_section);
             }
         }
 
         # check uplink
-        my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
+        my $uplink = _first_value('uplink', $data, $group_section, $default_section);
         if ( (!defined($uplink)) || (( lc($uplink) ne 'dynamic' ) && (!( $uplink =~ /(\d+,)*\d+/ ))) ) {
             add_problem( $WARN, "switches.conf | Switch uplink is invalid for switch $section" );
         }
 
         # check mode
         my @valid_switch_modes = ( 'testing', 'ignore', 'production', 'registration', 'discovery' );
-        my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
         if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
             add_problem( $WARN, "switches.conf | Switch mode ($mode) is invalid for switch $section" );
         }
 
         # check role
-        my $roles = $switches_conf{$section}{'roles'} || $switches_conf{'default'}{'roles'};
+        my $roles = _first_value('roles', $data, $group_section, $default_section);
         # if it's not empty it must be in the <cat1>=<role1>;<cat2>=<role2>;... format
         if ( defined($roles) && $roles !~ /^\s*$/ && $roles !~ /
             ^[\w\-]+=[\w\-]+         # at least one word=word
@@ -914,6 +964,14 @@ sub switches {
     }
 }
 
+sub _first_value {
+    my ($key, @hashes) = @_;
+    foreach my $hash (@hashes) {
+        return $hash->{$key} if exists $hash->{$key};
+    }
+    return undef;
+}
+
 =item billing
 
 Validation related to the billing engine feature.
@@ -921,27 +979,20 @@ Validation related to the billing engine feature.
 =cut
 
 sub billing {
-    # Check if the configuration provided payment gateway is instanciable
-    my $payment_gw = 'pf::billing::gateway::' . lc($Config{'billing'}{'gateway'});
-    $payment_gw = untaint_chain($payment_gw);
-    try {
-        eval "$payment_gw->require()";
-        die($@) if ($@);
-        my $gw = $payment_gw->new();
-
-        if (!defined($gw->VERSION())) {
-            add_problem($FATAL, "Payment gateway module $payment_gw is enabled and its VERSION is not defined.");
+    # validate each profile has at least a billing tier if it has one or more billing source
+    foreach my $profile_id (keys %Profiles_Config){
+        my $profile = pf::Portal::ProfileFactory->_from_profile($profile_id);
+        if($profile->getBillingSources() > 0 && @{$profile->getBillingTiers()} == 0){
+            add_problem($WARN, "Profile $profile_id has billing sources configured but no billing tiers.");
         }
-        elsif ($BILLING_API_LEVEL > $gw->VERSION()) {
-            add_problem( $FATAL,
-                "Payment gateway module $payment_gw is enabled and is not at the correct API level. " .
-                "Did you read the UPGRADE document?"
-            );
+    }
+    # validate billing tiers have the necessary configuration
+    my @required_tier_params = qw(name description price role access_duration use_time_balance);
+    foreach my $tier_id (keys %ConfigBillingTiers){
+        foreach my $param (@required_tier_params){
+            add_problem($WARN, "Missing parameter $param for billing tier $tier_id") unless($ConfigBillingTiers{$tier_id}{$param});
         }
-    } catch {
-        chomp($_);
-        add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
-    };
+    }
 }
 
 =item guests
@@ -995,7 +1046,7 @@ Make sure only one external authentication source is selected for each type.
 sub portal_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
-        billing_engine|description|sources|redirecturl|always_use_redirecturl|
+        billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
@@ -1015,6 +1066,12 @@ sub portal_profiles {
         foreach my $key ( keys %$data ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
+            if ($key eq 'filter') {
+                foreach my $filter (@{$data->{filter}}) {
+                    add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile' please update to newer format 'type:data'" )
+                        unless $filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX;
+                }
+            }
         }
 
         my %external;
@@ -1031,14 +1088,18 @@ sub portal_profiles {
 
 =item vlan_filter_rules
 
-Make sure that the minimum parameters have been defined in vlan filter rules
+Make sure that the minimum parameters have been defined in access filter rules
 
 =cut
 
 sub vlan_filter_rules {
-    my %ConfigVlanFilters = %pf::vlan::filter::ConfigVlanFilters;
+    require pf::access_filter::vlan;
+    my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
-        if ($rule =~ /^\w+:(.*)$/) {
+        if ($rule =~ /^[^:]+:(.*)$/) {
+            my ($condition, $msg) = parse_condition_string($1);
+            add_problem ( $FATAL, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
+                if !defined $condition;
             add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
             add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
@@ -1109,7 +1170,7 @@ sub valid_certs {
     unless(-e "$install_dir/raddb/eap.conf" || -e "$install_dir/conf/radiusd/eap.conf"){
         add_problem($WARN, "Cannot detect RADIUS SSL configuration. Not validating the certificates.");
         return;
-    }   
+    }
 
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
@@ -1123,15 +1184,6 @@ sub valid_certs {
         add_problem($WARN, "Cannot find the Apache certificate in your configuration.");
     }
 
-    my $radius_conf = read_file("$install_dir/raddb/eap.conf");
-
-    if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
-        $radius_crt = $1;
-    }
-    else{
-        add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
-    }
-
     eval {
         if(cert_has_expired($httpd_crt)){
             add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
@@ -1141,15 +1193,34 @@ sub valid_certs {
         add_problem($WARN, "Cannot open the following certificate $httpd_crt")
     }
 
-    eval {
-        if(cert_has_expired($radius_crt)){
-            add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
-        }
-    };
-    if($@){
-        add_problem($WARN, "Cannot open the following certificate $radius_crt")
-    }
+    my $radius_conf;
+    # if there is no file, we assume this is a first run
+    my $radius_configured = -e "$install_dir/raddb/radiusd.conf" ? 1 : 0 ;
+    if ( $radius_configured ) {
 
+        $radius_conf = read_file("$install_dir/raddb/eap.conf");
+
+        if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
+             $radius_crt = $1;
+        }
+        else{
+            add_problem($WARN, "Cannot find the FreeRADIUS certificate in your configuration.");
+        }
+
+        eval {
+            if(cert_has_expired($radius_crt)){
+                add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
+                         "Regenerate a new self-signed certificate or update your current certificate.");
+            }
+        };
+        if($@){
+            add_problem($WARN, "Cannot open the following certificate $radius_crt")
+        }
+    }
+    else {
+        # not a problem per se, we just warn you
+        print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
+    }
 }
 
 =back
@@ -1160,7 +1231,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

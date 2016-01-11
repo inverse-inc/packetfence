@@ -16,7 +16,10 @@ use warnings;
 
 use Apache2::RequestRec ();
 use pf::config::cached;
-use pf::StatsD;
+use pf::StatsD qw($statsd);
+use pf::db;
+use pf::CHI;
+use pf::SwitchFactory();
 
 use Apache2::Const -compile => 'OK';
 
@@ -29,6 +32,8 @@ sub handler {
 =head2 child_init
 
 Initialize the child process
+Reestablish connections to global connections
+Refresh any configurations
 
 =cut
 
@@ -37,9 +42,28 @@ sub child_init {
     #Avoid child processes having the same random seed
     srand();
     pf::StatsD->initStatsd;
+    #The database initialization can fail on the initial install
+    eval {
+        db_connect();
+    };
     return Apache2::Const::OK;
 }
 
+=head2 post_config
+
+Cleaning before forking child processes
+Close connections to avoid any sharing of sockets
+
+=cut
+
+sub post_config {
+    my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    pf::StatsD->closeStatsd;
+    db_disconnect();
+    pf::CHI->clear_memoized_cache_objects;
+    pf::SwitchFactory::preLoadModules();
+    return Apache2::Const::OK;
+}
 
 =head1 AUTHOR
 
@@ -48,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

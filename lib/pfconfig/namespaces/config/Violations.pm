@@ -26,6 +26,7 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $violations_config_file;
     $self->{default_section} = "defaults";
+    $self->{child_resources} = [ 'FilterEngine::Violation' ];
 }
 
 sub build_child {
@@ -35,8 +36,17 @@ sub build_child {
 
     $self->cleanup_whitespaces( \%tmp_cfg );
 
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    }
+
     return \%tmp_cfg;
 
+}
+
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(whitelisted_roles) );
 }
 
 =back
@@ -47,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

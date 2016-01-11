@@ -19,15 +19,14 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Accton');
 
 sub description { 'Accton ES3526XA' }
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '2.3.3.5';
 }
 
@@ -37,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

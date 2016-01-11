@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::log;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::soh;
@@ -32,7 +33,7 @@ This method must be called before any CRUD method.
 sub read {
     my ($self, $filter_id) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -59,7 +60,7 @@ sub read {
 sub filters {
     my ($self) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -82,7 +83,7 @@ sub filters {
 sub update {
     my ($self, $configViolationsModel, $filter_ref, $name, $action, $vid, $rules_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -125,7 +126,7 @@ sub update {
 sub delete {
     my ($self, $configViolationsModel, $filter_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -152,7 +153,7 @@ sub delete {
 sub create {
     my ($self, $configViolationsModel, $name, $action, $vid, $rules_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
@@ -187,7 +188,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

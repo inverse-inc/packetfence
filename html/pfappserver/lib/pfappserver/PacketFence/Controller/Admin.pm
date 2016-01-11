@@ -163,7 +163,8 @@ Administrator controller dispatcher
 sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{'pf_release'} = $c->model('Admin')->pf_release();
+    $c->stash->{'pf_release'}       = $c->model('Admin')->pf_release();
+    $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
 =head2 status
@@ -235,7 +236,7 @@ sub checkup :Chained('object') :PathPart('checkup') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -22,6 +22,7 @@ use pf::config::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
 use pf::authentication;
+use pf::log;
 extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1 );
@@ -50,7 +51,7 @@ sub generateConfig {
     my ($self) = @_;
     return 1 if $WAS_GENERATED;
     $WAS_GENERATED = 1;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     # injecting Web constants first
     my %tags = pf::web::constants::to_hash();
@@ -74,7 +75,7 @@ sub generateConfig {
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
         if ( $proxy =~ /^\// ) {
-            if ( $proxy !~ /$WEB::ALLOWED_RESOURCES/ ) {
+            if ( ($proxy !~ /$WEB::CAPTIVE_PORTAL_RESOURCES/) && ($proxy !~ /$WEB::CAPTIVE_PORTAL_STATIC_RESOURCES/) ) {
                 push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
                 push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
                 $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
@@ -137,7 +138,7 @@ See Apache's documentation for MaxClients.
 
 sub calculate_max_clients {
     my ($total_ram) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::services::apache');
+    my $logger = get_logger();
 
     if (!defined($total_ram)) {
         $logger->warn("Unable to find total system memory, will use 2Gb to determine Apache's MaxClients");
@@ -194,7 +195,7 @@ Automatically generates Apache's Alias statements so the captive portal works.
 sub _generate_aliases {
     my $aliases = "";
     my ($path, $filesystem);
-    while (($path, $filesystem) = each %WEB::STATIC_CONTENT_ALIASES) {
+    while (($path, $filesystem) = each %WEB::CAPTIVE_PORTAL_STATIC_ALIASES) {
         $aliases .= "Alias $path $install_dir$filesystem\n";
     }
     return $aliases;
@@ -208,7 +209,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

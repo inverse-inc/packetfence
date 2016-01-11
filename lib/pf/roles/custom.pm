@@ -23,12 +23,11 @@ You have been warned!
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use base ('pf::roles');
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 
 our $VERSION = 0.90;
 
@@ -46,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

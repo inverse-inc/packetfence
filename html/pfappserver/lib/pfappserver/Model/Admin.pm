@@ -41,7 +41,7 @@ Returns the version of Fingerbank from conf/dhcp_fingerprins.conf
 =cut
 
 sub fingerbank_version {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($filehandler, $line, $version);
     open( $filehandler, '<', "$conf_dir/dhcp_fingerprints.conf" )
         || $logger->error("Unable to open $conf_dir/dhcp_fingerprints.conf: $!");
@@ -51,13 +51,24 @@ sub fingerbank_version {
     return $version;
 }
 
+=head2 server_hostname
+
+Returns the server hostname on which PacketFence is actually running
+
+=cut
+
+sub server_hostname {
+    my ( $self ) = @_;
+    return pf::cluster::get_host_id();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

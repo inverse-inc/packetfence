@@ -14,11 +14,10 @@ pf::violation_config
 
 use strict;
 use warnings;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use Try::Tiny;
 
 use pf::config;
-use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
 use pf::db;
 use pfconfig::cached_hash;
@@ -43,19 +42,7 @@ sub loadViolationsIntoDb {
         $logger->error("Can't connect to db");
         return;
     }
-    trigger_delete_all();
     while(my ($violation,$data) = each %Violation_Config) {
-        # parse triggers if they exist
-        my $triggers_ref = [];
-        if ( defined $data->{'trigger'} ) {
-            try {
-                $triggers_ref = parse_triggers($data->{'trigger'});
-            } catch {
-                $logger->warn("Violation $violation is ignored: $_");
-                $triggers_ref = [];
-            };
-        }
-
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = (qw(grace delay_by));
         push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
@@ -66,7 +53,7 @@ sub loadViolationsIntoDb {
             }
         }
 
-        # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
+        # be careful of the way parameters are passed, whitelists, actions are expected at the end
         class_merge(
             $violation,
             $data->{'desc'} || '',
@@ -85,9 +72,8 @@ sub loadViolationsIntoDb {
             $data->{'target_category'},
             $data->{'delay_by'},
             $data->{'external_command'},
-            $data->{'whitelisted_categories'} || '',
+            $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
-            $triggers_ref
         );
     }
 }
@@ -99,7 +85,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

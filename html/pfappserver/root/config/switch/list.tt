@@ -1,70 +1,43 @@
-[%- MACRO pagination(action, pageNumber, perPage, pageCount)  BLOCK -%]
-[% 
-    firstPage = pageNumber - 3;
-    IF firstPage < 1; firstPage = 1; END;
-    lastPage = firstPage + 6;
-    IF lastPage > pageCount;
-        lastPage = pageCount;
-        firstPage = lastPage - 6;
-        IF firstPage < 1; firstPage = 1; END;
-    END;
-%]
-<div>
-    <div class="pagination pagination-right">
-        <ul>
-          [% IF pageNumber == 1 %]
-          <li class="disabled"><a>&larr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber - 1,perPage) %]">&larr;</a></li>
-          [% END %]
-          [% currentPage = firstPage %]
-          [% WHILE currentPage <= lastPage %]
-            [%IF currentPage == pageNumber %]
-              <li class="disabled"><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [% ELSE  %]
-              <li><a href="[% c.uri_for(c.controller.action_for(action),currentPage,perPage) %]">[%currentPage%]</a></li>
-            [%END%]
-          [%currentPage = currentPage + 1%]
-          [% END %]
-          [% IF pageNumber == lastPage %]
-          <li class="disabled"><a >&rarr;</a></li>
-          [% ELSE %]
-          <li><a href="[% c.uri_for(c.controller.action_for(action),pageNumber + 1,perPage) %]">&rarr;</a></li>
-          [% END %]
-        </ul>
-    </div>
-[%- END -%]
-
       <table id="switches" class="table items">
         <thead>
           <tr>
-            <th colspan="5">
-              <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
-                <div class="pull-right">
-                  [% name_value = form.field('searches.0.name').value%]
-                  <select name="searches.0.name" class="input-medium">
-                    <option value="id" [% "selected='selected'" IF name_value == "id" %]>[% l('Switch ID') %]</option>
-                    <option value="description" [% "selected='selected'" IF name_value == "description" %]>[% l('Description') %]</option>
-                  </select>
-                  [% op_value = form.field('searches.0.op').value%]
-                  <select name="searches.0.op" class="input-medium">
-                    <option value="equal" [% "selected='selected'" IF op_value == "equal" %]>[% l('is') %]</option>
-                    <option value="not_equal" [% "selected='selected'" IF op_value == "not_equal" %]>[% l('is not') %]</option>
-                    <option value="starts_with" [% "selected='selected'" IF op_value == "starts_with" %]>[% l('starts with') %]</option>
-                    <option value="ends_with" [% "selected='selected'" IF op_value == "ends_with" %]>[% l('ends with') %]</option>
-                    <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
-                  </select>
-                  <input name="searches.0.value" type="text" placeholder="String..." value="[%form.field('searches.0.value').value%]"/>
-                  <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
-                  <button type="reset" class="btn btn-primary">&times;</button>
-                </div>
-              </form>
-              <br/>
-              [% pagination(action, pageNum, perPage, pageCount) | none %]</th>
+            <th colspan="6">
+              [% IF searchable %]
+                <form id="search" class="form-inline" action="[% c.uri_for(c.controller.action_for('search')) %]" method="POST">
+                  <div>
+                  [% INCLUDE per_page_select.tt %]
+                  </div>
+                  <br/>
+                  <div class="pull-left">
+                    [% name_value = form.field('searches.0.name').value%]
+                    <select name="searches.0.name" class="input-medium">
+                      <option value="id" [% "selected='selected'" IF name_value == "id" %]>[% l('Switch ID') %]</option>
+                      <option value="description" [% "selected='selected'" IF name_value == "description" %]>[% l('Description') %]</option>
+                      <option value="type" [% "selected='selected'" IF name_value == "type" %]>[% l('Switch Type') %]</option>
+                      <option value="group" [% "selected='selected'" IF name_value == "group" %]>[% l('Switch Group') %]</option>
+                    </select>
+                    [% op_value = form.field('searches.0.op').value%]
+                    <select name="searches.0.op" class="input-medium">
+                      <option value="equal" [% "selected='selected'" IF op_value == "equal" %]>[% l('is') %]</option>
+                      <option value="not_equal" [% "selected='selected'" IF op_value == "not_equal" %]>[% l('is not') %]</option>
+                      <option value="starts_with" [% "selected='selected'" IF op_value == "starts_with" %]>[% l('starts with') %]</option>
+                      <option value="ends_with" [% "selected='selected'" IF op_value == "ends_with" %]>[% l('ends with') %]</option>
+                      <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
+                    </select>
+                    <input name="searches.0.value" type="text" placeholder="String..." value="[%form.field('searches.0.value').value%]"/>
+                    <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
+                    <button type="reset" class="btn btn-primary">&times;</button>
+                  </div>
+                </form>
+              [% END %]
+              [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]</th>
           </tr>
           <tr>
-            <th>[% l('IP Address') %]</th>
+            <th>[% l('Identifier') %]</th>
             <th class="hidden-phone">[% l('Description') %]</th>
+            [% IF controller_namespace == "Config::Switch" %]
+            <th class="hidden-phone">[% l('Group') %]</th>
+            [% END %]
             <th class="hidden-phone">[% l('Type') %]</th>
             <th class="hidden-phone">[% l('Mode') %]</th>
             <th></th>
@@ -73,23 +46,28 @@
         <tbody>
           [% FOREACH switch IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Config::Switch').action_for('view'), [ switch.id ]) %]">[% switch.id | html %]</a>
+            <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ switch.id ]) %]">[% switch.id | html %]</a>
             [% IF switch.floatingdevice && switch.floatingdevice.id %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Config::FloatingDevice').action_for('view'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
             <td class="hidden-phone">[% switch.description %]</td>
+            [% IF controller_namespace == "Config::Switch" %]
+            <td class="hidden-phone">[% switch.group %]</td>
+            [% END %]
             <td class="hidden-phone">[% switch.type %]</td>
             <td class="hidden-phone">[% l(switch.mode) %]</td>
             <td>
               [%- IF can_access("SWITCHES_CREATE") %]
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Config::Switch').action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
               [%- END %]
-              [% IF switch.id != 'default' && can_access("SWITCHES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Config::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+              [% IF switch.id != 'default' && can_access("SWITCHES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
           </tr>
           [% END -%]
         </tbody>
         <tfoot>
           <tr>
-            <th colspan="5">[% pagination(action, pageNum, perPage, pageCount) | none %]</th>
+            <th colspan="6">
+              [% pagination(c.controller.action_for(action), page_num, page_count, {}) | none %]
+            </th>
           </tr>
         </tfoot>
       </table>

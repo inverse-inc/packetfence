@@ -17,12 +17,13 @@ This module creates the configuration hash associated to pf.conf
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
+use File::Slurp qw(read_file);
 use pfconfig::log;
 use pf::file_paths;
 use pf::util;
-use JSON;
 use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
@@ -61,7 +62,7 @@ sub init {
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
     $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
 
-    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn' ];
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect' ];
     if(defined($host_id)){
         push @{$self->{child_resources}}, "interfaces($host_id)";
     }
@@ -126,6 +127,12 @@ sub build_child {
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
+    # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
+    if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
+        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);
+        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
+    }
+
     return \%Config;
 
 }
@@ -136,7 +143,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

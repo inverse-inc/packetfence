@@ -31,6 +31,8 @@ function init() {
                         window.location.reload(true);
                     else
                         window.location.href = location;
+                } else {
+                    window.location.href = "/admin";
                 }
             }).fail(function(jqXHR) {
                 btn.button('reset');

@@ -14,13 +14,15 @@ All the behavior contained here can be overridden in lib/pf/inline/custom.pm.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 
 use pf::constants;
 use pf::config;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 use Try::Tiny;
+use NetAddr::IP;
+use pf::util;
 
 our $VERSION = 1.01;
 
@@ -36,12 +38,12 @@ Usually you don't want to call this constructor but use the pf::inline::custom s
 =cut
 
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::inline");
+    my $logger = get_logger();
     $logger->debug("instantiating new pf::inline object");
     my ( $class, %argv ) = @_;
-    my $this = bless {}, $class;
-    $this->{_technique} = get_technique();
-    return $this;
+    my $self = bless {}, $class;
+    $self->{_technique} = get_technique();
+    return $self;
 }
 
 =item get_technique
@@ -51,7 +53,7 @@ Instantiate the correct iptables modification method between iptables and ipset
 =cut
 
 sub get_technique {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $type;
     $type = "pf::ipset";
 
@@ -75,20 +77,20 @@ sub get_technique {
 =cut
 
 sub performInlineEnforcement {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = get_logger(ref($self));
 
     # What is the MAC's current state?
-    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->fetchMarkForNode($mac);
+    my $current_mark = $self->{_technique}->get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $self->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
-        $logger->debug("[$mac] is already properly enforced in firewall, no change required");
+        $logger->debug("is already properly enforced in firewall, no change required");
         return $TRUE;
     }
 
-    $logger->info("[$mac] stated changed, adapting firewall rules for proper enforcement");
-    return $this->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
+    $logger->info("stated changed, adapting firewall rules for proper enforcement");
+    return $self->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
 }
 
 =item isInlineEnforcementRequired
@@ -98,11 +100,11 @@ Returns a true value if a firewall change is required. False otherwise.
 =cut
 
 sub isInlineEnforcementRequired {
-    my ($this, $mac) = @_;
+    my ($self, $mac) = @_;
 
     # What is the MAC's current state?
-    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->fetchMarkForNode($mac);
+    my $current_mark = $self->{_technique}->get_mangle_mark_for_mac($mac);
+    my $should_be_mark = $self->fetchMarkForNode($mac);
     if ($current_mark == $should_be_mark) {
         return $FALSE;
     }
@@ -114,14 +116,14 @@ sub isInlineEnforcementRequired {
 =cut
 
 sub fetchMarkForNode {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = get_logger(ref($self));
 
     # Violation first
-    my $open_violation_count = violation_count_trap($mac);
+    my $open_violation_count = violation_count_reevaluate_access($mac);
     if ($open_violation_count != 0) {
         $logger->info(
-            "[$mac] has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
+            "has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
         );
         return $IPTABLES_MARK_ISOLATION;
     }
@@ -131,19 +133,41 @@ sub fetchMarkForNode {
     # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {
-        $logger->debug("[$mac] doesn't have a node entry; it needs to be firewalled");
+        $logger->debug("doesn't have a node entry; it needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
-        $logger->debug("[$mac] is of status $n_status; needs to be firewalled");
+        $logger->debug("is of status $n_status; needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
     # At this point, we are registered and we don't have a violation: allow through
-    $logger->debug("[$mac] should be allowed through firewall");
+    $logger->debug("should be allowed through firewall");
     return $IPTABLES_MARK_REG;
+}
+
+=item isInlineIP
+
+Returns a true if the ip address is in a inline network.
+
+=cut
+
+
+sub isInlineIP {
+    my ($self, $ip) =@_;
+    my $logger = get_logger(ref($self));
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+        my $ip = NetAddr::IP::Lite->new(clean_ip($ip));
+        if ($net_addr->contains($ip)) {
+            return $TRUE;
+        }
+    }
+    return $FALSE;
 }
 
 =back
@@ -154,7 +178,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

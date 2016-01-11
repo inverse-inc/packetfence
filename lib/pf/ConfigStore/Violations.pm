@@ -24,6 +24,8 @@ sub configFile { $violations_config_file }
 
 sub pfconfigNamespace { 'config::Violations' }
 
+sub default_section { 'defaults' }
+
 =head1 Methods
 
 =head2 remove
@@ -51,7 +53,9 @@ sub listTriggers {
     foreach my $violation ($cachedConfig->Sections()) {
         $trigger = $cachedConfig->val($violation, 'trigger');
         if (defined($trigger)) {
-            @triggers{$self->split_list($trigger)} = ();
+            my @violation_triggers = $self->split_list($trigger);
+            @triggers{@violation_triggers} = ();
+            
         }
     }
     return [sort keys %triggers];
@@ -126,7 +130,10 @@ Clean up violation
 
 sub cleanupAfterRead {
     my ($self, $id, $violation) = @_;
-    $self->expand_list($violation, qw(actions trigger whitelisted_categories));
+    $self->expand_list($violation, qw(actions whitelisted_roles));
+    if($violation->{user_mail_message} && ref($violation->{user_mail_message}) eq 'ARRAY'){
+        $violation->{user_mail_message} = join("\n", @{$violation->{user_mail_message}});
+    }
     if ( exists $violation->{window} ) {
         $violation->{'window_dynamic'} = $violation->{window};
     }
@@ -140,7 +147,7 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $violation) = @_;
-    $self->flatten_list($violation, qw(actions trigger whitelisted_categories));
+    $self->flatten_list($violation, qw(actions trigger whitelisted_roles));
     if ($violation->{'window_dynamic'}) {
         $violation->{'window'} = 'dynamic';
     }
@@ -161,7 +168,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

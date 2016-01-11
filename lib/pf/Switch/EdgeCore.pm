@@ -18,7 +18,6 @@ Tested on EdgeCore 4510 running v1.3.2.0
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 
 use base ('pf::Switch');
@@ -39,7 +38,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

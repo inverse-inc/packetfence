@@ -61,7 +61,6 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::config;
@@ -80,8 +79,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # ex: 50023 is ifIndex 10023
     if ($NAS_port =~ s/^500/101/) {
@@ -101,7 +100,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

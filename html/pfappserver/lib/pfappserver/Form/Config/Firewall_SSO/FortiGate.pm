@@ -33,7 +33,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Secret or Key',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the password or the key' },
   );
 has_field 'port' =>
@@ -68,7 +67,7 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port uid categories) ],
+   render_list => [ qw(id type password port uid categories cache_updates cache_timeout) ],
   );
 
 has_field 'uid' =>
@@ -112,7 +111,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

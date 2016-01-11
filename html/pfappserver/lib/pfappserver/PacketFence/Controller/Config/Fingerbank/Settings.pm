@@ -14,7 +14,9 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use pf::log;
 use fingerbank::Config;
+use pf::fingerbank;
 
 use HTTP::Status qw(:constants is_error is_success);
 
@@ -26,7 +28,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 sub check_for_api_key :Private {
     my ( $self, $c ) = @_;
-    my $logger = pf::log::get_logger;
+    my $logger = get_logger();
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
@@ -37,7 +39,7 @@ sub check_for_api_key :Private {
 
 sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     my ( $self, $c ) = @_;
-    my $logger = pf::log::get_logger;
+    my $logger = get_logger();
 
     $c->forward('index') if ( fingerbank::Config::is_api_key_configured );
 
@@ -53,6 +55,10 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             my %params = ();
             $params{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
             ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
+
+            # Sync the config to the cluster if necessary
+            pf::fingerbank::sync_configuration();
+
             $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
             $c->go('index');
         }
@@ -79,9 +85,10 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
 sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     my ( $self, $c ) = @_;
-    my $logger = pf::log::get_logger;
+    my $logger = get_logger();
 
     $c->forward('check_for_api_key');
+    $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
     my ( $status, $status_msg ) = HTTP_OK;
     my $form = $c->form("Config::Fingerbank::Settings");
@@ -98,8 +105,13 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
             # to be set as 'disabled'
             ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
+            ( !$params->{'query'}{'use_tcp_fingerprinting'} ) ? $params->{'query'}{'use_tcp_fingerprinting'} = 'disabled':();
 
             ( $status, $status_msg ) = fingerbank::Config::write_config($params);
+
+            # Sync the config to the cluster if necessary
+            pf::fingerbank::sync_configuration();
+
         }
     }
 
@@ -119,13 +131,30 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     $c->response->status($status);
 }
 
+=head2 update_p0f_map
+
+Update the p0f map using the fingerbank library
+
+=cut
+
+sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+
+    my ( $status, $status_msg ) = fingerbank::Config::update_p0f_map();
+
+    $c->stash->{status_msg} = $status_msg;
+    $c->response->status($status);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

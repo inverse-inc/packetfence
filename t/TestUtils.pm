@@ -60,8 +60,8 @@ our @quality_failing_tests = qw(
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
-    Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
-    vlan.t web.t
+    Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t useragent.t util.t util-dhcp.t util-radius.t
+    role.t web.t
 );
 
 our @unit_failing_tests = qw(
@@ -102,6 +102,13 @@ and return all the normal files under
 
 =cut
 
+my @excluded_binaries = qw(
+   /usr/local/pf/bin/pfcmd
+   /usr/local/pf/sbin/pfdns
+   /usr/local/pf/bin/ntlm_auth_wrapper
+);
+my %exclusions = map { $_ => 1 } @excluded_binaries;
+
 sub get_all_perl_binaries {
 
     my @list;
@@ -120,7 +127,8 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd") && ($File::Find::name ne "/usr/local/pf/sbin/pfdns"));
+            push(@list, $File::Find::name) if ((-f $File::Find::name) && 
+                not exists $exclusions{ $File::Find::name } );
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
@@ -244,7 +252,7 @@ sub get_all_unittests {
 
 =head2 get_networkdevices_classes
 
-Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm
+Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm and Generic.pm
 
 =cut
 
@@ -253,8 +261,8 @@ sub get_networkdevices_classes {
     my @modules = get_networkdevices_modules();
     my @classes;
     foreach my $module (@modules) {
-        # skip constants.pm
-        next if $module =~ /constants\.pm$/;
+        # skip constants.pm and Generic.pm
+        next if ($module =~ /constants\.pm$/ || $module =~ /Generic\.pm$/);
         # get rid of path
         $module =~ s|^/usr/local/pf/lib/||;
         # get rid of ending .pm

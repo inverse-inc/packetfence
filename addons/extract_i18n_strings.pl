@@ -21,15 +21,14 @@ use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
 use pf::factory::firewallsso;
-use pf::factory::profile::filter;
-use pf::factory::triggerParser;
-use pf::factory::pki_provider;
+use pf::factory::condition::profile;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
+use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 
 use constant {
@@ -314,12 +313,13 @@ sub extract_modules {
         }
     }
 
-    const('pf::config', 'VALID_TRIGGER_TYPES', \@pf::factory::triggerParser::VALID_TRIGGER_TYPES);
+    const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
     const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
     const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
     const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
+    const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
@@ -337,25 +337,46 @@ sub extract_modules {
     my @common = map { $_->{value} } @$attributes;
     const('pf::Authentication::Source', 'common_attributes', \@common);
     my $types = pf::authentication::availableAuthenticationSourceTypes();
+    my %string_attributes = map {$_ => ''} qw(
+      id
+      client_secret
+      host
+      realm
+      secret
+      basedn
+      encryption
+      scope
+      path
+      client_id
+      paypal_cert_file
+      cert_file
+      key_file
+      payment_type
+      identity_token
+      cert_id
+      cert_file
+      key_file
+      paypal_cert_file
+      email_address
+      payment_type
+      publishable_key
+      secret_key
+      shared_secret
+      merchant_id
+      md5_hash
+      transaction_key
+      api_login_id
+    );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
         $type->require();
-        my $source = $type->new
-          ({
-            id => '',
-            usernameattribute => 'cn',
-            client_secret => '',
-            host => '',
-            realm => '',
-            secret => '',
-            basedn => '',
-            encryption => '',
-            scope => '',
-            path => '',
-            client_id => '',
-            authentication_source => undef,
-            chained_authentication_source => undef
-           });
+       my $source = $type->new
+         ({
+           %string_attributes,
+           usernameattribute => 'cn',
+           authentication_source => undef,
+           chained_authentication_source => undef,
+          });
         $attributes = $source->available_attributes();
 
         @values = map {
@@ -365,7 +386,8 @@ sub extract_modules {
         const($type, 'available_attributes', \@values) if (@values);
     }
 
-    const('pf::Authentication::constants', 'Actions', \@Actions::ACTIONS);
+    @values = map( { @$_ } values %Actions::ACTIONS);
+    const('pf::Authentication::constants', 'Actions', \@values);
 
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);
@@ -373,11 +395,8 @@ sub extract_modules {
     @values = sort grep {$_} map { /^pf::provisioner::(.*)/; $1 } @pf::factory::provisioner::MODULES;
     const('pf::provisioner', 'Provisioners', \@values);
 
-    @values = sort @pf::factory::profile::filter::MODULES;
-    const('pf::filter', 'Portal Profile Filters', \@values);
-
-    @values = sort @pf::factory::pki_provider::MODULES;
-    const('pf::pki_provider', 'PKI Providers', \@values);
+    @values = sort map { "profile.filter." . $_ } keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
+    const('profile.filter', 'Portal Profile Filters', \@values);
 
     @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
     const('pf::firewallsso', 'Firewall SSO', \@values);
@@ -427,7 +446,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2015 Inverse inc.
+# Copyright (C) 2005-2016 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -501,7 +520,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

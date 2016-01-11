@@ -18,7 +18,6 @@ Should work on the hostapd version started 2.0
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use POSIX;
 use Try::Tiny;
 
@@ -54,9 +53,9 @@ This is called when we receive an SNMP-Trap for this device
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -69,8 +68,8 @@ sub parseTrap {
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '2.0.13';
 }
@@ -82,8 +81,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -105,7 +104,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -129,7 +128,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -160,7 +159,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -202,7 +201,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

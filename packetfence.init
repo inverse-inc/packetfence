@@ -14,6 +14,7 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	if [ -z ${1+x} ]; then
+        pfredis_cache
 		pfconfig
 		echo -n $"Starting PacketFence..."
 		IPSET=`command -v ipset`
@@ -38,6 +39,7 @@ start() {
 
 stop() {
         if [ -z ${1+x} ]; then
+        pfredis_cache
 		pfconfig
 		echo -n $"Shutting down PacketFence..."
 		/usr/local/pf/bin/pfcmd service pf stop
@@ -55,6 +57,7 @@ stop() {
 
 restart() {
         if [ -z ${1+x} ]; then
+        pfredis_cache
 		pfconfig
 		echo -n $"Restarting PacketFence..."
 		/usr/local/pf/bin/pfcmd service pf restart
@@ -68,6 +71,10 @@ restart() {
                 echo
                 return $RETVAL
 	fi
+}
+
+pfredis_cache() {
+    /etc/init.d/packetfence-redis-cache start
 }
 
 pfconfig() {

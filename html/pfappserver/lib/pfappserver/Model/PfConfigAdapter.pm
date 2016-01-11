@@ -6,6 +6,7 @@ extends 'Catalyst::Model';
 
 use Try::Tiny;
 
+use pf::log;
 use pf::constants;
 use pf::config;
 use pfconfig::manager;
@@ -30,7 +31,7 @@ Will prefer returning the virtual IP if there's one.
 
 sub getWebAdminIp {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $mgmt_net = $management_network;
     my $ip = undef;
@@ -49,7 +50,7 @@ Returns the port on which the Web Administration interface runs.
 
 sub getWebAdminPort {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     return $Config{'ports'}{'admin'};
 }
@@ -62,11 +63,12 @@ Tell pf::config to reload its configuration.
 
 sub reloadConfiguration {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->info("reloading PacketFence configuration");
 
     my $status = pfconfig::manager->new->expire_all;
+    pf::config::configreload(1);
 
     $logger->info("done reloading PacketFence configuration");
     return $TRUE;
@@ -79,7 +81,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

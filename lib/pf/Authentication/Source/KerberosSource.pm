@@ -10,6 +10,7 @@ pf::Authentication::Source::KerberosSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::Authentication::Source;
 
 use Authen::Krb5::Simple;
@@ -42,12 +43,12 @@ sub authenticate_using_kerberos {
   my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'realm'} );
 
   if ($kerberos->authenticate($username, $password)) {
-    return ($TRUE, 'Successful authentication using Kerberos.');
+    return ($TRUE, $AUTH_SUCCESS_MSG);
   } else {
-    return ($FALSE, 'Invalid login or password');
+    return ($FALSE, $AUTH_FAIL_MSG);
   }
 
-  return ($FALSE, 'Unable to connect to Kerberos server');
+  return ($FALSE, $COMMUNICATION_ERROR_MSG);
 }
 
 =head2 match_in_subclass
@@ -68,7 +69,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

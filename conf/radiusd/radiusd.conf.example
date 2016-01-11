@@ -31,20 +31,6 @@ max_request_time = 10
 cleanup_delay = 5
 max_requests = 20000
 
-listen {
-        type = auth
-        ipaddr = %%management_ip%%
-        port = 0
-	virtual_server = packetfence
-}
-
-listen {
-        ipaddr = %%management_ip%%
-        port = 0
-        type = acct
-	virtual_server = packetfence
-}
-
 hostname_lookups = no
 allow_core_dumps = no
 

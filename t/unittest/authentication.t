@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 12;                      # last test to print
+use Test::More tests => 15;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -31,31 +31,42 @@ use_ok("pf::authentication");
 is(pf::authentication::match("bad_source_name",{ username => 'test' }), undef, "Return undef for an invalid name of source");
 
 is_deeply(
-    pf::authentication::match("email", { username => 'user_manager' }),
+    pf::authentication::match("email", { username => 'user_manager', rule_class => 'authentication' }),
     [
         pf::Authentication::Action->new({
             'value' => 'guest',
-            'type' => 'set_role'
+            'type'  => 'set_role',
+            'class' => 'authentication',
         }),
         pf::Authentication::Action->new({
             'value' => '1D',
-            'type' => 'set_access_duration'
+            'type'  => 'set_access_duration',
+            'class' => 'authentication',
         }),
+    ],
+    "match all authentication email actions"
+);
+
+is_deeply(
+    pf::authentication::match("email", { username => 'user_manager', rule_class => 'administration' }),
+    [
         pf::Authentication::Action->new({
             'value' => '1',
-            'type' => 'mark_as_sponsor'
+            'type'  => 'mark_as_sponsor',
+            'class' => 'administration',
         })
     ],
-    "match all email actions"
+    "match all administration email actions"
 );
 
 my $source_id_ref;
 is_deeply(
-    pf::authentication::match("htpasswd1", { username => 'user_manager' }, undef, \$source_id_ref),
+    pf::authentication::match("htpasswd1", { username => 'user_manager', rule_class => 'administration' }, undef, \$source_id_ref),
     [
         pf::Authentication::Action->new({
             'value' => 'User Manager',
-            'type' => 'set_access_level'
+            'type'  => 'set_access_level',
+            'class' => 'administration',
         })
     ],
     "match htpasswd1 by username"
@@ -65,7 +76,7 @@ is($source_id_ref, "htpasswd1", "Source id ref is found");
 
 is( pf::authentication::match(
         [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
-        {username => 'user@domain.com'},
+        {username => 'user@domain.com', rule_class => 'administration'},
         'mark_as_sponsor'
     ),
     1,
@@ -74,7 +85,7 @@ is( pf::authentication::match(
 
 is( pf::authentication::match(
         [getAuthenticationSource("htpasswd1"), getAuthenticationSource("email")],
-        {username => 'user@domain.com'},
+        {username => 'user@domain.com', rule_class => 'administration'},
         'set_access_level'
     ),
     'Violation Manager',
@@ -82,17 +93,29 @@ is( pf::authentication::match(
 );
 
 is(
-    pf::authentication::match("htpasswd1", { username => 'set_access_duration_test' }, 'set_access_duration'),undef,
+    pf::authentication::match("htpasswd1", { username => 'set_access_duration_test', rule_class => 'authentication' }, 'set_access_duration'),undef,
     "No longer match on set_access_duration "
 );
 
-my $value = pf::authentication::match("htpasswd1", { username => 'set_access_duration_test' }, 'set_unreg_date');
+is(
+    pf::authentication::match("htpasswd1", { username => 'match_on_authentication_class_without_rule_class_test' }, 'set_role'),
+    'default',
+    "Defaulting to 'authentication' rule class when none is specified while calling match for authentication"
+);
+
+is(
+    pf::authentication::match("htpasswd1", { username => 'match_on_administration_class_without_rule_class_test' }, 'mark_as_sponsor'),
+    undef,
+    "Defaulting to 'authentication' rule class when none is specified while calling match for administration"
+);
+
+my $value = pf::authentication::match("htpasswd1", { username => 'set_access_duration_test', rule_class => 'authentication' }, 'set_unreg_date');
 
 ok( $value , "set_access_duration matched on set_unreg_date");
 
 ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_duration is a date");
 
-is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
+is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
 
 =head1 AUTHOR
 

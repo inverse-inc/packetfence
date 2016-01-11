@@ -23,6 +23,7 @@ use pfconfig::namespaces::config;
 use pf::file_paths;
 use pf::constants::authentication;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::constants::authentication;
@@ -33,7 +34,9 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $authentication_config_file;
     $self->{child_resources} = [
-        'resource::authentication_lookup', 'resource::authentication_sources',
+        'resource::authentication_config_hash',
+        'resource::authentication_lookup',
+        'resource::authentication_sources',
         'resource::guest_self_registration',
     ];
 }
@@ -45,7 +48,10 @@ sub build_child {
 
     my @authentication_sources = ();
     my %authentication_lookup  = ();
+    my %authentication_config_hash = ();
     foreach my $source_id ( @{ $self->{ordered_sections} } ) {
+
+        my $current_source_config = { %{$cfg{$source_id}} };
 
         # We skip groups from our ini files
         if ( $source_id =~ m/\s/ ) {
@@ -61,9 +67,10 @@ sub build_child {
 
         # Parse rules
         foreach my $rule_id ( $self->GroupMembers($source_id) ) {
-
             my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
+
             my $current_rule = pf::Authentication::Rule->new( { match => $Rules::ANY, id => $id } );
+            my %current_rule_config = ();
 
             foreach my $parameter ( sort( keys( %{ $cfg{$rule_id} } ) ) ) {
                 if ( $parameter =~ m/condition(\d+)/ ) {
@@ -77,6 +84,8 @@ sub build_child {
                             }
                         )
                     );
+
+                    $current_rule_config{'conditions'}{$parameter} = $cfg{$rule_id}{$parameter};
                 }
                 elsif ( $parameter =~ m/action(\d+)/ ) {
                     my ( $type, $value ) = split( '=', $cfg{$rule_id}{$parameter}, 2 );
@@ -85,33 +94,52 @@ sub build_child {
                         $current_rule->add_action(
                             pf::Authentication::Action->new(
                                 {   type  => $type,
-                                    value => $value
+                                    value => $value,
+                                    class => pf::Authentication::Action->getRuleClassForAction($type),
                                 }
                             )
                         );
                     }
                     else {
-                        $current_rule->add_action( pf::Authentication::Action->new( { type => $type } ) );
+                        $current_rule->add_action(
+                            pf::Authentication::Action->new(
+                                { 
+                                    type    => $type,
+                                    class   => pf::Authentication::Action->getRuleClassForAction($type),
+                                }
+                            )
+                        );
                     }
 
+                    $current_rule_config{'actions'}{$parameter} = $cfg{$rule_id}{$parameter};
                 }
                 elsif ( $parameter =~ m/match/ ) {
                     $current_rule->{'match'} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'match'} = $cfg{$rule_id}{$parameter};
                 }
                 elsif ( $parameter =~ m/description/ ) {
                     $current_rule->{'description'} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'description'} = $cfg{$rule_id}{$parameter};
+                }
+                elsif ( $parameter =~ m/class/ ) {
+                    $current_rule->{'class'} = $cfg{$rule_id}{$parameter};
+                    $current_rule_config{'class'} = $cfg{$rule_id}{$parameter};
                 }
             }
 
             $current_source->add_rule($current_rule);
+            $current_source_config->{'rules'}->{$rule_id} = \%current_rule_config;
         }
+
         push( @authentication_sources, $current_source );
         $authentication_lookup{$source_id} = $current_source;
+        $authentication_config_hash{$source_id} = $current_source_config;
     }
 
     my %resources;
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
+    $resources{authentication_config_hash}  = \%authentication_config_hash; 
 
     return \%resources;
 
@@ -144,7 +172,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

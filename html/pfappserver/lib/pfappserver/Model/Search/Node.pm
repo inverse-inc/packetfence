@@ -16,10 +16,12 @@ use strict;
 use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
+use pf::log;
+use pf::util qw(calc_page_count);
 use pf::SearchBuilder;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);
-use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
@@ -28,11 +30,9 @@ extends 'pfappserver::Base::Model::Search';
 =cut
 
 sub search {
-    my ($self, $params, $pageNum, $perPage) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($self, $params) = @_;
+    my $logger = get_logger();
     my $builder = $self->make_builder;
-    $params->{page_num} = $pageNum;
-    $params->{per_page} = $perPage;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
     return (HTTP_OK, $results);
@@ -60,7 +60,7 @@ sub do_query {
     my ($count) = node_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = calc_page_count($count, $per_page);
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;
@@ -95,7 +95,8 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
-            { table => 'iplog', name => 'ip', as => 'last_ip' }
+            { table => 'iplog', name => 'ip', as => 'last_ip' },
+            { table => 'locationlog', name => 'switch', as => 'switch_ip' }
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -146,9 +147,34 @@ sub make_builder {
                             },
                             '=',
                             \"( SELECT `ip` FROM `iplog` WHERE `mac` = `node`.`mac`
-                                AND ( `iplog`.`end_time` = '0000-00-00 00:00:00' OR `iplog`.`end_time` > NOW() )
                                         ORDER BY `start_time` DESC LIMIT 1 )"
                         ]
+                    ],
+                },
+                {
+                    'table' => 'locationlog',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'locationlog',
+                                'name'  => 'mac',
+                            },
+                        ],
+                        [ 'AND' ],
+                           [
+                               {
+                                   'table'  => 'locationlog',
+                                   'name'   => 'end_time',
+                               },
+                               'IS NULL',
+                            ],
                     ],
                 },
         );
@@ -248,6 +274,50 @@ my %COLUMN_MAP = (
             }
         ]
     },
+    violation_status   => {
+        table => 'violation_status',
+        name  => 'status',
+        joins => [
+            {
+                'table'  => 'violation',
+                'join' => 'LEFT',
+                'as' => 'violation_status',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation_status',
+                            'name'  => 'mac',
+                        },
+                        '=',
+                        {
+                            'table' => 'node',
+                            'name'  => 'mac',
+                        }
+                    ],
+                ],
+            },
+            {
+                'table'  => 'class',
+                'join' => 'LEFT',
+                'as' => 'violation_status_class',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation_status',
+                            'name'  => 'vid',
+                        },
+                        '=',
+                        {
+                            'table' => 'violation_status_class',
+                            'name'  => 'vid',
+                        }
+                    ]
+                ],
+            }
+        ]
+    },
 );
 
 sub add_order_by {
@@ -272,6 +342,7 @@ sub add_date_range {
 sub process_query {
     my ($self,$query) = @_;
     my $new_query = $self->SUPER::process_query($query);
+    return unless defined $new_query;
     my $old_column = $new_query->[0];
     $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column}  : $old_column;
     return $new_query;
@@ -279,9 +350,17 @@ sub process_query {
 
 sub add_joins {
     my ($self,$builder,$params) = @_;
-    foreach my $name (map { $_->{name} } @{$params->{searches}}) {
-        $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
-            if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
+    foreach my $search ( @{$params->{searches}}) {
+        my $name = $search->{name};
+        if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'}) {
+            $builder->from(@{$COLUMN_MAP{$name}{'joins'}});
+            if ($name eq 'violation_status') {
+                $builder->select(
+                    {table => 'violation_status', name => 'status', as => 'violation_status'},
+                    {table => 'violation_status_class', name => 'description', as => 'violation_name'}
+                );
+            }
+        }
     }
 }
 
@@ -290,7 +369,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

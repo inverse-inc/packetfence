@@ -35,7 +35,7 @@ foreach my $key (keys %CSSwitchConfig){
   my $old = $CSSwitchConfig{$key};
   my $new = $NewSwitchConfig{$key};
 
-  # ignoring inline triggers as the new config seems to 
+  # ignoring inline triggers as the new config seems to
   # do a better job at building them
   $new->{inlineTrigger} = Test::Deep::ignore();
 
@@ -76,11 +76,11 @@ sub {
 }->();
 
 sub {
-  use_ok('pf::vlan::filter');
+  use_ok('pf::access_filter::vlan');
   use_ok('pf::ConfigStore::vlan_filters');
 
   my @variables = ('%ConfigVlanFilters');
-  compare_files("pf::vlan::filter", "pf::ConfigStore::vlan_filters", @variables);
+  compare_files("pf::access_filter::vlan", "pf::ConfigStore::vlan_filters", @variables);
 
 }->();
 
@@ -102,7 +102,7 @@ sub {
 
   my %ConfigProvisioning = %pf::config::ConfigProvisioning;
 
-  for my $key (@provisioners){ 
+  for my $key (@provisioners){
     my $old_elem = $cs->read($key);
     my $new_elem = $ConfigProvisioning{$key};
     # oses are broken in configstore
@@ -116,7 +116,7 @@ sub {
       print "$key in pf::config (new) : ".Dumper($new_elem);
     }
   }
-  
+
 
 }->();
 
@@ -131,7 +131,7 @@ sub compare_files {
       $sign =~ s/%/\\%/;
       $sign =~ s/@/\\@/;
       my $old = $sign.$file1."::$variable";
-      my $new = $sign.$file2."::$variable"; 
+      my $new = $sign.$file2."::$variable";
       my $old_elem = eval($old);
       my $new_elem = eval($new);
       my ($ok, $stack) = Test::Deep::cmp_details($old_elem, $new_elem);
@@ -142,7 +142,7 @@ sub compare_files {
         print "$file2 : ".Dumper(eval($new));
       }
     }
-  } 
+  }
 }
 
 #my %CSDefault_Config = %pf::ConfigStore::config::Default_Config;
@@ -240,7 +240,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
 

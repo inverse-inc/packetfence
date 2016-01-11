@@ -17,10 +17,10 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(daemonize createpid deletepid);
+use Log::Log4perl::Level;
 use pf::log;
 use pf::log::trapper;
 use pf::file_paths;
-use Log::Log4perl::Level;
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
 
@@ -47,6 +47,7 @@ sub daemonize {
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
     POSIX::_exit(0) if ($pid);
+    Log::Log4perl::MDC->put( 'tid', $$ );
     if ( !POSIX::setsid() ) {
         $logger->error("could not start a new session: $!");
     }
@@ -61,7 +62,7 @@ creates the pid file for the service
 
 sub createpid {
     my ($pname) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pid     = $$;
     my $pidfile = $var_dir . "/run/$pname.pid";
@@ -92,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

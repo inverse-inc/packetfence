@@ -96,7 +96,11 @@ form {
                 <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
               </ul>
               <div class="tab-pane active well" id="simple">
-                <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('User').action_for('simple_search')) %]">
+                <form id="simpleUserSearch" method="POST" name="simpleUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('simple_search')) %]">
+                    <div>
+                        [% INCLUDE per_page_select.tt %]
+                    </div>
+                    <br/>
                   <input type="text" name="filter" placeholder="Search...">
                     <div class="btn-group pull-right">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
@@ -108,13 +112,16 @@ form {
                 </form>
               </div><!--#simple-->
               <div class="tab-pane well" id="advanced">
-                <form id="advancedSearch" method="POST" name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
-                    <input type="hidden" name="page_num">
-                    <input type="hidden" name="per_page">
+                <form id="advancedUserSearch" method="POST" name="advancedUserSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
                     <input type="hidden" name="by">
                     <input type="hidden" name="direction">
                   <table class="table-dynamic">
                     <thead>
+                      <tr>
+                        <td>
+                        [% INCLUDE per_page_select.tt %]
+                        </td>
+                      <tr>
                       <tr>
                         <td>
                           [% match_options = BLOCK %]

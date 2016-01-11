@@ -16,7 +16,6 @@ use fingerbank::Model::MAC_Vendor();
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
-use pf::log;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';
@@ -30,7 +29,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

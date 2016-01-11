@@ -25,6 +25,9 @@ The absolute minimum required firmware version is 12.2(25)SEE2.
 Port-security + VoIP mode works with firmware 12.2(44)SE or greater unless mentioned below.
 Earlier IOS were not explicitly tested.
 
+The RADIUS part of this module also works with IOS XE switches.
+It has been tested on IOS XE version 03.07.02E
+
 This module extends pf::Switch::Cisco::Catalyst_2950.
 
 =head1 PRODUCT LINES
@@ -105,7 +108,7 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 
@@ -139,24 +142,24 @@ TODO: This list is incomplete
 =cut
 
 sub getMinOSVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     return '12.2(25)SEE2';
 }
 
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrRowStatus: $oid_cpsIfVlanSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrRowStatus" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -175,14 +178,14 @@ sub getAllSecureMacAddresses {
 }
 
 sub isDynamicPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->debug("port security is not enabled");
         return 0;
     }
@@ -190,7 +193,7 @@ sub isDynamicPortSecurityEnabled {
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrType: $oid_cpsIfVlanSecureMacAddrType"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if (   ( $result->{$oid_including_mac} == 1 )
@@ -204,14 +207,14 @@ sub isDynamicPortSecurityEnabled {
 }
 
 sub isStaticPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrType = '1.3.6.1.4.1.9.9.315.1.2.3.1.3';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->info("port security is not enabled");
         return 0;
     }
@@ -219,7 +222,7 @@ sub isStaticPortSecurityEnabled {
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrType: $oid_cpsIfVlanSecureMacAddrType"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => "$oid_cpsIfVlanSecureMacAddrType.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if (   ( $result->{$oid_including_mac} == 1 )
@@ -233,18 +236,18 @@ sub isStaticPortSecurityEnabled {
 }
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
     $logger->trace(
         "SNMP get_table for cpsIfVlanSecureMacAddrRowStatus: $oid_cpsIfVlanSecureMacAddrRowStatus"
     );
-    my $result = $this->{_sessionRead}->get_table(
+    my $result = $self->{_sessionRead}->get_table(
         -baseoid => "$oid_cpsIfVlanSecureMacAddrRowStatus.$ifIndex" );
     foreach my $oid_including_mac ( keys %{$result} ) {
         if ( $oid_including_mac
@@ -262,18 +265,18 @@ sub getSecureMacAddresses {
 }
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
     my $oid_cpsIfVlanSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.3.1.5';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add an entry to the SecureMacAddrTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -292,11 +295,11 @@ sub authorizeMAC {
     }
     if (@oid_value) {
         $logger->trace("SNMP set_request for cpsIfVlanSecureMacAddrRowStatus");
-        my $result = $this->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
+        my $result = $self->{_sessionWrite}->set_request(-varbindlist => \@oid_value);
         if (!defined($result)) {
             $logger->warn(
                 "SNMP error tyring to remove or add secure rows to ifIndex $ifIndex in port-security table. "
-                . "This could be normal. Error message: ".$this->{_sessionWrite}->error()
+                . "This could be normal. Error message: ".$self->{_sessionWrite}->error()
             );
         }
     }
@@ -310,9 +313,9 @@ Points to pf::Switch implementation bypassing Catalyst_2950's overridden behavio
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex, $mac) = @_;
+    my ($self, $ifIndex, $mac) = @_;
 
-    return $this->_dot1xPortReauthenticate($ifIndex);
+    return $self->_dot1xPortReauthenticate($ifIndex);
 }
 
 =head2 NasPortToIfIndex
@@ -322,8 +325,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # ex: 50023 is ifIndex 10023
     if ($NAS_port =~ s/^5/1/) {
@@ -342,8 +345,8 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
@@ -355,13 +358,13 @@ Method to deauth a wired node with CoA.
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
 
 
     # perform CoA
     my $acctsessionid = node_accounting_current_sessionid($mac);
-    $this->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
+    $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
 =head2 radiusDisconnect
@@ -372,26 +375,26 @@ Send a CoA to disconnect a mac
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
         );
         return;
     }
 
-    $logger->info("[$mac] deauthenticating");
+    $logger->info("deauthenticating");
 
     # Where should we send the RADIUS CoA-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("[$mac] controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
@@ -403,10 +406,10 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
-        $logger->debug("[$mac] network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
@@ -428,8 +431,8 @@ sub radiusDisconnect {
 
     } catch {
         chomp;
-        $logger->warn("[$mac] Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("[$mac] Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
@@ -450,8 +453,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($this, $method, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -487,51 +490,34 @@ Overrides the default implementation to add the dynamic acls
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
 
-    # Inline Vs. VLAN enforcement
-    my $radius_reply_ref = {};
-    my $role = "";
-    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
-        $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => $vlan,
-        };
-    }
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
 
-    
+    my @av_pairs;
+
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($user_role) && $user_role ne ""){
-            my $access_list = $self->getAccessListByName($user_role);
-            my @av_pairs;
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+            my $access_list = $self->getAccessListByName($args->{'user_role'});
             while($access_list =~ /([^\n]+)\n?/g){
                 push(@av_pairs, $self->returnAccessListAttribute."=".$1);
-                $logger->info("[$mac] (".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
-            } 
-            $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs; 
-            $logger->info("[$mac] (".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-        }
-    }
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$mac] (".$self->{'_id'}.") Network device supports roles. Evaluating role to be returned");
-        if ( defined($user_role) && $user_role ne "" ) {
-            $role = $self->getRoleByName($user_role);
-        }
-        if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-            $logger->info(
-                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-            );
-        }
-        else {
-            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+                $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+            }
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
         }
     }
 
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
 }
 
 =head2 returnAccessListAttribute
@@ -541,48 +527,48 @@ Returns the attribute to use when pushing an ACL using RADIUS
 =cut
 
 sub returnAccessListAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
     return "ip:inacl#101";
 }
 
 sub disableMABByIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self, $ifIndex ) = @_;
+    my $logger = get_logger();
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 3:forceAuthorized but the s");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
 
     $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 3 ] );
     return ( defined($result) );
 }
 
 sub enableMABByIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self, $ifIndex ) = @_;
+    my $logger = get_logger();
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->warn("Should set cafPortAuthorizeControl on $ifIndex to 2:auto but the switch is no");
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     my $OID_cafPortAuthorizeControl = '1.3.6.1.4.1.9.9.656.1.2.1.1.5';
 
     $logger->trace("SNMP set_request for cafPortAuthorizeControl: $OID_cafPortAuthorizeControl");
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_cafPortAuthorizeControl.$ifIndex", Net::SNMP::INTEGER, 2 ] );
     return ( defined($result) );
 }
@@ -593,7 +579,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -48,10 +48,11 @@ sub generateConfig {
 
     $tags{'vrrp'} = '';
     $tags{'mysql_backend'} = '';
-    my @ints = uniq(@listen_ints,@dhcplistener_ints);
+    my @ints = uniq(@listen_ints,@dhcplistener_ints, map { $_->{'Tint'} } @portal_ints);
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
+        next if ($cfg->{type} =~ qr/(?:dhcplistener|dhcp-listener)/);
         my $priority = 100 - pf::cluster::cluster_index();
         my $cluster_ip = pf::cluster::cluster_ip($interface);
         $tags{'vrrp'} .= <<"EOT";
@@ -68,6 +69,9 @@ EOT
         if(defined($cfg->{type}) && $cfg->{type} =~ /management/){
             $tags{'vrrp'} .= "  notify \"$install_dir/bin/cluster/management_update\"\n";
         }
+        $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
+        $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
+        $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
 
         $tags{'vrrp'} .= <<"EOT";
   track_script {
@@ -111,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

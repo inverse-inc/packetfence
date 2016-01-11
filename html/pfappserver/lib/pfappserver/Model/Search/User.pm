@@ -15,10 +15,11 @@ use strict;
 use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
+use pf::log;
 use pf::SearchBuilder;
 use pf::person qw(person_custom_search);
 use HTTP::Status qw(is_success :constants);
-use POSIX qw(ceil);
+use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
@@ -47,7 +48,7 @@ sub make_builder {
 
 sub search {
     my ($self,$params) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $builder = $self->make_builder;
     $self->setup_query($builder,$params);
     my $results = $self->do_query($builder,$params);
@@ -99,6 +100,7 @@ sub map_column {
 sub process_query {
     my ($self,$query) = @_;
     my $new_query = $self->SUPER::process_query($query);
+    return unless defined $new_query;
     $new_query->[0] = $self->map_column($new_query->[0]);
     return $new_query;
 }
@@ -122,7 +124,7 @@ sub setup_query {
 
 sub do_query {
     my ($self,$builder,$params) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %results = %$params;
     my $sql = $builder->sql;
     my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};
@@ -134,7 +136,7 @@ sub do_query {
     my ($count) = person_custom_search($sql_count);
     $count = $count->{count};
     $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
+    $results{page_count} = calc_page_count($count, $per_page);
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
     return \%results;
@@ -171,7 +173,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

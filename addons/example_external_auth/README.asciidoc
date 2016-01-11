@@ -1,0 +1,19 @@
+First install php on your server
+
+Then add the following in /usr/local/pf/conf/httpd.conf.d/httpd.admin
+```
+Listen 10000
+LoadModule php5_module modules/libphp5.so
+
+<FilesMatch \.php$>
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+<VirtualHost *:10000>
+    DocumentRoot /usr/local/pf/addons/example_external_auth
+</VirtualHost>
+```
+
+Then restart the httpd.admin process and this will be available on port 10000
+
+Note that this should only be used for testing purposes and IS NOT made for production purposes

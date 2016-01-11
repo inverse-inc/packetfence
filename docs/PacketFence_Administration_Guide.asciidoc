@@ -506,6 +506,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Active Directory
 * Apache htpasswd file
 * Email
+* External HTTP API
 * Facebook (OAuth 2)
 * Github (OAuth 2)
 * Google (OAuth 2)
@@ -583,6 +584,57 @@ Then, we add a rule:
   - Set unregistration date January 1st, 2020
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
+
+NOTE: If you want to use other LDAP attributes in your authentication source, add them in 'Configuration->Advanced->Custom LDAP attributes'. They will then be available in the rules you define.
+
+External API authentication
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence also supports calling an external HTTP API as an authentication source. The external API needs to implement an authentication action and an authorization action.
+
+Authentication
+^^^^^^^^^^^^^^
+
+This should provide the information about whether or not the username/password combination is valid
+
+These information are available through the POST fields of the request
+
+The server should reply with two attributes in a JSON response
+
+[options="compact"]
+* *result* : should be 1 for success, 0 for failure
+* *message* : should be the reason it succeeded or failed
+
+Example JSON response :
+
+  {"result":1,"message":"Valid username and password"}
+
+Authorization
+^^^^^^^^^^^^^
+
+This should provide the actions to apply on a user based on it's attributes
+
+The following attributes are available for the reply : *access_duration*, *access_level*, *sponsor*, *unregdate*, *category*.
+
+Sample JSON response, note that not all attributes are necessary, only send back what you need.
+
+  {"access_duration":"1D","access_level":"ALL","sponsor":1
+    ,"unregdate":"2030-01-01","category":"default"}
+
+NOTE: See /usr/local/pf/addons/example_external_auth for an example implementation compatible with PacketFence.
+
+PacketFence configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In PacketFence, you need to configure an HTTP source in order to use an external API.
+
+Here is a brief description of the fields :
+
+[options="compact"]
+* *Host* : First, the protocol, then the IP address or hostname of the API and lastly the port to connect to the API.
+* *API username and password* : If your API implements HTTP basic authentication (RFC 2617) you can add them in these fields. Leaving any of those two fields empty will make PacketFence do the requests without any authentication.
+* *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
+* *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -746,19 +798,19 @@ Here are the different configuration parameters that can be set for each portal 
   [profilename1]
   description = the description of your portal profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
-  billing_engine = either enabled or disabled
   sources = comma-separated list of authentications sources (IDs) to use
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
 * Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
 
-PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI and VLAN.
+PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
 Example with the most common ones:
 
 * *SSID:* Guest-SSID
 * *VLAN:* 100
+* *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
 
 CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
@@ -1319,58 +1371,244 @@ Billing Engine
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
 
-PacketFence currently supports two payment gateways: Authorize.net and Mirapay.
+PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
 
-The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
+In order to activate the billing, you will need to configure the following components : 
 
-  [default]
-  billing_engine = enabled
-  ...
+* Billing source(s)
+* Billing tier(s)
 
-Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
+Configuring a billing source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  [billing]
-  gateway = authorize_net
-  authorizenet_posturl = The payment gateway processing URL
-  authorizenet_login = The merchant's unique API Login ID
-  authorizenet_trankey = The merchant's unique Transaction Key
+First select a billing provider and follow the instructions below.
 
-It is also possible to configure multiple network access with different prices.
-For example, you may want to provide basic Internet access with a decent speed at a specific price and another package with high speed connection at another price.
+Paypal
+++++++
 
-CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
+NOTE: This provider requires that your PacketFence server is accessible on the public domain. For this your PacketFence portal should be available on a public IP using the DNS server name configured in PacketFence.
 
-To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
+If you have a business account and do not want to configure a test environment, you can skip the next section.
 
-To assign a role by tiers (example: slow, medium and fast), edit the file `lib/pf/billing/custom.pm`
+*Sandbox account*
 
-    my %tiers = (
-            tier1 => {
-                id => "tier1",
-                name => "Tier 1",
-                price => "1.00",
-                timeout => "7D",
-                usage_duration => '1D',
-                category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" 
-            },
-    );
+To configure a sandbox paypal account for use in PacketFence, head to https://developer.paypal.com/ and either sign up or login into your existing account.
 
-*id* is used as the item value of the billing table.
+Then in the Sandbox menu, click 'Accounts'
 
-*name* is the name of the tier used on billing.html.
+Create an account that has the type 'Personal' and one that has the type 'Business'.
 
-*price* is amount charged on the credit card.
+Afterwards, go back into accounts, and expand the business account, then click 'Profile'
 
-*timeout* is used to compute the unregistration date of the node.
+image::docs/images/billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
 
-*usage_duration* is the amount of non-contignuous access time for the node, set as the time_balance value of the node table.
+Now click the 'Change password' link and change the password and note it.
 
-*category* is the role in which to put the node.
+image::docs/images/billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
 
-*description will* appear on the billing.html.
+Do the same thing with the personal account you created
 
-*destination_url* is the url that the device will be redirected after a successful authentication.
+*Configuring the merchant account*
+
+Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
+
+Next go in 'My Account -> Profile' in order to go into your profile configuration.
+
+Next in the 'Selling Preferences' you will need to select 'Website Payment Preferences'
+
+Configure the settings so they match the screenshot below. 
+
+You should turn on 'Auto Return', set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
+
+You should also take note of the 'Identity Token' as it will be required in the PacketFence configuration.
+
+image::docs/images/billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+
+Next go back in your profile configuration 'My account -> Profile' and select 'Encrypted Payment Settings'
+
+Now on this page you will need to submit the certificate used by PacketFence to Paypal (/usr/local/pf/conf/ssl/server.crt by default).
+
+Once you have submitted it, note it's associated 'Cert ID' as you will need to configure it in PacketFence.
+
+Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
+
+image::docs/images/billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
+
+CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Paypal'.
+
+image::docs/images/billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Identity token* is the one you noted when on the 'Website Payment Preferences' page.
+* *Cert ID* is the one you noted when on the 'Encrypted Payment Settings'.
+* *Payment type* is whether the access is donation based (not mandatory to pay for it).
+* *Email address* is the email address of the merchant paypal account.
+* *Cert file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.crt by default).
+* *Key file* is the path to the PacketFence certificate (/usr/local/pf/conf/ssl/server.key by default).
+* *Paypal cert file* is the path to the Paypal certificate (/usr/local/pf/conf/ssl/paypal.pem in this example).
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+Stripe
+++++++
+
+*Stripe account*
+
+First go on https://dashboard.stripe.com, create an account and login.
+
+Next on the top right click 'Your account' then 'Account settings'.
+
+Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
+
+image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+
+*Configuring PacketFence*
+
+Now, in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing -> Stripe'
+
+image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Secret key* is the secret key you got from your Stripe account.
+* *Publishable key* is the publishable key you got from your Stripe account.
+* *Style* is whether you are doing a one-time charge or subscription based billing (recurring). See section 'Subscription based registration' below for details on how to configure it.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using the test key and secret account.
+
+Authorize.net
++++++++++++++
+
+*Creating an account*
+
+First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
+
+After you created your account you will be shown your 'API login ID' and 'Transaction key'. Note both of these informations for usage in the PacketFence configuration.
+
+Then login into your new account.
+
+Then under 'Account' click 'Settings'.
+
+On the settings page in the section 'Security settings', click 'MD5-Hash'
+
+Now enter a secret that will be shared between authorize.net and PacketFence.
+
+image::docs/images/billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+*PacketFence configuration*
+
+Next in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing->AuthorizeNet'.
+
+image::docs/images/billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *API login ID* is the one you got earlier while creating your account.
+* *Transaction key* is the one you got earlier while creating your account.
+* *MD5 hash* the one you configured in your Authorize.net account.
+* *Currency* is the currency that will be used in the transactions.
+* *Test mode* should be activated if you are using a sandbox account.
+
+Mirapay
++++++++
+
+  To be contributed...
+
+Adding billing tiers
+^^^^^^^^^^^^^^^^^^^^
+
+Once you have configured one or more billing source, you need to define billing tiers which will define the price and target authentication rules for the user.
+
+In the PacketFence administration interface, go in 'Configuration->Billing tiers'
+
+Then click 'Add billing tier' and configure it.
+
+image::docs/images/billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Billing tier* is the unique identifier of the billing tier.
+* *Name* is the friendly name of the billing tier.
+* *Description* is an extended description of the billing tier.
+* *Price* is the amount that will be charged to the user.
+* *Access duration* is the amount of time the user will be granted access to your network.
+* *Role* is the target role the user should be in.
+* *Use time balance* defines if the access duration should be computed on real-time access duration meaning if the user buys 24 hours of access he can use the network for 24 hours in different time blocks. This requires a valid RADIUS accounting configuration.
+
+NOTE: If don't want to use all the billing tiers that are defined, you can specify the ones that should be active in the 'Portal profile'.
+
+Subscription based registration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports subscription based billing using Stripe as a billing provider.
+
+Billing tier
+++++++++++++
+
+When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
+
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan 'simple' and 'advanced' configured using the following parameters.
+
+  [simple]
+  name=Simple network access
+  description=Click here if you are poor
+  price=3.99
+  role=guest
+  access_duration=10Y
+  use_time_balance=disabled
+  
+  [advanced]
+  name=Simple network access
+  description=Click here if you are poor
+  price=9.99
+  role=advanced_guest
+  access_duration=10Y
+  use_time_balance=disabled
+
+Stripe configuration
+++++++++++++++++++++
+
+Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
+
+Then create a new plan.
+
+image::docs/images/billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where : 
+[options="compact"]
+* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Now, following the same procedure, create the advanced plan.
+
+Receiving updates from Stripe
++++++++++++++++++++++++++++++
+
+As the subscription can be cancelled by a user, you need to setup your PacketFence installation to receive updates from Stripe.
+
+Updates are sent using HTTP requests on a public IP. 
+
+You need to make sure that your PacketFence server is available through a public IP on port 80 and that your PacketFence server hostname resolves on the public domain.
+
+Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any event that happens in this Stripe merchant account.
+
+In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
+
+image::docs/images/billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+
+Where : 
+[options="compact"]
+* *URL* is the URL to the PacketFence server. This should be http://YOUR_PORTAL_HOSTNAME/hook/billing/stripe
+* *Mode* is whether this webhook is for testing mode or live mode 
+
+Now everytime a user unsubscribes from a plan, PacketFence will be notified and will unregister that device from your network.
 
 Devices Registration
 ~~~~~~~~~~~~~~~~~~~~
@@ -1680,6 +1918,8 @@ taggedVlan::
 
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: OAuth2 authentication does not work with Webauth enforcement
 
 The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter or Github account.
 
@@ -2026,7 +2266,7 @@ First, create the proper violation either via the Admin UI, or by editing the `c
   [4000001]
   desc=No anti-virus enabled
   url=/remediation.php?template=noantivirus
-  actions=trap,email,log
+  actions=reevaluate_access,email,log
   enabled=Y
 
 NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
@@ -2044,16 +2284,16 @@ We added the ability to specify filters directly in the portion of code that re-
 
 These rules are available in different scopes:
 
-  ViolationVlan
-  RegistrationVlan
-  NormalVlan
-  InlineVlan
+  ViolationRole
+  RegistrationRole
+  RegisteredRole
+  InlineRole
   AutoRegister
   NodeInfoForAutoReg
 
 And can be defined using different criteria like:
 
-  node_info
+  node_info.attribute (like node_info.status)
   switch
   ifIndex
   mac
@@ -2061,15 +2301,14 @@ And can be defined using different criteria like:
   username
   ssid
   time
-  owner
-  radius_request
+  owner.attribute (like owner.pid)
+  radius_request.attribute (like radius_request.Calling-Station-Id)
 
 For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
 
   [category]
-  filter = node_info
-  attribute = category
+  filter = node_info.category
   operator = is
   value = default
 
@@ -2084,13 +2323,13 @@ from Monday to Friday when it try to connect as a registered device :
   value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 
   [1:category&ssid&time]
-  scope = NormalVlan
+  scope = RegisteredRole
   role = nointernet
 
 The second example will create a violation if the SSID is OPEN and the owner is igmout
 
   [igmout]
-  filter = owner
+  filter = owner.pid
   operator = is
   value = igmout
 
@@ -2100,7 +2339,7 @@ The second example will create a violation if the SSID is OPEN and the owner is 
   value = OPEN
 
   [2:igmout&ssid]
-  scope = NormalVlan
+  scope = RegisteredRole
   action = trigger_violation
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
 
@@ -2127,6 +2366,60 @@ The third example will autoregister the device and assign the role staff to each
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
+Radius Filter Definition
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.
+
+These rules are only available in one scope:
+
+  returnRadiusAccessAccept
+
+And can be defined using different criteria like:
+
+  node_info.attribute (like node_info.$attribute)
+  switch
+  ifIndex
+  mac
+  connection_type
+  username
+  ssid
+  time
+  owner.attribute (like owner.$attribute)
+  radius_request.attribute (like radius_request.$attribute)
+  violation
+  user_role
+  vlan
+
+
+For example, lets define a rule that return Access Accept when the connection is Ethernet-EAP and when there is no violation
+(merge_return means that the original answer of PacketFence will be merge with the filter answer automatically):
+
+  [violation]
+  filter = violation
+  operator = defined
+
+  [etherneteap]
+  filter = connection_type
+  operator = is
+  value = Ethernet-EAP
+
+  [1:etherneteap&!violation]
+  merge_answer = no
+  scope = returnRadiusAccessAccept
+
+In this other example we just add a new attribute to the original answer in the same conditions
+(here $user_role will be replaced by the real user role of the device and ${switch._portalURL} will be replaced
+by the value of _portalURL defined in the switch config):
+
+  [1:etherneteap&!violation]
+  merge_answer = yes
+  scope = returnRadiusAccessAccept
+  answer1 = Cisco-AVPair => url-redirect-acl=$user_role;url-redirect=${switch._portalURL}/cep$session_id
+
+You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
+
+
 Optional components
 -------------------
 
@@ -2135,7 +2428,7 @@ Blocking malicious activities with violations
 
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
-In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
+In order to be able to block malicious activities, installation and configuration of a PacketFence compatible IDS is required. PacketFence currently support Snort, Suricata and Security Onion.
 
 Snort
 ^^^^^
@@ -2167,102 +2460,144 @@ Configuration
 
 PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
 
+Security Onion
+^^^^^^^^^^^^^^
+
+Installation and Configuration
+++++++++++++++++++++++++++++++
+
+Security Onion is a Ubuntu based security suite. The latest installation instructions are available directly from the Security Onion website, https://github.com/Security-Onion-Solutions/security-onion/wiki/Installation
+
+Since a security suite consists of multiple pieces of software tied together, you may be prompted for different options during the installation process. A detailed "Production Deployment" guide can also be found directly from the Security Onion website: https://github.com/Security-Onion-Solutions/security-onion/wiki/ProductionDeployment
+
+PacketFence integration
++++++++++++++++++++++++
+
+Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mecanisms.
+
+The simplest way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
+
+On the Security Onion server:
+
+NOTE: Must be done on the master server running 'sguild'.
+
+Configure `/etc/syslog-ng/syslog-ng.conf` by adding the followings which will enable sending sguild log entries to PacketFence:
+
+  # This line specifies where the sguild.log file is located, and informs syslog-ng to tail the file, the program_override inserts the string sguil_alert into the string
+  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("sguil_alert")); };
+
+  # This line filters on the string “Alert Received”
+  filter f_sguil { match("Alert Received"); };
+
+  # This line tells syslog-ng to send the data read to the IP address of the PacketFence management interface, via UDP to port 514
+  destination d_sguil_udp { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+
+  # This log section tells syslog-ng how to structure the previous ‘source / filter / destination’ and is what actually puts them into play
+  log {
+      source(s_sguil);
+      filter(f_sguil);
+      destination(d_sguil_udp);
+  };
+
+A restart of the syslog-ng daemon is then required
+
+  service syslog-ng restart
+
+On the PacketFence server:
+
+Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in `/etc/rsyslog.conf`:
+
+  $ModLoad imudp
+  $UDPServerRun 514
+
+Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
+
+  :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
+  & ~
+
+Make sure the receiving alert pipe (FIFO) exists
+
+  mkfifo /usr/local/pf/var/security_onion_alerts
+
+Restart the rsyslog daemon
+
+  service rsyslog restart
+
 Violations
 ^^^^^^^^^^
 
 In order to make PacketFence react to the Snort alerts, you need to explicitly tell the software to do so. Otherwise, the alerts will be discarded. This is quite simple to accomplish. In fact, you need to create a violation and add the Snort alert SID in the trigger section of a Violation. 
 
-PacketFence policy violations are controlled using the `/usr/local/pf/conf/violations.conf` configuration file. The violation format is as follows:
+PacketFence violations are configured in 'Configuration->Violations'
 
-  [1234]
-  desc=Your Violation Description
-  priority=8
-  template=<template>
-  enable=Y
-  trigger=Detect::2200032,Nessus::11808
-  actions=email,log,trap
-  vlan=isolationVlan
-  whitelisted_categories=
+The example below will guide you to create a violation that will isolate device that have generated Peer-to-peer traffic and that are using Mac OSX or have a malware and are using Microsoft Windows
 
-[horizontal]
-`[1234]`:: The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
-`desc`:: single line description of violation
-`priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
-`template`:: Template name to use while in violation. It must match a HTML file name (without the extension) of the `violations` templates directory. 
-`enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
-`trigger`:: Method to reference external detection methods. Trigger is formatted as follows `type::ID`. The type can be `Detect` (Snort), `Nessus`, `OpenVAS`, `OS` (DHCP Fingerprint Detection), `UserAgent` (Browser signature), `VendorMAC` (MAC address class), `SoH` (Statement of Health filter), `Accounting`, etc. In the above example, 2000032 is the Snort ID and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
-`actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
-`log`::: Log a message to the file specified in `[alerting].log`
-`email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
-`trap`::: Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
-`winpopup`::: send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
-`external`::: execute an external command, specified in `[paths].externalapi`.
-`close`::: close the violation ID specified in the vclose field.
-`role`::: change the node's role to the one specified in the target_category field.
-`autoreg`::: register the node.
-`unreg`::: deregister the node.
-`vlan`:: Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
-`isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
-`registrationVlan`::: Registration VLAN as specified in `switches.conf`.
-`normalVlan`::: Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
-`whitelisted_categories`::: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
+Violation definition
+++++++++++++++++++++
 
-Also included in `violations.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
+First you need to configure the violation definition
 
-  [defaults]
-  priority=4
-  max_enable=3
-  actions=email,log
-  auto_enable=Y
-  enable=N
-  grace=120m
-  delay_by=0
-  window=0
-  vclose=
-  target_category=
-  button_text=Enable Network
-  snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
-  vlan=isolationVlan
-  whitelisted_categories=
+image::docs/images/violation-definition.png[scaledwidth="100%",alt="Violation definition"]
 
-`max_enable`::
-Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just 'click through' violation pages.
-`auto_enable`::
-Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
-`grace`::
-Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
-`delay_by`::
-Amount of time before the violation action will run.
-`window`::
-Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
-accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month.)
-`vclose`::
-When selecting the "close" action, triggering the violation will close the one you select in the vclose field. This is an experimentalworkflow for Mobile Device Management (MDM).
-`target_category`::
-When selecting the "role" action, triggering the violation will change the node's role to the one you select in the target_category field.
-`button_text`::
-Text displayed on the violation form to hosts.
-`snort_rules`::
-The Snort rules file is the administrators responsibility. Please change this to point to your violation rules file(s). If you do not specify a full path, the default is `/usr/local/pf/conf/snort`. If you need to include more than one file, just separate each filename with a comma.
+Where :
+[options="compact"]
+* `Enabled` is whether or not the violation is currently activated (should be `ON`).
+* `Identifier` is the violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
+* `Description` is the user friendly description of the violation.
+* `Actions` is the list of actions to be executed when this violation is raised.
+** `Unregister node` will unregister the node.
+** `Send email to owner` will email the violation details to the owner of the device. Will only work if the person has it's email field populated. 
+** `Send email to admin` will email the violation details to the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+** `Reevaluate access` will place the device in the destination VLAN configured in the violation. It opens a violation and leaves it open. If it is not there, the violation is opened and then automatically closed.
+** `Log message` will log the violation in the log file defined in `[alerting].log`.
+** `External command` will execute a command on the operating system when this violation is raised.
+** `Close a violation` will close an existing violation for this device when this one is raised.
+** `Set role` will modify the role of the device.
+** `Enforce provisioning` will trigger a check of compliance on the provisioners defined for the device.
+* `Priority` defines the order onto which violations should be handled should there be more than one for a device.
+* `Whitelisted Roles` is the list of roles that are not affected by this violation.
 
-NOTE: `violations.conf` is loaded at startup. A restart is required when 
-changes are made to this file.
+Triggers
+++++++++
 
-Example violation
-^^^^^^^^^^^^^^^^^
+Next, in the `Triggers` tab, you need to define the triggers that will raise the violation. In the case of this example it will be these two cases : 
+* A device that has generated Peer-to-peer traffic and that is using MAC OSX.
+* A device that has been detected as being a rogue DHCP.
 
-In our example we want to isolate people using Limewire. Here we assume Snort is installed and configured to send alerts to PacketFence. Now we need to configure PacketFence isolation.
+Click the `+` sign at the top right in order to create a new trigger, then in the dropdown select `Suricata`.
 
-Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure it to trap.
+A menu will appear into which you can select `ET P2P` which will match all P2P alerts from Suricata.
 
-  [2001808]
-  desc=P2P (Limewire)
-  priority=8
-  template=p2p
-  actions=log,trap
-  enable=Y
-  max_enable=1
-  trigger=Detect::2001808
+Once you added this trigger, select `Device` from the dropdown and enter `38` which is the device identifier for Mac OSX.
+
+Next hit the `<` button, then the `+` to add another trigger.
+
+Select the type `Internal`, then in the menu that appears below it, select `Rogue DHCP detection` and click `Add`.
+
+image::docs/images/violation-triggers.png[scaledwidth="100%",alt="Violation triggers"]
+
+Remediation
++++++++++++
+
+Next, in the `Remediation` tab, you can configure the behavior when a client gets isolated.
+
+image::docs/images/violation-remediation.png[scaledwidth="100%",alt="Violation remediation"]
+
+Where :
+[options="compact"]
+* `Auto Enable` is whether or not the user can release the violation himself after acknoledging the message on the captive portal.
+* `Max Enables` is the amount of time a user can use the `Auto Enable` functionnality. After this amount of times, he will not be able to release the violation and it will have to be manually release by an administrator using the PacketFence administration interface.
+* `Grace` is Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+* `Dynamic Window` will only works for accounting violations. The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month. If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month). 
+* `Window` is the amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.
+* `Delay by` is the delay before triggering the violation.
+* `Template` is the HTML template the host will be redirected to while in violation. You can create new templates from the Portal Profiles configuration section.
+* `Button text` is the text of the button that is used when the user is releasing the violation directly from the captive portal.
+
+Advanced
+++++++++
+
+In the `Advanced` tab you configure the destination VLAN of the device when it has the `Reevaluate access` action and its redirection URL when the user is released.
 
 Compliance Checks
 ~~~~~~~~~~~~~~~~~
@@ -2679,7 +3014,7 @@ Get-EventLog -LogName Security -InstanceId 4726 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
@@ -2754,7 +3089,7 @@ Get-EventLog -LogName Security -InstanceId 4725 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
@@ -2830,7 +3165,7 @@ Get-EventLog -LogName Security -InstanceId 4740 |
     $username = "admin" # Username for the webservices
     $password = "admin" # Password for the webservices
     [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": [{"pid": "'+$_.ReplacementStrings[0]+'"}]}'
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
 
     $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
     $web = [System.Net.WebRequest]::Create($url)
@@ -3003,6 +3338,12 @@ Start the sensor:
 
 The DHCP traffic should now be reflected on your PacketFence server.
 
+Switch login access
+~~~~~~~~~~~~~~~~~~~
+
+PacketFence is able to act as an authentication and authorization service for granting command-line interface (CLI) access to switches.
+PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
+From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
 Operating System Best Practices
 -------------------------------

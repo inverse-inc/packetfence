@@ -42,6 +42,8 @@ BEGIN {
 }
 use pf::config::cached;
 use pf::CHI;
+use pf::SwitchFactory;
+pf::SwitchFactory::preLoadModules();
 
 extends 'Catalyst';
 
@@ -231,7 +233,14 @@ sub forms {
     return $c->_comp_names(qw/Form F/);
 }
 
+sub _clear_logging_ctx {
+    for my $ctx (qw(ip mac)) {
+        Log::Log4perl::MDC->put($ctx, undef);
+    }
+}
+
 before handle_request => sub {
+    _clear_logging_ctx();
     pf::config::cached::ReloadConfigs();
 };
 
@@ -248,6 +257,7 @@ after finalize => sub {
             }
         }
     }
+    _clear_logging_ctx();
 };
 
 sub add_deferred_actions {
@@ -304,7 +314,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

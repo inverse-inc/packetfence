@@ -19,7 +19,6 @@ pf::Switch::H3C - Object oriented module to access and configure enabled H3C swi
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 use POSIX;
 
@@ -83,17 +82,17 @@ Same as pf::Switch::ThreeCom::SS4500
 
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub getIfIndexForThisDot1dBasePort {
-    my ( $this, $dot1dBasePort ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $self, $dot1dBasePort ) = @_;
+    my $logger = $self->logger;
     # port number into ifIndex
     my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace( "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
 
     if (exists($result->{"$OID_dot1dBasePortIfIndex"})) {
         return $result->{"$OID_dot1dBasePortIfIndex"}; #return ifIndex (Integer)
@@ -109,22 +108,22 @@ Returns the software version of the slot.
 =cut
 
 sub getVersion {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $self ) = @_;
+    my $logger = $self->logger;
 
     my $OID_hh3cLswSysVersion = '1.3.6.1.4.1.25506.8.35.18.1.4';    # from HH3C-LSW-DEV-ADM-MIB
     my $slotNumber = '0';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return;
     }
 
     $logger->trace( "SNMP get_request for OID_hh3cLswSysVersion: ( $OID_hh3cLswSysVersion.$slotNumber )" );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_hh3cLswSysVersion.$slotNumber" ] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_hh3cLswSysVersion.$slotNumber" ] );
 
     # Error handling
     if ( !defined($result) ) {
-        $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
+        $logger->warn("Asking for software version failed with " . $self->{_sessionRead}->error());
         return;
     }
 
@@ -149,13 +148,13 @@ Returns RADIUS attributes for voip phone devices.
 =cut
 
 sub getVoipVsa {
-    my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $self ) = @_;
+    my $logger = $self->logger;
 
     return (
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => $this->getVlanByName('voice'),
+        'Tunnel-Private-Group-ID'   => $self->getVlanByName('voice'),
     );
 }
 
@@ -178,8 +177,8 @@ Same as pf::Switch::ThreeCom::Switch_4200G
 
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub NasPortToIfIndex {
-    my ($this, $nas_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $nas_port) = @_;
+    my $logger = $self->logger;
 
     # 4096 NAS-Port slots are reserved per physical ports, 
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
@@ -188,7 +187,7 @@ sub NasPortToIfIndex {
     if ($port > 0) {
 
         # TODO we should think about caching or pre-computation here
-        my $ifIndex = $this->getIfIndexForThisDot1dBasePort($port);
+        my $ifIndex = $self->getIfIndexForThisDot1dBasePort($port);
 
         # return if defined and an int
         return $ifIndex if (defined($ifIndex) && $ifIndex =~ /^\d+$/);
@@ -209,8 +208,8 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ( $self, $trapString ) = @_;
+    my $logger = $self->logger;
 
     my $trapHashRef;
 
@@ -229,7 +228,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

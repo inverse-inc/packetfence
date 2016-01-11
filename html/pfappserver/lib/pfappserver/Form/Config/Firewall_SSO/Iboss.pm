@@ -34,8 +34,7 @@ has_field 'password' =>
    label => 'Secret or Key',
    required => 1,
    default => 'XS832CF2A',
-   password => 0,
-   messages => { required => 'Change the default key is you have it' },
+   messages => { required => 'Change the default key if you have it' },
   );
 has_field 'port' =>
   (
@@ -78,7 +77,7 @@ has_field 'uid' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port nac_name categories) ],
+   render_list => [ qw(id type password port nac_name categories cache_updates cache_timeout) ],
   );
 
 has_field 'uid' =>
@@ -123,7 +122,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

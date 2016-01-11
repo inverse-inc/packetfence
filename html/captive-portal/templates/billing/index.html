@@ -1,0 +1,68 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html %]
+
+[%# WELCOME TEXT %]
+<div id="about">
+    <img src="/content/images/registration.png" alt="Registration" />
+    <h1>[% i18n("Guest Registration") %]</h1>
+    <p>[% i18n("guest network disclaimer") %]</p>
+    <hr/>
+</div>
+    [%# ERROR %]
+    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
+
+<form id="billing_form" name="billing" method="post" action="/billing/confirm">
+  <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+  [%# AUP %]
+  <div class="input">
+    <div>[% i18n("Acceptable Use Policy") %]</div>
+    <div id="aup">
+      <div class="notmobile">
+        [% INCLUDE aup_text.html %]
+      </div>
+      <div class="mobile">
+        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+      </div>
+    </div>
+    <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
+  </div>
+
+  [% FOREACH field IN mandatory_fields %]
+    <div class="input">
+      <span>[% i18n("$field") %]</span>
+      <input class="field" name="[% field %]" type="text" value="[% c.stash.$field | html %]" /><br/>
+    </div>
+  [% END %]
+
+  [% IF profile.billing_tiers.size %]
+  [%# TIERS CHOICE %]
+  <div class="input">
+    <span>[% i18n("Internet Access Package") %]</span>
+    [% FOREACH tier IN profile.billing_tiers %]
+    <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
+              value="[% i18n(tier.id) | html %]"/>
+    <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>
+    <em>[% i18n(tier.description) | html %]</em><br/>
+    [% END %]
+  </div>
+  [% END %]
+
+  [% IF billing_sources.size %]
+    [% add_separator = 0 %]
+    [% FOREACH billing IN billing_sources %]
+    <div class="input">
+      [% IF add_separator %]
+        <div class="separator"><div class="or_separator">or</div></div>
+      [% ELSE %]
+        [% add_separator = 1 %]
+      [% END %]
+      
+      <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn">
+    </div>
+    [% END %]
+  [% END %]
+
+</form>
+
+[% INCLUDE footer.html %]

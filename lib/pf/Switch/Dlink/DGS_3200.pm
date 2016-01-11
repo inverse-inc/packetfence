@@ -35,7 +35,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
@@ -65,16 +64,16 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_dlinkFirmwareVersion = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for oid_dlinkFirmwareVersion: $oid_dlinkFirmwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_dlinkFirmwareVersion] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_dlinkFirmwareVersion] );
     my $runtimeSwVersion = ( $result->{$oid_dlinkFirmwareVersion} || '' );
 
     return $runtimeSwVersion;
@@ -87,8 +86,8 @@ Translate RADIUS NAS-Port into the physical port ifIndex
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
     
     #NAS-Port is ifIndex (Stacked switch not tested!!)
     return $NAS_port;
@@ -102,7 +101,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

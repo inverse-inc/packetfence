@@ -1,0 +1,47 @@
+# Dhcp filter configuration
+# 
+# you are able to take an action based on the dhcp information. 
+#
+# Make a simple rule like this:
+#
+#[VIVIDE9]
+#filter = computer_name
+#operator = regex
+#value = ^VIVIDE9
+#
+#[mac]
+#filter = mac
+#operator = regex
+#value = ^00:0b:ab
+#
+#[dhcp_fingerprint]
+#filter = dhcp_fingerprint
+#operator = is
+#value = 1,15,3,6,44,46,47,31,33,249,43
+#
+#[dhcp_vendor]
+#filter = dhcp_vendor
+#operator = is
+#value = MSFT 5.0
+#
+#This rule will change the device type and device class for this specific MAC address
+#
+#[1:VIVIDE9&mac&dhcp_fingerprint&dhcp_vendor]
+#scope = DhcpFingerbank
+#action = modify_node
+#action_param = mac = $mac,  device_type = GE Vivid e9,  device_class = Medical
+#
+# filter can be:
+#     mac
+#     computer_name
+#     dhcp_fingerprint
+#     dhcp_vendor
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#     regex
+#

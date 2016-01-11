@@ -26,18 +26,19 @@ use pf::file_paths;
 use base 'pfconfig::namespaces::config';
 
 sub init {
-  my ($self) = @_;
-  $self->{file} = $domain_config_file;
+    my ($self) = @_;
+    $self->{file} = $domain_config_file;
+    $self->{child_resources} = [ 'resource::domain_dns_servers' ];
 }
 
 sub build_child {
-  my ($self) = @_;
+    my ($self) = @_;
 
-  my %tmp_cfg = %{$self->{cfg}}; 
+    my %tmp_cfg = %{$self->{cfg}}; 
 
-  $self->{cfg} = \%tmp_cfg;
+    $self->{cfg} = \%tmp_cfg;
 
-  return \%tmp_cfg;
+    return \%tmp_cfg;
 
 }
 
@@ -50,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

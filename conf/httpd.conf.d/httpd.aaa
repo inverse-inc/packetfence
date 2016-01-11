@@ -32,6 +32,10 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+  </IfModule>
+
 </IfDefine>
 
 #RHEL Specific
@@ -66,6 +70,9 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module modules/mod_setenvif.so
+  </IfModule>
 </IfDefine>
 
 
@@ -73,6 +80,8 @@ PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/aaa_modperl_require.pl
 PerlLoadModule pf::WebAPI
+PerlLoadModule pf::WebAPI::InitHandler
+PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 
 AcceptMutex posixsem
 SSLMutex posixsem
@@ -85,6 +94,8 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my $host;
+
+$SetEnvIf = "User-Agent collectd is_collectd";
 
 $PidFile = $install_dir.'/var/run/httpd.aaa.pid';
 
@@ -147,7 +158,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
              ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
              DocumentRoot        => $install_dir.'/html/pfappserver/lib',
              ErrorLog            => $install_dir.'/logs/httpd.aaa.error',
-             CustomLog           => $install_dir.'/logs/httpd.aaa.access combined',
+             CustomLog           => $install_dir.'/logs/httpd.aaa.access combined env=!is_collectd',
              SSLEngine           => 'on',
              Include             => $var_dir.'/conf/ssl-certificates.conf',
              Location     => {
@@ -175,7 +186,7 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'aaa'}"} },
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/httpd.aaa.error',
-         CustomLog           => $install_dir.'/logs/httpd.aaa.access combined',
+         CustomLog           => $install_dir.'/logs/httpd.aaa.access combined env=!is_collectd',
          SetHandler          => 'modperl',
          PerlResponseHandler => 'pf::WebAPI',
          Location     => {

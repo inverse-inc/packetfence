@@ -38,7 +38,7 @@ LOG_DIR        = %%install_dir%%/logs/
 PID_DIR        = %%install_dir%%/var/run/
 
 # Enable daily log rotation. If disabled, a kill -HUP can be used after a manual rotate
-ENABLE_LOGROTATION = True
+ENABLE_LOGROTATION = False
 
 # Specify the user to drop privileges to
 # If this is blank carbon runs as the user that invokes it
@@ -228,6 +228,7 @@ LINE_RECEIVER_INTERFACE = localhost
 LINE_RECEIVER_PORT = 2013
 PICKLE_RECEIVER_INTERFACE = localhost
 PICKLE_RECEIVER_PORT = 2014
+ENABLE_LOGROTATION = False
 
 # Set to false to disable logging of successful connections
 LOG_LISTENER_CONNECTIONS = True
@@ -300,6 +301,7 @@ LINE_RECEIVER_PORT = 2023
 
 PICKLE_RECEIVER_INTERFACE = 0.0.0.0
 PICKLE_RECEIVER_PORT = 2024
+ENABLE_LOGROTATION = False
 
 # Set to false to disable logging of successful connections
 LOG_LISTENER_CONNECTIONS = True

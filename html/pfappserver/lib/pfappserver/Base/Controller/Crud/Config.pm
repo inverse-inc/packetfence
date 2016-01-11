@@ -17,7 +17,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use HTML::FormHandler::Params;
 
 with 'pfappserver::Base::Controller::Crud';
@@ -78,7 +78,7 @@ sub _commitChanges {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

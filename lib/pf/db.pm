@@ -24,6 +24,8 @@ use File::Basename;
 use pf::log;
 use pf::config;
 use pfconfig::cached_hash;
+use pf::StatsD::Timer;
+use pf::util::statsd qw(called);
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -114,6 +116,7 @@ sub db_connect {
     } else {
         $logger->logcroak("unable to connect to database: " . $DBI::errstr) unless $NO_DIE_ON_DBH_ERROR;
         $logger->error("unable to connect to database: " . $DBI::errstr);
+        $pf::StatsD::statsd->increment(called() . ".error.count" );
         return ();
     }
 }
@@ -176,6 +179,7 @@ sub get_db_handle {
 
 sub db_data {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
 
     my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
 
@@ -212,6 +216,7 @@ sub db_data {
 # afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
+    my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".$query", sample_rate => 0.1});
     my $logger = get_logger();
 
     # argument validation
@@ -219,6 +224,7 @@ sub db_query_execute {
     my $statements_valid = (ref($module_statements_ref) eq 'HASH');
     if (!($parameters_exist && $statements_valid)) {
         $logger->error("Invalid parameters for query $query. Called from: " .(caller(1))[3].". Query failed.");
+        $pf::StatsD::statsd->increment(called() . ".error.count" );
         return;
     }
 
@@ -318,6 +324,7 @@ sub db_query_execute {
     if (!$done) {
         $logger->error("Database issue: We tried ". MAX_RETRIES ." times to serve query $query called from "
             .(caller(1))[3]." and we failed. Is the database running?");
+        $pf::StatsD::statsd->increment(called() . ".error.count" );
         return;
     } else {
         return $db_statement;
@@ -366,7 +373,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

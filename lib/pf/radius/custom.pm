@@ -18,7 +18,6 @@ behavior here.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use base ('pf::radius');
 use pf::config;
@@ -27,7 +26,7 @@ use pf::node;
 use pf::Switch;
 use pf::SwitchFactory;
 use pf::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
@@ -39,7 +38,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -29,7 +29,15 @@ The set the default OS to IOS
 =cut
 
 # Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
-has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Mac OS X'] });
+has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] });
+
+=head2 broadcast
+
+Is the ssid broadcasting
+
+=cut
+
+has broadcast => (is => 'rw');
 
 =head2 ssid
 
@@ -155,7 +163,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -60,7 +60,6 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch');
 
@@ -93,21 +92,21 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =cut
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_snAgImgVer = '.1.3.6.1.4.1.1991.1.1.2.1.11';          #Proprietary Brocade MIB 1.3.6.1.4.1.1991 -> brcdIp
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for oid_snAgImgVer: $oid_snAgImgVer"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_snAgImgVer] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_snAgImgVer] );
     my $runtimeSwVersion = ( $result->{$oid_snAgImgVer} || '' );
 
     # Error handling
     if ( !defined($result) ) {
-        $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
+        $logger->warn("Asking for software version failed with " . $self->{_sessionRead}->error());
         return;
     }
 
@@ -123,32 +122,32 @@ Allows callers to refer to this implementation even though someone along the way
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex, $mac) = @_;
+    my $logger = $self->logger;
 
 
     my $oid_brcdDot1xAuthPortConfigPortControl = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
 
-    if (!$this->connectWrite()) {
+    if (!$self->connectWrite()) {
         return 0;
     }
 
     $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
-    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+    my $result = $self->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::FORCE_UNAUTHORIZED
     ]);
 
     if (!defined($result)) {
-        $logger->error("got an SNMP error trying to force 802.1x unauthorized: ".$this->{_sessionWrite}->error);
+        $logger->error("got an SNMP error trying to force 802.1x unauthorized: ".$self->{_sessionWrite}->error);
     }
 
     $logger->trace("SNMP set_request force port in auto mode on ifIndex: $ifIndex");
-    $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+    $result = $self->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::CONTROLAUTO
     ]);
 
     if (!defined($result)) {
-        $logger->error("got an SNMP error trying to force 802.1x control auto: ".$this->{_sessionWrite}->error);
+        $logger->error("got an SNMP error trying to force 802.1x control auto: ".$self->{_sessionWrite}->error);
     }
     return (defined($result));
 }
@@ -161,9 +160,9 @@ All traps ignored
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     $logger->debug("trap ignored, not useful for switch");
     $trapHashRef->{'trapType'} = 'unknown';
@@ -178,13 +177,13 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self) = @_;
+    my $logger = $self->logger;
     return (
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voice'),
+        'Tunnel-Private-Group-ID'   => "T:".$self->getVlanByName('voice'),
     );
 }
 
@@ -199,32 +198,6 @@ sub isVoIPEnabled {
     return ( $self->{_VoIPEnabled} == 1 );
 }
 
-=item returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation to send vsa in the radius reponse.
-
-It's optional, but we can force the 802.1x authentication by sending Foundry-MAC-Authent-needs-802.1x at 1.
-Disabled by default.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-
-    # VLAN enforcement
-    my $radius_reply_ref = {
-        #'Foundry-MAC-Authent-needs-802.1x' => $TRUE,
-        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-        'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $vlan,
-    };
-
-
-    $logger->info("[$mac] Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
-}
-
 =back
 
 =head1 AUTHOR
@@ -233,7 +206,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

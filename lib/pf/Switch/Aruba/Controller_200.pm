@@ -13,7 +13,6 @@ to access SNMP enabled Aruba Controller 200
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use base ('pf::Switch::Aruba');
 
@@ -25,7 +24,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

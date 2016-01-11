@@ -22,7 +22,7 @@ use URI::Escape::XS;
 use pfappserver::Base::Action::AdminRole;
 use pfappserver::Base::Action::SimpleSearch;
 
-use pf::util qw(load_oui download_oui);
+use pf::util qw(load_oui download_oui calc_page_count);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
 use pf::config;
@@ -198,7 +198,7 @@ sub _list_items {
         $c->stash->{direction}   = $orderdirection || 'asc';
         $c->stash->{items}       = $items_ref;
         $c->stash->{field_names} = $field_names;
-        $c->stash->{pages_count} = ceil( $count / $per_page );
+        $c->stash->{page_count} = calc_page_count($count, $per_page);
     }
     else {
         $c->response->status($status);
@@ -219,6 +219,8 @@ sub add_fake_profile_data {
     my ($self, $c) = @_;
     $c->stash(
         logo        => $Config{'general'}{'logo'},
+        client_mac  => '00:11:22:33:44:55',
+        client_ip   => '1.2.3.4',
         username    => 'mcrispin',
         last_port   => '4097',
         last_vlan   => '102',
@@ -226,8 +228,6 @@ sub add_fake_profile_data {
         last_switch => '10.0.0.4',
         dhcp_fingerprint      => '1,28,2,3,15,6,119,12,44,47,26,121,42',
         last_connection_type  => 'Wireless-802.11-EAP',
-        list_help_info        => [{ name => $c->loc('IP'), value => '10.0.0.123' },
-                               { name => $c->loc('MAC'), value => 'c8:bc:c8:ce:65:e1' }]
     );
 
 }
@@ -263,7 +263,7 @@ sub getModel {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

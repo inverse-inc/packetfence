@@ -21,9 +21,9 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
 
-has '+launcher' => (default => sub {"%1\$s -d -p $install_dir/var/alert &"});
+has '+launcher' => (default => sub {"%1\$s -d &"});
 
-sub isManaged { return isenabled( $Config{'trapping'}{'detection'} ); }
+sub isManaged { keys(%ConfigDetect) > 0 }
 
 
 =head1 AUTHOR
@@ -33,7 +33,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

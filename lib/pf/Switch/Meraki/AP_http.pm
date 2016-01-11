@@ -6,7 +6,7 @@ pf::Switch::Meraki::AP_http
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http module implements an object oriented interface to 
+The pf::Switch::Meraki::AP_http module implements an object oriented interface to
 manage the external captive portal on Meraki access points
 
 =head1 STATUS
@@ -31,7 +31,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::constants;
 use pf::config;
@@ -49,13 +48,13 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
-=item getVersion - obtain image version information from switch
+=head2 getVersion - obtain image version information from switch
 
 =cut
 
 sub getVersion {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     $logger->info("we don't know how to determine the version through SNMP !");
     return '1';
 }
@@ -74,10 +73,10 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req, $r) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my($self, $req, $r) = @_;
+    my $logger = $self->logger;
     my $connection = $r->connection;
-    $this->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
         0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('client_mac')), "Unknown"
     );
 
@@ -86,8 +85,7 @@ sub parseUrl {
 
 sub parseSwitchIdFromRequest {
     my($class, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( $class );
-    return $$req->param('ap_mac'); 
+    return $$req->param('ap_mac');
 }
 
 =head2 returnRadiusAccessAccept
@@ -99,36 +97,45 @@ Overriding the default implementation for the external captive portal
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
 
     my $radius_reply_ref = {};
+    my $status;
 
-    my $node = node_view($mac);
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
 
-    my $violation = pf::violation::violation_view_top($mac);
+    my $node = $args->{'node_info'};
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+
+    my $violation = pf::violation::violation_view_top($args->{'mac'});
     # if user is unregistered or is in violation then we reject him to show him the captive portal 
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("[$mac] is unregistered. Refusing access to force the eCWP");
+        $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
-        }; 
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref]; 
+        };
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
 
     }
     else{
         $logger->info("Returning ACCEPT");
-        return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+        return [$status, %$radius_reply_ref];
     }
 
 }
 
 sub getAcceptForm {
     my ( $self, $mac , $destination_url, $cgi_session) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
-    $logger->debug("[$mac] Creating web release form");
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
 
     my $login_url = $cgi_session->param("ecwp-original-param-login_url");
     my $html_form = qq[
@@ -153,7 +160,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

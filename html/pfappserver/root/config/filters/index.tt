@@ -1,0 +1,33 @@
+
+<h4 class="alert alert-warning">This is an advanced section. Proceed with caution when editing.</h4>
+
+<div class="tab-content">
+  <ul style="font-size:130%" class="nav nav-tabs">
+    <li [% IF tab == 'vlan-filters' %]class="active"[% END %]>
+      <a href="#config/filters/vlan-filters">[% l('VLAN filters') %]</a>
+    </li>
+    <li [% IF tab == 'radius-filters' %]class="active"[% END %]>
+      <a href="#config/filters/radius-filters">[% l('RADIUS filters') %]</a>
+    </li>
+    <li [% IF tab == 'apache-filters' %]class="active"[% END %]>
+      <a href="#config/filters/apache-filters">[% l('Apache filters') %]</a>
+    </li>
+    <li [% IF tab == 'dhcp-filters' %]class="active"[% END %]>
+      <a href="#config/filters/dhcp-filters">[% l('DHCP filters') %]</a>
+    </li>
+  </ul>
+
+  [%- IF can_access("FILTERS_UPDATE") %]
+    <div class="tab-pane fade in active" id="[% tab %]">
+      <form method="POST" id="filtersForm" action="[% c.uri_for(c.controller.action_for('update'), [ tab ]) %]">
+      <div id="editor" style="position:relative;height:450px;">[% content %]</div>
+      <script>filtersView.setupEditor()</script>
+      <div class="form-actions">
+        <input type="submit" class="btn btn-primary disabled" value="Save">
+        <a class="btn btn-danger disabled" id="filtersRevert"><i class="icon-refresh"></i> Revert Changes</a>
+      </div>
+      </form>
+    </div>
+  [% END %]
+</div>
+

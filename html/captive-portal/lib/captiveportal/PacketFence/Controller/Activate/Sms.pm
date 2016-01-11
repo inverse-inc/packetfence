@@ -1,7 +1,6 @@
 package captiveportal::PacketFence::Controller::Activate::Sms;
 use Moose;
 use namespace::autoclean;
-use Log::Log4perl;
 use POSIX;
 use URI::Escape::XS qw(uri_escape);
 
@@ -47,19 +46,21 @@ sub index : Path : Args(0) {
     my $portalSession = $c->portalSession;
     if ( $request->param("pin") ) {
         $logger->info("Entering guest authentication by SMS");
-        my ( $auth_return, $err ) = $self->sms_validation($c);
+        my $profile = $c->profile;
+        my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
+        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+
+        my ( $auth_return, $err, $activation_record ) = $self->sms_validation($c);
         if ( $auth_return != 1 ) {
+            pf::auth_log::change_record_status($source->id, $portalSession->clientMac, $pf::auth_log::FAILED);
             $c->stash(
                 txt_auth_error => i18n_format( $GUEST::ERRORS{$err} ) );
             utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach('showSmsConfirmation');
         }
-        my $profile = $c->profile;
         my %info;
         $logger->info("Valid PIN -- Registering user");
-        my $pid = $c->session->{"guest_pid"} || "default";
-        my $sms_type = pf::Authentication::Source::SMSSource->getDefaultOfType();
-        my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+        my $pid = $activation_record->{pid} || "default";
         my $auth_params = { 'username' => $pid, 'user_email' => $pid };
 
         if ($source) {
@@ -68,7 +69,9 @@ sub index : Path : Args(0) {
             $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
             $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
 
+            pf::auth_log::record_completed_guest($source->id, $portalSession->clientMac, $pf::auth_log::COMPLETED);
             $c->session->{"username"} = $pid;
+            $c->session->{"unregdate"} = $info{'unregdate'};
             $c->session->{source_id} = $source->{id};
             $c->session->{source_match} = undef;
             $c->stash->{info}=\%info;
@@ -126,8 +129,8 @@ sub sms_validation {
             utf8::decode($c->stash->{'txt_auth_error'});
             $c->detach(Signup => 'index');
         }
-        if (pf::activation::validate_code($pin)) {
-            return ($TRUE, 0);
+        if (my $record = pf::activation::validate_code($pin)) {
+            return ($TRUE, 0, $record);
         }
         else {
             return ($FALSE, $GUEST::ERROR_INVALID_PIN);
@@ -145,7 +148,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

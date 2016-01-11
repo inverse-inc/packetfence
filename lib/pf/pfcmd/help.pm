@@ -9,7 +9,6 @@ pf::pfcmd::help - usage messages
 use strict;
 use warnings;
 use File::Basename qw(basename);
-use Log::Log4perl;
 
 BEGIN {
     use Exporter ();
@@ -153,7 +152,7 @@ Services managed by PacketFence:
   dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.webservices| Apache Webservices
-  httpd.aaa        | Apache AAA webservice 
+  httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
@@ -165,12 +164,14 @@ Services managed by PacketFence:
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
   pfmon            | PF ARP monitoring daemon
+  pfqueue          | PF queue daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
-  winbindd         | Winbind daemon
+  redis_queue      | Redis for queue
   snmptrapd        | SNMP trap receiver daemon
   snort            | Sourcefire Snort IDS
   suricata         | Suricata IDS
+  winbindd         | Winbind daemon
 
 watch
 Watch performs services checks to make sure that everything is fine. It's
@@ -709,7 +710,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

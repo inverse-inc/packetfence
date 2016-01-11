@@ -16,8 +16,9 @@ use Apache2::Connection;
 use Apache2::URI;
 
 use APR::URI;
-use Log::Log4perl;
+use pf::log;
 use URI::Escape::XS qw(uri_escape);
+use Data::UUID;
 
 use pf::config;
 use pf::util;
@@ -37,7 +38,7 @@ Intercept proxy requests to forward them to the captive portal.
 
 sub translate {
     my ($r) = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->warn("hitting interceptor with URL: " . $r->uri);
     #Fetch the captive portal URL
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
@@ -80,8 +81,8 @@ sub translate {
         #If there is a session cookie then push the remote ip in the session and redirect to the captive portal
         if ($session_cook) {
             my (%session_id);
-            pf::web::util::session(\%session_id,$session_cook);
-            $session_id{remote_ip} = $r->connection->remote_ip;
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
+            $chi->set($session_cook,{remote_ip => $r->connection->remote_ip});
             my $uri = $parsed_portal->unparse;
             $logger->trace("http request redirect to captive portal, we have the cookie");
             $r->err_headers_out->set('Location' => $uri);
@@ -122,7 +123,7 @@ Rewrite Location header to Packetfence captive portal.
 sub rewrite {
     my $f = shift;
     my $r = $f->r;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if ($r->content_type =~ /text\/html(.*)/) {
         unless ($f->ctx) {
             my @valhead = $r->headers_out->get('Location');
@@ -163,7 +164,7 @@ Last Handler and last chance to do something in the request
 
 sub fixup {
     my $r = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     if($r->pnotes('url_to_mod_proxy')){
         return proxy_redirect($r, $r->pnotes('url_to_mod_proxy'));
     }
@@ -177,7 +178,7 @@ Mod_proxy redirect
 
 sub proxy_redirect {
         my ($r, $url) = @_;
-        my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+        my $logger = get_logger();
         $r->set_handlers(PerlResponseHandler => []);
         $r->filename("proxy:".$url);
         $r->proxyreq(2);
@@ -194,7 +195,7 @@ Reverse proxy TransHandler
 
 sub reverse {
     my $r = shift;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("Reverse proxy :".$r->uri);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
@@ -204,12 +205,12 @@ sub reverse {
     $parsed_portal->scheme('http');
     my $session_cook = pf::web::util::getcookie($r->headers_in->{Cookie});
 
-    #If session cookie exist then we can set X-Forwarded-For and proxy to the captive portal
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
     if ($session_cook) {
-        my (%session_id);
-        pf::web::util::session(\%session_id,$session_cook);
-        if ($session_id{remote_ip}) {
-            $r->headers_in->set('X-Forwarded-For' => $session_id{remote_ip});
+        #If session cookie exist then we can set X-Forwarded-For and proxy to the captive portal
+        my $session = $chi->get($session_cook);
+        if ($session && $session->{remote_ip}) {
+            $r->headers_in->set('X-Forwarded-For' => $session->{remote_ip});
             $r->headers_in->set('Host' => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'});
             my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
             $parsed_portal->scheme('https');
@@ -218,7 +219,7 @@ sub reverse {
         }
         #Cookie is invalid delete it
         else {
-            $r->err_headers_out->add('Set-Cookie' => "packetfence=".$session_id{_session_id}."; expires=Thu, 01-Jan-70 00:00:01 GMT; domain=".$parsed_portal->hostname."; path=/");
+            $r->err_headers_out->add('Set-Cookie' => "packetfence=$session_cook; expires=Thu, 01-Jan-70 00:00:01 GMT; domain=".$parsed_portal->hostname."; path=/");
             $r->err_headers_out->set('Location' => $parsed_portal->unparse);
             $r->content_type('text/html');
             $r->no_cache(1);
@@ -226,11 +227,11 @@ sub reverse {
         }
 
     }
-    #No session, create one and redirect to http portal to catch the remote ip
     else {
-        my (%session_id);
-        pf::web::util::session(\%session_id);
-        $r->err_headers_out->add('Set-Cookie' => "packetfence=".$session_id{_session_id}."; domain=".$parsed_portal->hostname."; path=/");
+        #No session, create one and redirect to http portal to catch the remote ip
+        my $ug = Data::UUID->new;
+        my $session_id = $ug->create_str();
+        $r->err_headers_out->add('Set-Cookie' => "packetfence=$session_id; domain=".$parsed_portal->hostname."; path=/");
         $r->err_headers_out->set('Location' => $parsed_portal->unparse);
         $r->content_type('text/html');
         $r->no_cache(1);
@@ -245,7 +246,7 @@ sub reverse {
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 This program is free software; you can redistribute it and/or

@@ -52,6 +52,12 @@ do_start()
 	then
 		mkdir $PIDDIR
 	fi
+
+	if [ -f /usr/local/pf/var/run/pfconfig.pid ] &&  ps -p $(cat /usr/local/pf/var/run/pfconfig.pid) > /dev/null; then
+		echo "Already running"
+		return 1;
+	fi
+
 	chown $USER:$GROUP $PIDDIR
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --test --chuid $USER > /dev/null || return 1
 	start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON --chuid $USER -- $DAEMON_ARGS > /dev/null || return 2

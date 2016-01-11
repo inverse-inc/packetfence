@@ -23,6 +23,8 @@ extends 'pf::pki_provider';
 
 use pf::log;
 
+sub module_description { 'PacketFence PKI' }
+
 =head2 host
 
 The host of the packetfence_pki pki service
@@ -71,33 +73,9 @@ The profile to use for the packetfence_pki pki service
 
 has profile => ( is => 'rw' );
 
-=head2 country
-
-What country to use for the certificate
-
-=cut
-
-has country => ( is => 'rw' );
-
-=head2 state
-
-What state to use for the certificate
-
-=cut
-
-has state => ( is => 'rw' );
-
-=head2 organisation
-
-What organisation to use for the certificate
-
-=cut
-
-has organisation => ( is => 'rw' );
-
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     $uri = $self->proto."://".$self->host.":".$self->port.$uri;
 
@@ -130,19 +108,19 @@ sub _post_curl {
 
 }
 
-=head2 get_cert
+=head2 get_bundle
 
-Get the certificate from the packetfence_pki pki service
+Get the certificate bundle from the packetfence_pki pki service
 
 =cut
 
-sub get_cert {
+sub get_bundle {
     my ($self,$args) = @_;
     my $logger = get_logger();
 
     my $email = $args->{'certificate_email'};
     my $cn = $args->{'certificate_cn'};
-    my $organisation = $self->organisation;
+    my $organisation = $self->organization;
     my $state = $self->state;
     my $profile = $self->profile;
     my $country = $self->country;
@@ -179,9 +157,9 @@ Revoke the certificate for a user
 
 sub revoke {
     my ($self, $cn) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $uri = "/pki/cert/rest/revoke/".$cn."/";
-    my $post_fields = 
+    my $post_fields =
       "CRLReason=" . uri_escape("superseded");
 
     my ($curl_return_code, $response_code, $response_body, $curl) = $self->_post_curl($uri, $post_fields);
@@ -204,7 +182,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

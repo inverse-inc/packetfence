@@ -29,6 +29,14 @@ has_field 'id' =>
    messages => { required => 'Please specify an identifier for the rule.' },
    apply => [ { check => qr/^\S+$/, message => 'The name must not contain spaces.' } ],
   );
+has_field 'class' =>
+  (
+  type => 'Select',
+  label => 'Class',
+  localize_labels => 1,
+  options_method => \&options_rule_classes,
+  default => 'auth',
+  );
 has_field 'description' =>
   (
    type => 'Text',
@@ -270,6 +278,27 @@ sub options_connection {
       ];
 }
 
+=head2 options_rule_classes
+
+Populate the 'class' field of a rule based on the available rule classes for a specific authentication source.
+
+=cut
+
+sub options_rule_classes {
+    my $self = shift;
+
+    my $classname = 'pf::Authentication::Source::' . $self->form->source_type . 'Source';
+    eval "require $classname";
+    $self->form->ctx->log->error($@) if $@;
+
+    my @options;
+    foreach ( @{$classname->available_rule_classes} ) {
+        push( @options, { value => $_, label => $_ } );
+    }
+
+    return \@options;
+}
+
 =head2 operators
 
 Return the appropriate operators for the condition type select field.
@@ -339,11 +368,18 @@ sub validate {
         # See pf::Authentication::Source->match
         $self->field('match')->value($Rules::ALL);
     }
+
+    foreach my $action ( @{$self->value->{actions}} ) {
+        my $rule_class_for_action = pf::Authentication::Action->getRuleClassForAction($action->{type});
+        if ( $rule_class_for_action ne $self->value->{class} ) {
+            $self->field('actions')->add_error('Incompatible actions \'' . $action->{type} . '\' for specified rule class \'' . $self->value->{class} . '\' which should be \'' . $rule_class_for_action . '\'');
+        }
+    }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

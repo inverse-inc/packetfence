@@ -85,7 +85,25 @@ services that this service needs in order to start
 
 =cut
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(memcached httpd.admin)] } );
+has dependsOnServices => (is => 'ro', default => sub { [qw( httpd.admin)] } );
+
+=head2 orderIndex
+
+Value to use when sorting services for the start or stop order.
+Lower values start first and are stopped last.
+
+=cut
+
+has orderIndex => ( is => 'ro', builder => 1, lazy => 1 );
+
+sub _build_orderIndex { 
+    my ($self) = @_;
+    require pf::config;
+    my $name = $self->name;
+    $name =~ s/\./_/g ; 
+    my $index = $pf::config::Config{'services'}{"${name}_order"} // 100 ;
+    return $index;
+}
 
 =head2 executable
 
@@ -144,7 +162,8 @@ builds the inotify object
 =cut
 
 sub _build_inotify {
-    return Linux::Inotify2->new;
+    my $inotify = Linux::Inotify2->new or die "unable to setup inotify object $!";
+    return $inotify;
 }
 
 =head2 start
@@ -215,7 +234,7 @@ sub postStartCleanup {
             $timedout = 1 if $@ && $@ =~ /^alarm clock restart/;
         };
         alarm 0;
-        my $logger = get_logger;
+        my $logger = get_logger();
         $logger->warn($self->name . " timed out trying to start" ) if $timedout;
     }
     return -e $pidFile;
@@ -472,7 +491,7 @@ get the pid from the pid file
 sub pidFromFile {
     my ($self) = @_;
     my $name = $self->name;
-    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $logger = get_logger();
     my $pid;
     my $pid_file = $self->pidFile;
     if (-e $pid_file) {
@@ -497,7 +516,7 @@ removes the stale PID file
 sub removeStalePid {
     my ($self,$quick) = @_;
     return if $quick;
-    my $logger = get_logger;
+    my $logger = get_logger();
     my $pid = $self->pidFromFile;
     my $pidFile = $self->pidFile;
     $pidFile = untaint_chain($pidFile);
@@ -549,7 +568,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

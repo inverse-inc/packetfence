@@ -15,13 +15,12 @@ This module extends pf::inline
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use base ('pf::inline');
 use pf::config;
 use pf::iptables;
 use pf::node qw(node_attributes);
-use pf::violation qw(violation_count_trap);
+use pf::violation qw(violation_count_reevaluate_access);
 
 our $VERSION = 1.01;
 
@@ -39,7 +38,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -15,11 +15,7 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use CHI::Driver::Memcached;
-use CHI::Driver::RawMemory;
-use CHI::Driver::File;
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
-use Cache::Memcached;
 use Clone();
 use pf::file_paths;
 use pf::IniFiles;
@@ -30,6 +26,7 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
+use Redis::Fast;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -65,9 +62,12 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch);
 
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
+our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
+
+our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config) or die "Cannot open $chi_config_file";
+
 our %DEFAULT_CONFIG = (
     'namespace' => {
         map { $_ => { 'storage' => $_ } } @CACHE_NAMESPACES
@@ -79,10 +79,14 @@ our %DEFAULT_CONFIG = (
             'global' => '1',
             'driver' => 'RawMemory'
         },
-        'memcached' => {
-            driver => 'Memcached',
-            servers => ['127.0.0.1:11211'],
+        'redis' => {
+            driver => 'Redis',
             compress_threshold => 10000,
+            server => '127.0.0.1:6379',
+            redis_class => 'Redis::Fast',
+            prefix => 'pf',
+            expires_on_backend => 1,
+            reconnect => 60,
         },
         'file' => {
             driver => 'File',
@@ -91,13 +95,7 @@ our %DEFAULT_CONFIG = (
     }
 );
 
-our %DEFAULT_STORAGE = (
-    driver => 'File',
-    root_dir => "$var_dir/cache",
-    l1_cache => {
-        storage => 'memcached',
-    },
-);
+our %DEFAULT_STORAGE = %{$DEFAULT_CONFIG{storage}{redis}};
 
 sub chiConfigFromIniFile {
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
@@ -121,9 +119,7 @@ sub chiConfigFromIniFile {
             my $value =  listify($storage->{$param});
             $storage->{$param} = [ map { split /\s*,\s*/, $_ } @$value ];
         }
-        if ( exists $storage->{traits} ) {
-            $storage->{param_name} = $storage->{traits};
-        }
+        push @{$storage->{traits}}, '+pf::Role::CHI::Driver::ComputeWithUndef';
     }
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
@@ -197,7 +193,6 @@ sub sectionData {
 
 sub CLONE {
     pf::CHI->clear_memoized_cache_objects;
-    Cache::Memcached->disconnect_all;
 }
 
 sub preload_chi_drivers {
@@ -228,7 +223,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

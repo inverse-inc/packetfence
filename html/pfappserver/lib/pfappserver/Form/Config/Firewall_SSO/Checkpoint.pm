@@ -33,7 +33,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Secret',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the radius shared secret' },
   );
 has_field 'port' =>
@@ -69,7 +68,7 @@ has_field 'uid' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port uid categories) ],
+   render_list => [ qw(id type password port uid categories cache_updates cache_timeout) ],
   );
 
 =head2 Methods
@@ -109,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

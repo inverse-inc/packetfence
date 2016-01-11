@@ -9,7 +9,6 @@ pf::pfcmd::graph - module feeding data to generate the graphics
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use constant GRAPH => 'pfcmd::graph';
 
@@ -251,7 +250,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

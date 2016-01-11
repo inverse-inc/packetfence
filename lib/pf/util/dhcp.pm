@@ -65,7 +65,7 @@ Readonly my %MESSAGE_TYPE_TO_STRING => reverse %MESSAGE_TYPE;
 
 =item decompose_dhcp
 
-Parses a raw Ethernet frame and decompose it into layers and 
+Parses a raw Ethernet frame and decompose it into layers and
 returns every layer as objects (l2, l3, l4) or hashref (dhcp).
 
 =cut
@@ -95,7 +95,7 @@ sub decode_dhcp {
 
     # DHCP data (order _is_ important)
     my @keys = (
-        'op', 'htype', 'hlen', 'hops', 'xid', 'secs', 'dflags', 
+        'op', 'htype', 'hlen', 'hops', 'xid', 'secs', 'dflags',
         'ciaddr', 'yiaddr', 'siaddr', 'giaddr', 'chaddr', 'sname', 'file'
     );
 
@@ -179,9 +179,9 @@ sub decode_dhcp_options {
     # pack in scalar strings ascii options
     foreach my $option (@ascii_options) {
         if ( exists( $dhcp_ref->{'options'}->{$option} ) ) {
-            $dhcp_ref->{'options'}->{$option} = join( "", @{ $dhcp_ref->{'options'}->{$option} } ); 
+            $dhcp_ref->{'options'}->{$option} = join( "", @{ $dhcp_ref->{'options'}->{$option} } );
         }
-    } 
+    }
 
     # pack IPv4 in dotted notation
     foreach my $option (@ipv4_options) {
@@ -270,7 +270,7 @@ sub _decode_dhcp_option82 {
     }
 
     # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
-    $dhcp_ref->{'options'}{'82'} = { 
+    $dhcp_ref->{'options'}{'82'} = {
         '_raw' => $dhcp_ref->{'options'}{'82'},
         '_subopts' => \%sub_opt_82,
     };
@@ -299,12 +299,12 @@ create the pcap filter from the supported DHCP Messages Type
 sub make_pcap_filter {
     my (@types) = @_;
     #listen to all if no types are provided
-    return "udp and (port 67 or port 68 or port 767)" unless @types;
+    return "udp and (port 67 or port 68 or port 546 or port 547 or port 767)" unless @types;
     for my $type (@types) {
        die "Unknown message type $type" unless exists $MESSAGE_TYPE{$type} && defined $MESSAGE_TYPE{$type};
     }
     my $type_filter = join(" or ",map { sprintf("(udp[250:1] = 0x%x)",$MESSAGE_TYPE{$_}) } @types);
-    return "(port 67 or port 68 or port 767) and ( $type_filter )";
+    return "((port 67 or port 68 or port 767) and ( $type_filter )) or (port 546 or port 547)";
 }
 
 
@@ -316,7 +316,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

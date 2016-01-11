@@ -29,7 +29,7 @@ has_field 'port' =>
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
   );
-has_field 'connection_timeout' => 
+has_field 'connection_timeout' =>
   (
     type         => 'PosInteger',
     label        => 'Connection timeout',
@@ -43,7 +43,7 @@ has_field 'encryption' =>
   (
    type => 'Select',
    label => 'Encryption',
-   options => 
+   options =>
    [
     { value => 'none', label => 'None' },
     { value => 'ssl', label => 'SSL' },
@@ -91,7 +91,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Password',
    trim => undef,
-   password => 0,
   );
 has_field 'stripped_user_name' =>
   (
@@ -135,7 +134,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

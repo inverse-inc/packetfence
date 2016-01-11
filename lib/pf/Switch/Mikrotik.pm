@@ -18,7 +18,6 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SSH2;
 use POSIX;
 use Try::Tiny;
@@ -52,14 +51,14 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.4.1.14988.1.1.4.4.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
     return $sysDescr;
 }
@@ -71,8 +70,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SSH;
     my %tech = (
         $SNMP::SSH    => 'deauthenticateMacSSH',
@@ -96,7 +95,7 @@ This method has been kept since we will probably use this deauth method in the f
 
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -121,7 +120,7 @@ Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     # initialize
     $add_attributes_ref = {} if (!defined($add_attributes_ref));
@@ -152,7 +151,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $management_network->tag('vip'),
+            LocalAddr => $self->deauth_source_ip(),
         };
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -197,37 +196,30 @@ ATTRIBUTE       Mikrotik-Wireless-VlanIDType            27      integer
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    my $radius_reply_ref = {};
+    my $status;
+
+    # should this node be kicked out?
+    my $kick = $self->handleRadiusDeny($args);
+    return $kick if (defined($kick));
 
     # Inline Vs. VLAN enforcement
-    my $radius_reply_ref = {};
     my $role = "";
-    if ( (!$wasInline || ($wasInline && $vlan != 0) ) && isenabled($self->{_VlanMap})) {
+    if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         $radius_reply_ref = {
-            'Mikrotik-Wireless-VlanID' => $vlan,
+            'Mikrotik-Wireless-VlanID' => $args->{'vlan'},
             'Mikrotik-Wireless-VlanIDType' => "0",
         };
     }
 
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-        $logger->debug("[$mac] Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        if ( defined($user_role) && $user_role ne "" ) {
-            $role = $self->getRoleByName($user_role);
-        }
-        if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
-            $logger->info(
-                "[$mac] (".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
-            );
-        }
-        else {
-            $logger->debug("[$mac] (".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
-        }
-    }
-
-    $logger->info("[$mac] (".$self->{'_id'}.") Returning ACCEPT with VLAN $vlan and role $role");
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} and role $role");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
 }
 
 =item deauthenticateMacSSH
@@ -240,7 +232,7 @@ Right now the only way to do it is from the CLI (through SSH).
 
 sub deauthenticateMacSSH {
     my ( $self, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't deauthenticate $mac");
@@ -294,7 +286,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

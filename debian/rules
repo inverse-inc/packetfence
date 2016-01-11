@@ -51,7 +51,7 @@ install: build
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' ! -path 'conf/pfconfig.conf*' ! -type d`; do \
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * -path 't*' -type d`; do \
@@ -84,6 +84,7 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/redis_queue
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
@@ -94,6 +95,9 @@ install: build
 	#Configurator integration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
+	#Sudoer
+	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
+	install -oroot -groot -m0440 packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
 	#PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
@@ -111,11 +115,22 @@ install: build
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
+	# ntlm-wrapper
+	install -d -m0755 $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
+	make bin/ntlm_auth_wrapper
+	mv bin/ntlm_auth_wrapper $(CURDIR)/debian/packetfence-ntlm-wrapper$(PREFIX)/$(NAME)/bin
+	# packetfence-config
 	install -d $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/var/cache/pfconfig
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf
+	# packetfence-redis-cache
+	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/etc/init.d
+	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf
+	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/logs
+	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
+	install -m0600 conf/redis_cache.conf $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	#Create our dhcpd.leases
 	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
@@ -142,9 +157,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installinfo
 	dh_installman
-	dh_link /usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
-			/usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
-			/usr/local/pf/raddb/sites-available/inner-tunnel /usr/local/pf/raddb/sites-enabled/inner-tunnel \
+	dh_link /usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
 			/usr/local/pf/raddb/sites-available/packetfence-soh /usr/local/pf/raddb/sites-enabled/packetfence-soh \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank

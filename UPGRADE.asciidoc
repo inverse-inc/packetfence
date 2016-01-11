@@ -5,13 +5,30 @@ http://www.packetfence.org/
 
 Upgrade procedure
 -----------------
+
+It is recommended that you stop the currently running PacketFence services before proceeding any further.
+To do so, run the following commands:
+
+  service packetfence stop
+  service packetfence-config stop
+
 For RedHat-based systems, run the following command:
 
   yum update packetfence --enablerepo=packetfence
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
-Once the additionnal steps are completed, make sure you restart packetfence-config and packetfence
+You should take care to review any changes to configuration files and merge them if required. 
+To find out which configuration files have changed run this command:
+
+RHEL and CentOS:
+  find /usr/local/pf -name \*.rpmnew
+
+The list of files returned are the new versions shipped with PacketFence.
+Compare them to your existing version and see if there are changes that should be merged into your existing configuration.
+Then, once you are done make sure to delete these files so that there is no confusion the next time you upgrade PacketFence.
+
+Once the additionnal steps are completed, restart packetfence-config and packetfence
 
   service packetfence-config restart
   service packetfence restart
@@ -30,17 +47,234 @@ If your database is more than a few hundred megabytes, you may also want to cons
 Taking a complete backup of your current installation is strongly recommended. 
 You can take a backup of the pf directory with the following command:
 
-  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs'
+  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
 
 Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+
+With the changes made to RADIUS in the version 5.5, you will need to remove the following files if they are present on your setup.
+
+  /usr/local/pf/raddb/sites-enabled/inner-tunnel
+  /usr/local/pf/raddb/sites-enabled/default
+
 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+
+VLAN filters changes
+^^^^^^^^^^^^^^^^^^^^
+
+The scopes for the VLAN filters have changed.
+The following have been renamed according to these rules:
+
+NormalVlan          -> RegisteredRole
+RegistrationVlan    -> RegistrationRole 
+ViolationVlan       -> ViolationRole
+InlineVlan          -> InlineRole
+
+If you have defined any filters in /usr/local/pf/conf/vlan_filters.conf, make sure to rename all references to the left hand side with the new names on the right hand side.
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+
+
+Upgrading from a version prior to 5.5.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.4.0-5.5.0.sql
+
+VLAN Filter configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The VLAN filter has been reworked to use a more generalized syntax to allow more complex filters to be created.
+
+This mean nested conditions no longer need to specify the attribute in the condition.
+
+So the following attribute
+
+   [condition]
+   filter=node_info
+   attribute=category
+   operator=is
+   value=default
+
+Should be rewritten as
+
+   [condition]
+   filter=node_info.category
+   operator=is
+   value=default
+
+The older syntax is still supported but will be deprecated in a future release.
+
+The operators match and match_not has changed thier behavior.
+They will match (or not match) the exact string given in the condition.
+The following condition
+
+  [condition]
+  filter=node_info.computername
+  operator=match
+  value=^Bob
+
+Will match node_info.computername only if it contians '^Bob'.
+It will not match if node_info.computername start with 'Bob'
+
+If you need to use a regex then use the regex/regex_not operator.
+So the following condition should be changed from
+
+  [condition]
+  filter=node_info.mac
+  operator=match
+  value=^00:
+
+To the following
+
+  [condition]
+  filter=node_info.mac
+  operator=regex
+  value=^00:
+
+pf.conf configuration file changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following parameters have been removed from pf.conf. Make sure to remove them from your file if configured.
+
+* alerting.wins_server
+* alerting.admin_netbiosname
+
+violations.conf configuration file changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Violations have been reworked and configuration changes are necessary in order to maintain functionnality.
+
+In violations.conf the following actions have been renamed, please update them accordingly.
+
+* trap -> reevaluate_access
+* email -> email_admin
+
+The following action have been removed from the violations :
+
+* popup
+
+Also in violations.conf, the parameter whitelisted_categories has been renamed into whitelisted_roles
+
+Billing configuration change
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameter `billing_engine` of the Portal Profiles has been deprecated.
+Remove it from all your profiles configuration in `/usr/local/pf/conf/profiles.conf`.
+
+The billing engine of PacketFence has been reworked completely.
+
+It will require to reconfigure existing billing providers from scratch as there is no retro-compatibility with the previous configuration.
+
+Please see the Administration Guide for details on how to configure the billing engine.
+
+Mod_qos configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Mod_qos configuration has been moved from "services" to "captive_portal" section.
+Make sure to apply the appropriate changes if needed.
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.5.0).
+
+Upgrading from a version prior to 5.4.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.3.0-5.4.0.sql
+
+Authentication sources rules rework
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Authentication sources rules have been reworked in a way to differentiate an 'authentication' rule and an 'administration' rule. Codewise, that means that codeflow will look into specific types of rules depending of the use case.
+
+Please take a minute or two to go through the existing rules for each of the authentication sources and make sure there is no 'administration' class actions into an 'authentication' class rule and vice versa, otherwise the "invalid" action will be ignored.
+
+Authentication sources rules structure is as follow:
+
+* 'authentication' rule class available actions:
+** Set role (set_role)
+** Set access duration (set_access_duration)
+** Set unregistration date (set_unreg_date)
+* 'administration' rule class available actions:
+** Set access level of Web admin (set_access_level)
+** Mark as sponsor (mark_as_sponsor)
+
+For example, if an existing rule is as follow:
+
+* Name: AllAdmins
+* Class: No class defined since the class attribute is new
+* Conditions: ...
+* Actions:
+** Set access level of Web admin -> ALL
+** Set role -> default
+** Set access duration -> 24H
+
+That existing rule will default to the 'authentication' class if none is being set. 
+If that's the case, the first action "Set access level of Web admin" will then be ignored.
+
+To replicate that existing rule with the new classes, you would have to create two separate rules, as follow:
+
+Rule for 'administration' purposes
+
+* Name: AllAdmins_admin 
+* Class: administration
+* Conditions: ...
+* Actions:
+** Set access level of Web admin -> ALL
+
+Rule for 'authentication' purposes
+
+* Name: AllAdmins_auth
+* Class: authentication
+* Conditions: ...
+* Actions:
+** Set role -> default
+** Set access duration -> 24H
+
+Configuration will be validated on every start / restart so that "bogus" authentication sources / rules can be identified.
+
+
+OAuth2 authentication sources changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Facebook API now requires to specify the fields to be defined in the query.
+In all your facebook sources, change the parameter protected_resource_url to https://graph.facebook.com/me?fields=id,name,email,first_name,last_name
+
+Change the parameter scope to user,user:email in all your Github sources as PacketFence is now fetching the email address of the user when registering with Github.
+
+StatsD configuration changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+monitoring.statsd_host and monitoring.statsd_port have been removed from pf.conf. 
+If you have specified a specific host or port, remove them from your configuration and change them in /usr/local/pf/lib/pf/StatsD.pm
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.4.0).
 
 Upgrading from a version prior to 5.3.0
 ---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Changes have been made to the database schema. You will need to update it accordingly.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.2.0-5.3.0.sql
 
 Debian and Ubuntu
 ^^^^^^^^^^^^^^^^^
@@ -58,16 +292,6 @@ Run the following commands:
   # dpkg -r --ignore-depends=packetfence   libhtml-formhandler-perl
   # apt-get install  libhtml-formhandler-perl  libtemplate-autofilter-perl  libmoo-perl 
   # apt-get install packetfence packetfence-config packetfence-pfcmd-suid libdist-checkconflicts-perl libimport-into-perl 
-
-
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
-
-Changes have been made to the database schema. You will need to update it accordingly.
-
-Make sure you run the following to update your schema:
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.2.0-5.3.0.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.3.0).
 
@@ -99,7 +323,7 @@ db_host=127.0.0.1
 New 'portal' interface type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you are using web-auth enforcement (external captive-portal), you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
+If you are using email registration, web-auth enforcement (external captive-portal), device registration feature, or anything that would require to access the captive portal from outside the registration/isolation VLANs, you might want (actually, you need otherwise it will no longer works!) to add the 'portal' type to the existing 'management' interface.
 
 In `conf/pf.conf` :
 
@@ -159,6 +383,24 @@ You can take a backup of the pf directory with the following command:
 
 A backup of the database can be taken using the procedure described in the next section.
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Before making any changes to your database, ensure that you have a backup.
+A complete database backup can be taken using this command:
+
+  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
+
+If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+
+
+Multiple changes have been made to the database schema. You will need to update it accordingly.
+Since we will be dropping and recreating the 'iplog' table it is essential that you have a backup if you need the data it contains.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.7.0-5.0.0.sql
+
 Configuration changes
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -199,25 +441,6 @@ Using EAP local authentication
 
 If you are using EAP MS-CHAP local authentication, meaning your 802.1x connections authenticate against your local database, you will need to make sure you deactivate password encryption in the database.
 In the administration interface, go in 'Configuration -> Advanced' and set 'Database passwords hashing method' to `plaintext`
-
-
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
-
-Before making any changes to your database, ensure that you have a backup.
-A complete database backup can be taken using this command:
-
-  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
-
-If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
-
-
-Multiple changes have been made to the database schema. You will need to update it accordingly.
-Since we will be dropping and recreating the 'iplog' table it is essential that you have a backup if you need the data it contains.
-
-Make sure you run the following to update your schema:
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-4.7.0-5.0.0.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.0.0).
 
@@ -260,6 +483,8 @@ Realm configuration
 Realm are now managed by Freeradius server so if your users authenticate with a username like username@acme.com then add the realm acme.com
 in the Radius Realms configuration menu and in your Active Directory source select 'Use stripped username'.
 
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.6.0).
+
 Upgrading from a version prior to 4.5.0
 ---------------------------------------
 
@@ -278,6 +503,8 @@ Violation configuration
 A new parameter 'delay_by' has been introduced in the violation configuration. Make sure to add the following to the 'defaults' section of 'conf/violations.conf' to avoid any problem.
 
 delay_by=0s
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.5.0).
 
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
@@ -298,6 +525,8 @@ The serialization of the objects in the cache changed, making all the previous c
 With PacketFence completely stopped do :
 
   rm -fr /usr/local/pf/var/cache/*
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.4.0).
 
 Upgrading from a version prior to 4.3.0
 ---------------------------------------

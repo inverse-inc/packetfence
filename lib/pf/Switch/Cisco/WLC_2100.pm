@@ -37,7 +37,6 @@ Requires IOS 5 or later.
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::Appliance::Session;
 use Net::SNMP;
 
@@ -81,8 +80,8 @@ Warning: this code doesn't support elevating to privileged mode. See #900 and #1
 =cut
 
 sub _deauthenticateMacSNMP {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
 
     $mac = format_mac_as_cisco($mac);
     if ( !defined($mac) ) {
@@ -94,27 +93,27 @@ sub _deauthenticateMacSNMP {
     my $session;
     eval {
         $session = Net::Appliance::Session->new(
-            Host      => $this->{_ip},
+            Host      => $self->{_ip},
             Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Transport => $self->{_cliTransport}
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
         # Session not already privileged are not supported at this point. See #1370
-        #$session->begin_privileged( $this->{_cliEnablePwd} );
+        #$session->begin_privileged( $self->{_cliEnablePwd} );
         $session->do_privileged_mode(0);
         $session->begin_configure();
     };
 
     if ($@) {
-        $logger->error( "ERROR: Can not connect to WLC $this->{'_ip'} using "
-                . $this->{_cliTransport} );
+        $logger->error( "ERROR: Can not connect to WLC $self->{'_ip'} using "
+                . $self->{_cliTransport} );
         return 1;
     }
 
-    #if (! $session->enable($this->{_cliEnablePwd})) {
+    #if (! $session->enable($self->{_cliEnablePwd})) {
     #    $logger->error("ERROR: Can not 'enable' telnet connection");
     #    return 1;
     #}
@@ -132,7 +131,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

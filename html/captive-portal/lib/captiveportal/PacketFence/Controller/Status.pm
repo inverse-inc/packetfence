@@ -40,7 +40,7 @@ sub index : Path : Args(0) {
     }
     $c->stash(
         template => 'status.html',
-        billing  => isenabled( $c->profile->getBillingEngine ),
+        billing  => $c->profile->hasBilling(),
     );
 }
 
@@ -114,7 +114,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -28,9 +28,8 @@ has_field 'broadcast' =>
   (
    type => 'Checkbox',
    label => 'Broadcast network',
-   value => 'true',
-   default => 'yes',
-   checkbox_value => 'Y',
+   checkbox_value => 1,
+   input_without_param => 0,
    tags => { after_element => \&help,
              help => 'Uncheck this box if you are using a hidden SSID' },
   );
@@ -134,7 +133,6 @@ sub options_eap_type {
     my $self = shift;
     my @eap_types = ["25" => "PEAP",
                      "13" => "EAP-TLS",
-                     "21" => "EAP-TTLS",
                      ""   => "No EAP",
                     ];
     return @eap_types;
@@ -152,7 +150,7 @@ sub option_security {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

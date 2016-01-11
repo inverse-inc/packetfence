@@ -18,7 +18,6 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
 
 use pf::config;
-use pf::log;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS
@@ -97,7 +96,7 @@ sub update_fields {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

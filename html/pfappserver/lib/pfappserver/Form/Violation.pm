@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use HTTP::Status qw(:constants is_success);
 
 use pf::action;
+use pf::log;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -61,6 +62,14 @@ has_field 'actions' =>
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add an action' }
   );
+has_field 'user_mail_message' =>
+  (
+   type => 'TextArea',
+   label => 'Additionnal message for the user',
+   element_class => ['input-large'],
+   tags => { after_element => \&help, 
+             help => 'A message that will be added to the e-mail sent to the user regarding this violation.' }, 
+  );
 has_field 'vclose' =>
   (
    type => 'Select',
@@ -91,7 +100,7 @@ has_field 'priority' =>
    tags => { after_element => \&help,
              help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.' },
   );
-has_field 'whitelisted_categories' =>
+has_field 'whitelisted_roles' =>
   (
    type => 'Select',
    multiple => 1,
@@ -104,13 +113,8 @@ has_field 'whitelisted_categories' =>
   );
 has_field 'trigger' =>
   (
-   type => 'Select',
-   multiple => 1,
-   label => 'Triggers',
-   element_class => ['chzn-select', 'input-xxlarge'],
-   element_attr => {'data-placeholder' => 'Click to add a trigger' },
-#   tags => { after_element => \&help,
-#             help => 'Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
+   label =>"Trigger",
+   type => 'TextArea',
   );
 has_field 'auto_enable' =>
   (
@@ -284,21 +288,6 @@ sub options_roles {
     return ('' => '', @roles);
 }
 
-=head2 options_trigger
-
-=cut
-
-sub options_trigger {
-    my $self = shift;
-
-    # $self->triggers comes from pfappserver::Model::Config::Violations->list_triggers
-    my @triggers = map {
-        my ($type, $tid) = split(/::/);
-        $_ => $self->_localize($type)."::$tid" } @{$self->form->triggers} if ($self->form->triggers);
-
-    return @triggers;
-}
-
 =head2 options_template
 
 =cut
@@ -351,7 +340,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

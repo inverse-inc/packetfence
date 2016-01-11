@@ -43,7 +43,6 @@ has_field 'password' =>
    type => 'Password',
    label => 'Password',
    required => 1,
-   password => 0,
    messages => { required => 'You must specify the password' },
   );
 
@@ -195,7 +194,7 @@ sub ACCEPT_CONTEXT {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -27,6 +27,9 @@
               [%- IF can_access("SERVICES") %]
               <li><a href="#service">[% l('Services') %]</a></li>
               [%- END %]
+              [%- IF can_access("SERVICES") %]
+              <li><a href="#pfqueue">[% l('PFQueue') %]</a></li>
+              [%- END %]
               <!-- <li class="nav-header">[% l('System') %]</li>
               <li><a href="#">[% l('Server') %]</a></li>
               <li><a href="#">[% l('Logs') %]</a></li> -->

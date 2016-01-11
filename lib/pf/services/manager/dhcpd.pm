@@ -30,7 +30,7 @@ extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 has '+name' => (default => sub { 'dhcpd' } );
 
-has '+launcher' => (default => sub { "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints) } );
+has '+launcher' => (default => sub { "sudo %1\$s -q -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints) } );
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -98,18 +98,26 @@ EOT
             }
             my $active = '0';
             my $dns ='0';
-            foreach my $interface (@listen_ints) {
-                my $cfg             = $Config{"interface $interface"};
-                my $current_network = NetAddr::IP->new($cfg->{'ip'}, $cfg->{'mask'});
-                my @active_members  = values %{pf::cluster::members_ips($interface)};
-                my $members         = join(',', @active_members);
-                if ($members) {
-                    if ($current_network->contains($ip)) {
-                        $dns = $members;
-                        $active =
-                          defined($net{next_hop})
-                          ? NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'})
-                          : NetAddr::IP::Lite->new($cfg->{'ip'},     $cfg->{'mask'});
+            if($cluster_enabled){
+                foreach my $interface ( @listen_ints ) {
+                    my $cfg = $Config{"interface $interface"};
+                    my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+                    my $members;
+                    # If we use passthroughs we only use management for DNS server as ipset sessions are not replicated
+                    if( isenabled($Config{active_active}{dns_on_vip_only}) || isenabled($Config{trapping}{passthrough}) ){
+                        $members = pf::cluster::cluster_ip($interface);
+                    }
+                    else {
+                        my @active_members = values %{pf::cluster::members_ips($interface)};
+                        $members = join(',',@active_members);
+                    }
+                    if ($members) {
+                        if ($current_network->contains($ip)) {
+                            $dns = $members;
+                        $active = defined($net{next_hop}) ?
+                                 NetAddr::IP::Lite->new($net{'next_hop'}, $cfg->{'mask'}) :
+                                 NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
+                        }
                     }
                 }
             }
@@ -124,7 +132,7 @@ EOT
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$domain";
+  option domain-name "$net{'domain-name'}";
   option domain-name-servers $dns;
   pool {
 EOT
@@ -146,7 +154,7 @@ EOT
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$domain";
+  option domain-name "$net{'domain-name'}";
   option domain-name-servers $net{'dns'};
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
@@ -179,20 +187,22 @@ Generate the omapi section if it is defined
 =cut
 
 sub omapi_section {
-    my $omapi_section = $Config{omapi};
-    return '"# OMAPI is not enabled on this server' unless pf::config::is_omapi_enabled;
-    my $section = "omapi-port $omapi_section->{port};\n";
-    my $keyname = $omapi_section->{key_name};
-    my $key_base64 = $omapi_section->{key_base64};
-    if ( $keyname && $key_base64 ) {
-        $section .=<<EOT;
-key $keyname {
-        algorithm HMAC-MD5;
-        secret "$key_base64";
+    return '# OMAPI is not enabled on this server' unless $Config{'omapi'}{'host'} eq "localhost";
+    return '# OMAPI is enabled on this server but missing configuration parameter(s)' unless pf::config::is_omapi_configured;
+
+    my $port        = $Config{'omapi'}{'port'};
+    my $key_name    = $Config{'omapi'}{'key_name'};
+    my $key_base64  = $Config{'omapi'}{'key_base64'};
+
+    my $section = <<EOT;
+# OMAPI for IP <-> MAC lookup
+omapi-port $port;
+key $key_name {
+    algorithm HMAC-MD5;
+    secret "$key_base64";
 };
-omapi-key $keyname;
+omapi-key $key_name;
 EOT
-    }
 
     return $section;
 }
@@ -233,7 +243,7 @@ sub stop {
 
 sub manageStaticRoute {
     my $add_Route = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
@@ -254,7 +264,7 @@ sub manageStaticRoute {
 
 sub isManaged {
     my ($self) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     if($cluster_enabled && !pf::cluster::should_offer_dhcp()){
         $logger->info("This server cannot offer dhcp according to pf::cluster");
         return 0;
@@ -270,7 +280,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

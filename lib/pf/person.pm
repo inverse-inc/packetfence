@@ -15,7 +15,7 @@ deletion, read info, ...
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant PERSON => 'person';
 
@@ -33,6 +33,7 @@ BEGIN {
         person_view
         person_count_all
         person_view_all
+        person_view_simple
         person_modify
         person_nodes
         person_violations
@@ -78,7 +79,7 @@ our @FIELDS = qw(
 =cut
 
 sub person_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::person database queries");
 
     $person_statements->{'person_exist_sql'} = get_db_handle()->prepare(qq[ select count(*) from person where pid=? ]);
@@ -153,6 +154,17 @@ sub person_db_prepare {
             WHERE pid = ?
             ORDER BY start_date desc ]);
 
+    $person_statements->{'person_view_simple_sql'} = get_db_handle()->prepare(
+        qq[ SELECT pid, firstname, lastname, email, telephone, company, address,
+                   notes, sponsor, anniversary, birthday, gender, lang, nickname,
+                   cell_phone, work_phone, title, building_number,
+                   apartment_number, room_number, custom_field_1, custom_field_2,
+                   custom_field_3, custom_field_4, custom_field_5, custom_field_6,
+                   custom_field_7, custom_field_8, custom_field_9, portal, source
+            FROM person
+            WHERE pid = ? ]);
+
+
     $person_db_prepared = 1;
 }
 
@@ -173,7 +185,7 @@ sub person_exist {
 sub person_delete {
     my ($pid) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     return (0) if ( $pid eq "admin" || $pid eq "default" );
 
     if ( !person_exist($pid) ) {
@@ -200,7 +212,7 @@ sub person_delete {
 #
 sub person_add {
     my ( $pid, %data ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     if ( person_exist($pid) ) {
         $logger->error("attempt to add existing person $pid");
@@ -227,9 +239,21 @@ sub person_view {
     return ($ref);
 }
 
+sub person_view_simple {
+    my ($pid) = @_;
+
+    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_simple_sql', $pid)
+        || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
 sub person_count_all {
     my ( %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $person_count_all_sql is pre-filled
     person_db_prepare() if (!$person_db_prepared);
@@ -261,7 +285,7 @@ sub person_count_all {
 
 sub person_custom_search {
     my ($sql) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $person_statements->{'person_custom_search'} = $sql;
     return db_data(PERSON, $person_statements, 'person_custom_search');
@@ -269,7 +293,7 @@ sub person_custom_search {
 
 sub person_view_all {
     my ( %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
 
     # Hack! we prepare the statement here so that $person_view_all_sql is pre-filled
     person_db_prepare() if (!$person_db_prepared);
@@ -307,7 +331,7 @@ sub person_view_all {
 sub person_modify {
     my ( $pid, %data ) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::person');
+    my $logger = get_logger();
     if ( !person_exist($pid) ) {
         if ( person_add( $pid, %data ) ) {
             $logger->warn(
@@ -359,7 +383,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
@@ -385,3 +409,4 @@ USA.
 =cut
 
 1;
+

@@ -46,71 +46,81 @@ div#buttons {
 <script type="text/javascript" src="/content/countdown.min.js"></script>
 <script type="text/javascript">
 var paused = false;
-document.observe("dom:loaded", function() {
-    [%- IF showLogin %]
-        // Don't propagate mouse clicks on disabled buttons and links
-        $$(".btn").each(function(e) {
-                e.on("click", function(event) {
-                        if (Event.element(event).hasClassName('disabled')) {
-                                Event.stop(event);
-                                return false;
-                        }
-                        return true;
-                });
-        });
 
-        // Toggle the disable state of the buttons and links when the user
-        // accepts or refuses the AUP
-        $$("input[name='aup_signed']").each(function(e) {
-                e.on("change", function(event) {
-                        var accepted = e.checked;
-                        $$(".btn").each(function(btn) {
-                                if (accepted)
-                                        btn.removeClassName('disabled');
-                                else
-                                        btn.addClassName('disabled');
-                        });
-                });
-        });
-    [% END %]
-    [%- IF node.expiration %]
-    var timerId = countdown(
-        [% node.expiration %] * 1000,
-        function(ts) {
-            var secs = Math.round(ts.value/1000);
-            if (secs >= 0) {
-                window.location = "[% URL_STATUS %]?ts=" + ts.value;
-                return;
-            }
-            if (secs > -60 || secs % 60 == 0) {
-                new Ajax.Request("[% URL_STATUS %]?ts=" + ts.value, {
-                    onComplete: function(response) {
-                        if (200 == response.status) {
-                            if (paused) {
-                                window.location = "[% URL_STATUS %]?ts=" + ts.value;
-                                return;
-                            }
-                            $("expiration").update(ts.toString());
-                        }
-                        else {
-                            paused = true;
-                            $("expiration").up().hide();
-                            $("pause").show();
-                        }
-                    }
-                });
-            }
-        },
-        countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 2);
-    [%- ELSIF node.time_balance %]
-    $("timeleft").update(countdown(new Date().getTime() + [% node.time_balance %] * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString());
-    [%- END %]
-    $("popup").down("a").on("click", function(event) {
-        Event.stop(event);
-        var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
-        if (window.focus) { newwindow.focus() }
-        return false;
+$(document).ready(function() {
+  [%- IF showLogin %]
+  // Don't propagate mouse clicks on disabled buttons and links
+  $('.btn').on('click', function(event) {
+    if ($(this).hasClass('disabled')) {
+      event.stopPropagation();
+      return false;
+    }
+  });
+
+  // Toggle the disable state of the buttons and links when the user
+  // accepts or refuses the AUP
+  $("input[name='aup_signed']").each(function() {
+    $(this).on('change', function(event) {
+      var accepted = this.checked;
+      $('.btn').each(function() {
+        if (accepted)
+          $(this).removeClass('disabled');
+        else
+          $(this).addClass('disabled');
+      });
     });
+  });
+  [% END %]
+
+  [%- IF node.expiration %]
+  // Initialization of the countdown
+  $("#expiration").html(countdown([% node.expiration %] * 1000,
+                                  null,
+                                  countdown.DAYS|countdown.HOURS|countdown.MINUTES,
+                                  2).toString());
+  // Timer to update the countdown
+  var timerId = countdown(
+    [% node.expiration %] * 1000,
+    function(ts) {
+      var secs = Math.round(ts.value/1000);
+      if (secs >= 0) {
+        // No more time
+        window.location = "[% URL_STATUS %]?ts=" + ts.value;
+        return;
+      }
+      if (secs > -60 || secs % 60 == 0) {
+        // Countdown bellow 1 minute or on a minute; verify network access
+        $.ajax({
+          url: "[% URL_STATUS %]?ts=" + ts.value,
+        })
+        .done(function() {
+          if (paused) {
+            window.location = "[% URL_STATUS %]?ts=" + ts.value;
+            return;
+          }
+          $("#expiration").html(ts.toString());
+        })
+        .fail(function() {
+          paused = true;
+          $("#expiration").parent().hide();
+          $("#pause").show();
+        });
+      }
+    },
+    countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS,
+    2);
+  [%- ELSIF node.time_balance %]
+  $("#timeleft").html(countdown(new Date().getTime() + [% node.time_balance %] * 1000,
+                                null,
+                                countdown.DAYS|countdown.HOURS|countdown.MINUTES,
+                                2).toString());
+  [%- END %]
+  $('#popup a[target="_new"]').on("click", function(event) {
+    event.stopPropagation();
+    var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
+    if (window.focus) { newwindow.focus() }
+    return false;
+  });
 });
 </script>
 
@@ -134,9 +144,6 @@ document.observe("dom:loaded", function() {
           <div>[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.time_balance ) %]</div>
           [%- ELSIF node.time_balance == 0 %]
           <div>[% i18n("Your network access has expired.") %]</div>
-          [%- END %]
-          [%- IF node.last_start_time AND billing %]
-          <div id="buttons"><a href="[% URL_BILLING %]" target="_new" class="btn">[% i18n("Extend Access") %]</a></div>
           [%- END %]
           [% IF showLogin %]
           <div>[% i18n("Login to manage registered devices") %]</div>
@@ -166,6 +173,13 @@ document.observe("dom:loaded", function() {
               <div class="input">
                 <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
               </div>
+
+              [%- IF billing %]
+              <div class="input">
+                <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+                <a href="[% URL_BILLING %]">[% i18n("Extend your access") %]</a>
+              </div>
+              [%- END %]
          
               [% IF oauth2_google || oauth2_facebook || oauth2_github %]
               <div class="input">

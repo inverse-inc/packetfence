@@ -65,10 +65,26 @@ our %configs;
 }
 
 {
-  use pf::vlan::filter;
+  use pf::access_filter::vlan;
 
   my @variables = ('%ConfigVlanFilters');
-  $configs{'pf::vlan::filter'} = dump_module("pf::vlan::filter", @variables);
+  $configs{'pf::access_filter::vlan'} = dump_module("pf::access_filter::vlan", @variables);
+
+}
+
+{
+  use pf::access_filter::radius;
+
+  my @variables = ('%ConfigRadiusFilters');
+  $configs{'pf::access_filter::radius'} = dump_module("pf::access_filter::radius", @variables);
+
+}
+
+{
+  use pf::access_filter::dhcp;
+
+  my @variables = ('%ConfigDhcpFilters');
+  $configs{'pf::access_filter::dhcp'} = dump_module("pf::access_filter::dhcp", @variables);
 
 }
 
@@ -96,7 +112,7 @@ our %configs;
 }
 
 my $output = $ENCODER->encode(\%configs);
-open(my $fh, ">", "/tmp/config-comparator/$BASE.out") 
+open(my $fh, ">", "/tmp/config-comparator/$BASE.out")
   or die "cannot open > /tmp/config-comparator/$BASE.out: $!";
 print $fh $output;
 
@@ -114,7 +130,7 @@ sub dump_module {
       my $elem = eval($name);
       $data{$name} = $elem;
     }
-  } 
+  }
   return \%data;
 }
 
@@ -126,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

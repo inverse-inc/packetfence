@@ -9,8 +9,9 @@ pf::Authentication::Source::LinkedInSource
 =cut
 
 use WWW::Curl::Easy;
-use JSON qw( decode_json );
+use JSON::MaybeXS qw( decode_json );
 use Moose;
+use pf::person;
 extends 'pf::Authentication::Source::OAuthSource';
 
 has '+type' => (default => 'LinkedIn');
@@ -27,13 +28,24 @@ has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'http
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 lookup_from_provider_info
+
+Lookup the person information from the authentication hash received during the OAuth process
+
+=cut
+
+sub lookup_from_provider_info {
+    my ( $self, $pid, $info ) = @_;
+    person_modify( $pid, email => $info->{email} );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

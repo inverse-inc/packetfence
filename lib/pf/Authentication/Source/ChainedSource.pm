@@ -17,6 +17,7 @@ use Moose;
 use pf::constants;
 use pf::config;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::util;
 use pf::log;
 
@@ -34,6 +35,14 @@ has '+unique' => (default => 1 );
 has chained_authentication_source => ( is => 'rw', required => 1 );
 has authentication_source => ( is => 'rw', required => 1 );
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $FALSE }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.
@@ -49,19 +58,25 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
+=head2 available_rule_classes
+
+Chained sources only allow 'authentication' rules
+
+=cut
+
+sub available_rule_classes {
+    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
+}
+
 =head2 available_actions
 
-For an Null source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+For a Chained source, only the authentication actions should be available
 
 =cut
 
 sub available_actions {
-    return [
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-            $Actions::SET_ACCESS_LEVEL,
-           ];
+    my @actions = map( { @$_ } $Actions::ACTIONS{$Rules::AUTH});
+    return \@actions;
 }
 
 =head2 match_in_subclass
@@ -116,13 +131,24 @@ sub getChainedAuthenticationSourceObject {
     return pf::authentication::getAuthenticationSource($self->chained_authentication_source);
 }
 
+=head2 mandatoryFields
+
+List of mandatory fields for this source
+
+=cut
+
+sub mandatoryFields {
+    my ($self) = @_;
+    return $self->getChainedAuthenticationSourceObject->mandatoryFields;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

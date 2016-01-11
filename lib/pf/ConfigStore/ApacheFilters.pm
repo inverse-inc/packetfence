@@ -18,7 +18,7 @@ use Moo;
 use pf::file_paths;
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::apache_filters_config_file };
+sub configFile { $apache_filters_config_file };
 
 sub pfconfigNamespace {'config::ApacheFilters'}
 
@@ -30,7 +30,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

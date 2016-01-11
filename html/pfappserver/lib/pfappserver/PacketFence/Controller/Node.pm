@@ -64,9 +64,7 @@ Perform an advanced search using the Search::Node model
 =cut
 
 sub search :Local :Args() :AdminRole('NODES_READ') {
-    my ($self, $c, $pageNum, $perPage) = @_;
-    $pageNum = 1 unless $pageNum;
-    $perPage = 25 unless $perPage;
+    my ($self, $c) = @_;
     my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
@@ -94,7 +92,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         my $query = $form->value;
         $query->{by} = 'mac' unless ($query->{by});
         $query->{direction} = 'asc' unless ($query->{direction});
-        ($status, $result) = $model->search($query, $pageNum, $perPage);
+        ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);
@@ -114,6 +112,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
         # Set default visible columns
         $c->session( nodecolumns => \%DEFAULT_COLUMNS );
     }
+    $c->stash->{switches} = $self->_get_switches_metadata($c);
     $c->stash->{search_action} = $c->action;
     $c->response->status($status);
 }
@@ -207,6 +206,8 @@ sub create :Local : AdminRole('NODES_CREATE') {
         $c->stash->{status} = $status;
         $c->stash->{status_msg} = $message; # TODO: localize error message
         $c->stash->{current_view} = 'JSON';
+        # Since we are posting to an iframe if the content type is not plain text some browsers (IE 8/9) will try and download it
+        $c->stash->{json_view_content_type} = 'text/plain';
     }
     else {
         # Initial display of the page
@@ -260,12 +261,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
-    ($status, $result) = $c->model('Config::Switch')->readAll();
-    if (is_success($status)) {
-        my %switches = map { $_->{id} => { type => $_->{type},
-                                           mode => $_->{mode} } } @$result;
-        $c->stash->{switches} = \%switches;
-    }
+    $c->stash->{switches} = $self->_get_switches_metadata($c);
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = $c->form("Node",
                      init_object => $c->stash->{node},
@@ -425,13 +421,25 @@ sub bulk_apply_bypass_role : Local : Args(1) :AdminRole('NODES_UPDATE') {
     $c->stash->{status_msg} = $status_msg;
 }
 
+sub _get_switches_metadata : Private {
+    my ($self,$c) = @_;
+    my ($status, $result) = $c->model('Config::Switch')->readAll();
+    if (is_success($status)) {
+        my %switches = map { $_->{id} => { type => $_->{type},
+                                           mode => $_->{mode},
+                                           description => $_->{description} } } @$result;
+        return \%switches;
+    }
+    return undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

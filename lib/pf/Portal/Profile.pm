@@ -20,11 +20,14 @@ use warnings;
 use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
 use pf::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
 use pf::ConfigStore::Scan;
+use pf::StatsD::Timer;
+use pf::config;
 
 =head1 METHODS
 
@@ -38,6 +41,7 @@ be used instead.
 =cut
 
 sub new {
+    my $timer = pf::StatsD::Timer->new;
     my ( $class, $args_ref ) = @_;
     my $logger = get_logger();
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
@@ -49,7 +53,6 @@ sub new {
     %$args_ref = map { "_".$_ => $args_ref->{$_} } keys %$args_ref;
 
     my $self = bless $args_ref, $class;
-
     return $self;
 }
 
@@ -120,18 +123,62 @@ sub getTemplatePath {
 
 *template_path = \&getTemplatePath;
 
-=item getBillingEngine
+=item getBillingTiers
 
-Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
+Get the billing tiers for this portal profile
 
 =cut
 
-sub getBillingEngine {
+sub getBillingTiers {
     my ($self) = @_;
-    return $self->{'_billing_engine'};
+    my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
+    if(@tier_ids == 0){
+        @tier_ids = keys %ConfigBillingTiers;
+    }
+    my @tiers;
+    while(my ($tier_id, $tier) = each %ConfigBillingTiers){
+        if(any { $_ eq $tier_id } @tier_ids){
+            $tier->{id} = $tier_id;
+            push @tiers, $tier;
+        }
+    }
+    return \@tiers;
 }
 
-*billing_engine = \&getBillingEngine;
+*billing_tiers = \&getBillingTiers;
+
+=item getBillingTier
+
+Get the configuration of a specific billing tier
+
+=cut
+
+sub getBillingTier {
+    my ($self, $id) = @_;
+    return $ConfigBillingTiers{$id};
+}
+
+=item getBillingSources
+
+Return the billing authentication sources objects for the profile
+
+=cut
+
+sub getBillingSources {
+    my ($self) = @_;
+    return $self->getSourcesByClass( 'billing' );
+}
+
+=item hasBilling
+
+Whether or not the profile has billing enabled
+
+=cut
+
+sub hasBilling {
+    my ($self) = @_;
+    return (scalar($self->getBillingSources()) > 0);
+}
 
 =item getDescripton
 
@@ -236,8 +283,10 @@ Returns the internal authentication sources objects for the current captive port
 =cut
 
 sub getInternalSources {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
     my ($self) = @_;
-    return $self->getSourcesByClass( 'internal' );
+    my @sources = $self->getSourcesByClass( 'internal' );
+    return @sources;
 }
 
 =item getExternalSources
@@ -247,8 +296,10 @@ Returns the external authentication sources objects for the current captive port
 =cut
 
 sub getExternalSources {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
     my ($self) = @_;
-    return $self->getSourcesByClass( 'external' );
+    my @sources = $self->getSourcesByClass( 'external' );
+    return @sources;
 }
 
 =item getExclusiveSources
@@ -258,8 +309,10 @@ Returns the exclusive authentication sources objects for the current captive por
 =cut
 
 sub getExclusiveSources {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
     my ($self) = @_;
-    return $self->getSourcesByClass( 'exclusive' );
+    my @sources = $self->getSourcesByClass( 'exclusive' );
+    return @sources;
 }
 
 =item getSourcesByClass
@@ -334,6 +387,14 @@ sub guestRegistrationOnly {
     return $result;
 }
 
+sub billingRegistrationOnly {
+    my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if(@sources == 0);
+
+    return all { $_->class eq 'billing' } @sources;
+}
+
 =item guestModeAllowed
 
 Verify if the guest mode is allowed for the profile
@@ -375,7 +436,7 @@ Check if the profile needs no password
 
 sub noPasswordNeeded {
     my ($self) = @_;
-    return isenabled($self->reuseDot1xCredentials) || any { $_ eq 'null' } @{ $self->getGuestModes };
+    return isenabled($self->reuseDot1xCredentials) || any { $_ eq $SELFREG_MODE_NULL || $_ eq $SELFREG_MODE_KICKBOX } @{ $self->getGuestModes };
 }
 
 =item noUsernameNeeded
@@ -401,15 +462,23 @@ sub provisionerObjects {
 }
 
 sub findProvisioner {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
+    my @provisioners = $self->provisionerObjects;
+    unless(@provisioners){
+        $logger->trace("No provisioners configured for portal profile");
+        return;
+    }
+
     $node_attributes ||= node_attributes($mac);
     my $os = $node_attributes->{'device_type'};
     unless(defined $os){
         $logger->warn("Can't find provisioner for $mac since we don't have it's OS");
         return;
     }
-    return first { $_->match($os,$node_attributes) } $self->provisionerObjects;
+
+    return first { $_->match($os,$node_attributes) } @provisioners;
 }
 
 =item dot1xRecomputeRoleFromPortal
@@ -452,33 +521,50 @@ return the first scan that match the device
 =cut
 
 sub findScan {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $mac, $node_attributes) = @_;
+    my $scanners = $self->getScans;
+    return undef unless defined $scanners;
     my $logger = get_logger();
-    $node_attributes ||= node_attributes($mac);
-    my $device_type = $node_attributes->{'device_type'} || '';
-    my $fingerprint = pf::fingerbank::is_a($device_type);
-    if (defined($self->getScans)) {
-        foreach my $scan (split(',',$self->getScans)) {
-            my $scan_config = $pf::config::ConfigScan{$scan};
-            my @categories = split(',',$scan_config->{'categories'});
-            # if there are no oses and no categories defined for the scan then select it
-            if ( !scalar(@{ $scan_config->{'oses'} }) && !scalar(@categories) ) {
+    foreach my $scan (split(',', $scanners)) {
+        my $scan_config = $pf::config::ConfigScan{$scan};
+        my @categories  = split(',', $scan_config->{'categories'});
+        my $oses        = $scan_config->{'oses'};
+
+        # if there are no oses and no categories defined for the scan then select it
+        if (!scalar(@$oses) && !scalar(@categories)) {
+            return $scan_config;
+        }
+        $node_attributes ||= node_attributes($mac);
+
+        # if there are an os and a category defined
+        if (scalar(@$oses) && scalar(@categories)) {
+            my $device_type = $node_attributes->{'device_type'} || '';
+            my $fingerprint = pf::fingerbank::is_a($device_type);
+            if ((grep {$fingerprint =~ $_} @$oses) && (grep {$_ eq $node_attributes->{'category'}} @categories)) {
                 return $scan_config;
-            # if there are an os and a category defined
-            } elsif ( scalar(@{ $scan_config->{'oses'} }) && scalar(@categories) ) {
-                if ( (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
-                    return $scan_config;
-                }
-            # if there are an os or a category
-            } elsif (scalar(@{ $scan_config->{'oses'} }) xor scalar(@categories) ) {
-                if (scalar(@{ $scan_config->{'oses'} }) && (grep { $fingerprint =~ $_ } @{ $scan_config->{'oses'} }) ) {
-                    return $scan_config;
-                } elsif (scalar(@categories) && (grep { $_ eq $node_attributes->{'category'} } @categories ) ) {
-                    return $scan_config;
-                }
             }
+            # Check next scan config
+            next;
+        }
+
+        # if there is only an os
+        if (scalar(@$oses)) {
+            my $device_type = $node_attributes->{'device_type'} || '';
+            my $fingerprint = pf::fingerbank::is_a($device_type);
+            if (grep {$fingerprint =~ $_} @$oses) {
+                return $scan_config;
+            }
+            # Check next scan config
+            next;
+        }
+
+        # if there is only a category
+        if (grep {$_ eq $node_attributes->{'category'}} @categories) {
+            return $scan_config;
         }
     }
+
     return undef;
 }
 
@@ -512,7 +598,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

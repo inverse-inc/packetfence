@@ -15,7 +15,7 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'client_id' =>
   (
    type => 'Text',
-   label => 'Client Id',
+   label => 'Client Key',
    required => 1,
   );
 
@@ -84,7 +84,7 @@ has_block compliance =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

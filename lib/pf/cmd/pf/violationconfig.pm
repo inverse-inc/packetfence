@@ -25,7 +25,7 @@ use base qw(pf::base::cmd::config_store);
 
 sub configStoreName { "pf::ConfigStore::Violations" }
 
-sub display_fields { qw(vid desc enabled auto_enable actions max_enable grace window vclose priority template button_text trigger vlan whitelisted_categories target_category ) }
+sub display_fields { qw(vid desc enabled auto_enable actions max_enable grace window vclose priority template button_text trigger vlan whitelisted_roles target_category ) }
 
 sub idKey { 'vid' }
 
@@ -37,7 +37,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

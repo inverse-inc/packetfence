@@ -15,7 +15,6 @@ It should work on all Matrix chassis.
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 use base ('pf::Switch::Enterasys');
@@ -35,14 +34,14 @@ What we do here is the parent method and then translate dot1dBasePort to ifIndex
 =cut
 
 sub getMacBridgePortHash {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my $self   = shift;
+    my $logger = $self->logger;
     my %macBridgePortHash = ();
 
     # call our parent method fill the hash with mac -> dot1dBasePort
-    %macBridgePortHash = $this->SUPER::getMacBridgePortHash(@_);
+    %macBridgePortHash = $self->SUPER::getMacBridgePortHash(@_);
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return %macBridgePortHash;
     }
 
@@ -50,7 +49,7 @@ sub getMacBridgePortHash {
     my $oid_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';    #from BRIDGE-MIB
 
     $logger->trace("SNMP get_table for dot1dBasePortIfIndex: $oid_dot1dBasePortIfIndex");
-    my $resultPortIfIndex = $this->{_sessionRead}->get_table(-baseoid => "$oid_dot1dBasePortIfIndex");
+    my $resultPortIfIndex = $self->{_sessionRead}->get_table(-baseoid => "$oid_dot1dBasePortIfIndex");
 
     # merging mac to port and port to ifIndex to get a mac to ifIndex hash
     foreach my $mac (keys %macBridgePortHash) {
@@ -74,9 +73,9 @@ sub getMacBridgePortHash {
 # TODO: uses Q-BRIDGE-MIB in a conventional way, would be a candidate for a "setVlanUsingQbridgeMib" merge
 # see http://www.packetfence.org/mantis/view.php?id=803 for details
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if (!$this->connectRead()) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if (!$self->connectRead()) {
         return 0;
     }
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';                      # Q-BRIDGE-MIB
@@ -85,50 +84,50 @@ sub _setVlan {
     my $result;
 
     # translate ifIndex to dot1dBasePort
-    my $dot1dBasePort = $this->getDot1dBasePortForThisIfIndex($ifIndex);
+    my $dot1dBasePort = $self->getDot1dBasePortForThisIfIndex($ifIndex);
     if (!defined($dot1dBasePort)) {
         $logger->warn("unable to translate ifIndex into dot1dBasePort. Cannot set VLAN.");
         return 0;
     }
 
-    $logger->trace("locking - trying to lock \$switch_locker{".$this->{_ip}."} in _setVlan");
+    $logger->trace("locking - trying to lock \$switch_locker{".$self->{_ip}."} in _setVlan");
     {   
-        lock %{ $switch_locker_ref->{$this->{_ip}} };
-        $logger->trace("locking - \$switch_locker{".$this->{_ip}."} locked in _setVlan");
+        lock %{ $switch_locker_ref->{$self->{_ip}} };
+        $logger->trace("locking - \$switch_locker{".$self->{_ip}."} locked in _setVlan");
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace("SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts");
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
                 "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"]
         );
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # calculate new settings
-        my $egressPortsOldVlan = $this->modifyBitmask(
+        my $egressPortsOldVlan = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $dot1dBasePort - 1, 0 );
-        my $egressPortsVlan = $this->modifyBitmask(
+        my $egressPortsVlan = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $dot1dBasePort - 1, 1 );
-        my $untaggedPortsOldVlan = $this->modifyBitmask(
+        my $untaggedPortsOldVlan = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $dot1dBasePort - 1, 0 );
-        my $untaggedPortsVlan = $this->modifyBitmask(
+        my $untaggedPortsVlan = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $dot1dBasePort - 1, 1 );
 
-        if (!$this->connectWrite()) {
+        if (!$self->connectWrite()) {
             return 0;
         }
 
 #        # set all values
 #        $logger->trace("SNMP set_request for egressPorts and untaggedPorts for old and new VLAN");
-#        $result = $this->{_sessionWrite}->set_request(
+#        $result = $self->{_sessionWrite}->set_request(
 #            -varbindlist => [
 #                "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan,
 #                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan,
@@ -139,7 +138,7 @@ sub _setVlan {
 #
 #        if (!defined($result)) {
 #            $logger->error("error setting egressPorts and untaggedPorts for old and new vlan: "
-#                           .$this->{_sessionWrite}->error );
+#                           .$self->{_sessionWrite}->error );
 #        }
 
         # TODO: the following worked, now I could check if doing it in one pass still works (the above)
@@ -147,7 +146,7 @@ sub _setVlan {
 
         # remove port from oldVlan
         $logger->trace("SNMP set_request for egressPorts and untaggedPorts for old VLAN");
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan,
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan]
@@ -155,12 +154,12 @@ sub _setVlan {
 
         if (!defined($result)) {
             $logger->error("error setting egressPorts and untaggedPorts for old vlan: "
-                           .$this->{_sessionWrite}->error );
+                           .$self->{_sessionWrite}->error );
         }
 
         # add port to newVlan and set port's PVID to newVlan
         $logger->trace("SNMP set_request for egressPorts and untaggedPorts for new VLAN");
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan,
                 "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan,
@@ -169,37 +168,37 @@ sub _setVlan {
 
         if (!defined($result)) {
             $logger->error("error setting egressPorts and untaggedPorts for new vlan: "
-                           .$this->{_sessionWrite}->error );
+                           .$self->{_sessionWrite}->error );
         }
 
     }       
-    $logger->trace("locking - \$switch_locker{".$this->{_ip}."} unlocked in _setVlan");
+    $logger->trace("locking - \$switch_locker{".$self->{_ip}."} unlocked in _setVlan");
     return (defined($result));
 }
 
 # deprecated telnet method (left as a comment because it can still turn out to be useful)
 # LIMITATION: only works with gigabit ports (ge.x.y)
 #sub _setVlan {
-#    my ($this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref) = @_;
-#    my $logger = Log::Log4perl::get_logger(ref($this));
+#    my ($self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref) = @_;
+#    my $logger = $self->logger;
 #
 #    # use telnet to set the new VLAN
 #    my $session;
 #    eval {
 #        $session = Net::Telnet->new(
-#            Host    => $this->{_ip},
+#            Host    => $self->{_ip},
 #            Timeout => 5,
 #            Prompt  => '/[\$%#>]$/' # prompt looks like: Matrix N3 Diamond(su)->
 #        );
 #        $session->waitfor('/Username: /');
-#        $session->put( $this->{_cliUser} . "\n" );
+#        $session->put( $self->{_cliUser} . "\n" );
 #        $session->waitfor('/Password: /');
-#        $session->put( $this->{_cliPwd} . "\n" );
+#        $session->put( $self->{_cliPwd} . "\n" );
 #        $session->waitfor( $session->prompt );
 #    };
 #
 #    if ($@) {
-#        $logger->warn("Cannot connect to Enterasys Matrix N3 ".$this->{'_ip'}." using ".$this->{_cliTransport});
+#        $logger->warn("Cannot connect to Enterasys Matrix N3 ".$self->{'_ip'}." using ".$self->{_cliTransport});
 #        $logger->warn(Dumper($@));
 #        return 0;
 #    }
@@ -229,7 +228,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

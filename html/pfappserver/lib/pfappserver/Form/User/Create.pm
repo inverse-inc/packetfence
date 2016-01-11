@@ -47,7 +47,7 @@ has_block 'templates' =>
   (
    tag => 'div',
    render_list => [
-                   map( { "${_}_action" } @Actions::ACTIONS), # the field are defined in the super class
+                   map( { "${_}_action" } map( { @$_ } values %Actions::ACTIONS)), # the field are defined in the super class
                   ],
    attr => { id => 'templates' },
    class => [ 'hidden' ],
@@ -120,7 +120,7 @@ sub _check_allowed_options {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

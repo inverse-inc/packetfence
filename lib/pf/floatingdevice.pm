@@ -11,7 +11,7 @@ pf::floatingdevice - module to manage the floating network devices.
 pf::floatingdevice contains the functions necessary to manage the floating network devices.
 A floating network device is a device that PacketFence does not manage as a regular device.
 
-This code was originally added to support mobile Access Points. 
+This code was originally added to support mobile Access Points.
 When an AP is plugged, PacketFence should:
 
 =over
@@ -24,7 +24,7 @@ When an AP is plugged, PacketFence should:
 
 When an AP is unplugged, PacketFence should reconfigure the port like before the AP was plugged
 
-In order to simplify things at first, we decided that 
+In order to simplify things at first, we decided that
 FLOATING NETWORK DEVICES SHOULD ONLY BE PLUGGED IN PORT CONFIGURED WITH PORT_SECURITY!
 
 Here is how it works:
@@ -35,10 +35,10 @@ Here is how it works:
 
 =item - linkup/linkdown traps are not enabled on the switches, only port-security traps are.
 
-=item - when PF receives a port-security violation trap, it checks if the device is a floating network device. if so, 
+=item - when PF receives a port-security violation trap, it checks if the device is a floating network device. if so,
 PF changes the port configuration so that:
 
-=over 
+=over
 
 =item - it disables port-security
 
@@ -51,7 +51,7 @@ PF changes the port configuration so that:
 =back
 
 =item - when PF receives a linkdown trap, it checks if the last device plugged is a floating network device. If so,
- PF changes the port configuration so that: 
+ PF changes the port configuration so that:
 
 =over
 
@@ -72,7 +72,7 @@ Read F<pf.conf> and F<floating_network_device.conf> configuration files.
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Readonly;
 
 use pf::constants;
@@ -82,24 +82,24 @@ use pf::util;
 use pf::config::util;
 
 =head1 SUBROUTINES
-            
-=over   
-            
-=item new 
+
+=over
+
+=item new
 
 Get an instance of the pf::floatingdevice object
 
 =cut
 
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::floatingdevice");
+    my $logger = get_logger();
     $logger->debug("instantiating new pf::floatingdevice object");
     my ($class, %argv) = @_;
-    my $this = bless {}, $class;
-    return $this;
+    my $self = bless {}, $class;
+    return $self;
 }
 
-=item enablePortConfig 
+=item enablePortConfig
 
 Change port configuration to disable port-security, set PVID and set port as multi-vlan if necessary
 
@@ -109,14 +109,14 @@ sub enablePortConfig {
 
 # FIXME
 # we have to change the error handling in case we leave the function before we enable Linkup/down traps
-# cause in this case there would be any traps enabled anymore... 
+# cause in this case there would be any traps enabled anymore...
 
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker_ref, $radius_triggered) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+    my ($self, $mac, $switch, $switch_port, $switch_locker_ref, $radius_triggered) = @_;
+    my $logger = get_logger();
 
     # Since PF only manages floating network devices plugged in ports configured with port-security
-    # all the switches with no port-security won't work here. 
+    # all the switches with no port-security won't work here.
     if (! $switch->supportsFloatingDevice()) {
         $logger->error("Floating devices are not supported on switch type " . ref($switch));
         return 0;
@@ -134,13 +134,13 @@ sub enablePortConfig {
 
     # if port should be trunk
     if ( $ConfigFloatingDevices{$mac}{'trunkPort'}) {
-        if (! $switch->enablePortConfigAsTrunk($mac, $switch_port, $switch_locker_ref, 
+        if (! $switch->enablePortConfigAsTrunk($mac, $switch_port, $switch_locker_ref,
             $ConfigFloatingDevices{$mac}{'taggedVlan'})) {
             return 0;
         }
     }
 
-    # switchport trunk native vlan x 
+    # switchport trunk native vlan x
     # OR switchport access vlan x
     my $vlan = $ConfigFloatingDevices{$mac}{'pvid'};
     $logger->info("Setting PVID as $vlan on port $switch_port.");
@@ -159,7 +159,7 @@ sub enablePortConfig {
     return 1;
 }
 
-=item disablePortConfig 
+=item disablePortConfig
 
 Reset port configuration to enable port-security and remove multi-vlan settings (if there are some)
 
@@ -169,10 +169,10 @@ sub disablePortConfig {
 
 # FIXME
 # we have to change the error handling in case we leave the function before we enable port-security traps
-# cause in this case there would be any traps enabled anymore... 
+# cause in this case there would be any traps enabled anymore...
 
-    my ($this, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+    my ($self, $mac, $switch, $switch_port, $switch_locker_ref) = @_;
+    my $logger = get_logger();
 
     if (! $switch->supportsFloatingDevice()) {
         $logger->error("Floating devices are not supported on switch type " . ref($switch));
@@ -187,7 +187,7 @@ sub disablePortConfig {
     }
 
     # we check the actual port configuration rather than reading $ConfigFloatingDevices{$mac}{'trunkPort'} in the flat
-    # file, just in case the flat file has changed 
+    # file, just in case the flat file has changed
     if ($switch->isTrunkPort($switch_port)) {
         if (! $switch->disablePortConfigAsTrunk($switch_port, $switch_locker_ref)) {
             return 0;
@@ -200,7 +200,7 @@ sub disablePortConfig {
                       "but the port should work.");
     }
 
-    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port); 
+    my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
     my $radius_triggered;
     if(scalar(@locationlog) > 0){
         $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
@@ -230,8 +230,8 @@ Removes the MAB floating device mode on the switchport
 =cut
 
 sub disableMABFloating {
-    my ( $this, $switch, $ifIndex ) = @_;
-    
+    my ( $self, $switch, $ifIndex ) = @_;
+
     if($switch->supportsMABFloatingDevices){
         $switch->disableMABFloatingDevice($ifIndex);
     }
@@ -244,20 +244,20 @@ Puts the switchport in MAB floating device mode
 =cut
 
 sub enableMABFloating{
-    my ( $this, $mac, $switch, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
-     
-    my $result;         
+    my ( $self, $mac, $switch, $ifIndex ) = @_;
+    my $logger = get_logger();
+
+    my $result;
     if($switch->supportsFloatingDevice && !$switch->supportsMABFloatingDevices){
-        $this->enablePortConfig($mac, $switch, $ifIndex, undef, $TRUE);
+        $self->enablePortConfig($mac, $switch, $ifIndex, undef, $TRUE);
     }
     if($switch->supportsMABFloatingDevices){
         $switch->enableMABFloatingDevice($ifIndex);
         # disconnect and close additionnal entries that could have been opened (a device was authentified before the floating)
-        $this->_disconnectCurrentDevices($switch, $ifIndex);
-        pf::locationlog::locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $ifIndex); 
+        $self->_disconnectCurrentDevices($switch, $ifIndex);
+        pf::locationlog::locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $ifIndex);
     }
-    
+
 }
 
 =item portHasFloatingDevice
@@ -267,13 +267,13 @@ Verifies if there is a floating device plugged into the switchport in the locati
 =cut
 
 sub portHasFloatingDevice {
-    my ($this, $switch, $switch_port) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+    my ($self, $switch, $switch_port) = @_;
+    my $logger = get_logger();
 
     $logger->debug("Determining if there is a floating device on $switch port $switch_port");
     my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch, $switch_port);
-    if (@locationlog_switchport && scalar(@locationlog_switchport) > 0){ 
-        my $mac = $locationlog_switchport[0]->{'mac'}; 
+    if (@locationlog_switchport && scalar(@locationlog_switchport) > 0){
+        my $mac = $locationlog_switchport[0]->{'mac'};
         if( exists($ConfigFloatingDevices{$mac}) ){
             $logger->info("There is a floating device on $switch port $switch_port");
             return $mac;
@@ -290,8 +290,8 @@ Disconnects the active locationlog macs on the port so they reauthenticate to be
 =cut
 
 sub _disconnectCurrentDevices{
-    my ( $this, $switch, $switch_port ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::floatingdevice');
+    my ( $self, $switch, $switch_port ) = @_;
+    my $logger = get_logger();
 
     my @locationlog_switchport = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
 
@@ -314,7 +314,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

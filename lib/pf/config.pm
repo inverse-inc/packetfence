@@ -41,9 +41,6 @@ use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
 use DateTime;
-use pf::factory::profile::filter;
-use pf::profile::filter;
-use pf::profile::filter::all;
 use pf::constants::Portal::Profile;
 use pf::cluster;
 use pf::constants::config qw(
@@ -72,6 +69,7 @@ use pf::constants::config qw(
   $SELFREG_MODE_WIN_LIVE
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
+  $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_CHAINED
   %NET_INLINE_TYPES
 );
@@ -91,6 +89,8 @@ our (
     %Config,
 #network.conf variables
     %ConfigNetworks,
+# authentication.conf vaiables
+    %ConfigAuthentication,
 #oauth2 variables
     %ConfigOAuth,
 #documentation.conf variables
@@ -119,6 +119,12 @@ our (
     %ConfigWmi,
 
     %ConfigPKI_Provider,
+#pfdetect.conf
+    %ConfigDetect,
+#billing_tiers.conf
+    %ConfigBillingTiers,
+#adminroles.conf
+    %ConfigAdminRoles,
 );
 
 BEGIN {
@@ -135,7 +141,7 @@ BEGIN {
         $MAC $PORT $SSID $ALWAYS
         %Default_Config
         %Config
-        %ConfigNetworks %ConfigOAuth
+        %ConfigNetworks %ConfigAuthentication %ConfigOAuth
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_VID $thread $fqdn $reverse_fqdn
@@ -147,9 +153,9 @@ BEGIN {
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         %connection_group %connection_group_to_str
-        $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
-        $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_CHAINED
+        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
+        $ROLES_API_LEVEL
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_CHAINED
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time access_duration
@@ -168,6 +174,9 @@ BEGIN {
         %ConfigScan
         %ConfigWmi
         %ConfigPKI_Provider
+        %ConfigDetect
+        %ConfigBillingTiers
+        %ConfigAdminRoles
     );
 }
 
@@ -215,6 +224,7 @@ tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
 tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
+tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
@@ -231,6 +241,12 @@ tie %ConfigWmi, 'pfconfig::cached_hash', 'config::Wmi';
 
 tie %ConfigPKI_Provider, 'pfconfig::cached_hash', 'config::PKI_Provider';
 
+tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
+
+tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
+
+tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
+
 sub import {
     pf::config->export_to_level(1,@_);
     pf::file_paths->export_to_level(1);
@@ -239,7 +255,7 @@ use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
-my $logger = Log::Log4perl->get_logger('pf::config');
+my $logger = get_logger();
 
 
 # Accounting trigger policies
@@ -330,12 +346,12 @@ Readonly our $HTTPS => 'https';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
-Readonly::Scalar our $VLAN_API_LEVEL => 1.04;
+Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
 Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
-Readonly::Scalar our $ROLE_API_LEVEL => 0.90;
+Readonly::Scalar our $ROLES_API_LEVEL => 0.90;
 
 # to shut up strict warnings
 $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
@@ -435,7 +451,7 @@ our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 =cut
 
 sub os_detection {
-    my $logger = Log::Log4perl::get_logger('pf::config');
+    my $logger = get_logger();
     if (-e '/etc/debian_version') {
         return "debian";
     }elsif (-e '/etc/redhat-release') {
@@ -816,17 +832,34 @@ sub is_in_list {
     return $FALSE;
 }
 
-=item is_omapi_enabled
+=item is_omapi_lookup_enabled
 
 Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
 
 =cut
 
-sub is_omapi_enabled {
+sub is_omapi_lookup_enabled {
     if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
         return $TRUE;
     }
 
+    return $FALSE;
+}
+
+=item is_omapi_configured
+
+Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_base64) are present before configuring it
+
+=cut
+
+sub is_omapi_configured {
+    return $FALSE unless $Config{'omapi'}{'host'} eq "localhost";
+
+    if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
+        return $TRUE;
+    }
+
+    $logger->warn("OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
     return $FALSE;
 }
 
@@ -852,8 +885,10 @@ sub configreload {
     require pf::ConfigStore::Switch;
     require pf::ConfigStore::Violations;
     require pf::ConfigStore::Wrix;
+    require pf::ConfigStore::VlanFilters;
+    require pf::ConfigStore::RadiusFilters;
+    require pf::ConfigStore::DhcpFilters;
     require pf::web::filter;
-    require pf::vlan::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
 
@@ -883,7 +918,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

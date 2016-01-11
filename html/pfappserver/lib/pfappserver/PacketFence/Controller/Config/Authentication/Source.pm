@@ -59,6 +59,7 @@ sub create :Local :Args(1) :AdminRole('USERS_SOURCES_CREATE') {
         $c->forward('update');
         if(is_success($c->response->status)) {
             $c->response->location( $c->pf_hash_for($self->action_for('read'), [$c->stash->{source}->{id}]));
+            $self->object($c, $c->stash->{source}->{id});
         }
     }
     else {
@@ -355,7 +356,7 @@ sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) :AdminRole(
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

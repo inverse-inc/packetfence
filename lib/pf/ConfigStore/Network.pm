@@ -14,6 +14,7 @@ pf::ConfigStore::Network
 
 use Moo;
 use namespace::autoclean;
+use pf::log;
 use pf::config;
 use pf::util qw(isenabled);
 use pf::file_paths;
@@ -75,7 +76,7 @@ For example
 
 sub getTypes {
     my ( $self, $interfaces_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %types;
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
         # skip if we don't have a network address set
@@ -109,7 +110,7 @@ sub getNetworkAddress {
 
 sub cleanupNetworks {
     my ($self, $interfaces) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $networks = $self->readAllIds();
     my %unused = map { $_ => 1 } @$networks;
     foreach my $interface (@$interfaces) {
@@ -159,7 +160,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

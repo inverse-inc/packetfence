@@ -37,6 +37,7 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg){
         $self->cleanup_after_read($key, $tmp_cfg{$key});
+        $self->cleanup_whitespaces( \%tmp_cfg );
     }
 
     return \%tmp_cfg;
@@ -56,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

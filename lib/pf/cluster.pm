@@ -26,6 +26,7 @@ use NetAddr::IP;
 use Socket;
 use pf::file_paths;
 use pf::util;
+use pf::constants;
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -54,7 +55,7 @@ Returns 1 if this node is the management node (i.e. owning the management ip)
 =cut
 
 sub is_management {
-    my $logger = get_logger;
+    my $logger = get_logger();
     unless($cluster_enabled){
         $logger->info("Clustering is not enabled. Cannot be management node.");
         return 0;
@@ -72,6 +73,16 @@ sub is_management {
     }
     return 0;
 
+}
+
+=head2 get_host_id
+
+Returns the current host id (hostname)
+
+=cut
+
+sub get_host_id {
+    return $host_id;
 }
 
 =head2 current_server
@@ -135,7 +146,7 @@ sub is_dhcpd_primary {
 
 =head2 should_offer_dhcp
 
-Get whether or not this node should offer DHCP 
+Get whether or not this node should offer DHCP
 
 =cut
 
@@ -151,7 +162,7 @@ Get the IP address of the DHCP peer for an interface
 
 sub dhcpd_peer {
     my ($interface) = @_;
-    
+
     unless(defined($cluster_servers[1])){
         return undef;
     }
@@ -191,7 +202,7 @@ Get all the members IP for an interface
 
 sub members_ips {
     my ($interface) = @_;
-    my $logger = get_logger;
+    my $logger = get_logger();
     unless(exists($ConfigCluster{$host_id}->{"interface $interface"}->{ip})){
         $logger->warn("requesting member ips for an undefined interface...");
         return {};
@@ -200,13 +211,131 @@ sub members_ips {
     return \%data;
 }
 
+=head2 api_call_each_server
+
+Call an API method on each member of the cluster
+
+=cut
+
+sub api_call_each_server {
+    my ($asynchronous, $api_method, %api_args) = @_;
+    
+    require pf::api::jsonrpcclient;
+    my @failed;
+    foreach my $server (@cluster_servers){
+        next if($server->{host} eq $host_id);
+        my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
+        eval {
+            pf::log::get_logger->info("Calling $api_method on $server->{host}");
+            my $result;
+            unless($asynchronous){
+                ($result) = $apiclient->call($api_method, %api_args );
+            }
+            else {
+                ($result) = $apiclient->notify($api_method, %api_args );
+            }
+        };
+        if($@){
+            pf::log::get_logger->error("Failed to call $api_method . $@");
+            push @failed, $server->{host};
+        }
+    }
+    return \@failed;
+}
+
+=head2 sync_files
+
+Sync files through all members of a cluster
+
+=cut
+
+sub sync_files {
+    my ($files, %options) = @_;
+    unless($cluster_enabled){
+        get_logger->trace("Won't sync files because we're not in a cluster");
+        return [];
+    }
+
+    my @failed;
+    foreach my $file (@$files){
+        my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
+        push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
+    }
+    return \@failed;
+}
+
+=head2 send_dir_copy
+
+Send a message to the other cluster servers to copy a directory from their filesystem
+
+=cut
+
+sub send_dir_copy {
+    my ($source_dir, $dest_dir, %options) = @_;
+    return api_call_each_server($options{async}, 'copy_directory', $source_dir, $dest_dir);
+}
+
+=head2 sync_storages
+
+Sync a storage through all members of a cluster
+
+=cut
+
+sub sync_storages {
+    my ($stores, %options) = @_;
+    require pf::api::jsonrpcclient;
+    my $apiclient = pf::api::jsonrpcclient->new();
+    foreach my $store (@$stores){
+        eval {
+            print "Synching storage : $store\n";
+            my $cs = $store->new;
+            my $pfconfig_namespace = $cs->pfconfigNamespace;
+            my $config_file = $cs->configFile;
+            my %data = (
+                namespace => $pfconfig_namespace,
+                conf_file => $config_file,
+            );
+            my ($result) = $apiclient->call( 'expire_cluster', %data );
+        };
+        if($@){
+            print STDERR "ERROR !!! Failed to sync store : $store ($@) \n";
+        }
+    }
+}
+
+=head2 is_vip_running
+
+=cut
+
+sub is_vip_running {
+    my ($int) = @_;
+
+    if ( defined($ConfigCluster{$CLUSTER}->{"interface $int"}) ) {
+
+        my @all_ifs = Net::Interface->interfaces();
+        foreach my $inf (@all_ifs) {
+            if ($inf->name eq $int) {
+                my @masks = $inf->netmask(AF_INET());
+                my @addresses = $inf->address(AF_INET());
+                for my $i (0 .. $#masks) {
+                    if (inet_ntoa($addresses[$i]) eq cluster_ip($int)) {
+                        return $TRUE;
+                    }
+                }
+                return $FALSE;
+            }
+        }
+    }
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -15,7 +15,6 @@ This doesn't use the ConfigStore
 use Moose;
 use namespace::autoclean;
 use pfconfig::config;
-use pf::log;
 use pfconfig::constants;
 use Config::IniFiles;
 
@@ -75,7 +74,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -68,6 +68,7 @@ PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
 PerlLoadModule pfappserver
 PerlLoadModule pf::WebAPI::InitHandler
+PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 
 <Perl>
 BEGIN {

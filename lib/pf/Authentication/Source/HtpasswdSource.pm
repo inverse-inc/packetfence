@@ -10,8 +10,10 @@ pf::Authentication::Source::HtpasswdSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::Authentication::Source;
 use pf::util;
+use pf::log;
 
 use Apache::Htpasswd;
 
@@ -44,22 +46,22 @@ sub available_attributes {
 sub authenticate {
     my ($self, $username, $password) = @_;
 
-    my $logger = Log::Log4perl->get_logger('pf::authentication');
+    my $logger = get_logger();
     my $password_file = $self->{'path'};
 
     if (! -r $password_file) {
         $logger->error("unable to read password file '$password_file'");
-        return ($FALSE, 'Unable to validate credentials at the moment');
+        return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
 
     my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
     if ( (!defined($htpasswd->htCheckPassword($username, $password)))
          or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
 
-        return ($FALSE, 'Invalid login or password');
+        return ($FALSE, $AUTH_FAIL_MSG);
     }
 
-    return ($TRUE, 'Successful authentication using htpasswd file.');
+    return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 =head2 match_in_subclass
@@ -100,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

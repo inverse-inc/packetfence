@@ -14,11 +14,14 @@ pf::api
 use strict;
 use warnings;
 
+use JSON::MaybeXS;
 use base qw(pf::api::attributes);
 use threads::shared;
 use pf::log();
 use pf::authentication();
+use pf::Authentication::constants;
 use pf::config();
+use pf::config::util();
 use pf::config::cached;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
@@ -36,10 +39,14 @@ use pfconfig::util;
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
-use JSON;
+use fingerbank::DB;
+use File::Slurp;
 use pf::file_paths;
+use pf::CHI;
+use pf::access_filter::dhcp;
 
 use List::MoreUtils qw(uniq);
+use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
@@ -49,6 +56,8 @@ use pf::lookup::person();
 use pf::enforcement();
 use pf::password();
 use pf::web::guest();
+use pf::dhcp::processor();
+use pf::util::dhcpv6();
 
 sub event_add : Public {
     my ($class, $date, $srcip, $type, $id) = @_;
@@ -134,6 +143,27 @@ sub soh_authorize : Public {
     return $return;
 }
 
+=head2 radius_switch_access
+
+Return RADIUS attributes to allow switch's CLI access
+
+=cut
+
+sub radius_switch_access : Public {
+    my ($class, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->switch_access(\%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius switch access failed with error: $@");
+    }
+    return $return;
+}
+
 sub update_iplog : Public {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
@@ -178,17 +208,17 @@ sub unreg_node_for_pid : Public {
 }
 
 sub synchronize_locationlog : Public {
-    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid ,$stripped_user_name, $realm) = @_;
+    my ( $class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid ,$stripped_user_name, $realm, $role) = @_;
     my $logger = pf::log::get_logger();
 
-    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm));
+    return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
 sub insert_close_locationlog : Public {
-    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
+    my ($class, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role);
     my $logger = pf::log::get_logger();
 
-    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm));
+    return(pf::locationlog::locationlog_insert_closed($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
 sub open_iplog : Public {
@@ -220,15 +250,35 @@ sub firewallsso : Public {
 
     my $logger = pf::log::get_logger();
 
-    foreach my $firewall_conf ( sort keys %pf::config::ConfigFirewallSSO ) {
-        my $firewall = pf::factory::firewallsso->new($firewall_conf);
-        $firewall->action($firewall_conf,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+    foreach my $firewall_id ( sort keys %pf::config::ConfigFirewallSSO ) {
+        my $firewall = pf::factory::firewallsso->new($firewall_id);
+
+        if($postdata{method} eq "Update"){
+            if( pf::util::isenabled($pf::config::ConfigFirewallSSO{$firewall_id}{cache_updates}) ){
+                my $cache = pf::CHI->new( namespace => 'firewall_sso' );
+                my $cache_timeout = $pf::config::ConfigFirewallSSO{$firewall_id}{cache_timeout} || $postdata{timeout} / 2;
+                my $cache_key = "$firewall_id - $postdata{ip}";
+                return $cache->compute($cache_key, { expires_in => $cache_timeout },
+                    sub {
+                        $logger->debug("Doing cached firewall SSO for '$cache_key' with expiration of $cache_timeout");
+                        $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+                        return 1;
+                    }
+                );
+            }
+            else {
+                $firewall->action($firewall_id,'Start',$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+            }
+        }
+        else {
+            $firewall->action($firewall_id,$postdata{'method'},$postdata{'mac'},$postdata{'ip'},$postdata{'timeout'});
+        }
+
     }
     return $pf::config::TRUE;
 }
 
-
-sub ReAssignVlan : Public {
+sub ReAssignVlan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
@@ -263,7 +313,7 @@ sub ReAssignVlan : Public {
     }
 }
 
-sub desAssociate : Public {
+sub desAssociate : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
@@ -308,7 +358,7 @@ sub _reassignSNMPConnections {
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP( $switch->{_id}, $ifIndex );
     unless ( (@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' ) ) {
         $logger->warn(
-            "[$mac] received reAssignVlan trap on (".$switch->{'_id'}.") ifIndex $ifIndex but can't determine non VoIP MAC"
+            "received reAssignVlan trap on (".$switch->{'_id'}.") ifIndex $ifIndex but can't determine non VoIP MAC"
         );
         return;
     }
@@ -316,7 +366,7 @@ sub _reassignSNMPConnections {
     # case PORTSEC : When doing port-security we need to reassign the VLAN before
     # bouncing the port.
     if ( $switch->isPortSecurityEnabled($ifIndex) ) {
-        $logger->info( "[$mac] security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
+        $logger->info( "security traps are configured on (".$switch->{'_id'}.") ifIndex $ifIndex. Re-assigning VLAN" );
 
         _node_determine_and_set_into_VLAN( $mac, $switch, $ifIndex, $connection_type );
 
@@ -325,14 +375,14 @@ sub _reassignSNMPConnections {
         if ( $switch->hasPhoneAtIfIndex($ifIndex)  ) {
             my @violations = pf::violation::violation_view_open_desc($mac);
             if ( scalar(@violations) == 0 ) {
-                $logger->warn("[$mac] VLAN changed and is behind VoIP phone. Not bouncing the port!");
+                $logger->warn("VLAN changed and is behind VoIP phone. Not bouncing the port!");
                 return;
             }
         }
 
     } # end case PORTSEC
 
-    $logger->info( "[$mac] Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
+    $logger->info( "Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
     $switch->bouncePort($ifIndex);
 }
 
@@ -345,9 +395,17 @@ Set the vlan for the node on the switch
 sub _node_determine_and_set_into_VLAN {
     my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
+    my $args = {
+        mac => $mac,
+        node_info => pf::node::node_attributes($mac),
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+    };
 
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+    my $role = $role_obj->fetchRoleForNode($args);
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     my %locker_ref;
     $locker_ref{$switch->{_ip}} = &share({});
@@ -386,6 +444,30 @@ sub trigger_violation : Public {
     return unless validate_argv(\@require,  \@found);
 
     return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
+}
+
+=head2 release_all_violations
+
+Release all violations for a node
+
+=cut
+
+sub release_all_violations : Public {
+    my ($class, $mac) = @_;
+    my $logger = pf::log::get_logger;
+    $mac = pf::util::clean_mac($mac);
+    die "Missing MAC address" unless($mac);
+    my $closed_violation = 0;
+    foreach my $violation (pf::violation::violation_view_open($mac)){
+        $logger->info("Releasing violation $violation->{vid} for $mac though release_all_violations");
+        if(pf::violation::violation_force_close($mac,$violation->{vid})){
+            $closed_violation += 1;
+        }
+        else {
+            $logger->error("Cannot close violation $violation->{vid} for $mac");
+        }
+    }
+    return $closed_violation;
 }
 
 
@@ -483,10 +565,7 @@ sub notify_configfile_changed : Public {
     eval {
         my %data = ( conf_file => $postdata{conf_file} );
         my ($result) = $apiclient->call( 'download_configfile', %data );
-        open(my $fh, '>', $postdata{conf_file}) or die "Cannot open file $postdata{conf_file} for writing. This is excessively bad. Run '/usr/local/pf/bin/pfcmd fixpermissions'";
-        print $fh $result;
-        close($fh);
-        use pf::config::cached;
+        pf::util::safe_file_update($postdata{conf_file}, $result);
         pf::config::cached::updateCacheControl();
         pf::config::cached::ReloadConfigs(1);
 
@@ -494,6 +573,7 @@ sub notify_configfile_changed : Public {
     };
     if($@){
         $logger->error("Couldn't download configuration file $postdata{conf_file} from $postdata{server}. $@");
+        die $@;
     }
 
     return 1;
@@ -505,7 +585,6 @@ sub download_configfile : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
-    use File::Slurp;
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
 
@@ -522,13 +601,8 @@ sub distant_download_configfile : Public {
     my %data = ( conf_file => $file );
     my $apiclient = pf::api::jsonrpcclient->new(host => $postdata{from}, proto => 'https');
     my ($result) = $apiclient->call( 'download_configfile', %data );
-    open(my $fh, '>', $file);
-    print $fh $result;
-    close($fh);
-    `chown pf.pf $file`;
-
+    pf::util::safe_file_update($file, $result);
     return 1;
-
 }
 
 sub expire_cluster : Public {
@@ -542,6 +616,7 @@ sub expire_cluster : Public {
     $postdata{light} = 0;
     expire($class, %postdata);
 
+    my @failed;
     foreach my $server (@cluster_servers){
         next if($host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
@@ -554,7 +629,9 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@")
+            $logger->error("An error occured while expiring the configuration on $server->{management_ip}. $@");
+            push @failed, $server->{host};
+            next;
         }
 
         %data = (
@@ -567,9 +644,16 @@ sub expire_cluster : Public {
         };
 
         if($@){
-            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@")
+            $logger->error("An error occured while notifying the change of configuration on $server->{management_ip}. $@");
+            push @failed, $server->{host};
+            next;
         }
     }
+
+    if(@failed){
+        die "Failed to sync configuration on server(s) ".join(',',@failed);
+    }
+
     return 1;
 }
 
@@ -580,31 +664,15 @@ sub expire : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require, \@found);
 
-    # this is to detect failures in the light expire which has the most chances of failing since it requires the pfconfig service to be alive
-    my $error = 0;
-    if($postdata{light}){
-        my $payload = {
-          method => "expire",
-          namespace => $postdata{namespace},
-          light => $postdata{light},
-        };
-
-        my $result = pfconfig::util::fetch_decode_socket(encode_json($payload));
-        unless ( $result->{status} eq "OK." ) {
-            $logger->error("Couldn't light expire namespace $postdata{namespace}");
-            $error = 1;
-        }
+    my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
+    if($all){
+        pfconfig::manager->new->expire_all($postdata{light});
     }
-    else {
-        my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
-        if($all){
-            pfconfig::manager->new->expire_all();
-        }
-        else{
-            pfconfig::manager->new->expire($postdata{namespace});
-        }
+    else{
+        pfconfig::manager->new->expire($postdata{namespace}, $postdata{light});
     }
-    return { error => $error };
+    # There are currently no errors returned
+    return { error => 0 };
 }
 
 =head2 validate_argv
@@ -768,19 +836,21 @@ Check if we have to launch a scan for the device
 
 =cut
 
-sub trigger_scan : Public {
+sub trigger_scan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;
     return unless validate_argv(\@require,  \@found);
 
-
+    return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
     # post_registration (production vlan)
+    # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
         my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
         # get violation id
         my $vid = $top_violation->{'vid'};
+        return if not defined $vid;
         sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
@@ -836,7 +906,8 @@ sub dynamic_register_node : Public {
     my $logger = pf::log::get_logger();
     my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
-    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
+    # We try this although the realm is not mandatory in case it proves to be useful in the future
+    my @sources = get_user_sources($profile, $postdata{'username'}, $postdata{'realm'}); 
     my $stripped_user = '';
 
     my $params = {
@@ -874,8 +945,181 @@ sub dynamic_register_node : Public {
 
 sub fingerbank_process : Public {
     my ( $class, $args ) = @_;
+    my $filter = pf::access_filter::dhcp->new;
+    my $rule = $filter->filter('DhcpFingerbank', $args);
+    if (!$rule) {
+        delete $args->{'computer_name'};
+        return (pf::fingerbank::process($args));
+    }
+    return undef;
+}
 
-    return (pf::fingerbank::process($args));
+=head2 fingerbank_update_upstream_db
+
+=cut
+
+sub fingerbank_update_upstream_db : Public {
+    my ( $class ) = @_;
+
+    my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
+    pf::fingerbank::sync_upstream_db();
+
+    pf::config::util::pfmailer(( subject => 'Fingerbank - Update upstream DB status', message => $status_msg ));
+}
+
+=head2 fingerbank_submit_unmatched
+
+=cut
+
+sub fingerbank_submit_unmatched : Public {
+    my ( $class ) = @_;
+
+    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
+
+    pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
+}
+
+=head2 throw
+
+Method throw for testing purposes
+
+=cut
+
+sub throw : Public {
+    die "This will always die\n";
+}
+
+=head2 detect_computername_change
+
+Will determine if a hostname has changed from what is currently stored in the DB
+Will try to trigger a violation with the trigger internal::hostname_change
+
+=cut
+
+sub detect_computername_change : Public {
+    my ( $class, $mac, $new_computername ) = @_;
+    my $logger = pf::log::get_logger;
+    my $node_attributes = pf::node::node_attributes($mac);
+
+    if(defined($node_attributes->{computername}) && $node_attributes->{computername}){
+        if($node_attributes->{computername} ne $new_computername){
+            $logger->warn(
+              "Computername change detected ".
+              "( ".$node_attributes->{computername}." -> $new_computername ).".
+              "Possible MAC spoofing.");
+
+            pf::violation::violation_trigger($mac, "hostname_change", "internal");
+            return 1;
+        }
+    }
+    return 0;
+}
+
+=head2 reevaluate_access
+
+Reevaluate the access of the mac address.
+
+=cut
+
+sub reevaluate_access : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(mac reason);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,\@found);
+
+    my $logger = pf::log::get_logger();
+
+    pf::enforcement::reevaluate_access( $postdata{'mac'}, $postdata{'reason'} );
+}
+
+=head2 process_dhcp
+
+Processes a DHCPv4 request through the pf::dhcp::processor module
+The UDP payload must be base 64 encoded.
+
+=cut
+
+sub process_dhcp : Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type udp_payload_b64);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless validate_argv(\@require,\@found);
+    
+    $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
+    pf::dhcp::processor->new(%postdata)->process_packet();
+
+    return $pf::config::TRUE;
+}
+
+=head2 process_dhcpv6
+
+Processes a DHCPv6 udp payload to extract the fingerprint and enterprise ID.
+It then uses these in Fingerbank and records them in the database.
+
+The UDP payload must be base 64 encoded.
+
+=cut
+
+sub process_dhcpv6 : Public {
+    my ( $class, $udp_payload ) = @_;
+    my $logger = pf::log::get_logger();
+
+    # The payload is sent in base 64
+    $udp_payload = MIME::Base64::decode($udp_payload);
+
+    my $dhcpv6 = pf::util::dhcpv6::decode_dhcpv6($udp_payload);
+
+    # these are relaying packets.
+    # in that case we take the inner part
+    if($dhcpv6->{msg_type} eq 12 || $dhcpv6->{msg_type} eq 13){
+        $logger->debug("Found relaying packet. Taking inner request/reply from it.");
+        $dhcpv6 = $dhcpv6->{options}->[0];
+    }
+
+    # we are only interested in solicits for the fingerprint and enterprise ID
+    if($dhcpv6->{msg_type} ne 1){
+        $logger->debug("Skipping DHCPv6 packet because it's not a solicit.");
+        return;
+    }
+
+    my ($mac_address, $dhcp6_enterprise, $dhcp6_fingerprint) = (undef, '', '');
+    foreach my $option (@{$dhcpv6->{options}}){
+        if(defined($option->{enterprise_number})){
+            $dhcp6_enterprise = $option->{enterprise_number};
+            $logger->debug("Found DHCPv6 enterprise ID '$dhcp6_enterprise'");
+        }
+        elsif(defined($option->{requested_options})){
+            $dhcp6_fingerprint = join ',', @{$option->{requested_options}};
+            $logger->debug("Found DHCPv6 fingerprint '$dhcp6_fingerprint'");
+        }
+        elsif(defined($option->{addr})){
+            $mac_address = $option->{addr};
+            $logger->debug("Found DHCPv6 link address (MAC) '$mac_address'");
+        }
+    }
+    Log::Log4perl::MDC->put('mac', $mac_address);
+    $logger->trace("Found DHCPv6 packet with fingerprint '$dhcp6_fingerprint' and enterprise ID '$dhcp6_enterprise'.");
+
+    my %fingerbank_query_args = (
+        mac                 => $mac_address,
+        dhcp6_fingerprint   => $dhcp6_fingerprint,
+        dhcp6_enterprise    => $dhcp6_enterprise,
+    );
+
+    pf::fingerbank::process(\%fingerbank_query_args);
+
+    pf::node::node_modify($mac_address, dhcp6_fingerprint => $dhcp6_fingerprint, dhcp6_enterprise => $dhcp6_enterprise);
+}
+
+=head2 copy_directory
+
+Copy a directory on this server
+
+=cut
+
+sub copy_directory : Public {
+    my ($class, $source_dir, $dest_dir) = @_;
+    return dircopy($source_dir, $dest_dir);
 }
 
 =head1 AUTHOR
@@ -884,7 +1128,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

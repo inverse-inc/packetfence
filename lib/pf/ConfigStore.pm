@@ -17,7 +17,7 @@ Is the Base class for accessing pf::config::cached
 use Moo;
 use namespace::autoclean;
 use pf::config::cached;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
@@ -120,7 +120,7 @@ Get all the sections as an array of hash refs
 sub readAll {
     my ($self,$idKey) = @_;
     my $config = $self->cachedConfig;
-    my $default_section = $config->{default} if exists $config->{default};
+    my $default_section = $config->{default} if(defined($self->default_section) && exists($config->{default}));
     my @sections;
     foreach my $id ($self->_Sections()) {
         my $section = $self->read($id,$idKey);
@@ -153,17 +153,25 @@ If config has a section
 sub hasId {
     my ($self, $id ) = @_;
     my $config = $self->cachedConfig;
-    $id = $self->_formatId($id);
+    $id = $self->_formatSectionName($id);
     return $config->SectionExists($id);
 }
 
-=head2 _formatId
+=head2 _formatSectionName
 
 format the id
 
 =cut
 
-sub _formatId { return $_[1]; }
+sub _formatSectionName { return $_[1]; }
+
+=head2 _cleanupId
+
+Cleanup the id
+
+=cut
+
+sub _cleanupId { return $_[1]; }
 
 =head2 read
 
@@ -173,14 +181,28 @@ reads a section
 
 sub read {
     my ($self, $id, $idKey ) = @_;
+    my $data = $self->readRaw($id, $idKey);
+    $self->cleanupAfterRead($id,$data);
+    return $data;
+}
+
+=head2 readRaw
+
+reads a section without doing post-read cleanup
+
+=cut
+
+sub readRaw {
+    my ($self, $id, $idKey ) = @_;
     my $data;
     my $config = $self->cachedConfig;
-    $id = $self->_formatId($id);
+    $id = $self->_formatSectionName($id);
     if ( $config->SectionExists($id) ) {
         $data = {};
-        my @default_params = $config->Parameters($config->{default}) if exists $config->{default};
-        $data->{$idKey} = $id if defined $idKey;
-        foreach my $param (uniq $config->Parameters($id),@default_params) {
+        my @default_params = $config->Parameters($config->{default})
+            if (exists $config->{default});
+        $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
+        foreach my $param (uniq $config->Parameters($id), @default_params) {
             my $val;
             my @vals = $config->val($id, $param);
             if (@vals == 1 ) {
@@ -190,7 +212,6 @@ sub read {
             }
             $data->{$param} = $val;
         }
-        $self->cleanupAfterRead($id,$data);
     }
     return $data;
 }
@@ -206,7 +227,7 @@ sub update {
     my $result;
     if ($id ne 'all') {
         my $config = $self->cachedConfig;
-        my $real_id = $self->_formatId($id);
+        my $real_id = $self->_formatSectionName($id);
         if ( $result = $config->SectionExists($real_id) ) {
             $self->cleanupBeforeCommit($id, $assignments);
             $self->_update_section($real_id, $assignments);
@@ -264,7 +285,7 @@ sub create {
     my $config = $self->cachedConfig;
     my $result;
     if ($self->validId($id)) {
-        my $real_id = $self->_formatId($id);
+        my $real_id = $self->_formatSectionName($id);
         if($result = !$config->SectionExists($id) ) {
             $self->cleanupBeforeCommit($id, $assignments);
             $config->AddSection($real_id);
@@ -296,7 +317,7 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    return $self->cachedConfig->DeleteSection($self->_formatId($id));
+    return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
 }
 
 =head2 Copy
@@ -309,7 +330,7 @@ sub copy {
     my ($self,$from,$to) = @_;
     my $result;
     if ($self->validId($to)) {
-        $result = $self->cachedConfig->CopySection($self->_formatId($from),$self->_formatId($to));
+        $result = $self->cachedConfig->CopySection($self->_formatSectionName($from),$self->_formatSectionName($to));
     }
     return $result;
 }
@@ -322,7 +343,7 @@ sub renameItem {
     my ( $self, $old, $new ) = @_;
     my $result;
     if ($self->validId($new)) {
-        $result = $self->cachedConfig->RenameSection($self->_formatId($old),$self->_formatId($new));
+        $result = $self->cachedConfig->RenameSection($self->_formatSectionName($old),$self->_formatSectionName($new));
     }
     return $result;
 }
@@ -335,7 +356,7 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $sections ) = @_;
-    return $self->cachedConfig->ResortSections(map { $_ = $self->_formatId($_) } @$sections);
+    return $self->cachedConfig->ResortSections(map { $_ = $self->_formatSectionName($_) } @$sections);
 }
 
 =head2 cleanupAfterRead
@@ -406,7 +427,9 @@ sub commit {
         $self->rollback();
     }
 
-    $self->commitPfconfig;
+    if($result){
+        ($result,$error) = $self->commitPfconfig;
+    }
 
     return ($result, $error);
 }
@@ -416,16 +439,22 @@ sub commitPfconfig {
 
     if(defined($self->pfconfigNamespace)){
         if($cluster_enabled){
-            $self->commitCluster();
+            eval {
+                $self->commitCluster();
+            };
+            if($@){
+                return (undef, "Could not synchronize cluster ($@).");
+            }
         }
         else {
             my $manager = pfconfig::manager->new;
-            $manager->expire($self->pfconfigNamespace);            
+            $manager->expire($self->pfconfigNamespace);
         }
     }
     else{
         get_logger->error("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
     }
+    return (1,"OK");
 }
 
 sub commitCluster {
@@ -446,8 +475,9 @@ sub commitCluster {
 =cut
 
 sub search {
-    my ($self, $field, $value) = @_;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll};
+    my ($self, $field, $value, $idKey) = @_;
+    return unless defined $field && defined $value;
+    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
 
 }
 
@@ -455,7 +485,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

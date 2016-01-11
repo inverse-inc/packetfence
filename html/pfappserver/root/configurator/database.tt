@@ -58,7 +58,7 @@
               <strong>[% l('Warning!') %]</strong> [% l('MySQL server does not seems to be running. You should start it to avoid any problems.') %] <a class="btn" id="startMySQL" href="[% c.uri_for(c.controller('DB').action_for('start')) %]">[% l('Start MySQL') %]</a><span></span>
             </div>
             <h3>[% l('Enter the MySQL root account credentials') %]</h3>
-            <p class="help-block">[% l("If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one.") %]</p><p></p>
+            <p class="help-block">[% l("If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one.") | none %]</p><p></p>
             <div class="control-group">
               <label class="control-label" for="root_user">[% l('Username') %]</label>
               <div class="controls">

@@ -26,7 +26,7 @@ Remove this note when it will be no longer relevant. ;)
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Text::CSV;
 use POSIX;
 
@@ -60,7 +60,7 @@ Supported: One MAC address per line.
 #      this would allow callers to determine where the output should go. pfcmd -> STDOUT, SOAP -> Apache
 sub nodes {
     my ($filename) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::import');
+    my $logger = get_logger();
 
     my $csv = Text::CSV->new({ binary => 1 });
     open my $io, "<", $filename
@@ -132,7 +132,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

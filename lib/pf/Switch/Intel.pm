@@ -15,12 +15,11 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
     if ( $trapString
         =~ /^BEGIN TYPE ([23]) END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+ END VARIABLEBINDINGS$/
         )
@@ -35,12 +34,12 @@ sub parseTrap {
 }
 
 sub getAlias {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return "This function is not supported by Intel switches";
 }
 
 sub setAlias {
-    my ( $this, $ifIndex, $alias ) = @_;
+    my ( $self, $ifIndex, $alias ) = @_;
     return 1;
 }
 
@@ -50,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

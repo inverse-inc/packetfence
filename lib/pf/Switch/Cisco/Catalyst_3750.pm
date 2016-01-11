@@ -36,7 +36,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::config;
@@ -60,8 +59,8 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 =cut
 
 sub NasPortToIfIndex {
-    my ($this, $NAS_port) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $NAS_port) = @_;
+    my $logger = $self->logger;
 
     # NAS-Port bumps by +100 between stacks while ifIndex bumps by +500
     # some examples values for stacked switches are available in t/network-devices/cisco.t
@@ -83,7 +82,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

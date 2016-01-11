@@ -9,7 +9,7 @@ pf::pfcmd::dashboard - module feeding data to the dashboard nuggets
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use pf::log;
 
 use constant DASHBOARD => 'pfcmd::dashboard';
 
@@ -44,7 +44,7 @@ our $dashboard_db_prepared = 0;
 our $dashboard_statements = {};
 
 sub dashboard_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::pfcmd::dashboard');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::pfcmd::dashboard database queries");
 
     $dashboard_statements->{'nugget_recent_violations_sql'} = get_db_handle()->prepare(
@@ -133,7 +133,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

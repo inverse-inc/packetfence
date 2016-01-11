@@ -14,8 +14,10 @@ pf::ConfigStore::Switch;
 use Moo;
 use namespace::autoclean;
 use pf::ConfigStore::Pf;
+use pf::ConfigStore::Group;
 
-extends 'pf::ConfigStore::Group';
+extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Group';
 
 sub group { 'interface' };
 
@@ -37,7 +39,7 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

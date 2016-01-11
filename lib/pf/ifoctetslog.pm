@@ -20,7 +20,7 @@ Read the F<pf.conf> configuration file.
 use strict;
 use warnings;
 use Date::Parse;
-use Log::Log4perl;
+use pf::log;
 
 use constant IFOCTETSLOG => 'ifoctetslog';
 
@@ -54,7 +54,7 @@ our $ifoctetslog_db_prepared = 0;
 our $ifoctetslog_statements = {};
 
 sub ifoctetslog_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::ifoctetslog');
+    my $logger = get_logger();
     $logger->debug("Preparing pf::ifoctetslog database queries");
 
     $ifoctetslog_statements->{'ifoctetslog_history_mac_sql'} = get_db_handle()->prepare(
@@ -369,7 +369,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

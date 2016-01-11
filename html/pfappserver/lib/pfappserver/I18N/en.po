@@ -1,5 +1,5 @@
 # English translations for PacketFence package.
-# Copyright (C) 2005-2015 Inverse inc.
+# Copyright (C) 2005-2016 Inverse inc.
 # This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
@@ -436,10 +436,6 @@ msgstr ""
 
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "CAD"
 msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
@@ -1876,12 +1872,6 @@ msgstr ""
 msgid "Native VLAN"
 msgstr ""
 
-# conf/documentation.conf (alerting.admin_netbiosname)
-msgid ""
-  "NetBIOS name of administrative workstation to send alerts with"
-  "\"winpopup\" action assigned."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/interface/list.tt
@@ -2768,6 +2758,14 @@ msgstr "Switches - Read"
 msgid "SWITCHES_UPDATE"
 msgstr "Switches - Update"
 
+# pf::admin_roles (Actions)
+msgid "SWITCH_LOGIN_READ"
+msgstr "Switches CLI - Read"
+
+# pf::admin_roles (Actions)
+msgid "SWITCH_LOGIN_WRITE"
+msgstr "Switches CLI - Write"
+
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
@@ -3203,20 +3201,12 @@ msgstr ""
 msgid "The button text will appear on the registration page submit button"
 msgstr ""
 
-# conf/documentation.conf (billing.mirapay_currency)
-msgid "The currency of the mirapay transactions"
-msgstr ""
-
 # html/pfappserver/root/user/list_password.tt
 msgid "The following user have been created"
 msgstr ""
 
 # html/pfappserver/root/user/list_password.tt
 msgid "The following users have been created"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_hash_password)
-msgid "The hash password for mirapay"
 msgstr ""
 
 # conf/documentation.conf (provisioning.ssid)
@@ -3237,40 +3227,8 @@ msgid ""
   "Must between 1k and 128m"
 msgstr ""
 
-# conf/documentation.conf (billing.authorizenet_login)
-msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_trankey)
-msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
-msgstr ""
-
 # html/pfappserver/root/node/create.tt
 msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
-msgstr ""
-
-# conf/documentation.conf (billing.authorizenet_posturl)
-msgid "The payment gateway processing URL (Provided by Authorize.net)"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_url)
-msgid "The payment gateway processing URL for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.gateway)
-msgid "The payment gateway to process the payments"
-msgstr ""
-
-# conf/documentation.conf (registration.device_registration_role)
-msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id)
-msgid "The terminal id for mirapay"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_terminal_id_group)
-msgid "The terminal id group for mirapay"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -3407,10 +3365,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "URI"
-msgstr ""
-
-# conf/documentation.conf (billing.mirapay_currency options)
-msgid "USD"
 msgstr ""
 
 # pf::admin_roles (Actions)
@@ -3664,12 +3618,6 @@ msgstr "WEP Key Entry Method"
 msgid "WEP_Key_Size"
 msgstr "WEP Key Size"
 
-# conf/documentation.conf (alerting.wins_server)
-msgid ""
-  "WINS server to resolve NetBIOS name of administrative workstation to"
-  "IP address."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
 msgstr ""
@@ -3828,6 +3776,14 @@ msgid "advanced.hashing_cost"
 msgstr "Database passwords hashing cost factor" 
 
 # conf/documentation.conf
+msgid "advanced.disable_pf_domain_auth"
+msgstr "Disable 802.1x authentication on PF domains" 
+
+# conf/documentation.conf
+msgid "advanced.ldap_attributes"
+msgstr "LDAP attributes" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
@@ -3879,53 +3835,9 @@ msgstr ""
 msgid "any"
 msgstr ""
 
-# conf/documentation.conf (billing.gateway options)
-msgid "authorize_net"
-msgstr "Authorize.net"
-
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
-
-# conf/documentation.conf
-msgid "billing"
-msgstr "Billing"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_login"
-msgstr "Authorize.net API Login ID"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_posturl"
-msgstr "Authorize.net URL"
-
-# conf/documentation.conf
-msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net Transaction Key"
-
-# conf/documentation.conf
-msgid "billing.gateway"
-msgstr "Gateway"
-
-# conf/documentation.conf
-msgid "billing.mirapay_currency"
-msgstr "Mirapay currency"
-
-# conf/documentation.conf
-msgid "billing.mirapay_hash_password"
-msgstr "Mirapay password"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id"
-msgstr "Mirapay terminal id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_terminal_id_group"
-msgstr "Mirapay terminal group id"
-
-# conf/documentation.conf
-msgid "billing.mirapay_url"
-msgstr "Mirapay URL"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -4114,8 +4026,11 @@ msgid "email"
 msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
-msgid "email_action"
-msgstr "Send email"
+msgid "email_admin_action"
+msgstr "Send email to administrator"
+
+msgid "email_user_action"
+msgstr "Send email to owner"
 
 # conf/documentation.conf (captive_portal.network_detection options)
 # conf/documentation.conf (captive_portal.secure_redirect options)
@@ -4548,10 +4463,6 @@ msgstr "nested group"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
 msgstr ""
-
-# conf/documentation.conf (billing.gateway options)
-msgid "mirapay"
-msgstr "Mirapay"
 
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
@@ -4994,8 +4905,8 @@ msgid "testing"
 msgstr "Testing"
 
 # pf::action (VIOLATION_ACTIONS)
-msgid "trap_action"
-msgstr "Trap"
+msgid "reevaluate_access_action"
+msgstr "Reevaluate access"
 
 # conf/documentation.conf
 msgid "trapping"
@@ -5064,7 +4975,7 @@ msgstr "unregistered"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
-msgstr "Deregister node"
+msgstr "Unregister node"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
@@ -5173,10 +5084,6 @@ msgstr "Monitoring"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "weeks"
 msgstr ""
-
-# pf::action (VIOLATION_ACTIONS)
-msgid "winpopup_action"
-msgstr "Windows popup message"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "years"

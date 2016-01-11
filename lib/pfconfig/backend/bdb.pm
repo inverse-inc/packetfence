@@ -55,6 +55,17 @@ sub get {
     return $value;
 }
 
+=head2 list
+
+List all the keys in the backend
+
+=cut
+
+sub list {
+    my ( $self ) = @_;
+    return keys %{ $self->{cache}->get_bulk() };
+}
+
 =back
 
 =head1 AUTHOR
@@ -63,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

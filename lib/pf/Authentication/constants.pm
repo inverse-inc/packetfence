@@ -27,6 +27,30 @@ package Rules;
 Readonly::Scalar our $ANY => 'any';
 Readonly::Scalar our $ALL => 'all';
 
+=item AUTH, ADMIN
+
+Available classes for a rule
+
+=cut
+
+Readonly::Scalar our $AUTH => 'authentication';
+Readonly::Scalar our $ADMIN => 'administration';
+
+=item CLASSES
+
+List of available classes
+
+=cut
+
+Readonly::Array our @CLASSES => (
+    $AUTH,
+    $ADMIN,
+);
+Readonly::Hash our %CLASSES => map { $_ => 1 } @Rules::CLASSES;
+
+
+=back
+
 =head1 Conditions
 
 Constants related to conditions rules.
@@ -38,6 +62,7 @@ Constants related to conditions rules.
 package Conditions;
 
 Readonly::Scalar our $EQUALS => 'equals';
+Readonly::Scalar our $NOT_EQUALS => 'not equals';
 Readonly::Scalar our $CONTAINS => 'contains';
 Readonly::Scalar our $STARTS => 'starts';
 Readonly::Scalar our $ENDS => 'ends';
@@ -78,7 +103,7 @@ Readonly::Hash our %OPERATORS =>
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
    $CONNECTION => [$IS, $IS_NOT],
-   $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
+   $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );
 
 =back
@@ -111,14 +136,19 @@ List of available actions
 
 =cut
 
-Readonly::Array our @ACTIONS =>
-  (
-   $SET_ROLE,
-   $SET_ACCESS_DURATION,
-   $SET_UNREG_DATE,
-   $SET_ACCESS_LEVEL,
-   $MARK_AS_SPONSOR,
-  );
+Readonly::Hash our %ACTIONS => (
+    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE ],
+    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
+);
+
+Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
+    $SET_ROLE            => $Rules::AUTH,
+    $SET_UNREG_DATE      => $Rules::AUTH,
+    $SET_ACCESS_DURATION => $Rules::AUTH,
+
+    $SET_ACCESS_LEVEL    => $Rules::ADMIN,
+    $MARK_AS_SPONSOR     => $Rules::ADMIN,
+);
 
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
@@ -138,7 +168,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

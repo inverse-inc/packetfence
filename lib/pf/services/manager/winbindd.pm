@@ -47,6 +47,7 @@ sub _build_winbinddManagers {
             name => "winbindd-$_.conf",
             launcher => "sudo chroot $CHROOT_PATH $binary -D -s $CONFIGFILE -l $LOGDIRECTORY",
             forceManaged => $self->isManaged,
+            orderIndex => $self->orderIndex,
         })
     } uniq keys %ConfigDomain;
     return \@managers;
@@ -77,7 +78,7 @@ sub postStartCleanup {
     my $result = 0;
     my $inotify = $self->inotify;
     my @pidFiles = map { $_->pidFile } $self->managers;
-    my $logger = get_logger;
+    my $logger = get_logger();
     if ( @pidFiles && any { ! -e $_ } @pidFiles ) {
         my $timedout;
         eval {
@@ -113,7 +114,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

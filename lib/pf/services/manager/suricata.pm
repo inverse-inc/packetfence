@@ -13,6 +13,7 @@ pf::services::manager::suricata
 
 use strict;
 use warnings;
+use pf::log;
 use pf::file_paths;
 use pf::constants;
 use pf::config;
@@ -32,15 +33,15 @@ has '+launcher' => (
 );
 
 sub generateConfig {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my %tags;
     $tags{'template'}      = "$conf_dir/suricata.yaml";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'install_dir'}   = $install_dir;
 
     my @rules;
-    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
-        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+    if (exists $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $pf::violation_config::Violation_Config{'defaults'}{'snort_rules'} ) ) {
 
             #append install_dir if the path doesn't start with /
             $rule = " - $rule" if ( $rule !~ /^\// );
@@ -60,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

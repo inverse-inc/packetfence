@@ -10,9 +10,11 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
+use pf::log;
 use pf::config;
 use pf::constants;
 use Moose;
+use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
@@ -22,6 +24,14 @@ has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
+
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $TRUE }
 
 =head2 add_rule
 
@@ -41,6 +51,16 @@ sub available_attributes {
   return $self->common_attributes();
 }
 
+=head2 available_rule_classes
+
+Return all possible rule classes for a source. This method can be overloaded in a subclass to limit the available rule classes.
+
+=cut
+
+sub available_rule_classes {
+    return \@Rules::CLASSES;
+}
+
 =head2 available_actions
 
 Return all possible actions for a source. This method can be overloaded in a subclass to limit the available actions.
@@ -50,7 +70,8 @@ Defined in pf::Authentication::constants.
 =cut
 
 sub available_actions {
-    return \@Actions::ACTIONS;
+    my @actions = map( { @$_ } values %Actions::ACTIONS);
+    return \@actions;
 }
 
 =head2 common_attributes
@@ -64,6 +85,7 @@ sub common_attributes {
           { value => 'current_time', type => $Conditions::TIME },
           { value => 'connection_type', type => $Conditions::CONNECTION },
           { value => 'computer_name', type => $Conditions::SUBSTRING },
+          { value => "mac", type => $Conditions::SUBSTRING },
          ];
 }
 
@@ -129,7 +151,7 @@ sub match {
     my ($self, $params) = @_;
 
     my $common_attributes = $self->common_attributes();
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    my $logger = get_logger();
 
     # Add current date & time to the list of parameters
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
@@ -144,6 +166,7 @@ sub match {
     $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
+        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
         my @matching_conditions = ();
         my @own_conditions = ();
 
@@ -217,8 +240,23 @@ sub match_condition {
 =cut
 
 sub search_attributes {
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-    $logger->debug("Search_attributes is not supported on this source.");
+    my ($self,$username) = @_;
+    my $realm;
+    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
+    return $self->search_attributes_in_subclass($username);
+}
+
+=head2 search_attributes_in_subclass
+
+Search for the attributes of a user
+
+Returns a hashref that will be injected in pf::person::modify or 0 ($FALSE) if it fails
+
+=cut
+
+sub search_attributes_in_subclass {
+    my $logger = get_logger();
+    $logger->debug("search_attributes_in_subclass is not supported on this source.");
     return $FALSE;
 }
 
@@ -252,7 +290,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

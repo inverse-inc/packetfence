@@ -12,10 +12,8 @@ Is the Generic class for the cached config
 
 =cut
 
-use Moo;
+use Moo::Role;
 use namespace::autoclean;
-
-BEGIN {extends 'pf::ConfigStore';}
 
 =head2 Fields
 
@@ -43,22 +41,31 @@ sub _Sections {
     return grep { s/^\Q$group\E // }  $self->cachedConfig->Sections($group);
 }
 
-=item _formatId
+=item _formatSectionName
 
 =cut
 
-sub _formatId {
+sub _formatSectionName {
    my ($self,$id) = @_;
    return $self->group . " " . $id;
 }
 
-__PACKAGE__->meta->make_immutable;
+=item _cleanupId
+
+=cut
+
+sub _cleanupId {
+    my ($self, $id) = @_;
+    my $quoted_group = quotemeta($self->group);
+    $id =~ s/^$quoted_group //g;
+    return $id;
+}
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

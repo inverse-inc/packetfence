@@ -54,7 +54,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::constants;
@@ -82,14 +81,14 @@ obtain image version information from switch
 =cut
 
 sub getVersion {
-    my ($this)       = @_;
+    my ($self)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
-    my $logger       = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
     my $sysDescr = ( $result->{$oid_sysDescr} || '' );
 
     # sysDescr sample output:
@@ -111,9 +110,9 @@ Parsing SNMP Traps - WIDS stuff only, other types are discarded
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     # Handle WIPS Trap
     if ( $trapString =~ /BEGIN VARIABLEBINDINGS.*\.1\.3\.6\.1\.4\.1\.388\.50\.1\.2\.1\.4 = STRING: "Unsanctioned AP ([A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2})/){
@@ -136,7 +135,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -162,17 +161,17 @@ deauthenticate a MAC address from wireless network (including 802.1x)
 =cut
 
 sub _deauthenticateMacSNMP {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $mac) = @_;
+    my $logger = $self->logger;
     my $oid_wsCcRfMuDisassociateNow = '1.3.6.1.4.1.388.14.3.2.1.12.3.1.19'; # from WS-CC-RF-MIB
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't write to wsCcRfMuDisassociateNow");
         return 1;
     }
 
     # handles if deauth should be performed against controller or actual device. Returns sessionWrite hash key to use.
-    my $performDeauthOn = $this->getDeauthSnmpConnectionKey();
+    my $performDeauthOn = $self->getDeauthSnmpConnectionKey();
     if ( !defined($performDeauthOn) ) {
         return;
     }
@@ -180,9 +179,9 @@ sub _deauthenticateMacSNMP {
     # append MAC to deauthenticate to oid to set
     $oid_wsCcRfMuDisassociateNow .= '.' . mac2oid($mac);
 
-    $logger->info("deauthenticate mac $mac from controller: " . $this->{_ip});
+    $logger->info("deauthenticate mac $mac from controller: " . $self->{_ip});
     $logger->trace("SNMP set_request for wsCcRfMuDisassociateNow: $oid_wsCcRfMuDisassociateNow");
-    my $result = $this->{$performDeauthOn}->set_request(
+    my $result = $self->{$performDeauthOn}->set_request(
         -varbindlist => [ "$oid_wsCcRfMuDisassociateNow", Net::SNMP::INTEGER, $TRUE ]
     );
 
@@ -190,7 +189,7 @@ sub _deauthenticateMacSNMP {
         $logger->debug("deauthenticatation successful");
         return $TRUE;
     } else {
-        $logger->warn("deauthenticatation failed with " . $this->{$performDeauthOn}->error());
+        $logger->warn("deauthenticatation failed with " . $self->{$performDeauthOn}->error());
         return;
     }
 }
@@ -202,7 +201,7 @@ Motorola uses the following VSA for role assignment
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Symbol-User-Group';
 }
@@ -214,8 +213,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => 'deauthenticateMacDefault',
@@ -237,7 +236,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

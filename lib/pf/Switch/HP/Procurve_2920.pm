@@ -17,7 +17,6 @@ VoIP not tested using MAC Authentication/802.1X
 
 use strict;
 use warnings;
-use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::Switch::HP');
 
@@ -46,9 +45,9 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 =cut
 
 sub getVoipVsa {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $vlanid = sprintf( "%03x\n", $this->getVlanByName('voice') );
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $vlanid = sprintf( "%03x\n", $self->getVlanByName('voice') );
     my $hexvlan = hex( "31000" . $vlanid );
     return ( 'Egress-VLANID' => $hexvlan, );
 }
@@ -60,24 +59,24 @@ Using SNMP and LLDP we determine if there is VoIP connected on the switch port
 =cut
 
 sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my @phones;
-    if ( !$this->isVoIPEnabled() ) {
+    if ( !$self->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
+                . $self->{_ip}
                 . ". getPhonesLLDPAtIfIndex will return empty list." );
         return @phones;
     }
     my $oid_lldpRemPortId           = '1.0.8802.1.1.2.1.4.1.1.7';
-    my $oid_lldpRemChassisIdSubtype = '1.0.8802.1.1.2.1.4.1.1.4';
-    if ( !$this->connectRead() ) {
+    my $oid_lldpRemChassisIdSubtype = '1.0.8802.1.1.2.1.4.1.1.12';
+    if ( !$self->connectRead() ) {
         return @phones;
     }
     $logger->trace(
         "SNMP get_next_request for lldpRemSysDesc: $oid_lldpRemChassisIdSubtype"
     );
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => $oid_lldpRemChassisIdSubtype );
     foreach my $oid ( keys %{$result} ) {
         if ( $oid
@@ -88,23 +87,19 @@ sub getPhonesLLDPAtIfIndex {
                 my $cache_lldpRemTimeMark     = $1;
                 my $cache_lldpRemLocalPortNum = $2;
                 my $cache_lldpRemIndex        = $3;
-                if ( $result->{$oid} =~ /5/i ) {
+
+                if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                     $logger->trace(
                         "SNMP get_request for lldpRemPortId: $oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                     );
-                    my $MACresult = $this->{_sessionRead}->get_request(
+                    my $MACresult = $self->{_sessionRead}->get_request(
                         -varbindlist => [
                             "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                         ]
                     );
                     if ($MACresult
-                        && (unpack(
-                                'H*',
-                                $MACresult->{
-                                    "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
-                                }
-                            )
-                            =~ /^([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})/i
+                        && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
+                            =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
                         )
                         )
                     {
@@ -117,13 +112,15 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

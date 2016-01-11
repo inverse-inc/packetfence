@@ -31,14 +31,15 @@ use strict;
 use warnings;
 
 use IO::Socket::UNIX qw( SOCK_STREAM );
-use JSON;
+use JSON::MaybeXS;
 use pfconfig::timeme;
 use pfconfig::log;
-use pfconfig::util;
+use pfconfig::util qw($undef_element);
 use pfconfig::constants;
 use Sereal::Encoder;
 use Sereal::Decoder;
 use Time::HiRes qw(stat time);
+use bytes;
 
 =head2 ENCODER
 
@@ -141,6 +142,35 @@ sub set_in_subcache {
     $self->{memorized_at} = time unless $self->{memorized_at};
     $self->{_subcache}    = {}   unless $self->{_subcache};
     $self->{_subcache}{$key} = $result;
+
+}
+
+=head2 compute_from_subcache
+
+Get an element of the subcache or compute it's value and store it in the subcache
+
+=cut
+
+sub compute_from_subcache {
+    my ($self, $key, $on_miss) = @_;
+
+    my $subcache_value = $self->get_from_subcache($key);
+    if(defined($subcache_value) && ref($subcache_value) eq "pfconfig::undef_element"){
+        return undef;
+    }
+    elsif(defined($subcache_value)){
+        return $subcache_value;
+    }
+
+    my $result = $on_miss->();
+    if(defined($result)){
+        $self->set_in_subcache($key,$result);
+    }
+    else {
+        $self->set_in_subcache($key, $undef_element);
+    }
+
+    return $result;
 
 }
 
@@ -254,15 +284,13 @@ sub CLONE {
     $DECODER = Sereal::Decoder->new;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

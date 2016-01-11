@@ -11,13 +11,12 @@ use warnings;
 
 use Apache2::MPM ();
 use Apache2::RequestRec;
-use Log::Log4perl;
+use pf::log;
 use ModPerl::Util;
 
 use pf::config;
 use pf::api;
 use pf::client;
-use pf::log;
 pf::client::setClient("pf::api::local");
 
 #uncomment for more debug information
@@ -50,7 +49,7 @@ my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
 sub handler {
     my ($r) = @_;
     pf::client::setClient("pf::api::local");
-    my $logger = get_logger;
+    my $logger = get_logger();
     if (defined($r->headers_in->{Request})) {
         $r->user($r->headers_in->{Request});
     }
@@ -66,7 +65,7 @@ sub handler {
 }
 
 sub log_faults {
-    my $logger = get_logger;
+    my $logger = get_logger();
     $logger->info(@_);
 }
 
@@ -79,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

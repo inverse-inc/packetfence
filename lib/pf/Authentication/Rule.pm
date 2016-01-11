@@ -13,6 +13,7 @@ use Moose;
 use pf::Authentication::constants;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
+has 'class' => (isa => 'Str', is => 'rw', default => $Rules::AUTH);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => $Rules::ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
@@ -46,7 +47,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

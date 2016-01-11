@@ -15,7 +15,7 @@ pf::scan contains the general functions required to lauch and complete a vulnera
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use pf::log;
 use Parse::Nessus::NBE;
 use Readonly;
 use Try::Tiny;
@@ -42,6 +42,7 @@ use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
 use pf::Portal::ProfileFactory;
 use pf::api::jsonrpcclient;
+use Text::CSV_XS;
 
 # DATABASE HANDLING
 use constant SCAN       => 'scan';
@@ -49,7 +50,7 @@ our $scan_db_prepared   = 0;
 our $scan_statements    = {};
 
 sub scan_db_prepare {
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Preparing database statements.");
 
@@ -90,7 +91,7 @@ Instantiate the correct vulnerability scanning engine with attributes
 
 sub instantiate_scan_engine {
     my ( $type, %scan_attributes ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $scan_engine = 'pf::scan::' . $type;
     $logger->info("Instantiate a new vulnerability scanning engine object of type $scan_engine.");
@@ -116,33 +117,48 @@ Parse a scan report from the scan object and trigger violations if needed
 
 sub parse_scan_report {
     my ( $scan, $scan_vid ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     $logger->debug("Scan report to analyze. Scan id: $scan"); 
 
     my $scan_report = $scan->getReport();
-    my @count_vulns = (
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
-        Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
-    );
 
-    # FIXME we shouldn't poke directly into the scan object, we should rely on accessors
-    # we are slicing out the parameters out of the $scan objectified hashref
     my ($mac, $ip, $type) = @{$scan}{qw(_scanMac _scanIp _type)};
 
     # Trigger a violation for each vulnerability
-    my $failed_scan = 0;    
-    foreach my $current_vuln (@count_vulns) {
-        # Parse nstatvulns format
-        my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
+    my $failed_scan = 0;
 
-        $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-        my $violation_added = violation_trigger($mac, $trigger_id, $type);
+    my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
+    open my $io, "<", \$scan_report;
+    my $row = $csv->getline($io);
+    if ($row->[0] eq 'Plugin ID') {
+        while (my $row = $csv->getline($io)) {
+            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
+            my $violation_added = violation_trigger($mac, $row->[0], $type);
 
-        # If a violation has been added, consider the scan failed
-        if ( $violation_added ) {
-            $failed_scan = 1;
+            # If a violation has been added, consider the scan failed
+            if ( $violation_added ) {
+                $failed_scan = 1;
+            }
+        }
+    } else {
+        my @count_vulns = (
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_HOLE),
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_WARNING),
+            Parse::Nessus::NBE::nstatvulns(@$scan_report, $SEVERITY_INFO),
+        );
+        # Trigger a violation for each vulnerability
+        foreach my $current_vuln (@count_vulns) {
+            # Parse nstatvulns format
+            my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
+
+            $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
+            my $violation_added = violation_trigger($mac, $trigger_id, $type);
+
+            # If a violation has been added, consider the scan failed
+            if ( $violation_added ) {
+                $failed_scan = 1;
+            }
         }
     }
 
@@ -162,8 +178,10 @@ sub parse_scan_report {
             my %data = (
                'vid' => $scan_vid,
                'mac' => $mac,
+               'reason' => 'manage_vclose',
             );
             $apiclient->notify('close_violation', %data );
+            $apiclient->notify('reevaluate_access', %data );
         # Scan completed but a violation has been found
         # HACK: we empty the violation's ticket_ref field which we use to track if scan is in progress or not
         } else {
@@ -184,7 +202,7 @@ Retrieve a scan object populated from the database using the scan id
 
 sub retrieve_scan {
     my ( $scan_id ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my $query = db_query_execute(SCAN, $scan_statements, 'scan_select_sql', $scan_id) || return 0;
     my $scan_infos = $query->fetchrow_hashref();
@@ -211,7 +229,7 @@ Prepare the scan attributes, call the engine instantiation and start the scan
 
 sub run_scan {
     my ( $host_ip, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
 
     $host_ip =~ s/\//\\/g;          # escape slashes
@@ -288,7 +306,7 @@ Update the status and reportId of the scan in the database.
 
 sub statusReportSyncToDb {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     db_query_execute(SCAN, $scan_statements, 'scan_update_sql', 
         $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
@@ -333,7 +351,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

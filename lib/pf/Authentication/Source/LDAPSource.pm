@@ -8,16 +8,23 @@ pf::Authentication::Source::LDAPSource
 
 =cut
 
+use pf::log;
 use pf::constants qw($TRUE $FALSE);
+use pf::constants::authentication::messages;
 use pf::Authentication::constants;
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
+use Readonly;
 
 use Net::LDAP;
 use Net::LDAPS;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
+use pf::config;
+use List::MoreUtils qw(uniq);
+use pf::StatsD::Timer;
+use pf::util::statsd qw(called);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -28,6 +35,18 @@ use constant {
     SSL => "ssl",
     TLS => "starttls",
 };
+
+Readonly our %ATTRIBUTES_MAP => (
+  'firstname'   => "givenName",
+  'lastname'    => "sn",
+  'address'     => "physicalDeliveryOfficeName",
+  'telephone'   => "telephoneNumber",
+  'email'       => "mailLocalAddress|mailAlternateAddress|mail",
+  'work_phone'  => "homePhone",
+  'cell_phone'  => "mobile",
+  'company'     => "company",
+  'title'       => "title",
+);
 
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
@@ -43,6 +62,8 @@ has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 
+our $logger = get_logger();
+
 =head1 METHODS
 
 =head2 available_attributes
@@ -53,8 +74,8 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
-    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox", "description", "groupMembership");
+  my @attributes = @{$Config{advanced}->{ldap_attributes}};
+  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @attributes;
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
@@ -70,51 +91,65 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
-  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}"});
+  my $before; # will hold time before StatsD calls
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (!defined($connection)) {
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
   my $result = $self->bind_with_credentials($connection);
 
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   my $filter = "($self->{'usernameattribute'}=$username)";
-  $result = $connection->search(
-    base => $self->{'basedn'},
-    filter => $filter,
-    scope => $self->{'scope'},
-    attrs => ['dn']
-  );
+
+  $result = do {
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search"});
+    $connection->search(
+      base => $self->{'basedn'},
+      filter => $filter,
+      scope => $self->{'scope'},
+      attrs => ['dn']
+    );
+  };
+
   if ($result->is_error) {
     $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Unable to validate credentials at the moment');
+    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} .".error.count" );
+    return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
   if ($result->count == 0) {
     $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Invalid login or password');
+    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
+    return ($FALSE, $AUTH_FAIL_MSG);
   } elsif ($result->count > 1) {
     $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
-    return ($FALSE, 'Invalid login or password');
+    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
+    return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   my $user = $result->entry(0);
 
-  $result = $connection->bind($user->dn, password => $password);
+  $result = do {
+    my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.bind"});
+    $connection->bind($user->dn, password => $password)
+  };
 
   if ($result->is_error) {
     $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Invalid login or password');
+    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
+    return ($FALSE, $AUTH_FAIL_MSG);
   }
 
   $logger->info("[$self->{'id'}] Authentication successful for $username");
-  return ($TRUE, 'Authentication successful using LDAP');
+  return ($TRUE, $AUTH_SUCCESS_MSG);
 }
 
 
@@ -128,6 +163,8 @@ if all connections fail
 
 sub _connect {
   my $self = shift;
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -158,7 +195,11 @@ sub _connect {
     # try TLS if required, return undef if it fails
     if ( $self->{'encryption'} eq TLS ) {
       my $mesg = $connection->start_tls();
-      if ( $mesg->code() ) { $logger->error("[$self->{'id'}] ".$mesg->error()) and return undef; }
+      if ( $mesg->code() ) {
+          $logger->error("[$self->{'id'}] ".$mesg->error());
+          $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
+          return undef;
+      }
     }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
@@ -167,6 +208,7 @@ sub _connect {
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
+    $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
   }
   return undef;
 }
@@ -180,10 +222,18 @@ sub _connect {
 
 sub match {
     my ($self, $params) = @_;
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
     if($self->is_match_cacheable) {
-        return $self->cache->compute([$self->id, $params], sub { return $self->SUPER::match($params)});
+        my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
+                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
+                my $result =   $self->SUPER::match($params);
+                return $result;
+            });
+        return $result;
     }
-    return $self->SUPER::match($params);
+    my $result = $self->SUPER::match($params);
+    return $result;
 }
 
 =head2 cache
@@ -230,10 +280,10 @@ Conditions that match are added to C<$matching_conditions>.
 =cut
 
 sub match_in_subclass {
-
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $cached_connection = $self->_cached_connection;
     unless ( $cached_connection ) {
         return undef;
@@ -244,20 +294,25 @@ sub match_in_subclass {
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
         $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
+        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         return undef;
     }
     $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
 
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    my $result = $connection->search(
-      base => $self->{'basedn'},
-      filter => $filter,
-      scope => $self->{'scope'},
-      attrs => \@attributes
-    );
+    my $result = do {
+        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search", sample_rate => 0.1});
+        $connection->search(
+          base => $self->{'basedn'},
+          filter => $filter,
+          scope => $self->{'scope'},
+          attrs => \@attributes
+        )
+    };
 
     if ($result->is_error) {
         $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
+        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
         return undef;
     }
 
@@ -305,10 +360,13 @@ sub match_in_subclass {
               );
             if ($result->is_error || $result->count != 1) {
                 $entry_matches = 0;
-                $logger->error(
-                    "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
-                      . $result->error . ").")
-                  if $result->is_error;
+                if ( $result->is_error ) {
+                    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
+                    $logger->error(
+                        "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
+                        . $result->error . ").");
+                }
+
                 if ($rule->match eq $Rules::ALL) {
                     last;
                 }
@@ -323,7 +381,7 @@ sub match_in_subclass {
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
-            $logger->info("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
+            $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
             return $params->{'username'} || $params->{'email'};
         }
@@ -340,7 +398,6 @@ Test if we can bind and search to the LDAP server
 
 sub test {
   my ($self) = @_;
-  my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
@@ -387,6 +444,8 @@ for the usernameattribute - to match it in the source.
 
 sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
+  my $timer_stat_prefix = called() . "." .  $self->{'id'};
+  my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
   my (@ldap_conditions, $expression);
   $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
@@ -406,6 +465,8 @@ sub ldap_filter_for_conditions {
 
           if ($operator eq $Conditions::EQUALS) {
               $str = "${attribute}=${value}";
+          } elsif ($operator eq $Conditions::NOT_EQUALS) {
+              $str = "!(${attribute}=${value})";
           } elsif ($operator eq $Conditions::CONTAINS) {
               $str = "${attribute}=*${value}*";
           } elsif ($operator eq $Conditions::STARTS) {
@@ -437,10 +498,15 @@ sub ldap_filter_for_conditions {
 sub bind_with_credentials {
     my ($self,$connection) = @_;
     my $result;
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     if ($self->{'binddn'} && $self->{'password'}) {
         $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     } else {
         $result = $connection->bind;
+    }
+    if ($result->is_error) {
+        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
     }
     return $result;
 }
@@ -449,33 +515,43 @@ sub bind_with_credentials {
 
 =cut
 
-sub search_attributes {
-    my ($self, $pid) = @_;
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+sub search_attributes_in_subclass {
+    my ($self, $username) = @_;
+    my $timer_stat_prefix = called() . "." .  $self->{'id'};
+    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (!defined($connection)) {
-      return ($FALSE, 'Unable to connect to the LDAP Server');
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-      return ($FALSE, 'Unable to validate credentials at the moment');
+      return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
-                  filter => "($self->{'usernameattribute'}=$pid)"
+                  filter => "($self->{'usernameattribute'}=$username)"
     );
     my $entry = $searchresult->entry();
     $connection->unbind();
 
     if (!$entry) {
-        $logger->warn("Unable to locate PID '$pid'");
+        $logger->warn("Unable to locate user '$username'");
     }
     else {
-         $logger->info("PID: '$pid' found in the directory");
+         $logger->info("User: '$username' found in the directory");
     }
-    return $entry;
+
+    my $info = {};
+    foreach my $attrs (keys %ATTRIBUTES_MAP){
+        foreach my $attr (split('\|',$ATTRIBUTES_MAP{$attrs})) {
+            if(defined($entry->get_value($attr))){
+                $info->{$attrs} = $entry->get_value($attr);
+            }
+        }
+    }
+    return $info;
 }
 
 =head2 postMatchProcessing
@@ -502,7 +578,6 @@ Setup any resouces need for matching
 
 sub preMatchProcessing {
     my ($self) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
         return undef;
@@ -523,7 +598,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -29,7 +29,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -44,15 +43,15 @@ TODO: This list is incomplete
 =cut
 
 sub getVersion {
-    my ($this)                = @_;
+    my ($self)                = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
-    my $logger                = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger                = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for hpSwitchOsVersion: $oid_hpSwitchOsVersion");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => [$oid_hpSwitchOsVersion] );
     if ( exists( $result->{$oid_hpSwitchOsVersion} )
         && ( $result->{$oid_hpSwitchOsVersion} ne 'noSuchInstance' ) )
@@ -63,9 +62,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
     #-- secureMacAddrViolation SNMP v1 & v2c
     if ( $trapString
@@ -74,7 +73,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
-        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapVlan'} = $self->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     #-- secureMacAddrViolation SNMP v3
     } elsif ( $trapString
@@ -83,7 +82,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($2);
-        $trapHashRef->{'trapVlan'} = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapVlan'} = $self->getVlan( $trapHashRef->{'trapIfIndex'} );
 
     #link up/down
     } elsif ( $trapString
@@ -100,9 +99,9 @@ sub parseTrap {
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
@@ -113,20 +112,20 @@ sub _setVlan {
     my $result;
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_id} } };
+        lock %{ $switch_locker_ref->{ $self->{_id} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_id}
+                . $self->{_id}
                 . "} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
-        $result = $this->{_sessionRead}->get_request(
+        $result = $self->{_sessionRead}->get_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -137,32 +136,32 @@ sub _setVlan {
 
         # calculate new settings
         my $egressPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $egressPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
             $ifIndex - 1, 1 );
         my $untaggedPortsOldVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
             $ifIndex - 1, 0 );
         my $untaggedPortsVlan
-            = $this->modifyBitmask(
+            = $self->modifyBitmask(
             $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
             $ifIndex - 1, 1 );
-        $this->{_sessionRead}->translate(1);
+        $self->{_sessionRead}->translate(1);
 
         # set all values
-        if ( !$this->connectWrite() ) {
+        if ( !$self->connectWrite() ) {
             return 0;
         }
 
         $logger->trace(
             "SNMP set_request for egressPorts and untaggedPorts for old and new VLAN "
         );
-        $result = $this->{_sessionWrite}->set_request(
+        $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                 Net::SNMP::OCTET_STRING,
@@ -179,34 +178,34 @@ sub _setVlan {
             ]
         );
         if ( !defined($result) ) {
-            print $this->{_sessionWrite}->error . "\n";
+            print $self->{_sessionWrite}->error . "\n";
             $logger->error(
                 "error setting egressPorts and untaggedPorts for old and new vlan: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
         }
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_id}
+            . $self->{_id}
             . "} unlocked in _setVlan" );
     return ( defined($result) );
 }
 
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
     $logger->trace(
         "SNMP get_table for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex"
     );
-    my $result = $this->{_sessionRead}->get_table(
+    my $result = $self->{_sessionRead}->get_table(
         -baseoid => "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex" );
     while ( my ( $oid_including_mac, $status ) = each( %{$result} ) ) {
         if ((   $oid_including_mac
@@ -219,7 +218,7 @@ sub getAllSecureMacAddresses {
             my $mac     = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x",
                 $2, $3, $4, $5, $6, $7 );
             push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} },
-                $this->getVlan($ifIndex);
+                $self->getVlan($ifIndex);
         }
     }
 
@@ -227,23 +226,23 @@ sub getAllSecureMacAddresses {
 }
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
     my $secureMacAddrHashRef = {};
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
 
-    my $vlan = $this->getVlan($ifIndex);
+    my $vlan = $self->getVlan($ifIndex);
 
     $logger->trace(
         "SNMP get_table for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_table(
+    my $result = $self->{_sessionRead}->get_table(
         -baseoid => "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex" );
     while ( my ( $oid_including_mac, $status ) = each( %{$result} ) ) {
         if ((   $oid_including_mac
@@ -262,13 +261,13 @@ sub getSecureMacAddresses {
 }
 
 sub getMaxMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger                  = $self->logger;
     my $OID_hpSecPtAddressLimit = '1.3.6.1.4.1.11.2.14.2.10.3.1.3';
     my $OID_hpSecPtLearnMode    = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $hpSecCfgAddrGroupIndex  = 1;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
 
@@ -276,7 +275,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for hpSecPtLearnMode: $OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist =>
+    my $result = $self->{_sessionRead}->get_request( -varbindlist =>
             [ "$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex" ] );
     if ((   !exists(
                 $result->{
@@ -302,7 +301,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for hpSecPtAddressLimit: $OID_hpSecPtAddressLimit.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    $result = $this->{_sessionRead}->get_request( -varbindlist =>
+    $result = $self->{_sessionRead}->get_request( -varbindlist =>
             [ "$OID_hpSecPtAddressLimit.$hpSecCfgAddrGroupIndex.$ifIndex" ] );
     if ((   !exists(
                 $result->{
@@ -324,14 +323,14 @@ sub getMaxMacAddresses {
 }
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
 
-    if ( ($deauthMac) && ( !$this->isFakeMac($deauthMac) ) ) {
-        $this->_authorizeMAC( $ifIndex, $deauthMac, 0 );
+    if ( ($deauthMac) && ( !$self->isFakeMac($deauthMac) ) ) {
+        $self->_authorizeMAC( $ifIndex, $deauthMac, 0 );
     }
-    if ( ($authMac) && ( !$this->isFakeMac($authMac) ) ) {
-        $this->_authorizeMAC( $ifIndex, $authMac, 1 );
+    if ( ($authMac) && ( !$self->isFakeMac($authMac) ) ) {
+        $self->_authorizeMAC( $ifIndex, $authMac, 1 );
     }
     return 1;
 }
@@ -340,15 +339,15 @@ sub authorizeMAC {
 #called with $authorized set to false, deletes an existing line
 # In both case, resets IntrusionFlag
 sub _authorizeMAC {
-    my ( $this, $ifIndex, $MACHexString, $authorize ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $MACHexString, $authorize ) = @_;
+    my $logger = $self->logger;
     my $OID_hpSecCfgStatus
         = '1.3.6.1.4.1.11.2.14.2.10.4.1.4';    #HP-ICF-GENERIC-RPTR
     my $OID_hpSecPtIntrusionFlag
         = '1.3.6.1.4.1.11.2.14.2.10.3.1.7';    #HP-ICF-GENERIC-RPTR
     my $hpSecCfgAddrGroupIndex = 1;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't add or delete an entry from the hpSecureCfgAddrTable"
         );
@@ -365,14 +364,14 @@ sub _authorizeMAC {
         $MACDecString .= hex($hexPiece);
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
     $logger->trace(
         "SNMP set_request for hpSecCfgStatus: $OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString"
     );
-    my $result = $this->{_sessionWrite}->set_request(
+    my $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [
             "$OID_hpSecCfgStatus.$hpSecCfgAddrGroupIndex.$ifIndex.$MACDecString",
             Net::SNMP::INTEGER,
@@ -386,39 +385,39 @@ sub _authorizeMAC {
 }
 
 sub isDynamicPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return 0;
 }
 
 sub isStaticPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    return $this->isPortSecurityEnabled($ifIndex);
+    my ( $self, $ifIndex ) = @_;
+    return $self->isPortSecurityEnabled($ifIndex);
 }
 
 sub setPortSecurityEnableByIfIndex {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
 
     $logger->info("function not implemented yet");
     return 1;
 }
 
 sub isPortSecurityEnabled {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     my $OID_hpSecPtLearnMode   = '1.3.6.1.4.1.11.2.14.2.10.3.1.4';
     my $OID_hpSecPtAlarmEnable = '1.3.6.1.4.1.11.2.14.2.10.3.1.6';
     my $hpSecCfgAddrGroupIndex = 1;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace(
         "SNMP get_next_request for hpSecPtLearnMode: $OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex and hpSecPtAlarmEnable: $OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [
             "$OID_hpSecPtLearnMode.$hpSecCfgAddrGroupIndex.$ifIndex",
             "$OID_hpSecPtAlarmEnable.$hpSecCfgAddrGroupIndex.$ifIndex"
@@ -445,17 +444,17 @@ sub isPortSecurityEnabled {
 }
 
 sub getVlanFdbId {
-    my ( $this, $vlan ) = @_;
+    my ( $self, $vlan ) = @_;
     my $OID_dot1qVlanFdbId = '1.3.6.1.2.1.17.7.1.4.2.1.3.0';    #Q-BRIDGE-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return 0;
     }
 
     $logger->trace(
         "SNMP get_request for dot1qVlanFdbId $OID_dot1qVlanFdbId.$vlan");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => ["$OID_dot1qVlanFdbId.$vlan"] );
 
     if ( !defined($result) ) {
@@ -483,10 +482,10 @@ In what VLAN should a VoIP device be.
 =cut
 
 sub getVoiceVlan {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
-    my $voiceVlan = $this->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName('voice');
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }
@@ -504,7 +503,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

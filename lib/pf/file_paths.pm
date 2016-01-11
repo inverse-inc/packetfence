@@ -42,16 +42,21 @@ our (
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     #oui.txt variables
     $oui_file, $oui_url,
+    #DHCP OMAPI key file
+    $pf_omapi_key_file,
     #profiles.conf variables
     $profiles_config_file, %Profiles_Config,
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
+    $chi_defaults_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
+    $pfdetect_config_file,
+    $pfqueue_config_file,
     $allowed_device_oui_file, $allowed_device_types_file,
     $apache_filters_config_file,
     $cache_control_file,
@@ -61,10 +66,15 @@ our (
     $realm_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
+    $ssl_configuration_file,
     $domain_config_file,
     $scan_config_file,
     $wmi_config_file,
     $pki_provider_config_file,
+    $suricata_categories_file,
+    $radius_filters_config_file,
+    $billing_tiers_config_file,
+    $dhcp_filters_config_file,
 );
 
 BEGIN {
@@ -86,15 +96,19 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
+        $pf_omapi_key_file
         $profiles_config_file %Profiles_Config
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
+        $chi_defaults_config_file
         @stored_config_files @log_files
         $provisioning_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
         $firewall_sso_config_file
+        $pfdetect_config_file
+        $pfqueue_config_file
         $allowed_device_oui_file $allowed_device_types_file
         $apache_filters_config_file
         $cache_control_file
@@ -104,10 +118,15 @@ BEGIN {
         $realm_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
+        $ssl_configuration_file
         $domain_config_file
         $scan_config_file
         $wmi_config_file
         $pki_provider_config_file
+        $suricata_categories_file
+        $radius_filters_config_file
+        $billing_tiers_config_file
+        $dhcp_filters_config_file
     );
 }
 
@@ -129,14 +148,17 @@ $domains_chroot_dir = catdir( "/chroots");
 
 $pfcmd_binary   = catfile($bin_dir, "pfcmd");
 
-$oui_file        = catfile($conf_dir, "oui.txt");
-$pf_doc_file     = catfile($conf_dir, "documentation.conf");
-$oauth_ip_file   = catfile($conf_dir, "oauth2-ips.conf");
-$ui_config_file  = catfile($conf_dir, "ui.conf");
-$pf_config_file  = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_file
-$pf_default_file = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
-$chi_config_file = catfile($conf_dir, "chi.conf");
-$log_config_file = catfile($conf_dir, "log.conf");
+$oui_file           = catfile($conf_dir, "oui.txt");
+$suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
+$pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
+$pf_doc_file        = catfile($conf_dir, "documentation.conf");
+$oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");
+$ui_config_file     = catfile($conf_dir, "ui.conf");
+$pf_config_file     = catfile($conf_dir, "pf.conf"); # TODO: Adjust. See $config_file
+$pf_default_file    = catfile($conf_dir, "pf.conf.defaults"); # TODO: Adjust. See $default_config_file
+$chi_config_file    = catfile($conf_dir, "chi.conf");
+$chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
+$log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
@@ -157,14 +179,20 @@ $allowed_device_types_file = catfile($conf_dir,"allowed_device_types.txt");
 $apache_filters_config_file = catfile($conf_dir, "apache_filters.conf");
 $vlan_filters_config_file = catfile($conf_dir, "vlan_filters.conf");
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
+$pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
+$pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
 $server_pem = catfile($conf_dir,"ssl/server.pem");
+$ssl_configuration_file = catfile($generated_conf_dir, "ssl-certificates.conf");
 $domain_config_file = catfile($conf_dir,"domain.conf");
 $scan_config_file = catfile($conf_dir,"scan.conf");
 $wmi_config_file = catfile($conf_dir,"wmi.conf");
+$radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
+$billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
+$dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -178,7 +206,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
   httpd.proxy.access httpd.proxy.error httpd.proxy.log
   httpd.proxy.reverse.access httpd.proxy.reverse.error
   httpd.webservices.access httpd.webservices.error
-  packetfence.log pfbandwidthd.log pfdetect.log
+  packetfence.log pfbandwidthd.log pfdetect.log pfqueue.log
   pfdhcplistener.log pfdns.log pfmon.log pfconfig.log
 );
 
@@ -189,11 +217,14 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
+    $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $admin_roles_config_file,$wrix_config_file,$apache_filters_config_file,
     $vlan_filters_config_file,$firewall_sso_config_file,$scan_config_file,
-    $wmi_config_file,
+    $wmi_config_file,$pfdetect_config_file,$pfqueue_config_file,
     $pki_provider_config_file,
+    $radius_filters_config_file,
+    $dhcp_filters_config_file,
 );
 
 
@@ -207,7 +238,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

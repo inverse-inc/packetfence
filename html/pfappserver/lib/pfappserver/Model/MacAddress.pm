@@ -20,6 +20,7 @@ use namespace::autoclean;
 use Time::localtime;
 use Time::Local;
 
+use pf::log;
 use pf::config;
 use pf::error qw(is_error is_success);
 use pf::util qw(download_oui load_oui);
@@ -49,7 +50,7 @@ count all mac addresses that match search parameters
 sub countAll {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status_msg, $count );
     eval {
         my $greper = sub {1};
@@ -84,7 +85,7 @@ find all all mac addresses that match search parameters
 sub search {
     my ( $self, %params ) = @_;
     load_oui();
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ( $status, $status_msg );
     my $items;
     eval {
@@ -141,7 +142,7 @@ sub search {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

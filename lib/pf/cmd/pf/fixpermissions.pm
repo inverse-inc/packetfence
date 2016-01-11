@@ -5,9 +5,12 @@ pf::cmd::pf::fixpermissions add documentation
 
 =head1 SYNOPSIS
 
- pfcmd fixpermissions
+ pfcmd fixpermissions <command>
 
-Fix the permissions of the files and directories of packetfence
+ Commands :
+  all                             | executes a fix on the permissions on all PF files
+  file file1 [file2, file3, ...]  | executes a fix on the permissions on a list of files (absolute paths)
+    (File(s) must exist and located in /usr/local/pf or /usr/local/fingerbank)
 
 =head1 DESCRIPTION
 
@@ -18,27 +21,89 @@ pf::cmd::pf::fixpermissions
 use strict;
 use warnings;
 
-use base qw(pf::cmd);
+use base qw(pf::base::cmd::action_cmd);
 
 use pf::file_paths;
 use pf::log;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::util;
 
 use fingerbank::FilePath;
 
 use File::Spec::Functions qw(catfile);
 
-sub parseArgs { 1 }
+sub default_action { 'all' }
 
-sub _run {
+=head2 action_all
+
+Fix the permissions on pf and fingerbank files
+
+=cut
+
+sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
-    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions);
+    my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
     _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
-    chmod(02775, $conf_dir, $var_dir, $log_dir);
+    chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
+    print "Fixed permissions.\n";
+    return $EXIT_SUCCESS;
+}
+
+sub parse_file {
+    my ($self,@args) = @_;
+    foreach my $file (@args){
+        unless(-f $file){
+            print STDERR "File $file doesn't exist \n";
+            return 0;
+        }
+        unless($file =~ /\/usr\/local\/pf\// || $file =~ /\/usr\/local\/fingerbank\//){
+            print STDERR "File $file is not in an allowed directory \n";
+            return 0;
+        }
+    }
+    return 1;
+}
+
+=head2 action_file
+
+Apply the permission fix on specific(s) file(s)
+Will determine the user to set rights to depending on the destination directory
+Doesn't work outside /usr/local/pf and /usr/local/fingerbank
+
+=cut
+
+sub action_file {
+    my ($self) = @_;
+    my (@files) = $self->action_args;
+
+    unless(@files){
+        print STDERR "No files specified \n";
+        return $EXIT_FAILURE;
+    }
+
+    foreach my $file (@files){
+        $file = untaint_chain($file);
+
+        my $user;
+        if($file =~ /\/usr\/local\/pf\//){
+            $user = 'pf';
+        }
+        elsif($file =~ /\/usr\/local\/fingerbank\//){
+            $user = 'fingerbank';
+        }
+        else {
+            print STDERR "Cannot compute user from directory \n";
+            return $EXIT_FAILURE;
+        }
+        _changeFilesToOwner($user,$file);
+        chmod 0660, $file;
+        print "Fixed permissions on file $file \n";
+    }
+
     return $EXIT_SUCCESS;
 }
 
@@ -59,7 +124,7 @@ sub _changeFilesToOwner {
 sub _fingerbank {
     _changeFilesToOwner('fingerbank', @fingerbank::FilePath::PATHS, @fingerbank::FilePath::FILES);
     chmod(0664, @fingerbank::FilePath::FILES);
-    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/init_databases.pl');
+    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl');
 }
 
 =head1 AUTHOR
@@ -70,7 +135,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

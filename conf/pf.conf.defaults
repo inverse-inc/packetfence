@@ -25,11 +25,6 @@ dhcpservers=127.0.0.1
 # System's timezone in string format. Supported list:
 # http://www.php.net/manual/en/timezones.php
 timezone=America/Montreal
-#
-# general.memcached
-#
-# Server list of the memcached server
-memcached=127.0.0.1:11211
 
 [network]
 #
@@ -52,6 +47,12 @@ rogue_dhcp_detection=enabled
 # setting of 10, it will email administrators the details of the previous 10 DHCP offers.
 rogueinterval=10
 #
+# network.hostname_change_detection
+#
+# Will identify hostname changes and send an e-mail with these changes.
+# This can help detect MAC spoofing.
+hostname_change_detection=disabled
+#
 # network.dhcpoption82logger
 #
 # If enabled PacketFence will monitor DHCP option82 location-based information.
@@ -63,6 +64,13 @@ dhcpoption82logger=disabled
 # Which dhcp message types are being listened by the pfdhcplistener.
 # Do not change unless you know what you are doing
 dhcp_filter_by_message_types=DHCPOFFER,DHCPREQUEST,DHCPDECLINE,DHCPACK,DHCPRELEASE
+#
+# network.force_listener_update_on_ack
+#
+# This will only do the iplog update and other DHCP related task on a DHCPACK.
+# You need to make sure the UDP reflector is in place so this works on the production network.
+# This is implicitly activated on registration interfaces on which dhcpd runs.
+force_listener_update_on_ack=disabled
 #
 # network.interfaceSNAT
 # Choose interface(s) where you want to enable snat for passthrough (by default it's the management interface)
@@ -153,7 +161,7 @@ passthroughs=
 # trapping.proxy_passthroughs
 #
 # Comma-delimited list of domains to be use for apache passthrough
-proxy_passthroughs=crl.geotrust.com,ocsp.geotrust.com,crl.thawte.com,ocsp.thawte.com,crl.comodoca.com,ocsp.comodoca.com,crl.incommon.org,ocsp.incommon.org,crl.usertrust.com,ocsp.usertrust.com,mscrl.microsoft.com,crl.microsoft.com,ocsp.apple.com,ocsp.digicert.com,ocsp.entrust.com,srvintl-crl.verisign.com,ocsp.verisign.com,ctldl.windowsupdate.com,crl.globalsign.net,pki.google.com,www.microsoft.com,crl.godaddy.com,ocsp.godaddy.com,certificates.godaddy.com
+proxy_passthroughs=crl.geotrust.com,ocsp.geotrust.com,crl.thawte.com,ocsp.thawte.com,crl.comodoca.com,ocsp.comodoca.com,crl.incommon.org,ocsp.incommon.org,crl.usertrust.com,ocsp.usertrust.com,mscrl.microsoft.com,crl.microsoft.com,ocsp.apple.com,ocsp.digicert.com,ocsp.entrust.com,srvintl-crl.verisign.com,ocsp.verisign.com,ctldl.windowsupdate.com,crl.globalsign.net,pki.google.com,www.microsoft.com,crl.godaddy.com,ocsp.godaddy.com,certificates.godaddy.com,crl.globalsign.com,secure.globalsign.com
 #
 # trapping.interception_proxy
 #
@@ -247,16 +255,6 @@ subjectprefix=PF Alert:
 #
 # Log file where "log" actions are sent.
 log=violation.log
-#
-# alerting.wins_server
-#
-# WINS server to  resolve NetBIOS name of administrative workstation to IP address.
-wins_server=192.168.0.100
-#
-# alerting.admin_netbiosname
-#
-# NetBIOS name of administrative workstation to send alerts with "winpopup" action assigned.
-admin_netbiosname=EXAMPLE
 
 [ports]
 #
@@ -410,20 +408,14 @@ traplog=0D
 # example:
 # locationlog=180D
 locationlog=0D
-# expire.httpd_portal
 #
-# Time which you would like to keep logs on location information
-httpd_portal=enabled
+# expire.radius_audit_log
 #
-# expire.httpd_admin
-#
-# Please note that this table should not become too big since it 
-httpd_admin=enabled
-#
-# expire.ldap_auth
-#
-# Enable expiration of the ldap_auth cache
-ldap_auth=enabled
+# Time which you would like to keep radius audit log entries
+# A value of 0D disables expiration.
+# example:
+# radius_audit_log=30D
+radius_audit_log=30D
 
 [services]
 #
@@ -432,128 +424,292 @@ ldap_auth=enabled
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
+# services.dhcpd_order
+#
+# Order in which to start this service 
+dhcpd_order=21
+#
 # services.haproxy
 #
 # Should haproxy be started?
 haproxy=enabled
+#
+# services.haproxy_order
+#
+# Order in which to start this service 
+haproxy_order=01
 #
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?
 pfdns=enabled
 #
+# services.pfdns_order
+#
+# Order in which to start this service 
+pfdns_order=17
+#
 # services.snort
 #
 # Should snort be managed by PacketFence?
 snort=enabled
+#
+# services.snort_order
+#
+# Order in which to start this service 
+snort_order=80
 #
 # services.suricata
 #
 # Should suricata be managed by PacketFence?
 suricata=enabled
 #
+# services.suricata_order
+#
+# Order in which to start this service 
+suricata_order=80
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
 radiusd=enabled
+#
+# services.radiusd_order
+#
+# Order in which to start this service 
+radiusd_order=12
 #
 # services.iptables
 #
 # Should iptables be managed by PacketFence?
 iptables=enabled
 #
-# services.memcached
+# services.iptables_order
 #
-# Should memcached be managed by PacketFence?
-memcached=enabled
+# Order in which to start this service 
+iptables_order=05
 #
 # services.pfbandwidthd
 #
 # Should pfbandwidthd be managed by PacketFence?
 pfbandwidthd=disabled
 #
+# services.pfbandwitdth_order
+#
+# Order in which to start this service 
+pfbandwidthd_order=89
+#
 # services.httpd_admin
 #
 # Should httpd.admin be started?
 httpd_admin=enabled
+#
+# services.httpd_admin_order
+#
+# Order in which to start this service 
+httpd_admin_order=00
 #
 # services.httpd_portal
 #
 # Should httpd.portal be started?
 httpd_portal=enabled
 #
+# services.httpd_portal_order
+#
+# Order in which to start this service 
+httpd_portal_order=20
+#
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
 httpd_webservices=enabled
+#
+# services.httpd_webservices_order
+#
+# Order in which to start this service 
+httpd_webservices_order=22
 #
 # services.httpd_aaa
 #
 # Should httpd.aaa be started?
 httpd_aaa=enabled
 #
+# services.httpd_aaa_order
+#
+# Order in which to start this service 
+httpd_aaa_order=10
+#
 # services.httpd_proxy
 #
 # Should httpd.proxy be started?
 httpd_proxy=enabled
+#
+# services.httpd_proxy_order
+#
+# Order in which to start this service 
+httpd_proxy_order=19
 #
 # services.httpd_graphite
 #
 # Should httpd.graphite be started?
 httpd_graphite=enabled
 #
+# services.httpd_graphite_order
+#
+# Order in which to start this service 
+httpd_graphite_order=99
+#
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
 pfsetvlan=disabled
+#
+# services.pfsetvlan_order
+#
+# Order in which to start this service 
+pfsetvlan_order=13
 #
 # services.snmptrapd
 #
 # Should snmptrapd be managed by PacketFence?
 snmptrapd=disabled
 #
+# services.snmptrapd_order
+#
+# Order in which to start this service 
+snmptrapd_order=14
+#
+# services.pfqueue
+#
+# Should pfqueue be managed by PacketFence?
+pfqueue=enabled
+#
+# services.pfqueue_order
+#
+# Order in which to start this service 
+pfqueue_order=16
+#
 # services.pfmon
 #
 # Should pfmon be managed by PacketFence?
 pfmon=enabled
+#
+# services.pfmon_order
+#
+# Order in which to start this service 
+pfmon_order=51
+#
+# services.redis_cache
+#
+# Should redis be managed by PacketFence?
+redis_cache=enabled
+#
+# services.redis_cache_order
+#
+# Order in which to start this service 
+redis_cache_order=00
+# services.redis_queue
+#
+# Should redis be managed by PacketFence?
+redis_queue=enabled
+#
+# services.redis_queue_order
+#
+# Order in which to start this service 
+redis_queue_order=06
 #
 # services.pfdhcplistener
 #
 # Should pfdhcplistener be started?
 pfdhcplistener=enabled
 #
+# services.pfdhcplistener_order
+#
+# Order in which to start this service 
+pfdhcplistener_order=18
+#
 # services.keepalived
 #
 # Should keepalived be started?
 keepalived=enabled
+#
+# services.keepalived_order
+#
+# Order in which to start this service 
+keepalived_order=100
 # services.winbindd
 #
 # Should winbindd be started?
 winbindd=enabled
+#
+# services.winbindd_order
+#
+# Order in which to start this service 
+winbindd_order=11
 # services.carbon-cache
 #
 # Should carbon-cache be started?
 carbon-cache=enabled
+#
+# services.carbon-cache_order
+#
+# Order in which to start this service 
+carbon-cache_order=90
 #
 # services.carbon-relay
 #
 # Should carbon-relay be started?
 carbon-relay=enabled
 #
+# services.carbon-relay_order
+#
+# Order in which to start this service 
+carbon-relay_order=91
+#
 # services.collectd
 #
 # Should collectd be started?
 collectd=enabled
+#
+# services.collectd_order
+#
+# Order in which to start this service 
+collectd_order=92
+#
+# services.collectd_order
+#
+# Order in which to start this service 
+pfdetect_order=88
 #
 # services.statsd
 #
 # Should statsd be started?
 statsd=enabled
 #
+# services.statsd_order
+#
+# Order in which to start this service 
+statsd_order=93
+#
 # services.radsniff
 #
 # Should radsniff be started?
 radsniff3=enabled
+#
+# services.radsniff3_order
+#
+# Order in which to start this service 
+radsniff3_order=94
+#
+# services.p0f
+#
+# Should p0f be started?
+p0f=enabled
+#
+# services.p0f_order
+#
+# Order in which to start this service 
+p0f_order=81
 #
 # services.snort_binary
 #
@@ -574,6 +730,11 @@ haproxy_binary=/usr/sbin/haproxy
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 httpd_binary=/usr/sbin/httpd
+#
+# services.openssl_binary
+#
+# Location of the openssl binary. Only necessary to change if you are not running the RPMed version.
+openssl_binary=/usr/bin/openssl
 #
 # services.dhcpd_binary
 #
@@ -620,6 +781,11 @@ collectd_binary=/usr/sbin/collectd
 # Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff3_binary=/usr/bin/radsniff3
 # 
+# services.p0f_binary
+# 
+# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
+p0f_binary=/usr/local/bin/p0f
+# 
 # services.iptables_binary
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
@@ -629,36 +795,16 @@ iptables_binary=/sbin/iptables
 # 
 # location of the iptables binary. only necessary to change if you are not running the rpmed version.
 winbindd_binary=/usr/sbin/winbindd
-# 
-# services.memcached_binary
-# 
-# Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
-memcached_binary=/usr/bin/memcached
 #
 # services.keepalived_binary
 #
 # Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
 keepalived_binary=/usr/sbin/keepalived
 # 
-# services.memcached_memory_usage
+# services.redis_binary
 # 
-# The maximum of memory that memcached will use
-memcached_memory_usage=64
-# 
-# services.memcached_max_item_size
-# 
-# The maximum of size of the items allowed to be stored
-memcached_max_item_size=1M
-# 
-# services.httpd_mod_qos
-# 
-# Enable mod_qos
-httpd_mod_qos=disabled
-# 
-# services.httpd_mod_qos_maximum_users
-# 
-# The maximum connections per device 
-httpd_mod_qos_maximum_connections_per_device=5
+# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
+redis_binary=/usr/bin/redis-server
 
 [vlan]
 #
@@ -817,13 +963,89 @@ secure_redirect=enabled
 # If status_only_on_production is enabled, the /status page will only be available on the
 # production network. This is disabled by default
 status_only_on_production=disabled
+#
+# captive_portal.detection_mecanism_bypass
+#
+# Bypass the captive-portal detection mecanism of some browsers / end-points by proxying the detection request.
+detection_mecanism_bypass = disabled
+#
+# captive_portal.detection_mecanism_urls
+#
+# Comma-delimited list of URLs known to be used by devices to detect the presence 
+# of a captive portal and trigger their captive portal mecanism.
+detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://www.msftncsi.com/ncsi.txt
+#
+# captive_portal.wispr_redirection
+#
+# Enable or disable WISPr redirection capabilities on the captive-portal
+wispr_redirection = enabled
+
+# captive_portal.httpd_mod_qos
+#
+# Enable mod_qos for the captive-portal
+httpd_mod_qos=disabled
+#
+# captive_portal.httpd_mod_qos_maximum_users
+#
+# The maximum number of connections per device
+httpd_mod_qos_maximum_connections_per_device=5
+#
+# captive_portal.httpd_mod_evasive
+#
+# Enable mod_evasive for the captive-portal
+httpd_mod_evasive=disabled
+#
+# captive_portal.httpd_mod_evasive_white_list
+#
+# Comma delimited IP addresses or networks CIDR format of trusted clients can be added to the whitelist to ensure they are never denied.
+httpd_mod_evasive_white_list=127.0.0.1
+#
+# captive_portal.httpd_mod_evasive_hash_table_size
+#
+# The hash table size defines the number of top-level nodes for each child's hash table. Increasing this number will provide faster performance by decreasing the number of iterations required to get to the record, but consume more memory for table space. You should increase this if you have a busy web server.
+httpd_mod_evasive_hash_table_size=3097
+#
+# captive_portal.httpd_mod_evasive_page_count
+#
+# This is the limit for the number of requests for the same page per page interval by an IP address. Once the threshold for that interval has been exceeded, the IP address of the client will be added to the blocked list.
+httpd_mod_evasive_page_count=5
+#
+# captive_portal.httpd_mod_evasive_page_interval
+#
+# The interval in seconds for the page count threshold.
+httpd_mod_evasive_page_interval=2
+#
+# captive_portal.httpd_mod_evasive_site_count
+#
+# The limit for the total number of requests for the portal by an IP address per site interval.
+httpd_mod_evasive_site_count=20
+#
+# captive_portal.httpd_mod_evasive_site_interval
+#
+# The interval in seconds for the site count threshold
+httpd_mod_evasive_site_interval=1
+#
+# captive_portal.httpd_mod_evasive_blocking_period
+#
+# The amount of time (in seconds) that a client will be blocked for if they are added to the blocking list. During this time, all subsequent requests from the client will result in a 403 (Forbidden) and the timer being reset (e.g. another 10 seconds). Since the timer is reset for every subsequent request, it is not necessary to have a long blocking period; in the event of a DoS attack, this timer will keep getting reset.
+httpd_mod_evasive_blocking_period=10
+#
+# captive_portal.httpd_mod_evasive_email_notify
+#
+# If this value is set, an email will be sent to the address specified whenever an IP address becomes blacklisted.
+httpd_mod_evasive_email_notify=
+#
+# captive_portal.httpd_mod_evasive_system_command
+#
+# If this value is set, the system command specified will be executed whenever an IP address becomes blacklisted. This is designed to enable system calls to ip filter or other tools. A locking mechanism using /tmp prevents continuous system calls. Use %s to denote the IP address of the blacklisted IP, use %t to use the mod_evasive blocking period value. The default value will insert the device ip in ipset session for 10 seconds and deny the access to the portal.
+httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm -f /usr/local/pf/logs/dos*"
 
 [advanced]
 #
 # advanced.reevaluate_access_reasons
 #
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
-reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan
+reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
 #
 # advanced.pfcmd_error_color
 #
@@ -844,13 +1066,27 @@ pfcmd_success_color=green
 #
 # The algorithm to use to hash the passwords in the local database.
 hash_passwords=bcrypt
-
 #
 # advanced.hashing_cost
 #
 # The cost factor to apply to the password hashing if applicable.
 # Currently only applies to bcrypt.
 hashing_cost=8
+#
+# advanced.disable_pf_domain_auth
+#
+# Disable Active-Directory domain configuration from within PacketFence
+disable_pf_domain_auth=disabled
+#
+# advanced.ldap_attributes
+#
+# List of LDAP attributes that can be used in the sources configuration
+ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
+#
+# advanced.pfdns_processes
+#
+# Amount of pfdns processes to start
+pfdns_processes=4
 
 [omapi]
 #
@@ -883,6 +1119,11 @@ port=7911
 #
 # The OMAPI host
 host=localhost
+#
+# omapi.timeout
+#
+# The timeout on the OMAPI socket
+timeout=0.5
 
 [provisioning]
 #
@@ -908,38 +1149,6 @@ category = any
 #
 # Certificate to send to the node
 certificate = 
-
-[billing]
-#
-# billing.gateway
-#
-# The payment gateway to process the payments
-gateway = authorize_net
-#
-# billing.authorizenet_posturl
-#
-# The payment gateway processing URL (Provided by Authorize.net)
-authorizenet_posturl = https://test.authorize.net/gateway/transact.dll
-#
-# billing.authorizenet_login
-#
-# The merchant's unique API Login ID (Provided by Authorize.net)
-authorizenet_login =
-#
-# billing.authorizenet_trankey
-#
-# The merchant's unique Transaction Key (Provided by Authorize.net)
-authorizenet_trankey =
-
-mirapay_url = https://ms1.eigendev.com/OFT/EigenOFT_d.php
-
-mirapay_currency = USD
-
-mirapay_terminal_id =
-
-mirapay_terminal_id_group =
-
-mirapay_hash_password =
 
 [node_import]
 #
@@ -1022,6 +1231,21 @@ locationlog_cleanup_batch=100
 # locationlog cleanup timeout
 locationlog_cleanup_timeout=10s
 #
+# maintenance.radius_audit_log_cleanup_interval
+#
+# radius_audit_log cleanup interval
+radius_audit_log_cleanup_interval=60s
+#
+# maintenance.radius_audit_log_cleanup_batch
+#
+# radius_audit_log cleanup batch
+radius_audit_log_cleanup_batch=100
+#
+# maintenance.radius_audit_log_cleanup_timeout
+#
+# radius_audit_log cleanup timeout
+radius_audit_log_cleanup_timeout=10s
+#
 # maintenance.node_cleanup_interval
 #
 # node cleanup interval
@@ -1031,16 +1255,6 @@ node_cleanup_interval=60s
 #
 # traplog cleanup interval
 traplog_cleanup_interval=60s
-#
-# maintenance.httpd_admin_cleanup_interval
-#
-# httpd.admin cleanup interval=60s
-httpd_admin_cleanup_interval=60s
-#
-# maintenance.httpd_portal_cleanup_interval
-#
-# httpd.portal cleanup interval=60s
-httpd_portal_cleanup_interval=60s
 #
 # maintenance.nodes_maintenance_interval
 #
@@ -1076,11 +1290,6 @@ acct_maintenance_interval=60s
 #
 # Interval at which Packetfence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
-#
-# maintenance.ldap_auth_cache_cleanup_interval
-#
-# Interval at which Packetfence purges the ldap_auth cache
-ldap_auth_cache_cleanup_interval=600s
 
 [active_active]
 #
@@ -1093,6 +1302,24 @@ password=1234
 #
 # Shared KEY for vrrp protocol (Must be the same on all members).
 virtual_router_id=50
+#
+# active_active.dns_on_vip_only
+#
+# Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster.
+dns_on_vip_only=disabled
+#
+# active_active.centralized_deauth
+#
+# Centralize the deauthentication to the management node of the cluster.
+centralized_deauth=enabled
+#
+# active_active.auth_on_management
+#
+# Process RADIUS authentication requests on the management server (the current load balancer).
+# Disabling it will make the management server only proxy requests to other servers.
+# Useful if your load balancer cannot handle both tasks.
+# Changing this requires to restart radiusd.
+auth_on_management=enabled
 
 [monitoring]
 #
@@ -1108,9 +1335,19 @@ graphite_port=2013
 #
 # monitoring.db_port
 #
-db_port=3306
+db_port=
 
 #
 # monitoring.db_host
 #
-db_host=localhost
+db_host=
+
+#
+# monitoring.db_user
+#
+db_user=
+
+#
+# monitoring.db_pass
+#
+db_pass=

@@ -29,7 +29,7 @@ use strict;
 use warnings;
 
 use POSIX;
-use Log::Log4perl;
+use pf::log;
 use Net::SNMP;
 
 use pf::Switch::constants;
@@ -51,8 +51,8 @@ Returns 1 on success 0 on failure.
 =cut
 
 sub authorizeMAC {
-    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+    my $logger = $self->logger;
     $logger->debug("Args to authorizeMAC: $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan");
 
 
@@ -61,27 +61,27 @@ sub authorizeMAC {
     my $OID_agentPortSecurityMACAddressAdd
         = '1.3.6.1.4.1.4526.10.20.1.2.1.8';    # NETGEAR-PORTSECURITY-PRIVATE-MIB
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info( "The switch isn't in production mode (Do nothing): "
                 . "Should deauthorize MAC $deauthMac on ifIndex $ifIndex "
                 . "and authorize MAC $authMac on ifIndex $ifIndex" );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
+    if ( !$self->connectWrite() ) {
+        $logger->warn( "Cannot connect to switch " . $self->{'_ip'} );
         return 0;
     }
 
     # Deauthorize MAC address from old location
     if ($deauthMac) {
-        if($this->isFakeMac($deauthMac)){
+        if($self->isFakeMac($deauthMac)){
             $deauthVlan = 1;
         } 
 
         $logger->trace( "SNMP set_request for agentPortSecurityMACAddressRemove: "
                 . "( $OID_agentPortSecurityMACAddressRemove.$ifIndex)" );
-        my $result = $this->{_sessionWrite}->set_request(
+        my $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_agentPortSecurityMACAddressRemove.$ifIndex", Net::SNMP::OCTET_STRING,
                 "$deauthVlan $deauthMac"
@@ -89,7 +89,7 @@ sub authorizeMAC {
         );
         if ( !defined($result) ) {
             $logger->error( "Error deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
                 return 0;
         }
         else {
@@ -99,12 +99,12 @@ sub authorizeMAC {
 
     # Authorize MAC address at new location
     if ($authMac) {
-        if($this->isFakeMac($authMac)){
+        if($self->isFakeMac($authMac)){
             $authVlan = 1;
         }
 
         $logger->trace( "SNMP set_request for agent: " . "( $OID_agentPortSecurityMACAddressAdd.$ifIndex )" );
-        my $result = $this->{_sessionWrite}->set_request(
+        my $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [
                 "$OID_agentPortSecurityMACAddressAdd.$ifIndex", Net::SNMP::OCTET_STRING,
                 "$authVlan $authMac"
@@ -112,7 +112,7 @@ sub authorizeMAC {
         );
         if ( !defined($result) ) {
             $logger->error( "Error authorizing $authVlan $authMac on ifIndex $ifIndex: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
             return 0;
         }
         else {
@@ -133,25 +133,25 @@ See bugs and limitations.
 =cut
 
 sub forceDeauthOnLinkDown {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # here we actively ignore uplinks because this is called from the parsing threads which don't
     # check for uplinks (yet).
     # This hack is to work-around "Netgear's not sending traps under certain circumstances" "feature"
-    my @uplinks = $this->getUpLinks();
+    my @uplinks = $self->getUpLinks();
 
     if ( @uplinks && $uplinks[0] == -1 ) {
         $logger->warn("Can't determine uplinks for the switch -> do nothing");
     }
     else {
         if ( grep( { $_ == $ifIndex } @uplinks ) == 0 ) {
-            my $trustedMacHash = $this->getSecureMacAddresses($ifIndex);
+            my $trustedMacHash = $self->getSecureMacAddresses($ifIndex);
             my $deauthMac      = ( keys %{$trustedMacHash} )[0];
-            my $authMac        = $this->generateFakeMac( $FALSE, $ifIndex );
+            my $authMac        = $self->generateFakeMac( $FALSE, $ifIndex );
             my $deauthVlan     = $trustedMacHash->{$deauthMac}->[0];
-            my $authVlan       = $this->getVlan($ifIndex);
-            $this->authorizeMAC( $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan );
+            my $authVlan       = $self->getVlan($ifIndex);
+            $self->authorizeMAC( $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan );
         }
     }
 
@@ -169,23 +169,23 @@ This is to maintain backwards compatibility with existing implementations of thi
 =cut
 
 sub getAllSecureMacAddresses {
-    my ($this) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self) = @_;
+    my $logger = $self->logger;
 
     my $OID_agentPortSecurityTable      = '1.3.6.1.4.1.4526.10.20.1.2';
     my $OID_agentPortSecurityMode       = '1.3.6.1.4.1.4526.10.20.1.2.1.1'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $OID_agentPortSecurityStaticMACs = '1.3.6.1.4.1.4526.10.20.1.2.1.6'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $secureMacAddrHashRef            = {};
 
-    if ( !$this->connectRead() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
+    if ( !$self->connectRead() ) {
+        $logger->warn( "Cannot connect to switch " . $self->{'_ip'} );
         return $secureMacAddrHashRef;
     }
 
-    $this->{_sessionRead}->translate(0);
+    $self->{_sessionRead}->translate(0);
     $logger->trace( "SNMP get_table for agentPortSecurityTable: $OID_agentPortSecurityTable" );
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_agentPortSecurityTable" );
-    $this->{_sessionRead}->translate(1);
+    my $result = $self->{_sessionRead}->get_table( -baseoid => "$OID_agentPortSecurityTable" );
+    $self->{_sessionRead}->translate(1);
 
     my $ifIndex = 1;
 
@@ -217,23 +217,23 @@ This is to maintain backwards compatibility with existing implementations of thi
 =cut
 
 sub getSecureMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     my $OID_agentPortSecurityStaticMACs = '1.3.6.1.4.1.4526.10.20.1.2.1.6'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $secureMacAddrHashRef            = {};
 
-    if ( !$this->connectRead() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
+    if ( !$self->connectRead() ) {
+        $logger->warn( "Cannot connect to switch " . $self->{'_ip'} );
         return $secureMacAddrHashRef;
     }
 
     $logger->trace( "SNMP get for agentPortSecurityStaticMACs: $OID_agentPortSecurityStaticMACs.$ifIndex" );
     my $result
-        = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_agentPortSecurityStaticMACs.$ifIndex"] );
+        = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_agentPortSecurityStaticMACs.$ifIndex"] );
 
     if ( !defined($result) ) {
-        $logger->error( "Error getting OID_agentPortSecurityStaticMACs " . $this->{_sessionRead}->error );
+        $logger->error( "Error getting OID_agentPortSecurityStaticMACs " . $self->{_sessionRead}->error );
     }
     else {
         # result will be a , separated list of 'vlan mac' pairs
@@ -255,26 +255,26 @@ sub getSecureMacAddresses {
 =cut
 
 sub isPortSecurityEnabled {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $self   = shift;
+    my $logger = $self->logger;
 
     my $OID_agentGlobalPortSecurityMode = '1.3.6.1.4.1.4526.10.20.1.1.0';   # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my %PortSecurityMode = ( 1 => "enabled", 2 => "disabled" );
 
-    if ( !$this->connectRead() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
+    if ( !$self->connectRead() ) {
+        $logger->warn( "Cannot connect to switch " . $self->{'_ip'} );
         return 0;
     }
 
     $logger->trace(
         "SNMP get_request for OID_agentGlobalPortSecurityMode: " . "( $OID_agentGlobalPortSecurityMode )" );
-    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_agentGlobalPortSecurityMode"] );
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => ["$OID_agentGlobalPortSecurityMode"] );
     if ( !defined($result) ) {
-        $logger->error( "Error getting OID_agentGlobalPortSecurityMode " . $this->{_sessionRead}->error );
+        $logger->error( "Error getting OID_agentGlobalPortSecurityMode " . $self->{_sessionRead}->error );
     }
     else {
         $logger->info( "Port Security mode on "
-                . $this->{'_ip'} . "is "
+                . $self->{'_ip'} . "is "
                 . $PortSecurityMode{ $result->{$OID_agentGlobalPortSecurityMode} } );
     }
 
@@ -293,8 +293,8 @@ sub isPortSecurityEnabled {
 =cut
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ( $self, $trapString ) = @_;
+    my $logger = get_logger();
 
     my $trapHashRef;
 
@@ -312,7 +312,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'}    = $2;
 
         if ( $trapHashRef->{'trapType'} eq "down" ) {
-            $this->forceDeauthOnLinkDown( $trapHashRef->{'trapIfIndex'} );
+            $self->forceDeauthOnLinkDown( $trapHashRef->{'trapIfIndex'} );
         }
     }
 
@@ -346,35 +346,35 @@ sub parseTrap {
 =cut
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
 
     my $OID_configPortDefaultVlanId = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
 
     my $result;
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info( "The switch isn't in production mode (Do nothing): "
                 . "Should set ifIndex $ifIndex to VLAN $newVlan" );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
+    if ( !$self->connectWrite() ) {
+        $logger->warn( "Cannot connect to switch " . $self->{'_ip'} );
         return 0;
     }
 
-    $this->forceDeauthOnLinkDown($ifIndex);
+    $self->forceDeauthOnLinkDown($ifIndex);
 
     # Change port PVID
     $logger->trace( "SNMP set_request for OID_configPortDefaultVlanId: "
             . "( $OID_configPortDefaultVlanId.$ifIndex i $newVlan )" );
 
-    $result = $this->{_sessionWrite}->set_request(
+    $result = $self->{_sessionWrite}->set_request(
         -varbindlist => [ "$OID_configPortDefaultVlanId.$ifIndex", Net::SNMP::UNSIGNED32, $newVlan ] );
 
     if ( !defined($result) ) {
-        $logger->error( "Error setting PVID $newVlan on ifIndex $ifIndex: " . $this->{_sessionWrite}->error );
+        $logger->error( "Error setting PVID $newVlan on ifIndex $ifIndex: " . $self->{_sessionWrite}->error );
     }
     else {
         $logger->info("Setting PVID $newVlan on ifIndex $ifIndex");
@@ -389,7 +389,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

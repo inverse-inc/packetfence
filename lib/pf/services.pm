@@ -29,7 +29,7 @@ use Module::Pluggable
   'search_path' => [qw(pf::services::manager)],
   'sub_name'    => 'managers',
   'require'     => 1,
-  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child)$/,
+  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child|radiusd_child|redis)$/,
   ;
 
 
@@ -40,14 +40,10 @@ our %MANAGERS = map { $_->new->name => $_ } @MANAGERS;
 
 our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd') } @MANAGERS;
 
-our @ALL_SERVICES = sub { 
-    my @services = sort map { 
-      my $name = $_->new->name;
-      unless($name eq 'keepalived') {$name}
-    } @MANAGERS;
-    push @services, 'keepalived';
-    return @services;
-}->();
+# all service managers except for keepalived
+our @ALL_SERVICES = sub {
+    return sort map { $_->new->name; } @MANAGERS;
+  } ->();
 
 our %ALLOWED_ACTIONS = (
     stop    => undef,
@@ -111,7 +107,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

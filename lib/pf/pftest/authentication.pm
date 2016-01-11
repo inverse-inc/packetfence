@@ -54,18 +54,20 @@ sub _run {
             }
             print color 'reset' if $show_color;
             my $actions;
-            if( $actions = pf::authentication::match([$source], {username => $user})) {
-                print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
-                print $indent ,"Matched against ",$source->id,"\n";
-                if(ref($actions)) {
-                    local $indent = $indent x 2;
-                    foreach my $action (@$actions) {
-                        print $indent ,$action->type," : ",$action->value,"\n";
+            foreach my $class ( @Rules::CLASSES ) {
+                if( $actions = pf::authentication::match([$source], {username => $user, rule_class => $class})) {
+                    print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
+                    print $indent ,"Matched against ",$source->id," for '$class' rules\n";
+                    if(ref($actions)) {
+                        local $indent = $indent x 2;
+                        foreach my $action (@$actions) {
+                            print $indent ,$action->type," : ",$action->value,"\n";
+                        }
                     }
+                } else {
+                    print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
+                    print $indent,"Did not match against ",$source->id,"\n";
                 }
-            } else {
-                print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
-                print $indent,"Did not match against ",$source->id,"\n";
             }
             print color 'reset' if $show_color;
             print "\n";
@@ -83,7 +85,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

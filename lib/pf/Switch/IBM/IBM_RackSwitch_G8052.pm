@@ -45,8 +45,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($this, $method, $connection_type) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -65,24 +65,24 @@ sub wiredeauthTechniques {
 =cut
 
 sub _dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
 
     $logger->info("Trying to do IBM 802.1x port re-authentication.");
 
     my $oid_dot1xPaePortReauthenticate = "1.0.8802.1.1.1.1.1.2.1.5"; # from IEEE8021-PAE-MIB
 
-    if (!$this->connectWrite()) {
+    if (!$self->connectWrite()) {
         return 0;
     }
 
     $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
-    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+    my $result = $self->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
     ]);
 
     if (!defined($result)) {
-        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$self->{_sessionWrite}->error);
     }
 
     return (defined($result));
@@ -95,7 +95,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

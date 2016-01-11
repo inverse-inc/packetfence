@@ -102,7 +102,6 @@ Caveat CSCty44701
 use strict;
 use warnings;
 
-use Log::Log4perl;
 use Net::SNMP;
 use Net::Telnet;
 
@@ -143,7 +142,7 @@ New implementation using RADIUS Disconnect-Request.
 
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($self) );
+    my $logger = $self->logger;
 
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode... we won't perform deauthentication");
@@ -167,18 +166,18 @@ See L<BUGS AND LIMITATIONS> for details.
 =cut
 
 sub _deauthenticateMacSNMP {
-    my ( $this, $mac ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $mac ) = @_;
+    my $logger = $self->logger;
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
 
-    if ( !$this->isProductionMode() ) {
+    if ( !$self->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't write to the bnsMobileStationTable"
         );
         return 1;
     }
 
-    if ( !$this->connectWrite() ) {
+    if ( !$self->connectWrite() ) {
         return 0;
     }
 
@@ -192,10 +191,10 @@ sub _deauthenticateMacSNMP {
         $logger->trace(
             "SNMP set_request for bsnMobileStationDeleteAction: $completeOid"
         );
-        my $result = $this->{_sessionWrite}->set_request(
+        my $result = $self->{_sessionWrite}->set_request(
             -varbindlist => [ $completeOid, Net::SNMP::INTEGER, 1 ] );
         # TODO: validate result
-        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
+        $logger->info("deauthenticate mac $mac from controller: ".$self->{_ip});
         return ( defined($result) );
     } else {
         $logger->error(
@@ -206,28 +205,28 @@ sub _deauthenticateMacSNMP {
 }
 
 sub blacklistMac {
-    my ( $this, $mac, $description ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $mac, $description ) = @_;
+    my $logger = $self->logger;
 
     if ( length($mac) == 17 ) {
 
         my $session;
         eval {
             $session = Net::Telnet->new(
-                Host    => $this->{_ip},
+                Host    => $self->{_ip},
                 Timeout => 5,
                 Prompt  => '/[\$%#>]$/'
             );
             $session->waitfor('/User: /');
-            $session->put( $this->{_cliUser} . "\n" );
+            $session->put( $self->{_cliUser} . "\n" );
             $session->waitfor('/Password:/');
-            $session->put( $this->{_cliPwd} . "\n" );
+            $session->put( $self->{_cliPwd} . "\n" );
             $session->waitfor( $session->prompt );
         };
 
         if ($@) {
             $logger->error(
-                "ERROR: Can not connect to access point $this->{'_ip'} using telnet"
+                "ERROR: Can not connect to access point $self->{'_ip'} using telnet"
             );
             return 1;
         }
@@ -241,67 +240,67 @@ sub blacklistMac {
 }
 
 sub isLearntTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setLearntTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isRemovedTrapsEnabled {
-    my ( $this, $ifIndex ) = @_;
+    my ( $self, $ifIndex ) = @_;
     return ( 0 == 1 );
 }
 
 sub setRemovedTrapsEnabled {
-    my ( $this, $ifIndex, $trueFalse ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $trueFalse ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVmVlanType {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub setVmVlanType {
-    my ( $this, $ifIndex, $type ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex, $type ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub isTrunkPort {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return -1;
 }
 
 sub getVlans {
-    my ($this) = @_;
+    my ($self) = @_;
     my $vlans  = {};
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return $vlans;
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $vlan ) = @_;
+    my $logger = $self->logger;
     $logger->error("function is NOT implemented");
     return 0;
 }
 
 sub isVoIPEnabled {
-    my ($this) = @_;
+    my ($self) = @_;
     return 0;
 }
 
@@ -312,7 +311,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    my ($this) = @_;
+    my ($self) = @_;
 
     return 'Airespace-ACL-Name';
 }
@@ -324,8 +323,8 @@ Return the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub deauthTechniques {
-    my ($this, $method) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ($self, $method) = @_;
+    my $logger = $self->logger;
     my $default = $SNMP::RADIUS;
     my %tech = (
         $SNMP::RADIUS => 'deauthenticateMacDefault',
@@ -352,11 +351,51 @@ status code
 =cut
 
 sub parseUrl {
-    my($this, $req) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my($self, $req) = @_;
+    my $logger = $self->logger;
     return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Service-Type'} = 'Administrative-User';
+    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Service-Type'} = 'NAS-Prompt-User';
+    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeRead', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
 
 =back
 
@@ -366,7 +405,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,8 +1,10 @@
               <form id="search" name="search" method="POST" class="form-inline" style="margin-bottom: 0px" action="[% c.uri_for(c.controller.action_for('search')) %]">
-                <input type="hidden" name="page_num">
-                <input type="hidden" name="per_page">
                 <input type="hidden" name="by">
                 <input type="hidden" name="direction">
+                <div>
+                [% INCLUDE per_page_select.tt %]
+                </div>
+                <br/>
               <div id="all_or_any">
                       [% match_options = BLOCK %]
                       <select name="all_or_any" class="input-mini">
@@ -12,6 +14,7 @@
                       [% END %]
                       [% l('Match [_1] of the following conditions:', [match_options]) | none%]
               </div>
+                <br/>
               <table class="table-dynamic" id="searches">
                 <tbody>
                   <tr class="hidden dynamic-row">

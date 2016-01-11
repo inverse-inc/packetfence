@@ -31,6 +31,19 @@
             </div>
           </div>
           <div class="control-group">
+            <label class="control-label" for="billing_tiers">[% l('Billing tiers') %]</label>
+            <div class="controls">
+              [% form.field('billing_tiers').render | none %]
+              <div id="billing_tiersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('billing_tiers').index > 1 %]">
+                <p>
+                  <i class="icon-group icon-large"></i>
+                  [% l('With no billing tiers specified, all billing tiers will be used.') %]
+                  <a href="#add">[% l('Add a billing tier.') %]</a>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
             <label class="control-label" for="provisioners">[% l('Provisioners') %]</label>
             <div class="controls">
               [% form.field('provisioners').render | none %]

@@ -19,12 +19,11 @@ use File::Spec::Functions;
 
 use pf::config;
 use pf::Switch::constants;
+use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
 
-has 'roles' => ( is => 'ro' );
-has 'access_lists' => ( is => 'ro' );
-has 'placeholders' => ( is => 'ro' );
+has 'roles' => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -44,17 +43,26 @@ has_field 'type' =>
   (
    type => 'Select',
    label => 'Type',
-   element_class => ['chzn-select'],
-   required_when => { 'id' => sub { $_[0] ne 'default' } },
+   element_class => ['chzn-deselect'],
+   required_when => { 'id' => sub { $_[0] eq 'default' } },
    messages => { required => 'Please select the type of the switch.' },
+  );
+
+has_field 'group' =>
+  (
+   type => 'Select',
+   label => 'Switch Group',
+   options_method => \&options_groups,
+   element_class => ['chzn-select'],
+   tags => { after_element => \&help,
+             help => 'Changing the group requires to save to see the new default values' },
   );
 has_field 'mode' =>
   (
    type => 'Select',
    label => 'Mode',
-   required => 1,
-   tags => { after_element => \&help_list,
-             help => "<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>" },
+   required_when => { 'id' => sub { $_[0] eq 'default' } },
+   element_class => ['chzn-deselect'],
   );
 has_field 'deauthMethod' =>
   (
@@ -66,17 +74,27 @@ has_field 'VlanMap' =>
   (
    type => 'Toggle',
    label => 'Role by VLAN ID',
+   default => undef,
   );
 
 has_field 'RoleMap' =>
   (
    type => 'Toggle',
    label => 'Role by Switch Role',
+   default => undef,
   );
 has_field 'AccessListMap' =>
   (
    type => 'Toggle',
    label => 'Role by access list',
+   default => undef,
+  );
+has_field 'cliAccess' =>
+  (
+   type => 'Toggle',
+   label => 'CLI Access Enabled',
+   tags => { after_element => \&help,
+             help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
   );
 has_field 'VoIPEnabled' =>
   (
@@ -162,9 +180,8 @@ has_block 'radius' =>
   );
 has_field 'radiusSecret' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret Passphrase',
-   password => 0,
   );
 
 ## SNMP
@@ -207,7 +224,6 @@ has_field macSearchesMaxNb =>
   (
    type => 'PosInteger',
    label => 'Maximum MAC addresses',
-   default => 30,
    tags => {
        after_element => \&help,
        help => 'Maximum number of MAC addresses retrived from a port'
@@ -218,7 +234,6 @@ has_field macSearchesSleepInterval  =>
   (
    type => 'PosInteger',
    label => 'Sleep interval',
-   default => 2,
    tags => {
        after_element => \&help,
        help => 'Sleep interval between queries of MAC addresses'
@@ -227,7 +242,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -262,9 +277,8 @@ has_field 'SNMPAuthProtocolRead' =>
   );
 has_field 'SNMPAuthPasswordRead' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Read',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolRead' =>
   (
@@ -273,9 +287,8 @@ has_field 'SNMPPrivProtocolRead' =>
   );
 has_field 'SNMPPrivPasswordRead' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Read',
-   password => 0,
   );
 has_field 'SNMPUserNameWrite' =>
   (
@@ -289,9 +302,8 @@ has_field 'SNMPAuthProtocolWrite' =>
   );
 has_field 'SNMPAuthPasswordWrite' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Write',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolWrite' =>
   (
@@ -300,9 +312,8 @@ has_field 'SNMPPrivProtocolWrite' =>
   );
 has_field 'SNMPPrivPasswordWrite' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Write',
-   password => 0,
   );
 has_field 'SNMPVersionTrap' =>
   (
@@ -328,9 +339,8 @@ has_field 'SNMPAuthProtocolTrap' =>
   );
 has_field 'SNMPAuthPasswordTrap' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Auth Password Trap',
-   password => 0,
   );
 has_field 'SNMPPrivProtocolTrap' =>
   (
@@ -339,9 +349,8 @@ has_field 'SNMPPrivProtocolTrap' =>
   );
 has_field 'SNMPPrivPasswordTrap' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Priv Password Trap',
-   password => 0,
   );
 
 ## CLI
@@ -368,16 +377,14 @@ has_field 'cliUser' =>
   );
 has_field 'cliPwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
-   password => 0,
   );
 
 has_field 'cliEnablePwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Enable Password',
-   password => 0,
   );
 
 ## Web Services
@@ -403,9 +410,8 @@ has_field 'wsUser' =>
   );
 has_field 'wsPwd' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
-   password => 0,
   );
 
 has_field controllerIp =>
@@ -484,8 +490,6 @@ sub field_list {
           {
            type => 'Text',
            label => $role,
-           required_when => { 'id' => sub { $_[0] eq 'default' } },
-           messages => { required => 'Please specify the corresponding VLAN for each role.' }
           };
         push(@$list, $role.'Vlan' => $field);
     }
@@ -523,25 +527,36 @@ For other switches, add placeholders with values from default switch.
 =cut
 
 sub update_fields {
-    my $self = shift;
-    my $init_object = $self->init_object;
+    my ($self, $init_object) = @_;
+    $init_object ||= $self->init_object;
     my $id = $init_object->{id} if $init_object;
+    my $inherit_from = $init_object->{group} || "default";
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my $placeholders = $cs->fullConfig($inherit_from);
+
     if (defined $id && $id eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
-    } elsif ($self->placeholders) {
+    } elsif ($placeholders) {
         foreach my $field ($self->fields) {
-            my $placeholder = $self->placeholders->{$field->name};
+            my $placeholder = $placeholders->{$field->name};
             if (defined $placeholder && length $placeholder) {
                 if ($field->type eq 'Select') {
-                    if ($field->name eq 'type') {
-                        $field->default($placeholder);
-                    } else {
-                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
-                        $field->element_attr({ 'data-placeholder' => $val });
-                    }
-                } elsif ($field->name ne 'id') {
+                    my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
+                    $field->element_attr({ 'data-placeholder' => $val });
+                }
+                elsif ( 
+                    # if there is no value defined in the switch and the place holder is defined
+                    # We check that it is not disabled because of special cases like uplink_dynamic
+                    ( ( !defined($init_object->{$field->name}) && !pf::util::isdisabled($placeholder) )
+                    # or that the value in the switch is enabled
+                        || pf::util::isenabled($field->value) ) 
+                    # we only apply this to Checkbox and Toggle
+                    && ($field->type eq "Checkbox" || $field->type eq "Toggle") ) {
+                    $field->element_attr({ checked => "checked" });
+                }
+                elsif ($field->name ne 'id') {
                     $field->element_attr({ placeholder => $placeholder });
                 }
             }
@@ -582,41 +597,39 @@ sub build_block_list {
 
 =head2 options_type
 
-Dynamically extract the descriptions from the various SNMP modules.
+Extract the descriptions from the various Switch modules.
 
 =cut
 
 sub options_type {
     my $self = shift;
 
-    my %paths = ();
-    my $wanted = sub {
-        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/Switch\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
-            $pack =~ s/\//::/g; $switch =~ s/\//::/g;
-
-            # Parent folder is the vendor name
-            my @p = split /::/, $switch;
-            my $vendor = shift @p;
-
-            # Only switch types with a 'description' subroutine are displayed
-            require $module;
-            if ($pack->can('description')) {
-                $paths{$vendor} = {} unless ($paths{$vendor});
-                $paths{$vendor}->{$switch} = $pack->description;
-            }
-        }
-    };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/Switch"));
-
     # Sort vendors and switches for display
     my @modules;
-    foreach my $vendor (sort keys %paths) {
-        my @switches = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
+    foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
+        my @switches = map {{ value => $_, label => $pf::SwitchFactory::VENDORS{$vendor}->{$_} }} sort keys %{$pf::SwitchFactory::VENDORS{$vendor}};
         push @modules, { group => $vendor,
                          options => \@switches };
     }
 
-    return @modules;
+    return ({group => '', options => [{value => '', label => ''}]}, @modules);
+}
+
+=head2 options_groups
+
+Extract the switch groups from the configuration
+
+=cut
+
+sub options_groups {
+    my $self = shift;
+    my @couples;
+    push @couples, ('' => 'None');
+    my $cs = pf::ConfigStore::SwitchGroup->new;
+    my @groups = @{$cs->readAll("id")};
+    push @couples, map { $_->{id} => $_->{description} } @groups;
+
+    return @couples;
 }
 
 =head2 options_mode
@@ -628,7 +641,7 @@ sub options_mode {
 
     my @modes = map { $_ => $self->_localize($_) } @SNMP::MODES;
 
-    return \@modes;
+    return ('' => '', @modes);
 }
 
 =head2 options_deauthMethod
@@ -740,7 +753,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

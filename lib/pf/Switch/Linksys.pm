@@ -16,23 +16,22 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Log::Log4perl;
 use Net::SNMP;
 # disabling port-security since its known not to work
 #use Net::Telnet;
 
 sub getVersion {
-    my ($this) = @_;
+    my ($self) = @_;
     my $oid_rlPhdUnitGenParamSoftwareVersion
         = '1.3.6.1.4.1.89.53.14.1.2.1';    #RADLAN-Physicaldescription-MIB
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return '';
     }
     $logger->trace(
         "SNMP get_request for rlPhdUnitGenParamSoftwareVersion: $oid_rlPhdUnitGenParamSoftwareVersion"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [$oid_rlPhdUnitGenParamSoftwareVersion] );
     if (exists( $result->{$oid_rlPhdUnitGenParamSoftwareVersion} )
         && ( $result->{$oid_rlPhdUnitGenParamSoftwareVersion} ne
@@ -45,9 +44,9 @@ sub getVersion {
 }
 
 sub parseTrap {
-    my ( $this, $trapString ) = @_;
+    my ( $self, $trapString ) = @_;
     my $trapHashRef;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
     $logger->trace("matching trap string");
     if ( $trapString
         =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.\d+ = INTEGER: [^|]+\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.\d+ = INTEGER: [^(]+\((\d)\) END VARIABLEBINDINGS/
@@ -71,7 +70,7 @@ sub parseTrap {
     #    $trapHashRef->{'trapMac'}     = lc($1);
     #    $trapHashRef->{'trapIfIndex'} = $2;
     #    $trapHashRef->{'trapVlan'}
-    #        = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+    #        = $self->getVlan( $trapHashRef->{'trapIfIndex'} );
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -80,27 +79,27 @@ sub parseTrap {
 }
 
 sub isDefinedVlan {
-    my ( $this, $vlan ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $vlan ) = @_;
+    my $logger = $self->logger;
     $logger->trace("isDefinedVlan vlan: $vlan ?");
     if ( $vlan == 1 ) {
         return 1;
     }
-    return $this->SUPER::isDefinedVlan($vlan);
+    return $self->SUPER::isDefinedVlan($vlan);
 }
 
 sub getTrunkPorts {
-    my ($this) = @_;
+    my ($self) = @_;
     my $OID_vlanPortModeState = '1.3.6.1.4.1.89.48.22.1.1';    #RADLAN-vlan-MIB
     my @trunkPorts;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $logger = $self->logger;
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
     $logger->trace(
         "SNMP get_table for vlanPortModeState: $OID_vlanPortModeState");
-    my $result = $this->{_sessionRead}
+    my $result = $self->{_sessionRead}
         ->get_table( -baseoid => $OID_vlanPortModeState );
     if ( defined($result) ) {
         foreach my $key ( keys %{$result} ) {
@@ -108,33 +107,33 @@ sub getTrunkPorts {
                 $key =~ /^$OID_vlanPortModeState\.(\d+)$/;
                 push @trunkPorts, $1;
                 $logger->debug(
-                    "Switch " . $this->{_ip} . " trunk port: $1" );
+                    "Switch " . $self->{_ip} . " trunk port: $1" );
             }
         }
     } else {
         $logger->error( "Problem while reading vlanPortModeState for switch "
-                . $this->{_ip} );
+                . $self->{_ip} );
         return -1;
     }
     return @trunkPorts;
 }
 
 sub getUpLinks {
-    my ($this) = @_;
+    my ($self) = @_;
     my @upLinks;
 
-    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
-        @upLinks = $this->getTrunkPorts();
+    if ( lc(@{ $self->{_uplink} }[0]) eq 'dynamic' ) {
+        @upLinks = $self->getTrunkPorts();
     } else {
-        @upLinks = @{ $this->{_uplink} };
+        @upLinks = @{ $self->{_uplink} };
     }
     return @upLinks;
 }
 
 sub _setVlan {
-    my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    if ( !$this->connectRead() ) {
+    my ( $self, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
+    my $logger = $self->logger;
+    if ( !$self->connectRead() ) {
         return 0;
     }
     my $OID_dot1qVlanStaticUntaggedPorts
@@ -144,22 +143,22 @@ sub _setVlan {
     my $result;
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_ip}
+            . $self->{_ip}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        lock %{ $switch_locker_ref->{ $self->{_ip} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_ip}
+                . $self->{_ip}
                 . "} locked in _setVlan" );
 
         # get current egress and untagged ports
-        $this->{_sessionRead}->translate(0);
+        $self->{_sessionRead}->translate(0);
         $logger->trace(
             "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
         );
         if ( $oldVlan != 1 ) {
             if ( $newVlan != 1 ) {
-                $result = $this->{_sessionRead}->get_request(
+                $result = $self->{_sessionRead}->get_request(
                     -varbindlist => [
                         "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                         "$OID_dot1qVlanStaticEgressPorts.$newVlan",
@@ -170,31 +169,31 @@ sub _setVlan {
 
                 # calculate new settings
                 my $egressPortsOldVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
                     $ifIndex - 1, 0 );
                 my $egressPortsVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
                     $ifIndex - 1, 1 );
                 my $untaggedPortsOldVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
                     $ifIndex - 1, 0 );
                 my $untaggedPortsVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
                     $ifIndex - 1, 1 );
-                $this->{_sessionRead}->translate(1);
+                $self->{_sessionRead}->translate(1);
 
                 # set all values
-                if ( !$this->connectWrite() ) {
+                if ( !$self->connectWrite() ) {
                     return 0;
                 }
                 $logger->trace(
                     "SNMP set_request for egressPorts, untaggedPorts and Pvid for new VLAN"
                 );
-                $result = $this->{_sessionWrite}->set_request(
+                $result = $self->{_sessionWrite}->set_request(
                     -varbindlist => [
                         "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                         Net::SNMP::OCTET_STRING,
@@ -211,7 +210,7 @@ sub _setVlan {
                     ]
                 );
             } else {
-                $result = $this->{_sessionRead}->get_request(
+                $result = $self->{_sessionRead}->get_request(
                     -varbindlist => [
                         "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                         "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
@@ -220,23 +219,23 @@ sub _setVlan {
 
                 # calculate new settings
                 my $egressPortsOldVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
                     $ifIndex - 1, 0 );
                 my $untaggedPortsOldVlan
-                    = $this->modifyBitmask(
+                    = $self->modifyBitmask(
                     $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
                     $ifIndex - 1, 0 );
-                $this->{_sessionRead}->translate(1);
+                $self->{_sessionRead}->translate(1);
 
                 # set all values
-                if ( !$this->connectWrite() ) {
+                if ( !$self->connectWrite() ) {
                     return 0;
                 }
                 $logger->trace(
                     "SNMP set_request for egressPorts, untaggedPorts and Pvid for new VLAN"
                 );
-                $result = $this->{_sessionWrite}->set_request(
+                $result = $self->{_sessionWrite}->set_request(
                     -varbindlist => [
                         "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
                         Net::SNMP::OCTET_STRING,
@@ -248,7 +247,7 @@ sub _setVlan {
                 );
             }
         } else {
-            $result = $this->{_sessionRead}->get_request(
+            $result = $self->{_sessionRead}->get_request(
                 -varbindlist => [
                     "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                     "$OID_dot1qVlanStaticUntaggedPorts.$newVlan",
@@ -257,24 +256,24 @@ sub _setVlan {
 
             # calculate new settings
             my $egressPortsVlan
-                = $this->modifyBitmask(
+                = $self->modifyBitmask(
                 $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
                 $ifIndex - 1, 1 );
             my $untaggedPortsVlan
-                = $this->modifyBitmask(
+                = $self->modifyBitmask(
                 $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
                 $ifIndex - 1, 1 );
-            $this->{_sessionRead}->translate(1);
+            $self->{_sessionRead}->translate(1);
 
             # set all values
-            if ( !$this->connectWrite() ) {
+            if ( !$self->connectWrite() ) {
                 return 0;
             }
 
             $logger->trace(
                 "SNMP set_request for egressPorts, untaggedPorts and Pvid for new VLAN"
             );
-            $result = $this->{_sessionWrite}->set_request(
+            $result = $self->{_sessionWrite}->set_request(
                 -varbindlist => [
                     "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                     Net::SNMP::OCTET_STRING,
@@ -288,11 +287,11 @@ sub _setVlan {
         if ( !defined($result) ) {
             $logger->error(
                 "error setting egressPorts, untaggedPorts for old VLAN: "
-                    . $this->{_sessionWrite}->error );
+                    . $self->{_sessionWrite}->error );
         }
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_ip}
+            . $self->{_ip}
             . "} unlocked in _setVlan" );
     return ( defined($result) );
 }
@@ -304,8 +303,8 @@ sub _setVlan {
 # The connection should be made from inside the eval block. 
 # See other telnet consuming switches for correct implementation.
 #sub connectTelnet {
-#    my ($this)       = @_;
-#    my $logger       = Log::Log4perl::get_logger( ref($this) );
+#    my ($self)       = @_;
+#    my $logger       = $self->logger;
 #    my $maxTries     = 50;
 #    my $tryNb        = 1;
 #    my $cliAvailable = 0;
@@ -314,14 +313,14 @@ sub _setVlan {
 #    my $t; = new Net::Telnet( Prompt => '/console# $/' );
 #    while ( ( $tryNb <= $maxTries ) && ( !$cliAvailable ) ) {
 #        eval {
-#            $t->open( $this->{_ip} );
+#            $t->open( $self->{_ip} );
 #            $t->waitfor(
 #                '/Execute\\033\[21;18H\\033\[7mEdit\\033\[0m\\033\[21;18H/');
 #            $t->put("\n");
 #            $t->waitfor('/Execute/');
-#            $t->put( $this->{_cliUser} . "\n" );
+#            $t->put( $self->{_cliUser} . "\n" );
 #            $t->waitfor('/Execute/');
-#            $t->put( $this->{_cliPwd} . "\n" );
+#            $t->put( $self->{_cliPwd} . "\n" );
 #            $t->waitfor('/Execute/');
 #            $t->put("\033");
 #            $t->waitfor('/Execute/');
@@ -335,9 +334,9 @@ sub _setVlan {
 #            $t->waitfor('/>/');
 #            $t->put("lcli\n");
 #            $t->waitfor('/User Name:/');
-#            $t->put( $this->{_cliUser} . "\n" );
+#            $t->put( $self->{_cliUser} . "\n" );
 #            $t->waitfor('/Password:/');
-#            $t->put( $this->{_cliPwd} . "\n" );
+#            $t->put( $self->{_cliPwd} . "\n" );
 #            $t->waitfor('/console/');
 #        };
 #        if ( !$@ ) {
@@ -359,19 +358,19 @@ sub _setVlan {
 
 # disabling port-security since its known not to work
 #sub isPortSecurityEnabled {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger = $self->logger;
 #    my $OID_swIfHostMode
 #        = '1.3.6.1.4.1.89.43.1.1.30';    #RADLAN-rlInterfaces MIB
 #
-#    if ( !$this->connectRead() ) {
+#    if ( !$self->connectRead() ) {
 #        return 0;
 #    }
 #
 #    #determine if port security is enabled
 #    $logger->trace(
 #        "SNMP get_request for swIfHostMode: $OID_swIfHostMode.$ifIndex");
-#    my $result = $this->{_sessionRead}
+#    my $result = $self->{_sessionRead}
 #        ->get_request( -varbindlist => [ "$OID_swIfHostMode.$ifIndex" ] );
 #    return (   exists( $result->{"$OID_swIfHostMode.$ifIndex"} )
 #            && ( $result->{"$OID_swIfHostMode.$ifIndex"} ne 'noSuchInstance' )
@@ -380,8 +379,8 @@ sub _setVlan {
 
 # disabling port-security since its known not to work
 #sub setPortSecurityDisabled {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger = $self->logger;
 #
 #    $logger->info("function not implemented yet !");
 #    return 1;
@@ -389,24 +388,24 @@ sub _setVlan {
 
 # disabling port-security since its known not to work
 #sub isDynamicPortSecurityEnabled {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
-#    return ( $this->isPortSecurityEnabled($ifIndex)
-#            && ( !$this->isStaticPortSecurityEnabled($ifIndex) ) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger = $self->logger;
+#    return ( $self->isPortSecurityEnabled($ifIndex)
+#            && ( !$self->isStaticPortSecurityEnabled($ifIndex) ) );
 #}
 
 # disabling port-security since its known not to work
 #sub isStaticPortSecurityEnabled {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger                  = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger                  = $self->logger;
 #    my $OID_swIfLockAdminStatus = '1.3.6.1.4.1.89.43.1.1.8';
 #
-#    if ( !$this->connectRead() ) {
+#    if ( !$self->connectRead() ) {
 #        return -1;
 #    }
 #
 #    #determine if port security is enabled
-#    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+#    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
 #        $logger->debug("port security is not enabled");
 #        return 0;
 #    }
@@ -415,7 +414,7 @@ sub _setVlan {
 #    $logger->trace(
 #        "SNMP get_request for swIfLockAdminStatus: $OID_swIfLockAdminStatus.$ifIndex"
 #    );
-#    my $result = $this->{_sessionRead}->get_request(
+#    my $result = $self->{_sessionRead}->get_request(
 #        -varbindlist => [ "$OID_swIfLockAdminStatus.$ifIndex" ] );
 #    if (( !exists( $result->{"$OID_swIfLockAdminStatus.$ifIndex"} ) )
 #        || ( $result->{"$OID_swIfLockAdminStatus.$ifIndex"} eq
@@ -429,16 +428,16 @@ sub _setVlan {
 #}
 
 sub getMaxMacAddresses {
-    my ( $this, $ifIndex ) = @_;
-    my $logger                      = Log::Log4perl::get_logger( ref($this) );
+    my ( $self, $ifIndex ) = @_;
+    my $logger                      = $self->logger;
     my $OID_swIfLockMaxMacAddresses = '1.3.6.1.4.1.89.43.1.1.38';
 
-    if ( !$this->connectRead() ) {
+    if ( !$self->connectRead() ) {
         return -1;
     }
 
     #determine if port security is enabled
-    if ( !$this->isPortSecurityEnabled($ifIndex) ) {
+    if ( !$self->isPortSecurityEnabled($ifIndex) ) {
         $logger->debug("port security is not enabled");
         return -1;
     }
@@ -447,7 +446,7 @@ sub getMaxMacAddresses {
     $logger->trace(
         "SNMP get_request for swIfLockMaxMacAddresses: $OID_swIfLockMaxMacAddresses.$ifIndex"
     );
-    my $result = $this->{_sessionRead}->get_request(
+    my $result = $self->{_sessionRead}->get_request(
         -varbindlist => [ "$OID_swIfLockMaxMacAddresses.$ifIndex" ] );
     if (( !exists( $result->{"$OID_swIfLockMaxMacAddresses.$ifIndex"} ) )
         || ( $result->{"$OID_swIfLockMaxMacAddresses.$ifIndex"} eq
@@ -462,14 +461,14 @@ sub getMaxMacAddresses {
 
 # disabling port-security since its known not to work
 #sub getSecureMacAddresses {
-#    my ( $this, $ifIndex ) = @_;
-#    my $logger               = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex ) = @_;
+#    my $logger               = $self->logger;
 #    my $secureMacAddrHashRef = {};
-#    my $ifName               = $this->getIfName($ifIndex);
+#    my $ifName               = $self->getIfName($ifIndex);
 #    if ( $ifName eq '' ) {
 #        return $secureMacAddrHashRef;
 #    }
-#    my $telnetConnection = $this->connectTelnet();
+#    my $telnetConnection = $self->connectTelnet();
 #    if ( !$telnetConnection ) {
 #        return $secureMacAddrHashRef;
 #    }
@@ -493,11 +492,11 @@ sub getMaxMacAddresses {
 
 # disabling port-security since its known not to work
 #sub getAllSecureMacAddresses {
-#    my ($this)               = @_;
-#    my $logger               = Log::Log4perl::get_logger( ref($this) );
+#    my ($self)               = @_;
+#    my $logger               = $self->logger;
 #    my $secureMacAddrHashRef = {};
-#    my %ifNameIfIndexHash    = $this->getIfNameIfIndexHash();
-#    my $telnetConnection     = $this->connectTelnet();
+#    my %ifNameIfIndexHash    = $self->getIfNameIfIndexHash();
+#    my $telnetConnection     = $self->connectTelnet();
 #    if ( !$telnetConnection ) {
 #        return $secureMacAddrHashRef;
 #    }
@@ -521,24 +520,24 @@ sub getMaxMacAddresses {
 
 # disabling port-security since its known not to work
 #sub authorizeMAC {
-#    my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
-#    my $logger = Log::Log4perl::get_logger( ref($this) );
+#    my ( $self, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
+#    my $logger = $self->logger;
 #    my $oid_cpsSecureMacAddrRowStatus = '1.3.6.1.4.1.9.9.315.1.2.2.1.4';
 #
-#    if ( !$this->isProductionMode() ) {
+#    if ( !$self->isProductionMode() ) {
 #        $logger->info(
 #            "not in production mode ... we won't add an entry to the SecureMacAddrTable"
 #        );
 #        return 1;
 #    }
 #
-#    my $ifName = $this->getIfName($ifIndex);
+#    my $ifName = $self->getIfName($ifIndex);
 #    if ( $ifName eq '' ) {
 #        $logger->warn("unable to get ifName from ifIndex");
 #        return 0;
 #    }
 #
-#    my $telnetConnection = $this->connectTelnet();
+#    my $telnetConnection = $self->connectTelnet();
 #    if ( !$telnetConnection ) {
 #        $logger->warn("unable to get telnet connection");
 #        return 0;
@@ -579,7 +578,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

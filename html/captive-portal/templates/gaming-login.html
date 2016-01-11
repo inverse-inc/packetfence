@@ -1,36 +1,32 @@
 [% title = i18n("Login") %]
 [% INCLUDE header.html 
-    body_attributes = 'onload="$(\'username\').focus();"';
+    body_attributes = 'onload="$(\'#username\').focus();"';
 %]
 
 <script type="text/javascript">
-document.observe("dom:loaded", function() {
+$(document).ready(function() {
 
-        // Don't propagate mouse clicks on disabled buttons and links
-        $$(".btn").each(function(e) {
-                e.on("click", function(event) {
-                        if (Event.element(event).hasClassName('disabled')) {
-                                Event.stop(event);
-                                return false;
-                        }
-                        return true;
-                });
-        });
+  // Don't propagate mouse clicks on disabled buttons and links
+  $('.btn').on('click', function(event) {
+    if ($(this).hasClass('disabled')) {
+      event.stopPropagation();
+      return false;
+    }
+  });
 
-        // Toggle the disable state of the buttons and links when the user
-        // accepts or refuses the AUP
-        $$("input[name='aup_signed']").each(function(e) {
-                e.on("change", function(event) {
-                        var accepted = e.checked;
-                        $$(".btn").each(function(btn) {
-                                if (accepted)
-                                        btn.removeClassName('disabled');
-                                else
-                                        btn.addClassName('disabled');
-                        });
-                });
-        });
-
+  // Toggle the disable state of the buttons and links when the user
+  // accepts or refuses the AUP
+  $("input[name='aup_signed']").each(function() {
+    $(this).on('change', function(event) {
+      var accepted = this.checked;
+      $('.btn').each(function() {
+        if (accepted)
+          $(this).removeClass('disabled');
+        else
+          $(this).addClass('disabled');
+      });
+    });
+  });
 });
 </script>
 

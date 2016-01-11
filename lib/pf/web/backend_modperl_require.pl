@@ -16,7 +16,6 @@ use lib "/usr/local/pf/conf";
 use strict;
 use warnings;
 
-use Log::Log4perl;
 
 use pf::config;
 use pf::locationlog;
@@ -35,7 +34,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

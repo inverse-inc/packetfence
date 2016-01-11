@@ -1285,10 +1285,7 @@ sub getIptablesTechnique {
 sub stopService {
     my ($service,@services) = @_;
     my @managers = getManagers(\@services);
-    #push memcached to back of the list
-    my %exclude = (
-        memcached => undef,
-    );
+    my %exclude = ();
     my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
     @managers = ();
     @managers = @$infront_managers if $infront_managers;
@@ -2379,7 +2376,7 @@ sub configreload {
     require pf::ConfigStore::Violations;
     require pf::ConfigStore::Wrix;
     require pf::web::filter;
-    require pf::vlan::filter;
+    require pf::access_filter::vlan;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
 
@@ -2436,7 +2433,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

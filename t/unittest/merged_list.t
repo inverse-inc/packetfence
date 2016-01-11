@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 merged_list
@@ -17,7 +19,12 @@ use lib '/usr/local/pf/lib';
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
+    use File::Spec::Functions qw(catfile catdir rel2abs);
+    use File::Basename qw(dirname);
     use PfFilePaths;
+    my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
+    $test_dir ||= catdir($pf::file_paths::install_dir,'t');
+    $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
 }
 use Test::More tests => 6;
 
@@ -33,7 +40,7 @@ ok(@default_proxy_passthroughs ~~ $pf::config::Config{trapping}{proxy_passthroug
 use_ok('pf::ConfigStore::Pf');
 
 my @additionnal = (
-    "www.dinde.ca", 
+    "www.dinde.ca",
     "www.zamm.it",
 );
 
@@ -47,6 +54,10 @@ ok(([@default_proxy_passthroughs, @additionnal] ~~ $pf::config::Config{trapping}
 
 $cs->update('trapping', {'proxy_passthroughs' => undef});
 $cs->commit();
+
+END {
+    truncate $pf::file_paths::pf_config_file, 0;
+}
 
 =head1 AUTHOR
 

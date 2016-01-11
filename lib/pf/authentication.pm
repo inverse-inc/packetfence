@@ -13,7 +13,7 @@ pf::authentication
 use strict;
 use warnings;
 
-use Log::Log4perl qw(get_logger);
+use pf::log;
 
 use pf::constants;
 use pf::config;
@@ -25,6 +25,7 @@ use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 
 use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
@@ -32,11 +33,14 @@ use Module::Pluggable
   'require'     => 1,
   ;
 
+use Clone qw(clone);
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
+use pf::StatsD::Timer;
+use pf::util::statsd qw(called);
 
 # The results...
 #
@@ -127,9 +131,6 @@ sub newAuthenticationSource {
     return $source;
 }
 
-
-
-
 =item getAuthenticationSource
 
 Return an instance of pf::Authentication::Source::* for the given id
@@ -173,7 +174,6 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
-
 # =head2 source_for_user
 
 # =cut
@@ -210,30 +210,51 @@ authentication sources are used.
 =cut
 
 sub authenticate {
-    my ($username, $password, @sources) = @_;
+    my ( $params, @sources ) = @_;
 
+    my $username = $params->{'username'};
+    my $password = $params->{'password'};
+
+    # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
     unless (@sources) {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
-    my $display_username = (defined $username) ? $username : "(undefined)";
 
-    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
+    my $cloned_sources = clone(\@sources);
 
+    # If a rule class is defined, we filter out authentication sources rules that doesn't match it
+    if ( defined($params->{'rule_class'}) ) {
+        foreach my $source ( @$cloned_sources ) {
+            my @rules = ();
+            foreach my $rule ( @{ $source->{'rules'} } ) {
+                push (@rules, $rule) if $rule->{'class'} eq $params->{'rule_class'};
+            }
+            if ( @rules ) {
+                @{$source->{'rules'}} = ();
+                push (@{$source->{'rules'}}, @rules);
+                push (@sources, $source);
+            }
+        }
+    }
+
+    $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
+
+    my $message;
     foreach my $current_source (@sources) {
-        my ($result, $message);
-        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
+        my $result;
+        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
-    return ($FALSE, 'Wrong username or password.');
+    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
+    return ($FALSE, $message ? $message : $AUTH_FAIL_MSG);
 }
 
 =item match
@@ -252,6 +273,7 @@ our %ACTION_VALUE_FILTERS = (
 );
 
 sub match {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1});
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
@@ -259,6 +281,13 @@ sub match {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
     }
+
+    # Calling 'match' with empty/invalid rule class. Using default
+    if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
+        $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
+        $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
+    }
+
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     } else {
@@ -293,6 +322,7 @@ sub match {
         $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
         last;
     }
+
     return $actions;
 }
 
@@ -304,7 +334,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

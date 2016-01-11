@@ -20,6 +20,7 @@ use List::MoreUtils qw(uniq);
 
 use pf::authentication;
 use pf::ConfigStore::Provisioning;
+use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
 use pf::web::constants;
 use pf::constants::Portal::Profile;
@@ -36,7 +37,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal billing_engine)],
+    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -63,7 +64,14 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+   apply => [
+       {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
+           message =>
+             'The profile id is invalid. A profile id can only contain alphanumeric characters, dashes, period and or underscores'
+       }
+   ],
+   tags => { after_element => \&help,
+             help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );
 
 =head2 description
@@ -140,22 +148,6 @@ has_field 'always_use_redirecturl' =>
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
   );
 
-=head2 billing_engine
-
-Controls whether or not the billing engine is enabled
-
-=cut
-
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
-  );
-
 =head2 sources
 
 Collection Authentication Sources for the profile
@@ -179,6 +171,33 @@ has_field 'sources.contains' =>
   (
     type => 'Select',
     options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+
+=head2 billing_tiers
+
+Collection Billing tiers for the profile
+
+=cut
+
+has_field 'billing_tiers' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 billing_tiers.contains
+
+The definition for Billing tiers field
+
+=cut
+
+has_field 'billing_tiers.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_billing_tiers,
     widget_wrapper => 'DynamicTableRow',
   );
 
@@ -384,6 +403,16 @@ sub options_sources {
     return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
 }
 
+=head2 options_billing_tiers
+
+Returns the list of sources to be displayed
+
+=cut
+
+sub options_billing_tiers {
+    return  map { { value => $_, label => $_ } } @{pf::ConfigStore::BillingTiers->new->readAllIds};
+}
+
 =head2 options_provisioners
 
 Returns the list of sources to be displayed
@@ -471,7 +500,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -41,8 +41,8 @@ sub new {
     my ( $class, $host, $port, $sample_rate ) = @_;
     $host = $STATSD_HOST unless defined $host;
     $port = $STATSD_PORT unless defined $port;
-    my $hostname = hostname; 
-    $hostname =~ s/\Q$GRAPHITE_DELIMITER\E/_/g; # replace dots with underscores 
+    my $hostname = hostname;
+    $hostname =~ s/\Q$GRAPHITE_DELIMITER\E/_/g; # replace dots with underscores
 
     my $sock = new IO::Socket::INET(
         PeerAddr => $host,
@@ -64,6 +64,19 @@ sub initStatsd {
     $statsd = __PACKAGE__->new( $host, $port, );
 }
 
+=head2 closeStatsd
+
+Close the statsd socket
+
+=cut
+
+sub closeStatsd {
+    if(defined $statsd) {
+        $statsd->{'socket'}->close();
+        $statsd = undef;
+    }
+}
+
 
 sub CLONE {
     initStatsd;
@@ -71,19 +84,19 @@ sub CLONE {
 
 =head1 METHODS
 
-=over       
-        
-=item end(STAT, START_TIME, SAMPLE_RATE)                                                                               
-                                                                                                                       
-Convenience method to log timing information.                                                                          
-This one wraps timing() by taking a start time and automatically calculating the elapsed time since.                   
-=cut                                                                                                                   
+=over
 
-sub end {                                                                                                              
-    my ( $self, $stat, $start_time, $sample_rate ) = @_;                                                               
-    my $end          = Time::HiRes::gettimeofday();                                                                    
-    my $elapsed_time = $end - $start_time;                                                                             
-    $self->timing( $stat, 1000 * $elapsed_time, $sample_rate );                                                        
+=item end(STAT, START_TIME, SAMPLE_RATE)
+
+Convenience method to log timing information.
+This one wraps timing() by taking a start time and automatically calculating the elapsed time since.
+=cut
+
+sub end {
+    my ( $self, $stat, $start_time, $sample_rate ) = @_;
+    my $end          = Time::HiRes::gettimeofday();
+    my $elapsed_time = $end - $start_time;
+    $self->timing( $stat, 1000 * $elapsed_time, $sample_rate );
 }
 
 
@@ -152,7 +165,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

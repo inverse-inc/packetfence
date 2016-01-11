@@ -17,6 +17,7 @@ use Moose;
 use pf::constants;
 use pf::config;
 use pf::Authentication::constants;
+use pf::constants::authentication::messages;
 use pf::util;
 
 extends 'pf::Authentication::Source';
@@ -46,19 +47,25 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
+=head2 available_rule_classes
+
+Blackhole sources only allow 'authentication' rules
+
+=cut
+
+sub available_rule_classes {
+    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
+}
+
 =head2 available_actions
 
-For a Blackhole source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+For a Blackhole source, only the authentication actions should be available
 
 =cut
 
 sub available_actions {
-    return [
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-            $Actions::SET_ACCESS_LEVEL,
-           ];
+    my @actions = map( { @$_ } $Actions::ACTIONS{$Rules::AUTH});
+    return \@actions;
 }
 
 =head2 match_in_subclass
@@ -95,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

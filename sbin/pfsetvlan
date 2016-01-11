@@ -54,6 +54,7 @@ use constant {
 use lib INSTALL_DIR . '/lib';
 
 use pf::CHI;
+use pf::db;
 use pf::constants;
 use pf::config;
 use pf::floatingdevice::custom;
@@ -63,12 +64,16 @@ use pf::node;
 use pf::Switch 2.00;
 use pf::Switch::constants;
 use pf::SwitchFactory;
+
 use pf::traplog;
 use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::violation;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
+
+pf::SwitchFactory::preLoadModules();
+
 use threads;
 use threads::shared;
 $thread = 1;
@@ -80,7 +85,7 @@ $thread = 1;
 # assign process name (see #1464)
 our $PROGRAM_NAME = $0 = "pfsetvlan";
 
-my $logger = Log::Log4perl->get_logger( $PROGRAM_NAME );
+my $logger = get_logger( $PROGRAM_NAME );
 
 # Initialize a new cache for the traps sent from switches IfIndex
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
@@ -165,8 +170,10 @@ foreach my $switch_id ( grep { $_ ne 'default' } keys %{ pf::SwitchFactory->conf
     $switch_locker{$switch_id} = &share( {} );
 }
 
+db_disconnect();
 add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
 add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
+db_connect();
 
 sub add_new_threads_to_list {
     my ($thread_function,$count) = @_;
@@ -229,8 +236,8 @@ while ( defined( $currentTrapLine = $fh->read ) ) {
 # sub addTrapLineToQueue($trapLine) - cond_signal(@trapList_queued){{{1
 sub addTrapLineToQueue {
     my ($trapLine) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     $lockLogger->trace("locking - trying to lock trapList_queued");
     {
@@ -248,8 +255,8 @@ sub addTrapLineToQueue {
 # sub signalHandlerTrapListQueued - cond_wait(@trapList_queued), parseTrap($trapLineToParse) {{{1
 sub signalHandlerTrapListQueued {
     use pf::log(service => 'pfsetvlan', reinit => 1);
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     while (1) {
@@ -511,8 +518,8 @@ sub signalHandlerTrapListQueued {
 # sub parseTrap {{{1
 sub parseTrap {
     my ($trapLine) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     $logger->debug("parsing trap $trapLine");
@@ -744,8 +751,8 @@ sub parseTrap {
 # sub signalHandlerThreadListQueued {{{1
 sub signalHandlerThreadListQueued {
     use pf::log(service => 'pfsetvlan', reinit => 1);
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::parsing');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::parsing');
+    my $lockLogger = get_logger('pfsetvlan::locking');
 
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
@@ -784,8 +791,8 @@ sub signalHandlerThreadListQueued {
 
 # sub startTrapHandlers {{{1
 sub startTrapHandlers {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     my $mustDoSomeThing = 0;
@@ -920,10 +927,10 @@ sub handleTrap {
 
     # initialize {{{2
     my ( $switch_id, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac, $trapSSID , $trapClientUserName, $trapIfIndex, $trapConnectionType) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     # }}}2
 
@@ -943,7 +950,7 @@ sub handleTrap {
         $switch->disconnectWrite();
         return;
     }
-    my $weActOnThisTrap = $vlan_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
+    my $weActOnThisTrap = $role_obj->doWeActOnThisTrap($switch, $switch_port, $trapType);
 
     if ( $weActOnThisTrap == 0 ) {
         $logger->info("doWeActOnThisTrap returns false. Stop $trapType handling");
@@ -1092,8 +1099,8 @@ sub handleTrap {
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
-                        my ($fetchedVlan,$wasInline) =  $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port, $WIRED_SNMP_TRAPS);
-
+                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), swicth => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS});
+                        my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                         if (( $locationlog[0]->{'vlan'} == $vlan )
                             && ($vlan == $fetchedVlan)
                            ) {
@@ -1283,9 +1290,10 @@ sub handleTrap {
                 $logger->debug("$oldPC has still open locationlog entry at $switch_id ifIndex $switch_port. Closing it");
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_id ifIndex $switch_port");
-                my ($correctVlanForThisNode,$wasInline) = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
-                );
+                my $role = $role_obj->fetchRoleForNode({
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                });
+                my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
 
                 #set the right VLAN
@@ -1310,9 +1318,10 @@ sub handleTrap {
                         $old_mac_to_remove = $old_mac;
                     }
                 }
-                my ($correctVlanForThisNode,$wasInline) = $vlan_obj->fetchVlanForNode(
-                    $trapMac, $switch, $switch_port, $WIRED_SNMP_TRAPS
-                );
+                my $role = $role_obj->fetchRoleForNode({
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                });
+                my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if ( defined($old_mac_to_remove) ) {
                     $logger->info(
                         "authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
@@ -1627,7 +1636,7 @@ sub handleTrap {
                     my $hasPhone = $switch->hasPhoneAtIfIndex($switch_port);
                     node_determine_and_set_into_VLAN( $mac, $switch, $switch_port, $connection_type );
 
-                    # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
+                    # TODO extract that behavior in a method call in pf::role so it can be overridden easily
                     if ( !$hasPhone ) {
                         $logger->info(
                             "no VoIP phone is currently connected at " . $switch->{_id} . " ifIndex $switch_port. " .
@@ -1714,8 +1723,8 @@ sub handleTrap {
 
 # sub cleanupAfterThread {{{1
 sub cleanupAfterThread {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::cleanup');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::cleanup');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     my ( $switch_id, $switch_port ) = @_;
     $lockLogger->trace(
@@ -1760,8 +1769,8 @@ sub cleanupAfterThread {
 
 # sub normal_sighandler {{{1
 sub normal_sighandler {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     if (   ( isenabled( $Config{'vlan'}{'closelocationlogonstop'} ) )
         && ( threads->self->tid() == 0 ) )
@@ -1777,7 +1786,7 @@ sub normal_sighandler {
 # ref: http://rt.perl.org/rt3/Public/Bug/Display.html?id=16807
 # bug: http://www.packetfence.org/mantis/view.php?id=907
 sub ignore_sighandler {
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger     = get_logger('pfsetvlan');
 
     $logger->error("caught SIG" . $_[0] . ". This is probably a telnet or ssh management attempt that timed out. "
         ."THIS WILL HANG A PACKETFENCE THREAD FOR SEVERAL MINUTES! Doublecheck your config or the network between "
@@ -1789,9 +1798,9 @@ sub ignore_sighandler {
 # sub node_update_PF {{{1
 sub node_update_PF {
     my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan');
+    my $logger = get_logger('pfsetvlan');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     #lowercase MAC
     $mac = lc($mac);
@@ -1808,14 +1817,11 @@ sub node_update_PF {
         node_add_simple($mac);
     }
 
-    # There is activity from that mac, call node wakeup
-    node_mac_wakeup($mac);
-
     #should we auto-register?
-    if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS)) {
+    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
         # auto-register
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch, $switch_port,
-            $mac, $vlan, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS);
+        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
+            mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
@@ -1831,12 +1837,13 @@ sub node_update_PF {
 sub node_determine_and_set_into_VLAN {
     my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
 
-    my $logger = Log::Log4perl->get_logger('pfsetvlan::handling');
+    my $logger = get_logger('pfsetvlan::handling');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type);
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type});
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(
         $ifIndex,
@@ -1851,7 +1858,7 @@ sub node_determine_and_set_into_VLAN {
 # sub perform_trap_limiting {{{1
 sub perform_trap_limiting {
     my ( $switch, $switchIfIndex ) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger('pfsetvlan');
 
     # skipping if feature is disabled
     return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
@@ -1916,8 +1923,8 @@ sub perform_trap_limiting {
 # sub do_port_security {{{1
 sub do_port_security {
     my ( $mac, $switch, $switch_port, $trapType ) = @_;
-    my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $logger     = get_logger('pfsetvlan::handling');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
 
     #determine if $mac is authorized elsewhere
@@ -2052,7 +2059,7 @@ sub getSwitch {
     my ($switch_id) = @_;
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
     my $switch;
-    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    my $lockLogger = get_logger('pfsetvlan::locking');
     {
         lock $switchFactory_locker;
     #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();
@@ -2100,7 +2107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

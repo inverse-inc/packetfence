@@ -1,4 +1,4 @@
-# PacketFence RPM SPEC
+    # PacketFence RPM SPEC
 #
 # NEW (since git migration):
 #
@@ -88,28 +88,30 @@ Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrac
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
-Requires: mod_perl, mod_qos
+Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
-Requires: memcached
-Requires: freeradius >= 2.2.5-3, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
+Requires: redis
+Requires: freeradius >= 2.2.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
 Requires: make
 Requires: net-tools
+Requires: sscep
+Requires: p0f
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= %{perl_version}
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
+Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON), perl(JSON::XS)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
-Requires: perl(Apache::Session::Memcached)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
 Requires: perl(Class::Gomor)
-Requires: perl(Config::IniFiles) >= 2.40
+Requires: perl(Config::IniFiles) >= 2.88
 Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
@@ -121,7 +123,10 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
+requires: perl(Crypt::OpenSSL::PKCS12)
 requires: perl(Crypt::OpenSSL::X509)
+requires: perl(Crypt::OpenSSL::RSA)
+requires: perl(Crypt::OpenSSL::PKCS10)
 requires: perl(Const::Fast)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
@@ -136,6 +141,7 @@ Requires: perl(Digest::HMAC_MD5)
 # LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
 Requires: perl-libwww-perl > 6.02, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
+Requires: perl-Scalar-List-Utils
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
 Requires: perl(Log::Any)
@@ -168,6 +174,7 @@ Requires: perl(Net::Write)
 Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
 Requires: perl(Net::Nessus::XMLRPC) >= 0.40
+Requires: perl(Net::Nessus::REST) >= 0.2
 # Note: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
@@ -220,6 +227,7 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Catalyst::Plugin::Unicode::Encoding)
 Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Term::Size::Any)
+Requires: perl(SQL::Abstract::More)
 Requires(pre): perl-aliased => 0.30
 Requires(pre): perl-version
 # for Catalyst stand-alone server
@@ -237,9 +245,8 @@ Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
 Requires: perl(HTML::FormHandler) = 0.40013
-Requires: perl(Cache::Memcached)
-Requires: perl(Cache::Memcached::GetParserXS)
-Requires: perl(CHI::Driver::Memcached)
+Requires: perl(Redis::Fast)
+Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
@@ -255,6 +262,8 @@ Requires: perl(Hash::Merge)
 Requires: perl(IO::Socket::INET6)
 Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
+Requires: perl(Data::Thunk)
+Requires: perl(Time::Piece)
 Requires: iproute >= 3.0.0, samba < 4, krb5-workstation
 # configuration-wizard
 Requires: iproute, vconfig
@@ -289,7 +298,8 @@ Requires: mod_qos
 Requires: %{real_name}-config = %{ver}
 Requires: %{real_name}-pfcmd-suid = %{ver}
 Requires: haproxy >= 1.5, keepalived >= 1.2
-Requires: fingerbank >= 1.0.3
+Requires: fingerbank >= 2.1.0, fingerbank < 3.0.0
+Requires: perl(File::Tempdir)
 
 %description -n %{real_name}
 
@@ -306,7 +316,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(SOAP::Lite)
+Requires: perl >= %{perl_version}, perl(File::Tail), perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(SOAP::Lite)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -321,7 +331,7 @@ server.
 
 %package -n %{real_name}-remote-arp-sensor
 Group: System Environment/Daemons
-Requires: perl >= %{perl_version}, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
+Requires: perl >= %{perl_version}, perl(Config::IniFiles) >= 2.88, perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
 Requires: perl(Moo), perl(Data::MessagePack), perl(WWW::Curl)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -342,6 +352,15 @@ Summary: Replace pfcmd by a C wrapper for suid
 %description -n %{real_name}-pfcmd-suid
 The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
+
+%package -n %{real_name}-ntlm-wrapper
+Group: System Environment/Daemons
+BuildRequires: gcc
+AutoReqProv: 0
+Summary: C wrapper for logging ntlm_auth latency.
+
+%description -n %{real_name}-ntlm-wrapper
+The %{real_name}-ntlm-wrapper is a C wrapper around the ntlm_auth utility to log authentication times and success/failures. It can either/both log to syslog and send metrics to a StatsD server.
 
 %package -n %{real_name}-config
 Group: System Environment/Daemons
@@ -389,6 +408,8 @@ done
 %endif
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
+# build ntlm_auth_wrapper
+make bin/ntlm_auth_wrapper
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
@@ -411,6 +432,8 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
@@ -418,6 +441,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
+%{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
@@ -443,6 +467,7 @@ cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
+mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
 rmdir addons/pfdetect_remote/sbin
 rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
@@ -475,6 +500,7 @@ cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 #pfconfig
 %{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-config
+%{__install} -D -m0755 packetfence-redis-cache.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-redis-cache
 #end pfconfig
 # logfiles
 for LOG in %logfiles; do
@@ -510,9 +536,7 @@ cd $RPM_BUILD_ROOT/usr/local/pf/conf
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
-ln -s ../sites-available/control-socket control-socket
 ln -s ../sites-available/default default
-ln -s ../sites-available/inner-tunnel inner-tunnel
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
@@ -564,9 +588,10 @@ fi
 
 %post -n %{real_name}
 /sbin/chkconfig --add packetfence
+/sbin/chkconfig --add packetfence-redis-cache
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
+for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log redis_cache.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -583,8 +608,12 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     cat /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key > /usr/local/pf/conf/ssl/server.pem
 fi
 
+# Create OMAPI key
+if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
+    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
+fi
 
-for service in snortd httpd snmptrapd memcached portreserve
+for service in snortd httpd snmptrapd portreserve redis
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -623,21 +652,6 @@ else
   echo "pf.conf already exists, won't touch it!"
 fi
 
-#Add for sudo 
-if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
-  sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
-fi
-if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-  # Comment out entry from a previous version of PF (< 4.0)
-  sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
-fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd.*/usr/sbin/snort.*/usr/sbin/suricata.*/usr/sbin/chroot.*/usr/local/pf/bin/pfcmd.*/usr/sbin/conntrack" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd, /usr/sbin/snort, /usr/bin/suricata, /usr/sbin/chroot, /usr/local/pf/bin/pfcmd, /usr/sbin/conntrack" >> /etc/sudoers
-fi
-if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
-  echo 'Defaults:pf !requiretty' >> /etc/sudoers
-fi
-
 # dashboard symlinks and permissions
 ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
 chmod g+w /var/lib/carbon
@@ -653,6 +667,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 echo "Starting Packetfence Administration GUI..."
 #removing old cache
 rm -rf /usr/local/pf/var/cache/
+/sbin/service packetfence-redis-cache restart
 /sbin/service packetfence-config restart 
 /usr/local/pf/bin/pfcmd configreload
 /sbin/service packetfence start httpd.admin
@@ -677,7 +692,9 @@ echo "Adding PacketFence config startup script"
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
+        /sbin/service packetfence-redis-cache stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
+        /sbin/chkconfig --del packetfence-redis-cache
 fi
 
 %preun -n %{real_name}-remote-snort-sensor
@@ -739,7 +756,10 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%attr(0755, root, root) %{_initrddir}/packetfence-redis-cache
 %dir                    %{_sysconfdir}/logrotate.d
+%dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
+%config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
@@ -781,6 +801,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
+%attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
@@ -791,10 +812,17 @@ fi
                         /usr/local/pf/conf/apache_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config(noreplace)      /usr/local/pf/conf/chi.conf
+%config                 /usr/local/pf/conf/chi.conf.defaults
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
+%config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
+                        /usr/local/pf/conf/dhcp_filters.conf.example
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/redis_cache.conf
+                        /usr/local/pf/conf/redis_cache.conf.example
+%config(noreplace)      /usr/local/pf/conf/redis_queue.conf
+                        /usr/local/pf/conf/redis_queue.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
@@ -851,6 +879,8 @@ fi
                         /usr/local/pf/conf/pki_provider.conf.example
 %config(noreplace)      /usr/local/pf/conf/provisioning.conf
                         /usr/local/pf/conf/provisioning.conf.example
+%config(noreplace)      /usr/local/pf/conf/radius_filters.conf
+                        /usr/local/pf/conf/radius_filters.conf.example
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
@@ -868,10 +898,26 @@ fi
                         /usr/local/pf/conf/radiusd/packetfence.example
 %config(noreplace)	/usr/local/pf/conf/radiusd/packetfence-tunnel
                         /usr/local/pf/conf/radiusd/packetfence-tunnel.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/acct.conf
+                        /usr/local/pf/conf/radiusd/acct.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/auth.conf
+                        /usr/local/pf/conf/radiusd/auth.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/load_balancer.conf
+                        /usr/local/pf/conf/radiusd/load_balancer.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
+%config(noreplace)      /usr/local/pf/conf/radius_filters.conf
+                        /usr/local/pf/conf/radius_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
+                        /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
                         /usr/local/pf/conf/domain.conf.example
+%config(noreplace)      /usr/local/pf/conf/pfdetect.conf
+                        /usr/local/pf/conf/pfdetect.conf.example
+%config(noreplace)      /usr/local/pf/conf/pfqueue.conf
+                        /usr/local/pf/conf/pfqueue.conf.example
+%config(noreplace)      /usr/local/pf/conf/suricata_categories.txt
+                        /usr/local/pf/conf/suricata_categories.txt.example
 %config(noreplace)      /usr/local/pf/conf/scan.conf
                         /usr/local/pf/conf/scan.conf.example
 %dir                    /usr/local/pf/conf/snort
@@ -928,8 +974,6 @@ fi
                         /usr/local/pf/conf/monitoring/storage-schemas.conf.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/types.db
                         /usr/local/pf/conf/monitoring/types.db.example
-%config(noreplace)      /usr/local/pf/conf/popup.msg
-                        /usr/local/pf/conf/popup.msg.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
@@ -987,7 +1031,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm
@@ -1044,7 +1087,6 @@ fi
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Violation.pm
                         /usr/local/pf/lib
 %exclude                /usr/local/pf/lib/pfconfig*
-%config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
@@ -1060,7 +1102,7 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
-%config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
+%config(noreplace)      /usr/local/pf/lib/pf/role/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 # logfiles
@@ -1084,6 +1126,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
@@ -1121,6 +1164,8 @@ fi
 %dir                    /usr/local/pf/var/session
 %dir                    /usr/local/pf/var/webadmin_cache
 %dir                    /usr/local/pf/var/control
+%dir                    /usr/local/pf/var/redis_cache
+%dir                    /usr/local/pf/var/redis_queue
 %config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote snort sensor file list
@@ -1150,7 +1195,11 @@ fi
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
+%files -n %{real_name}-ntlm-wrapper
+%attr(0755, root, root) /usr/local/pf/bin/ntlm_auth_wrapper
+
 %files -n %{real_name}-config
+%defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence-config
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
@@ -1163,6 +1212,15 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+
+* Fri Nov 27 2015 Inverse <info@inverse.ca> - 5.5.1-1
+- New release 5.5.1
+
+* Fri Nov 20 2015 Inverse <info@inverse.ca> - 5.5.0-1
+- New release 5.5.0
+
+* Thu Oct  1 2015 Inverse <info@inverse.ca> - 5.4.0-1
+- New release 5.4.0
 
 * Tue Jul 21 2015 Inverse <info@inverse.ca> - 5.3.0-1
 - New release 5.3.0

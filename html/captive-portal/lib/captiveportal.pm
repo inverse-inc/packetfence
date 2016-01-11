@@ -94,6 +94,7 @@ __PACKAGE__->config(
             namespace => 'httpd.portal',
         },
         cookie_name => 'CGISESSION',
+        cookie_expires => 31536000,
     },
     default_view               => 'HTML',
 );
@@ -206,7 +207,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,7 +25,7 @@ use strict;
 use warnings;
 
 use List::MoreUtils qw(none);
-use Log::Log4perl;
+use pf::log;
 
 BEGIN {
     use Exporter ();
@@ -44,8 +44,9 @@ use pf::node;
 use pf::SwitchFactory;
 use pf::util;
 use pf::config::util;
-use pf::vlan::custom $VLAN_API_LEVEL;
+use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
+use pf::cluster;
 
 use Readonly;
 
@@ -63,7 +64,7 @@ Triggered by pfcmd.
 
 sub reevaluate_access {
     my ( $mac, $function, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
 
     # Untaint MAC
     $mac = clean_mac($mac);
@@ -74,10 +75,11 @@ sub reevaluate_access {
         return $FALSE;
     }
 
-    $logger->info("[$mac] re-evaluating access ($function called)");
+    $logger->info("re-evaluating access ($function called)");
+    $opts{'force'} = '1' if ($function eq 'admin_modify');
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
-        $logger->warn("[$mac] Can't re-evaluate access because no open locationlog entry was found");
+        $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
         return;
 
     }
@@ -96,7 +98,7 @@ sub reevaluate_access {
                 $client->notify( 'firewall', %data );
             }
             else {
-                $logger->debug("[$mac] is already properly enforced in firewall, no change required");
+                $logger->debug("is already properly enforced in firewall, no change required");
             }
         }
         else {
@@ -114,18 +116,24 @@ Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
 
 sub _vlan_reevaluation {
     my ( $mac, $locationlog_entry, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
 
     if ( _should_we_reassign_vlan( $mac, $locationlog_entry, %opts ) ) {
 
         my $switch_id = $locationlog_entry->{'switch'} || 'unknown';
         my $ifIndex   = $locationlog_entry->{'port'}   || 'unknown';
         my $conn_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
-        $logger->info( "[$mac] switch port is (".$switch_id.") ifIndex $ifIndex "
+        $logger->info( "switch port is (".$switch_id.") ifIndex $ifIndex "
                 . "connection type: "
                 . $connection_type_explained{$conn_type} );
 
-        my $client = pf::client::getClient();
+        my $client;
+        if ($cluster_enabled && isenabled($Config{active_active}{centralized_deauth})){
+            $client = pf::client::getManagementClient();
+        }
+        else {
+            $client = pf::client::getClient();
+        }
         my %data = (
             'switch'           => $switch_id,
             'mac'              => $mac,
@@ -133,12 +141,12 @@ sub _vlan_reevaluation {
             'ifIndex'          => $ifIndex
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
-            $logger->debug("[$mac] Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
+            $logger->debug("Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
             $client->notify( 'ReAssignVlan', %data );
 
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
-            $logger->debug("[$mac] Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
+            $logger->debug("Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
             $client->notify( 'desAssociate', %data );
 
         }
@@ -155,15 +163,15 @@ sub _vlan_reevaluation {
 
 Returns true or false whether or not we should request vlan adjustment
 
-Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
+Evaluates node's VLAN through L<pf::role>'s fetchRoleForNode (which can be redefined by L<pf::role::custom>)
 
 =cut
 
 sub _should_we_reassign_vlan {
     my ( $mac, $locationlog_entry, %opts ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::enforcement');
+    my $logger = get_logger();
     if ( $opts{'force'} ) {
-        $logger->info("[$mac] VLAN reassignment is forced.");
+        $logger->info("VLAN reassignment is forced.");
         return $TRUE;
     }
 
@@ -175,10 +183,11 @@ sub _should_we_reassign_vlan {
     my $connection_type = str_to_connection_type( $locationlog_entry->{'connection_type'} );
     my $user_name       = $locationlog_entry->{'dot1x_username'};
     my $ssid            = $locationlog_entry->{'ssid'};
+    my $role            = $locationlog_entry->{'role'};
 
-    $logger->info("[$mac] is currentlog connected at (".$switch_ip.") ifIndex $ifIndex in VLAN $currentVlan");
+    $logger->info("is currentlog connected at (".$switch_ip.") ifIndex $ifIndex ".(defined $role ? "${role}" : "(undefined)"));
 
-    my $vlan_obj = new pf::vlan::custom();
+    my $role_obj = new pf::role::custom();
 
     # TODO avoidable load?
     my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip } );
@@ -187,21 +196,44 @@ sub _should_we_reassign_vlan {
         return $FALSE;
     }
 
-    my ( $newCorrectVlan, $wasInline )
-        = $vlan_obj->fetchVlanForNode( $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid );
-    if ( $newCorrectVlan eq '-1' ) {
-        $logger->info(
-            "[$mac] VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
+    my $args = {
+        mac => $mac,
+        switch => $switch,
+        ifIndex => $ifIndex,
+        connection_type => $connection_type,
+        user_name => $user_name,
+        ssid => $ssid,
+        node_info => pf::node::node_attributes($mac),
+    };
+
+    my $newRole = $role_obj->fetchRoleForNode( $args );
+    my $newCorrectVlan = $newRole->{vlan} || $switch->getVlanByName($newRole->{role});
+
+    if (defined($newCorrectVlan)) {
+        if ( $newCorrectVlan eq '-1' ) {
+            $logger->info(
+                "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+            );
+            return $TRUE;
+        } elsif (defined($currentVlan)) {
+            if ( $newCorrectVlan ne $currentVlan ) {
+                $logger->info(
+                    "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
+                );
+                return $TRUE;
+            } else {
+                return $FALSE;
+            }
+        }
+    } elsif (defined($role)) {
+        if ($role ne $newRole->{role}) {
+            $logger->info(
+                "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
+            );
+            return $TRUE;
+        }
     }
-    elsif ( $newCorrectVlan ne $currentVlan ) {
-        $logger->info(
-            "[$mac] VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
-        );
-        return $TRUE;
-    }
-    $logger->debug("[$mac] No VLAN reassignment required.");
+    $logger->debug("No reassignment required.");
     return $FALSE;
 }
 
@@ -213,7 +245,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
