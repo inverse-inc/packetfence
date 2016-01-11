@@ -17,26 +17,41 @@ Version X.Y.Z released on XXXX-YY-ZZ
 New Features
 ++++++++++++
 
-* The pfdns service now forks to process multiple requests in parallel
+* New RADIUS auditing report allows troubleshooting from the GUI
+* The email authorization source now allows to set roles based on the email used to register
+* New switch groups now allows to assign settings to multiple switches at once 
+* DHCP filters now allow arbitrary rules to perform actions based on dhcp fingerprinting
+* Cisco switches login access can now be authenticated through PacketFence 
+* The filter engine configuration can now be edited through the admin GUI
 
 Enhancements
 ++++++++++++
 
-* Added configurable timeout for send/receive operations on the OMAPI socket
-* Return a hash that contain role and optionally the vlan id from fetchRoleForNode.
-* Test if the role changed to define if we have to reevaluate the access.
+* New dedicated search feature for violations in the nodes panel
+* New pfcmd pfqueue command allows managing the queue from the command line
+* New option to specify the authentication source to use depending on the RADIUS realm
+* Upgrade Config::IniFiles to allow faster loading of configuration files
+* Performance improvements to the filtering engine by avoiding unnecessary database lookups
 * New columns bypass_vlan and bypass_role are allowed to be import for nodes
-* Violation triggering from web admin will add even if there is still a grace period
-* Ability to add date based filter condition (is before date, is after date)
-* Avoid unneccesary calls to the database when using vlan filtering
-* Avoid unneccesary calls to the database when using radius filtering
-* Avoid unneccesary calls to the database for the profile filters
+* Service start/stop order can now be configured through the admin GUI
+* Pagination can now be defined by the user in the admin GUI search results
+* The pfdns service now forks to process multiple requests in parallel
+* Added configurable timeout for send/receive operations on the OMAPI socket
+* The authorization process will now test if the role changed before reevaluating access
+* New option to add date based VLAN filter condition (is before date, is after date)
+* pfconfig backend can now be cleared via pfcmd
+* Improved RADIUS accounting handling for better performance
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 * Remove old entries in ipset session
 * Always reevaluate the access if the order come from the admin gui (#1056)
 * Portal profiles templates are now properly synced between members of a cluster (#942)
+* Process requests properly when running a pfdhcplistener on an interface that has networks with and without dhcpd activated
+* Violation trigger from web admin will now override grace period (#1028)
+* Fix queue task counters out of sync when a task expires
+* Reworked the configuration backends to prevent a race condition of the configuration namespaces in active/active cluster (#1067)
+* Define each internal network to NAT instead of a global rule when passthroughs are enabled (#1118)
 
 Version 5.5.2 released on 2015-12-07
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

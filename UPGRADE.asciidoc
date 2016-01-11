@@ -60,6 +60,20 @@ With the changes made to RADIUS in the version 5.5, you will need to remove the 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+
+VLAN filters changes
+^^^^^^^^^^^^^^^^^^^^
+
+The scopes for the VLAN filters have changed.
+The following have been renamed according to these rules:
+
+NormalVlan          -> RegisteredRole
+RegistrationVlan    -> RegistrationRole 
+ViolationVlan       -> ViolationRole
+InlineVlan          -> InlineRole
+
+If you have defined any filters in /usr/local/pf/conf/vlan_filters.conf, make sure to rename all references to the left hand side with the new names on the right hand side.
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 
