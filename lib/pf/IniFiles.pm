@@ -214,6 +214,7 @@ sub GetCurrentModTimestamp {
 }
 
 sub _getFileTimestamp {
+    return time;
     my $timestamp = (stat($_[0]))[9];
     if (defined $timestamp) {
         $timestamp *= 1_000_000_000;

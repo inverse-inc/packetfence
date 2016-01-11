@@ -248,6 +248,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ($self)         = @_;
+    return 1;
     my $logger         = pfconfig::log::get_logger;
     my $what           = $self->{_namespace};
     my $control_file   = pfconfig::util::control_file_path($what);
