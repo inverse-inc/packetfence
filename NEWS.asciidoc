@@ -20,7 +20,7 @@ New Features
 * New RADIUS auditing report allows troubleshooting from the GUI
 * The email authorization source now allows to set roles based on the email used to register
 * New switch groups now allows to assign settings to multiple switches at once 
-* DHCP filters now allow arbitrary rules to perform actions based on dhcp fingerprinting
+* DHCP filters now allow arbitrary rules to perform actions based on DHCP fingerprinting
 * Cisco switches login access can now be authenticated through PacketFence 
 * The filter engine configuration can now be edited through the admin GUI
 
