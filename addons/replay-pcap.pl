@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-replay-pcap -
+replay-pcap
 
 =head1 SYNOPSIS
 
@@ -18,6 +18,8 @@ replay-pcap -i <interface> -p <pcap_file>
 =head1 DESCRIPTION
 
 replay-pcap
+
+Will replay a pcap to simulate pfdhcplistener traffic
 
 =cut
 
@@ -62,7 +64,6 @@ sub start_processing {
         $user_data{net_type}       = $Config{"interface $interface"}{'type'};
         $user_data{interface_ip}   = $Config{"interface $interface"}{'ip'};
         $user_data{interface_vlan} = get_vlan_from_int($interface) || $NO_VLAN;
-
         foreach my $network (keys %ConfigNetworks) {
             my %net = %{$ConfigNetworks{$network}};
             my $network_obj = NetAddr::IP->new($network, $ConfigNetworks{$network}{netmask});
