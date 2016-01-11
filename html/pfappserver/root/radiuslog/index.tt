@@ -52,7 +52,7 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td>
+                  <td style="padding-top: 1em">
                     <div class="pull-left">
                     [% per_page_options = BLOCK %]
                       <select name="per_page" class="input-mini">
