@@ -366,13 +366,34 @@ sub generate_passthrough_rules {
             $SNAT_ip = $management_network->{'Tip'};
        }
     }
-    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+        if ( pf::config::is_network_type_inline($network) ) {
+            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+            if (defined ($nat) && (isenabled($nat))) {
+                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+            }
+        } else {
+            $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+        }
+    }
 
     # Enable nat if we defined another interface to route to internet
     my @ints = split(',', get_network_snat_interface());
     foreach my $int (@ints) {
         my $if   = IO::Interface::Simple->new($int);
-        $$nat_rules_ref .= "-A POSTROUTING -o $int -j SNAT --to ".$if->address;
+        foreach my $network ( keys %ConfigNetworks ) {
+            my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            if ( pf::config::is_network_type_inline($network) ) {
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                if (defined ($nat) && (isenabled($nat))) {
+                    $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $int -j SNAT --to ".$if->address."\n";
+                }
+            } else {
+                $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to ".$if->address."\n";
+            }
+        }
     }
 }
 
