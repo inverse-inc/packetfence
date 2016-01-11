@@ -847,29 +847,43 @@ Checking for switches configurations
 =cut
 
 sub switches {
+    require pf::ConfigStore::Switch;
+    my $configStore = pf::ConfigStore::Switch->new;
     my %switches_conf;
-    tie %switches_conf, 'pf::config::cached', ( -file => "$conf_dir/switches.conf", -default => 'default' );
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         add_problem( $FATAL, "switches.conf | Error reading switches.conf" );
     }
+    my $cachedConfig = $configStore->cachedConfig;
+    $cachedConfig->toHash(\%switches_conf);
+    $cachedConfig->cleanupWhitespace(\%switches_conf);
 
-    # remove trailing whitespaces
-    tied(%switches_conf)->cleanupWhitespace(\%switches_conf);
-
+    my $default_section = $switches_conf{default};
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
         next if ( $section =~ /^default$/i );
+        my $is_group = $section =~ /^group/;
+        my $data = $switches_conf{$section};
+        my $group_section = {};
+        if (exists $data->{group}) {
+            my $group = "group $data->{group}";
+            if (exists $switches_conf{$group}) {
+                $group_section = $switches_conf{$group};
+                add_problem( $WARN, "switches.conf | Switch $section has group parameter" ) if $is_group;
+            } else {
+                add_problem( $FATAL, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
+            }
+        }
         if ( $section eq '127.0.0.1' ) {
             add_problem( $WARN, "switches.conf | Switch 127.0.0.1 is defined but it had to be removed" );
         }
-
+        my $type = _first_value('type', $data, $group_section, $default_section);
+        my $mode = _first_value('mode', $data, $group_section, $default_section);
         # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
-        if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
+        if ( ref($type) eq 'ARRAY' || ref($mode) eq 'ARRAY' ) {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
-        my $type = $switches_conf{$section}{'type'} ;
         if ( (!defined $type) || $type eq '' ) {
             add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
@@ -880,16 +894,19 @@ sub switches {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         }
-        # check for valid switch IP
-        unless ( $section =~ /^group / || valid_mac_or_ip($section) || valid_ip_range($section) ) {
+        # check for valid switch ID
+        unless ( $is_group || valid_mac_or_ip($section) || valid_ip_range($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
+        next if $is_group;
 
         # check SNMP version
-        my $SNMPVersion = ( $switches_conf{$section}{'SNMPVersion'}
-                || $switches_conf{$section}{'version'}
-                || $switches_conf{'default'}{'SNMPVersion'}
-                || $switches_conf{'default'}{'version'} );
+        my $SNMPVersion = ( $data->{'SNMPVersion'}
+                || $data->{'version'}
+                || $default_section->{'SNMPVersion'}
+                || $default_section->{'version'}
+                || $group_section->{'SNMPVersion'}
+                || $group_section->{'version'} );
         if ( !defined($SNMPVersion) ) {
             add_problem( $WARN, "switches.conf | Switch SNMP version is missing for switch $section"
                     . "Please provide one specific to the switch or in default." );
@@ -898,8 +915,7 @@ sub switches {
         }
 
         # check SNMP Trap version
-        my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'}
-                || $switches_conf{'default'}{'SNMPVersionTrap'});
+        my $SNMPVersionTrap = _first_value('SNMPVersionTrap', $data, $group_section, $default_section);
         if (!defined($SNMPVersionTrap)) {
             add_problem( $WARN, "switches.conf | Switch SNMP Trap version is missing for switch $section"
                     . "Please provide one specific to the switch or in default." );
@@ -914,25 +930,24 @@ sub switches {
                 SNMPPrivProtocolTrap SNMPPrivPasswordTrap
             )) {
                 add_problem( $WARN, "switches.conf | $_ is missing for switch $section" )
-                    if (!defined($switches_conf{$section}{$_}));
+                    unless defined _first_value($_, $data, $group_section, $default_section);
             }
         }
 
         # check uplink
-        my $uplink = $switches_conf{$section}{'uplink'} || $switches_conf{'default'}{'uplink'};
+        my $uplink = _first_value('uplink', $data, $group_section, $default_section);
         if ( (!defined($uplink)) || (( lc($uplink) ne 'dynamic' ) && (!( $uplink =~ /(\d+,)*\d+/ ))) ) {
             add_problem( $WARN, "switches.conf | Switch uplink is invalid for switch $section" );
         }
 
         # check mode
         my @valid_switch_modes = ( 'testing', 'ignore', 'production', 'registration', 'discovery' );
-        my $mode = $switches_conf{$section}{'mode'} || $switches_conf{'default'}{'mode'};
         if ( !grep( { lc($_) eq lc($mode) } @valid_switch_modes ) ) {
             add_problem( $WARN, "switches.conf | Switch mode ($mode) is invalid for switch $section" );
         }
 
         # check role
-        my $roles = $switches_conf{$section}{'roles'} || $switches_conf{'default'}{'roles'};
+        my $roles = _first_value('roles', $data, $group_section, $default_section);
         # if it's not empty it must be in the <cat1>=<role1>;<cat2>=<role2>;... format
         if ( defined($roles) && $roles !~ /^\s*$/ && $roles !~ /
             ^[\w\-]+=[\w\-]+         # at least one word=word
@@ -947,6 +962,14 @@ sub switches {
         }
 
     }
+}
+
+sub _first_value {
+    my ($key, @hashes) = @_;
+    foreach my $hash (@hashes) {
+        return $hash->{$key} if exists $hash->{$key};
+    }
+    return undef;
 }
 
 =item billing
