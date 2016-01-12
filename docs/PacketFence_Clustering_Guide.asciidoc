@@ -266,7 +266,7 @@ Create `/etc/ha.d/haresources` with the following content:
   pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 \ 
   mysqld
 
-Create `/etc/ha.d/authkeys` with the following content:
+Create `/etc/ha.d/authkeys` with the following content (make sure to change the hash for security concerns):
 
   auth 1
   1 sha1 10abf064f24a3e807dde7b945d0303392f10777d
