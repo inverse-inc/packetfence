@@ -21,7 +21,7 @@ Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server|mariadb-server|mariadb-galera-server,
- snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
+ snmp, snmptrapfmt, snmp-mibs-downloader, conntrack, wget,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
