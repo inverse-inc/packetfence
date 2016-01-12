@@ -440,7 +440,7 @@ sub getRegisteredRole {
             $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
-            my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'}); 
+            my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'});
             my $stripped_user = '';
             $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
             my $params = {
@@ -582,7 +582,7 @@ sub getNodeInfoForAutoReg {
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($args->{'connection_type'}) && (($args->{'connection_type'} & $EAP) == $EAP) && defined($args->{'user_name'})) {
         $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
-        my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'}); 
+        my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'});
         my $stripped_user = '';
         $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
         my $params = {
@@ -758,7 +758,7 @@ sub filterVlan {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
-    $args->{'owner'}= lazy { person_view($args->{'node_info'}->{'pid'}) };
+    $args->{'owner'}= person_view($args->{'node_info'}->{'pid'});
     my $role = $filter->filter($scope, $args);
     return $role;
 }

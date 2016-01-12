@@ -21,7 +21,6 @@ use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
 use pf::radius::constants;
 use Scalar::Util qw(reftype);
-use Data::Thunk;
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
@@ -40,7 +39,7 @@ sub test {
     my ($self, $scope, $args) = @_;
     my $engine = $self->getEngineForScope($scope);
     if ($engine) {
-        $args->{'violation'} = lazy {  violation_view_top($args->{'mac'}) };
+        $args->{'violation'} =  violation_view_top($args->{'mac'});
         my $answer = $engine->match_first($args);
         $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
         return $answer;

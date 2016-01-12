@@ -40,7 +40,6 @@ use pf::radius::constants;
 use List::Util qw(first);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use Data::Thunk;
 use Hash::Merge qw (merge);
 
 our $VERSION = 1.03;
