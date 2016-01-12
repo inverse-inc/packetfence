@@ -30,6 +30,22 @@
           </div>
           <div>
             <table id="searchConditions" class="table-dynamic">
+               <thead>
+                  <tr>
+                    <td colspan="2">
+                      <div class="pull-left">
+                        [% match_options = BLOCK %]
+                          <select name="all_or_any" class="input-mini">
+                            <option value="all">[% l('all') %]</option>
+                            <option value="any">[% l('any') %]</option>
+                          </select>
+                        [% END %]
+                        <br/>
+                        [% l('Match [_1] of the following conditions:', [match_options]) | none %]
+                      </div>
+                  </td>
+                </tr>
+              </thead>
               <tbody>
                 <tr class="hidden dynamic-row">
                   <td>
