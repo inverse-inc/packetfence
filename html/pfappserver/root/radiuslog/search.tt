@@ -16,25 +16,26 @@
                </td>
              </tr>
              <tr>
+               [% header('auth_status', l('auth_status')) | none %]
+               [% header('details', l('Details')) | none %]
                [% FOREACH display_column IN display_columns  %]
                  [% header(display_column, l(display_column)) | none %]
                [% END %]
-               [% header('details', l('Details')) | none %]
              </tr>
            </thead>
         [% FOREACH item IN items %]
             <tr>
+               <td>
+                   [% IF (item.auth_status == 'Reject') %]
+                     <img src="/static/app/red.png">
+                   [% ELSE %]
+                     <img src="/static/app/green.png">
+                   [% END %]
+                    [%item.auth_status %]
+               </td>
+               <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">Details</a></td>
                [% FOREACH display_column IN display_columns  %]
-                 [% IF (display_column == 'auth_status') %]
-                 <td>
-                     [% IF (item.$display_column == 'Reject') %]
-                       <img src="/static/app/red.png">
-                     [% ELSE %]
-                       <img src="/static/app/green.png">
-                     [% END %]
-                      [%item.$display_column %]
-                 </td>
-                 [% ELSIF display_column == 'mac' %]
+                 [% IF display_column == 'mac' %]
                  <td class="node">
                   <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.$display_column ]) %]">[% item.$display_column %]</a>
                  </td>
@@ -43,7 +44,6 @@
                  [% END %]
                 </td>
                [% END %]
-               <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">Details</a></td>
             </tr>
         [% END %]
         <tfoot>
