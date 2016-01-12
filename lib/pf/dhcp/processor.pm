@@ -37,6 +37,8 @@ use pf::api::jsonrpcclient;
 use NetAddr::IP;
 use pf::SwitchFactory;
 use pf::log;
+use pf::util::statsd qw(called);
+use pf::StatsD::Timer;
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -129,6 +131,7 @@ Process a packet
 =cut
 
 sub process_packet {
+    my $timer = pf::StatsD::Timer->new();
     my ( $self ) = @_;
 
     my ($dhcp);
@@ -264,6 +267,7 @@ sub parse_dhcp_discover {
 =cut
 
 sub parse_dhcp_offer {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp) = @_;
 
     if ($dhcp->{'yiaddr'} =~ /^0\.0\.0\.0$/) {
@@ -281,6 +285,7 @@ sub parse_dhcp_offer {
 =cut
 
 sub parse_dhcp_request {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp) = @_;
     $logger->debug("DHCPREQUEST from $dhcp->{'chaddr'}");
 
@@ -322,6 +327,7 @@ sub parse_dhcp_request {
 =cut
 
 sub parse_dhcp_ack {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp) = @_;
 
     my $s_ip = $dhcp->{'src_ip'};
@@ -395,6 +401,7 @@ Handle the tasks related to a device getting an IP address
 =cut
 
 sub handle_new_ip {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $client_mac, $client_ip, $lease_length) = @_;
     $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
     $self->update_iplog( $client_mac, $client_ip, $lease_length );
@@ -414,6 +421,7 @@ sub handle_new_ip {
 =cut
 
 sub parse_dhcp_release {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp) = @_;
     $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
     $self->{api_client}->notify('close_iplog',$dhcp->{'ciaddr'});
@@ -437,6 +445,7 @@ Optional but very useful DHCP Server MAC
 =cut
 
 sub rogue_dhcp_handling {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp_srv_ip, $dhcp_srv_mac, $offered_ip, $client_mac, $relay_ip) = @_;
 
     return if (isdisabled($Config{'network'}{'rogue_dhcp_detection'}));
@@ -536,6 +545,7 @@ Option 82 is Relay Agent Information. Defined in RFC 3046.
 =cut
 
 sub parse_dhcp_option82 {
+    my $timer = pf::StatsD::Timer->new();
     my ($self, $dhcp) = @_;
 
     # slicing the hash to retrive the stuff we are interested in
@@ -556,6 +566,7 @@ Also handles the SSO stop if the IP changes
 =cut
 
 sub update_iplog {
+    my $timer = pf::StatsD::Timer->new();
     my ( $self, $srcmac, $srcip, $lease_length ) = @_;
     $logger->debug("$srcip && $srcmac");
 
