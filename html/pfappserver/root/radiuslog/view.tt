@@ -14,7 +14,11 @@
               [% FOREACH field IN node_fields%]
               <tr>
                 <td>[% l(field) %]</td>
+                [% IF field == "is_phone" || field == "auto_reg" %]
+                <td> [% IF item.$field %] yes [% ELSE %] no [% END %] </td>
+                [% ELSE %]
                 <td>[% item.$field%]</td>
+                [% END %]
               </tr>
               [% END %]
           </table>
