@@ -206,8 +206,8 @@ Returns the reference to the deauth technique or the default deauth technique.
 =cut
 
 sub wiredeauthTechniques {
-    my ($this, $method, $connection_type) = @_;
-    my $logger = $this->logger;
+    my ($self, $method, $connection_type) = @_;
+    my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
         my $default = $SNMP::SNMP;
         my %tech = (
@@ -241,9 +241,9 @@ Deauthenticate a wired endpoint using RADIUS CoA
 =cut
 
 sub deauthenticateMacRadius {
-    my ($this, $ifIndex,$mac) = @_;
+    my ($self, $ifIndex,$mac) = @_;
 
-    $this->radiusDisconnect($mac);
+    $self->radiusDisconnect($mac);
 }
 
 =back
