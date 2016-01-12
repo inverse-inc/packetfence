@@ -141,6 +141,6 @@ fingerbank:
 .PHONY: windows-agent
 
 windows-agent:
-	wget https://inverse.ca/downloads/packetfence-windows-agent.exe -P /usr/local/pf/html/captive-portal/content/
+	wget https://inverse.ca/downloads/addons/packetfence-windows-agent.exe -P /usr/local/pf/html/captive-portal/content/
 
 devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
