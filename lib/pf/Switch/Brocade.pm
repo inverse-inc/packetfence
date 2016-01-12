@@ -210,7 +210,7 @@ sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
-        my $default = $SNMP::SNMP;
+        my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::SNMP => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -222,7 +222,7 @@ sub wiredeauthTechniques {
         return $method,$tech{$method};
     }
     if ($connection_type == $WIRED_MAC_AUTH) {
-        my $default = $SNMP::SNMP;
+        my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::SNMP => 'handleReAssignVlanTrapForWiredMacAuth',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
