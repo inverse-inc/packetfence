@@ -16,15 +16,14 @@
                </td>
              </tr>
              <tr>
-               [% header('id', l('id')) | none %]
                [% FOREACH display_column IN display_columns  %]
                  [% header(display_column, l(display_column)) | none %]
                [% END %]
+               [% header('details', l('Details')) | none %]
              </tr>
            </thead>
         [% FOREACH item IN items %]
             <tr>
-                <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
                [% FOREACH display_column IN display_columns  %]
                  [% IF (display_column == 'auth_status') %]
                  <td>
@@ -43,6 +42,7 @@
                  [% END %]
                 </td>
                [% END %]
+               <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">Details</a></td>
             </tr>
         [% END %]
         <tfoot>
