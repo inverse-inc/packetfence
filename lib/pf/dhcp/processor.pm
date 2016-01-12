@@ -307,7 +307,7 @@ sub parse_dhcp_request {
         $self->rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
     }
 
-    if ($self->{is_inline_vlan} || grep ( { $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
+    if ($self->{is_inline_vlan} || grep ( { defined $_->{'gateway'} && $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
         $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
     }
@@ -338,7 +338,7 @@ sub parse_dhcp_ack {
         );
         $client_ip = $dhcp->{'yiaddr'};
         $client_mac = $dhcp->{'chaddr'};
-    } 
+    }
     elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
 
         $logger->info(
@@ -347,7 +347,7 @@ sub parse_dhcp_ack {
         );
         $client_ip = $dhcp->{'ciaddr'};
         $client_mac = $dhcp->{'chaddr'};
-    } 
+    }
     else {
         $logger->warn(
             "invalid DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
@@ -526,7 +526,7 @@ Otherwise, an empty array is returned
 sub add_rogue_dhcp {
     my ($self, $rogue_dhcp, $offer, $threshold) = @_;
     my @offers = $self->_get_redis_client->evalsha($LUA_ROGUE_DHCP_SHA1, 0, $rogue_dhcp, $offer, $threshold);
-    return \@offers; 
+    return \@offers;
 }
 
 =head2 parse_dhcp_option82
@@ -657,4 +657,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 1;
