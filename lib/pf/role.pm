@@ -35,7 +35,6 @@ use pf::person;
 use pf::lookup::person;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use Data::Thunk;
 
 our $VERSION = 1.04;
 
