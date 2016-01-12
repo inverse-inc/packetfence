@@ -32,6 +32,7 @@
                      [% ELSE %]
                        <img src="/static/app/green.png">
                      [% END %]
+                      [%item.$display_column %]
                  </td>
                  [% ELSIF display_column == 'mac' %]
                  <td class="node">
