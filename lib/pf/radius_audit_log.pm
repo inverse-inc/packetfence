@@ -84,23 +84,24 @@ our @FIELDS = qw(
 
 our @NODE_FIELDS = qw(
     mac
-    ip
-    computer_name
-    user_name
-    stripped_user_name
-    realm
-    calling_station_id
-    auth_type
-    eap_type
     auth_status
+    auth_type
+    auto_reg
+    calling_station_id
+    computer_name
+    eap_type
+    event_type
+    ip
+    is_phone
+    node_status
+    pf_domain
+    profile
+    realm
     reason
     role
-    node_status
-    profile
     source
-    auto_reg
-    is_phone
-    pf_domain
+    stripped_user_name
+    user_name
     uuid
 );
 
@@ -112,16 +113,17 @@ our @SWITCH_FIELDS = qw(
     switch_id
     switch_mac
     switch_ip_address
-    radius_source_ip_address
+
     called_station_id
-    nas_port_type
-    ssid
-    nas_port_id
-    ifindex
-    nas_port
     connection_type
-    nas_ip_address
+    ifindex
     nas_identifier
+    nas_ip_address
+    nas_port
+    nas_port_id
+    nas_port_type
+    radius_source_ip_address
+    ssid
 );
 
 our $FIELD_LIST = join(", ",@FIELDS);
