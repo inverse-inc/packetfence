@@ -258,6 +258,7 @@ sub sync_files {
 
     my @failed;
     foreach my $file (@$files){
+        pf::log::get_logger->info("Synching file $file to cluster members");
         my %data = ( conf_file => $file, from => pf::cluster::current_server()->{management_ip} );
         push @failed, @{api_call_each_server($options{async}, 'distant_download_configfile', %data)};
     }
