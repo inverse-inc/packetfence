@@ -50,7 +50,6 @@ sub index : Path : Args(0) {
         # Verify if user is authenticated
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
-        $self->showError($c,"Registration canceled. Please try again.");
         $c->delete_session;
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
