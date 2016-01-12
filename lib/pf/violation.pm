@@ -22,6 +22,7 @@ use warnings;
 use pf::log;
 use Readonly;
 use POSIX;
+use JSON;
 use Time::HiRes qw(time);
 use pfconfig::cached_scalar;
 use pf::error qw(is_success is_error);
@@ -552,6 +553,8 @@ sub info_for_violation_engine {
     my ($mac,$type,$tid) = @_;
     my $node_info = pf::node::node_view($mac);
 
+    my $cache = pf::CHI->new( namespace => 'fingerbank', expires_in => 86400 );
+
     $type = lc($type);
 
     my $devices = [];
@@ -566,32 +569,47 @@ sub info_for_violation_engine {
         }
     }
     if(defined($device_id)){
-        my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
-        $devices = $device->{parents_ids};
-        push @$devices, $device->{id};
-        @$devices = map {$_.""} @$devices;
+        $devices = $cache->compute("fingerbank::Model::Device_parents_$device_id", sub {
+            my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
+            $devices = $device->{parents_ids};
+            push @$devices, $device->{id};
+            @$devices = map {$_.""} @$devices;
+            return $devices;
+        });
     }
 
-
-    my ($dhcp_fingerprint_result, $dhcp_fingerprint) = fingerbank::Model::DHCP_Fingerprint->find([{value => $node_info->{dhcp_fingerprint}}]);
-    my ($dhcp_vendor_result, $dhcp_vendor) = fingerbank::Model::DHCP_Vendor->find([{value => $node_info->{dhcp_vendor}}]);
-    my ($user_agent_result, $user_agent) = fingerbank::Model::User_Agent->find([{value => $node_info->{user_agent}}]);
-    my ($mac_vendor) = pf::fingerbank::mac_vendor_from_mac($mac);
+    my $attr_map = {
+        dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
+        dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+        user_agent => "fingerbank::Model::User_Agent",
+    };
+    my $results = {};
+    foreach my $attr (keys %$attr_map){
+        my $model = $attr_map->{$attr};
+        my $query = {value => $node_info->{$attr}};
+        $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
+            my ($status, $result) = $model->find([$query]); 
+            return is_success($status) ? $result->id : undef;
+        });
+    }
+    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub { 
+        return pf::fingerbank::mac_vendor_from_mac($mac);
+    });
 
     my $info = {
       device_id => $devices,
-      dhcp_fingerprint_id => is_success($dhcp_fingerprint_result) ? $dhcp_fingerprint->id : undef,
-      dhcp_vendor_id => is_success($dhcp_vendor_result) ? $dhcp_vendor->id : undef,
+      dhcp_fingerprint_id => $results->{dhcp_fingerprint},
+      dhcp_vendor_id => $results->{dhcp_vendor},
       mac => $mac,
       mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
-      user_agent_id => is_success($user_agent_result) ? $user_agent->id : undef,
+      user_agent_id => $results->{user_agent},
     };
 
     my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
     if( $trigger_info->{type} ne 'includes' ){
         $info->{$trigger_info->{key}} = $tid;
     }
-
+    
     return $info;
 }
 
