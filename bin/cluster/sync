@@ -86,7 +86,7 @@ use Module::Pluggable
 
 our @tmp_stores = __PACKAGE__->stores();
 
-my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID);
+my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID pf::ConfigStore::Hierarchy);
 
 our @stores;
 
