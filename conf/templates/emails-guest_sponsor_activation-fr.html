@@ -15,21 +15,21 @@
             <td class="content-wrap">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td class="content-block">                  
-                    <h1 class="aligncenter">Demande d'enregistrement</h1>
+                  <td class="content-block">
+                    <h1 class="aligncenter">Demande d'accès au réseau</h1>
                     <p>Bonjour,</p>
-                    <p>[% firstname %] [% lastname %] a fais une demande pour accéder au réseau invité.</p>
-                    <p>N'autorisez PAS l'accès si vous n'attendez cet invité.</p>
-                    <p>Voici les informations que l'invité a fourni lors de son enregistrement:</p>          
+                    <p>[% firstname %] [% lastname %] a fait une demande pour accéder au réseau.</p>
+                    <p>N'autorisez pas l'accès si vous n'attendiez pas cet invité.</p>
+                    <p>Voici les informations que l'invité a fourni lors de son enregistrement:</p>
                     <p>Nom: [% firstname %]</br>
                     Prénom: [% lastname %]</br>
                     Numéro de téléphone: [% telephone %]</br>
                     Email: [% pid %]</p>
-                    <a href="[% activation_uri %]" class="btn-primary">Activer l'accès sponsorisé pour l'invité [% firstname %]</a>                    
+                    <a href="[% activation_uri %]" class="btn-primary">Activer l'accès sponsorisé pour l'invité [% firstname %]</a>
                     [% IF is_preregistration -%]
                     <p>Dès lors que vous cliquez le lien d'activation, l'invité va recevoir par email un nom d'utilisateur et mot de passe à utiliser une fois sur place pour terminer la procédure d'enregistrement.</p>
                     [% ELSE %]
-                    <p>Tant que vous ne cliquez pas sur le lien, l'utilisateur n'aura PAS d'accès Internet.</p>
+                    <p>Tant que vous ne cliquez pas sur le lien, l'utilisateur n'aura pas accès au réseau.</p>
                     [%- END %]
                     <p>Merci de votre coopération.</p>
                   </td>
