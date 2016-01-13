@@ -199,7 +199,7 @@ function updateDynamicRowsAfterRemove(table) {
         if ($(id).length) {
             // The table can be empty
             if (count == 0) {
-                if (tbody.prev('thead').length)
+                if (tbody.prev('thead').length && tbody.attr('data-no-remove') != "yes" )
                     table.remove();
                 $(id).removeClass('hidden');
             }
