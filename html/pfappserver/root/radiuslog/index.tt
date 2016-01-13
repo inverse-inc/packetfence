@@ -46,7 +46,7 @@
                   </td>
                 </tr>
               </thead>
-              <tbody>
+              <tbody data-no-remove="yes">
                 <tr class="hidden dynamic-row">
                   <td>
                    [% PROCESS search_options disabled=1 %]
@@ -56,17 +56,18 @@
                     <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                   </td>
                 </tr>
-                <tr class="dynamic-row">
-                  <td>
-                   [% PROCESS search_options disabled=0 %]
-                  </td>
-                  <td class="action">
-                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
-                  </td>
-                </tr>
               </tbody>
               <tfoot>
+                <tr>
+                  <td>
+                    <div id="searchConditionsEmpty" class="unwell unwell-horizontal">
+                      <p>
+                        <i class="icon-search" style="line-height: 24px"></i>
+                        <a href="#add">[% l('Add a condition.') %]</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
                 <tr>
                   <td style="padding-top: 1em">
                     <div class="pull-left">
@@ -89,12 +90,6 @@
                 </tr>
               </tfoot>
             </table>
-          </div>
-          <div id="searchConditionsEmpty" class="hidden unwell unwell-horizontal">
-            <p>
-              <i class="icon-search" style="line-height: 24px"></i>
-              <a href="#add">[% l('Add a condition.') %]</a>
-            </p>
           </div>
         </form>
       </div>
