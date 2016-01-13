@@ -6585,7 +6585,7 @@ msgstr "Database passwords hashing method"
 
 # conf/documentation.conf
 msgid "advanced.ldap_attributes"
-msgstr ""
+msgstr "LDAP Attributes"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -6601,7 +6601,7 @@ msgstr "Warning color"
 
 # conf/documentation.conf
 msgid "advanced.pfdns_processes"
-msgstr ""
+msgstr "PFDNS Processes"
 
 # conf/documentation.conf
 msgid "advanced.reevaluate_access_reasons"
@@ -6636,7 +6636,7 @@ msgstr "Subject prefix"
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/radiuslog/index.tt
 msgid "all"
-msgstr ""
+msgstr "All"
 
 # pf::config (Inline triggers)
 msgid "always"
@@ -6644,7 +6644,7 @@ msgstr "Always"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "and"
-msgstr ""
+msgstr "And"
 
 # pf::provisioner (Provisioners)
 msgid "android"
@@ -6653,7 +6653,7 @@ msgstr "Android"
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "anniversary"
-msgstr ""
+msgstr "Anniversary"
 
 # pf::config (SoH Classes)
 msgid "antispyware"
@@ -6668,7 +6668,7 @@ msgstr ""
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/radiuslog/index.tt
 msgid "any"
-msgstr ""
+msgstr "Any"
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -6698,7 +6698,7 @@ msgstr "Register node"
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "birthday"
-msgstr ""
+msgstr "Birthday"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
 # conf/documentation.conf (advanced.pfcmd_success_color options)
@@ -7184,7 +7184,7 @@ msgstr "Node"
 
 # conf/documentation.conf
 msgid "expire.radius_audit_log"
-msgstr ""
+msgstr "Radius Audit Log"
 
 # conf/documentation.conf
 msgid "expire.traplog"
@@ -7368,19 +7368,19 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "interface.enforcement"
-msgstr ""
+msgstr "Enforcement"
 
 # conf/documentation.conf
 msgid "interface.ip"
-msgstr ""
+msgstr "IP Address"
 
 # conf/documentation.conf
 msgid "interface.mask"
-msgstr ""
+msgstr "Mask"
 
 # conf/documentation.conf
 msgid "interface.type"
-msgstr ""
+msgstr "Type"
 
 # conf/documentation.conf (interface.type options)
 msgid "internal"
@@ -7435,7 +7435,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
 msgid "lang"
-msgstr "language"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 # pfappserver::Form::Config::ProfileCommon (mandatory fields)
@@ -7487,75 +7487,75 @@ msgstr "Maintenance"
 
 # conf/documentation.conf
 msgid "maintenance.acct_maintenance_interval"
-msgstr ""
+msgstr "Acct Maintenance Interval"
 
 # conf/documentation.conf
 msgid "maintenance.inline_accounting_maintenance_interval"
-msgstr ""
+msgstr "Inline Accounting Maintenance Interval"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_batch"
-msgstr ""
+msgstr "Iplog Cleanup Batch"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_interval"
-msgstr ""
+msgstr "Iplog Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.iplog_cleanup_timeout"
-msgstr ""
+msgstr "Iplog Cleanup Timeout"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
-msgstr ""
+msgstr "Locationlog Cleanup Batch"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_interval"
-msgstr ""
+msgstr "Locationlog Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_timeout"
-msgstr ""
+msgstr "Locationlog Cleanup Timeout"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
-msgstr ""
+msgstr "Node Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
-msgstr ""
+msgstr "Nodes Maintenance Interval"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
-msgstr ""
+msgstr "Provisioning Compliance Poll Interval"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_batch"
-msgstr ""
+msgstr "Radius Audit Log Cleanup Batch"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_interval"
-msgstr ""
+msgstr "Radius Audit Log Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_timeout"
-msgstr ""
+msgstr "Radius Audit Log Cleanup Timeout"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
-msgstr ""
+msgstr "Traplog Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_batch"
-msgstr ""
+msgstr "Violation Maintenance Batch"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_interval"
-msgstr ""
+msgstr "Violation Maintenance Interval"
 
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
-msgstr ""
+msgstr "Violation Maintenance Timeout"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
@@ -7585,7 +7585,7 @@ msgstr "Management"
 
 # pf::Authentication::constants (Actions)
 msgid "mark_as_sponsor"
-msgstr ""
+msgstr "Mark as Sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
@@ -7634,39 +7634,39 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "monitoring"
-msgstr "Monitoring"
+msgstr ""
 
 # conf/documentation.conf
 msgid "monitoring.db_host"
-msgstr ""
+msgstr "DB Host"
 
 # conf/documentation.conf
 msgid "monitoring.db_pass"
-msgstr ""
+msgstr "DB Password"
 
 # conf/documentation.conf
 msgid "monitoring.db_port"
-msgstr ""
+msgstr "DB Port"
 
 # conf/documentation.conf
 msgid "monitoring.db_user"
-msgstr ""
+msgstr "DB User"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_host"
-msgstr ""
+msgstr "Graphite Host"
 
 # conf/documentation.conf
 msgid "monitoring.graphite_port"
-msgstr ""
+msgstr "Graphite Port"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
-msgstr ""
+msgstr "Months"
 
 # html/pfappserver/root/admin/users.tt
 msgid "name"
-msgstr ""
+msgstr "Name"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "nas_identifier"
@@ -7698,7 +7698,7 @@ msgstr "Network"
 
 # conf/documentation.conf
 msgid "network.dhcp_filter_by_message_types"
-msgstr ""
+msgstr "DHCP Filter By Message Types"
 
 # conf/documentation.conf
 msgid "network.dhcpdetector"
@@ -7743,19 +7743,19 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "node_import.category"
-msgstr ""
+msgstr "Category"
 
 # conf/documentation.conf
 msgid "node_import.pid"
-msgstr ""
+msgstr "Pid"
 
 # conf/documentation.conf
 msgid "node_import.voip"
-msgstr ""
+msgstr "VOIP"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "node_modify"
-msgstr ""
+msgstr "Node Modify"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "node_status"
@@ -7867,7 +7867,7 @@ msgstr "Ports"
 
 # conf/documentation.conf
 msgid "ports.aaa"
-msgstr ""
+msgstr "AAA"
 
 # conf/documentation.conf
 msgid "ports.admin"
@@ -7875,15 +7875,15 @@ msgstr "Admin"
 
 # conf/documentation.conf
 msgid "ports.httpd_portal_modstatus"
-msgstr ""
+msgstr "httpd.portal modstatus"
 
 # conf/documentation.conf
 msgid "ports.pf_status"
-msgstr ""
+msgstr "PacketFence Status"
 
 # conf/documentation.conf
 msgid "ports.soap"
-msgstr ""
+msgstr "Soap"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -7896,7 +7896,7 @@ msgstr "Production"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "profile"
-msgstr ""
+msgstr "Profile"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "profile.filter.$_"
@@ -7980,7 +7980,7 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.record_unmatched"
-msgstr ""
+msgstr "Record Unmatched Parameters"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
@@ -8006,7 +8006,7 @@ msgstr "Reason"
 # conf/documentation.conf (advanced.pfcmd_success_color options)
 # conf/documentation.conf (advanced.pfcmd_warning_color options)
 msgid "red"
-msgstr ""
+msgstr "Red"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "redir.cgi"
@@ -8014,7 +8014,7 @@ msgstr ""
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
-msgstr ""
+msgstr "Reevaluate Access Action"
 
 # pfappserver::Model::Node (availableStatus)
 msgid "reg"
@@ -8639,23 +8639,23 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.api_key"
-msgstr ""
+msgstr "API Key"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.db_url"
-msgstr ""
+msgstr "DB URL"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.interrogate"
-msgstr ""
+msgstr "Interrogate upstream?"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.interrogate_url"
-msgstr ""
+msgstr "Upstream URL"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
-msgstr ""
+msgstr "Upstream Submit URL"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
