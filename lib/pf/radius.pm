@@ -519,7 +519,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $args->{'switch'}->synchronize_locationlog($args->{'port'}, $args->{'switch'}->getVlanByName('voice'), $args->{'mac'}, 1, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'});
+    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName('voice'), $args->{'mac'}, 1, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'});
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();
