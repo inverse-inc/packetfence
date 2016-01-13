@@ -40,6 +40,8 @@ server packetfence {
     }
 
     accounting {
+        rewrite.calling_station_id
+        set.called_station_ssid
         sql
         attr_filter.accounting_response
         update request {
