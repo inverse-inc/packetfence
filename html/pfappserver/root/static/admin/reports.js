@@ -62,6 +62,9 @@ function init() {
     /* Reload section when changing date */
     $('body').on('changeDate', '.input-daterange input', function(event) {
         var dp = $(this).closest('.datepicker').data('datepicker');
+        if (!dp.dates) {
+            return;
+        }
         var start = dp.dates[0];
         var startDate = [start.getUTCFullYear(), (start.getUTCMonth() + 1), start.getUTCDate()].join('-');
         var end = dp.dates[1];
