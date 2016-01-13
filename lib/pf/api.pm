@@ -253,6 +253,10 @@ sub firewallsso : Public {
     foreach my $firewall_id ( sort keys %pf::config::ConfigFirewallSSO ) {
         my $firewall = pf::factory::firewallsso->new($firewall_id);
 
+        unless($firewall->should_sso($postdata{ip}, $postdata{mac})){
+            next;
+        }
+
         if($postdata{method} eq "Update"){
             if( pf::util::isenabled($pf::config::ConfigFirewallSSO{$firewall_id}{cache_updates}) ){
                 my $cache = pf::CHI->new( namespace => 'firewall_sso' );
