@@ -25,7 +25,7 @@ extends 'pfappserver::Base::Form';
 =cut
 
 has_field 'start' => (
-    type                => 'Compound',
+    type => 'Compound',
 );
 
 =item start.date
@@ -78,7 +78,6 @@ has_field 'end.time' =>
   (
    type => 'TimePicker',
    label => 'End Time',
-   required => 1,
   );
 
 =item per_page
@@ -182,7 +181,6 @@ sub validate {
     my $searches = $value->{searches} || [];
     if (true {defined $_->{value}} @$searches) {
         $self->field('start')->add_error("Start date not provided") unless defined $value->{start};
-        $self->field('end')->add_error("End date not provided") unless defined $value->{end};
     }
 }
 

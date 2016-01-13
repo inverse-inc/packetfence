@@ -110,10 +110,16 @@ sub _add_date_range {
     my ($self, $params, $where) = @_;
     my $start = $params->{start};
     my $end = $params->{end};
+    return unless defined $start;
     if (defined $start && defined $end) {
         my $start_date = "$start->{date} $start->{time}";
         my $end_date = "$end->{date} $end->{time}";
         $where->{created_at} = {-between => [$start_date, $end_date]};
+        return;
+    }
+    if (defined $start ) {
+        my $start_date = "$start->{date} $start->{time}";
+        $where->{created_at} = { '<=' => $start_date};
     }
 }
 
