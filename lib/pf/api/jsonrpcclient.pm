@@ -105,6 +105,7 @@ sub call {
     $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+    $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
