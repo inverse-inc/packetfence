@@ -546,12 +546,12 @@ sub update_fields {
                     my $val = sprintf "%s (%s)", $self->_localize('Default'), $placeholder;
                     $field->element_attr({ 'data-placeholder' => $val });
                 }
-                elsif ( 
+                elsif (
                     # if there is no value defined in the switch and the place holder is defined
                     # We check that it is not disabled because of special cases like uplink_dynamic
                     ( ( !defined($init_object->{$field->name}) && !pf::util::isdisabled($placeholder) )
                     # or that the value in the switch is enabled
-                        || pf::util::isenabled($field->value) ) 
+                        || pf::util::isenabled($field->value) )
                     # we only apply this to Checkbox and Toggle
                     && ($field->type eq "Checkbox" || $field->type eq "Toggle") ) {
                     $field->element_attr({ checked => "checked" });
@@ -706,6 +706,8 @@ Validate the list of uplink ports.
 
 sub validate {
     my $self = shift;
+    my $config = pf::ConfigStore::Switch->new;
+    my $groupConfig = pf::ConfigStore::SwitchGroup->new;
 
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
@@ -730,6 +732,13 @@ sub validate {
             }
         } else {
             $self->field('type')->add_error("The chosen type is not supported.");
+        }
+    } else {
+        my $group_name = $self->value->{group} || '';
+        my $default = $config->read('default');
+        my $group = $groupConfig->read($group_name) || {};
+        unless(defined $default->{type} || defined $group->{type}) {
+            $self->field('type')->add_error("A type is required");
         }
     }
 
