@@ -99,9 +99,6 @@ sub reload_config {
     $logger->info("Reload configuration on $interface with status $process");
 }
 
-reload_config;
-
-
 $PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
 
 # standard signals and daemonize
@@ -129,6 +126,7 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
             }
         }
         $logger->info("DHCP detector on $interface enabled");
+        reload_config();
         dhcp_detector();
     }
     $logger->warn(
