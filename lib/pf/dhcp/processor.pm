@@ -37,7 +37,6 @@ use pf::api::jsonrpcclient;
 use NetAddr::IP;
 use pf::SwitchFactory;
 use pf::log;
-use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 
 our $logger = get_logger;
