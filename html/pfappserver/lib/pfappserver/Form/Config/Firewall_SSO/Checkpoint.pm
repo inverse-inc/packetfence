@@ -68,7 +68,7 @@ has_field 'uid' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id type password port uid categories cache_updates cache_timeout) ],
+   render_list => [ qw(id type password port uid categories networks cache_updates cache_timeout) ],
   );
 
 =head2 Methods

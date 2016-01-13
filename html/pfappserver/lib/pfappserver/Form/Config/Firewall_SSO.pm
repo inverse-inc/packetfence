@@ -84,6 +84,13 @@ has_field 'cache_timeout' =>
    tags => { after_element => \&help,
              help => 'Adjust the "Cache timeout" to half the expiration delay in your firewall.<br/>Your DHCP renewal interval should match this value.' },
   );
+has_field 'networks' =>
+  (
+   type => 'Text',
+   label => 'Networks on which to do SSO',
+   tags => { after_element => \&help,
+             help => 'Comma delimited list of networks to apply the SSO on.<br/>Format : 192.168.0.0/24' },
+  );
 
 =head2 Methods
 
