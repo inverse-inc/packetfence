@@ -134,7 +134,7 @@
               [% FOREACH member IN item.members.keys %]
                 <tr class="switchGroupMember">
                   <td id="switchMemberOptions">
-                    <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">[% l('X') %]</a>
+                    <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller("Config::Switch").action_for('remove_group'), [ member ]) %]">X</a>
                   </td>
                   <td>[% member %]</td>
                   <td>[% item.members.$member.description %]</td>
