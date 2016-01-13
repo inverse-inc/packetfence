@@ -119,7 +119,7 @@ sub _add_date_range {
     }
     if (defined $start ) {
         my $start_date = "$start->{date} $start->{time}";
-        $where->{created_at} = { '<=' => $start_date};
+        $where->{created_at} = { '>=' => $start_date};
     }
 }
 
