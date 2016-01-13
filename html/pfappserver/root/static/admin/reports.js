@@ -37,12 +37,11 @@ function init() {
             var start_date_input = $('#start_date');
             var start_time_input = $('#start_time');
             start_date_input.datepicker("setDate", start_time);
-            console.log(start_time.toTimeString());
             start_time_input.timepicker("setTime",start_time.toTimeString());
             var end_date_input = $('#end_date');
             var end_time_input = $('#end_time');
-            end_date_input.datepicker("setDate", end_time);
-            end_time_input.timepicker("setTime", end_time.toTimeString());
+            end_date_input.attr("value", "");
+            end_time_input.attr("value", "");
             return false;
         });
         $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
