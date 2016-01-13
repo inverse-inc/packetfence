@@ -1,8 +1,6 @@
-# Copyright (C) 2005-2015 Inverse inc.
-# This file is distributed under the same license as the PacketFence project.
-# 
-# Translators:
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# English translations for PacketFence package.
+# Copyright (C) 2005-2016 Inverse inc.
+# This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
 # Maikel van der Roest <mvdroest@gmail.com>, 2014
@@ -12,1075 +10,24 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-03-05 20:55+0000\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2016-01-13 18:57+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
-"Language-Team: Dutch (http://www.transifex.com/p/packetfence/language/nl/)\n"
+"Language-Team: Dutch (http://www.transifex.com/inverse/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "en_US"
-msgstr "English"
-
-msgid "fr_FR"
-msgstr "Français"
-
-msgid "es_ES"
-msgstr "Español"
-
-msgid "de_DE"
-msgstr "Deutsch"
-
-msgid "it_IT"
-msgstr "Italiano"
-
-msgid "nl_NL"
-msgstr "Dutch"
-
-msgid "pl_PL"
-msgstr "Pools"
-
-msgid "pt_BR"
-msgstr "Português"
-
-msgid "error: access denied not owner"
-msgstr "Toegang geweigerd: U bent niet de eigenaar van deze machine!"
-
-msgid "error: incorrect mode"
-msgstr "Verkeerde Modus!"
-
-# deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: invalid login or password"
-msgstr "ongeldige login of wachtwoord"
-
-msgid "Invalid login or password"
-msgstr "Verkeerde gebruikersnaam of wachtwoord"
-
-msgid "error: invalid page number"
-msgstr "ongeldig pagina nummer"
-
-msgid "error: max re-enables reached"
-msgstr "Maximum aantal reactivaties bereikt!"
-
-msgid "error: not found in the database"
-msgstr "Uw computer was niet gevonden in de packetshield database, reboot uw computer om dit probleem op te lossen. "
-
-msgid "error: not trappable IP"
-msgstr "Toegang geweigerd: geen afvangbaar IP adres!"
-
-msgid "error: only register max nodes"
-msgstr "Er mogen slechts een maximum van %s nodes geregistreerd worden!"
-
-# deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: unable to validate credentials at the moment"
-msgstr "Helaas kunnen uw gegevens nu niet gecontroleerd worden"
-
-msgid "Unable to validate credentials at the moment"
-msgstr "Helaas kunnen uw gegevens nu niet gecontroleerd worden"
-
-msgid "error: something went wrong creating the guest"
-msgstr "Helaas kan het gastaccount niet worden aangemaakt"
-
-msgid "help: provide info"
-msgstr "Mochten er vragen zijn over deze pagina, neem dan contact op met de helpdesk voor assistentie. Vermeld hierbij de volgende informatie: "
-
-msgid "register: all systems must be registered"
-msgstr "Het kan voorkomen dat we gebruikers moeten benaderen omtrent individuele systemen, daarom dienen alle systemen op het netwerk geregistreerd te worden."
-
-msgid "register: aup"
-msgstr "Het registratie process verlangt dat u de Aceptable Use Policy (UAP) accepteerd. Mocht je deze UAP willen lezen voor het begin van het registratieproces bezoek dan: "
-
-msgid "register: to complete"
-msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wachtwoord in te vullen."
-
-msgid "Authentication"
-msgstr "Authenticatie"
-
-msgid "Wrong username or password."
-msgstr "Verkeerde gebruikersnaam of wachtwoord."
-
-msgid "or"
-msgstr "of"
-
-msgid "Sign up"
-msgstr "Registreer"
-
-msgid "register: skip registration"
-msgstr "Sla Registratie over"
-
-msgid "release: enabling network"
-msgstr "Netwerk toegang wordt geactiveerd"
-
-msgid "release: reopen browser"
-msgstr "U dient wellicht uw browser opnieuw te openen"
-
-msgid "scan: scan in progress"
-msgstr "Uw systeem wordt gescanned"
-
-msgid "scan in progress contact support if too long"
-msgstr "Uw systeem wordt nog steeds op dit moment gescand. Het proces begon op %s. Meestal is dit proces duurt een paar minuten. Mocht dit nu al langer duren, neemt u dan contact op met de helpdesk."
-
-msgid "automatically refresh"
-msgstr "Deze pagina wordt automatisch vernieuwd elke %s seconden om te controleren of scan is voltooid."
-
-msgid "Acceptable Use Policy"
-msgstr "Acceptable Use Policy"
-
-msgid "Addresses"
-msgstr "Adressen"
-
-msgid "De-register node"
-msgstr "Machine deregistreren"
-
-msgid "Scanning ..."
-msgstr "Scanning.."
-
-msgid "Gateway"
-msgstr "Gateway"
-
-msgid "grace"
-msgstr "grace"
-
-msgid "Hostname"
-msgstr "Hostname"
-
-msgid "IP"
-msgstr "IP adres"
-
-msgid "Login"
-msgstr "Log in. "
-
-msgid "MAC"
-msgstr "MAC"
-
-msgid "network access is being enabled"
-msgstr "Uw netwerktoegang wordt op dit moment geactiveerd - dit proces neemt ongeveer %s seconden in beslag."
-
-msgid "system scan in progress"
-msgstr "Uw systeem word gescand. Dit proces duurt ongeveer %s seconden. "
-
-msgid "Node"
-msgstr "Machine"
-
-msgid "PacketFence Registration System"
-msgstr "PacketShield Registration System"
-
-msgid "Guest Registration"
-msgstr "Gast Registratie"
-
-msgid "guest network disclaimer"
-msgstr "Dit gasten netwerk is uitsluitend bedoeld voor het gemak van gasten en bezoekers. Toegang impliceert geen garantie voor de betrouwbaarheid, snelheid of privacy; dit netwerk is voorzien voor het uitdrukkelijke doel van simpele  Internet communicatie. Gebruik impliceert akkoord met alle voorwaarden en condities van de juiste gedrag zoals hier beschreven: <b> Acceptable Use Policy. </ B>"
-
-msgid ""
-"In the fields below please enter your name, phone number and a valid email "
-"address."
-msgstr "In het onderstaande veld dient u uw naam, telefoon nummer en geldig email adres in te vullen. "
-
-msgid ""
-"If you choose to receive your access code <strong>by email</strong>, you "
-"will have to click on an activation link sent to your email address. After "
-"clicking on the link you will receive guest credentials to use on-site by "
-"email"
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+msgid "$field"
 msgstr ""
 
-msgid ""
-"If you choose to receive your access code <strong>by email</strong>, you "
-"will be given temporary network access for 10 minutes during that time:"
-msgstr "Als u kiest om uw toegang code <strong>per email</strong> te ontvangen, dan wordt nu voor 10 minuten toegang gegeven tot het netwerk:  "
-
-msgid "Login to the email account you referenced and;"
-msgstr "Log in op het email account wat u heeft opgegeven en; "
-
-msgid ""
-"Click on the link emailed to you to validate network access for the next 24 "
-"hours."
-msgstr "Klik op de link die naar u gemaild is om uw toegang te valideren voor de volgende 24 uur. "
-
-msgid "Register by Email"
-msgstr "Registreer via e-mail"
-
-msgid ""
-"If you choose to receive your access code <strong>by SMS</strong>, you will "
-"be able to enter it on the next page."
-msgstr "Als u kiest om uw toegang code <strong>per SMS</strong> te ontvangen, dan kunt u deze op de volgende pagina invullen."
-
-msgid "Register by SMS"
-msgstr "Registreer per SMS"
-
-msgid "Password"
-msgstr "Wachtwoord"
-
-msgid "PID"
-msgstr "Eigenaar"
-
-msgid "Print this page"
-msgstr "Print deze pagina"
-
-msgid "reg"
-msgstr "geregistreerd"
-
-msgid "Sorry"
-msgstr "Sorry!"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "unknown"
-msgstr "onbekend"
-
-msgid "unreg"
-msgstr "niet geregistreerd"
-
-msgid "Username"
-msgstr "Gebruikersnaam"
-
-msgid "Violations"
-msgstr "Overtredingen"
-
-msgid "Quarantine Established!"
-msgstr "Quarantaine ingesteld!"
-
-msgid "Registration Notification"
-msgstr "Registratie melding"
-
-msgid "Additional Assistance"
-msgstr "Voor meer hulp"
-
-msgid ""
-"If your network connectivity becomes permanently disabled or you are unable "
-"to follow the instructions above, please contact your local IT support staff"
-" for assistance."
-msgstr "Als uw netwerk toegang compleet is uitgeschakeld en u geen gebruik kunt maken van de bovenstaande instructies, neemt u dan contact op met de helpdesk."
-
-msgid "The following information should be provided upon request:"
-msgstr "De volgende gegevens dienen te worden verstrekt op aanvraag:"
-
-msgid "IP Address"
-msgstr "IP adres"
-
-msgid "MAC Address"
-msgstr "Mac Adres"
-
-msgid "Banned Operating System"
-msgstr "Verbannen Besturingssysteem"
-
-msgid ""
-"You have been detected using an operating system not allowed on the network."
-" Please install a more recent operating system"
-msgstr "Er is een besturingssysteem gedetecteerd wat niet is toegestaan op dit netwerk. Installeer een meer recentere versie van dit besturingssysteem"
-
-msgid "Darknet Violation"
-msgstr "Darknet overtreding"
-
-msgid ""
-"Your system has been detected sending traffic to a network known to be "
-"unused (darknet). This is often indicative of a worm/virus infection."
-msgstr ""
-
-msgid ""
-"Your system will likely need to be rebuilt. Please contact your local "
-"support staff for more information."
-msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
-
-msgid ""
-"Your system will likely need to be rebuilt. Please contact your support "
-"staff for more information."
-msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
-
-msgid "Windows patches are not up to date"
-msgstr "Uw Windows updates zijn niet uitgevoerd"
-
-msgid ""
-"Due to the threat this infection poses for other systems on the network, "
-"network connectivity has been disabled until corrective action is taken. "
-"Instructions for disinfection are below:"
-msgstr "Als gevolg van de dreiging van deze infectie , vormt dit een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
-
-msgid "Generic"
-msgstr "Algemeen"
-
-msgid "Network connectivity has been disabled."
-msgstr "Netwerk toegang is uitgeschakeld. "
-
-msgid "Please contact your support staff for more information."
-msgstr "Neem contact op met de helpdesk voor meer informatie. "
-
-msgid "Hub Detection"
-msgstr "Hub detectie"
-
-msgid ""
-"You have been detected using a hub. Such device is not permitted on the "
-"network.  Please remove it."
-msgstr "Er is gezien dat je een hub gebruikt. Dit soort apparaten zijn niet toegestaan in dit netwerk. Verwijder dit apparaat a.u.b.. "
-
-msgid "Peer-to-Peer"
-msgstr "p2p"
-
-msgid ""
-"You have been detected using a peer-to-peer file sharing application. Such "
-"software is not permitted on the network.  Please uninstall the infringing "
-"software."
-msgstr "Het systeem heeft gedetecteerd dat je p2p (peer-to-peer) file sharing software gebruikt. Dit soort software is niet toegestaan op het netwerk. Verwijder of schakel de software uit a.u.b. "
-
-msgid "System Scanning"
-msgstr "Uw systeem wordt gescanned. "
-
-msgid ""
-"Your system has been found to be scanning other systems. Due to the threat "
-"this infection poses for other systems on the network, network connectivity "
-"has been disabled until corrective action is taken."
-msgstr "Uw systeem is gelogged doordat het andere systemen scanned. Dit vormt een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
-
-msgid "Spamming"
-msgstr "verstuurd spam"
-
-msgid ""
-"Your system has been found to be sending unsolicited commercial email (UCE, "
-"or \"spam\") to other systems. Due to the threat this poses for other "
-"systems on the network, network connectivity has been disabled until "
-"corrective action is taken."
-msgstr "Uw systeem is gezien door ons netwerk als een systeem dat ongewenste email(\" spam\") verstuurd. Als gevolg van de dreiging van deze infectie , vormt dit een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
-
-msgid ""
-"Your system may need to be rebuilt. Please contact your local support staff "
-"for more information."
-msgstr "Uw systeem dient waarschijnlijk geherinstalleerd te worden.  Neem contact op met de helpdesk voor meer informatie. "
-
-msgid "guest management"
-msgstr "Gasten management"
-
-msgid "guest registration form"
-msgstr "Gasten registratie formulier"
-
-msgid "guest registration instructions"
-msgstr ""
-
-msgid "Firstname"
-msgstr "Voornaam"
-
-msgid "firstname"
-msgstr "voornaam"
-
-msgid "Lastname"
-msgstr "Achternaam"
-
-msgid "lastname"
-msgstr "achternaam"
-
-msgid "Company"
-msgstr "Bedrijf"
-
-msgid "Company / Organization"
-msgstr "Bedrijf/Instelling"
-
-msgid "organization"
-msgstr "bedrijf/instelling"
-
-msgid "Phone number"
-msgstr "Telefoonummer"
-
-msgid "phone"
-msgstr "telefoonnummer"
-
-msgid "Phone Provider"
-msgstr "Telefoon provider"
-
-msgid "Select your provider"
-msgstr "Selecteer uw telefoon provider"
-
-msgid "Email"
-msgstr "E-Mail"
-
-msgid "email"
-msgstr "e-mail adres"
-
-msgid "Sponsor's email"
-msgstr "Email beheerder gasten netwerk"
-
-msgid "sponsor_email"
-msgstr "email beheerder gasten netwerk"
-
-msgid "Address"
-msgstr "Adres"
-
-msgid "Arrival Date"
-msgstr "Aankomst datum"
-
-msgid "End Date"
-msgstr "Vertrek datum"
-
-msgid "Access Duration"
-msgstr "Toegangstijd"
-
-msgid "Notes"
-msgstr "Notities"
-
-msgid "Send access code by email"
-msgstr "Stuur code per e-mail"
-
-msgid "Print access code"
-msgstr "Print toegangscode"
-
-msgid "Print"
-msgstr "Print"
-
-msgid "Back"
-msgstr "Terug"
-
-msgid "second"
-msgid_plural "seconds"
-msgstr[0] "seconde"
-msgstr[1] "seconden"
-
-msgid "minute"
-msgid_plural "minutes"
-msgstr[0] "minuut"
-msgstr[1] "minuten"
-
-msgid "hour"
-msgid_plural "hours"
-msgstr[0] "uur"
-msgstr[1] "uren"
-
-msgid "day"
-msgid_plural "days"
-msgstr[0] "dag"
-msgstr[1] "dagen"
-
-msgid "week"
-msgid_plural "weeks"
-msgstr[0] "week"
-msgstr[1] "weken"
-
-msgid "month"
-msgid_plural "months"
-msgstr[0] "maand"
-msgstr[1] "maanden"
-
-msgid "year"
-msgid_plural "years"
-msgstr[0] "jaar"
-msgstr[1] "jaren"
-
-msgid "Invalid access duration provided"
-msgstr "Ongeldige toegang periode ingegeven"
-
-msgid "Expected on %s"
-msgstr "Verwacht op %s"
-
-msgid "Missing mandatory parameter or malformed entry."
-msgstr "Verplicht veld mist of verkeerd ingegeven input. "
-
-msgid "Usernames must only contain alphanumeric characters."
-msgstr "Gebruikersnamen mogen alleen alfanumerieke tekens bevatten."
-
-msgid "Access duration is not of an allowed value."
-msgstr "Toegang duur is niet van een toegestane waarde."
-
-msgid "Arrival date is not of expected format."
-msgstr "Aankomst datum is niet van verwachte formaat."
-
-msgid ""
-"You can't register as a guest with a %s email address. Please register as a "
-"regular user using your email address instead."
-msgstr "U kunt niet registreren als gast met het e-mail adres %s. Registreer als een gewone gebruiker met behulp van uw e-mailadres in plaats daarvan."
-
-msgid "An error occured while sending the confirmation email."
-msgstr "Helaas kon de bevestiging  mail niet verstuurd worden."
-
-msgid "An error occured while sending the PIN by SMS."
-msgstr "Helaas kon de PIN code niet per SMS verstuurd worden. "
-
-msgid "The uploaded file was corrupted. Please try again."
-msgstr "Het ingegeven bestand kan niet worden ingelezen. Probeer het nogmaals. "
-
-msgid "Can't open uploaded file."
-msgstr "Kan bestand niet uploaden. "
-
-msgid "Confirm Mobile Phone Number"
-msgstr "Bevestig mobiel telefoonnummer"
-
-msgid ""
-"Please enter the PIN code received on your mobile phone in order to gain "
-"access to the network."
-msgstr "Geef de PIN code in die naar uw mobile toestel is gestuurd om toegang tot het netwerk te krijgen. "
-
-msgid "PIN"
-msgstr "PIN"
-
-msgid "Confirm"
-msgstr "Bevestig"
-
-msgid "Cancel"
-msgstr "Annuleer"
-
-msgid "Guest Access Code"
-msgstr "Gasten toegangscode"
-
-msgid "This username and password will be valid starting %s."
-msgstr "Deze gebruikersnaam en wachtwoord geldig vanaf %s. "
-
-msgid "Once authenticated the access will be valid for %d %s."
-msgstr "Na verificatie  is de toegang geldig voor: %d %s. "
-
-msgid ""
-"Guest successfully registered. An email with the username and password has "
-"been sent."
-msgstr "Gast succesvol geregistreerd. Een email met de gebruikersnaam en wachtwoord is verstuurd. "
-
-msgid "Import completed: %i guest(s) created, %i line(s) skipped."
-msgstr "Import geslaagd: %i gast(ten) geïmporteerd, %i regel(s) overgeslagen."
-
-msgid "Single guest creation"
-msgstr "Enkele gast toevoegen"
-
-msgid "Multiple guest accounts creation"
-msgstr "Meerder gasten toevoegen"
-
-msgid "CSV file"
-msgstr "CSV bestand"
-
-msgid "CSV file import"
-msgstr "CSV bestand importeren"
-
-msgid "You are logged in as"
-msgstr "U bent ingelogd als"
-
-msgid "Sponsored by"
-msgstr "Gasten beheerder"
-
-msgid "Guest Network Access Information"
-msgstr "Gasten netwerk toegang informatie"
-
-msgid ""
-"If you have scripting turned off, you will not be automatically redirected. "
-"Please enable scripting or open a new browser window from time to time to "
-"see if your access was enabled."
-msgstr "Als je scripting hebt uitgeschakeld zal je niet automatisch worden doorgestuurd. Activeer deze functie of open een nieuwe browser van tijd tot tijd om te zien of u netwerk toegang heeft. "
-
-msgid ""
-"Unable to detect network connectivity. Try restarting your web browser or "
-"opening a new tab to see if your access has been succesfully enabled."
-msgstr "Er kan geen netwerk activiteit worden gedetecteerd. Probeer uw webbrouwser opnieuw op te starten of open een niew tabblad om te zien of u wel het netwerk nu op kunt na uw registratie. "
-
-msgid ""
-"Your network access should be available. Close your current browser, and "
-"open a new one to start browsing."
-msgstr "U heeft nu internettoegang. Sluit uw browser en start deze opnieuw op om te starten. "
-
-msgid "Registration pending"
-msgstr "Registratie is nog in afwachting van goedkeuring. "
-
-msgid ""
-"There are known issues with the automatic redirection on Opera browsers. "
-"Please open a new browser window from time to time to see if your access was"
-" enabled."
-msgstr "Er is een probleem bekend met Opera browsers, waardoor u niet wordt doorgestuurd. Open van tijd tot tijd een nieuwe browser om te zien of uw toegang tot het netwerk werkt. "
-
-msgid ""
-"Some versions of Internet Explorer may take a while before redirection "
-"occur."
-msgstr "Bij sommige versies van Internet Explorer kan het even duren voordat u wordt doorgestuurd. "
-
-msgid "I accept the terms"
-msgstr "Ik accepteer de voorwaarden"
-
-msgid "I have read and accept the terms"
-msgstr "Ik heb de <a href='/aup' target='_blank'>voorwaarden</a> gelezen en accepteer ze"
-
-msgid "You need to accept the terms before proceeding any further."
-msgstr "U dient de voorwaarden te accepteren voordat u verder kunt gaan. "
-
-msgid ""
-"Your registration is pending approval. Once approved you will be "
-"automatically redirected."
-msgstr ""
-
-msgid "Next page"
-msgstr "Volgende pagina"
-
-msgid ""
-"The activation code provided is invalid. Reasons could be: it never existed,"
-" it was already used or has expired."
-msgstr ""
-
-msgid ""
-"You have been detected using a device that has been explicitly disallowed by"
-" your network administrator."
-msgstr ""
-
-msgid "NAT Device Detected"
-msgstr "NAT apparaat(Router) gedetecteerd"
-
-msgid ""
-"You have been detected using a device that performs network address "
-"translation (NAT). These devices, typically wireless access points or "
-"'routers' are not permitted on the network. Please unplug this device and "
-"connect your computer directly to the network for access."
-msgstr ""
-
-msgid "Rogue DHCP server"
-msgstr "Onbekende DHCP server"
-
-msgid "You have been detected running a rogue DHCP server. Please disable it."
-msgstr "Er is een DHCP server gedetecteerd bij uw connectie. Schakel deze uit. "
-
-msgid "Vulnerability Scanning"
-msgstr ""
-
-msgid ""
-"Your system will be scanned for vulnerabilities before you are allowed to "
-"enter the network. Please click on the button below, this can take anywhere "
-"from a few seconds to a couple of minutes."
-msgstr ""
-
-msgid "Malware found!"
-msgstr "Malware gevonden!"
-
-msgid ""
-"Your system has been found to be infected with malware. Due to the threat "
-"this infection poses for other systems on the network, network connectivity "
-"has been disabled until corrective action is taken."
-msgstr "Uw systeem heeft Malware. Dit vormt een zo hoog risico voor  andere systemen in het netwerk, dat uw netwerkverbinding is uitgeschakeld totdat corrigerende maatregelen worden genomen. Aanwijzingen voor hiervoor staan hieronder:"
-
-msgid "Malware Removal"
-msgstr "Malware verwijderen"
-
-msgid "LSASS Worm"
-msgstr "LSASS worm"
-
-msgid ""
-"Your system has been found to be infected with An LSASS-based worm. Due to "
-"the threat this infection poses for other systems on the network, network "
-"connectivity has been disabled until corrective action is taken. "
-"Instructions for disinfection are below:"
-msgstr ""
-
-msgid "Worm Removal"
-msgstr "Worm verwijderen"
-
-msgid ""
-"Make sure your antivirus is working. You might want to perform a full system"
-" scan. Clicking the 'Enable Network' button below will re-enable your "
-"network access. Make sure that you followed the instructions to correct the "
-"issue. Failure to do so will result in network access being disabled again. "
-"Repeated failures will result in access being disabled permanently."
-msgstr ""
-
-msgid "Trojan Infection"
-msgstr "Trojaans paard virus infectie"
-
-msgid "Unauthorized device"
-msgstr "Ongeautoriseerd apparaat"
-
-msgid ""
-"Your system has been found to be infected with a Trojan IRC bot and is "
-"scanning other systems. Due to the threat this infection poses for other "
-"systems on the network, network connectivity has been disabled until "
-"corrective action is taken."
-msgstr ""
-
-msgid "Zotob Infection"
-msgstr "Zotob virus infectie"
-
-msgid ""
-"Your system has been found to be infected with a Zotob worm and is scanning "
-"other systems. Due to the threat this infection poses for other systems on "
-"the network, network connectivity has been disabled until corrective action "
-"is taken."
-msgstr ""
-
-msgid ""
-"Your network access is currently being enabled. Once network connectivity is"
-" established you will be automatically redirected."
-msgstr "Uw netwerk toegang wordt op dit moment weer toegestaan. Zodra u toegang heeft wordt u automatisch doorgestuurd. "
-
-msgid "Your network access is currently being enabled. Please wait..."
-msgstr "Uw netwerktoegang wordt nu toegestaan. Wacht A.U.B."
-
-msgid "You must be authenticated to manage guests."
-msgstr "U dient ingelogd te zijn om gasten te kunnen beheren. "
-
-msgid "This account is expired."
-msgstr "Uw account is verlopen."
-
-msgid "This account is not yet activated."
-msgstr "Uw account is nog niet geactiveerd. "
-
-msgid ""
-"Your network should be enabled within a minute or two. If it is not reboot "
-"your computer."
-msgstr "Uw netwerktoegang zou binnen 2 minuten moeten werken. Als dit niet zo is, schakel uw computer uit en in. "
-
-msgid "Invalid PIN"
-msgstr "Ongeldige PIN code"
-
-msgid "Username Prefix"
-msgstr "Gebruikersnaam prefix"
-
-msgid "Quantity"
-msgstr "Aantal"
-
-msgid "Print access codes"
-msgstr "Print toegangscodes"
-
-msgid "Logout"
-msgstr "Uitloggen"
-
-msgid "Required columns: username, password."
-msgstr "Verplichte velden: gebruikersnaam, wachtwoord"
-
-msgid "Column Delimiter"
-msgstr "Kolom scheidingsteken"
-
-msgid "Columns Order"
-msgstr "Kolom volgorde"
-
-msgid "comma (,)"
-msgstr "komma (,)"
-
-msgid "semicolon (;)"
-msgstr "punt komma (;)"
-
-msgid "tab"
-msgstr "tab"
-
-msgid "Format is: yyyy-mm-dd"
-msgstr "Formaat is: jjjj-mm-dd"
-
-msgid "Import file"
-msgstr "Importeer bestand"
-
-msgid "Access to the guest network has been granted until %s."
-msgstr "Toegang tot het gasten netwerk is toegestaan tot: %s. "
-
-msgid "Access to the guest network has been granted."
-msgstr "Toegang tot het gasten netwerk is toegestaan. "
-
-msgid "Access to the guest network granted"
-msgstr "Toegang tot het gasten netwerk is toegestaan. "
-
-msgid ""
-"Your XML configuration have been generated and is now ready to download.  "
-"Follow the link below in order to get access to the secure SSID."
-msgstr ""
-
-msgid "Click to install your generated wireless profile."
-msgstr "Klink hier om het gegenereerde draadloos netwerk profiel te installeren. "
-
-msgid "Internet Access Package"
-msgstr "Internet toegangs pakket"
-
-msgid "Credit Card Number"
-msgstr "Creditkaart nummer"
-
-msgid "Credit Card Expiration Date"
-msgstr "Creditkaart verloop datum"
-
-msgid "MMYY"
-msgstr "MMJJ"
-
-msgid "Credit Card Verification Number"
-msgstr "Credit card CVE code"
-
-msgid "Continue"
-msgstr "Ga verder"
-
-msgid ""
-"An error occured while processing your payment. Incorrect credit card "
-"informations provided."
-msgstr "Er is iets niet goed gegaan met uw betaling. De ingegeven credit kaart gegevens zijn niet correct. "
-
-msgid ""
-"An error occured while processing you payment. Your credit card has not been"
-" charged."
-msgstr ""
-
-msgid "The scan report code provided is invalid or expired."
-msgstr ""
-
-# SoH filters
-msgid "Filters"
-msgstr "Filters"
-
-msgid ""
-"Define the filters which will apply to all NAP-capable clients that produce "
-"a statement of health (SoH)."
-msgstr ""
-
-msgid "Delete this filter"
-msgstr "Verwijder dit filter"
-
-msgid "Do nothing"
-msgstr "Doe niets"
-
-msgid "Accept"
-msgstr "Accepteer"
-
-msgid "Reject"
-msgstr "Verwerp"
-
-msgid "Trigger violation"
-msgstr ""
-
-msgid "Conditions:"
-msgstr "Voorwaarden:"
-
-msgid "(None yet)"
-msgstr "(geen) "
-
-msgid "Add a condition"
-msgstr "Een voorwaarde toevoegen"
-
-msgid "Delete this condition"
-msgstr "Deze voorwaarde verwijderen"
-
-msgid "Firewall"
-msgstr "firewall"
-
-msgid "Anti-virus"
-msgstr "Anti-virus"
-
-msgid "Anti-spyware"
-msgstr "Anti-spyware"
-
-msgid "Auto-updates"
-msgstr "Auto-updates"
-
-msgid "Security updates"
-msgstr "Beveiliging updates"
-
-msgid "is"
-msgstr "is"
-
-msgid "is not"
-msgstr "is niet"
-
-msgid "ok"
-msgstr "ok"
-
-msgid "installed"
-msgstr "geïnstalleerd"
-
-msgid "enabled"
-msgstr "ingeschakeld"
-
-msgid "disabled"
-msgstr "uitgeschakeld"
-
-msgid "up-to-date"
-msgstr "up-to-date"
-
-msgid "from Microsoft"
-msgstr "van Mircrosoft"
-
-msgid "Action:"
-msgstr "Actie:"
-
-msgid "Add a filter"
-msgstr "Voeg een filter toe"
-
-msgid "Save filters"
-msgstr "Sla filters op"
-
-msgid "Invalid response"
-msgstr "Ongeldige reactie"
-
-msgid "Request failed"
-msgstr "Verzoek is mislukt"
-
-msgid "Are you sure you want to delete this filter?"
-msgstr "Weet u zeker dat u dit filter wilt verwijderen? "
-
-msgid "Enter new filter name"
-msgstr "Geef nieuwe filternaam"
-
-msgid "Guest Sponsor Login"
-msgstr "Beheerder gasten netwerk inlog"
-
-msgid "Before we proceed with guest activation, we need you to authenticate."
-msgstr "Voordat we u als gast kunnen activeren, dient u eerst in verifieert te zijn. "
-
-msgid ""
-"You have reached the maximum number of devices you are able to register with"
-" this username."
-msgstr "Het maximum aantal apparaten is bereikt wat u onder uw gebruikersnaam kan registreren. "
-
-msgid ""
-"An email has been sent to your email address. Click on the activation link "
-"to confirm your email address. Once confirmed you will receive a username "
-"and password by email for you to use once on-site."
-msgstr "Er is een email gestuurd naar je email adres. Klik in de email op de activatie link. Dit valideert dan je email adres aan ons en wij sturen je dan een gebruikersnaam en wachtwoord voor het netwerk. "
-
-msgid ""
-"An access request was sent to the sponsor's email. You will receive an email"
-" with a username and password once your access has been approved."
-msgstr "Er is een email gestuurd naar de sponsor. Je krijgt een email met een gebruikersnaam en wachtwoord zodra je toegang is goedgekeurd. "
-
-msgid "Registration in advance by SMS is not supported."
-msgstr "Registratie vooraf per SMS is niet toegestaan. "
-
-msgid "%s: Guest Network Access Information"
-msgstr "%s: Gasten netwerk toegang informatie"
-
-msgid "%s: Guest access confirmed!"
-msgstr "%s: Gasten toegang bevestigd! "
-
-msgid "%s: Guest network access enabled"
-msgstr "%s: Gasten netwerk toegang toegestaan"
-
-msgid ""
-"There was a problem trying to find the computer to register. The problem has"
-" been logged."
-msgstr "Er is een probleem met het opzoeken van de computer die geregistreerd moet worden. Dit probleem is doorgegeven aan de beheerder."
-
-msgid "does not have permission to sponsor a user"
-msgstr ""
-
-msgid ""
-"The device with MAC address %s has already been authorized to your network."
-msgstr "Het apparaat met MAC adres %s heeft al toegang tot ons netwerk. "
-
-msgid "%s: Guest access request"
-msgstr "%s: Gasten toegang aanvraag"
-
-msgid "%s: Guest access request accepted"
-msgstr "%s: Gasten toegang aanvraag geaccepteerd"
-
-msgid "Guest pre-registration is not allowed by policy"
-msgstr "Voor registratie van gasten is niet toegestaan door de beheerder"
-
-msgid "Maximum amount of retries attempted"
-msgstr ""
-
-msgid ""
-"If you choose to have your access <strong>sponsored</strong>, we will send "
-"an email to the Sponsor email you provided with an activation link. The "
-"sponsor will need to click on that link and authenticate in order to approve"
-" you in."
-msgstr "Als u er voor kiest om uw toegang via een <strong>sponsor</strong> te regelen, zullen wij een email naar de sponsor sturen met een activatie link. De sponsor dient dan op die link te klikken om uw aanvraag goed te keuren. "
-
-msgid "You will receive guest credentials by email once approved."
-msgstr "U zult uw inloggegevens ontvangen per email zodra deze zijn goedgekeurd. "
-
-msgid "You will be in a waiting area until approved."
-msgstr "Je bevind je nu in een wacht ruimte totdat uw toegang is goedgekeurd. "
-
-msgid "Register through a Sponsor"
-msgstr "Registreer via een beheerder"
-
-msgid "Network Access Requested"
-msgstr "Netwerk toegang aangevraagd"
-
-msgid "Access to the guest network confirmed"
-msgstr "Toegang tot het gastennetwerk is bevestigd"
-
-msgid ""
-"Access to the guest network has been successfully confirmed. You should "
-"receive credentials for on-site guest access by email shortly."
-msgstr "Toegang tot het gastennetwerk is bevestigd door een beheerder. U zult binnenkort per email inlog gegevens ontvangen om gebruik te maken van het gastennetwerk. "
-
-msgid "%s: Email activation required"
-msgstr "%s Email activatie nodig"
-
-msgid "Missing mandatory parameter or malformed entry"
-msgstr "Missend of verkeerd ingevuld veld"
-
-msgid "Missing mandatory parameter(s): %s"
-msgstr "Verplicht veld(en) mist(missen): %s"
-
-msgid "Illegal email address provided"
-msgstr "Verkeerd email adres ingegeven"
-
-msgid "Illegal phone number provided"
-msgstr "Verkeerd telefoon nummer ingegeven"
-
-msgid "Acceptable Use Policy (AUP) was not accepted"
-msgstr "Acceptable Use Policy (AUP) is niet geaccepteerd"
-
-msgid "Your access can only be sponsored by a %s email address"
-msgstr "Uw toegang kan alleen worden toegelaten door een beheerder. %s"
-
-msgid "Unable to validate your sponsor at the moment"
-msgstr "Helaas kunnen we niet uw beheerder controleren. "
-
-msgid "Email %s is not allowed to sponsor guest access"
-msgstr "Email %s is geen beheerder van het gasten netwerk "
-
-msgid "You need to be authenticated to access this page."
-msgstr "U moet worden geverifieerd om deze pagina te openen."
-
-msgid "OAuth2 Error: Failed to get the token"
-msgstr "OAuth2 Fout: Geen Token"
-
-msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr "Oauth2 Fout: Kan token niet controleren, probeer het nogmaals"
-
-msgid "Registration canceled please try again"
-msgstr "Registratie geannuleerd. Probeer het nogmaals"
-
-msgid "Please verify MAC address provided"
-msgstr "Verifieer het ingegeven MAC adres"
-
-msgid "You are not authorized"
-msgstr "U heeft geen toegang"
-
-msgid "The MAC address %s has been successfully registered."
-msgstr "Het MAC adres %s is succesvol geregistreerd. "
-
-msgid "The MAC address %s provided is invalid please try again"
-msgstr "Het opgegeven MAC adres %s is ongeldig. Probeer het nogmaals"
-
-msgid "This module is not enabled"
-msgstr "Deze module is niet ingeschakeld"
-
-msgid "anniversary"
-msgstr ""
-
-msgid "birthday"
-msgstr ""
-
-msgid "gender"
-msgstr ""
-
-msgid "lang"
-msgstr ""
-
-msgid "nickname"
-msgstr ""
-
-msgid "cell_phone"
-msgstr ""
-
-msgid "work_phone"
-msgstr ""
-
-msgid "title"
-msgstr ""
-
-msgid "building_number"
-msgstr ""
-
-msgid "apartment_number"
-msgstr ""
-
-msgid "room_number"
-msgstr ""
-
-msgid "Please wait. Processing payment..."
-msgstr ""
-
-msgid ""
-"Remember to enable ip_forward on your operating system for the inline mode "
-"to work."
-msgstr ""
-
-msgid ""
-"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
-" route traffic rather than natting it. Make sure to add the routes on the "
-"system."
+# html/captive-portal/templates/billing/billing.html
+msgid "(MMYY)"
 msgstr ""
 
 # html/captive-portal/templates/activated.html
@@ -1088,6 +35,48 @@ msgid ""
 "A local account has been created to allow access to node status features. "
 "Here are the information associated with that account"
 msgstr ""
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid ""
+"A random certificate password has been generated for you. Please note it as "
+"it will be necessary to complete the process."
+msgstr ""
+
+# html/captive-portal/templates/aup.html
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Acceptable Use Policy"
+msgstr "Acceptable Use Policy"
+
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+msgid "Access to the guest network confirmed"
+msgstr "Toegang tot het gastennetwerk is bevestigd"
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/guest/sponsor_accepted.html
+msgid "Access to the guest network granted"
+msgstr "Toegang tot het gasten netwerk is toegestaan. "
+
+# html/captive-portal/templates/activated.html
+msgid "Access to the guest network has been granted until %s."
+msgstr "Toegang tot het gasten netwerk is toegestaan tot: %s. "
+
+# html/captive-portal/templates/guest/sponsor_accepted.html
+msgid "Access to the guest network has been granted."
+msgstr "Toegang tot het gasten netwerk is toegestaan. "
+
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+msgid ""
+"Access to the guest network has been successfully confirmed. You should "
+"receive credentials for on-site guest access by email shortly."
+msgstr "Toegang tot het gastennetwerk is bevestigd door een beheerder. U zult binnenkort per email inlog gegevens ontvangen om gebruik te maken van het gastennetwerk. "
 
 # html/captive-portal/templates/provisioner/deny.html
 msgid ""
@@ -1097,6 +86,34 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
+msgstr ""
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid ""
+"An access request was sent to the sponsor's email. You will receive an email"
+" with a username and password once your access has been approved."
+msgstr "Er is een email gestuurd naar de sponsor. Je krijgt een email met een gebruikersnaam en wachtwoord zodra je toegang is goedgekeurd. "
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid ""
+"An email has been sent to your email address. Click on the activation link "
+"to confirm your email address. Once confirmed you will receive a username "
+"and password by email for you to use once on-site."
+msgstr "Er is een email gestuurd naar je email adres. Klik in de email op de activatie link. Dit valideert dan je email adres aan ons en wij sturen je dan een gebruikersnaam en wachtwoord voor het netwerk. "
+
+# html/captive-portal/templates/guest/sponsor_login.html
+msgid "Before we proceed with guest activation, we need you to authenticate."
+msgstr "Voordat we u als gast kunnen activeren, dient u eerst in verifieert te zijn. "
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Cancel"
+msgstr "Annuleer"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "Certificate generation for EAP TLS connection"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -1110,9 +127,50 @@ msgstr ""
 msgid "Click here to go to the download website"
 msgstr ""
 
+# html/captive-portal/templates/guest.html
+msgid ""
+"Click on the link emailed to you to validate network access for the next 24 "
+"hours."
+msgstr "Klik op de link die naar u gemaild is om uw toegang te valideren voor de volgende 24 uur. "
+
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Click to download the agent."
 msgstr ""
+
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+msgid "Click to install your generated wireless profile."
+msgstr "Klink hier om het gegenereerde draadloos netwerk profiel te installeren. "
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "Confirm"
+msgstr "Bevestig"
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "Confirm Mobile Phone Number"
+msgstr "Bevestig mobiel telefoonnummer"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/provisioner/accept.html
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/sepm.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid "Continue"
+msgstr "Ga verder"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Expiration Date"
+msgstr "Creditkaart verloop datum"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Number"
+msgstr "Creditkaart nummer"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Verification Number"
+msgstr "Credit card CVE code"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
@@ -1127,14 +185,28 @@ msgstr ""
 msgid "Device Type"
 msgstr ""
 
-# html/captive-portal/templates/status.html
-msgid "Extend Access"
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+msgid "E-mail"
 msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/login.html
+msgid "Email"
+msgstr "E-Mail"
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 # html/captive-portal/templates/violations/time_expiration.html
 msgid "Expiration"
 msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Extend your access"
+msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/guest.html
+msgid "Firstname"
+msgstr "Voornaam"
 
 # html/captive-portal/templates/gaming-registration.html
 msgid "Gaming Device Type"
@@ -1144,12 +216,97 @@ msgstr ""
 msgid "Gaming Landing"
 msgstr ""
 
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "Generate certificate"
+msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+msgid "Guest Registration"
+msgstr "Gast Registratie"
+
+# html/captive-portal/templates/guest/sponsor_login.html
+msgid "Guest Sponsor Login"
+msgstr "Beheerder gasten netwerk inlog"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "I accept the terms"
+msgstr "Ik accepteer de voorwaarden"
+
 # html/captive-portal/templates/guest/sms_confirmation.html
 msgid "I don't have a PIN"
 msgstr ""
 
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "I have read and accept the terms"
+msgstr "Ik heb de <a href='/aup' target='_blank'>voorwaarden</a> gelezen en accepteer ze"
+
+# html/captive-portal/templates/footer.html
+msgid "IP"
+msgstr "IP adres"
+
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Android phone or tablet,"
+msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to have your access <strong>sponsored</strong>, we will send "
+"an email to the Sponsor email you provided with an activation link. The "
+"sponsor will need to click on that link and authenticate in order to approve"
+" you in."
+msgstr "Als u er voor kiest om uw toegang via een <strong>sponsor</strong> te regelen, zullen wij een email naar de sponsor sturen met een activatie link. De sponsor dient dan op die link te klikken om uw aanvraag goed te keuren. "
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by SMS</strong>, you will "
+"be able to enter it on the next page."
+msgstr "Als u kiest om uw toegang code <strong>per SMS</strong> te ontvangen, dan kunt u deze op de volgende pagina invullen."
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will be given temporary network access for 10 minutes during that time:"
+msgstr "Als u kiest om uw toegang code <strong>per email</strong> te ontvangen, dan wordt nu voor 10 minuten toegang gegeven tot het netwerk:  "
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will have to click on an activation link sent to your email address. After "
+"clicking on the link you will receive guest credentials to use on-site by "
+"email"
+msgstr ""
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan.html
+msgid ""
+"If you have scripting turned off, you will not be automatically redirected. "
+"Please enable scripting or open a new browser window from time to time to "
+"see if your access was enabled."
+msgstr "Als je scripting hebt uitgeschakeld zal je niet automatisch worden doorgestuurd. Activeer deze functie of open een nieuwe browser van tijd tot tijd om te zien of u netwerk toegang heeft. "
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid ""
+"In order to complete the registration process, you need to generate your "
+"user certificate."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/windows.html
@@ -1158,13 +315,35 @@ msgid ""
 "run the agent available below."
 msgstr ""
 
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+msgid "Internet Access Package"
+msgstr "Internet toegangs pakket"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/guest.html
+msgid "Lastname"
+msgstr "Achternaam"
+
 # html/captive-portal/templates/activated.html
 msgid "Local account creation"
 msgstr ""
 
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login"
+msgstr "Log in. "
+
 # html/captive-portal/templates/status.html
 msgid "Login to manage registered devices"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Login to the email account you referenced and;"
+msgstr "Log in op het email account wat u heeft opgegeven en; "
 
 # html/captive-portal/templates/device-login.html
 # html/captive-portal/templates/gaming-login.html
@@ -1192,8 +371,29 @@ msgid "Login with LinkedIn account"
 msgstr ""
 
 # html/captive-portal/templates/login.html
+msgid "Login with Twitter account"
+msgstr ""
+
+# html/captive-portal/templates/login.html
 msgid "Login with Windows Live account"
 msgstr ""
+
+# html/captive-portal/templates/guest/footer.html
+msgid "Logout"
+msgstr "Uitloggen"
+
+# html/captive-portal/templates/footer.html
+# lib/pf/web.pm
+msgid "MAC"
+msgstr "MAC"
+
+# html/captive-portal/templates/status.html
+msgid "MAC Address"
+msgstr "Mac Adres"
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid "Network Access Requested"
+msgstr "Netwerk toegang aangevraagd"
 
 # html/captive-portal/templates/pending.html
 # html/captive-portal/templates/release.html
@@ -1221,6 +421,65 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Open in new popup window"
+msgstr ""
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "PIN"
+msgstr "PIN"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "PacketFence Certificate Enrollment System"
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/confirm_Mirapay.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/guest/preregistration.html
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+# html/captive-portal/templates/guest/sponsor_accepted.html
+# html/captive-portal/templates/provisioner/accept.html
+# html/captive-portal/templates/provisioner/deny.html
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/sepm.html
+# html/captive-portal/templates/provisioner/symantec.html
+# html/captive-portal/templates/register.html
+msgid "PacketFence Registration System"
+msgstr "PacketShield Registration System"
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+# html/captive-portal/templates/status.html
+msgid "Password"
+msgstr "Wachtwoord"
+
+# html/captive-portal/templates/login.html
+msgid "Pay for your access"
+msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Phone Provider"
+msgstr "Telefoon provider"
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid ""
+"Please enter the PIN code received on your mobile phone in order to gain "
+"access to the network."
+msgstr "Geef de PIN code in die naar uw mobile toestel is gestuurd om toegang tot het netwerk te krijgen. "
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Please wait. Processing payment..."
 msgstr ""
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
@@ -1265,10 +524,63 @@ msgstr ""
 msgid "Quarantine"
 msgstr ""
 
+# html/captive-portal/templates/redirect.html
+# html/captive-portal/templates/violations/bandwidth_limit.fr.html
+# html/captive-portal/templates/violations/bandwidth_limit.html
+# html/captive-portal/templates/violations/banned_devices.fr.html
+# html/captive-portal/templates/violations/banned_devices.html
+# html/captive-portal/templates/violations/banned_os.fr.html
+# html/captive-portal/templates/violations/banned_os.html
+# html/captive-portal/templates/violations/darknet.fr.html
+# html/captive-portal/templates/violations/darknet.html
+# html/captive-portal/templates/violations/failed_scan.es_ES.html
+# html/captive-portal/templates/violations/failed_scan.fr.html
+# html/captive-portal/templates/violations/failed_scan.html
+# html/captive-portal/templates/violations/generic.fr.html
+# html/captive-portal/templates/violations/generic.html
+# html/captive-portal/templates/violations/lsass.es_ES.html
+# html/captive-portal/templates/violations/lsass.fr.html
+# html/captive-portal/templates/violations/lsass.html
+# html/captive-portal/templates/violations/malware.es_ES.html
+# html/captive-portal/templates/violations/malware.fr.html
+# html/captive-portal/templates/violations/malware.html
+# html/captive-portal/templates/violations/nat.fr.html
+# html/captive-portal/templates/violations/nat.html
+# html/captive-portal/templates/violations/p2p.fr.html
+# html/captive-portal/templates/violations/p2p.html
+# html/captive-portal/templates/violations/roguedhcp.fr.html
+# html/captive-portal/templates/violations/roguedhcp.html
+# html/captive-portal/templates/violations/sample.fr.html
+# html/captive-portal/templates/violations/sample.html
+# html/captive-portal/templates/violations/scanning.fr.html
+# html/captive-portal/templates/violations/scanning.html
+# html/captive-portal/templates/violations/spam.fr.html
+# html/captive-portal/templates/violations/spam.html
+# html/captive-portal/templates/violations/system_scan.fr.html
+# html/captive-portal/templates/violations/system_scan.html
+# html/captive-portal/templates/violations/trojan.fr.html
+# html/captive-portal/templates/violations/trojan.html
+# html/captive-portal/templates/violations/zotob.fr.html
+# html/captive-portal/templates/violations/zotob.html
+msgid "Quarantine Established!"
+msgstr "Quarantaine ingesteld!"
+
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
 msgid "Register"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Register by Email"
+msgstr "Registreer via e-mail"
+
+# html/captive-portal/templates/guest.html
+msgid "Register by SMS"
+msgstr "Registreer per SMS"
+
+# html/captive-portal/templates/guest.html
+msgid "Register through a Sponsor"
+msgstr "Registreer via een beheerder"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
@@ -1279,6 +591,10 @@ msgstr ""
 msgid "Registration Date"
 msgstr ""
 
+# html/captive-portal/templates/pending.html
+msgid "Registration pending"
+msgstr "Registratie is nog in afwachting van goedkeuring. "
+
 # html/captive-portal/templates/device-registration.html
 msgid "Select Console"
 msgstr ""
@@ -1286,6 +602,30 @@ msgstr ""
 # html/captive-portal/templates/gaming-registration.html
 msgid "Select Gaming Console"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Select your provider"
+msgstr "Selecteer uw telefoon provider"
+
+# html/captive-portal/templates/login.html
+msgid "Sign up"
+msgstr "Registreer"
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan-in-progress.html
+msgid ""
+"Some versions of Internet Explorer may take a while before redirection "
+"occur."
+msgstr "Bij sommige versies van Internet Explorer kan het even duren voordat u wordt doorgestuurd. "
+
+# html/captive-portal/templates/error.html
+msgid "Sorry"
+msgstr "Sorry!"
+
+# html/captive-portal/templates/guest.html
+msgid "Sponsor's email"
+msgstr "Email beheerder gasten netwerk"
 
 # html/captive-portal/templates/status.html
 msgid "State - Network Access"
@@ -1327,8 +667,38 @@ msgstr ""
 msgid "To the user : try clicking Continue to see if it fixes the problem"
 msgstr ""
 
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan-in-progress.html
+msgid ""
+"Unable to detect network connectivity. Try restarting your web browser or "
+"opening a new tab to see if your access has been succesfully enabled."
+msgstr "Er kan geen netwerk activiteit worden gedetecteerd. Probeer uw webbrouwser opnieuw op te starten of open een niew tabblad om te zien of u wel het netwerk nu op kunt na uw registratie. "
+
 # html/captive-portal/templates/status.html
 msgid "Unregister"
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+# html/captive-portal/templates/guest/footer.html
+msgid "You are logged in as"
+msgstr "U bent ingelogd als"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "You can also modify the password below."
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "You device is registered to <strong>%s</strong>"
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -1339,8 +709,29 @@ msgstr ""
 msgid "You should not seeing this page, something went wrong."
 msgstr ""
 
+# html/captive-portal/templates/guest.html
+msgid "You will be in a waiting area until approved."
+msgstr "Je bevind je nu in een wacht ruimte totdat uw toegang is goedgekeurd. "
+
+# html/captive-portal/templates/guest.html
+msgid "You will receive guest credentials by email once approved."
+msgstr "U zult uw inloggegevens ontvangen per email zodra deze zijn goedgekeurd. "
+
+# html/captive-portal/templates/status.html
+msgid ""
+"You're not connected to the network, but have a timebank of <strong "
+"id='timeleft'>%s</strong>"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Your Network Access Status"
+msgstr ""
+
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+msgid ""
+"Your XML configuration have been generated and is now ready to download.  "
+"Follow the link below in order to get access to the secure SSID."
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -1359,6 +750,130 @@ msgstr ""
 msgid "Your network access is <strong>paused</strong>"
 msgstr ""
 
+# html/captive-portal/templates/release.html
+msgid ""
+"Your network access is currently being enabled. Once network connectivity is"
+" established you will be automatically redirected."
+msgstr "Uw netwerk toegang wordt op dit moment weer toegestaan. Zodra u toegang heeft wordt u automatisch doorgestuurd. "
+
+# html/captive-portal/templates/release.html
+msgid "Your network access is currently being enabled. Please wait..."
+msgstr "Uw netwerktoegang wordt nu toegestaan. Wacht A.U.B."
+
+# html/captive-portal/templates/release.html
+msgid ""
+"Your network access should be available. Close your current browser, and "
+"open a new one to start browsing."
+msgstr "U heeft nu internettoegang. Sluit uw browser en start deze opnieuw op om te starten. "
+
 # html/captive-portal/templates/status.html
 msgid "Your registered devices"
+msgstr ""
+
+# html/captive-portal/templates/pending.html
+msgid ""
+"Your registration is pending approval. Once approved you will be "
+"automatically redirected."
+msgstr ""
+
+# pf::web::constants (Locales)
+msgid "de_DE"
+msgstr "Deutsch"
+
+# pf::web::constants (Locales)
+msgid "en_US"
+msgstr "English"
+
+# lib/pf/web/release.pm
+msgid "error: max re-enables reached"
+msgstr "Maximum aantal reactivaties bereikt!"
+
+# lib/pf/web/release.pm
+msgid "error: not found in the database"
+msgstr "Uw computer was niet gevonden in de packetshield database, reboot uw computer om dit probleem op te lossen. "
+
+# pf::web::constants (Locales)
+msgid "es_ES"
+msgstr "Español"
+
+# pf::web::constants (Locales)
+msgid "fr_CA"
+msgstr ""
+
+# pf::web::constants (Locales)
+msgid "fr_FR"
+msgstr "Français"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+msgid "guest network disclaimer"
+msgstr "Dit gasten netwerk is uitsluitend bedoeld voor het gemak van gasten en bezoekers. Toegang impliceert geen garantie voor de betrouwbaarheid, snelheid of privacy; dit netwerk is voorzien voor het uitdrukkelijke doel van simpele  Internet communicatie. Gebruik impliceert akkoord met alle voorwaarden en condities van de juiste gedrag zoals hier beschreven: <b> Acceptable Use Policy. </ B>"
+
+# pf::web::constants (Locales)
+msgid "he_IL"
+msgstr ""
+
+# html/captive-portal/templates/footer.html
+msgid "help: provide info"
+msgstr "Mochten er vragen zijn over deze pagina, neem dan contact op met de helpdesk voor assistentie. Vermeld hierbij de volgende informatie: "
+
+# pf::web::constants (Locales)
+msgid "it_IT"
+msgstr "Italiano"
+
+# pf::web::constants (Locales)
+msgid "nl_NL"
+msgstr "Dutch"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "or"
+msgstr "of"
+
+# pf::web::constants (Locales)
+msgid "pl_PL"
+msgstr "Pools"
+
+# pf::web::constants (Locales)
+msgid "pt_BR"
+msgstr "Português"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+msgid "register: all systems must be registered"
+msgstr "Het kan voorkomen dat we gebruikers moeten benaderen omtrent individuele systemen, daarom dienen alle systemen op het netwerk geregistreerd te worden."
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+msgid "register: to complete"
+msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wachtwoord in te vullen."
+
+# html/captive-portal/templates/enabler.html
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+# html/captive-portal/templates/provisioner/windows.html
+# html/captive-portal/templates/release.html
+msgid "release: enabling network"
+msgstr "Netwerk toegang wordt geactiveerd"
+
+# lib/pf/web/release.pm
+msgid "release: reopen browser"
+msgstr "U dient wellicht uw browser opnieuw te openen"
+
+# html/captive-portal/templates/scan-in-progress.html
+# html/captive-portal/templates/scan.html
+msgid "scan: scan in progress"
+msgstr "Uw systeem wordt gescanned"
+
+# lib/pf/web.pm
+msgid "system scan in progress"
+msgstr "Uw systeem word gescand. Dit proces duurt ongeveer %s seconden. "
+
+# html/captive-portal/templates/remediation.html
+msgid "violation: quarantine established"
 msgstr ""

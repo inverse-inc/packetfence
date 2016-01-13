@@ -1,8 +1,6 @@
-# Copyright (C) 2005-2015 Inverse inc.
-# This file is distributed under the same license as the PacketFence project.
-# 
-# Translators:
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# English translations for PacketFence package.
+# Copyright (C) 2005-2016 Inverse inc.
+# This file is distributed under the same license as the PacketFence package.
 # 
 # Translators:
 # cgomez <cgagun@gmail.com>, 2012
@@ -13,1075 +11,24 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2015-03-05 20:55+0000\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2016-01-13 18:57+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
-"Language-Team: Spanish (http://www.transifex.com/p/packetfence/language/es/)\n"
+"Language-Team: Spanish (http://www.transifex.com/inverse/packetfence/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "en_US"
-msgstr "English"
-
-msgid "fr_FR"
-msgstr "Français"
-
-msgid "es_ES"
-msgstr "Español"
-
-msgid "de_DE"
-msgstr "Deutsch"
-
-msgid "it_IT"
-msgstr "Italiano"
-
-msgid "nl_NL"
-msgstr "Dutch"
-
-msgid "pl_PL"
-msgstr "Polski"
-
-msgid "pt_BR"
-msgstr "Português"
-
-msgid "error: access denied not owner"
-msgstr "Acceso denegado: Ud. no es el propietario de este nodo!"
-
-msgid "error: incorrect mode"
-msgstr "¡Modo incorrecto!"
-
-# deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: invalid login or password"
-msgstr "Inicio de sesión o contraseña inválidos  "
-
-msgid "Invalid login or password"
-msgstr "Inicio de sesión o contraseña inválidos"
-
-msgid "error: invalid page number"
-msgstr " Número de página inválida"
-
-msgid "error: max re-enables reached"
-msgstr "Máximo de reactivaciones alcanzado!"
-
-msgid "error: not found in the database"
-msgstr "Su ordenador no fue encontrado en la base de datos de PacketFence. Por favor reinicie para solucionar este problema."
-
-msgid "error: not trappable IP"
-msgstr "Acceso denegado: No es una IP interceptable"
-
-msgid "error: only register max nodes"
-msgstr "Solo debe registrar un máximo de %s nodos!"
-
-# deprecated but kept for a couple of versions (until at least early 2013)
-msgid "error: unable to validate credentials at the moment"
-msgstr "Incapaz de validar las credenciales en este momento"
-
-msgid "Unable to validate credentials at the moment"
-msgstr "Incapaz de validar las credenciales en este momento"
-
-msgid "error: something went wrong creating the guest"
-msgstr "Ocurrió un problema creando la cuenta de Invitado"
-
-msgid "help: provide info"
-msgstr "Si tiene alguna pregunta sobre esta página, contacte con su técnico local. Por favor indique la siguiente información: "
-
-msgid "register: all systems must be registered"
-msgstr "Cada usuario en esta red es considerado como un sistema individual, por ésta razón todos los sistemas deben estar registrados."
-
-msgid "register: aup"
-msgstr "El proceso de registro requiere la aceptación de la Política de Uso Aceptable (Acceptable Use Policy, AUP). Si desea leer esta política antes de empezar con el registro, por favor visite:"
-
-msgid "register: to complete"
-msgstr "Para completar el proceso de registro, es necesario que se autentique con un usuario y una contraseña"
-
-msgid "Authentication"
-msgstr "Autenticación"
-
-msgid "Wrong username or password."
-msgstr "Usuario o contraseña erróneo."
-
-msgid "or"
-msgstr "o"
-
-msgid "Sign up"
-msgstr "Registrarse"
-
-msgid "register: skip registration"
-msgstr "saltar registro"
-
-msgid "release: enabling network"
-msgstr "Habilitando acceso a la red"
-
-msgid "release: reopen browser"
-msgstr "Debe abrir de nuevo su navegador web para obtener acceso a Internet. Si usted esta conectando con un teléfono, usted necesita reiniciciar su computador para obtener acceso Internet."
-
-msgid "scan: scan in progress"
-msgstr "Su sistema está siendo analizado"
-
-msgid "scan in progress contact support if too long"
-msgstr "Su sistema está todavía siendo analizado. El proceso inició desde %s. Usualmente este proceso toma unos pocos minutos. Si está tomando demasiado tiempo, por favor contacte con su equipo de soporte."
-
-msgid "automatically refresh"
-msgstr "Esta página se actualiza cada %s segundos para verificar si el análisis ha sido completado."
-
-msgid "Acceptable Use Policy"
-msgstr "Política de Uso Aceptable"
-
-msgid "Addresses"
-msgstr "Direcciones"
-
-msgid "De-register node"
-msgstr "Deshabilitar nodo"
-
-msgid "Scanning ..."
-msgstr "Analizando..."
-
-msgid "Gateway"
-msgstr "Puerta de enlace"
-
-msgid "grace"
-msgstr "carencia"
-
-msgid "Hostname"
-msgstr "Nombre del equipo"
-
-msgid "IP"
-msgstr "Dirección IP"
-
-msgid "Login"
-msgstr "Entrar"
-
-msgid "MAC"
-msgstr "MAC"
-
-msgid "network access is being enabled"
-msgstr "Su acceso a la red está siendo habilitado - este proceso tardará aproximadamente %s segundos."
-
-msgid "system scan in progress"
-msgstr "Su sistema está siendo analizado - este proceso tardará aproximadamente %s segundos."
-
-msgid "Node"
-msgstr "Nodo"
-
-msgid "PacketFence Registration System"
-msgstr "Sistema de registro de PacketFence"
-
-msgid "Guest Registration"
-msgstr "Registro de Invitados"
-
-msgid "guest network disclaimer"
-msgstr "Esta red de invitados es provista exclusivamente para la conveniencia de Invitados y Visitantes. El acceso no implica ninguna garantía de confiabilidad, velocidad o privacidad; esta red está provista para el propósito expreso de facilitar la comunicación a Internet. El uso implica estar de acuerdo con los términos y condiciones de la <b>Política de Uso Aceptable.</b>"
-
-msgid ""
-"In the fields below please enter your name, phone number and a valid email "
-"address."
-msgstr "En los campos a continuación por favor introduzca su nombre, número teléfono y una dirección de correo electrónico válida."
-
-msgid ""
-"If you choose to receive your access code <strong>by email</strong>, you "
-"will have to click on an activation link sent to your email address. After "
-"clicking on the link you will receive guest credentials to use on-site by "
-"email"
-msgstr "Si eleige recibir su código de acceso <strong>por correo electrónico</strong> tendrá que hacer clic en el enlace enviado a su dirección de correo electrónico. Después de hacerlo recibirá las credenciales de invitado para usar el sitio por correo electrónico."
-
-msgid ""
-"If you choose to receive your access code <strong>by email</strong>, you "
-"will be given temporary network access for 10 minutes during that time:"
-msgstr "Si usted selecciona recibir su código de acceso <strong>por Correo Electrónico</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
-
-msgid "Login to the email account you referenced and;"
-msgstr "Entre en la cuenta de Correo Electrónico que ha referenciado;"
-
-msgid ""
-"Click on the link emailed to you to validate network access for the next 24 "
-"hours."
-msgstr "Haga clic sobre el enlace que ha sido enviado al Correo Electrónico para validar el acceso a la red por las proximas 24 horas."
-
-msgid "Register by Email"
-msgstr "Registrar por Correo"
-
-msgid ""
-"If you choose to receive your access code <strong>by SMS</strong>, you will "
-"be able to enter it on the next page."
-msgstr "Si usted selecciona recibir su código de acceso <strong>por SMS</strong>, usted estará habilitado para entrar en la próxima página."
-
-msgid "Register by SMS"
-msgstr "Registrar por SMS"
-
-msgid "Password"
-msgstr "Contraseña"
-
-msgid "PID"
-msgstr "Propietario"
-
-msgid "Print this page"
-msgstr "Imprimir esta página"
-
-msgid "reg"
-msgstr "Registrado"
-
-msgid "Sorry"
-msgstr "¡Disculpe!"
-
-msgid "Status"
-msgstr "Estado"
-
-msgid "unknown"
-msgstr "Desconocido"
-
-msgid "unreg"
-msgstr "No registrado"
-
-msgid "Username"
-msgstr "Usuario"
-
-msgid "Violations"
-msgstr "Violaciones"
-
-msgid "Quarantine Established!"
-msgstr "¡Aislamiento Establecido!"
-
-msgid "Registration Notification"
-msgstr "Notificación de Registro"
-
-msgid "Additional Assistance"
-msgstr "Asistencia Adicional"
-
-msgid ""
-"If your network connectivity becomes permanently disabled or you are unable "
-"to follow the instructions above, please contact your local IT support staff"
-" for assistance."
-msgstr "Si su conectividad a la red permanece deshabilitada o usted no se ecuentra capacitado para seguir las instrucciones anteriores, por favor contacte su equipo de soporte para asistencia."
-
-msgid "The following information should be provided upon request:"
-msgstr "La siguiente información deberá ser proporcionada:"
-
-msgid "IP Address"
-msgstr "Dirección IP"
-
-msgid "MAC Address"
-msgstr "Dirección MAC"
-
-msgid "Banned Operating System"
-msgstr "Sistema Operativo Prohibido"
-
-msgid ""
-"You have been detected using an operating system not allowed on the network."
-" Please install a more recent operating system"
-msgstr "Se ha detectado que está utilizando un sistema operativo no permitido en la red. Por favor instale un sistema operativo más reciente."
-
-msgid "Darknet Violation"
-msgstr "Violaciones tipo Darknet"
-
-msgid ""
-"Your system has been detected sending traffic to a network known to be "
-"unused (darknet). This is often indicative of a worm/virus infection."
-msgstr "Su sistema ha sido detectado enviando tráfico a una red no utilizada (darknet). Esto frecuentemente indica una infección por un gusano o un virus."
-
-msgid ""
-"Your system will likely need to be rebuilt. Please contact your local "
-"support staff for more information."
-msgstr "Su sistema probablemente tendrá que ser reinstalado. Por favor, póngase en contacto con personal de apoyo local para más información."
-
-msgid ""
-"Your system will likely need to be rebuilt. Please contact your support "
-"staff for more information."
-msgstr "Su sistema probablemente necesita ser reinstalado. Por favor contacte su equipo de soporte para mayor información."
-
-msgid "Windows patches are not up to date"
-msgstr "Los parches de Windows no estan actualizados"
-
-msgid ""
-"Due to the threat this infection poses for other systems on the network, "
-"network connectivity has been disabled until corrective action is taken. "
-"Instructions for disinfection are below:"
-msgstr "Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas. En la parte inferior están las Instrucciones para la desinfección:"
-
-msgid "Generic"
-msgstr "Genérico"
-
-msgid "Network connectivity has been disabled."
-msgstr "La conectividad de la red ha sido deshabilitada. Por favor contacte a su equipo de soporte."
-
-msgid "Please contact your support staff for more information."
-msgstr "Por favor contacte su equipo de soporte para mayor información."
-
-msgid "Hub Detection"
-msgstr "Detección de Hub"
-
-msgid ""
-"You have been detected using a hub. Such device is not permitted on the "
-"network.  Please remove it."
-msgstr "Usted ha sido detectado utilizando un hub. Esta dispositivo no es permitido en la red. Por favor desconéctelo."
-
-msgid "Peer-to-Peer"
-msgstr "Peer-to-Peer"
-
-msgid ""
-"You have been detected using a peer-to-peer file sharing application. Such "
-"software is not permitted on the network.  Please uninstall the infringing "
-"software."
-msgstr "Usted ha sido detectado utilizando una aplicación peer-to-peer de uso compartido de archivos. Dicho software no está permitido en la red. Por favor desinstale el software infractor."
-
-msgid "System Scanning"
-msgstr "Análisis del sistema"
-
-msgid ""
-"Your system has been found to be scanning other systems. Due to the threat "
-"this infection poses for other systems on the network, network connectivity "
-"has been disabled until corrective action is taken."
-msgstr "Su sistema ha sido encontrado analizando otros sistemas. Debido a la amenaza que ésta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid "Spamming"
-msgstr "Spamming"
-
-msgid ""
-"Your system has been found to be sending unsolicited commercial email (UCE, "
-"or \"spam\") to other systems. Due to the threat this poses for other "
-"systems on the network, network connectivity has been disabled until "
-"corrective action is taken."
-msgstr "Su sistema ha sido encontrado enviando correo electrónico comercial no solicitado (UCE, o \"spam\") a otros sistemas. Debido a la amenaza que ésto representa para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid ""
-"Your system may need to be rebuilt. Please contact your local support staff "
-"for more information."
-msgstr "Su sistema debe ser reinstalado. Por favor contacte el equipo de soporte para mayor información."
-
-msgid "guest management"
-msgstr "Administración de Invitados"
-
-msgid "guest registration form"
-msgstr "Formato de registro para Invitados"
-
-msgid "guest registration instructions"
-msgstr "Por favor complete todos los campos a continuación para que la cuenta de invitado sea creada. Los invitados sólo podrán registrarse durante un día. La duración del acceso comenzará una vez el invitado se registre en el portal cautivo."
-
-msgid "Firstname"
-msgstr "Nombre "
-
-msgid "firstname"
-msgstr "Nombre"
-
-msgid "Lastname"
-msgstr "Apellido"
-
-msgid "lastname"
-msgstr "Apellido(s)"
-
-msgid "Company"
-msgstr "Empresa"
-
-msgid "Company / Organization"
-msgstr "Empresa"
-
-msgid "organization"
-msgstr "empresa"
-
-msgid "Phone number"
-msgstr "Número teléfono"
-
-msgid "phone"
-msgstr "teléfono"
-
-msgid "Phone Provider"
-msgstr "Proveedor teléfono"
-
-msgid "Select your provider"
-msgstr "Seleccione su Proveedor"
-
-msgid "Email"
-msgstr "Correo Electrónico"
-
-msgid "email"
-msgstr "correo electrónico"
-
-msgid "Sponsor's email"
-msgstr "Patrocinador correo electrónico"
-
-msgid "sponsor_email"
-msgstr "patrocinador correo electrónico"
-
-msgid "Address"
-msgstr "Dirección"
-
-msgid "Arrival Date"
-msgstr "Fecha de llegada"
-
-msgid "End Date"
-msgstr "Fecha de finalización"
-
-msgid "Access Duration"
-msgstr "Duración del acceso"
-
-msgid "Notes"
-msgstr "Notas"
-
-msgid "Send access code by email"
-msgstr "Enviar código de acceso por Correo Electrónico"
-
-msgid "Print access code"
-msgstr "Imprimir código de acceso"
-
-msgid "Print"
-msgstr "Imprimir"
-
-msgid "Back"
-msgstr "Atrás"
-
-msgid "second"
-msgid_plural "seconds"
-msgstr[0] "segundo"
-msgstr[1] "segundos"
-
-msgid "minute"
-msgid_plural "minutes"
-msgstr[0] "minuto"
-msgstr[1] "minutos"
-
-msgid "hour"
-msgid_plural "hours"
-msgstr[0] "hora"
-msgstr[1] "horas"
-
-msgid "day"
-msgid_plural "days"
-msgstr[0] "día"
-msgstr[1] "días"
-
-msgid "week"
-msgid_plural "weeks"
-msgstr[0] "semana"
-msgstr[1] "semanas"
-
-msgid "month"
-msgid_plural "months"
-msgstr[0] "mes"
-msgstr[1] "meses"
-
-msgid "year"
-msgid_plural "years"
-msgstr[0] "año"
-msgstr[1] "años"
-
-msgid "Invalid access duration provided"
-msgstr "Duración del acceso provisto inválido"
-
-msgid "Expected on %s"
-msgstr "Esperado en %s"
-
-msgid "Missing mandatory parameter or malformed entry."
-msgstr "Falta un parámetro obligatorio o entrada incorrecta."
-
-msgid "Usernames must only contain alphanumeric characters."
-msgstr "Los nombres de usuario sólo pueden contener caracteres alfanuméricos."
-
-msgid "Access duration is not of an allowed value."
-msgstr "La duración de acceso no es un valor permitido."
-
-msgid "Arrival date is not of expected format."
-msgstr "La fecha de llegada no tiene el formato esperado."
-
-msgid ""
-"You can't register as a guest with a %s email address. Please register as a "
-"regular user using your email address instead."
-msgstr "Usted no puede registrarse como invitado con una %s dirección de Correo Electrónico. Por favor regístrese como un usuario regular usando su dirección de Correo Electrónico en su lugar."
-
-msgid "An error occured while sending the confirmation email."
-msgstr "Un error ocurrió mientras se enviaba el correo de confirmación."
-
-msgid "An error occured while sending the PIN by SMS."
-msgstr "Un error ocurrió mientras se enviaba el PIN por SMS."
-
-msgid "The uploaded file was corrupted. Please try again."
-msgstr "El fichero subido está estropeado. Intente de nuevo."
-
-msgid "Can't open uploaded file."
-msgstr "No se puede abrir el fichero subido."
-
-msgid "Confirm Mobile Phone Number"
-msgstr "Confirmar número teléfono móvil"
-
-msgid ""
-"Please enter the PIN code received on your mobile phone in order to gain "
-"access to the network."
-msgstr "Por favor introduzca el código PIN recibido en su teléfono móvil con el fin de tener acceso a la red."
-
-msgid "PIN"
-msgstr "PIN"
-
-msgid "Confirm"
-msgstr "Confirmar"
-
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Guest Access Code"
-msgstr "Código de acceso de Invitado"
-
-msgid "This username and password will be valid starting %s."
-msgstr "Este usuario y contraseña serán validados empezando %s."
-
-msgid "Once authenticated the access will be valid for %d %s."
-msgstr "Una vez autenticado el acceso será validado por %d %s."
-
-msgid ""
-"Guest successfully registered. An email with the username and password has "
-"been sent."
-msgstr "Invitado registrado exitosamente. Un correo con su nombre de usuario y contraseña ha sido enviado."
-
-msgid "Import completed: %i guest(s) created, %i line(s) skipped."
-msgstr "Importación completada: %i invitado(s) creado, %i línea(s) saltada."
-
-msgid "Single guest creation"
-msgstr "Creación de invitado individual"
-
-msgid "Multiple guest accounts creation"
-msgstr "Creación múltiple de cuentas de Invitados"
-
-msgid "CSV file"
-msgstr "Archivo CSV"
-
-msgid "CSV file import"
-msgstr "Importar Archivo CSV"
-
-msgid "You are logged in as"
-msgstr "Usted esta registrado como"
-
-msgid "Sponsored by"
-msgstr "Patrocinado por"
-
-msgid "Guest Network Access Information"
-msgstr "Informacíon de acceso a la red de Invitados"
-
-msgid ""
-"If you have scripting turned off, you will not be automatically redirected. "
-"Please enable scripting or open a new browser window from time to time to "
-"see if your access was enabled."
-msgstr "Si usted ha desactivado la ejecución de secuencia de comandos (scripts), usted no será automaticamente redireccionado. Por favor habilite la ejecución de secuencia de comandos (scripts), o abra una nueva ventana del navegador de vez en cuando para ver si su acceso fue habilitado."
-
-msgid ""
-"Unable to detect network connectivity. Try restarting your web browser or "
-"opening a new tab to see if your access has been succesfully enabled."
-msgstr "Incapaz de detectar actividad en la red. Intente abrir una página web para mirar si su acceso ha sido habilitado exitósamente."
-
-msgid ""
-"Your network access should be available. Close your current browser, and "
-"open a new one to start browsing."
-msgstr "Su acceso a la red debe estar disponible. Cierre su navegador y abra de nuevo para comenzar a navegar."
-
-msgid "Registration pending"
-msgstr "Registro pendiente"
-
-msgid ""
-"There are known issues with the automatic redirection on Opera browsers. "
-"Please open a new browser window from time to time to see if your access was"
-" enabled."
-msgstr "Hay algunos problemas conocidos con la redirección automática en el navegador Opera. Por favor abra una nueva ventana en el navegador de vez en cuando para verificar si su acceso fue habilitado."
-
-msgid ""
-"Some versions of Internet Explorer may take a while before redirection "
-"occur."
-msgstr "En algunas versiones de Internet Explorer pueden tardar un tiempo antes que la redirección ocurra."
-
-msgid "I accept the terms"
-msgstr "Acepto los términos"
-
-msgid "I have read and accept the terms"
-msgstr "He leído y acepto <a href='/aup' target='_blank'>los términos</a>"
-
-msgid "You need to accept the terms before proceeding any further."
-msgstr "Usted necesita aceptar los términos antes de continuar."
-
-msgid ""
-"Your registration is pending approval. Once approved you will be "
-"automatically redirected."
-msgstr "Su registro esta pendiente de aprobación. Una vez sea aprobado usted será automaticamente redireccionado."
-
-msgid "Next page"
-msgstr "Próxima página"
-
-msgid ""
-"The activation code provided is invalid. Reasons could be: it never existed,"
-" it was already used or has expired."
-msgstr "El código de activación proporcionado es inválido. Las razones pueden ser: éste nunca existió, ya ha sido utilizado o ya expiró."
-
-msgid ""
-"You have been detected using a device that has been explicitly disallowed by"
-" your network administrator."
-msgstr "Usted ha sido detectado utilizando un dispositivo que ha sido deshabilitado explicitamente por su administrador de red."
-
-msgid "NAT Device Detected"
-msgstr "Dispositivo NAT Detectado"
-
-msgid ""
-"You have been detected using a device that performs network address "
-"translation (NAT). These devices, typically wireless access points or "
-"'routers' are not permitted on the network. Please unplug this device and "
-"connect your computer directly to the network for access."
-msgstr "Usted ha sido detectado utilizando un dispositivo que desempeña traducciones de direcciones de red (Network Address Translations NAT). Estos dispositivos, típicamente Access Points inalámbricos y Routers, no son permitidos en la red. Por favor desconecte el dispositivo y conecte su computador directamente a la red para tener acceso."
-
-msgid "Rogue DHCP server"
-msgstr "Servidor DHCP no Autorizado"
-
-msgid "You have been detected running a rogue DHCP server. Please disable it."
-msgstr "Usted ha sido detectado ejecutando un servidor DHCP no autorizado. Por favor deshabilítelo."
-
-msgid "Vulnerability Scanning"
-msgstr "Análisis de Vulnerabilidades"
-
-msgid ""
-"Your system will be scanned for vulnerabilities before you are allowed to "
-"enter the network. Please click on the button below, this can take anywhere "
-"from a few seconds to a couple of minutes."
-msgstr "Su sistema será analizado en busca de vulnerabilidades antes de que se le permita entrar a la red. Por favor haga clic sobre el botón a continuación, ésto puede tardar desde unos pocos segundos hasta un par de minutos."
-
-msgid "Malware found!"
-msgstr "¡Malware encontrado!"
-
-msgid ""
-"Your system has been found to be infected with malware. Due to the threat "
-"this infection poses for other systems on the network, network connectivity "
-"has been disabled until corrective action is taken."
-msgstr "Su sistema ha sido encontrado infectado con malware. Debido a la amenaza que ésta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid "Malware Removal"
-msgstr "Eliminación de Malware"
-
-msgid "LSASS Worm"
-msgstr "Gusano LSASS"
-
-msgid ""
-"Your system has been found to be infected with An LSASS-based worm. Due to "
-"the threat this infection poses for other systems on the network, network "
-"connectivity has been disabled until corrective action is taken. "
-"Instructions for disinfection are below:"
-msgstr "Su sistema ha sido encontrado infectado con un gusano de tipo LSASS. Debido a la amenaza que ésta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid "Worm Removal"
-msgstr "Eliminación de Gusano"
-
-msgid ""
-"Make sure your antivirus is working. You might want to perform a full system"
-" scan. Clicking the 'Enable Network' button below will re-enable your "
-"network access. Make sure that you followed the instructions to correct the "
-"issue. Failure to do so will result in network access being disabled again. "
-"Repeated failures will result in access being disabled permanently."
-msgstr "Asegúrese que el antivirus está funcionando.  Es posible que deba generar un análisis completo de el sistema. Haga Click en el botón 'Habilitar Red' a continuación y se volverá activar su acceso a la red. Asegúrese que ha seguido las instrucciones para corregir el problema. Si falla al hacerlo tendrá como resultado que el acceso a la red será deshabilitado nuevamente. Fallos repetidos tendrán como resultado que el acceso a la red sea deshabilitado permanentemente."
-
-msgid "Trojan Infection"
-msgstr "Infección tipo Troyano"
-
-msgid "Unauthorized device"
-msgstr "Dispositivo no Autorizado"
-
-msgid ""
-"Your system has been found to be infected with a Trojan IRC bot and is "
-"scanning other systems. Due to the threat this infection poses for other "
-"systems on the network, network connectivity has been disabled until "
-"corrective action is taken."
-msgstr "Su sistema ha sido encontrado infectado con un Troyano IRC y está analizando otros sistemas. Debido a la amenaza que ésta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid "Zotob Infection"
-msgstr "Infección tipo Zotob"
-
-msgid ""
-"Your system has been found to be infected with a Zotob worm and is scanning "
-"other systems. Due to the threat this infection poses for other systems on "
-"the network, network connectivity has been disabled until corrective action "
-"is taken."
-msgstr "Usted ha sido encontrado infectado con un gusano tipo Zotob y está analizando otros sistemas. Debido a la amenaza que ésta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
-
-msgid ""
-"Your network access is currently being enabled. Once network connectivity is"
-" established you will be automatically redirected."
-msgstr "Su acceso a la red actualmente está siendo habilitado. Una vez la conectividad de la red esté establecida usted será automaticamente redireccionado."
-
-msgid "Your network access is currently being enabled. Please wait..."
-msgstr "Su acceso a la red está siendo activado. Por favor espere..."
-
-msgid "You must be authenticated to manage guests."
-msgstr "Usted debe autenticarse para la administración de invitados."
-
-msgid "This account is expired."
-msgstr "Esta cuenta ha expirado."
-
-msgid "This account is not yet activated."
-msgstr "Esta cuenta no está activada."
-
-msgid ""
-"Your network should be enabled within a minute or two. If it is not reboot "
-"your computer."
-msgstr "Su acceso a la red debería ser habilitado en uno o dos minutos. Si no, reinicie su equipo."
-
-msgid "Invalid PIN"
-msgstr "PIN no válido"
-
-msgid "Username Prefix"
-msgstr "Prefijo del Nombre de Usuario"
-
-msgid "Quantity"
-msgstr "Cantidad"
-
-msgid "Print access codes"
-msgstr "Imprimir códigos de acceso"
-
-msgid "Logout"
-msgstr "Salir"
-
-msgid "Required columns: username, password."
-msgstr "Columnas requeridas: nombre de usuario, contraseña."
-
-msgid "Column Delimiter"
-msgstr "Delimitador de Columna"
-
-msgid "Columns Order"
-msgstr "Orden de las Columnas"
-
-msgid "comma (,)"
-msgstr "coma (,)"
-
-msgid "semicolon (;)"
-msgstr "punto y coma (;)"
-
-msgid "tab"
-msgstr "tabulador"
-
-msgid "Format is: yyyy-mm-dd"
-msgstr "El formato es: aaaa-mm-dd"
-
-msgid "Import file"
-msgstr "Importar archivo"
-
-msgid "Access to the guest network has been granted until %s."
-msgstr "El acceso a la red de invitados ha sido permitido hasta %s."
-
-msgid "Access to the guest network has been granted."
-msgstr "El acceso a la red de invitados ha sido concedido. "
-
-msgid "Access to the guest network granted"
-msgstr "Acceso a la red de Invitados permitido"
-
-msgid ""
-"Your XML configuration have been generated and is now ready to download.  "
-"Follow the link below in order to get access to the secure SSID."
-msgstr "Su configuración XML se ha generado y ahora está lista para descargar. Siga el enlace de abajo para conseguir el acceso SSID seguro."
-
-msgid "Click to install your generated wireless profile."
-msgstr "Haga clic para instalar el perfil inalámbrico generado."
-
-msgid "Internet Access Package"
-msgstr "Paquete de Acceso a Internet"
-
-msgid "Credit Card Number"
-msgstr "Número de Tarjeta de Crédito"
-
-msgid "Credit Card Expiration Date"
-msgstr "Fecha de Caducidad de la Tarjeta de Crédito"
-
-msgid "MMYY"
-msgstr "MMAA"
-
-msgid "Credit Card Verification Number"
-msgstr "Numero de Verificación de la Tarjeta de Crédito"
-
-msgid "Continue"
-msgstr "Continuar"
-
-msgid ""
-"An error occured while processing your payment. Incorrect credit card "
-"informations provided."
-msgstr "Ha ocurrido un error mientras se procesaba su pago. Información incorrecta de tarjeta de crédito."
-
-msgid ""
-"An error occured while processing you payment. Your credit card has not been"
-" charged."
-msgstr "Ha ocurrido un error mientras se procesaba su pago. Su tarjeta de crédito no ha sido cargada."
-
-msgid "The scan report code provided is invalid or expired."
-msgstr "El código de informe de escaneo proporcionado no es válido o ha expirado."
-
-# SoH filters
-msgid "Filters"
-msgstr "Filtros"
-
-msgid ""
-"Define the filters which will apply to all NAP-capable clients that produce "
-"a statement of health (SoH)."
-msgstr "Definir los filtros que se aplicarán a todos los clientes NAP-capable que producen un estado de salud (SoH)."
-
-msgid "Delete this filter"
-msgstr "Borrar éste filtro"
-
-msgid "Do nothing"
-msgstr "No hacer nada"
-
-msgid "Accept"
-msgstr "Aceptar"
-
-msgid "Reject"
-msgstr "Denegar"
-
-msgid "Trigger violation"
-msgstr "Violación de lanzamiento"
-
-msgid "Conditions:"
-msgstr "Condiciones:"
-
-msgid "(None yet)"
-msgstr "(Ninguno aún)"
-
-msgid "Add a condition"
-msgstr "Añadir una condición"
-
-msgid "Delete this condition"
-msgstr "Borrar ésta condición"
-
-msgid "Firewall"
-msgstr "Cortafuegos"
-
-msgid "Anti-virus"
-msgstr "Antivirus"
-
-msgid "Anti-spyware"
-msgstr "Anti-espía"
-
-msgid "Auto-updates"
-msgstr "Actualizaciones automáticas"
-
-msgid "Security updates"
-msgstr "Actualizaciones de Seguridad"
-
-msgid "is"
-msgstr "es"
-
-msgid "is not"
-msgstr "no es"
-
-msgid "ok"
-msgstr "ok"
-
-msgid "installed"
-msgstr "instalado"
-
-msgid "enabled"
-msgstr "activado"
-
-msgid "disabled"
-msgstr "desactivado"
-
-msgid "up-to-date"
-msgstr "actualizado"
-
-msgid "from Microsoft"
-msgstr "de Microsoft"
-
-msgid "Action:"
-msgstr "Acción:"
-
-msgid "Add a filter"
-msgstr "Añadir un filtro"
-
-msgid "Save filters"
-msgstr "Guardar filtros"
-
-msgid "Invalid response"
-msgstr "Respuesta no válida"
-
-msgid "Request failed"
-msgstr "Error de solicitud"
-
-msgid "Are you sure you want to delete this filter?"
-msgstr "¿Está seguro que quiere borrar éste filtro?"
-
-msgid "Enter new filter name"
-msgstr "Introduzca un nuevo nombre de filtro"
-
-msgid "Guest Sponsor Login"
-msgstr "Registro del patrocinador de invitado"
-
-msgid "Before we proceed with guest activation, we need you to authenticate."
-msgstr "Antes de proceder con la activación de invitado, necesitamos que se autentique."
-
-msgid ""
-"You have reached the maximum number of devices you are able to register with"
-" this username."
-msgstr "Usted ha alcanzado el número máximo de dispositivos que tiene disponible para registrar con este nombre de usuario."
-
-msgid ""
-"An email has been sent to your email address. Click on the activation link "
-"to confirm your email address. Once confirmed you will receive a username "
-"and password by email for you to use once on-site."
-msgstr "Un correo electrónico ha sido enviado a su dirección de correo electrónico. Haga clic en el enlace de activación para confirmar su dirección de correo electrónico. Una vez confirmado, recibirá un nombre de usuario y contraseña por correo electrónico para que usted pueda usar una vez en el sitio."
-
-msgid ""
-"An access request was sent to the sponsor's email. You will receive an email"
-" with a username and password once your access has been approved."
-msgstr "Una solicitud de acceso fue enviada al correo electrónico del promotor. Usted recibirá un correo electrónico con un nombre de usuario y contraseña una vez que su acceso haya sido aprobado."
-
-msgid "Registration in advance by SMS is not supported."
-msgstr "Registro con antelación a través de SMS no es compatible."
-
-msgid "%s: Guest Network Access Information"
-msgstr "%s: Información de acceso a la red de invitados"
-
-msgid "%s: Guest access confirmed!"
-msgstr "%s: ¡Acceso de invitados confirmada!"
-
-msgid "%s: Guest network access enabled"
-msgstr "%s: Acceso a la red de invitados habilitado"
-
-msgid ""
-"There was a problem trying to find the computer to register. The problem has"
-" been logged."
-msgstr "Hubo un problema al intentar encontrar el equipo a registrar. El problema ha sido registrado."
-
-msgid "does not have permission to sponsor a user"
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+msgid "$field"
 msgstr ""
 
-msgid ""
-"The device with MAC address %s has already been authorized to your network."
-msgstr "El dispositivo con la dirección %s MAC ya ha sido autorizado en la red"
-
-msgid "%s: Guest access request"
-msgstr "%s: Acceso de invitados solicitado"
-
-msgid "%s: Guest access request accepted"
-msgstr "%s: Solicitud de acceso de invitados aceptada"
-
-msgid "Guest pre-registration is not allowed by policy"
-msgstr "Pre-registro de invitado no está permitido por política"
-
-msgid "Maximum amount of retries attempted"
-msgstr ""
-
-msgid ""
-"If you choose to have your access <strong>sponsored</strong>, we will send "
-"an email to the Sponsor email you provided with an activation link. The "
-"sponsor will need to click on that link and authenticate in order to approve"
-" you in."
-msgstr "Si elige tener su acceso <strong>promocionado</strong>, enviaremos un correo electrónico al correo electrónico que el patrocinador le ha proporcionado con un enlace de activación. El promotor tendrá que hacer clic en ese enlace y autenticarse con el fin de aprobarlo."
-
-msgid "You will receive guest credentials by email once approved."
-msgstr "Recibirá las credenciales de invitado por correo electrónico una vez aprobadas."
-
-msgid "You will be in a waiting area until approved."
-msgstr "Estará en un zona de espera hasta que sea aprobado."
-
-msgid "Register through a Sponsor"
-msgstr "Registro a través de promotor"
-
-msgid "Network Access Requested"
-msgstr "Acceso a la red solicitado"
-
-msgid "Access to the guest network confirmed"
-msgstr "Acceso a la red de invitados confirmado"
-
-msgid ""
-"Access to the guest network has been successfully confirmed. You should "
-"receive credentials for on-site guest access by email shortly."
-msgstr "El acceso a la red de invitados se ha confirmado con éxito. Debe recibir las credenciales para el acceso al sitio de invitados por correo electrónico en breve."
-
-msgid "%s: Email activation required"
-msgstr "%s: correo electrónico de activación requerido"
-
-msgid "Missing mandatory parameter or malformed entry"
-msgstr "Falta parámetro obligatorio o formato incorrecto"
-
-msgid "Missing mandatory parameter(s): %s"
-msgstr "Falta parámetro(s) obligatorio: %s"
-
-msgid "Illegal email address provided"
-msgstr "Dirección de correo electrónico ilegal proporcionada"
-
-msgid "Illegal phone number provided"
-msgstr "Número de teléfono ilegal proporcionado"
-
-msgid "Acceptable Use Policy (AUP) was not accepted"
-msgstr "Política de Uso Aceptable (AUP) no fue aceptada"
-
-msgid "Your access can only be sponsored by a %s email address"
-msgstr "Su acceso sólo puede ser patrocinado por una dirección de correo electrónico %s"
-
-msgid "Unable to validate your sponsor at the moment"
-msgstr "No se puede validar su promotor en éste momento"
-
-msgid "Email %s is not allowed to sponsor guest access"
-msgstr "Correo electrónico %s no permitido para patrocinar acceso invitados"
-
-msgid "You need to be authenticated to access this page."
-msgstr "Se necesita ser autenticado para acceder a esta pagina."
-
-msgid "OAuth2 Error: Failed to get the token"
-msgstr "Error OAuth2: no se ha podido acceder al token"
-
-msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr "Error OAuth2: no se ha podido validar el token, intenta de nuevo por favor"
-
-msgid "Registration canceled please try again"
-msgstr "Inscripción cancelada prueba otra vez por favor"
-
-msgid "Please verify MAC address provided"
-msgstr "Por favor verifica la dirección MAC facilitada"
-
-msgid "You are not authorized"
-msgstr "No tiene autorización"
-
-msgid "The MAC address %s has been successfully registered."
-msgstr "La dirección MAC %s ha sido registrada con éxito."
-
-msgid "The MAC address %s provided is invalid please try again"
-msgstr "La dirección MAC %s facilitada es invalida por favor inténtalo de nuevo"
-
-msgid "This module is not enabled"
-msgstr "Este modulo no esta activado"
-
-msgid "anniversary"
-msgstr ""
-
-msgid "birthday"
-msgstr ""
-
-msgid "gender"
-msgstr ""
-
-msgid "lang"
-msgstr ""
-
-msgid "nickname"
-msgstr ""
-
-msgid "cell_phone"
-msgstr ""
-
-msgid "work_phone"
-msgstr ""
-
-msgid "title"
-msgstr ""
-
-msgid "building_number"
-msgstr ""
-
-msgid "apartment_number"
-msgstr ""
-
-msgid "room_number"
-msgstr ""
-
-msgid "Please wait. Processing payment..."
-msgstr ""
-
-msgid ""
-"Remember to enable ip_forward on your operating system for the inline mode "
-"to work."
-msgstr ""
-
-msgid ""
-"Since NATting mode is disabled, PacketFence will adjust iptables to rules to"
-" route traffic rather than natting it. Make sure to add the routes on the "
-"system."
+# html/captive-portal/templates/billing/billing.html
+msgid "(MMYY)"
 msgstr ""
 
 # html/captive-portal/templates/activated.html
@@ -1089,6 +36,48 @@ msgid ""
 "A local account has been created to allow access to node status features. "
 "Here are the information associated with that account"
 msgstr ""
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid ""
+"A random certificate password has been generated for you. Please note it as "
+"it will be necessary to complete the process."
+msgstr ""
+
+# html/captive-portal/templates/aup.html
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Acceptable Use Policy"
+msgstr "Política de Uso Aceptable"
+
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+msgid "Access to the guest network confirmed"
+msgstr "Acceso a la red de invitados confirmado"
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/guest/sponsor_accepted.html
+msgid "Access to the guest network granted"
+msgstr "Acceso a la red de Invitados permitido"
+
+# html/captive-portal/templates/activated.html
+msgid "Access to the guest network has been granted until %s."
+msgstr "El acceso a la red de invitados ha sido permitido hasta %s."
+
+# html/captive-portal/templates/guest/sponsor_accepted.html
+msgid "Access to the guest network has been granted."
+msgstr "El acceso a la red de invitados ha sido concedido. "
+
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+msgid ""
+"Access to the guest network has been successfully confirmed. You should "
+"receive credentials for on-site guest access by email shortly."
+msgstr "El acceso a la red de invitados se ha confirmado con éxito. Debe recibir las credenciales para el acceso al sitio de invitados por correo electrónico en breve."
 
 # html/captive-portal/templates/provisioner/deny.html
 msgid ""
@@ -1098,6 +87,34 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
+msgstr ""
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid ""
+"An access request was sent to the sponsor's email. You will receive an email"
+" with a username and password once your access has been approved."
+msgstr "Una solicitud de acceso fue enviada al correo electrónico del promotor. Usted recibirá un correo electrónico con un nombre de usuario y contraseña una vez que su acceso haya sido aprobado."
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid ""
+"An email has been sent to your email address. Click on the activation link "
+"to confirm your email address. Once confirmed you will receive a username "
+"and password by email for you to use once on-site."
+msgstr "Un correo electrónico ha sido enviado a su dirección de correo electrónico. Haga clic en el enlace de activación para confirmar su dirección de correo electrónico. Una vez confirmado, recibirá un nombre de usuario y contraseña por correo electrónico para que usted pueda usar una vez en el sitio."
+
+# html/captive-portal/templates/guest/sponsor_login.html
+msgid "Before we proceed with guest activation, we need you to authenticate."
+msgstr "Antes de proceder con la activación de invitado, necesitamos que se autentique."
+
+# html/captive-portal/templates/device-registration.html
+# html/captive-portal/templates/gaming-registration.html
+msgid "Cancel"
+msgstr "Cancelar"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "Certificate generation for EAP TLS connection"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/mobileiron.html
@@ -1111,9 +128,50 @@ msgstr ""
 msgid "Click here to go to the download website"
 msgstr ""
 
+# html/captive-portal/templates/guest.html
+msgid ""
+"Click on the link emailed to you to validate network access for the next 24 "
+"hours."
+msgstr "Haga clic sobre el enlace que ha sido enviado al Correo Electrónico para validar el acceso a la red por las proximas 24 horas."
+
 # html/captive-portal/templates/provisioner/windows.html
 msgid "Click to download the agent."
 msgstr ""
+
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+msgid "Click to install your generated wireless profile."
+msgstr "Haga clic para instalar el perfil inalámbrico generado."
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "Confirm"
+msgstr "Confirmar"
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "Confirm Mobile Phone Number"
+msgstr "Confirmar número teléfono móvil"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/provisioner/accept.html
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/sepm.html
+# html/captive-portal/templates/provisioner/symantec.html
+msgid "Continue"
+msgstr "Continuar"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Expiration Date"
+msgstr "Fecha de Caducidad de la Tarjeta de Crédito"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Number"
+msgstr "Número de Tarjeta de Crédito"
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Credit Card Verification Number"
+msgstr "Numero de Verificación de la Tarjeta de Crédito"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
@@ -1128,14 +186,28 @@ msgstr ""
 msgid "Device Type"
 msgstr ""
 
-# html/captive-portal/templates/status.html
-msgid "Extend Access"
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+msgid "E-mail"
 msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/login.html
+msgid "Email"
+msgstr "Correo Electrónico"
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 # html/captive-portal/templates/violations/time_expiration.html
 msgid "Expiration"
 msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Extend your access"
+msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/guest.html
+msgid "Firstname"
+msgstr "Nombre "
 
 # html/captive-portal/templates/gaming-registration.html
 msgid "Gaming Device Type"
@@ -1145,12 +217,97 @@ msgstr ""
 msgid "Gaming Landing"
 msgstr ""
 
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "Generate certificate"
+msgstr ""
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+msgid "Guest Registration"
+msgstr "Registro de Invitados"
+
+# html/captive-portal/templates/guest/sponsor_login.html
+msgid "Guest Sponsor Login"
+msgstr "Registro del patrocinador de invitado"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "I accept the terms"
+msgstr "Acepto los términos"
+
 # html/captive-portal/templates/guest/sms_confirmation.html
 msgid "I don't have a PIN"
 msgstr ""
 
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "I have read and accept the terms"
+msgstr "He leído y acepto <a href='/aup' target='_blank'>los términos</a>"
+
+# html/captive-portal/templates/footer.html
+msgid "IP"
+msgstr "Dirección IP"
+
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using an Android phone or tablet,"
+msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to have your access <strong>sponsored</strong>, we will send "
+"an email to the Sponsor email you provided with an activation link. The "
+"sponsor will need to click on that link and authenticate in order to approve"
+" you in."
+msgstr "Si elige tener su acceso <strong>promocionado</strong>, enviaremos un correo electrónico al correo electrónico que el patrocinador le ha proporcionado con un enlace de activación. El promotor tendrá que hacer clic en ese enlace y autenticarse con el fin de aprobarlo."
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by SMS</strong>, you will "
+"be able to enter it on the next page."
+msgstr "Si usted selecciona recibir su código de acceso <strong>por SMS</strong>, usted estará habilitado para entrar en la próxima página."
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will be given temporary network access for 10 minutes during that time:"
+msgstr "Si usted selecciona recibir su código de acceso <strong>por Correo Electrónico</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
+
+# html/captive-portal/templates/guest.html
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will have to click on an activation link sent to your email address. After "
+"clicking on the link you will receive guest credentials to use on-site by "
+"email"
+msgstr "Si eleige recibir su código de acceso <strong>por correo electrónico</strong> tendrá que hacer clic en el enlace enviado a su dirección de correo electrónico. Después de hacerlo recibirá las credenciales de invitado para usar el sitio por correo electrónico."
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan.html
+msgid ""
+"If you have scripting turned off, you will not be automatically redirected. "
+"Please enable scripting or open a new browser window from time to time to "
+"see if your access was enabled."
+msgstr "Si usted ha desactivado la ejecución de secuencia de comandos (scripts), usted no será automaticamente redireccionado. Por favor habilite la ejecución de secuencia de comandos (scripts), o abra una nueva ventana del navegador de vez en cuando para ver si su acceso fue habilitado."
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid ""
+"In order to complete the registration process, you need to generate your "
+"user certificate."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/windows.html
@@ -1159,13 +316,35 @@ msgid ""
 "run the agent available below."
 msgstr ""
 
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+msgid "Internet Access Package"
+msgstr "Paquete de Acceso a Internet"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/guest.html
+msgid "Lastname"
+msgstr "Apellido"
+
 # html/captive-portal/templates/activated.html
 msgid "Local account creation"
 msgstr ""
 
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Login"
+msgstr "Entrar"
+
 # html/captive-portal/templates/status.html
 msgid "Login to manage registered devices"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Login to the email account you referenced and;"
+msgstr "Entre en la cuenta de Correo Electrónico que ha referenciado;"
 
 # html/captive-portal/templates/device-login.html
 # html/captive-portal/templates/gaming-login.html
@@ -1193,8 +372,29 @@ msgid "Login with LinkedIn account"
 msgstr ""
 
 # html/captive-portal/templates/login.html
+msgid "Login with Twitter account"
+msgstr ""
+
+# html/captive-portal/templates/login.html
 msgid "Login with Windows Live account"
 msgstr ""
+
+# html/captive-portal/templates/guest/footer.html
+msgid "Logout"
+msgstr "Salir"
+
+# html/captive-portal/templates/footer.html
+# lib/pf/web.pm
+msgid "MAC"
+msgstr "MAC"
+
+# html/captive-portal/templates/status.html
+msgid "MAC Address"
+msgstr "Dirección MAC"
+
+# html/captive-portal/templates/guest/preregistration.html
+msgid "Network Access Requested"
+msgstr "Acceso a la red solicitado"
 
 # html/captive-portal/templates/pending.html
 # html/captive-portal/templates/release.html
@@ -1222,6 +422,65 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Open in new popup window"
+msgstr ""
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid "PIN"
+msgstr "PIN"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "PacketFence Certificate Enrollment System"
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/confirm_Mirapay.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+# html/captive-portal/templates/guest/preregistration.html
+# html/captive-portal/templates/guest/preregistration_confirmation.html
+# html/captive-portal/templates/guest/sponsor_accepted.html
+# html/captive-portal/templates/provisioner/accept.html
+# html/captive-portal/templates/provisioner/deny.html
+# html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/mobileiron.html
+# html/captive-portal/templates/provisioner/opswat.html
+# html/captive-portal/templates/provisioner/sepm.html
+# html/captive-portal/templates/provisioner/symantec.html
+# html/captive-portal/templates/register.html
+msgid "PacketFence Registration System"
+msgstr "Sistema de registro de PacketFence"
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+# html/captive-portal/templates/status.html
+msgid "Password"
+msgstr "Contraseña"
+
+# html/captive-portal/templates/login.html
+msgid "Pay for your access"
+msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Phone Provider"
+msgstr "Proveedor teléfono"
+
+# html/captive-portal/templates/guest/sms_confirmation.html
+msgid ""
+"Please enter the PIN code received on your mobile phone in order to gain "
+"access to the network."
+msgstr "Por favor introduzca el código PIN recibido en su teléfono móvil con el fin de tener acceso a la red."
+
+# html/captive-portal/templates/billing/billing.html
+msgid "Please wait. Processing payment..."
 msgstr ""
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
@@ -1266,10 +525,63 @@ msgstr ""
 msgid "Quarantine"
 msgstr ""
 
+# html/captive-portal/templates/redirect.html
+# html/captive-portal/templates/violations/bandwidth_limit.fr.html
+# html/captive-portal/templates/violations/bandwidth_limit.html
+# html/captive-portal/templates/violations/banned_devices.fr.html
+# html/captive-portal/templates/violations/banned_devices.html
+# html/captive-portal/templates/violations/banned_os.fr.html
+# html/captive-portal/templates/violations/banned_os.html
+# html/captive-portal/templates/violations/darknet.fr.html
+# html/captive-portal/templates/violations/darknet.html
+# html/captive-portal/templates/violations/failed_scan.es_ES.html
+# html/captive-portal/templates/violations/failed_scan.fr.html
+# html/captive-portal/templates/violations/failed_scan.html
+# html/captive-portal/templates/violations/generic.fr.html
+# html/captive-portal/templates/violations/generic.html
+# html/captive-portal/templates/violations/lsass.es_ES.html
+# html/captive-portal/templates/violations/lsass.fr.html
+# html/captive-portal/templates/violations/lsass.html
+# html/captive-portal/templates/violations/malware.es_ES.html
+# html/captive-portal/templates/violations/malware.fr.html
+# html/captive-portal/templates/violations/malware.html
+# html/captive-portal/templates/violations/nat.fr.html
+# html/captive-portal/templates/violations/nat.html
+# html/captive-portal/templates/violations/p2p.fr.html
+# html/captive-portal/templates/violations/p2p.html
+# html/captive-portal/templates/violations/roguedhcp.fr.html
+# html/captive-portal/templates/violations/roguedhcp.html
+# html/captive-portal/templates/violations/sample.fr.html
+# html/captive-portal/templates/violations/sample.html
+# html/captive-portal/templates/violations/scanning.fr.html
+# html/captive-portal/templates/violations/scanning.html
+# html/captive-portal/templates/violations/spam.fr.html
+# html/captive-portal/templates/violations/spam.html
+# html/captive-portal/templates/violations/system_scan.fr.html
+# html/captive-portal/templates/violations/system_scan.html
+# html/captive-portal/templates/violations/trojan.fr.html
+# html/captive-portal/templates/violations/trojan.html
+# html/captive-portal/templates/violations/zotob.fr.html
+# html/captive-portal/templates/violations/zotob.html
+msgid "Quarantine Established!"
+msgstr "¡Aislamiento Establecido!"
+
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
 msgid "Register"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Register by Email"
+msgstr "Registrar por Correo"
+
+# html/captive-portal/templates/guest.html
+msgid "Register by SMS"
+msgstr "Registrar por SMS"
+
+# html/captive-portal/templates/guest.html
+msgid "Register through a Sponsor"
+msgstr "Registro a través de promotor"
 
 # html/captive-portal/templates/device-registration.html
 # html/captive-portal/templates/gaming-registration.html
@@ -1280,6 +592,10 @@ msgstr ""
 msgid "Registration Date"
 msgstr ""
 
+# html/captive-portal/templates/pending.html
+msgid "Registration pending"
+msgstr "Registro pendiente"
+
 # html/captive-portal/templates/device-registration.html
 msgid "Select Console"
 msgstr ""
@@ -1287,6 +603,30 @@ msgstr ""
 # html/captive-portal/templates/gaming-registration.html
 msgid "Select Gaming Console"
 msgstr ""
+
+# html/captive-portal/templates/guest.html
+msgid "Select your provider"
+msgstr "Seleccione su Proveedor"
+
+# html/captive-portal/templates/login.html
+msgid "Sign up"
+msgstr "Registrarse"
+
+# html/captive-portal/templates/pending.html
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan-in-progress.html
+msgid ""
+"Some versions of Internet Explorer may take a while before redirection "
+"occur."
+msgstr "En algunas versiones de Internet Explorer pueden tardar un tiempo antes que la redirección ocurra."
+
+# html/captive-portal/templates/error.html
+msgid "Sorry"
+msgstr "¡Disculpe!"
+
+# html/captive-portal/templates/guest.html
+msgid "Sponsor's email"
+msgstr "Patrocinador correo electrónico"
 
 # html/captive-portal/templates/status.html
 msgid "State - Network Access"
@@ -1328,8 +668,38 @@ msgstr ""
 msgid "To the user : try clicking Continue to see if it fixes the problem"
 msgstr ""
 
+# html/captive-portal/templates/release.html
+# html/captive-portal/templates/scan-in-progress.html
+msgid ""
+"Unable to detect network connectivity. Try restarting your web browser or "
+"opening a new tab to see if your access has been succesfully enabled."
+msgstr "Incapaz de detectar actividad en la red. Intente abrir una página web para mirar si su acceso ha sido habilitado exitósamente."
+
 # html/captive-portal/templates/status.html
 msgid "Unregister"
+msgstr ""
+
+# html/captive-portal/templates/activated.html
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "Username"
+msgstr "Usuario"
+
+# html/captive-portal/templates/guest/footer.html
+msgid "You are logged in as"
+msgstr "Usted esta registrado como"
+
+# html/captive-portal/templates/pki_provider/packetfence_local.html
+# html/captive-portal/templates/pki_provider/packetfence_pki.html
+# html/captive-portal/templates/pki_provider/scep.html
+msgid "You can also modify the password below."
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "You device is registered to <strong>%s</strong>"
 msgstr ""
 
 # html/captive-portal/templates/status.html
@@ -1340,9 +710,30 @@ msgstr ""
 msgid "You should not seeing this page, something went wrong."
 msgstr ""
 
+# html/captive-portal/templates/guest.html
+msgid "You will be in a waiting area until approved."
+msgstr "Estará en un zona de espera hasta que sea aprobado."
+
+# html/captive-portal/templates/guest.html
+msgid "You will receive guest credentials by email once approved."
+msgstr "Recibirá las credenciales de invitado por correo electrónico una vez aprobadas."
+
+# html/captive-portal/templates/status.html
+msgid ""
+"You're not connected to the network, but have a timebank of <strong "
+"id='timeleft'>%s</strong>"
+msgstr ""
+
 # html/captive-portal/templates/status.html
 msgid "Your Network Access Status"
 msgstr ""
+
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+msgid ""
+"Your XML configuration have been generated and is now ready to download.  "
+"Follow the link below in order to get access to the secure SSID."
+msgstr "Su configuración XML se ha generado y ahora está lista para descargar. Siga el enlace de abajo para conseguir el acceso SSID seguro."
 
 # html/captive-portal/templates/status.html
 msgid "Your current device is not registered on our network."
@@ -1360,6 +751,130 @@ msgstr ""
 msgid "Your network access is <strong>paused</strong>"
 msgstr ""
 
+# html/captive-portal/templates/release.html
+msgid ""
+"Your network access is currently being enabled. Once network connectivity is"
+" established you will be automatically redirected."
+msgstr "Su acceso a la red actualmente está siendo habilitado. Una vez la conectividad de la red esté establecida usted será automaticamente redireccionado."
+
+# html/captive-portal/templates/release.html
+msgid "Your network access is currently being enabled. Please wait..."
+msgstr "Su acceso a la red está siendo activado. Por favor espere..."
+
+# html/captive-portal/templates/release.html
+msgid ""
+"Your network access should be available. Close your current browser, and "
+"open a new one to start browsing."
+msgstr "Su acceso a la red debe estar disponible. Cierre su navegador y abra de nuevo para comenzar a navegar."
+
 # html/captive-portal/templates/status.html
 msgid "Your registered devices"
+msgstr ""
+
+# html/captive-portal/templates/pending.html
+msgid ""
+"Your registration is pending approval. Once approved you will be "
+"automatically redirected."
+msgstr "Su registro esta pendiente de aprobación. Una vez sea aprobado usted será automaticamente redireccionado."
+
+# pf::web::constants (Locales)
+msgid "de_DE"
+msgstr "Deutsch"
+
+# pf::web::constants (Locales)
+msgid "en_US"
+msgstr "English"
+
+# lib/pf/web/release.pm
+msgid "error: max re-enables reached"
+msgstr "Máximo de reactivaciones alcanzado!"
+
+# lib/pf/web/release.pm
+msgid "error: not found in the database"
+msgstr "Su ordenador no fue encontrado en la base de datos de PacketFence. Por favor reinicie para solucionar este problema."
+
+# pf::web::constants (Locales)
+msgid "es_ES"
+msgstr "Español"
+
+# pf::web::constants (Locales)
+msgid "fr_CA"
+msgstr ""
+
+# pf::web::constants (Locales)
+msgid "fr_FR"
+msgstr "Français"
+
+# html/captive-portal/templates/billing/billing.html
+# html/captive-portal/templates/billing/index.html
+# html/captive-portal/templates/guest.html
+msgid "guest network disclaimer"
+msgstr "Esta red de invitados es provista exclusivamente para la conveniencia de Invitados y Visitantes. El acceso no implica ninguna garantía de confiabilidad, velocidad o privacidad; esta red está provista para el propósito expreso de facilitar la comunicación a Internet. El uso implica estar de acuerdo con los términos y condiciones de la <b>Política de Uso Aceptable.</b>"
+
+# pf::web::constants (Locales)
+msgid "he_IL"
+msgstr ""
+
+# html/captive-portal/templates/footer.html
+msgid "help: provide info"
+msgstr "Si tiene alguna pregunta sobre esta página, contacte con su técnico local. Por favor indique la siguiente información: "
+
+# pf::web::constants (Locales)
+msgid "it_IT"
+msgstr "Italiano"
+
+# pf::web::constants (Locales)
+msgid "nl_NL"
+msgstr "Dutch"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+# html/captive-portal/templates/status.html
+msgid "or"
+msgstr "o"
+
+# pf::web::constants (Locales)
+msgid "pl_PL"
+msgstr "Polski"
+
+# pf::web::constants (Locales)
+msgid "pt_BR"
+msgstr "Português"
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+msgid "register: all systems must be registered"
+msgstr "Cada usuario en esta red es considerado como un sistema individual, por ésta razón todos los sistemas deben estar registrados."
+
+# html/captive-portal/templates/device-login.html
+# html/captive-portal/templates/gaming-login.html
+# html/captive-portal/templates/login.html
+msgid "register: to complete"
+msgstr "Para completar el proceso de registro, es necesario que se autentique con un usuario y una contraseña"
+
+# html/captive-portal/templates/enabler.html
+# html/captive-portal/templates/provisioner/android.html
+# html/captive-portal/templates/provisioner/mobileconfig.html
+# html/captive-portal/templates/provisioner/windows.html
+# html/captive-portal/templates/release.html
+msgid "release: enabling network"
+msgstr "Habilitando acceso a la red"
+
+# lib/pf/web/release.pm
+msgid "release: reopen browser"
+msgstr "Debe abrir de nuevo su navegador web para obtener acceso a Internet. Si usted esta conectando con un teléfono, usted necesita reiniciciar su computador para obtener acceso Internet."
+
+# html/captive-portal/templates/scan-in-progress.html
+# html/captive-portal/templates/scan.html
+msgid "scan: scan in progress"
+msgstr "Su sistema está siendo analizado"
+
+# lib/pf/web.pm
+msgid "system scan in progress"
+msgstr "Su sistema está siendo analizado - este proceso tardará aproximadamente %s segundos."
+
+# html/captive-portal/templates/remediation.html
+msgid "violation: quarantine established"
 msgstr ""
