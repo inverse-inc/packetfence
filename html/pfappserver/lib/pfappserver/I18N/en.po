@@ -134,6 +134,10 @@ msgstr ""
 msgid "API URL of logged user"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
+msgid "API key to interact with upstream Fingerbank project"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "API password (basic auth)"
 msgstr ""
@@ -1631,6 +1635,10 @@ msgstr ""
 msgid "Delete WRIX Entry"
 msgstr ""
 
+# html/pfappserver/root/config/switch/index.tt
+msgid "Delete [_1]"
+msgstr ""
+
 # html/pfappserver/root/config/billingtiers/index.tt
 msgid "Delete billing tier"
 msgstr ""
@@ -2882,6 +2890,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -2920,6 +2929,10 @@ msgstr ""
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Members"
+msgstr ""
+
+# html/pfappserver/root/config/switch/view.tt
+msgid "Members can be added after the switch group is saved"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -4196,10 +4209,6 @@ msgstr ""
 msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one."
 msgstr ""
 
-# html/pfappserver/root/config/switch/index.tt
-msgid "Really delete this ' _ model_name _ ' ?"
-msgstr ""
-
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 msgid "Really delete this Combination?"
 msgstr ""
@@ -4247,6 +4256,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Really delete this User Agent?"
+msgstr ""
+
+# html/pfappserver/root/config/switch/index.tt
+msgid "Really delete this [_1] ?"
 msgstr ""
 
 # html/pfappserver/root/config/adminroles/index.tt
@@ -5110,6 +5123,14 @@ msgstr "Should statsd be managed by PacketFence?"
 msgid "Should suricata be managed by PacketFence?"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate)
+msgid "Should the local instance of Fingerbank interrogate the upstream Fingerbank project when unable to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched)
+msgid "Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution"
+msgstr ""
+
 # conf/documentation.conf (inline.accounting)
 msgid "Should we handle accouting data for inline clients? This controls inline accouting tasks in pfmon."
 msgstr ""
@@ -5509,7 +5530,11 @@ msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_host)
-msgid "The hostname of the the database storing the Graphite dashboard settings."
+msgid "The hostname of the the database storing the Graphite dashboard settings.Will default to database.host if none is provided."
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_pass)
+msgid "The hostname of the the database storing the Graphite dashboard settings.Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
@@ -5576,7 +5601,11 @@ msgid "The port must be configured as a muti-vlan port"
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_port)
-msgid "The port to connect to the database storing the Graphite dashboard settings."
+msgid "The port to connect to the database storing the Graphite dashboard settings.Will default to database.port if none is provided."
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_user)
+msgid "The port to connect to the database storing the Graphite dashboard settings.Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
@@ -5795,6 +5824,18 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
+msgid "URL to fetch the upstream Fingerbank project database"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate_url)
+msgid "URL to interrogate the upstream Fingerbank project to fullfil a match"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
+msgid "URL to submit unmatched parameter to upstream Fingerbank project"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -6421,10 +6462,6 @@ msgstr ""
 msgid "Wrong username or password."
 msgstr ""
 
-# html/pfappserver/root/config/switch/view.tt
-msgid "X"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "You can add options in the realm definition"
 msgstr ""
@@ -6597,6 +6634,7 @@ msgstr "Subject prefix"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "all"
 msgstr ""
 
@@ -6628,6 +6666,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/radiuslog/index.tt
 msgid "any"
 msgstr ""
 
@@ -6933,6 +6972,8 @@ msgstr "DHCP Fingerprint"
 msgid "dhcplistener"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
@@ -7033,6 +7074,8 @@ msgstr ""
 msgid "email_user_action"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
@@ -7598,7 +7641,15 @@ msgid "monitoring.db_host"
 msgstr ""
 
 # conf/documentation.conf
+msgid "monitoring.db_pass"
+msgstr ""
+
+# conf/documentation.conf
 msgid "monitoring.db_port"
+msgstr ""
+
+# conf/documentation.conf
+msgid "monitoring.db_user"
 msgstr ""
 
 # conf/documentation.conf
@@ -7922,6 +7973,14 @@ msgstr "SSID"
 # conf/documentation.conf
 msgid "proxies"
 msgstr "Proxies"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.record_unmatched"
+msgstr ""
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
@@ -8572,6 +8631,30 @@ msgstr "Deregister node"
 
 # pf::config (SoH Status)
 msgid "up2date"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.api_key"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.db_url"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.interrogate_url"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.submit_url"
 msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
