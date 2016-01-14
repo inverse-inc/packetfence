@@ -606,6 +606,7 @@ sub showLogin : Private {
         oauth2_linkedin => is_in_list( $SELFREG_MODE_LINKEDIN, $guestModes ),
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
+        blackhole       => is_in_list( $SELFREG_MODE_BLACKHOLE, $guestModes ),
         billing         => $c->profile->hasBilling(),
         guest_allowed   => $guest_allowed,
     );
