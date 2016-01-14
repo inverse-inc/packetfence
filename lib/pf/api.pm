@@ -1154,13 +1154,19 @@ sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
     my $logger = pf::log::get_logger;
 
     my $products = $args->{detected_products};
+    $args->{system_methods} = { map { $_->{result}->{method} => $_ } @{$args->{system_methods}} };
+
     my $filter = pf::access_filter::mdm->new;
-    use Data::Dumper;
     my @flags;
     foreach my $product (@$products){
         $logger->debug("Evaluating product : ",$product);
+        my %outputs = map { $_->{result}->{method} => $_ } @{$product->{method_outputs}};
+        $product->{method_outputs} = \%outputs;
         push @flags, $filter->filter('OpswatProduct', $product);
     }
+
+    push @flags, $filter->filter("OpswatGlobal", $args);
+
     push @flags, $filter->filter('OpswatReport', { flags => \@flags });
     $logger->info("Flags found via MDM engine : ".join(', ',@flags));
     return {

@@ -26,7 +26,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Test::Exception;
 
 #This test will running last
@@ -92,6 +92,32 @@ my $payload = {
             ],
         },
     ],
+    "system_methods" => [
+    {
+        "result" => {
+            "name" => "Microsoft Windows 10 Enterprise",
+            "architecture" => "64-bit",
+            "service_pack" => "0.0",
+            "os_type" => 1,
+            "details" => {
+                "computer_type" => "desktop",
+                "os_language" => "English (United States)"
+            },
+            "os_id" => 61,
+            "version" => "10.0.10240",
+            "method" => 1
+        }
+    },
+    {
+        "result" => {
+            "is_current" => 1,
+            "details" => {
+                "count_behind" => 4
+            },
+            "method" => 50550
+        }
+    }
+    ],
 };
 
 $result = pf::api->mdm_opswat_report($payload);
@@ -126,6 +152,32 @@ $payload = {
                 },
             ],
         },
+    ],
+    "system_methods" => [
+    {
+        "result" => {
+            "name" => "Microsoft Windows 10 Enterprise",
+            "architecture" => "64-bit",
+            "service_pack" => "0.0",
+            "os_type" => 1,
+            "details" => {
+                "computer_type" => "desktop",
+                "os_language" => "English (United States)"
+            },
+            "os_id" => 61,
+            "version" => "10.0.10240",
+            "method" => 1
+        }
+    },
+    {
+        "result" => {
+            "is_current" => 1,
+            "details" => {
+                "count_behind" => 4
+            },
+            "method" => 50550
+        }
+    }
     ],
 };
 
@@ -170,6 +222,32 @@ $payload = {
             ],
         },
     ],
+    "system_methods" => [
+    {
+        "result" => {
+            "name" => "Microsoft Windows 10 Enterprise",
+            "architecture" => "64-bit",
+            "service_pack" => "0.0",
+            "os_type" => 1,
+            "details" => {
+                "computer_type" => "desktop",
+                "os_language" => "English (United States)"
+            },
+            "os_id" => 61,
+            "version" => "10.0.10240",
+            "method" => 1
+        }
+    },
+    {
+        "result" => {
+            "is_current" => 1,
+            "details" => {
+                "count_behind" => 4
+            },
+            "method" => 50550
+        }
+    }
+    ],
 };
 
 
@@ -177,6 +255,144 @@ $result = pf::api->mdm_opswat_report($payload);
 
 is_deeply($result, {compliant => 1},
     "Complex payload with valid information is compliant");
+
+$payload = {
+    "agent_version" => "0.7.14.1",
+    "device_name" => "TTRUONG-WSE",
+    detected_products => [
+        {
+            categories => [5],
+            vendor => {
+                name => "ESET",
+            },
+            product => {
+                name => "ESET Endpoint Security",
+            },
+            method_outputs => [
+                {
+                    result => {
+                        definitions => [
+                            last_update => "2016-06-25T01:17:24Z",
+                            version => "11977 (20150722)",
+                            type => "antimalware",
+                            name => "ESET Engine",
+                            engine_version => "1462 (20150625)",
+                            source_time => "1437498000",
+                        ],
+                        method => 1001,
+                        is_recent => 1,
+                    },
+                },
+                {
+                    result => {
+                        method => 1000,
+                        enabled => 1,
+                    },
+                },
+            ],
+        },
+    ],
+    "system_methods" => [
+    {
+        "result" => {
+            "name" => "Microsoft Windows 10 Enterprise",
+            "architecture" => "64-bit",
+            "service_pack" => "0.0",
+            "os_type" => 1,
+            "details" => {
+                "computer_type" => "desktop",
+                "os_language" => "English (United States)"
+            },
+            "os_id" => 61,
+            "version" => "10.0.10240",
+            "method" => 1
+        }
+    },
+    {
+        "result" => {
+            "is_current" => 1,
+            "details" => {
+                "count_behind" => 4
+            },
+            "method" => 50550
+        }
+    }
+    ],
+};
+
+$result = pf::api->mdm_opswat_report($payload);
+
+is_deeply($result, {compliant => 1},
+    "Up2date OS is compliant");
+
+$payload = {
+    "agent_version" => "0.7.14.1",
+    "device_name" => "TTRUONG-WSE",
+    detected_products => [
+        {
+            categories => [5],
+            vendor => {
+                name => "ESET",
+            },
+            product => {
+                name => "ESET Endpoint Security",
+            },
+            method_outputs => [
+                {
+                    result => {
+                        definitions => [
+                            last_update => "2016-06-25T01:17:24Z",
+                            version => "11977 (20150722)",
+                            type => "antimalware",
+                            name => "ESET Engine",
+                            engine_version => "1462 (20150625)",
+                            source_time => "1437498000",
+                        ],
+                        method => 1001,
+                        is_recent => 1,
+                    },
+                },
+                {
+                    result => {
+                        method => 1000,
+                        enabled => 1,
+                    },
+                },
+            ],
+        },
+    ],
+    "system_methods" => [
+    {
+        "result" => {
+            "name" => "Microsoft Windows 10 Enterprise",
+            "architecture" => "64-bit",
+            "service_pack" => "0.0",
+            "os_type" => 1,
+            "details" => {
+                "computer_type" => "desktop",
+                "os_language" => "English (United States)"
+            },
+            "os_id" => 61,
+            "version" => "10.0.10240",
+            "method" => 1
+        }
+    },
+    {
+        "result" => {
+            "is_current" => 0,
+            "details" => {
+                "count_behind" => 4
+            },
+            "method" => 50550
+        }
+    }
+    ],
+};
+
+$result = pf::api->mdm_opswat_report($payload);
+
+is_deeply($result, {compliant => 0},
+    "Not Up2date OS is not compliant");
 
 =head1 AUTHOR
 
