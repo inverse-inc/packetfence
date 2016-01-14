@@ -14,6 +14,7 @@ pf::services::manager::httpd
 use strict;
 use warnings;
 use pf::config;
+use pf::file_paths;
 use Moo;
 use POSIX;
 use pf::util;
@@ -26,7 +27,7 @@ extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1 );
 
-has config_file_path => (builder => 1, lazy => 1);
+has config_file_path => (is => 'rw', builder => 1, lazy => 1);
 
 sub executable {
     my ($self) = @_;
@@ -36,7 +37,6 @@ sub executable {
 
 sub _build_launcher {
     my ($self) = @_;
-    my $name = $self->name;
     my $config_file = $self->config_file_path;
     return "%1\$s -f $config_file -D$OS";
 }
