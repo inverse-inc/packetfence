@@ -156,7 +156,9 @@ sub _build_clause {
     my $op = $query->{op};
     my $value = $query->{value};
     my $name = $query->{name};
-    return unless defined $op && defined $value && defined $name;
+    return unless defined $op && defined $name;
+    return unless defined $value || $op eq 'equal' || $op eq 'not_equal';
+    $value //= '';
     die "$op is not a supported search operation"
         unless exists $OP_MAP{$op};
     my $sql_op = $OP_MAP{$op};
