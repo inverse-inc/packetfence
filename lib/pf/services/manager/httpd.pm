@@ -26,6 +26,8 @@ extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1 );
 
+has config_file_path => (builder => 1, lazy => 1);
+
 sub executable {
     my ($self) = @_;
     my $service = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/httpd" );
@@ -35,7 +37,13 @@ sub executable {
 sub _build_launcher {
     my ($self) = @_;
     my $name = $self->name;
-    return "%1\$s -f $conf_dir/httpd.conf.d/$name -D$OS"
+    my $config_file = $self->config_file_path;
+    return "%1\$s -f $config_file -D$OS";
+}
+
+sub _build_config_file_path {
+    my ($self) = @_;
+    return "$conf_dir/httpd.conf.d/" . $self->name;
 }
 
 =head2 generateConfig
