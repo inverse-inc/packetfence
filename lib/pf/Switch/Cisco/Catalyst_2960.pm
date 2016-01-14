@@ -505,8 +505,10 @@ sub returnRadiusAccessAccept {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
             my $access_list = $self->getAccessListByName($args->{'user_role'});
             if ($access_list) {
+                my $acl_num;
                 while($access_list =~ /([^\n]+)\n?/g){
-                    push(@av_pairs, $self->returnAccessListAttribute."=".$1);
+                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                    $acl_num ++;
                     $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
                 }
                 $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
@@ -531,8 +533,8 @@ Returns the attribute to use when pushing an ACL using RADIUS
 =cut
 
 sub returnAccessListAttribute {
-    my ($self) = @_;
-    return "ip:inacl#101";
+    my ($self, $acl_num) = @_;
+    return "ip:inacl#$acl_num";
 }
 
 sub disableMABByIfIndex {
