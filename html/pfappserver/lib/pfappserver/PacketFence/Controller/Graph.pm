@@ -296,7 +296,7 @@ sub _buildGraphiteURL :Private {
 
     my $options =
       {
-       graphite_host => $management_ip,
+       graphite_host => $Config{'general'}{'hostname'} . '.' .  $Config{'general'}{'domain'},
        graphite_port => '9000'
       };
 
