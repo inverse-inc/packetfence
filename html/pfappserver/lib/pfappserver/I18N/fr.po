@@ -689,7 +689,7 @@ msgid "Bandwidth per Operating System Class"
 msgstr "Bande passante par classe de Système d´exploitation"
 
 # html/pfappserver/root/admin/reports.tt
-msgid "Bandwith per Operating System"
+msgid "Bandwidth per Operating System"
 msgstr "Bande passante par système d'exploitation"
 
 # pf::firewallsso (Firewall SSO)
@@ -6206,7 +6206,7 @@ msgid "Today"
 msgstr "Aujourd'hui"
 
 # html/pfappserver/root/admin/reports.tt
-msgid "Top 25 Bandwith Consumers"
+msgid "Top 25 Bandwidth Consumers"
 msgstr "Top 25 des consommateurs de bande passante"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm

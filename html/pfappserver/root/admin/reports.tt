@@ -40,8 +40,8 @@
               [% list_entry('graph/connectiontype', 'Types') | none %]
               [% list_entry('graph/ssid','SSIDs') | none %]
               <li class="nav-header">[% l('Accounting') %]</li>
-              [% list_entry('graph/nodebandwidth', 'Top 25 Bandwith Consumers') | none %]
-              [% list_entry('graph/osclassbandwidth', 'Bandwith per Operating System') | none %]
+              [% list_entry('graph/nodebandwidth', 'Top 25 Bandwidth Consumers') | none %]
+              [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
               <li class="nav-header">[% l('RADIUS') %]</li>
               [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
             </ul>
