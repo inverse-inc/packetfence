@@ -3802,7 +3802,7 @@ msgid "PFQueue"
 msgstr ""
 
 # html/pfappserver/root/pfqueue/index.tt
-msgid "PFqueue"
+msgid "Queue"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm

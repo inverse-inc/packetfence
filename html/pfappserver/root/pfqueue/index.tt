@@ -1,4 +1,4 @@
-<h2>[% l('PFqueue') %]</h2>
+<h2>[% l('Queue') %]</h2>
 <div>
   <table class="table table-condensed table-striped">
     <thead>
