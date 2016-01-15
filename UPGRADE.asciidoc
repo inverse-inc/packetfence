@@ -91,6 +91,13 @@ Make sure you run the following to update your schema:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.6.0).
 
+Default type for the switches
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default type for the switches now needs to be set explicitly. Add the following line in the default section of `/usr/local/pf/conf/switches.conf`
+
+`type=Generic`
+
 
 Upgrading from a version prior to 5.5.0
 ---------------------------------------
