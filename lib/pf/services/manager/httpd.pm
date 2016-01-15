@@ -40,15 +40,26 @@ has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
 sub createVars {
     my ($self) = @_;
     my %vars = (
-        ports => $Config{ports},
+        ports => $Config{'ports'},
+        port => $self->port,
         vhost => $self->vhost,
+        vhosts => $self->vhosts,
         install_dir => $install_dir,
         var_dir => $var_dir,
         server_admin => $self->serverAdmin,
         server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
         name => $self->name,
+        $self->additionalVars,
     );
     return \%vars;
+}
+
+sub port { undef }
+
+sub vhosts { [] }
+
+sub additionalVars {
+
 }
 
 sub executable {
