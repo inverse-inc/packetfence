@@ -13,21 +13,43 @@ pf::services::manager::httpd
 
 use strict;
 use warnings;
-use pf::config;
-use pf::file_paths;
 use Moo;
 use POSIX;
+
+use pf::config;
+use pf::file_paths;
 use pf::util;
 use pf::config::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
-use pf::authentication;
 use pf::log;
+use pf::authentication;
+use pf::config;
+use pf::cluster;
+use pf::file_paths;
+use Template;
+
 extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1 );
 
-has config_file_path => (is => 'rw', builder => 1, lazy => 1);
+has configFilePath => (is => 'rw', builder => 1, lazy => 1);
+
+has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
+
+sub createVars {
+    my ($self) = @_;
+    my %vars = (
+        ports => $Config{ports},
+        vhost => $self->vhost,
+        install_dir => $install_dir,
+        var_dir => $var_dir,
+        server_admin => $self->serverAdmin,
+        server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
+        name => $self->name,
+    );
+    return \%vars;
+}
 
 sub executable {
     my ($self) = @_;
@@ -37,24 +59,35 @@ sub executable {
 
 sub _build_launcher {
     my ($self) = @_;
-    my $config_file = $self->config_file_path;
+    my $config_file = $self->configFilePath;
     return "%1\$s -f $config_file -D$OS";
 }
 
-sub _build_config_file_path {
+sub _build_configFilePath {
     my ($self) = @_;
-    return "$conf_dir/httpd.conf.d/" . $self->name;
+    return "$var_dir/conf/httpd.conf.d/" . $self->name;
+}
+
+sub _build_configTemplateFilePath {
+    my ($self) = @_;
+    return "$conf_dir/httpd.conf.d/" . $self->name . ".tt";
 }
 
 =head2 generateConfig
-
-TODO: documention
 
 =cut
 
 our $WAS_GENERATED;
 
 sub generateConfig {
+    my ($self) = @_;
+    my $vars = $self->createVars();
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
+    $self->generateCommonConfig();
+}
+
+sub generateCommonConfig {
     my ($self) = @_;
     return 1 if $WAS_GENERATED;
     $WAS_GENERATED = 1;
@@ -208,6 +241,35 @@ sub _generate_aliases {
     return $aliases;
 }
 
+sub serverAdmin {
+    my ($self) = @_;
+    my $server_admin;
+    if (defined($Config{'alerting'}{'fromaddr'}) && $Config{'alerting'}{'fromaddr'} ne '') {
+        $server_admin = $Config{'alerting'}{'fromaddr'};
+    }
+    else {
+        $server_admin = "root\@" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    }
+    return $server_admin;
+}
+
+sub vhost {
+    my ($self) = @_;
+    my $vhost;
+    if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+            $vhost = $management_network->{'Tvip'};
+        } elsif ( $cluster_enabled ){
+            $vhost = $ConfigCluster{'CLUSTER'}{'management_ip'};
+        } else {
+            $vhost = $management_network->{'Tip'};
+       }
+    } else {
+        $vhost = "0.0.0.0";
+    }
+    return $vhost;
+}
+
 
 =head1 AUTHOR
 
@@ -238,4 +300,3 @@ USA.
 =cut
 
 1;
-
