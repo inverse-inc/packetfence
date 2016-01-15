@@ -137,7 +137,7 @@ sub node_db_prepare {
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?,
             last_arp=?, last_dhcp=?,
-            notes=?, autoreg=?, sessionid=?, machine_account=?
+            notes=?, autoreg=?, sessionid=?, machine_account=?, device_id=?
         WHERE mac=?
     ]
     );
@@ -908,6 +908,7 @@ sub node_modify {
         $existing->{last_arp},          $existing->{last_dhcp},
         $existing->{notes},             $existing->{autoreg},
         $existing->{sessionid},         $existing->{machine_account},
+        $existing->{device_id},
         $mac
     );
     if($sth) {

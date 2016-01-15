@@ -1133,6 +1133,39 @@ sub rest_ping :Public :RestPath(/rest/ping){
     return "pong - ".$args->{message};
 }
 
+sub register :Public {
+    my ($class, $args) = @_;
+    my $provisioner;
+    my @macs = map { $_->{mac} } @{$args->{network_adapter_info}};
+
+    foreach my $mac (@macs){
+        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+        if($provisioner = $profile->findProvisioner($mac) && $provisioner->type == "opswat"){
+            last;
+        }
+    }
+
+    if($provisioner){
+        use Digest::MD5 qw(md5);
+        my $device_id = md5(join(',', @macs));
+        my $config = $pf::config::ConfigProvisioning{$provisioner->id};
+        foreach my $mac (@macs){
+            pf::node::node_modify($mac, {device_id => $device_id});
+        }
+        return {
+            update_url => $config->{agent_update_url},
+            licensing_host => $config->{licensing_host},
+            reporting_host => $config->{reporting_host},
+            ping_url => "/mdm/opswat/ping",
+            reporting_url => "/mdm/opswat/report",
+            device_id => $device_id,
+        }
+    }
+    else {
+        die "Can't find OPSWAT configuration";
+    }
+}
+
 sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
     my ($class, $args) = @_;
     my $backend = pfconfig::config->new->get_backend();
