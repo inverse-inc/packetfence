@@ -505,7 +505,7 @@ sub returnRadiusAccessAccept {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
             my $access_list = $self->getAccessListByName($args->{'user_role'});
             if ($access_list) {
-                my $acl_num;
+                my $acl_num = 101;
                 while($access_list =~ /([^\n]+)\n?/g){
                     push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
                     $acl_num ++;
