@@ -42,8 +42,8 @@
               <li class="nav-header">[% l('Accounting') %]</li>
               [% list_entry('graph/nodebandwidth', 'Top 25 Bandwith Consumers') | none %]
               [% list_entry('graph/osclassbandwidth', 'Bandwith per Operating System') | none %]
-              <li class="nav-header">[% l('Radius') %]</li>
-              [% list_entry('radiuslog', 'Radius Audit Log') | none %]
+              <li class="nav-header">[% l('RADIUS') %]</li>
+              [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

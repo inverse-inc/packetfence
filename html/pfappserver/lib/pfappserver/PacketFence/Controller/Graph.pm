@@ -383,25 +383,25 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 2
                },
                {
-                'description' => 'Radius Total Access-Requests/s',
+                'description' => 'RADIUS Total Access-Requests/s',
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
                 'columns' => 1
                },
                {
-                'description' => 'Radius Access-Requests/s per server',
+                'description' => 'RADIUS Access-Requests/s per server',
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'Radius Access-Accepts/s per server',
+                'description' => 'RADIUS Access-Accepts/s per server',
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Radius Access-Rejects/s per server',
+                'description' => 'RADIUS Access-Rejects/s per server',
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
                 'columns' => 2
@@ -445,7 +445,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Radius Average Access-Request Latency',
+                'description' => 'RADIUS Average Access-Request Latency',
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
@@ -457,13 +457,13 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Radius Accounting requests received/s',
+                'description' => 'RADIUS Accounting requests received/s',
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'Radius Accounting Latency',
+                'description' => 'RADIUS Accounting Latency',
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1

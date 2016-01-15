@@ -4194,11 +4194,11 @@ msgstr "Reports"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
-msgid "Radius"
+msgid "RADIUS"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
-msgid "Radius Audit Log"
+msgid "RADIUS Audit Log"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
@@ -7184,7 +7184,7 @@ msgstr "Node"
 
 # conf/documentation.conf
 msgid "expire.radius_audit_log"
-msgstr "Radius Audit Log"
+msgstr "RADIUS Audit Log"
 
 # conf/documentation.conf
 msgid "expire.traplog"
@@ -7531,15 +7531,15 @@ msgstr "Provisioning Compliance Poll Interval"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_batch"
-msgstr "Radius Audit Log Cleanup Batch"
+msgstr "RADIUS Audit Log Cleanup Batch"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_interval"
-msgstr "Radius Audit Log Cleanup Interval"
+msgstr "RADIUS Audit Log Cleanup Interval"
 
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_timeout"
-msgstr "Radius Audit Log Cleanup Timeout"
+msgstr "RADIUS Audit Log Cleanup Timeout"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
@@ -7984,15 +7984,15 @@ msgstr "Record Unmatched Parameters"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
-msgstr "Radius Reply"
+msgstr "RADIUS Reply"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_request"
-msgstr "Radius Request"
+msgstr "RADIUS Request"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_source_ip_address"
-msgstr "Radius Source IP Address"
+msgstr "RADIUS Source IP Address"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "realm"

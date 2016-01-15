@@ -4493,11 +4493,11 @@ msgstr "Rapports"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
-msgid "Radius"
-msgstr "Radius"
+msgid "RADIUS"
+msgstr "RADIUS"
 
 # html/pfappserver/root/admin/reports.tt
-msgid "Radius Audit Log"
+msgid "RADIUS Audit Log"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
