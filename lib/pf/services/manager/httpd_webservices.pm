@@ -1,7 +1,7 @@
 package pf::services::manager::httpd_webservices;
 =head1 NAME
 
-pf::services::manager::httpd_webservices add documentation
+pf::services::manager::httpd_webservices
 
 =cut
 
@@ -15,9 +15,38 @@ use strict;
 use warnings;
 use Moo;
 
+use pf::config;
+use pf::cluster;
+
 extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.webservices' } );
+
+sub vhosts {
+    my ($self) = @_;
+    my @vhosts;
+    if ($management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        push @vhosts, $management_network->{'Tip'};
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+            push @vhosts, $management_network->{'Tvip'};
+        }
+        push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'} if ($cluster_enabled);
+    }
+    return \@vhosts;
+}
+
+sub port {
+    return $Config{ports}{soap};
+}
+
+sub additionalVars {
+    my ($self) = @_;
+    my %vars = (
+        vhosts => $self->vhosts,
+    );
+
+    return %vars;
+}
 
 =head1 AUTHOR
 
@@ -48,4 +77,3 @@ USA.
 =cut
 
 1;
-
