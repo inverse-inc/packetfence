@@ -25,13 +25,19 @@ use Bytes::Random::Secure qw( random_bytes_base64 );
 extends 'pf::services::manager::httpd';
 
 has '+name' => ( default => sub {'httpd.graphite'} );
+
 has '+optional' => ( default => sub {1} );
+
 my $SECRET_FILE = $conf_dir . '/monitoring/graphite_secret';
 
 sub generateConfig {
+    my ($self) = @_;
+    $self->SUPER::generateConfig();
     generate_local_settings();
     generate_dashboard_settings();
 }
+
+sub port { 9000 }
 
 sub generate_local_settings {
     my %tags;
@@ -70,7 +76,6 @@ sub get_cluster_destinations {
       : undef;
 }
 
-
 sub generate_secret {
     my $logger = get_logger();
     use File::Slurp;
@@ -91,6 +96,7 @@ sub generate_secret {
 
     return $secret;
 }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -120,4 +126,3 @@ USA.
 =cut
 
 1;
-
