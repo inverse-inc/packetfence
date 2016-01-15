@@ -1,4 +1,5 @@
 package pf::services::manager::httpd_aaa;
+
 =head1 NAME
 
 pf::services::manager::httpd_aaa
@@ -14,11 +15,15 @@ pf::services::manager::httpd_aaa
 use strict;
 use warnings;
 use Moo;
+use pf::config;
 
-extends 'pf::services::manager::httpd';
+extends 'pf::services::manager::httpd_webservices';
 
 has '+name' => (default => sub { 'httpd.aaa' } );
 
+sub port {
+    return $Config{ports}{aaa};
+}
 
 =head1 AUTHOR
 
@@ -49,4 +54,3 @@ USA.
 =cut
 
 1;
-
