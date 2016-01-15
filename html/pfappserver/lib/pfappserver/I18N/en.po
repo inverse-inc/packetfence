@@ -180,7 +180,7 @@ msgid "Access to the administration interface"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
-msgid "Accounting"
+msgid "ACCOUNTING"
 msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_session_timeout)
@@ -3523,9 +3523,6 @@ msgid "PFDETECT_UPDATE"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
-msgid "PFQueue"
-msgstr ""
-
 # html/pfappserver/root/pfqueue/index.tt
 msgid "Queue"
 msgstr ""
