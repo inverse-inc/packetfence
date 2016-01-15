@@ -26,6 +26,22 @@ sub isManaged {
     return  isenabled($Config{'trapping'}{'interception_proxy'}) && $self->SUPER::isManaged();
 }
 
+sub additionalVars {
+    my ($self) = @_;
+    my %vars = (
+        proxy_ports => [split(/ *, */,$Config{'trapping'}{'interception_proxy_port'})],
+    );
+    return %vars;
+}
+
+sub port { 444 }
+
+sub vhosts {
+    return [map {
+        (defined $_->{Tvip} && $_->{Tvip} ne '') ?  $_->{Tvip} : $_->{Tip}
+    } @internal_nets];
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -55,4 +71,3 @@ USA.
 =cut
 
 1;
-
