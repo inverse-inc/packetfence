@@ -133,7 +133,7 @@ $(document).ready(function() {
         </div>
         <div>
           [%- IF node.status == 'reg' %]
-          <div>[% i18n_format("You device is registered to <strong>%s</strong>", node.pid) %]</div>
+          <div>[% i18n_format("Your device is registered to <strong>%s</strong>", node.pid) %]</div>
           [%- ELSE %]
           <div>[% i18n("Your current device is not registered on our network.") %]</div>
           [%- END %]
