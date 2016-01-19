@@ -11,7 +11,7 @@
     <option value="violation_status">[% l('Violation Status') %]</option>
     <option value="user_agent">[% l('User agent') %]</option>
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
-    <option value="switch_ip">[% l('Source switch IP') %]</option>
+    <option value="switch_ip">[% l('Source switch ID') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
     <option value="bypass_role">[% l('Bypass Role') %]</option>
