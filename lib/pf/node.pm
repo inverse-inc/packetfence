@@ -193,7 +193,7 @@ sub node_db_prepare {
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
+            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
         GROUP BY node.mac
         HAVING node.mac= ?
     ]
@@ -231,7 +231,7 @@ sub node_db_prepare {
            locationlog.start_time as last_start_time,
            UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
        FROM locationlog
-       WHERE mac = ? AND end_time IS NULL
+       WHERE mac = ? AND end_time = 0
     SQL
 
     # DEPRECATED see node_view_with_fingerprint()'s POD
@@ -253,7 +253,7 @@ sub node_db_prepare {
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
+            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
         GROUP BY node.mac
         HAVING node.mac=?
     ]
@@ -281,7 +281,7 @@ sub node_db_prepare {
             LEFT JOIN node_category as nr on node.bypass_role_id = nr.category_id
             LEFT JOIN node_category as nc on node.category_id = nc.category_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
-            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
+            LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time = 0
             LEFT JOIN iplog ON node.mac=iplog.mac AND (iplog.end_time = '0000-00-00 00:00:00' OR iplog.end_time > NOW())
         GROUP BY node.mac
     ];
@@ -1303,7 +1303,7 @@ sub node_last_reg {
     return ($val);
 }
 
-=head2 _cleanup_attributes
+=item _cleanup_attributes
 
 Cleans up any inconsistency in the info attributes
 

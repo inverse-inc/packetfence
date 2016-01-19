@@ -168,13 +168,14 @@ sub make_builder {
                             },
                         ],
                         [ 'AND' ],
-                           [
-                               {
-                                   'table'  => 'locationlog',
-                                   'name'   => 'end_time',
-                               },
-                               'IS NULL',
-                            ],
+                        [
+                           {
+                               'table'  => 'locationlog',
+                               'name'   => 'end_time',
+                           },
+                           '=',
+                           '0000-00-00 00:00:00'
+                        ],
                     ],
                 },
         );
@@ -195,29 +196,8 @@ my %COLUMN_MAP = (
        name  => 'device_class',
     },
     switch_ip   => {
-       table => 'locationlog_distinct',
+       table => 'locationlog',
        name  => 'switch',
-       joins => [
-           {
-               'table'  => \"( select DISTINCT mac, switch from locationlog )",
-               'as'  => 'locationlog_distinct',
-               'join' => 'LEFT',
-               'on' =>
-               [
-                   [
-                       {
-                           'table' => 'locationlog_distinct',
-                           'name'  => 'mac',
-                       },
-                       '=',
-                       {
-                           'table' => 'node',
-                           'name'  => 'mac',
-                       }
-                   ],
-               ],
-           },
-       ]
     },
     last_ip   => {
        table => 'iplog',
