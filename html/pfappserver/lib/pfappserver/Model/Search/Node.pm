@@ -340,11 +340,11 @@ sub add_date_range {
 }
 
 sub process_query {
-    my ($self,$query) = @_;
+    my ($self, $query) = @_;
     my $new_query = $self->SUPER::process_query($query);
     return unless defined $new_query;
     my $old_column = $new_query->[0];
-    $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column}  : $old_column;
+    $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column} : $old_column;
     return $new_query;
 }
 
