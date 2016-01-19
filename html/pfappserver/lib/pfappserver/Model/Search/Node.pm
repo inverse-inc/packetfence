@@ -95,6 +95,7 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
+            L_("IF(locationlog.end_time = '0000-00-00 00:00:00', 'on' ,'off')", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_ip' }
         )->from('node',
@@ -183,6 +184,10 @@ sub make_builder {
 
 my %COLUMN_MAP = (
     person_name => 'pid',
+    online => {
+        'table' => 'locationlog',
+        'name'  => 'end_time',
+    },
     category => {
         table => 'node_category',
         name  => 'name',
@@ -339,6 +344,22 @@ sub add_joins {
                     {table => 'violation_status', name => 'status', as => 'violation_status'},
                     {table => 'violation_status_class', name => 'description', as => 'violation_name'}
                 );
+            }
+        }
+    }
+}
+
+sub _pre_process_query {
+    my ($self, $query) = @_;
+    #Change the query for the online
+    if ($query->{name} eq 'online') {
+        if($query->{op} eq 'equal') {
+            my $value = $query->{value};
+            if ($value eq 'on') {
+                $query->{value} = '0000-00-00 00:00:00';
+            } elsif($value eq 'off') {
+                $query->{op} = 'is_null';
+                $query->{value} = undef;
             }
         }
     }

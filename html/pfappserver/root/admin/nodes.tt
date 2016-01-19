@@ -15,6 +15,7 @@
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
     <option value="bypass_role">[% l('Bypass Role') %]</option>
+    <option value="online">[% l('Online') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -93,6 +94,22 @@ form {
                     <input type="hidden" name="searches.0.name" value="violation_status"/>
                     <input type="hidden" name="searches.0.op" value="is"/>
                     <input type="hidden" name="searches.0.value" value="closed"/>
+                </form>
+              </li>
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Nodes Offline') %]</a>
+                <form>
+                    <input type="hidden" name="searches.0.name" value="online"/>
+                    <input type="hidden" name="searches.0.op" value="equal"/>
+                    <input type="hidden" name="searches.0.value" value="off"/>
+                </form>
+              </li>
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Nodes Online') %]</a>
+                <form>
+                    <input type="hidden" name="searches.0.name" value="online"/>
+                    <input type="hidden" name="searches.0.op" value="equal"/>
+                    <input type="hidden" name="searches.0.value" value="on"/>
                 </form>
               </li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
