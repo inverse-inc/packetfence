@@ -13,6 +13,7 @@ pftest <cmd> [options]
   mysql                       | runs the mysql tuner
   profile_filter              | checks which profile will be used for a mac
   iplog                       | checks for multiple open iplog entries
+  locationlog                 | checks for multiple open locationlog entries
 
 Please view "pftest.pl help <command>" for details on each option
 
