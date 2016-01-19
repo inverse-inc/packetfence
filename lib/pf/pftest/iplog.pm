@@ -1,15 +1,15 @@
-package pf::pftest::iplogs_not_closed;
+package pf::pftest::iplog;
 =head1 NAME
 
-pf::pftest::iplogs_not_closed
+pf::pftest::iplog
 
 =head1 SYNOPSIS
 
-pftest iplogs_not_closed
+pftest iplog
 
 =head1 DESCRIPTION
 
-pf::pftest::iplogs_not_closed
+pf::pftest::iplog
 
 =cut
 
@@ -17,6 +17,7 @@ use strict;
 
 use warnings;
 use base qw(pf::cmd);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 sub parseArgs { $_[0]->args == 0 }
 
 sub _run {
@@ -25,14 +26,18 @@ sub _run {
     my $dbh = pf::db::db_connect();
     my $sth = $dbh->prepare(q[ select mac,count(mac) as entries from iplog where end_time ='0000-00-00 00:00:00' or end_time > NOW() group by mac having count(mac) > 1; ]);
     die unless $sth;
+    $sth->execute;
     my $rv  = $sth->rows;
-    print "Found $rv nodes with multiple opened iplog\n";
+    my $format_header = "%-17s %10s\n";
+    print "Found $rv nodes with multiple opened iplog entries\n";
+    return $EXIT_SUCCESS unless $rv > 0;
+    print sprintf($format_header,"mac", "count");
     while(my $row = $sth->fetchrow_hashref) {
-        print $row->{mac}, " ", $row->{entries},"\n";
+        print sprintf( "%-17s %10d\n",$row->{mac}, $row->{entries});
     }
-    print "\n";
+    return $EXIT_SUCCESS;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
