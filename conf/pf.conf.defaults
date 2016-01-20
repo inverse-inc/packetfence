@@ -1351,3 +1351,16 @@ db_user=
 # monitoring.db_pass
 #
 db_pass=
+
+[metascan]
+#
+# metascan.api_key
+#
+# OPSWAT MetaScan Online Scanner API key
+api_key=
+
+#
+# metascan.query_url_hash
+#
+# OPSWAT MetaScan Online Scanner URL for hash queries
+query_url_hash=https://hashlookup.metascan-online.com/v2/hash/

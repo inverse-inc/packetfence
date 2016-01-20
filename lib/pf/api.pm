@@ -44,6 +44,7 @@ use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
 use pf::access_filter::dhcp;
+use pf::metascan();
 
 use List::MoreUtils qw(uniq);
 use File::Copy::Recursive qw(dircopy);
@@ -1120,6 +1121,22 @@ Copy a directory on this server
 sub copy_directory : Public {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
+}
+
+=head2 metascan_process
+
+=cut
+
+sub metascan_process : Public {
+    my ( $class, $data ) = @_;
+
+    my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
+    return if !defined($metascan_scan_result_id);
+
+    my $mac = pf::iplog::ip2mac($data->{'dstip'});
+    return if !defined($mac);
+
+    pf::violation::violation_trigger($mac, $metascan_scan_result_id, "metascan");    
 }
 
 =head1 AUTHOR
