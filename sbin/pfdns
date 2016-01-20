@@ -258,7 +258,7 @@ sub regzone {
         if ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
-            my $query = $CHI_CACHE->compute("unreg-$qname", sub { $res->search($qname) });
+            my $query = $CHI_CACHE->compute("passthrough-$qname", sub { $res->search($qname) });
             if ($query) {
                 add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
                 foreach my $rr ($query->answer) {
@@ -321,7 +321,7 @@ sub regzone {
                 my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
                 my $reply = $resolver->search($qname, $qtype);
                 foreach my $answer ($reply->answer) {
-                    my $query = $CHI_CACHE->compute("unreg-".$answer->target, sub { $resolver->search($answer->target, 'A') });
+                    my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
                         add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
