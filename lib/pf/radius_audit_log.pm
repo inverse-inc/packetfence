@@ -30,6 +30,7 @@ BEGIN {
         radius_audit_log_count_all
         radius_audit_log_view_all
         radius_audit_log_custom
+        radius_audit_log_cleanup
     );
 }
 
