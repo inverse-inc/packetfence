@@ -292,13 +292,14 @@ sub db_query_execute {
             if (defined($dbi_err)) {
                 $dbi_err = int($dbi_err);
                 my $dbi_errstr = $dbh->errstr;
-                if ($dbi_err == 1062 || $dbi_err == 1317) {
+                # Do not retry server errors
+                if ($dbi_err < 2000) {
 
-                    # Duplicate entry (1062) or query interrupted (1317)  -- don't retry
                     $logger->info("database query failed with: $dbi_errstr (errno: $dbi_err)");
                     $done = 1;
                 }
                 else {
+                    # retry client errors
                     $logger->warn("database query failed with: $dbi_errstr (errno: $dbi_err), will try again");
                 }
             }
