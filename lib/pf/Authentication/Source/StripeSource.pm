@@ -23,7 +23,6 @@ use List::Util qw(pairmap);
 use pf::config qw($FALSE $TRUE $default_pid);
 use pf::Authentication::constants;
 use pf::util;
-use pf::config::util;
 use pf::log;
 
 extends 'pf::Authentication::Source::BillingSource';
@@ -279,6 +278,7 @@ sub send_mail_for_event {
     if($self->can_send_mail_for_event($event)) {
         my $type = $event->{type};
         $data{event} = $event;
+        require pf::config::util;
         pf::config::util::send_email("billing_stripe_$type", $data{'email'}, $data{'subject'}, \%data);
     }
 }
