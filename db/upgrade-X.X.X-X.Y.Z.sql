@@ -1,0 +1,3 @@
+--
+-- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+--
