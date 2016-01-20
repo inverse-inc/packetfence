@@ -451,7 +451,7 @@ sub setType {
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
-            my $is_vlan = $type =~ /^vlan-isolation$|^vlan-registration$/i;
+            my $is_vlan = $type =~ /^vlan-isolation$|^vlan-registration$|^dns-enforcement$/i;
             if (is_error($status)) {
                 # Create new network with default values depending on the type
                 if ( $is_vlan) {

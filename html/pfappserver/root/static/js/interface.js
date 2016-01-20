@@ -188,6 +188,7 @@ InterfaceView.prototype.typeChanged = function(e) {
                     $(".info_inline").hide('fast');
                     $(".info_routed").hide('fast');
                     break;
+                case 'dns-enforcement':
                 case 'vlan-registration':
                 case 'vlan-isolation':
                     vip.show('fast');

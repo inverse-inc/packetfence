@@ -8720,6 +8720,10 @@ msgid "vlan-isolation"
 msgstr "Isolation"
 
 # pf::config (Network types)
+msgid "dns-enforcement"
+msgstr "DNS enforcement"
+
+# pf::config (Network types)
 msgid "vlan-registration"
 msgstr "Registration"
 

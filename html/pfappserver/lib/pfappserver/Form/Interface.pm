@@ -142,7 +142,7 @@ sub validate {
 
     # Remove 'portal' additional listening daemon on already enabled httpd.portal interfaces
     # TODO: Make a list of interface type rather than this ugly "or" - dwuelfrath@inverse.ca 2015.06.11
-    if ( defined $self->value->{type} && ( $self->value->{type} eq 'vlan-registration' or $self->value->{type} eq 'vlan-isolation' or $self->value->{type} eq 'inline' or $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'portal' ) ) {
+    if ( defined $self->value->{type} && ( $self->value->{type} eq 'vlan-registration' or $self->value->{type} eq 'vlan-isolation' or $self->value->{type} eq 'dns-enforcement' or $self->value->{type} eq 'inline' or $self->value->{type} eq 'inlinel2' or $self->value->{type} eq 'portal' ) ) {
         my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
         if ( exists($daemons{'portal'}) ) {
             my $index = firstidx { $_ eq 'portal' } @{$self->value->{additional_listening_daemons}};
