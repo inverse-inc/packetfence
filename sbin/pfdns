@@ -246,6 +246,12 @@ sub response_handler {
     $logger->debug("$ip_addr did not match any known networks. Not responding to DNS request.");
 }
 
+=head2 resolve
+
+Resolve a domain using the operating system configured DNS servers and return it as an answer
+
+=cut
+
 sub resolve {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     my ($rcode, @ans, @auth, @add);
@@ -279,6 +285,12 @@ sub resolve {
     my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
     return @answer;
 }
+
+=head2 regzone
+
+Resolve a DNS entry for a client that should see the captive portal
+
+=cut
 
 sub regzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
@@ -410,6 +422,11 @@ sub add_ip_port_to_ipset {
     }
 }
 
+=head2 isolzone
+
+Resolve a DNS name for a client in isolation (no passthroughs, just returns the captive portal records)
+
+=cut
 
 sub isolzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
