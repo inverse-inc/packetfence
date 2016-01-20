@@ -1047,6 +1047,11 @@ httpd_mod_evasive_system_command="sudo ipset add portal_deny %s timeout %t ; rm 
 # After which calls to pfcmd do we have to re-evaluate the state of a node and re-assign VLAN or change iptables rules
 reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_vclose,manage_vopen,violation_modify,violation_add,violation_delete,redir.cgi,pfcmd_vlan,admin_modify
 #
+# advanced.sso_on_access_reevaluation
+#
+# Trigger Single-Sign-On (Firewall SSO) on access reevaluation
+sso_on_access_reevaluation=disabled
+#
 # advanced.pfcmd_error_color
 #
 # Color of the error text for pfcmd
