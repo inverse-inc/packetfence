@@ -17,6 +17,7 @@ use warnings;
 use base qw(Exporter);
 
 our @EXPORT_OK = qw(
+  $IF_ENFORCEMENT_DNS
   $IF_ENFORCEMENT_VLAN
   $IF_ENFORCEMENT_INLINE
   $IF_ENFORCEMENT_INLINE_L2
@@ -50,6 +51,7 @@ our @EXPORT_OK = qw(
 
 use Readonly;
 
+Readonly our $IF_ENFORCEMENT_DNS => 'dns';
 Readonly our $IF_ENFORCEMENT_VLAN => 'vlan';
 Readonly our $IF_ENFORCEMENT_INLINE => 'inline';
 Readonly our $IF_ENFORCEMENT_INLINE_L2 => 'inlinel2';
