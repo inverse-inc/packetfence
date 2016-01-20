@@ -2419,6 +2419,28 @@ by the value of _portalURL defined in the switch config):
 
 You can have a look in the file radius_filters.conf, there are some examples on how to use and define filters.
 
+DNS enforcement
+~~~~~~~~~~~~~~~
+
+DNS enforcement allows you to control the network access of the device is using the pfdns service on PacketFence.
+
+The architecture of DNS enforcement is as following : 
+- DHCP and DNS is provided by the PacketFence server
+  - DHCP leases will provide the IP of your network equipment as the gateway and the IP address of the PacketFence DNS server to resolve names.
+- Routing is provided by another equipment on your network (Core switch, Firewall, ...)
+- If a user should be shown the portal, the pfdns service will return a pointer to the captive portal, otherwise pfdns will resolve the name externally and use it in the reply.
+
+This enforcement mode used by itself can be bypassed by the device by using a different DNS server or by using its own DNS cache.
+
+The first can be prevented using an ACL on your routing equipment, the second can be prevented by combining DNS enforcement with Single-Sign-On on your network equipment. Please see the Firewall Single-Sign-On documentation for details on how to accomplish this.
+
+In order to configure DNS enforcement, you first need to go in 'Configuration -> Interfaces' then select one of your interfaces and set it in DNS enforcement mode.
+
+After, you need to configure a routed network for this interface by clicking 'Add routed network'. See the 'Routed Networks' section of this document for details on how to configure it.
+
+NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
+
+Once this is done, you need to restart the pfdns service.
 
 Optional components
 -------------------
