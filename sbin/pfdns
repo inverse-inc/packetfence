@@ -43,6 +43,7 @@ use pf::CHI;
 use pf::ConfigStore::Interface;
 use pf::cluster;
 use pf::SwitchFactory;
+use pf::node;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -113,6 +114,7 @@ foreach my $interface ( @{$cs->readAllIds} ) {
         defined ($Config{$full_interface}{'enforcement'}) &&
         (
           ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN)
+          || ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_DNS)
           || is_type_inline($Config{$full_interface}{'enforcement'})
         )
     ){
@@ -197,8 +199,9 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
-    $logger->trace(sub { "Process $0 handling request" });
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
+    my $ip_addr = clean_ip($peerhost);
+    $logger->trace(sub { "Process $0 handling request for IP : $ip_addr" });
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
@@ -221,7 +224,6 @@ sub response_handler {
     foreach my $network (@routed_dns_enforcement_nets_named) {
         if ($network->contains($ip)) {
             $logger->trace("Performing DNS enforcement on $ip");
-            my $ip_addr = clean_ip($peerhost);
             my $mac = pf::iplog::ip2mac($ip_addr);
 
             unless($mac){
@@ -229,8 +231,8 @@ sub response_handler {
                 return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
             }
 
-            my $node = pf::node::node_attributes($mac);
-            if($node->{status} eq "reg"){
+            my $node = node_attributes($mac);
+            if($node->{status} eq $STATUS_REGISTERED){
                 $logger->info("Node $mac is registered, returning resolved domain.");
                 return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
             }
@@ -240,6 +242,8 @@ sub response_handler {
             }
         }
     }
+
+    $logger->debug("$ip_addr did not match any known networks. Not responding to DNS request.");
 }
 
 sub resolve {
@@ -273,7 +277,6 @@ sub resolve {
     }
     # mark the answer as authoritive (by setting the 'aa' flag
     my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
-    $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
     return @answer;
 }
 
