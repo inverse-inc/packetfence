@@ -633,6 +633,10 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
     }
+    elsif ($type eq "dns-enforcement") {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = 'dns';
+    }
     elsif ($type eq "inline") {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = "inlinel2";
