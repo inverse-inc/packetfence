@@ -157,6 +157,19 @@ sub update {
     $self->send( \%data, $sample_rate );
 }
 
+=item gauge
+
+Set the gauge
+
+=cut
+
+sub gauge {
+    my ($self, $stats, $gauge, $sample_rate) = @_;
+    $stats = $self->{hostname} . ".$stats";
+    $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
+    $self->send( { $stats => "$gauge|g" }, $sample_rate );
+}
+
 =back
 
 =head1 AUTHOR
