@@ -77,6 +77,18 @@ use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
 use pf::util;
+use Module::Pluggable (
+  search_path => 'pf::ConfigStore',
+  'sub_name'  => 'configStores',
+  require     => 1,
+  except      => [qw(
+      pf::ConfigStore::Group
+      pf::ConfigStore::Hierarchy
+      pf::ConfigStore::Interface
+      pf::ConfigStore::SwitchGroup
+      pf::ConfigStore::Role::ValidGenericID
+  )]
+);
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -871,23 +883,11 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
-    require pf::violation_config;
-    require pf::authentication;
-    require pf::admin_roles;
-    require pf::ConfigStore::AdminRoles;
-    require pf::ConfigStore::Authentication;
-    require pf::ConfigStore::FloatingDevice;
-    require pf::ConfigStore::Interface;
-    require pf::ConfigStore::Provisioning;
-    require pf::ConfigStore::Network;
-    require pf::ConfigStore::Pf;
-    require pf::ConfigStore::Profile;
-    require pf::ConfigStore::Switch;
-    require pf::ConfigStore::Violations;
-    require pf::ConfigStore::Wrix;
-    require pf::ConfigStore::VlanFilters;
-    require pf::ConfigStore::RadiusFilters;
-    require pf::ConfigStore::DhcpFilters;
+    foreach my $cs (pf::config->configStores()) {
+        my $temp = $cs->new;
+        #Force the loading of cached config
+        $temp->cachedConfig;
+    }
     require pf::web::filter;
     pf::config::cached::updateCacheControl();
     pf::config::cached::ReloadConfigs($force);
