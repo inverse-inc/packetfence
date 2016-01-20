@@ -831,6 +831,27 @@ Checking for violations configurations
 
 sub violations {
     require pfconfig::namespaces::FilterEngine::Violation;
+    require pf::violation_config;
+    require List::MoreUtils;
+
+    # Check for deprecated actions and attributes
+    my @deprecated_actions = qw(trap email popup);
+    my @deprecated_attr = qw(whitelisted_categories);
+    while(my ($vid, $config) = each %pf::violation_config::Violation_Config ){
+        foreach my $attr (@deprecated_attr){
+            if(exists $config->{$attr}){
+                add_problem($FATAL, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+            }
+        }
+        
+        my @actions = split(/\s*,\s*/, $config->{actions});
+        foreach my $action (@deprecated_actions){
+            if(List::MoreUtils::any {$_ eq $action} @actions){
+                add_problem($FATAL, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+            }
+        }
+    }
+
     my $engine = pfconfig::namespaces::FilterEngine::Violation->new;
     $engine->build();
     while (my ($violation, $triggers) = each %{$engine->{invalid_triggers}}) {
