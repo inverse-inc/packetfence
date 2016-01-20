@@ -93,11 +93,11 @@ sub reevaluate_access {
                 $firewallsso->do_sso('Stop', $mac, $ip, $DEFAULT_LEASE_LENGTH);
             }
         }
+        else {
+            $logger->error("Can't do SSO for $mac because can't find its IP address");
+        }
     }
 
-    else {
-        $logger->error("Can't do SSO for $mac because can't find its IP address");
-    }
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
