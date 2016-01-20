@@ -62,6 +62,24 @@ sub is_network_type_vlan_reg {
     }
 }
 
+=head2 is_network_type_dns_enforcement
+
+Returns true if given network is of type dns-enforcement and false otherwise.
+
+=cut
+
+sub is_network_type_dns_enforcement {
+    my ($type) = @_;
+
+    my $result = get_network_type($type);
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT ) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 =head2 is_network_type_vlan_isol
 
 Returns true if given network is of type vlan-isolation and false otherwise.
@@ -116,6 +134,12 @@ sub get_network_type {
 
         # vlan-isolation
         return $pf::constants::config::NET_TYPE_VLAN_ISOL;
+
+    }
+    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_DNS_ENFORCEMENT$/i ) {
+
+        # dns-enforcement
+        return $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT;
 
     }
     elsif ( is_type_inline($type) ) {

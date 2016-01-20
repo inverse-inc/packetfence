@@ -95,6 +95,7 @@ my $loadb_ip;
 my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
+my @routed_dns_enforcement_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 our $IPSET_SESSION = 'pfsession_passthrough';
@@ -133,10 +134,12 @@ foreach my $network ( keys %ConfigNetworks ) {
         } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
             my $isolation_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_isolation_nets_named, $isolation_obj;
-
         } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
             my $registration_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_registration_nets_named, $registration_obj;
+        } elsif ( pf::config::is_network_type_dns_enforcement($network) ) {
+            my $dns_enforcement_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_dns_enforcement_nets_named, $dns_enforcement_obj;
         }
     }
 }
@@ -194,24 +197,48 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
-
     $logger->trace(sub { "Process $0 handling request" });
-    my $ip_addr = clean_ip($peerhost);
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
-    my $mac = pf::iplog::ip2mac($ip_addr);
-
-    unless($mac){
-        $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
-        return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+    foreach my $network (@routed_registration_nets_named) {
+        if ($network->contains($ip)) {
+           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
+    }
+    foreach my $network (@routed_isolation_nets_named) {
+        if ($network->contains($ip)) {
+           # Should be different for isolation network.
+           return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
     }
 
-    my $node = pf::node::node_attributes($mac);
-    $logger->info("Status of $mac is : ".$node->{status});
-    if($node->{status} eq "reg"){
-        return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
+    foreach my $network (@routed_inline_nets_named) {
+        if ($network->contains($ip)) {
+           # Should be different for inline
+           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
     }
-    else {
-        return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+    
+    foreach my $network (@routed_dns_enforcement_nets_named) {
+        if ($network->contains($ip)) {
+            $logger->trace("Performing DNS enforcement on $ip");
+            my $ip_addr = clean_ip($peerhost);
+            my $mac = pf::iplog::ip2mac($ip_addr);
+
+            unless($mac){
+                $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
+                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            }
+
+            my $node = pf::node::node_attributes($mac);
+            if($node->{status} eq "reg"){
+                $logger->info("Node $mac is registered, returning resolved domain.");
+                return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
+            }
+            else {
+                $logger->info("Node $mac is unregistered, returning portal domain.");
+                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            }
+        }
     }
 }
 
@@ -221,9 +248,10 @@ sub resolve {
 
     my ($ttl, $rdata);
     my $res   = Net::DNS::Resolver->new;
-    $query = $CHI_CACHE->compute("reg-$qname", sub { $res->search($qname) });
+    $query = $CHI_CACHE->compute("resolve-$qname", sub { $res->search($qname) });
 
-    $logger->info("Query : $qname");
+    $logger->debug("Query for public domain : $qname");
+
     if ($qname && $qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
         my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
         my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
@@ -283,7 +311,7 @@ sub regzone {
         } else {
             #Check if the answer already exist
             my ($ttl, $rdata);
-            my $query = $CHI_CACHE->get("unreg-$qname");
+            my $query = $CHI_CACHE->get("regzone-$qname");
             if ($query) {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";

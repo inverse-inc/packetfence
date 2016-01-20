@@ -49,6 +49,7 @@ use pf::constants::config qw(
   $IF_ENFORCEMENT_INLINE_L2
   $IF_ENFORCEMENT_INLINE_L3
 
+  $NET_TYPE_DNS_ENFORCEMENT
   $NET_TYPE_VLAN_REG
   $NET_TYPE_VLAN_ISOL
   $NET_TYPE_INLINE
@@ -747,6 +748,11 @@ sub get_network_type {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
+    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT$/i ) {
+
+        # dns-enforcement
+        return $NET_TYPE_DNS_ENFORCEMENT;
+
     } elsif (is_type_inline($type)) {
         # inline
         return $NET_TYPE_INLINE;
@@ -780,6 +786,24 @@ sub is_network_type_vlan_reg {
         return $TRUE;
     } else {
         return $FALSE;
+    }
+}
+
+=head2 is_network_type_dns_enforcement
+
+Returns true if given network is of type dns-enforcement and false otherwise.
+
+=cut
+
+sub is_network_type_dns_enforcement {
+    my ($type) = @_;
+
+    my $result = get_network_type($type);
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT ) {
+        return 1;
+    }
+    else {
+        return 0;
     }
 }
 
