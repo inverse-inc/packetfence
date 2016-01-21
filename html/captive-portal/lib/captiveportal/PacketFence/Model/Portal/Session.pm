@@ -248,7 +248,7 @@ sub _build_clientMac {
         }
         $mac = pf::iplog::ip2mac( $clientIp ) unless defined $mac;
     }
-    Log::Log4perl::MDC->put( 'mac',  defined $mac ? $mac : 'unknown' );
+    Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
     return $mac;
 }
 
