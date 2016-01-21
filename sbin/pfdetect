@@ -156,11 +156,11 @@ sub _run_detector {
         my $line = $_;
         $logger->info("alert received: '$line'");
         my $data = $parser->parse($line);
-        unless($data || $data eq '0') {
+        unless($data || $data eq 0) {
             $logger->warn("unknown input: $line ");
             next;
         }
-        next if $data eq '0';
+        next if $data eq 0;
         while (my ($type, $value) = each %{$data->{events}}) {
             $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
         }
