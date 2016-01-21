@@ -26,6 +26,7 @@ sub parse {
     my ( $self, $line ) = @_;
 
     # Received line should be JSON encoded
+    $line =~ s/^.*?{/{/s;
     my $data = decode_json($line);
 
     my $apiclient = pf::api::queue->new;
