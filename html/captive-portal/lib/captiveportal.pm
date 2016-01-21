@@ -100,6 +100,7 @@ __PACKAGE__->config(
 );
 
 before handle_request => sub {
+    Log::Log4perl::MDC->put('mac', 'unknown');
     pf::config::cached::ReloadConfigs();
 };
 
