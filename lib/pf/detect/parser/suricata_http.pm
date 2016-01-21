@@ -31,6 +31,8 @@ sub parse {
 
     my $apiclient = pf::api::queue->new;
     $apiclient->notify('metascan_process', $data);
+
+    return 0;
 }
 
 =head1 AUTHOR
