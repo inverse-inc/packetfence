@@ -7,27 +7,30 @@
 function updateAction(type, keep_value) {
     var action = type.val();
     var value = type.next();
+    changeInputFromTemplate(value, $('#' + action + '_action'), keep_value);
+}
 
+function changeInputFromTemplate(oldInput, template, keep_value) {
+    var newInput = template.clone();
     // Replace value field with the one from the templates
-    var value_new = $('#' + action + '_action').clone();
-    value_new.attr('id', value.attr('id'));
-    value_new.attr('name', value.attr('name'));
-    value_new.attr('data-required', 1);
-    if (keep_value && value.val()) {
-        if (value_new.attr('multiple')) {
-            value_new.val(value.val().split(","));
+    newInput.attr('id', oldInput.attr('id'));
+    newInput.attr('name', oldInput.attr('name'));
+    newInput.attr('data-required', 1);
+    if (keep_value && oldInput.val()) {
+        if (newInput.attr('multiple')) {
+            newInput.val(oldInput.val().split(","));
         }
         else {
-            value_new.val(value.val());
+            newInput.val(oldInput.val());
         }
     }
-    value_new.insertBefore(value);
-    value.next(".chzn-container").remove();
+    newInput.insertBefore(oldInput);
+    oldInput.next(".chzn-container").remove();
 
     // Remove previous field
-    value.remove();
+    oldInput.remove();
     // Initialize rendering widgets
-    initWidgets(value_new);
+    initWidgets(newInput);
 }
 
 /*
