@@ -100,123 +100,38 @@ server dynamic_clients {
 		#
 
 		#
-		#  Example 1: Hard-code a client IP.  This example is
-		#             useless, but it documents the attributes
-		#             you need.
-		#
-		update control {
-
-			#
-			#  Echo the IP address of the client.
-			&FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
-
-			# require_message_authenticator
-			&FreeRADIUS-Client-Require-MA = no
-
-			# secret
-			&FreeRADIUS-Client-Secret = "testing123"
-
-			# shortname
-			&FreeRADIUS-Client-Shortname = "%{Packet-Src-IP-Address}"
-
-			# nas_type
-			&FreeRADIUS-Client-NAS-Type = "other"
-
-			# virtual_server
-			#
-			#  This can ONLY be used if the network client
-			#  definition (e.g. "client dynamic" above) has
-			#  NO virtual_server defined.
-			#
-			#  If the network client definition does have a
-			#  virtual_server defined, then that is used,
-			#  and there is no need to define this attribute.
-			#
-			&FreeRADIUS-Client-Virtual-Server = "something"
-
-		}
-
-		#
-		#  Example 2: Read the clients from "clients" files
-		#             in a directory.
-		#
-
-		#             This requires you to uncomment the
-		#             "directory" configuration in the
-		#             "client dynamic" configuration above,
-		#	      and then put one file per IP address in
-		#             that directory.
-		#
-		dynamic_clients
-
-		#
 		#  Example 3: Look the clients up in SQL.
 		#
 		#  This requires the SQL module to be configured, of course.
-		if ("%{sql: SELECT nasname FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}") {
-			update control {
-				#
-				#  Echo the IP.
-				&FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
 
-				#
-				#  Do multiple SELECT statements to grab
-				#  the various definitions.
-				&FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
 
-				&FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+        update control {
+            &Tmp-String-8 := "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+        }
 
-				&FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+        if (! &control:Tmp-String-8) {
+            update control {
+                &Tmp-String-8 := "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}"
+            }
+                #
+        }
+        if (&control:Tmp-String-8) {
+            update control {
+                #
+                # Echo the IP.
+                &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
 
-				&FreeRADIUS-Client-Virtual-Server = "%{sql: SELECT server FROM nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
-			}
+                #
+                # Do multiple SELECT statements to grab
+                # the various definitions.
+                &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
 
-		}
+                &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
 
-		# Do an LDAP lookup in the elements OU, check to see if
-		# the Packet-Src-IP-Address object has a "ou"
-		# attribute, if it does continue.  Change "ACME.COM" to
-		# the real OU of your organization.
-		#
-		# Assuming the following schema:
-		#
-		# OU=Elements,OU=Radius,DC=ACME,DC=COM
-		#
-		# Elements will hold a record of every NAS in your
-		# Network.  Create Group objects based on the IP
-		# Address of the NAS and set the "Location" or "l"
-		# attribute to the NAS Huntgroup the NAS belongs to
-		# allow them to be centrally managed in LDAP.
-		#
-		# e.g.  CN=10.1.2.3,OU=Elements,OU=Radius,DC=ACME,DC=COM
-		#
-		# With a "l" value of "CiscoRTR" for a Cisco Router
-		# that has a NAS-IP-Address or Source-IP-Address of
-		# 10.1.2.3.
-		#
-		# And with a "ou" value of the shared secret password
-		# for the NAS element. ie "password"
-		if ("%{ldap:ldap:///OU=Elements,OU=Radius,DC=ACME,DC=COM?ou?sub?cn=%{Packet-Src-IP-Address}}") {
-			update control {
-				&FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
+                &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
 
-				# Set the Client-Shortname to be the Location
-				# "l" just like in the Huntgroups, but this
-				# time to the shortname.
-
-				&FreeRADIUS-Client-Shortname = "%{ldap:ldap:///OU=Elements,OU=Radius,DC=ACME,DC=COM?l?sub?cn=%{Packet-Src-IP-Address}}"
-
-				# Lookup and set the Shared Secret based on
-				# the "ou" attribute.
-				&FreeRADIUS-Client-Secret = "%{ldap:ldap:///OU=Elements,OU=Radius,DC=ACME,DC=COM?ou?sub?cn=%{Packet-Src-IP-Address}}"
-			}
-		}
-
-		#
-		#  Tell the caller that the client was defined properly.
-		#
-		#  If the authorize section does NOT return "ok", then
-		#  the new client is ignored.
-		ok
+            }
+            ok
+        }
 	}
 }

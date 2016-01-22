@@ -24,7 +24,7 @@ eap {
 	#  then that EAP type takes precedence over the
 	#  default type configured here.
 	#
-	default_eap_type = md5
+	default_eap_type = peap
 
 	#  A list is maintained to correlate EAP-Response
 	#  packets with EAP-Request packets.  After a
@@ -170,8 +170,8 @@ eap {
 	#  ANYONE who has a certificate signed by them can
 	#  authenticate via EAP-TLS!  This is likely not what you want.
 	tls-config tls-common {
-		private_key_password = whatever
-		private_key_file = ${certdir}/server.pem
+		#private_key_password = whatever
+        private_key_file = /usr/local/pf/conf/ssl/server.key
 
 		#  If Private key & Certificate are located in
 		#  the same file, then private_key_file &
@@ -183,7 +183,7 @@ eap {
 		#  only the server certificate, but ALSO all
 		#  of the CA certificates used to sign the
 		#  server certificate.
-		certificate_file = ${certdir}/server.pem
+        certificate_file = /usr/local/pf/conf/ssl/server.crt
 
 		#  Trusted Root CA list
 		#
@@ -376,7 +376,7 @@ eap {
 			#  If "enable = no" below, you CANNOT enable resumption for just one
 			#  user by setting the above attribute to "yes".
 			#
-			enable = yes
+			enable = no
 
 			#
 			#  Lifetime of the cached entries, in hours. The sessions will be
@@ -601,7 +601,7 @@ eap {
 		#
 		#  allowed values: {no, yes}
 		#
-		copy_request_to_tunnel = no
+		copy_request_to_tunnel = yes
 
 		#
 		#  As of version 3.0.5, this configuration item
@@ -636,7 +636,7 @@ eap {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
-		virtual_server = "inner-tunnel"
+		virtual_server = "packetfence-tunnel"
 
 		#  This has the same meaning, and overwrites, the
 		#  same field in the "tls" configuration, above.
@@ -725,7 +725,7 @@ eap {
 		#  The PEAP module also has these configuration
 		#  items, which are the same as for TTLS.
 		#
-		copy_request_to_tunnel = no
+		copy_request_to_tunnel = yes
 
 		#
 		#  As of version 3.0.5, this configuration item
@@ -757,7 +757,7 @@ eap {
 		#  the virtual server that processed the
 		#  outer requests.
 		#
-		virtual_server = "inner-tunnel"
+		virtual_server = "packetfence-tunnel"
 
 		# This option enables support for MS-SoH
 		# see doc/SoH.txt for more info.
@@ -769,7 +769,7 @@ eap {
 		# The SoH reply will be turned into a request which
 		# can be sent to a specific virtual server:
 		#
-	#	soh_virtual_server = "soh-server"
+	#	soh_virtual_server = "packetfence-soh"
 
 		#
 		# Unlike EAP-TLS, PEAP does not require a client certificate.

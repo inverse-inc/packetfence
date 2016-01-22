@@ -81,3 +81,23 @@ perl {
 	#func_start_accounting = accounting_start
 	#func_stop_accounting = accounting_stop
 }
+
+perl packetfence {
+	#
+	#  The Perl script to execute on authorize, authenticate,
+	#  accounting, xlat, etc.  This is very similar to using
+	#  'rlm_exec' module, but it is persistent, and therefore
+	#  faster.
+	#
+	filename = ${modconfdir}/perl/packetfence.pm
+}
+
+perl packetfence-soh {
+	#
+	#  The Perl script to execute on authorize, authenticate,
+	#  accounting, xlat, etc.  This is very similar to using
+	#  'rlm_exec' module, but it is persistent, and therefore
+	#  faster.
+	#
+	filename = ${modconfdir}/perl/packetfence-soh.pm
+}
