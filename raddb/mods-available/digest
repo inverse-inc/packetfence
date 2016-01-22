@@ -1,0 +1,13 @@
+# -*- text -*-
+#
+#  $Id: f0aa9edf9da33d63fe03e7d1ed3cbca848eec54d $
+
+#
+#  The 'digest' module currently has no configuration.
+#
+#  "Digest" authentication against a Cisco SIP server.
+#  See 'doc/rfc/draft-sterman-aaa-sip-00.txt' for details
+#  on performing digest authentication for Cisco SIP servers.
+#
+digest {
+}

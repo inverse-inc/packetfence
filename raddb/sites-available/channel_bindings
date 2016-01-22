@@ -1,0 +1,17 @@
+#
+#  A virtual server which is used to validate channel-bindings.
+#
+#	$Id: b9f0ac791511903e4be8794203d324446e7a949c $
+#
+server channel_bindings {
+	#
+	#  Only the "authorize" section is needed.
+	#
+	authorize {
+		#  In general this section should include a policy for each type
+		#  of channel binding that may be in use.  For example each lower
+		#  layer such as GSS-EAP (RFC 7055) or IEEE 802.11I is likely to
+		#  need a separate channel binding policy.
+		abfab_channel_bindings
+	}
+}
