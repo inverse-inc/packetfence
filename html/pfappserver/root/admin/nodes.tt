@@ -2,20 +2,20 @@
   <div>
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
     <option value="mac">[% l('Node MAC') %]</option>
-    <option value="status">[% l('Status') %]</option>
+    <option value="bypass_role">[% l('Bypass Role') %]</option>
+    <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
+    <option value="computername">[% l('Computer Name') %]</option>
     <option value="last_ip">[% l('Node IP') %]</option>
     <option value="category">[% l('Node Role') %]</option>
     <option value="notes">[% l('Notes') %]</option>
+    <option value="online">[% l('Online Status') %]</option>
+    <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="person_name">[% l('Person Name') %]</option>
+    <option value="status">[% l('Status') %]</option>
+    <option value="switch_ip">[% l('Source Switch ID') %]</option>
+    <option value="user_agent">[% l('User Agent') %]</option>
     <option value="violation">[% l('Violation Name') %]</option>
     <option value="violation_status">[% l('Violation Status') %]</option>
-    <option value="user_agent">[% l('User Agent') %]</option>
-    <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
-    <option value="switch_ip">[% l('Source Switch ID') %]</option>
-    <option value="computername">[% l('Computer Name') %]</option>
-    <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
-    <option value="bypass_role">[% l('Bypass Role') %]</option>
-    <option value="online">[% l('Online Status') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
