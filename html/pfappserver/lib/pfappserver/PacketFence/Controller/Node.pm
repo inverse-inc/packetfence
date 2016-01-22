@@ -42,7 +42,7 @@ __PACKAGE__->config(
     }
 );
 
-our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
+our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category online/;
 
 =head1 SUBROUTINES
 
