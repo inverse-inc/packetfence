@@ -4,18 +4,18 @@
     <option value="mac">[% l('Node MAC') %]</option>
     <option value="status">[% l('Status') %]</option>
     <option value="last_ip">[% l('Node IP') %]</option>
-    <option value="category">[% l('Node role') %]</option>
+    <option value="category">[% l('Node Role') %]</option>
     <option value="notes">[% l('Notes') %]</option>
-    <option value="person_name">[% l('Person name') %]</option>
-    <option value="violation">[% l('Violation name') %]</option>
+    <option value="person_name">[% l('Person Name') %]</option>
+    <option value="violation">[% l('Violation Name') %]</option>
     <option value="violation_status">[% l('Violation Status') %]</option>
-    <option value="user_agent">[% l('User agent') %]</option>
+    <option value="user_agent">[% l('User Agent') %]</option>
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
-    <option value="switch_ip">[% l('Source switch ID') %]</option>
+    <option value="switch_ip">[% l('Source Switch ID') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
     <option value="bypass_role">[% l('Bypass Role') %]</option>
-    <option value="online">[% l('Online') %]</option>
+    <option value="online">[% l('Online Status') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -65,6 +65,44 @@ form {
 }
 </style>
 
+    <div class="hidden" id="node_templates">
+      <select id="default_op" name="default_op" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
+        <option value="starts_with">[% l('starts with') %]</option>
+        <option value="ends_with">[% l('ends with') %]</option>
+        <option value="like">[% l('matches') %]</option>
+      </select>
+      <input id="default_value" name="default_value" type="text" class="span6" placeholder="String...">
+      <select id="status_op" name="" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
+      </select>
+      <select id="violation_status_op" name="" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+      </select>
+      <select id="violation_status_value" name="online_value" class="span2" >
+        <option value="open">[% l('Open') %]</option>
+        <option value="closed">[% l('Closed') %]</option>
+      </select>
+      <select id="status_op" name="" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
+      </select>
+      <select id="status_value" name="" class="span2" >
+        <option value="reg">[% l('reg') %]</option>
+        <option value="unreg">[% l('unreg') %]</option>
+        <option value="pending">[% l('pending') %]</option>
+      </select>
+      <select id="online_op" name="online_op" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+      </select>
+      <select id="online_value" name="online_value" class="span2" >
+        <option value="on">[% l('Online') %]</option>
+        <option value="off">[% l('Offline') %]</option>
+      </select>
+    </div>
+
     [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::Node" method="POST" %] 
     <div class="container-fluid">
       <div class="row-fluid">
@@ -96,6 +134,7 @@ form {
                     <input type="hidden" name="searches.0.value" value="closed"/>
                 </form>
               </li>
+              <li class="divider"></li>
               <li>
                 <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Nodes Offline') %]</a>
                 <form>
