@@ -25,7 +25,7 @@
         { name => 'last_ip', label => 'IP Address' },
         { name => 'dhcp_fingerprint', label => 'OS (DHCP)' },
         { name => 'category', label => 'Role' },
-        { name => 'switch_ip', label => 'Switch ID' },
+        { name => 'switch_id', label => 'Switch ID' },
         { name => 'switch_description', label => 'Switch description' },
         { name => 'bypass_vlan', label => 'Bypass VLAN' },
         { name => 'bypass_role', label => 'Bypass Role' },

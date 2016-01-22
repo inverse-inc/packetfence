@@ -97,7 +97,7 @@ sub make_builder {
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
             L_("IF(locationlog.end_time = '0000-00-00 00:00:00', 'on' ,'off')", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
-            { table => 'locationlog', name => 'switch', as => 'switch_ip' }
+            { table => 'locationlog', name => 'switch', as => 'switch_id' }
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -200,9 +200,17 @@ my %COLUMN_MAP = (
        table => 'node',
        name  => 'device_class',
     },
-    switch_ip   => {
+    switch_id   => {
        table => 'locationlog',
        name  => 'switch',
+    },
+    switch_ip   => {
+       table => 'locationlog',
+       name  => 'switch_ip',
+    },
+    switch_mac   => {
+       table => 'locationlog',
+       name  => 'switch_mac',
     },
     last_ip   => {
        table => 'iplog',
