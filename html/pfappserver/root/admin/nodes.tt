@@ -64,7 +64,11 @@ form {
     width: 36px;
 }
 </style>
-
+    [% roles_options = BLOCK %]
+        [% FOREACH role IN roles %]
+        <option value="[% role.name %]">[% role.name %]</option>
+        [% END %]
+    [% END %]
     <div class="hidden" id="node_templates">
       <select id="default_op" name="default_op" class="span2" >
         <option value="equal">[% l('is') %]</option>
@@ -73,30 +77,51 @@ form {
         <option value="ends_with">[% l('ends with') %]</option>
         <option value="like">[% l('matches') %]</option>
       </select>
+
       <input id="default_value" name="default_value" type="text" class="span6" placeholder="String...">
-      <select id="status_op" name="" class="span2" >
-        <option value="equal">[% l('is') %]</option>
-        <option value="not_equal">[% l('is not') %]</option>
-      </select>
+
       <select id="violation_status_op" name="" class="span2" >
         <option value="equal">[% l('is') %]</option>
       </select>
+
       <select id="violation_status_value" name="online_value" class="span2" >
         <option value="open">[% l('Open') %]</option>
         <option value="closed">[% l('Closed') %]</option>
       </select>
-      <select id="status_op" name="" class="span2" >
-        <option value="equal">[% l('is') %]</option>
-        <option value="not_equal">[% l('is not') %]</option>
-      </select>
+
       <select id="status_value" name="" class="span2" >
         <option value="reg">[% l('reg') %]</option>
         <option value="unreg">[% l('unreg') %]</option>
         <option value="pending">[% l('pending') %]</option>
       </select>
+
+      <select id="status_op" name="" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
+      </select>
+
+      [% FOREACH role_field IN ['category', 'bypass_role', 'bypass_vlan'] %]
+        <select id="[% role_field %]_value" class="span2" >
+          [% roles_options | none %]
+        </select>
+
+        <select id="[% role_field %]_value_equal_op" class="span2" >
+          [% roles_options | none %]
+        </select>
+
+        <select id="[% role_field %]_value_not_equal_op" class="span2" >
+          [% roles_options | none %]
+        </select>
+
+        <input id="[% role_field %]_value_starts_with_op" type="text" class="span6" placeholder="String...">
+        <input id="[% role_field %]_value_ends_with_op" type="text" class="span6" placeholder="String...">
+        <input id="[% role_field %]_value_like_op" type="text" class="span6" placeholder="String...">
+      [% END %]
+
       <select id="online_op" name="online_op" class="span2" >
         <option value="equal">[% l('is') %]</option>
       </select>
+
       <select id="online_value" name="online_value" class="span2" >
         <option value="on">[% l('Online') %]</option>
         <option value="off">[% l('Offline') %]</option>
