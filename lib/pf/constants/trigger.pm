@@ -35,7 +35,7 @@ Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
 Readonly::Scalar our $TRIGGER_TYPE_METASCAN => 'metascan';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
-Readonly::Scalar our $TRIGGER_TYPE_SURICATA => 'suricata';
+Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
@@ -59,7 +59,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
   },
-  $TRIGGER_TYPE_SURICATA => $SURICATA_CATEGORIES,
+  $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
   $TRIGGER_TYPE_METASCAN => $pf::metascan::METASCAN_RESULT_IDS,
 };
 
