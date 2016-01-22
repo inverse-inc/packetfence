@@ -8,10 +8,10 @@
 #	directory to these files.  This is done in a normal installation.
 #
 #	If you are using 802.1X (EAP) authentication, please see also
-#	the "inner-tunnel" virtual server.  You wll likely have to edit
+#	the "inner-tunnel" virtual server.  You will likely have to edit
 #	that, too, for authentication to work.
 #
-#	$Id$
+#	$Id: 84b34dcd3bf5ffacfc92bfcd97783c1bd2e98ca2 $
 #
 ######################################################################
 #
@@ -44,16 +44,201 @@
 #
 ######################################################################
 
+server default {
 #
-#	In 1.x, the "authorize", etc. sections were global in
-#	radiusd.conf.  As of 2.0, they SHOULD be in a server section.
+#  If you want the server to listen on additional addresses, or on
+#  additional ports, you can use multiple "listen" sections.
 #
-#	The server section with no virtual server name is the "default"
-#	section.  It is used when no server name is specified.
+#  Each section make the server listen for only one type of packet,
+#  therefore authentication and accounting have to be configured in
+#  different sections.
 #
-#	We don't indent the rest of this file, because doing so
-#	would make it harder to read.
+#  The server ignore all "listen" section if you are using '-i' and '-p'
+#  on the command line.
 #
+listen {
+	#  Type of packets to listen for.
+	#  Allowed values are:
+	#	auth	listen for authentication packets
+	#	acct	listen for accounting packets
+	#	proxy   IP to use for sending proxied packets
+	#	detail  Read from the detail file.  For examples, see
+	#               raddb/sites-available/copy-acct-to-home-server
+	#	status  listen for Status-Server packets.  For examples,
+	#		see raddb/sites-available/status
+	#	coa     listen for CoA-Request and Disconnect-Request
+	#		packets.  For examples, see the file
+	#		raddb/sites-available/coa
+	#
+	type = auth
+
+	#  Note: "type = proxy" lets you control the source IP used for
+	#        proxying packets, with some limitations:
+	#
+	#    * A proxy listener CANNOT be used in a virtual server section.
+	#    * You should probably set "port = 0".
+	#    * Any "clients" configuration will be ignored.
+	#
+	#  See also proxy.conf, and the "src_ipaddr" configuration entry
+	#  in the sample "home_server" section.  When you specify the
+	#  source IP address for packets sent to a home server, the
+	#  proxy listeners are automatically created.
+
+	#  ipaddr/ipv4addr/ipv6addr - IP address on which to listen.
+	#  Out of several options the first one will be used.
+	#
+	#  Allowed values are:
+	#	IPv4 address (e.g. 1.2.3.4, for ipv4addr/ipaddr)
+	#	IPv6 address (e.g. 2001:db8::1, for ipv6addr/ipaddr)
+	#	hostname     (radius.example.com,
+	#			A record for ipv4addr,
+	#       		AAAA record for ipv6addr,
+	#			A or AAAA record for ipaddr)
+	#       wildcard     (*)
+	#
+	# ipv4addr = *
+	# ipv6addr = *
+	ipaddr = *
+
+	#  Port on which to listen.
+	#  Allowed values are:
+	#	integer port number (1812)
+	#	0 means "use /etc/services for the proper port"
+	port = 0
+
+	#  Some systems support binding to an interface, in addition
+	#  to the IP address.  This feature isn't strictly necessary,
+	#  but for sites with many IP addresses on one interface,
+	#  it's useful to say "listen on all addresses for eth0".
+	#
+	#  If your system does not support this feature, you will
+	#  get an error if you try to use it.
+	#
+#	interface = eth0
+
+	#  Per-socket lists of clients.  This is a very useful feature.
+	#
+	#  The name here is a reference to a section elsewhere in
+	#  radiusd.conf, or clients.conf.  Having the name as
+	#  a reference allows multiple sockets to use the same
+	#  set of clients.
+	#
+	#  If this configuration is used, then the global list of clients
+	#  is IGNORED for this "listen" section.  Take care configuring
+	#  this feature, to ensure you don't accidentally disable a
+	#  client you need.
+	#
+	#  See clients.conf for the configuration of "per_socket_clients".
+	#
+#	clients = per_socket_clients
+
+	#
+	#  Connection limiting for sockets with "proto = tcp".
+	#
+	#  This section is ignored for other kinds of sockets.
+	#
+	limit {
+	      #
+	      #  Limit the number of simultaneous TCP connections to the socket
+	      #
+	      #  The default is 16.
+	      #  Setting this to 0 means "no limit"
+	      max_connections = 16
+
+	      #  The per-socket "max_requests" option does not exist.
+
+	      #
+	      #  The lifetime, in seconds, of a TCP connection.  After
+	      #  this lifetime, the connection will be closed.
+	      #
+	      #  Setting this to 0 means "forever".
+	      lifetime = 0
+
+	      #
+	      #  The idle timeout, in seconds, of a TCP connection.
+	      #  If no packets have been received over the connection for
+	      #  this time, the connection will be closed.
+	      #
+	      #  Setting this to 0 means "no timeout".
+	      #
+	      #  We STRONGLY RECOMMEND that you set an idle timeout.
+	      #
+	      idle_timeout = 30
+	}
+}
+
+#
+#  This second "listen" section is for listening on the accounting
+#  port, too.
+#
+listen {
+	ipaddr = *
+#	ipv6addr = ::
+	port = 0
+	type = acct
+#	interface = eth0
+#	clients = per_socket_clients
+
+	limit {
+		#  The number of packets received can be rate limited via the
+		#  "max_pps" configuration item.  When it is set, the server
+		#  tracks the total number of packets received in the previous
+		#  second.  If the count is greater than "max_pps", then the
+		#  new packet is silently discarded.  This helps the server
+		#  deal with overload situations.
+		#
+		#  The packets/s counter is tracked in a sliding window.  This
+		#  means that the pps calculation is done for the second
+		#  before the current packet was received.  NOT for the current
+		#  wall-clock second, and NOT for the previous wall-clock second.
+		#
+		#  Useful values are 0 (no limit), or 100 to 10000.
+		#  Values lower than 100 will likely cause the server to ignore
+		#  normal traffic.  Few systems are capable of handling more than
+		#  10K packets/s.
+		#
+		#  It is most useful for accounting systems.  Set it to 50%
+		#  more than the normal accounting load, and you can be sure that
+		#  the server will never get overloaded
+		#
+#		max_pps = 0
+
+		# Only for "proto = tcp". These are ignored for "udp" sockets.
+		#
+#		idle_timeout = 0
+#		lifetime = 0
+#		max_connections = 0
+	}
+}
+
+# IPv6 versions of the above - read their full config to understand options
+listen {
+	type = auth
+	ipv6addr = ::	# any.  ::1 == localhost
+	port = 0
+#	interface = eth0
+#	clients = per_socket_clients
+	limit {
+	      max_connections = 16
+	      lifetime = 0
+	      idle_timeout = 30
+	}
+}
+
+listen {
+	ipv6addr = ::
+	port = 0
+	type = acct
+#	interface = eth0
+#	clients = per_socket_clients
+
+	limit {
+#		max_pps = 0
+#		idle_timeout = 0
+#		lifetime = 0
+#		max_connections = 0
+	}
+}
 
 #  Authorization. First preprocess (hints and huntgroups files),
 #  then realms, and finally look in the "users" file.
@@ -64,19 +249,27 @@
 #  The order of the realm modules will determine the order that
 #  we try to find a matching realm.
 #
-#  Make *sure* that 'preprocess' comes before any realm if you 
+#  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
 authorize {
 	#
-	#  Security settings.  Take a User-Name, and do some simple
-	#  checks on it, for spaces and other invalid characters.  If
-	#  it looks like the user is trying to play games, reject it.
+	#  Take a User-Name, and perform some checks on it, for spaces and other
+	#  invalid characters.  If the User-Name appears invalid, reject the
+	#  request.
 	#
-	#  This should probably be enabled by default.
+	#  See policy.d/filter for the definition of the filter_username policy.
 	#
-	#  See policy.conf for the definition of the filter_username policy.
+	filter_username
+
 	#
-#	filter_username
+	#  Some broken equipment sends passwords with embedded zeros.
+	#  i.e. the debug output will show
+	#
+	#	User-Password = "password\000\000"
+	#
+	#  This policy will fix it to just be "password".
+	#
+#	filter_password
 
 	#
 	#  The preprocess module takes care of sanitizing some bizarre
@@ -87,10 +280,21 @@ authorize {
 	#  'raddb/huntgroups' files.
 	preprocess
 
+	#  If you intend to use CUI and you require that the Operator-Name
+	#  be set for CUI generation and you want to generate CUI also
+	#  for your local clients then uncomment the operator-name
+	#  below and set the operator-name for your clients in clients.conf
+#	operator-name
+
+	#
+	#  If you want to generate CUI for some clients that do not
+	#  send proper CUI requests, then uncomment the
+	#  cui below and set "add_cui = yes" for these clients in clients.conf
+#	cui
+
 	#
 	#  If you want to have a log of authentication requests,
-	#  un-comment the following line, and the 'detail auth_log'
-	#  section, above.
+	#  un-comment the following line.
 #	auth_log
 
 	#
@@ -143,15 +347,14 @@ authorize {
 	#  It also sets the EAP-Type attribute in the request
 	#  attribute list to the EAP type from the packet.
 	#
-	#  As of 2.0, the EAP module returns "ok" in the authorize stage
-	#  for TTLS and PEAP.  In 1.x, it never returned "ok" here, so
-	#  this change is compatible with older configurations.
+	#  The EAP module returns "ok" if it is not yet ready to
+	#  authenticate the user.  The configuration below checks for
+	#  that code, and stops processing the "authorize" section if
+	#  so.
 	#
-	#  The example below uses module failover to avoid querying all
-	#  of the following modules if the EAP module returns "ok".
-	#  Therefore, your LDAP and/or SQL servers will not be queried
-	#  for the many packets that go back and forth to set up TTLS
-	#  or PEAP.  The load on those servers will therefore be reduced.
+	#  Any LDAP and/or SQL servers will not be queried for the
+	#  initial set of packets that go back and forth to set up
+	#  TTLS or PEAP.
 	#
 	eap {
 		ok = return
@@ -161,40 +364,37 @@ authorize {
 	#  Pull crypt'd passwords from /etc/passwd or /etc/shadow,
 	#  using the system API's to get the password.  If you want
 	#  to read /etc/passwd or /etc/shadow directly, see the
-	#  passwd module in radiusd.conf.
+	#  mods-available/passwd module.
 	#
 #	unix
 
 	#
-	#  Read the 'users' file
+	#  Read the 'users' file.  In v3, this is located in
+	#  raddb/mods-config/files/authorize
 	files
 
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
 	#
-	#  See "Authorization Queries" in sql.conf
-#	sql
+	#  See "Authorization Queries" in mods-available/sql
+	-sql
 
 	#
 	#  If you are using /etc/smbpasswd, and are also doing
 	#  mschap authentication, the un-comment this line, and
-	#  configure the 'etc_smbpasswd' module, above.
-#	etc_smbpasswd
+	#  configure the 'smbpasswd' module.
+#	smbpasswd
 
 	#
-	#  The ldap module will set Auth-Type to LDAP if it has not
-	#  already been set
-#	ldap
+	#  The ldap module reads passwords from the LDAP database.
+	-ldap
 
 	#
 	#  Enforce daily limits on time spent logged in.
 #	daily
 
 	#
-	# Use the checkval module
-#	checkval
-
 	expiration
 	logintime
 
@@ -230,7 +430,7 @@ authorize {
 #  Note that it does NOT mean 'try each module in order'.  It means
 #  that a module from the 'authorize' section adds a configuration
 #  attribute 'Auth-Type := FOO'.  That authentication type is then
-#  used to pick the apropriate module from the list below.
+#  used to pick the appropriate module from the list below.
 #
 
 #  In general, you SHOULD NOT set the Auth-Type attribute.  The server
@@ -283,24 +483,17 @@ authenticate {
 	#  Pluggable Authentication Modules.
 #	pam
 
+	#  Uncomment it if you want to use ldap for authentication
 	#
-	#  See 'man getpwent' for information on how the 'unix'
-	#  module checks the users password.  Note that packets
-	#  containing CHAP-Password attributes CANNOT be authenticated
-	#  against /etc/passwd!  See the FAQ for details.
+	#  Note that this means "check plain-text password against
+	#  the ldap database", which means that EAP won't work,
+	#  as it does not supply a plain-text password.
 	#
-	#  For normal "crypt" authentication, the "pap" module should
-	#  be used instead of the "unix" module.  The "unix" module should
-	#  be used for authentication ONLY for compatibility with legacy
-	#  FreeRADIUS configurations.
+	#  We do NOT recommend using this.  LDAP servers are databases.
+	#  They are NOT authentication servers.  FreeRADIUS is an
+	#  authentication server, and knows what to do with authentication.
+	#  LDAP servers do not.
 	#
-	unix
-
-	# Uncomment it if you want to use ldap for authentication
-	#
-	# Note that this means "check plain-text password against
-	# the ldap database", which means that EAP won't work,
-	# as it does not supply a plain-text password.
 #	Auth-Type LDAP {
 #		ldap
 #	}
@@ -317,7 +510,7 @@ authenticate {
 	#
 #	Auth-Type eap {
 #		eap {
-#			handled = 1  
+#			handled = 1
 #		}
 #		if (handled && (Response-Packet-Type == Access-Challenge)) {
 #			attr_filter.access_challenge.post-auth
@@ -334,6 +527,12 @@ preacct {
 	preprocess
 
 	#
+	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
+	#  into a single 64bit counter Acct-[Input|Output]-Octets64.
+	#
+#	acct_counters64
+
+	#
 	#  Session start times are *implied* in RADIUS.
 	#  The NAS never sends a "start time".  Instead, it sends
 	#  a start packet, *possibly* with an Acct-Delay-Time.
@@ -341,12 +540,14 @@ preacct {
 	#  was "Acct-Delay-Time" seconds in the past.
 	#
 	#  The code below creates an explicit start time, which can
-	#  then be used in other modules.
+	#  then be used in other modules.  It will be *mostly* correct.
+	#  Any errors are due to the 1-second resolution of RADIUS,
+	#  and the possibility that the time on the NAS may be off.
 	#
 	#  The start time is: NOW - delay - session_length
 	#
 
-#	  update request {
+#	update request {
 #	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
 #	}
 
@@ -376,6 +577,10 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
+	#  Update accounting packet by adding the CUI attribute
+	#  recorded from the corresponding Access-Accept
+	#  use it only if your NAS boxes do not support CUI themselves
+#	cui
 	#
 	#  Create a 'detail'ed log of the packets.
 	#  Note that accounting requests which are proxied
@@ -393,7 +598,7 @@ accounting {
 	#
 	#  Due to packet losses in the network, the data here
 	#  may be incorrect.  There is little we can do about it.
-	radutmp
+#	radutmp
 #	sradutmp
 
 	#  Return an address to the IP Pool when we see a stop record.
@@ -402,8 +607,8 @@ accounting {
 	#
 	#  Log traffic to an SQL database.
 	#
-	#  See "Accounting queries" in sql.conf
-#	sql
+	#  See "Accounting queries" in mods-available/sql
+	-sql
 
 	#
 	#  If you receive stop packets with zero session length,
@@ -443,14 +648,14 @@ accounting {
 }
 
 
-#  Session database, used for checking Simultaneous-Use. Either the radutmp 
+#  Session database, used for checking Simultaneous-Use. Either the radutmp
 #  or rlm_sql module can handle this.
 #  The rlm_sql module is *much* faster
 session {
-	radutmp
+#	radutmp
 
 	#
-	#  See "Simultaneous Use Checking Queries" in sql.conf
+	#  See "Simultaneous Use Checking Queries" in mods-available/sql
 #	sql
 }
 
@@ -459,20 +664,49 @@ session {
 #  Once we KNOW that the user has been authenticated, there are
 #  additional steps we can take.
 post-auth {
+	#
+	#  If you need to have a State attribute, you can
+	#  add it here.  e.g. for later CoA-Request with
+	#  State, and Service-Type = Authorize-Only.
+	#
+#	if (!&reply:State) {
+#		update reply {
+#			State := "0x%{randstr:16h}"
+#		}
+#	}
+
+	#
+	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
+	#  The "session-state" attributes are automatically cached when
+	#  an Access-Challenge is sent, and automatically retrieved
+	#  when an Access-Request is received.
+	#
+	#  The session-state attributes are automatically deleted after
+	#  an Access-Reject or Access-Accept is sent.
+	#
+	update {
+		&reply: += &session-state:
+	}
+
 	#  Get an address from the IP Pool.
 #	main_pool
 
+
+	#  Create the CUI value and add the attribute to Access-Accept.
+	#  Uncomment the line below if *returning* the CUI.
+#	cui
+
 	#
 	#  If you want to have a log of authentication replies,
-	#  un-comment the following line, and the 'detail reply_log'
-	#  section, above.
+	#  un-comment the following line, and enable the
+	#  'detail reply_log' module.
 #	reply_log
 
 	#
 	#  After authenticating the user, do another SQL query.
 	#
-	#  See "Authentication Logging Queries" in sql.conf
-#	sql
+	#  See "Authentication Logging Queries" in mods-available/sql
+	-sql
 
 	#
 	#  Instead of sending the query to the SQL server,
@@ -481,9 +715,8 @@ post-auth {
 #	sql_log
 
 	#
-	#  Un-comment the following if you have set
-	#  'edir_account_policy_check = yes' in the ldap module sub-section of
-	#  the 'modules' section.
+	#  Un-comment the following if you want to modify the user's object
+	#  in LDAP after a successful login.
 	#
 #	ldap
 
@@ -515,6 +748,7 @@ post-auth {
 	#
 #	wimax
 
+
 	#  If there is a client certificate (EAP-TLS, sometimes PEAP
 	#  and TTLS), then some attributes are filled out after the
 	#  certificate verification has been performed.  These fields
@@ -532,36 +766,61 @@ post-auth {
 #	       Reply-Message += "%{TLS-Cert-Subject}"
 #	       Reply-Message += "%{TLS-Cert-Issuer}"
 #	       Reply-Message += "%{TLS-Cert-Common-Name}"
+#	       Reply-Message += "%{TLS-Cert-Subject-Alt-Name-Email}"
 #
 #	       Reply-Message += "%{TLS-Client-Cert-Serial}"
 #	       Reply-Message += "%{TLS-Client-Cert-Expiration}"
 #	       Reply-Message += "%{TLS-Client-Cert-Subject}"
 #	       Reply-Message += "%{TLS-Client-Cert-Issuer}"
 #	       Reply-Message += "%{TLS-Client-Cert-Common-Name}"
+#	       Reply-Message += "%{TLS-Client-Cert-Subject-Alt-Name-Email}"
 #	}
 
+	#  Insert class attribute (with unique value) into response,
+	#  aids matching auth and acct records, and protects against duplicate
+	#  Acct-Session-Id. Note: Only works if the NAS has implemented
+	#  RFC 2865 behaviour for the class attribute, AND if the NAS
+	#  supports long Class attributes.  Many older or cheap NASes
+	#  only support 16-octet Class attributes.
+#	insert_acct_class
 
-	#  If the WiMAX module did it's work, you may want to do more
-	#  things here, like delete the MS-MPPE-*-Key attributes.
+	#  MacSEC requires the use of EAP-Key-Name.  However, we don't
+	#  want to send it for all EAP sessions.  Therefore, the EAP
+	#  modules put required data into the EAP-Session-Id attribute.
+	#  This attribute is never put into a request or reply packet.
 	#
-	#	if (updated) {
-	#		update reply {
-	#			MS-MPPE-Recv-Key !* 0x00
-	#			MS-MPPE-Send-Key !* 0x00
-	#		}
-	#	}
+	#  Uncomment the next few lines to copy the required data into
+	#  the EAP-Key-Name attribute
+#	if (&reply:EAP-Session-Id) {
+#		update reply {
+#			EAP-Key-Name := &reply:EAP-Session-Id
+#		}
+#	}
+
+	#  Remove reply message if the response contains an EAP-Message
+	remove_reply_message_if_eap
 
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
 	#
-	#  Add the ldap module name (or instance) if you have set 
+	#  Add the ldap module name (or instance) if you have set
 	#  'edir_account_policy_check = yes' in the ldap module configuration
+	#
+	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
 		# log failed authentications in SQL, too.
-#		sql
+		-sql
 		attr_filter.access_reject
+
+		# Insert EAP-Failure message if the request was
+		# rejected by policy instead of because of an
+		# authentication failure
+		eap
+
+		#  Remove reply message if the response contains an EAP-Message
+		remove_reply_message_if_eap
 	}
 }
 
@@ -574,7 +833,16 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
-#	attr_rewrite
+	# Before proxing the request add an Operator-Name attribute identifying
+	# if the operator-name is found for this client.
+	# No need to uncomment this if you have already enabled this in
+	# the authorize section.
+#	operator-name
+
+	#  The client requests the CUI by sending a CUI attribute
+	#  containing one zero byte.
+	#  Uncomment the line below if *requesting* the CUI.
+#	cui
 
 	#  Uncomment the following line if you want to change attributes
 	#  as defined in the preproxy_users file.
@@ -602,8 +870,6 @@ post-proxy {
 	#  un-comment the following line, and the 'detail post_proxy_log'
 	#  section, above.
 #	post_proxy_log
-
-#	attr_rewrite
 
 	#  Uncomment the following line if you want to filter replies from
 	#  remote proxies based on the rules defined in the 'attrs' file.
@@ -639,8 +905,8 @@ post-proxy {
 	#  Accounting-Requests from the NAS, but only writes
 	#  accounting packets to disk if the home server is down.
 	#
-#	Post-Proxy-Type Fail {
+#	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
 }
-
+}

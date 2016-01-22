@@ -2,7 +2,7 @@
 #
 #	An example virtual server configuration.
 #
-#	$Id$
+#	$Id: 5f204aaa6fc87e487b8542e1e4781623ff7f4a73 $
 #
 ######################################################################
 
@@ -34,7 +34,7 @@
 #	  secrets
 #
 #	FYI: We use an address in the 192.0.2.* space for this example,
-#	as RFC 3330 says that that /24 range is used for documenation
+#	as RFC 3330 says that that /24 range is used for documentation
 #	and examples, and should not appear on the net.  You shouldn't
 #	use it for anything, either.
 #
@@ -92,9 +92,9 @@ server example {
 		#
 		#  Some example policies.  See "man unlang" for more.
 		#
-		if ("%{User-Name}" == "bob") {
+		if (&User-Name == 'bob') {
 			update control {
-				Cleartext-Password := "bob"
+				&Cleartext-Password := 'bob'
 			}
 		}
 
@@ -114,7 +114,7 @@ server example {
 
 		Post-Auth-Type Reject {
 			update reply {
-				Reply-Message = "This is only an example."
+				&Reply-Message = 'This is only an example.'
 			}
 		}
 	}

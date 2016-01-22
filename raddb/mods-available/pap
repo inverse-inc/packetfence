@@ -1,0 +1,18 @@
+# -*- text -*-
+#
+#  $Id: 0038ecd154840c71ceff33ddfdd936e4e28e0bcd $
+
+# PAP module to authenticate users based on their stored password
+#
+#  Supports multiple encryption/hash schemes.  See "man rlm_pap"
+#  for details.
+#
+#  For instructions on creating the various types of passwords, see:
+#
+#  http://www.openldap.org/faq/data/cache/347.html
+pap {
+	#  By default the server will use heuristics to try and automatically
+	#  handle base64 or hex encoded passwords. This behaviour can be
+	#  stopped by setting the following to "no".
+#	normalise = yes
+}

@@ -4,7 +4,7 @@
 #	This is a virtual server that handles *only* inner tunnel
 #	requests for EAP-TTLS and PEAP types.
 #
-#	$Id$
+#	$Id: 938d954592d3824e4d51e3315d0f7e0b5cfde824 $
 #
 ######################################################################
 
@@ -24,7 +24,7 @@ authorize {
 
 	update control {
 		#  You should update this to be one of your realms.
-		Proxy-To-Realm := "example.com"
+		&Proxy-To-Realm := "example.com"
 	}
 }
 

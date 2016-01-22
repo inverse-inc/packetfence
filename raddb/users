@@ -1,2 +1,1 @@
-# Default user. IMPORTANT, DO NOT MODIFY
-DEFAULT EAP-Message !* "", Auth-Type := Accept
+./mods-config/files/authorize
