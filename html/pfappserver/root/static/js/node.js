@@ -49,7 +49,11 @@ var NodeView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'change', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeField);
+
     this.proxyFor($('body'), 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+
+    this.proxyFor($('body'), 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeField);
 
     this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
@@ -550,4 +554,23 @@ NodeView.prototype.submitItems = function(e) {
             });
         });
     }
+};
+
+NodeView.prototype.changeField = function(e) {
+    var target = $(e.currentTarget);
+    var op_input = target.next();
+    var value_input = op_input.next();
+    var search_type = target.val();
+    var op_input_template_id = '#' + search_type + "_op";
+    var op_input_template = $(op_input_template_id);
+    if (op_input_template.length == 0 ) {
+        op_input_template = $('#default_op');
+    }
+    changeInputFromTemplate(op_input, op_input_template);
+    var value_template_id = '#' + search_type + "_value";
+    var value_template = $(value_template_id);
+    if (value_template.length == 0 ) {
+        value_template = $('#default_value');
+    }
+    changeInputFromTemplate(value_input, value_template);
 };
