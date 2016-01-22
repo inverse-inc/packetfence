@@ -28,6 +28,13 @@ realm IPASS {
 realm suffix {
 	format = suffix
 	delimiter = "@"
+    # Ignore null domains so that we can keep looking for other styles,
+    # e.g. ntdomain style domains.
+    # If this is not set the realm would automatically be set to 
+    # NULL is the username does not contain an @
+    # This means that checks for suffix type domains must always be 
+    # done before ntdomain checks.
+    ignore_null = yes
 
 	# The next 3 configuration items are valid ONLY
 	# for a trust-router.  For all other realms,
