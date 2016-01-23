@@ -9,6 +9,8 @@ use Plack::Request;
 use Plack::Response;
 use MIME::Base64;
 use Data::Dumper;
+
+my $username_attribute = "urn:oid:0.9.2342.19200300.100.1.1";
  
 my $app = sub {
     my $env = shift;
@@ -29,9 +31,20 @@ my $app = sub {
             if($rc){
                 die "Single Sign-On failed..."
             }
+
+            my $assertion = $lassoLogin->get_assertion();
+            my @attribute_list = $assertion->AttributeStatement->Attribute;
             
-#            $res->content_type('text/xml');
-            $res->body($req->body_parameters->{SAMLResponse});
+            my $username;
+            foreach my $attribute (@attribute_list){
+                if($attribute->Name eq $username_attribute){
+                    $username = $attribute->AttributeValue->any->content;
+                    last;
+                }
+            }
+
+            $res->body(defined($username) ? "User $username has authenticated" : "Can't find username in SAML response...");
+
             $res->status(200);
         }
         else {
