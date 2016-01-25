@@ -113,7 +113,9 @@ $(function() {
             to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
         }
         from_form.find(':input').each(function(e){
-            to_form.find('[name="' + this.name + '"]:not(:disabled)').val(this.value);
+            var input = to_form.find('[name="' + this.name + '"]:not(:disabled)');
+            input.val(this.value);
+            input.trigger('saved_search.loaded');
         });
         $('[data-toggle="tab"][href="#' + target + '"]').tab('show');
         to_form.submit();
