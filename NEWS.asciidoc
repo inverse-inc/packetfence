@@ -11,6 +11,25 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+
+Version 5.6.1 released on 2016-01-25
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* pfcmd will now validate the violation configuration in checkup
+* pfdns cached entries will now expire after 24 hours
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fix duplicate open entries in locationlog for voip devices
+* Avoid circular dependency when loading pf::Authentication::Source::StripeSource (1160)
+* Fix incorrect Cisco switch ACL number 
+* Removed use of pf::class modules which caused compilation errors
+* Fixed an incorrect reload of the cached configuration (1157)
+
 Version 5.6.0 released on 2016-01-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
