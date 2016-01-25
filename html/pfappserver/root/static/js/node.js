@@ -107,12 +107,18 @@ var NodeView = function(options) {
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
     });
+
     body.find('form[name="advancedNodeSearch"] [data-provide="typeahead"]').typeahead({
         source: $.proxy(that.searchSwitch, that),
         minLength: 2,
         items: 11,
         matcher: function(item) { return true; }
     });
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
+
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -568,7 +574,15 @@ NodeView.prototype.submitItems = function(e) {
     }
 };
 
+NodeView.prototype.changeSearchFieldKeep = function(e) {
+    this.handleChangeSearchField(e, true);
+};
+
 NodeView.prototype.changeSearchField = function(e) {
+    this.handleChangeSearchField(e, false);
+};
+
+NodeView.prototype.handleChangeSearchField = function(e, keep) {
     var search_input = $(e.currentTarget);
     var op_input = search_input.next();
     var search_type = search_input.val();
@@ -585,11 +599,19 @@ NodeView.prototype.changeSearchField = function(e) {
         value_template = $('#default_value');
     }
     if (value_template.length) {
-        changeInputFromTemplate(value_input, value_template);
+        changeInputFromTemplate(value_input, value_template, keep);
     }
 };
 
+NodeView.prototype.changeOpFieldKeep = function(e) {
+    this.handleChangeOpField(e, true);
+};
+
 NodeView.prototype.changeOpField = function(e) {
+    this.handleChangeOpField(e, false);
+};
+
+NodeView.prototype.handleChangeOpField = function(e, keep) {
     var op_input = $(e.currentTarget);
     var search_input = op_input.prev();
     var value_input = op_input.next();
@@ -598,7 +620,7 @@ NodeView.prototype.changeOpField = function(e) {
     var value_template_id = '#' +  search_type + "_value_" + op_type + "_op" ;
     var value_template = $(value_template_id);
     if (value_template.length) {
-        changeInputFromTemplate(value_input, value_template);
+        changeInputFromTemplate(value_input, value_template, keep);
     }
 };
 
