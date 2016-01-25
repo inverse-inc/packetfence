@@ -12,7 +12,7 @@
                         <dict>
                                 <key>AcceptEAPTypes</key>
                                 <array>
-                                        <integer>[% provisionner.eap_type %]</integer>
+                                        <integer>[% provisioner.eap_type %]</integer>
                                 </array>
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
