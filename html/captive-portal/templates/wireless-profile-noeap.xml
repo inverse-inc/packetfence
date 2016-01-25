@@ -35,7 +35,7 @@
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                         <key>Password</key>
-                        <string>[% passcode %]</string>
+                        <string>[% provisioner.passcode %]</string>
                 </dict>
         </array>
         <key>PayloadDescription</key>
