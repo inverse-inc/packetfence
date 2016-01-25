@@ -60,6 +60,9 @@ has_field 'passcode' =>
   (
    type => 'Text',
    label => 'Wifi Key',
+   tags => { after_element => \&help,
+             help => 'The WiFi key to join the SSID' },
+
   );
 
 has_field 'cert_chain' =>

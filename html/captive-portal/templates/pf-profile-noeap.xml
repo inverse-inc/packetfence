@@ -18,7 +18,6 @@
                         [% END %]
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
-                        [% IF provisioner.eap_type.undefined %]
                         <key>Password</key>
                         <string>[% passcode %]</string>
                 </dict>
