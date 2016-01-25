@@ -68,7 +68,6 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
-                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>
