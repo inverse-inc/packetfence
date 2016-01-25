@@ -13,7 +13,9 @@ use pf::constants::authentication::messages;
 use pf::constants;
 use Lasso;
 use Template;
-use File::Slurp qw(read_file);
+use File::Slurp qw(read_file write_file);
+use File::Temp qw(tempfile);
+use pf::util;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -21,7 +23,6 @@ extends 'pf::Authentication::Source';
 has '+type' => ( default => 'SAML' );
 has 'authorization_source_id' => ( is => 'rw', required => 1 );
 
-has 'sp_metadata_path' => ( is => 'rw', required => 1 );
 has 'sp_key_path' => ( is => 'rw', required => 1 );
 has 'sp_cert_path' => ( is => 'rw', required => 1 );
 has 'sp_entity_id' => ( is => 'rw', required => 1 );
@@ -55,7 +56,9 @@ sub authorization_source {
 sub lasso_server {
     my ($self) = @_;
     Lasso::init();
-    my $server = Lasso::Server->new($self->sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
+    my ($fh, $sp_metadata_path) = tempfile();
+    write_file($sp_metadata_path, $self->generate_sp_metadata());
+    my $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
     $server->add_provider(Lasso::Constants::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
     return $server;
 }
@@ -133,10 +136,11 @@ sub generate_sp_metadata {
     my $cert = read_file($self->sp_cert_path);
     $cert = join("\n", map { ($_ !~ /^-----BEGIN CERTIFICATE-----/ && $_ !~ /^-----END CERTIFICATE-----/) ? $_ : () } split(/\n/, $cert));
     my $vars = {
-        callback => $pf::config::fqdn."/saml/assertion",
+        hostname => $pf::config::fqdn,
         sp_entity_id => $self->sp_entity_id,
         sp_cert => $cert,
-        entity_id => $self->sp_entity_id
+        entity_id => $self->sp_entity_id,
+        protocol => isenabled($pf::config::Config{captive_portal}{secure_redirect}) ? "https" : "http",
     };
 
     our $TT_OPTIONS = {ABSOLUTE => 1};
@@ -145,7 +149,7 @@ sub generate_sp_metadata {
     my $output = '';
     $template->process("/usr/local/pf/addons/saml-sp-metadata.xml", $vars, \$output) || die("Can't generate SP metadata : ".$template->error);
 
-    print $output;
+    return $output;
 }
 
 =head1 AUTHOR

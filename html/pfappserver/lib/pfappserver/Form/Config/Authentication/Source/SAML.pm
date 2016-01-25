@@ -24,13 +24,6 @@ has_field 'sp_entity_id' =>
    required => 1,
   );
 
-has_field 'sp_metadata_path' =>
-  (
-   type => 'Path',
-   label => 'Path to Service Provider metadata',
-   required => 1,
-  );
-
 has_field 'sp_key_path' =>
   (
    type => 'Path',
