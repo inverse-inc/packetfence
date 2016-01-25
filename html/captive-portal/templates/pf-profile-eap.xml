@@ -19,9 +19,9 @@
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         [% IF provisioner.broadcast %]
-                        <true/>
-                        [% ELSE %]
                         <false/>
+                        [% ELSE %]
+                        <true/>
                         [% END %]
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>

@@ -12,9 +12,9 @@
                         <string>[% provisioner.security_type %]</string>
                         <key>HIDDEN_NETWORK</key>
                         [% IF provisioner.broadcast %]
-                        <true/>
-                        [% ELSE %]
                         <false/>
+                        [% ELSE %]
+                        <true/>
                         [% END %]
                         <key>PayloadDescription</key>
                         <string>Configures wireless connectivity settings.</string>
@@ -35,7 +35,7 @@
                         <key>SSID_STR</key>
                         <string>[% provisioner.ssid %]</string>
                         <key>Password</key>
-                        <string>[% provisioner.passcode %]</string>
+                        <string>[% passwcode %]</string>
                 </dict>
         </array>
         <key>PayloadDescription</key>
