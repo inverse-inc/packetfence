@@ -36,55 +36,57 @@ Nodes.prototype.post = function(options) {
  * The NodeView class defines the DOM operations from the Web interface.
  */
 var NodeView = function(options) {
+    var that = this;
     this.nodes = options.nodes;
 
     var read = $.proxy(this.readNode, this);
+    var body = $('body');
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
-    this.proxyClick($('body'), '.node [href*="node"][href$="/read"]', this.readNode);
+    this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
 
-    this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
+    this.proxyFor(body, 'show', '#modalNode', this.showNode);
 
-    this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
+    this.proxyFor(body, 'submit', 'form[name="nodes"]', this.createNode);
 
-    this.proxyFor($('body'), 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
+    this.proxyFor(body, 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
 
-    this.proxyFor($('body'), 'change', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchField);
+    this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchField);
 
-    this.proxyFor($('body'), 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
+    this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
-    this.proxyFor($('body'), 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+    this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
 
-    this.proxyFor($('body'), 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
+    this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
-    this.proxyFor($('body'), 'change', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpField);
+    this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpField);
 
-    this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
+    this.proxyFor(body, 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
+    this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
 
-    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
 
-    this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
+    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
 
-    this.proxyClick($('body'), '#modalNode [href*="/run/"]', this.runViolation);
+    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
 
-    this.proxyClick($('body'), '#modalNode #reevaluateNode', this.reevaluateAccess);
+    this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
 
-    this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
+    this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or sort the query */
-    this.proxyClick($('body'), '.nodes .pagination a', this.searchPagination);
+    this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
 
-    this.proxyClick($('body'), '#nodes thead a', this.reorderSearch);
+    this.proxyClick(body, '#nodes thead a', this.reorderSearch);
 
-    this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
+    this.proxyClick(body, '#toggle_all_items', this.toggleAllItems);
 
-    this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
+    this.proxyClick(body, '[name="items"]', this.toggleActionsButton);
 
-    this.proxyClick($('body'), '#node_bulk_actions .bulk_action', this.submitItems);
+    this.proxyClick(body, '#node_bulk_actions .bulk_action', this.submitItems);
 
-    this.proxyClick($('body'), '[id$="Empty"] [href="#add"]', function(e) {
+    this.proxyClick(body, '[id$="Empty"] [href="#add"]', function(e) {
         var emptyDiv = $(e.currentTarget).closest('[id$="Empty"]');
         var match = /(.+)Empty/.exec(emptyDiv.attr('id'));
         var id = match[1];
@@ -94,7 +96,7 @@ var NodeView = function(options) {
         return false;
     });
 
-    this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
+    this.proxyFor(body, 'section.loaded', '#section', function(e) {
         /* Enable autocompletion of owner on tab of single node creation */
         $('[data-provide="typeahead"]').typeahead({
             source: $.proxy(this.searchUser, this),
