@@ -125,6 +125,13 @@ $(document).ready(function() {
                   <a href="[% URL_BILLING %]?destination_url=[% destination_url %]">[% i18n("Pay for your access") %]</a>
               </div>
             [% END %]         
+
+          [% FOREACH source IN saml_sources -%]
+            <div class="input">
+              <div class="separator"><div class="or_separator">or</div></div>
+              <a class="btn disabled" href="/saml/redirect/[% source.id %]?destination_url=[% destination_url %]">[% i18n("Login using SAML on ${source.description}") %]</a>
+            </div>
+          [% END %]         
         </form>
 
 [% INCLUDE footer.html %]

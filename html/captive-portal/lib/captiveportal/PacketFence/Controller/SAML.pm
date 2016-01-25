@@ -26,6 +26,8 @@ Catalyst Controller.
 
 sub redirect :Local :Args(1) {
     my ($self, $c, $source_id) = @_;
+
+    $c->forward('_validate_source', [$source_id]);
     
     my $source = $c->forward("_get_source", [$source_id]);
 
@@ -37,9 +39,12 @@ sub redirect :Local :Args(1) {
 sub assertion :Local {
     my ($self, $c) = @_;
     my $source_id = $c->session->{"saml_source"};
+
     unless($source_id){
         $self->showError($c, "Can't find associated SAML source in session.");
     }
+
+    $c->forward('_validate_source', [$source_id]);
 
     my $source = $c->forward("_get_source", [$source_id]);
 
@@ -54,6 +59,13 @@ sub assertion :Local {
     }
     else {
         $self->showError($c, $msg);
+    }
+}
+
+sub _validate_source :Private {
+    my ($self, $c, $source_id) = @_;
+    unless($c->profile->hasSource($source_id)) {
+        $self->showError($c, "Source $source_id is not allowed on the portal profile");
     }
 }
 

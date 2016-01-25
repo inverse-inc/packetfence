@@ -12,6 +12,8 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::constants;
 use Lasso;
+use Template;
+use File::Slurp qw(read_file);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -22,14 +24,16 @@ has 'authorization_source_id' => ( is => 'rw', required => 1 );
 has 'sp_metadata_path' => ( is => 'rw', required => 1 );
 has 'sp_key_path' => ( is => 'rw', required => 1 );
 has 'sp_cert_path' => ( is => 'rw', required => 1 );
+has 'sp_entity_id' => ( is => 'rw', required => 1 );
 
 has 'idp_cert_path' => ( is => 'rw', required => 1 );
 has 'idp_ca_cert_path' => ( is => 'rw', required => 1 );
 has 'idp_metadata_path' => ( is => 'rw', required => 1 );
-
-has 'sso_base_url' => ( is => 'rw', required => 1 );
+has 'idp_entity_id' => ( is => 'rw', required => 1 );
 
 has 'username_attribute' => ( is => 'rw', default => "urn:oid:0.9.2342.19200300.100.1.1" );
+
+sub has_authentication_rules { $FALSE }
 
 sub authenticate {
     my $msg = "Can't authenticate against a SAML source..."; 
@@ -67,7 +71,7 @@ sub sso_url {
     eval {
         my $lassoLogin = $self->lasso_login;
 
-        $lassoLogin->init_authn_request($self->sso_base_url, Lasso::Constants::HTTP_METHOD_REDIRECT);
+        $lassoLogin->init_authn_request($self->idp_entity_id, Lasso::Constants::HTTP_METHOD_REDIRECT);
         $lassoLogin->request->NameIDPolicy->Format(Lasso::Constants::SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT);
         $lassoLogin->request->NameIDPolicy->AllowCreate(1);
         $lassoLogin->request->ForceAuthn(0);
@@ -121,6 +125,27 @@ sub handle_response {
 
     return ($result, $msg);
 
+}
+
+sub generate_sp_metadata {
+    my ($self) = @_;
+    require pf::config;
+    my $cert = read_file($self->sp_cert_path);
+    $cert = join("\n", map { ($_ !~ /^-----BEGIN CERTIFICATE-----/ && $_ !~ /^-----END CERTIFICATE-----/) ? $_ : () } split(/\n/, $cert));
+    my $vars = {
+        callback => $pf::config::fqdn."/saml/assertion",
+        sp_entity_id => $self->sp_entity_id,
+        sp_cert => $cert,
+        entity_id => $self->sp_entity_id
+    };
+
+    our $TT_OPTIONS = {ABSOLUTE => 1};
+    our $template = Template->new($TT_OPTIONS);
+
+    my $output = '';
+    $template->process("/usr/local/pf/addons/saml-sp-metadata.xml", $vars, \$output) || die("Can't generate SP metadata : ".$template->error);
+
+    print $output;
 }
 
 =head1 AUTHOR
