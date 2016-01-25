@@ -107,6 +107,12 @@ var NodeView = function(options) {
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
     });
+    body.find('form[name="advancedNodeSearch"] [data-provide="typeahead"]').typeahead({
+        source: $.proxy(that.searchSwitch, that),
+        minLength: 2,
+        items: 11,
+        matcher: function(item) { return true; }
+    });
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -595,3 +601,19 @@ NodeView.prototype.changeOpField = function(e) {
         changeInputFromTemplate(value_input, value_template);
     }
 };
+
+NodeView.prototype.searchSwitch = function(query, process) {
+    this.nodes.post({
+        url: '/config/switch/search',
+        data: {
+            'json': 1,
+            'all_or_any': 'any',
+            'searches.0.name': 'id',
+            'searches.0.op': 'like',
+            'searches.0.value': query,
+        },
+        success: function(data) {
+            process(data);
+        }
+    });
+}
