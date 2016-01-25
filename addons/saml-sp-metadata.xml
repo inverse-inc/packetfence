@@ -15,7 +15,9 @@
         </ds:X509Data>
       </ds:KeyInfo>
     </md:KeyDescriptor>
+    <!--- Not implemented and probably will never be... Leaving it there should it prove to be mandatory for a SAML IDP
     <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="[% protocol %]://[% hostname %]/saml/assertion"/>
+    -->
     <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="[% protocol %]://[% hostname %]/saml/assertion" index="0"/>
     <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:1.0:profiles:browser-post" Location="[% protocol %]://[% hostname %]/saml/assertion" index="1"/>
     <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="[% protocol %]://[% hostname %]/saml/assertion" index="2"/>
