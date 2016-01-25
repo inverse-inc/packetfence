@@ -115,7 +115,10 @@ $(function() {
         from_form.find(':input').each(function(e){
             var input = to_form.find('[name="' + this.name + '"]:not(:disabled)');
             input.val(this.value);
-            input.trigger('saved_search.loaded');
+        });
+        to_form.find(':input[name^="searches."]:not(:disabled)').each(function(i,e){
+            var $this = $(this);
+            $this.trigger('saved_search.loaded');
         });
         $('[data-toggle="tab"][href="#' + target + '"]').tab('show');
         to_form.submit();
