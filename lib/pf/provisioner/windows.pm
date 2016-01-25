@@ -33,7 +33,7 @@ The template to use for profile
 
 =cut
 
-has profile_template => (is => 'rw', lazy => 1, builder => 1); #default => sub { "pf-profile.xml" });
+has profile_template => (is => 'rw', lazy => 1, builder => 1);
 
 =head2 _build_profile_template
 
