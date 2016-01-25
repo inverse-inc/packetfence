@@ -636,6 +636,44 @@ Here is a brief description of the fields :
 * *Authentication URL* : URL relative to the host to call when doing the authentication of a user. Note that it is automatically prefixed by a slash.
 * *Authorization URL* : URL relative to the host to call when doing the authorization of a user. Note that it is automatically prefixed by a slash.
 
+SAML authentication
+~~~~~~~~~~~~~~~~~~~
+
+PacketFence supports SAML authentication in the captive portal in combination with another internal source to define the level of authorization of the user.
+
+First, transfer the Identity Provider metadata on the PacketFence server. In this example, it will be under the path `/usr/local/pf/conf/idp-metadata.xml`.
+
+Then, transfer the certificate and CA certificate of the Identity provider on the server. In this example, they will be under the paths `/usr/local/pf/conf/ssl/idp.crt` and `/usr/local/pf/conf/ssl/idp-ca.crt`. If it is a self-signed certificate, then you will be able to use it as the CA in the PacketFence configuration.
+
+Then, to configure SAML in PacketFence, go in 'Configuration -> Sources' and then create a new Internal source of the type SAML and configure it.
+
+### screenshot
+
+Where :
+
+[options="compact"]
+* *Service Provider entity ID* is the identifier of the Service Provider (PacketFence). Make sure this matches your Identity Provider configuration.
+* *Path to Service Provider key* is the path to the key that will be used by PacketFence to sign its messages to the Identity Provider. A default one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
+* *Path to Service Provider cert* is the path to the certificate associated to the key above. A self-signed one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
+* *Path to Identity Provider metadata* is the path to the metadata file you transfered above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
+* *Path to Identity Provider cert* is the path to the certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
+* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
+* *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLPHP
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user.
+
+Once this is done, save the source and you will be able to download the Service Provider metadata for PacketFence using the link 'Download Service Provider metadata' on the page.
+
+Configure your identity provider according to the generated metadata to complete the Trust between PacketFence and your Identity Provider.
+
+In the case of SimpleSAMLPHP, the following configuration was used in `metadata/saml20-sp-remote.php` : 
+
+
+  $metadata['PF_ENTITY_ID'] = array(
+    'AssertionConsumerService' => 'http://PORTAL_HOSTNAME/saml/assertion',
+    'SingleLogoutService' => 'http://PORTAL_HOSTNAME/saml/logoff',
+  );
+
+
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
