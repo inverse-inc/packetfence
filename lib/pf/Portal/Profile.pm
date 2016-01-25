@@ -180,6 +180,12 @@ sub hasBilling {
     return (scalar($self->getBillingSources()) > 0);
 }
 
+=item getSAMLSources
+
+Get the SAML sources configured in this portal profile
+
+=cut
+
 sub getSAMLSources {
     my ($self) = @_;
     return map { ($_->type eq "SAML") ? $_ : () } $self->getSourcesAsObjects();

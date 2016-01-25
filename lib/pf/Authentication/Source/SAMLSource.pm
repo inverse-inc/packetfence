@@ -2,9 +2,11 @@ package pf::Authentication::Source::SAMLSource;
 
 =head1 NAME
 
-pf::Authentication::Source::ADSource
+pf::Authentication::Source::SAMLSource
 
 =head1 DESCRIPTION
+
+Model for a SAML source
 
 =cut
 
@@ -34,7 +36,19 @@ has 'idp_entity_id' => ( is => 'rw', required => 1 );
 
 has 'username_attribute' => ( is => 'rw', default => "urn:oid:0.9.2342.19200300.100.1.1" );
 
+=head2 has_authentication_rules
+
+This source does not have any authentication rules
+
+=cut
+
 sub has_authentication_rules { $FALSE }
+
+=head2 authenticate
+
+Override parent method as SAML cannot be used directly for authentication
+
+=cut
 
 sub authenticate {
     my $msg = "Can't authenticate against a SAML source..."; 
@@ -42,16 +56,34 @@ sub authenticate {
     return ($FALSE, $msg);
 } 
 
+=head2 match
+
+Forward matching to the authorization source
+
+=cut
+
 sub match {
     my ($self, $params) = @_;
     return $self->authorization_source->match($params);
 }
+
+=head2 authorization_source
+
+Get authorization source from the ID defined in the source
+
+=cut
 
 sub authorization_source {
     my ($self) = @_;
     require pf::authentication;
     return pf::authentication::getAuthenticationSource($self->authorization_source_id);
 }
+
+=head2 lasso_server
+
+Create the Lasso server
+
+=cut
 
 sub lasso_server {
     my ($self) = @_;
@@ -63,10 +95,22 @@ sub lasso_server {
     return $server;
 }
 
+=head2 lasso_login
+
+Create the Lasso login
+
+=cut
+
 sub lasso_login {
     my ($self) = @_;
     return Lasso::Login->new($self->lasso_server);
 }
+
+=head2 sso_url
+
+Generate the Single-Sign-On URL that points to the Identity Provider
+
+=cut
 
 sub sso_url {
     my ($self) = @_;
@@ -91,6 +135,12 @@ sub sso_url {
     return $url;
 }
 
+=head2 handle_response
+
+Handle the response from the Identity Provider and extract the username out of the assertion
+
+=cut
+
 sub handle_response {
     my ($self, $response) = @_;
     
@@ -101,7 +151,7 @@ sub handle_response {
 
         my $rc = $lassoLogin->accept_sso();
         if($rc){
-            return ($FALSE, "Single Sign-On failed...");
+            return ($FALSE, "Single Sign-On failed. Code : $rc");
         }
 
         my $assertion = $lassoLogin->get_assertion();
@@ -129,6 +179,12 @@ sub handle_response {
     return ($result, $msg);
 
 }
+
+=head2 generate_sp_metadata
+
+Generate the metadata for the Service Provider (this server)
+
+=cut
 
 sub generate_sp_metadata {
     my ($self) = @_;

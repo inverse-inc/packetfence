@@ -129,7 +129,7 @@ $(document).ready(function() {
           [% FOREACH source IN saml_sources -%]
             <div class="input">
               <div class="separator"><div class="or_separator">or</div></div>
-              <a class="btn disabled" href="/saml/redirect/[% source.id %]?destination_url=[% destination_url %]">[% i18n("Login using SAML on ${source.description}") %]</a>
+              <a class="btn disabled" href="[% URL_SAML_REDIRECT %]/[% source.id %]?destination_url=[% destination_url %]">[% i18n("Login using SAML on ${source.description}") %]</a>
             </div>
           [% END %]         
         </form>

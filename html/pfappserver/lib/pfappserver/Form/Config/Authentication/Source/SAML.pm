@@ -2,11 +2,11 @@ package pfappserver::Form::Config::Authentication::Source::SAML;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::LDAP - Web form for a LDAP user source
+pfappserver::Form::Config::Authentication::Source::SAML - Web form for a SAML user source
 
 =head1 DESCRIPTION
 
-Form definition to create or update a LDAP user source.
+Form definition to create or update a SAML user source.
 
 =cut
 
@@ -91,6 +91,13 @@ has_field 'authorization_source_id' =>
              help => 'The source to use for authorization (rule matching)' },
    required => 1,
   );
+
+
+=head2 options_sources
+
+Get the sources that can be used for authorization
+
+=cut
 
 sub options_sources {
     return map { ($_->type ne "SAML") ? ($_->id => $_->id) : () } @{pf::authentication::getInternalAuthenticationSources()};

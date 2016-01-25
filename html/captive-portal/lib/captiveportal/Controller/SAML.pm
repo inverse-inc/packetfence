@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::SAML'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::SAML - SAML Controller for captiveportal
 
 =head1 DESCRIPTION
 

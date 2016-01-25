@@ -24,7 +24,9 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 
-=head2 index
+=head2 metadata
+
+Generate the Service Provider metadata for a source
 
 =cut
 
