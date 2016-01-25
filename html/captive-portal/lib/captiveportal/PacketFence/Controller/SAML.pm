@@ -29,9 +29,9 @@ Redirect the user to the Identity Provider
 sub redirect :Local :Args(1) {
     my ($self, $c, $source_id) = @_;
 
-    $c->forward('_validate_source', [$source_id]);
-    
     my $source = $c->forward("_get_source", [$source_id]);
+    
+    $c->forward('_validate_source', [$source]);
 
     $c->session(saml_source => $source_id);
 
@@ -52,9 +52,9 @@ sub assertion :Local {
         $self->showError($c, "Can't find associated SAML source in session.");
     }
 
-    $c->forward('_validate_source', [$source_id]);
-
     my $source = $c->forward("_get_source", [$source_id]);
+
+    $c->forward('_validate_source', [$source]);
 
     my ($username, $msg) = $source->handle_response($c->request->param("SAMLResponse"));
 
@@ -77,9 +77,12 @@ Validate the source can be used by the user
 =cut
 
 sub _validate_source :Private {
-    my ($self, $c, $source_id) = @_;
-    unless($c->profile->hasSource($source_id)) {
-        $self->showError($c, "Source $source_id is not allowed on the portal profile");
+    my ($self, $c, $source) = @_;
+    unless($c->profile->hasSource($source->id)) {
+        $self->showError($c, "Source ".$source->id." is not allowed on the portal profile.");
+    }
+    unless($source->type eq "SAML"){
+        $self->showError($c, "Source ".$source->id." is not a SAML source.");
     }
 }
 
