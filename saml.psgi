@@ -11,6 +11,16 @@ use MIME::Base64;
 use Data::Dumper;
 
 my $username_attribute = "urn:oid:0.9.2342.19200300.100.1.1";
+
+my $sp_cert_path = "/usr/local/pf/conf/ssl/server.crt";
+my $sp_key_path = "/usr/local/pf/conf/ssl/server.key";
+my $sp_metadata_path = "/usr/local/pf/sp-metadata.xml";
+
+my $idp_cert_path =  "/usr/local/pf/conf/ssl/simplesaml.crt";
+my $idp_ca_cert_path = "/usr/local/pf/conf/ssl/simplesaml.crt";
+my $idp_metadata_path = "/usr/local/pf/idp-metadata.xml";
+
+my $sso_url = "http://172.20.155.56/saml2/idp/metadata.php";
  
 my $app = sub {
     my $env = shift;
@@ -20,12 +30,11 @@ my $app = sub {
 
     eval {
         Lasso::init();
-        my $server = Lasso::Server->new("sp-metadata.xml", "/usr/local/pf/conf/ssl/server.key", undef, "/usr/local/pf/conf/ssl/server.crt");
-        $server->add_provider(Lasso::Constants::PROVIDER_ROLE_IDP, "idp-metadata.xml", "/usr/local/pf/conf/ssl/simplesaml.crt",  "/usr/local/pf/conf/ssl/simplesaml.crt");
+        my $server = Lasso::Server->new($sp_metadata_path, $sp_key_path, undef, $sp_cert_path);
+        $server->add_provider(Lasso::Constants::PROVIDER_ROLE_IDP, $idp_metadata_path, $idp_cert_path, $idp_ca_cert_path);
         
         my $lassoLogin = Lasso::Login->new($server);
         if($req->method eq "POST"){
-#            $lassoLogin->set_signature_verify_hint(Lasso::Constants::PROFILE_SIGNATURE_VERIFY_HINT_IGNORE);
             $lassoLogin->process_authn_response_msg($req->body_parameters->{SAMLResponse});
             my $rc = $lassoLogin->accept_sso();
             if($rc){
@@ -43,12 +52,13 @@ my $app = sub {
                 }
             }
 
-            $res->body(defined($username) ? "User $username has authenticated" : "Can't find username in SAML response...");
+            die "Can't find username in SAML response..." unless($username);
 
+            $res->body("User $username has authenticated");
             $res->status(200);
         }
         else {
-            $lassoLogin->init_authn_request("http://172.20.155.56/saml2/idp/metadata.php", Lasso::Constants::HTTP_METHOD_REDIRECT);
+            $lassoLogin->init_authn_request($sso_url, Lasso::Constants::HTTP_METHOD_REDIRECT);
             my $lassoRequest = $lassoLogin->request;
             $lassoLogin->request->NameIDPolicy->Format(Lasso::Constants::SAML2_NAME_IDENTIFIER_FORMAT_PERSISTENT);
             $lassoLogin->request->NameIDPolicy->AllowCreate(1);
