@@ -33,7 +33,26 @@ The template to use for profile
 
 =cut
 
-has profile_template => (is => 'rw', default => sub { "pf-profile.xml" });
+has profile_template => (is => 'rw', lazy => 1, builder => 1); #default => sub { "pf-profile.xml" });
+
+=head2 _build_profile_template
+
+Creates a template from the eap type
+
+=cut
+
+sub _build_profile_template {
+    my ($self) = @_;
+    my $eap_type = $self->eap_type;
+    if (defined($eap_type)) {
+        if ($eap_type == 13) {
+            return "pf-profile-eap.xml";
+        } elsif ($eap_type == 25) {
+            return "pf-profile-peap.xml";
+        }
+    }
+    return "pf-profile-noeap.xml";
+}
 
 =head1 AUTHOR
 

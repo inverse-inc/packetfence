@@ -115,7 +115,7 @@ The template to use for profile
 
 =cut
 
-has profile_template => (is => 'rw', default => sub { "wireless-profile.xml" });
+has profile_template => (is => 'rw', lazy => 1, builder =>1 ); #default => sub { "wireless-profile.xml" });
 
 =head2 can_sign_profile
 
@@ -155,6 +155,25 @@ sub sign_profile {
         $smime->setPublicKey($self->cert_chain);
     }
     return decode_base64($smime->signonly_attached($content));
+}
+
+=head2 _build_profile_template
+
+Creates a template from the eap type
+
+=cut
+
+sub _build_profile_template {
+    my ($self) = @_;
+    my $eap_type = $self->eap_type;
+    if (defined($eap_type)) {
+        if ($eap_type == 13) {
+            return "wireless-profile-eap.xml";
+        } elsif ($eap_type == 25) {
+            return "wireless-profile-peap.xml";
+        }
+    } 
+    return "wireless-profile-noeap.xml";
 }
 
 =head1 AUTHOR
