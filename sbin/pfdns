@@ -258,28 +258,20 @@ sub resolve {
 
     my ($ttl, $rdata);
     my $res   = Net::DNS::Resolver->new;
-    $query = $CHI_CACHE->compute("resolve-$qname", sub { $res->search($qname) });
+    my $reply = $CHI_CACHE->compute("resolve-$qtype-$qname", sub { $res->search($qname, $qtype) });
 
-    $logger->debug("Query for public domain : $qname");
+    $logger->debug("Query for public domain ($qtype) : $qname");
 
+    $rcode = "NXDOMAIN";
     if ($qname && $qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
         my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
         my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
         push @ans, $rr;
         $rcode = "NOERROR";
     }
-    elsif ($query) {
-        foreach my $rr ($query->answer) {
-            next unless $rr->type eq "A";
-            $rdata= $rr->address;
-            push @ans, new Net::DNS::RR("$qname $TTL $qclass $qtype $rdata");
-        }
-        if(@ans) {
-            $rcode = "NOERROR";
-        } else {
-            $logger->warn("Unresolved domain $qname");
-            $rcode = "NXDOMAIN";
-        }
+    elsif ($reply) {
+        $rcode = "NOERROR";
+        push @ans, $reply->answer;
     }
     # mark the answer as authoritive (by setting the 'aa' flag
     my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
