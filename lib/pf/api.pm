@@ -47,12 +47,8 @@ use pf::access_filter::dhcp;
 use pf::access_filter::mdm;
 use pfconfig::config;
 
-<<<<<<< HEAD
-use List::MoreUtils qw(uniq);
-use File::Copy::Recursive qw(dircopy);
-=======
 use List::MoreUtils qw(uniq any);
->>>>>>> added compliance check to opwat reporting
+use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
@@ -1133,29 +1129,37 @@ sub rest_ping :Public :RestPath(/rest/ping){
     return "pong - ".$args->{message};
 }
 
-sub register :Public {
+sub mdm_opswat_register :Public :RestPath(/mdm/opswat/register) {
     my ($class, $args) = @_;
     my $provisioner;
-    my @macs = map { $_->{mac} } @{$args->{network_adapter_info}};
+    my @macs = map { pf::util::clean_mac($_->{mac}) } @{$args->{network_adapter_info}};
 
     foreach my $mac (@macs){
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
-        if($provisioner = $profile->findProvisioner($mac) && $provisioner->type == "opswat"){
-            last;
+        if($provisioner = $profile->findProvisioner($mac)){
+            if($provisioner->type == "local_opswat") {
+                last;
+            }
         }
     }
 
     if($provisioner){
-        use Digest::MD5 qw(md5);
-        my $device_id = md5(join(',', @macs));
+        use Data::UUID;
+        my $uuid = Data::UUID->new->create;
+        my $device_id = Data::UUID->new->to_string($uuid);
         my $config = $pf::config::ConfigProvisioning{$provisioner->id};
         foreach my $mac (@macs){
-            pf::node::node_modify($mac, {device_id => $device_id});
+            pf::node::node_modify($mac, device_id => $device_id);
         }
+        
+        # record it as a ping
+        $class->mdm_opswat_ping({device_id => $device_id});
+
         return {
-            update_url => $config->{agent_update_url},
-            licensing_host => $config->{licensing_host},
-            reporting_host => $config->{reporting_host},
+            update_url => $provisioner->agent_update_url,
+            licensing_host => $provisioner->licensing_host,
+            reporting_host => $provisioner->reporting_host, 
+            api_port => int($pf::config::Config{webservices}{port}),
             ping_url => "/mdm/opswat/ping",
             reporting_url => "/mdm/opswat/report",
             device_id => $device_id,
