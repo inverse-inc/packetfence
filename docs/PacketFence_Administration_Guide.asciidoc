@@ -659,7 +659,7 @@ Where :
 * *Path to Identity Provider cert* is the path to the certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
 * *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
 * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLphp.
-* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user.
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
 
 Once this is done, save the source and you will be able to download the Service Provider metadata for PacketFence using the link 'Download Service Provider metadata' on the page.
 
