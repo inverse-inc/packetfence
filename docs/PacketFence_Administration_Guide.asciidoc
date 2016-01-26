@@ -658,7 +658,7 @@ Where :
 * *Path to Identity Provider metadata* is the path to the metadata file you transfered above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
 * *Path to Identity Provider cert* is the path to the certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
 * *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transfered on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
-* *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLPHP
+* *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLphp.
 * *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user.
 
 Once this is done, save the source and you will be able to download the Service Provider metadata for PacketFence using the link 'Download Service Provider metadata' on the page.
@@ -673,6 +673,7 @@ In the case of SimpleSAMLPHP, the following configuration was used in `metadata/
     'SingleLogoutService' => 'http://PORTAL_HOSTNAME/saml/logoff',
   );
 
+NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can still define the URL in the metadata but it will not be used.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
