@@ -206,7 +206,7 @@ sub node_db_prepare {
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class,
             node.last_arp, node.last_dhcp,
-            node.notes, node.autoreg, node.sessionid, node.machine_account,
+            node.notes, node.autoreg, node.sessionid, node.machine_account, node.device_id,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
