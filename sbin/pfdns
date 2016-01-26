@@ -200,7 +200,7 @@ sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
-    my $ip_addr = clean_ip($peerhost);
+    my $ip_addr = $ip->addr;
     $logger->trace(sub { "Process $0 handling request for IP : $ip_addr" });
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {

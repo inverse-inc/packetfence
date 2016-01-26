@@ -829,10 +829,10 @@ sub is_network_type_dns_enforcement {
 
     my $result = get_network_type($type);
     if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT ) {
-        return 1;
+        return $TRUE;
     }
     else {
-        return 0;
+        return $FALSE;
     }
 }
 
