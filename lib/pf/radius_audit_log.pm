@@ -157,7 +157,7 @@ sub radius_audit_log_db_prepare {
     $radius_audit_log_statements->{'radius_audit_log_delete_sql'} = $dbh->prepare(qq[ delete from radius_audit_log where pid=? ]);
 
     $radius_audit_log_statements->{'radius_audit_log_cleanup_sql'} = $dbh->prepare(
-        qq [ delete from radius_audit_log where created_at < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
+        qq [ delete from radius_audit_log where created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?]);
 
     $radius_audit_log_db_prepared = 1;
 }
