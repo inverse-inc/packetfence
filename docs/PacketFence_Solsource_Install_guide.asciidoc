@@ -185,6 +185,12 @@ Add the 'local' and 'stripe' source to the Portal profile.
 
 Add the 'simple' billing tier to the Portal profile.
 
+To configure the access to the billing portal after the registration :
+[options="compact"]
+* Go in the 'Captive Portal' tab
+* Change 'Redirection URL' to https://PORTAL_HOSTNAME/status
+* Check the box 'Force redirection URL' and then save the profile
+
 Device registration
 ^^^^^^^^^^^^^^^^^^^
 
@@ -459,6 +465,8 @@ An account will be created with the role 'default' and assigns the role 'default
 
 Using a local account will assign the role that is assigned to the user to the device (shown in the 'Actions' tab when viewing the details of a user)
 
+After the registration process you will be redirected to https://PORTAL_HOSTNAME/status where you can elevate your user access and manage your devices
+
 Modifying the access level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -469,6 +477,8 @@ You then need to login with the local account credentials.
 The button 'Modify your access' redirects to the billing section.
 
 Select the plan and proceed to payment.
+
+NOTE: The upgrade page is based on the billing tiers that have been configured in the section 'Configure PacketFence -> Portal Profile'. You can create as much tiers as you want and add them in the portal profile. Each one should assign a different role that you will map to a traffic shaping profile in the section 'Configure traffic shaping -> Configuring another role'
 
 Now, the role assigned to the user will be 'paid' and all the devices he has registered will now have the role 'paid'
 
