@@ -80,6 +80,9 @@ Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 
+# MDM related
+Readonly::Scalar our $URL_OPSWAT_BOARDING       => '/central-management/endpoint/register';
+
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';
