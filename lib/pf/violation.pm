@@ -580,11 +580,11 @@ sub info_for_violation_engine {
         my $model = $attr_map->{$attr};
         my $query = {value => $node_info->{$attr}};
         $results->{$attr} = $cache->compute_with_undef("$model\_id_".encode_json($query), sub {
-            my ($status, $result) = $model->find([$query]); 
+            my ($status, $result) = $model->find([$query]);
             return is_success($status) ? $result->id : undef;
         });
     }
-    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub { 
+    my ($mac_vendor) = $cache->compute_with_undef("pf::fingerbank::mac_vendor_from_mac_$mac", sub {
         return pf::fingerbank::mac_vendor_from_mac($mac);
     });
 
@@ -601,7 +601,7 @@ sub info_for_violation_engine {
     if( $trigger_info->{type} ne 'includes' ){
         $info->{$trigger_info->{key}} = $tid;
     }
-    
+
     return $info;
 }
 
@@ -872,8 +872,8 @@ sub violation_maintenance {
         }
         $rows_processed+=$rows;
         $query->finish;
-        $logger->trace( sub { "processed $rows_processed violations during violation maintenance ($start_time $end_time) " });
         $end_time = time;
+        $logger->trace( sub { "processed $rows_processed violations during violation maintenance ($start_time $end_time) " });
         last if $rows == 0 || ((time - $start_time) > $timelimit);
     }
     $logger->info(  "processed $rows_processed violations during violation maintenance ($start_time $end_time) " );
