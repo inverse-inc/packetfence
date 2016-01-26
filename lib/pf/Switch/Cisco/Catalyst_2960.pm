@@ -134,6 +134,8 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub supportsAccessListBasedEnforcement { return $TRUE }
+sub supportsUrlBasedEnforcement { return $TRUE }
+sub supportsExternalPortal { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -387,16 +389,9 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("deauthenticating");
+    $logger->info("deauthenticating $mac");
 
-    # Where should we send the RADIUS CoA-Request?
-    # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
-    # but if controllerIp is set, we send there
-    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
-        $send_disconnect_to = $self->{'_controllerIp'};
-    }
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -407,18 +402,20 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip(),
+            nas_port => '3799',
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $node_info = node_attributes($mac);
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
-
         # Standard Attributes
+
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
@@ -427,12 +424,29 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
+        # Roles are configured and the user should have one.
+        # We send a regular disconnect if there is an open trapping violation
+        # to ensure the VLAN is actually changed to the isolation VLAN.
+        if (  defined($role) &&
+            ( violation_count_reevaluate_access($mac) == 0 )  &&
+            ( $node_info->{'status'} eq 'reg' )
+           ) {
 
+            $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
+        }
+        else {
+            $connection_info = {
+                nas_ip => $send_disconnect_to,
+                secret => $self->{'_radiusSecret'},
+                LocalAddr => $self->deauth_source_ip(),
+                nas_port => '3799',
+            };
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.") ...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
@@ -499,7 +513,7 @@ sub returnRadiusAccessAccept {
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
 
-    my @av_pairs;
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
@@ -515,6 +529,28 @@ sub returnRadiusAccessAccept {
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
+        }
+    }
+
+    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+            my $mac = $args->{'mac'};
+            my $node_info = $args->{'node_info'};
+            my $session_id = generate_session_id(6);
+            my $chi = pf::CHI->new(namespace => 'httpd.portal');
+            $chi->set($session_id,{
+                client_mac => $mac,
+                wlan => $args->{'ssid'},
+                switch_id => $self->{_id},
+            });
+            pf::locationlog::locationlog_set_session($mac, $session_id);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=".$args->{'user_role'};
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+            # remove the role if any as we push the redirection ACL along with it's role
+            delete $radius_reply_ref->{$self->returnRoleAttribute()};
         }
     }
 
@@ -535,6 +571,18 @@ Returns the attribute to use when pushing an ACL using RADIUS
 sub returnAccessListAttribute {
     my ($self, $acl_num) = @_;
     return "ip:inacl#$acl_num";
+}
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Airespace-ACL-Name';
 }
 
 sub disableMABByIfIndex {

@@ -59,7 +59,13 @@
         </div>
         [% form.field('AccessListMap').render | none %]
         [% form.block('access_lists').render | none %]
-
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('Role mapping by Url') %]</h6>
+          </div>
+        </div>
+        [% form.field('UrlMap').render | none %]
+        [% form.block('urls').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchInline">

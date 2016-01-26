@@ -308,10 +308,10 @@ sub new {
         '_deauthMethod'             => undef,
         '_switchIp'                 => undef,
         '_ip'                       => undef,
-        '_portalURL'                => undef,
         '_switchMac'                => undef,
         '_VlanMap'                  => 'enabled',
         '_RoleMap'                  => 'enabled',
+        '_UrlMap'                   => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -768,6 +768,27 @@ sub getAccessListByName {
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
 
+}
+
+=item getUrlByName
+
+Get the switch-specific url of a given global role in switches.conf
+
+=cut
+
+sub getUrlByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+    # skip if not defined or empty
+    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+
+    # return if found
+    return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
+    return;
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
