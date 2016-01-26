@@ -24,7 +24,6 @@ use pf::node qw(node_exist node_modify);
 use pf::Switch::constants;
 use pf::util;
 use pf::config::util;
-use pf::violation qw(violation_count_reevaluate_access violation_exist_open violation_view_top violation_trigger violation_add);
 use pf::floatingdevice::custom;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
@@ -198,6 +197,7 @@ Return values:
 
 sub getViolationRole {
     my $timer = pf::StatsD::Timer->new;
+    require pf::violation;
     # $args->{'switch'} is the switch object (pf::Switch)
     # $args->{'ifIndex'} is the ifIndex of the computer connected to
     # $args->{'mac'} is the mac connected
@@ -207,7 +207,7 @@ sub getViolationRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $open_violation_count = violation_count_reevaluate_access($args->{'mac'});
+    my $open_violation_count = pf::violation::violation_count_reevaluate_access($args->{'mac'});
     if ($open_violation_count == 0) {
         return ({ role => 0});
     }
@@ -226,7 +226,7 @@ sub getViolationRole {
 
     # fetch top violation
     $logger->trace("What is the highest priority violation for this host?");
-    my $top_violation = violation_view_top($args->{'mac'});
+    my $top_violation = pf::violation::violation_view_top($args->{'mac'});
     # fetching top violation failed
     if (!$top_violation || !defined($top_violation->{'vid'})) {
 
@@ -355,6 +355,7 @@ Return values:
 
 sub getRegisteredRole {
     my $timer = pf::StatsD::Timer->new;
+    require pf::violation;
     #$args->{'switch'} is the switch object (pf::Switch)
     #$args->{'ifIndex'} is the ifIndex of the computer connected to
     #$args->{'mac'} is the mac connected
@@ -389,13 +390,13 @@ sub getRegisteredRole {
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("Triggering provisioner check");
-        violation_trigger($args->{'mac'}, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
+        pf::violation::violation_trigger($args->{'mac'}, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
     }
 
     my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
     if (defined($scan) && isenabled($scan->{'post_registration'})) {
         $logger->info("Triggering scan check");
-        violation_add( $args->{'mac'}, $POST_SCAN_VID );
+        pf::violation::violation_add( $args->{'mac'}, $POST_SCAN_VID );
     }
 
     $role = _check_bypass($args);
