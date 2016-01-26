@@ -76,7 +76,6 @@ sub db_connect {
     my $caller = ( caller(1) )[3] || basename($0);
     $logger->debug("function $caller is calling db_connect");
 
-    my $tid = threads->self->tid;
     $mydbh = $DBH if ($DBH);
 
     my $recently_connected = (defined($LAST_CONNECT) && $LAST_CONNECT && (time()-$LAST_CONNECT < 30));
@@ -92,7 +91,7 @@ sub db_connect {
         return $mydbh;
     }
 
-    $logger->debug("(Re)Connecting to MySQL (thread id: $tid)");
+    $logger->debug("(Re)Connecting to MySQL (pid: $$)");
 
     my $host = $DB_Config->{'host'};
     my $port = $DB_Config->{'port'};
@@ -140,7 +139,6 @@ sub db_ping {
 =cut
 
 sub db_disconnect {
-    my $tid = threads->self->tid;
     if (defined($DBH)) {
         my $logger = get_logger();
         $logger->debug("disconnecting db");
