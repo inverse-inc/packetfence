@@ -16,6 +16,8 @@
                                 </array>
                                 <key>UserName</key>
                                 <string>[% username %]</string>
+                                <key>UserPassword</key>
+                                <string></string>
                         </dict>
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>

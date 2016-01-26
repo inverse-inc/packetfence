@@ -14,12 +14,20 @@
                                 <array>
                                         <integer>[% provisioner.eap_type %]</integer>
                                 </array>
+                                <key>EAPFASTProvisionPAC</key>
+                                <false/>
+                                <key>EAPFASTProvisionPACAnonymously</key>
+                                <false/>
+                                <key>EAPFASTUsePAC</key>
+                                <false/>
                                 <key>PayloadCertificateAnchorUUID</key>
                                 <array>
                                         <string>c83817c4-d7c4-11e4-b9d6-1681e6b88ec1</string>
                                 </array>
                                 <key>UserName</key>
                                 <string>[% username %]</string>
+                                <key>UserPassword</key>
+                                <string></string>
                         </dict>
                         <key>EncryptionType</key>
                         <string>[% provisioner.security_type %]</string>
