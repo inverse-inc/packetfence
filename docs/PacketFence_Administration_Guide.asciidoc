@@ -647,7 +647,7 @@ Then, transfer the certificate and CA certificate of the Identity provider on th
 
 Then, to configure SAML in PacketFence, go in 'Configuration -> Sources' and then create a new Internal source of the type SAML and configure it.
 
-### screenshot
+image::docs/images/saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
 
 Where :
 
@@ -674,6 +674,15 @@ In the case of SimpleSAMLPHP, the following configuration was used in `metadata/
   );
 
 NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can still define the URL in the metadata but it will not be used.
+
+Passthroughs
+^^^^^^^^^^^^
+
+In order for your users to be able to access the Identity Provider login page, you will need to activate passthroughs and add the Indentity Provider domain to the allowed passthroughs.
+
+To do so, go in 'Configuration -> Trapping', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
+
+Restart PacketFence to apply the new passthroughs configuration.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
