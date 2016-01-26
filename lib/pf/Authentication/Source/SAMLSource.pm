@@ -14,7 +14,7 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::constants;
 use Lasso;
-use Template;
+use Template::AutoFilter;
 use File::Slurp qw(read_file write_file);
 use File::Temp qw(tempfile);
 use pf::util;
@@ -189,23 +189,29 @@ Generate the metadata for the Service Provider (this server)
 sub generate_sp_metadata {
     my ($self) = @_;
     require pf::config;
-    my $cert = read_file($self->sp_cert_path);
-    $cert = join("\n", map { ($_ !~ /^-----BEGIN CERTIFICATE-----/ && $_ !~ /^-----END CERTIFICATE-----/) ? $_ : () } split(/\n/, $cert));
     my $vars = {
         hostname => $pf::config::fqdn,
-        sp_entity_id => $self->sp_entity_id,
-        sp_cert => $cert,
-        entity_id => $self->sp_entity_id,
+        saml_source => $self,
         protocol => isenabled($pf::config::Config{captive_portal}{secure_redirect}) ? "https" : "http",
     };
 
-    our $TT_OPTIONS = {ABSOLUTE => 1};
-    our $template = Template->new($TT_OPTIONS);
+    our $TT_OPTIONS = {
+        ABSOLUTE => 1, 
+        AUTO_FILTER => 'xml',
+    };
+    our $template = Template::AutoFilter->new($TT_OPTIONS);
 
     my $output = '';
     $template->process("/usr/local/pf/addons/saml-sp-metadata.xml", $vars, \$output) || die("Can't generate SP metadata : ".$template->error);
 
     return $output;
+}
+
+sub sp_cert {
+    my ($self) = @_;
+    my $cert = read_file($self->sp_cert_path);
+    $cert = join("\n", map { ($_ !~ /^-----BEGIN CERTIFICATE-----/ && $_ !~ /^-----END CERTIFICATE-----/) ? $_ : () } split(/\n/, $cert));
+    return $cert;
 }
 
 =head1 AUTHOR
