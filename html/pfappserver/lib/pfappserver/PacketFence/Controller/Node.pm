@@ -35,10 +35,10 @@ __PACKAGE__->config(
     },
     action_args => {
         '*' => { model => 'Node' },
-        advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
-        'simple_search' => { model => 'Search::Node', form => 'AdvancedSearch' },
-        search => { model => 'Search::Node', form => 'AdvancedSearch' },
-        'index' => { model => 'Search::Node', form => 'AdvancedSearch' },
+        'advanced_search' => { model => 'Search::Node', form => 'NodeSearch' },
+        'simple_search' => { model => 'Search::Node', form => 'NodeSearch' },
+        'search' => { model => 'Search::Node', form => 'NodeSearch' },
+        'index' => { model => 'Search::Node', form => 'NodeSearch' },
     }
 );
 
