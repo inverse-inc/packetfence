@@ -2,9 +2,10 @@ package captiveportal::PacketFence::Controller::SAML;
 use Moose;
 use namespace::autoclean;
 use File::Slurp qw(read_file);
+use pf::config;
+use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
-use pf::config;
 
 __PACKAGE__->config( namespace => 'saml', );
 
@@ -57,6 +58,11 @@ sub assertion :Local {
     $c->forward('_validate_source', [$source]);
 
     my ($username, $msg) = $source->handle_response($c->request->param("SAMLResponse"));
+
+    # We strip the username if the authorization source requires it.
+    if(isenabled($source->authorization_source->{stripped_user_name})){
+        ($username, undef) = strip_username($username);
+    }
 
     if($username){
         $c->session->{source_id} = $source_id;
