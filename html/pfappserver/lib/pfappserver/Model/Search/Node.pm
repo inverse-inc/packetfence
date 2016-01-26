@@ -42,7 +42,7 @@ sub setup_query {
     my ($self, $builder, $params) = @_;
     $self->add_joins($builder, $params);
     $self->add_searches($builder, $params);
-    $self->add_date_range($builder, $params, @{$params}{qw(start end)});
+    $self->add_date_range($builder, $params, 'detect_date', @{$params}{qw(start end)});
     $self->add_limit($builder, $params);
     $self->add_order_by($builder, $params);
 }
@@ -323,12 +323,12 @@ sub add_order_by {
 }
 
 sub add_date_range {
-    my ($self, $builder, $params, $start, $end) = @_;
+    my ($self, $builder, $column, $params, $start, $end) = @_;
     if ($start) {
-        $builder->where('detect_date', '>=', "$start 00:00");
+        $builder->where($column, '>=', "$start 00:00");
     }
     if ($end) {
-        $builder->where('detect_date', '<=', "$end 23:59");
+        $builder->where($column, '<=', "$end 23:59");
     }
 }
 
