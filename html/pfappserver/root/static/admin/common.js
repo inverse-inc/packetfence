@@ -13,6 +13,7 @@ function updateAction(type, keep_value) {
 function changeInputFromTemplate(oldInput, template, keep_value) {
     var newInput = template.clone();
     // Replace value field with the one from the templates
+    newInput.removeAttr('id');
     newInput.attr('id', oldInput.attr('id'));
     newInput.attr('name', oldInput.attr('name'));
     newInput.attr('data-required', 1);
