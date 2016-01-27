@@ -97,27 +97,17 @@ var NodeView = function(options) {
     });
 
     this.proxyFor(body, 'section.loaded', '#section', function(e) {
-        /* Enable autocompletion of owner on tab of single node creation */
-        $('[data-provide="typeahead"]').typeahead({
-            source: $.proxy(this.searchUser, this),
-            minLength: 2,
-            items: 11,
-            matcher: function(item) { return true; }
-        });
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
-    });
-
-    body.find('form[name="advancedNodeSearch"] [data-provide="typeahead"]').typeahead({
-        source: $.proxy(that.searchSwitch, that),
-        minLength: 2,
-        items: 11,
-        matcher: function(item) { return true; }
     });
 
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
 
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
 
 };
 
@@ -592,7 +582,9 @@ NodeView.prototype.handleChangeSearchField = function(e, keep) {
     if (op_input_template.length == 0 ) {
         op_input_template = $('#default_op');
     }
-    changeInputFromTemplate(op_input, op_input_template);
+    if (op_input_template.length) {
+        changeInputFromTemplate(op_input, op_input_template);
+    }
     var value_template_id = '#' + search_type + "_value";
     var value_template = $(value_template_id);
     if (value_template.length == 0 ) {
@@ -601,6 +593,7 @@ NodeView.prototype.handleChangeSearchField = function(e, keep) {
     if (value_template.length) {
         changeInputFromTemplate(value_input, value_template, keep);
     }
+    this.setupTypeAhead(search_input);
 };
 
 NodeView.prototype.changeOpFieldKeep = function(e) {
@@ -619,8 +612,36 @@ NodeView.prototype.handleChangeOpField = function(e, keep) {
     var op_type = op_input.val();
     var value_template_id = '#' +  search_type + "_value_" + op_type + "_op" ;
     var value_template = $(value_template_id);
+    var value_input_id = value_input.attr("id");
     if (value_template.length) {
         changeInputFromTemplate(value_input, value_template, keep);
+    }
+    this.setupTypeAhead(search_input);
+};
+
+NodeView.prototype.setupTypeAhead = function(search_input) {
+    var search_type = search_input.val();
+    var op_input = search_input.next();
+    var value_input = op_input.next();
+    var op_input_value = op_input.val();
+    if(op_input_value != "equal" && op_input_value != "not_equal") {
+        return;
+    }
+    if(search_type == "switch_id") {
+        value_input.typeahead({
+            source: $.proxy(this.searchSwitch, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
+        });
+    }
+    if(search_type == "person_name") {
+        value_input.typeahead({
+            source: $.proxy(this.searchUser, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
+        });
     }
 };
 
@@ -635,7 +656,10 @@ NodeView.prototype.searchSwitch = function(query, process) {
             'searches.0.value': query,
         },
         success: function(data) {
-            process(data);
+            var results = $.map(data.items, function(i) {
+                return i.id;
+            });
+            process(results);
         }
     });
 }

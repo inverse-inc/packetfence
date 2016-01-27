@@ -122,10 +122,10 @@ form {
 
       <input id="switch_id_value" type="text" class="span6" data-provide="typeahead" placeholder="String...">
       [% FOREACH op IN ['equal', 'not_equal'] %]
-        <input id="switch_id_value_[% op %]_op" type="text" class="span6" data-provide="typeahead" placeholder="1String...">
+        <input id="switch_id_value_[% op %]_op" type="text" class="span6" data-provide="typeahead" placeholder="String...">
       [% END %]
       [% FOREACH op IN ['starts_with', 'ends_with', 'like'] %]
-        <input id="switch_id_value_[% op %]_op" type="text" class="span6" placeholder="2String...">
+        <input id="switch_id_value_[% op %]_op" type="text" class="span6" placeholder="String...">
       [% END %]
 
       <select id="online_op" name="online_op" class="span2" >
