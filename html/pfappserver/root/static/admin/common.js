@@ -437,7 +437,7 @@ $(function () { // DOM ready
     });
 
     /* Activate dynamic tables (rows can be added and removed) */
-    $('body').on('click', '.table-dynamic [href="#add"]', function(event) {
+    $('body').on('click', '.table-dynamic tbody [href="#add"]', function(event) {
         $(this).trigger("addrow");
         return false;
     });
