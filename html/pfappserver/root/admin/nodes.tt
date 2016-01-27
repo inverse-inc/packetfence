@@ -1,5 +1,5 @@
 [%- BLOCK search_options %]
-  <div>
+  <div class="controls">
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span3">
     <option value="mac">[% l('Node MAC') %]</option>
     <option value="bypass_role">[% l('Bypass Role') %]</option>
@@ -247,32 +247,52 @@ form {
                 </div>
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedNodeSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
-                  <div>
-                        [% INCLUDE per_page_select.tt %]
-                  </div>
-                  <div>
-                    [% match_options = BLOCK %]
-                      <select name="all_or_any" class="input-mini">
-                        <option value="all">[% l('all') %]</option>
-                        <option value="any">[% l('any') %]</option>
-                      </select>
-                    [% END %]
-                    <br/>
-                    [% l('Match [_1] of the following conditions:', [match_options]) | none %]
-                  </div>
                   <br/>
-                  <div class="input-daterange datepicker">
-                    <label class="control-label">[% l('Detected Between :') %]</label>
-                    <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
-                    <i class="icon-arrow-right"></i>
-                    <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
-                    <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
-                  </div>
                   <table id="advancedSearchConditions" class="table-dynamic">
-                    <tbody>
+                    <thead data-no-remove="yes">
+                        <tr>
+                        <th colspan="2" class="pull-left">
+                          <div class="control-group">
+                            <div class="controls">
+                            [% INCLUDE per_page_select.tt %]
+                            </div>
+                          </div>
+                        </th>
+                        </tr>
+                        <tr>
+                          <th colspan="2" class="pull-left">
+                          <div class="control-group">
+                            <div class="input-daterange datepicker controls">
+                              <label class="control-label">[% l('Detected Between :') %]</label>
+                              <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
+                              <i class="icon-arrow-right"></i>
+                              <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
+                              &nbsp;
+                              <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                            </div>
+                          </div>
+                          </th>
+                        </tr>
+                        <tr>
+                          <th colspan="2" class="pull-left">
+                            <div class="control-group">
+                              [% match_options = BLOCK %]
+                                <select name="all_or_any" class="input-mini">
+                                  <option value="all">[% l('all') %]</option>
+                                  <option value="any">[% l('any') %]</option>
+                                </select>
+                              [% END %]
+                              [% l('Match [_1] of the following conditions:', [match_options]) | none %]
+                            </div>
+                          </th>
+                        </tr>
+                    </thead>
+                    <tbody data-no-remove="yes">
                       <tr class="hidden dynamic-row">
                         <td>
+                         <div class="control-group">
                          [% PROCESS search_options disabled=1 %]
+                         </div>
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -281,7 +301,9 @@ form {
                       </tr>
                       <tr class="dynamic-row">
                         <td>
-                         [% PROCESS search_options disabled=0 %]
+                         <div class="control-group">
+                           [% PROCESS search_options disabled=0 %]
+                         </div>
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -290,6 +312,16 @@ form {
                       </tr>
                     </tbody>
                     <tfoot>
+                      <tr>
+                        <td colspan="2">
+                          <div id="advancedSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
+                            <p>
+                              <i class="icon-search" style="line-height: 24px"></i>
+                              <a href="#add">[% l('Add a condition.') %]</a>
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
                       <tr>
                         <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
@@ -303,12 +335,6 @@ form {
                       </tr>
                     </tfoot>
                   </table>
-                  <div id="advancedSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
-                    <p>
-                      <i class="icon-search" style="line-height: 24px"></i>
-                      <a href="#add">[% l('Add a condition.') %]</a>
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
