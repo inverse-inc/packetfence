@@ -194,6 +194,18 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
+=item supportsUrlBasedEnforcement
+
+=cut
+
+sub supportsUrlBasedEnforcement {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+    $logger->trace("Url based enforcement is not supported on network device type " . ref($self) . ". ");
+    return $FALSE;
+}
+
+
 =item supportsRoamingAccounting
 
 =cut
