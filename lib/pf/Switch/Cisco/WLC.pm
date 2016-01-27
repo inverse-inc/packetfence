@@ -109,6 +109,7 @@ use base ('pf::Switch::Cisco');
 use pf::constants;
 use pf::config;
 use pf::web::util;
+use pf::util;
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
