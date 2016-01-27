@@ -17,6 +17,8 @@ Pre-Depends:  ca-certificates, freeradius (>= 2.2.10), freeradius-ldap, freeradi
  fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${Source-Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
+# SAML
+ liblasso-perl
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
