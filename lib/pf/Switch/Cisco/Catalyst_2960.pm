@@ -120,7 +120,7 @@ use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
-
+use pf::web::util;
 
 sub description { 'Cisco Catalyst 2960' }
 
@@ -136,6 +136,7 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsAccessListBasedEnforcement { return $TRUE }
 sub supportsUrlBasedEnforcement { return $TRUE }
 sub supportsExternalPortal { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -506,17 +507,15 @@ Overrides the default implementation to add the dynamic acls
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
-
     $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
-
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
             my $access_list = $self->getAccessListByName($args->{'user_role'});
             if ($access_list) {
                 my $acl_num = 101;
@@ -532,8 +531,9 @@ sub returnRadiusAccessAccept {
         }
     }
 
+    my $role = $args->{'user_role'};
     if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
             my $node_info = $args->{'node_info'};
             my $session_id = generate_session_id(6);
@@ -544,15 +544,14 @@ sub returnRadiusAccessAccept {
                 switch_id => $self->{_id},
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
-            push @av_pairs, "url-redirect-acl=".$args->{'user_role'};
+            my $redirect_url = $self->getUrlByName($args->{'user_role'})."/cep$session_id";
+            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
 
-            # remove the role if any as we push the redirection ACL along with it's role
-            delete $radius_reply_ref->{$self->returnRoleAttribute()};
         }
     }
+
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
@@ -582,7 +581,18 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 sub returnRoleAttribute {
     my ($self) = @_;
 
-    return 'Airespace-ACL-Name';
+    return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+Return the specific role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role.".in");
 }
 
 sub disableMABByIfIndex {

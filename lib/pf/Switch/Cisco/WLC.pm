@@ -108,6 +108,7 @@ use base ('pf::Switch::Cisco');
 
 use pf::constants;
 use pf::config;
+use pf::web::util;
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -418,9 +419,8 @@ sub returnRadiusAccessAccept {
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
-            my $node_info = $args->{'node_info'};
             my $session_id = generate_session_id(6);
             my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_id,{
@@ -429,13 +429,11 @@ sub returnRadiusAccessAccept {
                 switch_id => $self->{_id},
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            my $redirect_url = $self->getUrlByName($args->{'user_role'})."/cep$session_id";
             $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=".$args->{'user_role'};
             push @av_pairs, "url-redirect=".$redirect_url;
 
-            # remove the role if any as we push the redirection ACL along with it's role
-            delete $radius_reply_ref->{$self->returnRoleAttribute()};
         }
     }
 
