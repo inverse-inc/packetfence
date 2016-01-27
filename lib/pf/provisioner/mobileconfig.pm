@@ -93,7 +93,7 @@ The certificate chain for signing in PEM format
 
 has cert_chain => (is => 'rw');
 
-=head2 cert_chain
+=head2 cert_sign
 
 The certificate for signing in PEM format
 
@@ -125,7 +125,63 @@ Enabled or disables the signing of the profile
 
 has can_sign_profile => (is => 'rw', default => sub { 0 } );
 
+has server_certficate_path => (is => 'rw');
+
+has server_certficate => (is => 'ro' , builder => 1, lazy => 1);
+
 =head1 METHODS
+
+=head2 _build_server_cert
+
+Builds an X509 object the server_cert_path
+
+=cut
+
+sub _build_server_certificate {
+    my ($self) = @_;
+    return Crypt::OpenSSL::X509->new_from_file($self->server_certificate_path);
+}
+
+sub _raw_cert_string {
+    my ($self, $cert) = @_;
+    my $cert_pem = $cert->as_string();
+    $cert_pem =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $cert_pem =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
+    return $cert_pem;
+}
+
+sub _certificate_cn {
+    my ($self, $cert) = @_;
+    if($cert->subject =~ /CN=(.*?)(,|$)/g){
+        return $1;
+    }
+    else {
+        get_logger->error("Cannot find CN of server certificate at ".$self->server_certificate_path);
+        return undef;
+    }
+}
+
+=head2 raw_server_cert_string
+
+Get the server certificate content minus the ascii armor
+
+=cut
+
+sub raw_server_cert_string {
+    my ($self) = @_;
+    return $self->_raw_cert_string($self->server_certificate);
+}
+
+sub server_certificate_cn {
+    my ($self) = @_;
+    my $cn = $self->_certificate_cn($self->server_certificate);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of server certificate at ".$self->server_certificate_path);
+    }
+}
 
 =head2 authorize
 

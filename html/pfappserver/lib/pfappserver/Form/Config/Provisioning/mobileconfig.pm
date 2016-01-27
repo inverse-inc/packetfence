@@ -10,6 +10,7 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 use pf::config;
 use HTML::FormHandler::Moose;
+use pf::pki_provider qw(_raw_cert_string _cert_cn);
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -62,8 +63,15 @@ has_field 'passcode' =>
    label => 'Wifi Key',
    tags => { after_element => \&help,
              help => 'The WiFi key to join the SSID' },
-
   );
+
+has_field 'server_certificate_path' =>
+ (
+  type => 'Path',
+  label => 'RADIUS Server Certificate Path',
+  tags => { after_element => \&help,
+            help => 'The path to the RADIUS server certificate' },       
+ );
 
 has_field 'cert_chain' =>
   (
@@ -124,7 +132,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider server_certificate_path) ],
   );
 
 has_block signing =>
@@ -149,6 +157,20 @@ sub option_security {
                          "WPA" => "WPA2",
                         ];
     return @security_type;
+}
+
+sub extract_cert_content {
+    my ($self) = @_;
+    use Data::Dumper;
+    my $logger = get_logger();
+    return $self->_raw_cert_string($self->server_certificate);
+    $logger->info('Content' . Dumper($self->server_certificate));
+    $logger->info('result' . Dumper(return));
+}
+
+sub server_cert {
+    my ($self) = @_;
+    return $self->_cert_cn($self->server_certificate);
 }
 
 =head1 COPYRIGHT
