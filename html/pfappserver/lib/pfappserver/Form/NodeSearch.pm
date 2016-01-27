@@ -23,7 +23,7 @@ extends 'pfappserver::Form::AdvancedSearch';
 
 =cut
 
-has_field 'online' =>
+has_field 'online_date' =>
   (
    type => 'Compound',
   );
@@ -32,7 +32,7 @@ has_field 'online' =>
 
 =cut
 
-has_field 'online.start' =>
+has_field 'online_date.start' =>
   (
    type => 'DatePicker',
   );
@@ -41,7 +41,7 @@ has_field 'online.start' =>
 
 =cut
 
-has_field 'online.end' =>
+has_field 'online_date.end' =>
   (
    type => 'DatePicker',
   );

@@ -263,11 +263,23 @@ form {
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
                             <div class="input-daterange datepicker controls">
-                              <label class="control-label">[% l('Detected Between :') %]</label>
+                                <label class="control-label input-medium text-left">[% l('Online Between :') %]</label>
+                                <input type="text" class="input-small" name="online_date.start" data-date-format="yyyy-mm-dd" />
+                                <i class="icon-arrow-right"></i>
+                                <input type="text" class="input-small" name="online_date.end" data-date-format="yyyy-mm-dd" />
+                                <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                            </div>
+                          </div>
+                          </th>
+                        </tr>
+                        <tr>
+                          <th colspan="2" class="pull-left">
+                          <div class="control-group">
+                            <div class="input-daterange datepicker controls">
+                              <label class="control-label input-medium text-left">[% l('Detected Between :') %]</label>
                               <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
                               <i class="icon-arrow-right"></i>
                               <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
-                              &nbsp;
                               <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                             </div>
                           </div>
@@ -314,11 +326,13 @@ form {
                     <tfoot>
                       <tr>
                         <td colspan="2">
+                          <div class="control-group">
                           <div id="advancedSearchConditionsEmpty" class="hidden unwell unwell-horizontal">
                             <p>
-                              <i class="icon-search" style="line-height: 24px"></i>
+                              <i class="icon-search icon-large"> </i>
                               <a href="#add">[% l('Add a condition.') %]</a>
                             </p>
+                          </div>
                           </div>
                         </td>
                       </tr>

@@ -355,6 +355,30 @@ sub add_joins {
             }
         }
     }
+    if ($params->{online_date}) {
+        my $online_date = $params->{online_date};
+        my $start = $online_date->{start};
+        my $end = $online_date->{end};
+        $builder->from({
+            'table' => \"(SELECT DISTINCT locationlog.mac FROM locationlog WHERE start_time >= \"$start 00:00:00\" and end_time <= \"$end 23:59\")",
+            'as'    => 'online_date',
+            'join'  => 'LEFT',
+            'on' => [
+                [
+                    {
+                        'table' => 'online_date',
+                        'name'  => 'mac',
+                    },
+                    '=',
+                    {
+                        'table' => 'node',
+                        'name'  => 'mac',
+                    }
+                ]
+            ],
+        });
+        $builder->where({table => 'online_date', name => 'mac'}, '!=', undef);
+    }
 }
 
 sub _pre_process_query {
