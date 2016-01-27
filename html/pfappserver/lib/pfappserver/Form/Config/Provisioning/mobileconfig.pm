@@ -10,7 +10,6 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 use pf::config;
 use HTML::FormHandler::Moose;
-use pf::pki_provider qw(_raw_cert_string _cert_cn);
 extends 'pfappserver::Form::Config::Provisioning';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -157,20 +156,6 @@ sub option_security {
                          "WPA" => "WPA2",
                         ];
     return @security_type;
-}
-
-sub extract_cert_content {
-    my ($self) = @_;
-    use Data::Dumper;
-    my $logger = get_logger();
-    return $self->_raw_cert_string($self->server_certificate);
-    $logger->info('Content' . Dumper($self->server_certificate));
-    $logger->info('result' . Dumper(return));
-}
-
-sub server_cert {
-    my ($self) = @_;
-    return $self->_cert_cn($self->server_certificate);
 }
 
 =head1 COPYRIGHT

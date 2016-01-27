@@ -32,7 +32,7 @@ Controller for EAPTLS connections.
 
 =head1 METHODS
 
-=cu
+=cut
 
 =head2 index
 
