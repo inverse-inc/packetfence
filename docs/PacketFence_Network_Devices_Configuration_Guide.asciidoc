@@ -1268,7 +1268,7 @@ Web auth
 
 The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
 
-In this example, the ACL for registration is 'redirect' and the ACL for registered devices is 'registered'
+In this example, the ACL that trigger the redirection to the portal for registration is 'registration'.
 
 Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
 
@@ -1285,13 +1285,10 @@ Then add this additionnal configuration on the global level
 
 Add the required access lists
 
-  ip access-list extended redirect
+  ip access-list extended registration
    deny ip any host <your captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
-
-  ip access-list extended registered
-   permit ip any any
 
 Then on each controlled interface
 
@@ -1306,9 +1303,7 @@ Then on each controlled interface
 PacketFence switch configuration 
 
 * Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Set Role by Url for registration to 'http://<your_captive_portal_ip>'
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 Downloadable ACLs
@@ -1347,6 +1342,27 @@ image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt
 Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
 image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
+Web auth and Downloadable ACLs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It's possible to mix web authentication and downloadable ACLs, for example if you want to be able to redirect the device to the captive portal when a violation is triggered.
+To do that first you need to configure PacketFence with Role by Url and with Role by access list (For each role you need).
+On the switch you need to change the Auth-Default-ACL to add the portal ip address:
+
+  Extended IP access list Auth-Default-ACL
+      10 permit udp any any eq domain
+      20 permit tcp any any eq domain
+      30 permit udp any eq bootps any
+      40 permit udp any any eq bootpc
+      50 permit udp any eq bootpc any
+      60 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  51 permit ip any host ip_of_the_captiv_portal
+
 
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1485,9 +1501,7 @@ Web auth requires at least MAC Authentication Bypass to be activated on the swit
 PacketFence switch configuration:
 
 * Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Set Role by Url for registration to 'http://<your_captive_portal_ip>'
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
