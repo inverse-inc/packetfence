@@ -1159,7 +1159,7 @@ sub mdm_opswat_register :Public :RestPath(/mdm/opswat/register) {
             update_url => $provisioner->agent_update_url,
             licensing_host => $provisioner->licensing_host,
             reporting_host => $provisioner->reporting_host, 
-            api_port => int($pf::config::Config{webservices}{port}),
+            api_port => 80,
             ping_url => "/mdm/opswat/ping",
             reporting_url => "/mdm/opswat/report",
             device_id => $device_id,
@@ -1183,7 +1183,7 @@ sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
         pf::log::get_logger->info("First time seeing device $args->{device_id}.");
     }
     $backend->set($ping_key, $current_ping);
-    return {rp_time => 60};
+    return {rp_time => "60"};
 }
 
 sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {

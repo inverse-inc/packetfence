@@ -26,18 +26,33 @@ Catalyst Controller.
 
 =cut
 
-sub opswat_registration :Path("/central-management/endpoint/register") : Args(0) {
-    my ( $self, $c ) = @_;
+sub _forward_rest_api {
+    my ($self, $c, $subroutine) = @_;
     my $args = decode_json(read_file($c->req->body()));
     use Data::Dumper;
     $c->log->info(Dumper($args));
-    my $return = eval { pf::api->mdm_opswat_register($args) };
+    my $return = eval { $subroutine->($args) };
     if($@){
         $c->response->status(500);
         $c->response->body(encode_json({ error => $@ }));
     }
     $c->response->status(200);
     $c->response->body(encode_json($return));
+}
+
+sub opswat_registration :Path("/central-management/endpoint/register") : Args(0) {
+    my ( $self, $c ) = @_;
+    $self->_forward_rest_api($c, sub { pf::api->mdm_opswat_register(@_) });
+}
+
+sub opswat_ping :Path("/mdm/opswat/ping") : Args(0) {
+    my ( $self, $c ) = @_;
+    $self->_forward_rest_api($c, sub { pf::api->mdm_opswat_ping(@_) });
+}
+
+sub opswat_report :Path("/mdm/opswat/report") : Args(0) {
+    my ( $self, $c ) = @_;
+    $self->_forward_rest_api($c, sub { pf::api->mdm_opswat_report(@_) });
 }
 
 =head1 AUTHOR
