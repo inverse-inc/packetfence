@@ -202,7 +202,7 @@ sub generate_sp_metadata {
     our $template = Template::AutoFilter->new($TT_OPTIONS);
 
     my $output = '';
-    $template->process("/usr/local/pf/addons/saml-sp-metadata.xml", $vars, \$output) || die("Can't generate SP metadata : ".$template->error);
+    $template->process("/usr/local/pf/conf/saml-sp-metadata.xml", $vars, \$output) || die("Can't generate SP metadata : ".$template->error);
 
     return $output;
 }
