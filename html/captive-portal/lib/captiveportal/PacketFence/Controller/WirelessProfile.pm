@@ -54,9 +54,6 @@ sub index : Path : Args(0) {
         server_cert  => $provisioner->server_certificate_cn,
         server_cont  => $provisioner->raw_server_cert_string,
     );
-    use Data::Dumper;
-    $logger->info('Serv_CN'. Dumper($provisioner->server_certificate_cn));
-    $logger->info('Serv_Cont'. Dumper($provisioner->raw_server_cert_string));
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {
