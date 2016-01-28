@@ -87,9 +87,9 @@ ProvisionerView.prototype.togglePkiProvider = function(e) {
 };
 
 ProvisionerView.prototype.toggleServerCertificate = function(e) {
-    var eap_type = $('#eap_type option:selected').text();
     var security_type = $('#security_type option:selected').text();
-    var server_certificate = $('#server_certificate').closest('.control-group');
+    var eap_type = $('#eap_type option:selected').text();
+    var server_certificate = $('#server_certificate_path').closest('.control-group');
     if (security_type == "WPA2" && eap_type == "PEAP") {
         server_certificate.show();
     }

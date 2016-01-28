@@ -51,9 +51,12 @@ sub index : Path : Args(0) {
         ca_content   => $pki_session->{ca_content},
         passwcode    => $provisioner->{passcode},
         reverse_fqdn => $reverse_fqdn,
-        server_cert  => $provisioner->{server_certificate_cn},
-        server_cont  => $provisioner->{raw_server_cert_string},
+        server_cert  => $provisioner->server_certificate_cn,
+        server_cont  => $provisioner->raw_server_cert_string,
     );
+    use Data::Dumper;
+    $logger->info('Serv_CN'. Dumper($provisioner->server_certificate_cn));
+    $logger->info('Serv_Cont'. Dumper($provisioner->raw_server_cert_string));
 }
 
 sub profile_xml : Path('/profile.xml') : Args(0) {

@@ -16,6 +16,7 @@ use warnings;
 
 use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
+use pf::log;
 
 use Moo;
 extends 'pf::provisioner';
@@ -125,9 +126,9 @@ Enabled or disables the signing of the profile
 
 has can_sign_profile => (is => 'rw', default => sub { 0 } );
 
-has server_certficate_path => (is => 'rw');
+has server_certificate_path => (is => 'rw');
 
-has server_certficate => (is => 'ro' , builder => 1, lazy => 1);
+has server_certificate => (is => 'ro' , builder => 1, lazy => 1);
 
 =head1 METHODS
 
@@ -139,10 +140,13 @@ Builds an X509 object the server_cert_path
 
 sub _build_server_certificate {
     my ($self) = @_;
+    my $logger = get_logger();
+    use Data::Dumper;
+    $logger->info('Build object'. Dumper($self->server_certificate_path));
     return Crypt::OpenSSL::X509->new_from_file($self->server_certificate_path);
 }
 
-sub _raw_cert_string {
+sub _raw_server_cert_string {
     my ($self, $cert) = @_;
     my $cert_pem = $cert->as_string();
     $cert_pem =~ s/-----END CERTIFICATE-----\n.*//smg;
@@ -169,7 +173,9 @@ Get the server certificate content minus the ascii armor
 
 sub raw_server_cert_string {
     my ($self) = @_;
-    return $self->_raw_cert_string($self->server_certificate);
+    use Data::Dumper;
+    get_logger->info('Certificate content HELLO'.$self->server_certificate);
+    return $self->_raw_server_cert_string($self->server_certificate);
 }
 
 sub server_certificate_cn {
