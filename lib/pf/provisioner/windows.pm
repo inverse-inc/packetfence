@@ -27,33 +27,6 @@ The set the default Windows OS
 # Will always ignore the oses parameter provided and use [Windows]
 has 'oses' => (is => 'ro', default => sub { [qw(Windows)] }, coerce => sub { [qw(Windows)] });
 
-#=head2 profile_template
-#
-#The template to use for profile
-#
-#=cut
-#
-#has profile_template => (is => 'rw', lazy => 1, builder => 1);
-#
-#=head2 _build_profile_template
-#
-#Creates a template from the eap type
-#
-#=cut
-#
-#sub _build_profile_template {
-#    my ($self) = @_;
-#    my $eap_type = $self->eap_type;
-#    if (defined($eap_type)) {
-#        if ($eap_type == 13) {
-#            return "wireless-profile-eap.xml";
-#        } elsif ($eap_type == 25) {
-#            return "wireless-profile-peap.xml";
-#        }
-#    }
-#    return "wireless-profile-noeap.xml";
-#}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
