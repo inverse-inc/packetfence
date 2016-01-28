@@ -25,8 +25,6 @@ use pf::freeradius;
 extends qw(pf::ConfigStore Exporter);
 with 'pf::ConfigStore::Hierarchy';
 
-sub default_section { undef }
-
 sub configFile { $switches_config_file }
 
 sub pfconfigNamespace {'config::Switch'}
