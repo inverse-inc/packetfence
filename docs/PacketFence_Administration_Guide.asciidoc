@@ -882,7 +882,7 @@ You should now define the domain you want to use as the default one by creating 
 
 image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
 
-Next, restart Packetfence in *Status -> Services*
+Next, restart PacketFence in *Status -> Services*
 
 Multiple domains authentication
 +++++++++++++++++++++++++++++++

@@ -4409,7 +4409,7 @@ Configure the Hotspot service profile to redirect devices to your PacketFence po
 image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotsport Service"]
 
  1 - Name of your Hotspot service
- 2 - Login Page: Url of Packetfence portal interface (http://192.168.1.5)
+ 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5)
  3 - Start Page: redirect to the following URL: http://192.168.1.5
  4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
  5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)

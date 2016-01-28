@@ -116,7 +116,7 @@ sub translate {
 
 =item rewrite
 
-Rewrite Location header to Packetfence captive portal.
+Rewrite Location header to PacketFence captive portal.
 
 =cut
 

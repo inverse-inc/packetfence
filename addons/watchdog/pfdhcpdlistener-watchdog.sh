@@ -30,7 +30,7 @@ function test_if_pfdhcpdlistener () {
 		## enable for debugging: 
 		# echo "pfdhcpdlistener is not running or not started..."
 		MESSAGE=`tail -n 20 /usr/local/pf/logs/packetfence.log`
-		echo -e "$MSG\r\nPacketfence dhcplistener error on $HOST, please, investigate:\r\n" | /bin/mail -s "dhcpdlistener watchdog alert on $HOST!" "$EMAILTO"
+		echo -e "$MSG\r\nPacketFence dhcplistener error on $HOST, please, investigate:\r\n" | /bin/mail -s "dhcpdlistener watchdog alert on $HOST!" "$EMAILTO"
 		exit 1
 	else
 		## enable for debugging:
@@ -76,6 +76,6 @@ if [[ $? != 0 ]]; then
 
 	#echo -e $MSG
 	#echo  $MESSAGE
-	echo -e "$MSG\r\nPacketfence Output:\r\n$MESSAGE" | /bin/mail -s "dhcpdlistener watchdog alert on $HOST!" "$EMAILTO"
+	echo -e "$MSG\r\nPacketFence Output:\r\n$MESSAGE" | /bin/mail -s "dhcpdlistener watchdog alert on $HOST!" "$EMAILTO"
 fi
 

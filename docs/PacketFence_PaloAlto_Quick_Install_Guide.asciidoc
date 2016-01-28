@@ -73,7 +73,7 @@ Go to *Configuration -> Firewall SSO -> Add Firewall -> PaloAlto*.
 * *Port of the service*: 443
 * *Roles*: add the roles that you want to do SSO with
 
-image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in Packetfence"]
+image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in PacketFence"]
 
 Step 5: Verification
 ~~~~~~~~~~~~~~~~~~~

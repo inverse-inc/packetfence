@@ -1288,7 +1288,7 @@ acct_maintenance_interval=60s
 #
 # maintenance.provisioning_compliance_poll_interval
 #
-# Interval at which Packetfence runs the polling enforcement on the provisioners
+# Interval at which PacketFence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
 
 [active_active]

@@ -2508,43 +2508,43 @@ msgid "Internal Sources"
 msgstr ""
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
-msgid "Interval at which Packetfence runs accounting maintenance"
+msgid "Interval at which PacketFence runs accounting maintenance"
 msgstr ""
 
 # conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
-msgid "Interval at which Packetfence runs inline accounting maintenance"
+msgid "Interval at which PacketFence runs inline accounting maintenance"
 msgstr ""
 
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
-msgid "Interval at which Packetfence runs iplog cleanup"
+msgid "Interval at which PacketFence runs iplog cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_interval)
-msgid "Interval at which Packetfence runs locationlog cleanup"
+msgid "Interval at which PacketFence runs locationlog cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.node_cleanup_interval)
-msgid "Interval at which Packetfence runs node cleanup"
+msgid "Interval at which PacketFence runs node cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.nodes_maintenance_interval)
-msgid "Interval at which Packetfence runs nodes maintenance"
+msgid "Interval at which PacketFence runs nodes maintenance"
 msgstr ""
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_interval)
-msgid "Interval at which Packetfence runs radius_audit_log cleanup"
+msgid "Interval at which PacketFence runs radius_audit_log cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
-msgid "Interval at which Packetfence runs the polling enforcement on the provisioners."
+msgid "Interval at which PacketFence runs the polling enforcement on the provisioners."
 msgstr ""
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
-msgid "Interval at which Packetfence runs traplog cleanup"
+msgid "Interval at which PacketFence runs traplog cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.violation_maintenance_interval)
-msgid "Interval at which Packetfence runs violation maintenance"
+msgid "Interval at which PacketFence runs violation maintenance"
 msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)

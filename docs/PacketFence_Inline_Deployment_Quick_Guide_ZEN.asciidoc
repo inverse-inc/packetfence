@@ -209,7 +209,7 @@ This step will configure the general options of your PacketFence installation. T
 
 Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-DHCP alerts will be triggered.  
 
-Packetfence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain n ame to validate the SSL connection on the captive portal.
+PacketFence will use the domain and the hostname to generate the URL to redirect devices on the captive portal. If you have a HTTP certificate use the same hostname and domain n ame to validate the SSL connection on the captive portal.
 
 In the last section, Local Database Passwords, you will have to chose the password encryption for local accounts (guest automatically generated and manualy created account).
 

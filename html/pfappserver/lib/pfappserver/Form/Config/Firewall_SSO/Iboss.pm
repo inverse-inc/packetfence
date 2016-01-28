@@ -50,7 +50,7 @@ has_field 'nac_name' =>
    label => 'NAC Name',
    tags => { after_element => \&help,
              help => 'Should match the NAC name from the Iboss configuration' },
-    default => 'Packetfence',
+    default => 'PacketFence',
   );
 has_field 'type' =>
   (

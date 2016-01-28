@@ -9,7 +9,7 @@ pf::db - module for database abstraction and utilities.
 =head1 DESCRIPTION
 
 pf::db contains the database utility functions used by the other
-Packetfence modules
+PacketFence modules
 
 =head1 CONFIGURATION AND ENVIRONMENT
 

@@ -78,7 +78,7 @@ use constant BUFF_LEN => 1024;
 
 =item rewrite
 
-Rewrite Location header and links to Packetfence captive portal.
+Rewrite Location header and links to PacketFence captive portal.
 
 =cut
 

@@ -119,8 +119,8 @@ case "$1" in
 
         /sbin/ldconfig
         update-rc.d packetfence defaults 60 || exit 0
-        #Starting Packetfence.
-        echo "Starting Packetfence Administration GUI..."
+        #Starting PacketFence.
+        echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
         invoke-rc.d packetfence-config restart

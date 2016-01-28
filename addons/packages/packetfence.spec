@@ -662,8 +662,8 @@ setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 # skip if this is an update
-#Starting Packetfence.
-echo "Starting Packetfence Administration GUI..."
+#Starting PacketFence.
+echo "Starting PacketFence Administration GUI..."
 #removing old cache
 rm -rf /usr/local/pf/var/cache/
 /sbin/service packetfence-redis-cache restart

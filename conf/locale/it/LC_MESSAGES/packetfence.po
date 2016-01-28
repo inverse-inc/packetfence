@@ -452,7 +452,7 @@ msgstr ""
 # html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/register.html
 msgid "PacketFence Registration System"
-msgstr "Sistema di registrazione Packetfence"
+msgstr "Sistema di registrazione PacketFence"
 
 # html/captive-portal/templates/activated.html
 # html/captive-portal/templates/device-login.html
@@ -792,7 +792,7 @@ msgstr "Hai raggiunto il numero massimo di riattivazioni della rete!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr "Il tuo computer non e' stato trovato nel database di Packetfence. Riavvialo per risolvere il problema."
+msgstr "Il tuo computer non e' stato trovato nel database di PacketFence. Riavvialo per risolvere il problema."
 
 # pf::web::constants (Locales)
 msgid "es_ES"

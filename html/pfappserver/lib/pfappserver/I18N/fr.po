@@ -2725,45 +2725,45 @@ msgid "Internal Sources"
 msgstr "Sources Interne"
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
-msgid "Interval at which Packetfence runs accounting maintenance"
+msgid "Interval at which PacketFence runs accounting maintenance"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance de l´accounting"
 
 # conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
-msgid "Interval at which Packetfence runs inline accounting maintenance"
+msgid "Interval at which PacketFence runs inline accounting maintenance"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance de l´accounting inline"
 
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
-msgid "Interval at which Packetfence runs iplog cleanup"
+msgid "Interval at which PacketFence runs iplog cleanup"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance de l´iplog"
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_interval)
-msgid "Interval at which Packetfence runs locationlog cleanup"
+msgid "Interval at which PacketFence runs locationlog cleanup"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance du locationlog"
 
 # conf/documentation.conf (maintenance.node_cleanup_interval)
-msgid "Interval at which Packetfence runs node cleanup"
+msgid "Interval at which PacketFence runs node cleanup"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des noeuds"
 
 # conf/documentation.conf (maintenance.nodes_maintenance_interval)
-msgid "Interval at which Packetfence runs nodes maintenance"
+msgid "Interval at which PacketFence runs nodes maintenance"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des noeuds"
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_interval)
-msgid "Interval at which Packetfence runs radius_audit_log cleanup"
+msgid "Interval at which PacketFence runs radius_audit_log cleanup"
 msgstr ""
 
 # conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
 msgid ""
-"Interval at which Packetfence runs the polling enforcement on the "
+"Interval at which PacketFence runs the polling enforcement on the "
 "provisioners."
 msgstr "Intervalle a laquelle PacketFence exécute l'enforcement sur les provisionners."
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
-msgid "Interval at which Packetfence runs traplog cleanup"
+msgid "Interval at which PacketFence runs traplog cleanup"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des journaux des trappes."
 
 # conf/documentation.conf (maintenance.violation_maintenance_interval)
-msgid "Interval at which Packetfence runs violation maintenance"
+msgid "Interval at which PacketFence runs violation maintenance"
 msgstr "Intervalle à laquelle PacketFence lance la tâche de maintenance des violations"
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)

@@ -1,5 +1,5 @@
 ===========================
-SoH support for Packetfence
+SoH support for PacketFence
 ===========================
 
 Introduction
@@ -32,7 +32,7 @@ remediation page to clients that do not have an anti-virus enabled.
 
 The three broad steps are: create a violation class for the condition,
 then create an SoH filter to trigger the violation when "anti-virus is
-disabled", and finally, restart Packetfence.
+disabled", and finally, restart PacketFence.
 
 1. Create a violation through the admin interface, or edit
    conf/violations.conf and add a section like this:
@@ -64,4 +64,4 @@ disabled", and finally, restart Packetfence.
 
 #. Click on the "Save filters" button.
 
-#. Restart Packetfence.
+#. Restart PacketFence.
