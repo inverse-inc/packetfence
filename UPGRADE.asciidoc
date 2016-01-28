@@ -60,6 +60,12 @@ With the changes made to RADIUS in the version 5.5, you will need to remove the 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Suricata violation trigger renaming
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With the introduction of the ability to trigger a violation based on a MD5 hash detected by Suricata, a new trigger type has been introduced, requiring the modification of the actual 'suricata' trigger.
+Make sure to go through your violations configuration and change any 'suricata' trigger name for 'suricata_event'.
+
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 Upgrading from a version prior to 5.6.0
