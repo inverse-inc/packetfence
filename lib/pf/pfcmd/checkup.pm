@@ -946,7 +946,7 @@ sub switches {
         } elsif ( $SNMPVersionTrap =~ /^3$/ ) {
             # mandatory SNMPv3 traps parameters
             foreach (qw(
-                SNMPUserNameTrap SNMPEngineID
+                SNMPUserNameTrap
                 SNMPAuthProtocolTrap SNMPAuthPasswordTrap
                 SNMPPrivProtocolTrap SNMPPrivPasswordTrap
             )) {
