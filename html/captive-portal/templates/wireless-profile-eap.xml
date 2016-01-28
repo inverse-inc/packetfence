@@ -54,7 +54,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_windows %]
+                        [% IF for_windows || for_android %]
                         <string>[% cert_content %]</string>
                         [% ELSE %]
                         <data>[% cert_content %]</data>
@@ -78,7 +78,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_windows %]
+                        [% IF for_windows || for_android%]
                         <string>[% ca_content %]</string>
                         [% ELSE %]
                         <data>[% ca_content %]</data>
