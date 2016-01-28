@@ -19,6 +19,7 @@ use JSON;
 use List::MoreUtils qw(any);
 use Readonly;
 
+use pf::CHI;
 use pf::config;
 use pf::log;
 
@@ -42,6 +43,7 @@ Readonly::Scalar our $METASCAN_RESULT_IDS => {
     14  => 'Exceeded Archive File Number',
 };
 
+use constant METASCAN_CACHE_EXPIRE => 86400;
 
 =item hash_lookup
 
@@ -55,27 +57,35 @@ sub hash_lookup {
     my $md5_hash = $data->{'md5'};
     $logger->debug("Looking up MD5 hash '$md5_hash' against MetaScan online scanner");
 
-    my $ua = LWP::UserAgent->new;
-    $ua->timeout(2);
-    $ua->default_header('apikey' => $Config{'metascan'}{'api_key'});
-    my $response = $ua->get($Config{'metascan'}{'query_url_hash'} . $md5_hash);
-    my $result;
-    if ( $response->is_success ) {
-        $result = decode_json($response->content);
-    } else {
-        $logger->warn("Looking up MD5 hash '$md5_hash' against MetaScan online scanner failed: " . $response->status_line);
-        return;
-    }
+    my $cache = pf::CHI->new(namespace => 'metascan');
+    return $cache->compute(
+        $md5_hash,
+        {expires_in => METASCAN_CACHE_EXPIRE},
+        sub {
 
-    # Check whether or not the scan result contains informations
-    # MetaScan Online API scanner returns "Not Found" as a hash value where the key is the submitted MD5 hash if nothing has been found
-    # Ref: https://www.metascan-online.com/public-api#!/retrieve_single
-    if ( any { $_ eq "Not Found" } values %$result ) {
-        $logger->debug("Looking up MD5 hash '$md5_hash' againt MetaScan online scanner returned a 'Not Found' status. Nothing to do");
-        return;
-    }
+            my $ua = LWP::UserAgent->new;
+            $ua->timeout(2);
+            $ua->default_header('apikey' => $Config{'metascan'}{'api_key'});
+            my $response = $ua->get($Config{'metascan'}{'query_url_hash'} . $md5_hash);
+            my $result;
+            if ( $response->is_success ) {
+                $result = decode_json($response->content);
+            } else {
+                $logger->warn("Looking up MD5 hash '$md5_hash' against MetaScan online scanner failed: " . $response->status_line);
+                return;
+            }
 
-    return $self->parse_scan_result($md5_hash, $result);
+            # Check whether or not the scan result contains informations
+            # MetaScan Online API scanner returns "Not Found" as a hash value where the key is the submitted MD5 hash if nothing has been found
+            # Ref: https://www.metascan-online.com/public-api#!/retrieve_single
+            if ( any { $_ eq "Not Found" } values %$result ) {
+                $logger->debug("Looking up MD5 hash '$md5_hash' againt MetaScan online scanner returned a 'Not Found' status. Nothing to do");
+                return;
+            }
+
+            return $self->parse_scan_result($md5_hash, $result);
+        }
+    );    
 }
 
 =item parse_scan_result
