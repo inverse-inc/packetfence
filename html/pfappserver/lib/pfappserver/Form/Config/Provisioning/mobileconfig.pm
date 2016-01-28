@@ -67,7 +67,7 @@ has_field 'passcode' =>
 has_field 'server_certificate_path' =>
  (
   type => 'Path',
-  label => 'RADIUS Server Certificate Path',
+  label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },       
  );
