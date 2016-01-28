@@ -1294,7 +1294,7 @@ provisioning_compliance_poll_interval=300s
 # maintenance.online_node_state_update_interval
 #
 # Interval at which PacketFence updates the online node state
-online_node_state_update_interval=60s
+online_node_state_update_interval=15m
 
 [active_active]
 #
