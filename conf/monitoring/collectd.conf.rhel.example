@@ -55,7 +55,6 @@ LoadPlugin apache
 LoadPlugin cpu
 LoadPlugin interface
 LoadPlugin load
-LoadPlugin memcached
 LoadPlugin memory
 LoadPlugin mysql
 LoadPlugin unixsock
@@ -83,13 +82,6 @@ LoadPlugin write_graphite
   <Instance "webservices">
     URL "http://localhost:9090/apache_status/?auto"
   </Instance>
-</Plugin>
-
-<Plugin memcached>
-	<Instance "%%hostname%%">
-		Host "%%hostname%%"
-		Port "11211"
-	</Instance>
 </Plugin>
 
 <Plugin mysql>
