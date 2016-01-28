@@ -135,7 +135,6 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub supportsAccessListBasedEnforcement { return $TRUE }
 sub supportsUrlBasedEnforcement { return $TRUE }
-sub supportsExternalPortal { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =head1 SUBROUTINES
