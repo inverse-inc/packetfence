@@ -1103,7 +1103,8 @@ sub metascan_process : Public {
     my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
     return if !defined($metascan_scan_result_id);
 
-    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan" } );    
+    my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
+    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );    
 }
 
 =head1 AUTHOR
