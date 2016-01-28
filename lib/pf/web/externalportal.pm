@@ -69,7 +69,7 @@ sub external_captive_portal {
         if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
             my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req, $r);
             my $portalSession = _setup_session($req, $client_mac, $client_ip, $redirect_url, $grant_url);
-            pf::iplog::open($client_ip,$client_mac,3600) if (defined ($client_ip) && defined ($client_mac));
+            pf::iplog::open($client_ip,$client_mac,undef) if (defined ($client_ip) && defined ($client_mac));
             return ($portalSession->session->id(), $redirect_url);
         } else {
             return 0;
@@ -82,7 +82,7 @@ sub external_captive_portal {
         my $mac = $locationlog->{mac};
         my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
         my $portalSession = _setup_session($req, $mac, $ip, undef, undef);
-        pf::iplog::open($ip,$mac,3600) if defined ($ip);
+        pf::iplog::open($ip,$mac,undef) if defined ($ip);
         my $redirect_url = defined($r->headers_in->{'Referer'}) ? $r->headers_in->{'Referer'} : '';
         return ($portalSession->session->id(), $redirect_url);
     }
