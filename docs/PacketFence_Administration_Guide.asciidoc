@@ -682,7 +682,7 @@ In order for your users to be able to access the Identity Provider login page, y
 
 To do so, go in 'Configuration -> Trapping', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
-Restart PacketFence to apply the new passthroughs configuration.
+Next, restart iptables and pfdns to apply your new passthroughs. Also make sure `net.ipv4.ip_forward = 1` is configured in `/etc/sysctl.conf`.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
