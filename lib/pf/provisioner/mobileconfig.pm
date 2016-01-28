@@ -140,9 +140,6 @@ Builds an X509 object the server_cert_path
 
 sub _build_server_certificate {
     my ($self) = @_;
-    my $logger = get_logger();
-    use Data::Dumper;
-    $logger->info('Build object'. Dumper($self->server_certificate_path));
     return Crypt::OpenSSL::X509->new_from_file($self->server_certificate_path);
 }
 

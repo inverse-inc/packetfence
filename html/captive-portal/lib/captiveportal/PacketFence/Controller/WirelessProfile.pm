@@ -49,10 +49,7 @@ sub index : Path : Args(0) {
         ca_cn        => $pki_session->{ca_cn},
         server_cn    => $pki_session->{server_cn},
         ca_content   => $pki_session->{ca_content},
-        passwcode    => $provisioner->{passcode},
         reverse_fqdn => $reverse_fqdn,
-        server_cert  => $provisioner->server_certificate_cn,
-        server_cont  => $provisioner->raw_server_cert_string,
     );
 }
 

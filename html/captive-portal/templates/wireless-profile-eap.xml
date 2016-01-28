@@ -54,9 +54,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadContent</key>
-                        <data>
-                        [% cert_content %]
-                        </data>
+                        <string>[% cert_content %]</string>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
@@ -76,7 +74,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
-                        <data>[% ca_content %]</data>
+                        <string>[% ca_content %]</string>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
