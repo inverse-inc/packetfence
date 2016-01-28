@@ -198,7 +198,7 @@ sub inline_accounting_maintenance {
                 my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @$row;
                 $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
                 # Trigger violation for this node
-                if (violation_trigger($mac, $ACCOUNTING_POLICY_BANDWIDTH, $TRIGGER_TYPE_ACCOUNTING)) {
+                if (violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_BANDWIDTH, 'type' => $TRIGGER_TYPE_ACCOUNTING } )) {
                     # Stop counters of active network sessions for this node
                     db_query_execute('inline::accounting', $accounting_statements,
                                      'accounting_update_inactive_sessions_for_ip_sql', $ip);

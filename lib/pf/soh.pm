@@ -431,7 +431,7 @@ sub trigger_violation {
         "and filter $filter->{name}"
     );
     pf::violation::violation_trigger(
-        $self->{mac_address}, $filter->{filter_id}, "soh"
+        { 'mac' => $self->{mac_address}, 'tid' => $filter->{filter_id}, 'type' => "soh" }
     );
 }
 

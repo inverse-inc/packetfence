@@ -70,7 +70,7 @@ sub event_add : Public {
     if ($srcmac) {
 
         # trigger a violation
-        pf::violation::violation_trigger($srcmac, $id, $type);
+        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
 
     } else {
         $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
@@ -444,7 +444,7 @@ sub trigger_violation : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
+    return (pf::violation::violation_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'} } ));
 }
 
 =head2 release_all_violations
@@ -979,7 +979,7 @@ sub detect_computername_change : Public {
               "( ".$node_attributes->{computername}." -> $new_computername ).".
               "Possible MAC spoofing.");
 
-            pf::violation::violation_trigger($mac, "hostname_change", "internal");
+            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "hostname_change", 'type' => "internal" } );
             return 1;
         }
     }
@@ -1103,7 +1103,7 @@ sub metascan_process : Public {
     my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
     return if !defined($metascan_scan_result_id);
 
-    pf::violation::violation_trigger($data->{'mac'}, $metascan_scan_result_id, "metascan");    
+    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan" } );    
 }
 
 =head1 AUTHOR

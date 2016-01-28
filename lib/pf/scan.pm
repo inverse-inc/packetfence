@@ -134,7 +134,7 @@ sub parse_scan_report {
     if ($row->[0] eq 'Plugin ID') {
         while (my $row = $csv->getline($io)) {
             $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
-            my $violation_added = violation_trigger($mac, $row->[0], $type);
+            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $row->[0], 'type' => $type } );
 
             # If a violation has been added, consider the scan failed
             if ( $violation_added ) {
@@ -153,7 +153,7 @@ sub parse_scan_report {
             my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
 
             $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-            my $violation_added = violation_trigger($mac, $trigger_id, $type);
+            my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $trigger_id, 'type' => $type } );
 
             # If a violation has been added, consider the scan failed
             if ( $violation_added ) {

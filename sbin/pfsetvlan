@@ -2049,7 +2049,7 @@ sub handle_wireless_ips {
    #For each matching nodes, fire an internal WIDS violation
    foreach my $keys (keys %matchingNodes) {
        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
-       violation_trigger( $keys, $WIPS_VID, 'INTERNAL' );
+       violation_trigger( { 'mac' => $keys, 'tid' => $WIPS_VID, 'type' => 'INTERNAL' } );
    }
 
    return;
