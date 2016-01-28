@@ -223,6 +223,7 @@ sub _should_we_reassign_vlan {
                 return $TRUE;
             }
         }
+    }
     if (defined($role)) {
         if ($role ne $newRole->{role}) {
             $logger->info(
