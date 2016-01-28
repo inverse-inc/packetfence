@@ -221,11 +221,9 @@ sub _should_we_reassign_vlan {
                     "VLAN reassignment required (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"
                 );
                 return $TRUE;
-            } else {
-                return $FALSE;
             }
         }
-    } elsif (defined($role)) {
+    if (defined($role)) {
         if ($role ne $newRole->{role}) {
             $logger->info(
                 "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
