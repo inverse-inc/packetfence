@@ -72,6 +72,8 @@ BEGIN {
         strip_username
         generate_session_id
         calc_page_count
+        whowasi
+        validate_argv
     );
 }
 
@@ -1148,6 +1150,34 @@ Calculates the number of pages
 sub calc_page_count {
     my ($count, $perPage) = @_;
     return int( ($count + $perPage  - 1) / $perPage );
+}
+
+=item whowasi
+
+Return the parent function name
+
+=cut
+
+sub whowasi { ( caller(2) )[3] }
+
+=item validate_argv
+
+Test if the required arguments are provided
+
+=cut
+
+sub validate_argv {
+    my ($require, $found) = @_;
+    my $logger = pf::log::get_logger();
+
+    if (!(@{$require} == @{$found})) {
+        my %diff;
+        @diff{ @{$require} } = @{$require};
+        delete @diff{ @{$found} };
+        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
+        return 0;
+    }
+    return 1;
 }
 
 =back
