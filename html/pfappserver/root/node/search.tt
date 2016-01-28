@@ -10,25 +10,25 @@
 [% END -%]
 
 [% MACRO column_checkbox(column, title) BLOCK -%]
-                <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% l(title) %]</label></a></li>
+                <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% title %]</label></a></li>
 [% END -%]
 [%
     columns_list = [
-        { name => 'status', label => 'Status' },
-        { name => 'online', label => 'Online/Offline' }
-        { name => 'mac', label => 'MAC' },
-        { name => 'detect_date', label => 'Detected Date' },
-        { name => 'regdate', label => 'Registration Date' },
-        { name => 'unregdate', label => 'Unregistration Date' },
-        { name => 'computername', label => 'Computer Name' },
-        { name => 'pid', label => 'Owner' },
-        { name => 'last_ip', label => 'IP Address' },
-        { name => 'dhcp_fingerprint', label => 'OS (DHCP)' },
-        { name => 'category', label => 'Role' },
-        { name => 'switch_id', label => 'Switch ID' },
-        { name => 'switch_description', label => 'Switch description' },
-        { name => 'bypass_vlan', label => 'Bypass VLAN' },
-        { name => 'bypass_role', label => 'Bypass Role' },
+        { name => 'status', label => l('Status') },
+        { name => 'online', label => l('Online/Offline') },
+        { name => 'mac', label => l('MAC') },
+        { name => 'detect_date', label => l('Detected Date') },
+        { name => 'regdate', label => l('Registration Date') },
+        { name => 'unregdate', label => l('Unregistration Date') },
+        { name => 'computername', label => l('Computer Name') },
+        { name => 'pid', label => l('Owner') },
+        { name => 'last_ip', label => l('IP Address') },
+        { name => 'dhcp_fingerprint', label => l('OS (DHCP)') },
+        { name => 'category', label => l('Role') },
+        { name => 'switch_id', label => l('Switch Identifier') },
+        { name => 'switch_description', label => l('Switch description') },
+        { name => 'bypass_vlan', label => l('Bypass VLAN') },
+        { name => 'bypass_role', label => l('Bypass Role') },
     ]
 
 %]
@@ -44,7 +44,7 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-form">
                 [% FOREACH column IN columns_list %]
-                    [% column_checkbox( column.name ,  l(column.label)) | none %]
+                    [% column_checkbox( column.name , column.label) | none %]
                 [% END %]
               </ul>
               </form>

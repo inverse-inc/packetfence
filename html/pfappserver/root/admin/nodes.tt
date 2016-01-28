@@ -12,7 +12,7 @@
     <option value="dhcp_fingerprint">[% l('OS (DHCP)') %]</option>
     <option value="person_name">[% l('Person Name') %]</option>
     <option value="status">[% l('Status') %]</option>
-    <option value="switch_id">[% l('Source Switch ID') %]</option>
+    <option value="switch_id">[% l('Source Switch Identifier') %]</option>
     <option value="switch_ip">[% l('Source Switch IP') %]</option>
     <option value="switch_mac">[% l('Source Switch MAC') %]</option>
     <option value="user_agent">[% l('User Agent') %]</option>
@@ -171,7 +171,7 @@ form {
               </li>
               <li class="divider"></li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Nodes Offline') %]</a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Offline Nodes') %]</a>
                 <form>
                     <input type="hidden" name="searches.0.name" value="online"/>
                     <input type="hidden" name="searches.0.op" value="equal"/>
@@ -179,7 +179,7 @@ form {
                 </form>
               </li>
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Nodes Online') %]</a>
+                <a href="#" data-toggle="pf-search-form" data-target="advanced">[% l('Online Nodes') %]</a>
                 <form>
                     <input type="hidden" name="searches.0.name" value="online"/>
                     <input type="hidden" name="searches.0.op" value="equal"/>
@@ -263,7 +263,7 @@ form {
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
                             <div class="input-daterange datepicker controls">
-                                <label class="control-label input-medium text-left">[% l('Online Between :') %]</label>
+                                <label class="control-label input-medium text-left">[% l('Online Between:') %]</label>
                                 <input type="text" class="input-small" name="online_date.start" data-date-format="yyyy-mm-dd" />
                                 <i class="icon-arrow-right"></i>
                                 <input type="text" class="input-small" name="online_date.end" data-date-format="yyyy-mm-dd" />
@@ -276,7 +276,7 @@ form {
                           <th colspan="2" class="pull-left">
                           <div class="control-group">
                             <div class="input-daterange datepicker controls">
-                              <label class="control-label input-medium text-left">[% l('Detected Between :') %]</label>
+                              <label class="control-label input-medium text-left">[% l('Detected Between:') %]</label>
                               <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
                               <i class="icon-arrow-right"></i>
                               <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
