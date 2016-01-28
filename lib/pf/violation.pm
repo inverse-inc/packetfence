@@ -723,6 +723,8 @@ sub violation_trigger {
         }
         $data{'release_date'} = $date;
 
+        $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
+
         $logger->info("calling violation_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
         violation_add($mac, $vid, %data);
         $addedViolation = 1;
