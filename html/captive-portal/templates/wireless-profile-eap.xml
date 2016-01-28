@@ -74,13 +74,13 @@
                 </dict>
                 <dict>
                         <key>PayloadCertificateFileName</key>
-                        <string>[% server_cert %]</string>
+                        <string>[% ca_cn %]</string>
                         <key>PayloadContent</key>
-                        <data>[% server_cont %]</data>
+                        <data>[% ca_content %]</data>
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
-                        <string>[% server_cert %]</string>
+                        <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
                         <string>[% reverse_fqdn %]</string>
                         <key>PayloadOrganization</key>
