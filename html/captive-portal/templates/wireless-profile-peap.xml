@@ -60,7 +60,11 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% provisioner.server_certificate_cn() %]</string>
                         <key>PayloadContent</key>
+                        [% IF for_windows %]
                         <string>[% provisioner.raw_server_cert_string() %]</string>
+                        [% ELSE %]
+                        <data>[% provisioner.raw_server_cert_string() %]</data>
+                        [% END %]
                         <key>PayloadDescription</key>
                         <string>Provides device authentication (certificate or identity).</string>
                         <key>PayloadDisplayName</key>
