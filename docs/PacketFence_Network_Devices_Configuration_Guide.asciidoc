@@ -1347,7 +1347,7 @@ image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="
 Web auth and Downloadable ACLs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's possible to mix web authentication and downloadable ACLs, for example if you want to be able to redirect the device to the captive portal when a violation is triggered.
+It's possible to mix web authentication and downloadable ACLs starting from the IOS version 15.2, for example if you want to be able to redirect the device to the captive portal when a violation is triggered.
 To do that first you need to configure PacketFence with Role by Url and with Role by access list (For each role you need).
 On the switch you need to change the Auth-Default-ACL to add the portal ip address:
 
