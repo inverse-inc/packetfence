@@ -52,14 +52,7 @@ sub hash_lookup {
     my ( $self, $data ) = @_;
     my $logger = pf::log::get_logger;
 
-    # Making sure we have data to work with
-    if (!defined($data->{'md5'}) || !$data->{'md5'}) {
-        $logger->debug("Trying to look up a non-existing MD5 hash against MetaScan online scanner. Exiting");
-        return;
-    }
-
     my $md5_hash = $data->{'md5'};
-
     $logger->debug("Looking up MD5 hash '$md5_hash' against MetaScan online scanner");
 
     my $ua = LWP::UserAgent->new;

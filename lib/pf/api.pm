@@ -1133,10 +1133,7 @@ sub metascan_process : Public {
     my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
     return if !defined($metascan_scan_result_id);
 
-    my $mac = pf::iplog::ip2mac($data->{'dstip'});
-    return if !defined($mac);
-
-    pf::violation::violation_trigger($mac, $metascan_scan_result_id, "metascan");    
+    pf::violation::violation_trigger($data->{'mac'}, $metascan_scan_result_id, "metascan");    
 }
 
 =head1 AUTHOR
