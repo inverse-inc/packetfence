@@ -200,7 +200,7 @@ sub readRaw {
     if ( $config->SectionExists($id) ) {
         $data = {};
         my @default_params = $config->Parameters($config->{default})
-            if (exists $config->{default});
+            if (defined $config->{default} && length($config->{default}));
         $data->{$idKey} = $self->_cleanupId($id) if defined $idKey;
         foreach my $param (uniq $config->Parameters($id), @default_params) {
             my $val;
