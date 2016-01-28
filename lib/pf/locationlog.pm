@@ -168,7 +168,7 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_view_open_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
-        WHERE mac=? end_time=0
+        WHERE mac=? AND end_time=0
         ORDER BY start_time desc
     ]);
 
@@ -231,7 +231,7 @@ sub locationlog_db_prepare {
         UPDATE locationlog
             INNER JOIN node USING (mac)
         SET end_time = now()
-        WHERE switch = ? AND port = ? AND (node.voip='no' or node.voip='') AND (ISNULL(end_time) or end_time = 0)
+        WHERE switch = ? AND port = ? AND (node.voip='no' or node.voip='') AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
