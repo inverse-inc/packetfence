@@ -118,7 +118,7 @@ use pf::config;
 use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
-use pf::node qw(node_attributes);
+use pf::node qw(node_attributes node_view);
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::web::util;
 
