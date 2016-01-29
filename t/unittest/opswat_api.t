@@ -34,26 +34,7 @@ use Test::NoWarnings;
 
 use_ok("pf::api");
 
-my $backend = pfconfig::config->new->get_backend();
-my $test_mac = "00:11:22:33:44:55";
-my $ping_key = $test_mac."-last-ping";
-
-$backend->clear();
-
-is(undef, $backend->get($ping_key),
-    "No last ping when device was never seen");
-
-my $before_ping = time;
-
-my $result = pf::api->mdm_opswat_ping({device_id => $test_mac});
-
-is_deeply($result, {rp_time => 60},
-    "Result from OPSWAT ping is correct");
-
-my $last_ping = $backend->get($ping_key);
-
-ok(($last_ping <= time && $last_ping >= $before_ping ),
-    "Last ping is before now and after ping call");
+my $result;
 
 my $payload = {
     detected_products => [
@@ -393,6 +374,28 @@ $result = pf::api->mdm_opswat_report($payload);
 
 is_deeply($result, {compliant => 0},
     "Not Up2date OS is not compliant");
+
+##### THESE HAVE TO BE EXECUTED LAST BECAUSE THEY CLEAR OUT THE CONFIG!!!
+my $backend = pfconfig::config->new->get_backend();
+my $test_mac = "00:11:22:33:44:55";
+my $ping_key = $test_mac."-last-ping";
+
+$backend->clear();
+
+is(undef, $backend->get($ping_key),
+    "No last ping when device was never seen");
+
+my $before_ping = time;
+
+$result = pf::api->mdm_opswat_ping({device_id => $test_mac});
+
+is_deeply($result, {rp_time => 60},
+    "Result from OPSWAT ping is correct");
+
+my $last_ping = $backend->get($ping_key);
+
+ok(($last_ping <= time && $last_ping >= $before_ping ),
+    "Last ping is before now and after ping call");
 
 =head1 AUTHOR
 
