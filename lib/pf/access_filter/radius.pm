@@ -79,6 +79,17 @@ sub handleAnswerInRule {
         if (defined($rule->{'merge_answer'}) && !(isenabled($rule->{'merge_answer'}))) {
             return ($radius_reply,$status);
         } else {
+            foreach my $key (keys %$radius_reply_ref) {
+                if (exists($radius_reply->{$key})) {
+                    if (defined(reftype($radius_reply->{$key})) && reftype($radius_reply->{$key}) eq 'ARRAY') {
+                        my @attribute;
+                        push(@attribute,@{$radius_reply_ref->{$key}});
+                        push(@attribute,@{$radius_reply->{$key}});
+                        $radius_reply_ref->{$key} = \@attribute;
+                        delete $radius_reply->{$key};
+                    }
+                }
+            }
             $radius_reply_ref = {%$radius_reply_ref, %$radius_reply} if (keys %$radius_reply);
             return ($radius_reply_ref,$status);
         }
@@ -86,6 +97,7 @@ sub handleAnswerInRule {
         return ($radius_reply_ref,$status);
     }
 }
+
 
 sub setSession {
     my($args) = @_;
