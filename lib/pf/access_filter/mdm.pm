@@ -51,7 +51,8 @@ sub filter {
     my @rules = $self->test($scope, $args);
     my @results;
     foreach my $rule (@rules){
-        push @results, $self->filterRule($rule, $args);
+        my $result = $self->filterRule($rule, $args);
+        push @results, $result if($result);
     }
     return @results;
 }

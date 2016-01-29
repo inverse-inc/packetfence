@@ -1192,16 +1192,20 @@ sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
 
     my $products = $args->{detected_products};
 
+    my @result;
     my $filter = pf::access_filter::mdm->new;
     my @flags;
     foreach my $product (@$products){
         $logger->debug(sub { use Data::Dumper ; "Evaluating product : ",Dumper($product) });
-        push @flags, $filter->filter('OpswatProduct', $product);
+        @result = $filter->filter('OpswatProduct', $product);
+        push @flags, @result if(@result);
     }
 
-    push @flags, $filter->filter("OpswatGlobal", $args);
+    @result = $filter->filter("OpswatGlobal", $args);
+    push @flags, @result if(@result);
 
-    push @flags, $filter->filter('OpswatReport', { flags => \@flags });
+    @result = $filter->filter('OpswatReport', { flags => \@flags });
+    push @flags, @result if(@result);
     $logger->info("Flags found via MDM engine : ".join(', ',@flags));
     return {
         compliant => (any { $_ eq "non-compliant" } @flags) ? 0 : 1,
