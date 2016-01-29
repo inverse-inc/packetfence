@@ -1195,7 +1195,7 @@ sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
     my $filter = pf::access_filter::mdm->new;
     my @flags;
     foreach my $product (@$products){
-        $logger->debug("Evaluating product : ",Dumper($product));
+        $logger->debug(sub { use Data::Dumper ; "Evaluating product : ",Dumper($product) });
         push @flags, $filter->filter('OpswatProduct', $product);
     }
 
