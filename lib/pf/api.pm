@@ -1183,7 +1183,7 @@ sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
         pf::log::get_logger->info("First time seeing device $args->{device_id}.");
     }
     $backend->set($ping_key, $current_ping);
-    return {rp_time => "60"};
+    return {rp_time => 60};
 }
 
 sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
@@ -1191,14 +1191,11 @@ sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
     my $logger = pf::log::get_logger;
 
     my $products = $args->{detected_products};
-    $args->{system_methods} = { map { $_->{result}->{method} => $_ } @{$args->{system_methods}} };
 
     my $filter = pf::access_filter::mdm->new;
     my @flags;
     foreach my $product (@$products){
         $logger->debug("Evaluating product : ",$product);
-        my %outputs = map { $_->{result}->{method} => $_ } @{$product->{method_outputs}};
-        $product->{method_outputs} = \%outputs;
         push @flags, $filter->filter('OpswatProduct', $product);
     }
 

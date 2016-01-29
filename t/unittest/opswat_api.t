@@ -59,41 +59,41 @@ my $payload = {
     detected_products => [
         {
             categories => [6],
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         method => 1001,
                         is_recent => 1,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 1,
                     },
                 },
-            ],
+            },
         },
         {
             categories => [5],
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         method => 1001,
                         is_recent => 1,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 1,
                     },
                 },
-            ],
+            },
         },
     ],
-    "system_methods" => [
-    {
+    "system_methods" => {
+    "1" => {
         "result" => {
             "name" => "Microsoft Windows 10 Enterprise",
             "architecture" => "64-bit",
@@ -108,7 +108,7 @@ my $payload = {
             "method" => 1
         }
     },
-    {
+    "50550" => {
         "result" => {
             "is_current" => 1,
             "details" => {
@@ -117,7 +117,7 @@ my $payload = {
             "method" => 50550
         }
     }
-    ],
+    },
 };
 
 $result = pf::api->mdm_opswat_report($payload);
@@ -137,24 +137,24 @@ $payload = {
     detected_products => [
         {
             categories => [5],
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         method => 1001,
                         is_recent => 0,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 0,
                     },
                 },
-            ],
+            },
         },
     ],
-    "system_methods" => [
-    {
+    "system_methods" => {
+    "1" => {
         "result" => {
             "name" => "Microsoft Windows 10 Enterprise",
             "architecture" => "64-bit",
@@ -169,7 +169,7 @@ $payload = {
             "method" => 1
         }
     },
-    {
+    "50550" => {
         "result" => {
             "is_current" => 1,
             "details" => {
@@ -178,7 +178,7 @@ $payload = {
             "method" => 50550
         }
     }
-    ],
+    },
 };
 
 $result = pf::api->mdm_opswat_report($payload);
@@ -198,8 +198,8 @@ $payload = {
             product => {
                 name => "ESET Endpoint Security",
             },
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         definitions => [
                             last_update => "2016-06-25T01:17:24Z",
@@ -213,17 +213,17 @@ $payload = {
                         is_recent => 1,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 1,
                     },
                 },
-            ],
+            },
         },
     ],
-    "system_methods" => [
-    {
+    "system_methods" => {
+    "1" => {
         "result" => {
             "name" => "Microsoft Windows 10 Enterprise",
             "architecture" => "64-bit",
@@ -238,7 +238,7 @@ $payload = {
             "method" => 1
         }
     },
-    {
+    "50550" => {
         "result" => {
             "is_current" => 1,
             "details" => {
@@ -247,7 +247,7 @@ $payload = {
             "method" => 50550
         }
     }
-    ],
+    },
 };
 
 
@@ -268,8 +268,8 @@ $payload = {
             product => {
                 name => "ESET Endpoint Security",
             },
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         definitions => [
                             last_update => "2016-06-25T01:17:24Z",
@@ -283,17 +283,17 @@ $payload = {
                         is_recent => 1,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 1,
                     },
                 },
-            ],
+            },
         },
     ],
-    "system_methods" => [
-    {
+    "system_methods" => {
+    "1" => {
         "result" => {
             "name" => "Microsoft Windows 10 Enterprise",
             "architecture" => "64-bit",
@@ -308,7 +308,7 @@ $payload = {
             "method" => 1
         }
     },
-    {
+    "50550" => {
         "result" => {
             "is_current" => 1,
             "details" => {
@@ -317,7 +317,7 @@ $payload = {
             "method" => 50550
         }
     }
-    ],
+    },
 };
 
 $result = pf::api->mdm_opswat_report($payload);
@@ -337,8 +337,8 @@ $payload = {
             product => {
                 name => "ESET Endpoint Security",
             },
-            method_outputs => [
-                {
+            method_outputs => {
+                "1001" => {
                     result => {
                         definitions => [
                             last_update => "2016-06-25T01:17:24Z",
@@ -352,13 +352,13 @@ $payload = {
                         is_recent => 1,
                     },
                 },
-                {
+                "1000" => {
                     result => {
                         method => 1000,
                         enabled => 1,
                     },
                 },
-            ],
+            },
         },
     ],
     "system_methods" => [
