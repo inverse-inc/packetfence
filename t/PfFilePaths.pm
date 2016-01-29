@@ -15,12 +15,15 @@ Overrides the the location of config files to help with testing
 use strict;
 use warnings;
 
+use File::Slurp qw(read_file);
+
 BEGIN {
     use File::Path qw(remove_tree);
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
     use pf::file_paths;
     use pfconfig::constants;
+    use pfconfig::manager;
     remove_tree('/tmp/chi');
     my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
     $test_dir ||= catdir($install_dir,'t');
@@ -35,11 +38,19 @@ BEGIN {
     $pf::file_paths::mdm_filters_config_file = catfile($test_dir,'data/mdm_filters.conf');
 
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_dir, 'data/pfconfig.conf');
+    $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
+
+    `/usr/local/pf/sbin/pfconfig -s $pfconfig::constants::SOCKET_PATH -p /usr/local/pf/var/run/pfconfig-test.pid -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
+
+    my $manager = pfconfig::manager->new;
+    $manager->expire_all;
 }
 
-# we need to load the proper data in pfconfig
-use pfconfig::manager;
-pfconfig::manager->new->expire_all;
+
+END {
+    my $pid = read_file("/usr/local/pf/var/run/pfconfig-test.pid");
+    `kill $pid`
+}
 
 =head1 AUTHOR
 
