@@ -1657,12 +1657,17 @@ The input must be the untranslated raw result of an snmp get_table
 
 # TODO move out to a util package
 
+
 sub getBitAtPosition {
-    my ($this, $bitStreamHex, $position) = @_;
-    #Expect the hex stream
-    $bitStreamHex =~ s/^0x//i;
-    my $bin = join('',map { unpack("B4",pack("H",$_)) } (split //, $bitStreamHex));
-    return substr($bin, $position, 1);
+   my ($this, $bitStream, $position) = @_;
+   #Expect the hex stream
+   if ($bitStream =~ /^0x/) {
+       $bitStream =~ s/^0x//i;
+       my $bin = join('',map { unpack("B4",pack("H",$_)) } (split //, $bitStream));
+       return substr($bin, $position, 1);
+   } else {
+       return substr(unpack('B*', $bitStream), $position, 1);
+   }
 }
 
 =item modifyBitmask
