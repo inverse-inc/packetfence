@@ -11,8 +11,18 @@ Base authentication module
 =cut
 
 use Moose;
+extends 'captiveportal::DynamicRouting::Module';
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
+
+use pf::authentication;
+use pf::Authentication::constants;
+
+sub execute_actions {
+    my ($self) = @_;
+    $self->new_node_info->{'unregdate'} = pf::authentication::match($self->source->id, $self->auth_source_params, $Actions::SET_UNREG_DATE);
+    $self->new_node_info->{'category'} = pf::authentication::match( $self->source->id, $self->auth_source_params, $Actions::SET_ROLE );
+}
 
 =head1 AUTHOR
 

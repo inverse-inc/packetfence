@@ -1,0 +1,14 @@
+
+<form action="/signup" method="post">
+  [% FOREACH field IN fields.keys %]
+  <div class="field">
+    <label for="fields[[% field %]]">[% field %]</label>
+    <input type="text" name="fields[[% field %]]" value="[% previous_request.$field %]"> 
+  </div>
+  [% END %]
+
+  <div class="field">
+    <input type="submit" name="submit">
+  </div>
+
+</form>

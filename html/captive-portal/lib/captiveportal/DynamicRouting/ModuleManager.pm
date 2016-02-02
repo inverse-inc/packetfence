@@ -1,43 +1,48 @@
-package captiveportal::DynamicRouting::RootModule;
+package captiveportal::DynamicRouting::ModuleManager;
 
 =head1 NAME
 
-DynamicRouting::RootModule
+captiveportal::DynamicRouting::ModuleManager
 
 =head1 DESCRIPTION
 
-Root module for Dynamic Routing
+Role for modules that manage other modules
 
 =cut
 
-use Moose;
-extends 'captiveportal::DynamicRouting::AndModule';
+use Moose::Role;
 
-use pf::node;
+has 'current_module' => (is => 'rw', default => sub {0});
 
-has '+parent' => (required => 0);
+has 'modules' => (
+    traits  => ['Array'], 
+    isa => 'ArrayRef[captiveportal::DynamicRouting::Module]', 
+    default => sub { [] }, 
+    handles => {
+        _add_module => 'push',
+        all_modules => 'elements',
+        find_module => 'first',
+        get_module => 'get',
+        count_modules => 'count',
+    },
+);
 
-sub done {
+sub add_module {
+    my ($self, $module) = @_;
+    $module->renderer($self);
+    $self->_add_module($module);
+};
+
+sub execute_child {
     my ($self) = @_;
-    $self->execute_actions();
-    $self->release();
+    if(my $module = $self->get_module($self->current_module)){
+        $module->execute();
+    }
+    else {
+        $self->done();
+    }
 }
 
-sub release {
-    my ($self) = @_;
-    $self->render("release.html");
-}
-
-sub execute_actions {
-    my ($self) = @_;
-    $self->new_node_info->{status} = "reg";
-    $self->apply_new_node_info();
-}
-
-sub apply_new_node_info {
-    my ($self) = @_;
-    node_modify($self->current_mac, %{$self->new_node_info()});
-}
 
 =head1 AUTHOR
 
@@ -65,8 +70,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

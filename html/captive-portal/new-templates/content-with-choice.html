@@ -1,0 +1,9 @@
+<h4>Choose another option : </h4>
+
+<ul>
+[% FOREACH module IN modules %]
+<li><a href="/switchto/[% module.id %]">[% module.id %]</a></li>
+[% END %]
+</ul>
+
+[% content | none %]

@@ -1,42 +1,28 @@
-package captiveportal::DynamicRouting::RootModule;
+package captiveportal::DynamicRouting::OrModule;
 
 =head1 NAME
 
-DynamicRouting::RootModule
+captiveportal::DynamicRouting::OrModule
 
 =head1 DESCRIPTION
 
-Root module for Dynamic Routing
+For giving a choice between multiple modules
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AndModule';
+extends 'captiveportal::DynamicRouting::Module';
+with 'captiveportal::DynamicRouting::ModuleManager';
 
-use pf::node;
-
-has '+parent' => (required => 0);
-
-sub done {
+sub next {
     my ($self) = @_;
-    $self->execute_actions();
-    $self->release();
+    $self->done();
 }
 
-sub release {
-    my ($self) = @_;
-    $self->render("release.html");
-}
-
-sub execute_actions {
-    my ($self) = @_;
-    $self->new_node_info->{status} = "reg";
-    $self->apply_new_node_info();
-}
-
-sub apply_new_node_info {
-    my ($self) = @_;
-    node_modify($self->current_mac, %{$self->new_node_info()});
+sub render {
+    my ($self, @params) = @_;
+    my $inner_content = $self->app->_render(@params);
+    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => $self->all_modules});
 }
 
 =head1 AUTHOR

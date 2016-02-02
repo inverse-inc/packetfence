@@ -11,34 +11,45 @@ Base Module for Dynamic Routing
 =cut
 
 use Moose;
+use pf::log;
 
 has 'id' => (is => 'rw', required => 1);
 
-has session => (is => 'rw', build => 1, lazy => 1);
+has session => (is => 'rw', builder => '_build_session', lazy => 1);
 
-has new_node_info => (is => 'rw', build => 1, lazy => 1);
+has new_node_info => (is => 'rw', builder => '_build_new_node_info', lazy => 1);
 
-has app => (is => 'ro', required => 1, isa => 'DynamicRouting::Application');
+has app => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Application');
 
-has parent => (is => 'ro', required => 1, isa => 'DynamicRouting::Module');
+has parent => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Module');
 
 has username => (is => 'rw');
 
+has renderer => (is => 'rw');
+
 after 'username' => sub {
-    my ($self, $username) = @_;
-    $self->new_node_info->{pid} = $self->username;
-    $self->app->session->{username} = $self->username;
+    my ($self) = @_;
+    get_logger->info("User ".$self->{username}." has authenticated on the portal.");
+    $self->new_node_info->{pid} = $self->{username};
+    $self->app->session->{username} = $self->{username};
 };
 
 sub _build_session {
     my ($self) = @_;
-    return $self->app->session()->{"module_".$self->id};
+    my $module_session = $self->app->session()->{"module_".$self->id} //= {};
+    return $module_session;
 }
 
 # Validate that the reference will be updated!!!
 sub _build_new_node_info {
     my ($self) = @_;
+    $self->app->session()->{"new_node_info"} //= {};
     return $self->app->session()->{"new_node_info"};
+}
+
+sub current_mac {
+    my ($self) = @_;
+    return $self->app->session()->{"client_mac"};
 }
 
 sub execute {
@@ -47,6 +58,10 @@ sub execute {
 }
 
 sub execute_child {
+    # implement me in subclasses
+}
+
+sub execute_actions {
     # implement me in subclasses
 }
 
@@ -59,6 +74,16 @@ sub done {
 sub next {
     my ($self) = @_;
     $self->done();
+}
+
+sub render {
+    my ($self, @params) = @_;
+    if($self->renderer){
+        $self->renderer->render(@params);
+    }
+    else {
+        $self->app->render(@params);
+    }
 }
 
 =head1 AUTHOR

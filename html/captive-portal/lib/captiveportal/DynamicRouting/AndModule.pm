@@ -1,42 +1,30 @@
-package captiveportal::DynamicRouting::RootModule;
+package captiveportal::DynamicRouting::AndModule;
 
 =head1 NAME
 
-DynamicRouting::RootModule
+captiveportal::DynamicRouting::AndModule
 
 =head1 DESCRIPTION
 
-Root module for Dynamic Routing
+And module
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AndModule';
+extends 'captiveportal::DynamicRouting::Module';
+with 'captiveportal::DynamicRouting::ModuleManager';
 
-use pf::node;
+has 'current_module' => (is => 'rw', default => sub {0});
 
-has '+parent' => (required => 0);
-
-sub done {
+sub next {
     my ($self) = @_;
-    $self->execute_actions();
-    $self->release();
-}
-
-sub release {
-    my ($self) = @_;
-    $self->render("release.html");
-}
-
-sub execute_actions {
-    my ($self) = @_;
-    $self->new_node_info->{status} = "reg";
-    $self->apply_new_node_info();
-}
-
-sub apply_new_node_info {
-    my ($self) = @_;
-    node_modify($self->current_mac, %{$self->new_node_info()});
+    $self->current_module($self->current_module + 1);
+    if($self->current_module >= $self->count_modules){
+        $self->done();
+    }
+    else {
+        $self->execute();
+    }
 }
 
 =head1 AUTHOR

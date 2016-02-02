@@ -13,13 +13,18 @@ SMS authentication module
 use Moose;
 extends "captiveportal::DynamicRouting::AuthModule";
 
-has 'required_fields' => (is => 'rw', traits => ['Array'], isa => 'ArrayRef[Str]', build => 1, lazy => 1);
+use pf::person;
+use pf::activation;
+use pf::log;
+use pf::constants;
 
-has 'custom_fields' => (is => 'rw', traits => ['Array'], isa => 'ArrayRef[Str]', required => 1);
+has 'required_fields' => (is => 'rw', isa => 'ArrayRef[Str]', builder => '_build_required_fields', lazy => 1);
+
+has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', required => 1);
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], default => sub {return {}});
 
-has 'pid_field' => ('is' => 'rw', required => 1);
+has 'pid_field' => ('is' => 'rw', default => sub { "phonenumber" } );
 
 sub _build_required_fields {
     my ($self) = @_;
@@ -28,17 +33,17 @@ sub _build_required_fields {
 
 sub merged_fields {
     my ($self) = @_;
-    map { $_ => $self->request_field->{$_} } @{$self->required_fields};
+    return { map { $_ => $self->request_fields->{$_} } @{$self->required_fields} };
 }
 
 sub execute_child {
     my ($self) = @_;
-    $self->request_fields($self->app->request->hashed_parameters->{fields});
+    $self->request_fields($self->app->hashed_params()->{fields} || {});
 
     if($self->app->request->param("pin")){
-        $self->validate_code();
+        $self->validation();
     }
-    elsif($self->app->request->method eq "POST" && pf::activation::activation_has_entry($self->app->session->{client_mac},'sms')){
+    elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
         $self->prompt_code();
     }
     elsif($self->app->request->method eq "POST"){
@@ -49,12 +54,17 @@ sub execute_child {
     }
 }
 
+sub prompt_code {
+    my ($self) = @_;
+    $self->render("sms/validate.html");
+}
+
 sub prompt_info {
     my ($self) = @_;
-    my $previous = $self->app->request->params();
-    $self->app->render("guest.html", {
+    my $previous = $self->app->request->parameters();
+    $self->render("guest.html", {
         type => "SMS", 
-        previous_request => $self->app->request->params(),
+        previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
     });
 }
@@ -63,35 +73,51 @@ sub validate_info {
     my ($self) = @_;
     my $phonenumber = $self->request_fields->{phonenumber} || die "Can't find phone number field";
     my $pid = $self->request_fields->{$self->pid_field} || die "Can't find PID field";
-    my $mobileprovider = $self->request_fields->{mobileprovider} || die "Can't find Mobile phone provider field"
+    my $mobileprovider = $self->request_fields->{mobileprovider} || die "Can't find Mobile phone provider field";
 
     # not sure we should set the portal + source here...
-    person_modify($self->app->session->{client_mac}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
-    pf::activation::sms_activation_create_send( $self->app->session->{client_mac}, $pid, $phone, $self->app->profile->getName, $mobileprovider );
+    person_modify($self->current_mac, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
+    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $phonenumber, $self->app->profile->getName, $mobileprovider );
 
-    $self->set_username($pid);
+    $self->username($pid);
     $self->session->{phonenumber} = $phonenumber;
     $self->session->{mobileprovider} = $mobileprovider;
 
-    $self->app->render("sms/validate.html");
+    $self->prompt_code();
 }
 
-sub validate_code {
+sub validate_pin {
+    my ($self, $pin) = @_;
+
+    get_logger->debug("Mobile phone number validation attempt");
+    if (my $record = pf::activation::validate_code($pin)) {
+        return ($TRUE, 0, $record);
+    }
+    else {
+        return ($FALSE, $GUEST::ERROR_INVALID_PIN);
+    }
+}
+
+sub validation {
     my ($self) = @_;
 
+    my $pin = $self->app->hashed_params->{'pin'} || die "Can't find PIN in request";
+    my ($status, $reason, $record) = $self->validate_pin($pin);
+    if($status){
+        pf::activation::set_status_verified($pin);
+        $self->done();
+    }
+    else {
+        die "Can't validate PIN : $reason.";
+    }
 }
 
 sub auth_source_params {
     my ($self) = @_;
-    return [
+    return {
         username => $self->app->session->{username},
         phonenumber => $self->session->{phonenumber}
-    ];
-}
-
-sub execute_actions {
-    my ($self) = @_;
-
+    };
 }
 
 =head1 AUTHOR
