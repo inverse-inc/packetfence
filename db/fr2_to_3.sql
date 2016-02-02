@@ -82,7 +82,8 @@ BEGIN
   SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
     FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid;
+    WHERE acctuniqueid = p_acctuniqueid
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
@@ -135,7 +136,8 @@ BEGIN
   SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
     FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid ;
+    WHERE acctuniqueid = p_acctuniqueid 
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
@@ -150,7 +152,8 @@ BEGIN
     acctsessiontime = p_acctsessiontime,
     acctinputoctets = p_acctinputoctets,
     acctoutputoctets = p_acctoutputoctets
-    WHERE acctuniqueid = p_acctuniqueid ;
+    WHERE acctuniqueid = p_acctuniqueid 
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Create new record in the log table
   INSERT INTO radacct_log
