@@ -56,6 +56,7 @@ sub _generateConfig {
     $self->generate_radiusd_authconf();
     $self->generate_radiusd_acctconf();
     $self->generate_radiusd_eapconf();
+    $self->generate_radiusd_restconf();
     $self->generate_radiusd_sqlconf();
     $self->generate_radiusd_sitesconf();
     $self->generate_radiusd_proxy();
@@ -110,6 +111,20 @@ sub generate_radiusd_mainconf {
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
 }
 
+sub generate_radiusd_restconf {
+    my ($self) = @_;
+    my %tags;
+
+    $tags{'template'}    = "$conf_dir/radiusd/rest.conf";
+    $tags{'install_dir'} = $install_dir;
+    $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
+    $tags{'rpc_user'} = $Config{webservices}{user} || "''";
+    $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
+    $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
+    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+
+    parse_template( \%tags, "$conf_dir/radiusd/rest.conf", "$install_dir/raddb/mods-enabled/rest" );
+}
 
 sub generate_radiusd_authconf {
     my ($self) = @_;
