@@ -563,7 +563,6 @@ CREATE TABLE radacct_log (
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS Updates Stored Procedure
-
 DROP PROCEDURE IF EXISTS acct_update;
 DELIMITER /
 CREATE PROCEDURE acct_update(
@@ -588,7 +587,8 @@ BEGIN
     FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
-    AND nasipaddress = p_nasipaddress;
+    AND nasipaddress = p_nasipaddress
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
@@ -618,6 +618,7 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
+
 
 -- Adding RADIUS Start Stored Procedure
 
@@ -709,7 +710,8 @@ BEGIN
     FROM radacct
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
-    AND nasipaddress = p_nasipaddress;
+    AND nasipaddress = p_nasipaddress
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
@@ -741,7 +743,6 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
-
 --
 -- Statement of Health (SoH) related
 --
