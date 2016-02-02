@@ -142,7 +142,7 @@ sub generate_radiusd_eapconf {
    $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
    $tags{'install_dir'} = $install_dir;
 
-   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/eap.conf" );
+   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/mods-enabled/eap" );
 }
 
 =head2 generate_radiusd_sqlconf
@@ -160,7 +160,7 @@ sub generate_radiusd_sqlconf {
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
 
-   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
+   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/mods-enabled/sql" );
 }
 
 =head2 generate_radiusd_proxy
