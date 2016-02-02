@@ -1,35 +1,16 @@
-package captiveportal::DynamicRouting::AndModule;
+package captiveportal::DynamicRouting::AuthModule::Email;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AndModule
+captiveportal::DynamicRouting::AuthModule::Email
 
 =head1 DESCRIPTION
 
-And module
+Login registration
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::ModuleManager';
-
-has 'current_module_index' => (is => 'rw', default => sub {0});
-
-after 'current_module_index' => sub {
-    my ($self) = @_;
-    $self->session->{current_module_index} = $self->{current_module_index};  
-};
-
-sub next {
-    my ($self) = @_;
-    $self->current_module_index($self->current_module_index + 1);
-    if($self->current_module_index >= $self->count_modules){
-        $self->done();
-    }
-    else {
-        $self->execute();
-    }
-}
 
 =head1 AUTHOR
 

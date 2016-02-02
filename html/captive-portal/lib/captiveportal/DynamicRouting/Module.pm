@@ -54,6 +54,9 @@ sub current_mac {
 
 sub execute {
     my ($self) = @_;
+    if($self->parent){
+        $self->parent->current_module($self->id);
+    }
     $self->execute_child();
 }
 

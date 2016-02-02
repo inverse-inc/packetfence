@@ -11,18 +11,24 @@ For giving a choice between multiple modules
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::Module';
-with 'captiveportal::DynamicRouting::ModuleManager';
+extends 'captiveportal::DynamicRouting::ModuleManager';
 
 sub next {
     my ($self) = @_;
     $self->done();
 }
 
+before 'execute_child' => sub {
+    my ($self) = @_;
+    if($self->app->request->path =~ /^\/switchto\/(.+)/){
+        $self->current_module($1);
+    }
+};
+
 sub render {
     my ($self, @params) = @_;
     my $inner_content = $self->app->_render(@params);
-    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => $self->all_modules});
+    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [$self->all_modules]});
 }
 
 =head1 AUTHOR

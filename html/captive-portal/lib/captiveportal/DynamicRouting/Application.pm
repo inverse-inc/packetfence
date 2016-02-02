@@ -11,10 +11,10 @@ Application definition for Dynamic Routing
 =cut
 
 use Moose;
-with 'captiveportal::DynamicRouting::ModuleManager';
 
 use Template::AutoFilter;
 use pf::log;
+use Locale::gettext qw(gettext ngettext);
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -62,9 +62,7 @@ sub current_module_id {
 
 sub execute {
     my ($self) = @_;
-    my $module = $self->find_module(sub { $_->id eq $self->current_module_id });
-    die "Can't find current module" unless($module);
-    $module->execute();
+    $self->root_module->execute();
 }
 
 sub render {
@@ -95,6 +93,39 @@ sub _render {
     $processor->process("/usr/local/pf/html/captive-portal/new-templates/$template", $args, \$output) || die("Can't generate template $template: ".$processor->error);
 
     return $output;
+}
+
+sub i18n {
+    my ( $self, $msgid ) = @_;
+
+    my $msg = gettext($msgid);
+    utf8::decode($msg);
+
+    return $msg;
+}
+
+sub ni18n {
+    my ( $self, $singular, $plural, $category ) = @_;
+
+    my $msg = ngettext( $singular, $plural, $category );
+    utf8::decode($msg);
+
+    return $msg;
+}
+
+=head2 i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+
+sub i18n_format {
+    my ( $self, $msgid, @args ) = @_;
+    my $msg = sprintf( gettext($msgid), @args );
+    utf8::decode($msg);
+    return $msg;
 }
 
 =head1 AUTHOR

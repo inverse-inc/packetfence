@@ -18,27 +18,14 @@ use pf::activation;
 use pf::log;
 use pf::constants;
 
-has 'required_fields' => (is => 'rw', isa => 'ArrayRef[Str]', builder => '_build_required_fields', lazy => 1);
+has '+pid_field' => (default => sub { "phonenumber" });
 
-has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', required => 1);
-
-has 'request_fields' => (is => 'rw', traits => ['Hash'], default => sub {return {}});
-
-has 'pid_field' => ('is' => 'rw', default => sub { "phonenumber" } );
-
-sub _build_required_fields {
-    my ($self) = @_;
-    return ["phonenumber", "mobileprovider", @{$self->custom_fields}];
-}
-
-sub merged_fields {
-    my ($self) = @_;
-    return { map { $_ => $self->request_fields->{$_} } @{$self->required_fields} };
+sub required_fields_child {
+    return ["phonenumber", "mobileprovider"];
 }
 
 sub execute_child {
     my ($self) = @_;
-    $self->request_fields($self->app->hashed_params()->{fields} || {});
 
     if($self->app->request->param("pin")){
         $self->validation();
@@ -62,7 +49,7 @@ sub prompt_code {
 sub prompt_info {
     my ($self) = @_;
     my $previous = $self->app->request->parameters();
-    $self->render("guest.html", {
+    $self->render("signin.html", {
         type => "SMS", 
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
@@ -82,6 +69,8 @@ sub validate_info {
     $self->username($pid);
     $self->session->{phonenumber} = $phonenumber;
     $self->session->{mobileprovider} = $mobileprovider;
+
+    $self->session->{fields} = $self->request_fields;
 
     $self->prompt_code();
 }

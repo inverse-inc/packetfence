@@ -10,9 +10,10 @@ Role for modules that manage other modules
 
 =cut
 
-use Moose::Role;
+use Moose;
+extends 'captiveportal::DynamicRouting::Module';
 
-has 'current_module' => (is => 'rw', default => sub {0});
+has 'current_module' => (is => 'rw', builder => '_build_current_module');
 
 has 'modules' => (
     traits  => ['Array'], 
@@ -27,22 +28,60 @@ has 'modules' => (
     },
 );
 
+has 'module_map' => (is => 'rw', default => sub { {} });
+
+has 'completed' => (is => 'rw', builder => '_build_completed');
+
+after 'current_module' => sub {
+    my ($self) = @_;
+    $self->session->{current_module} = $self->{current_module};  
+};
+
+sub _build_current_module {
+    my ($self) = @_;
+    return $self->session->{current_module};
+}
+
+sub _build_completed {
+    my ($self) = @_;
+    return $self->session->{completed} // 0;
+}
+
+before 'done' => sub {
+    my ($self) = @_;
+    $self->session->{completed} = 1;
+    $self->completed(1);
+};
+
 sub add_module {
     my ($self, $module) = @_;
     $module->renderer($self);
     $self->_add_module($module);
-};
+    $self->module_map->{$module->id} = $module;
+}
 
 sub execute_child {
     my ($self) = @_;
-    if(my $module = $self->get_module($self->current_module)){
+    my $module;
+
+    if($self->completed){
+        $self->done();
+    }
+    elsif($self->current_module && ($module = $self->module_map->{$self->current_module})){
         $module->execute();
+    }
+    elsif ($module = $self->default_module){
+        $module->execute;
     }
     else {
         $self->done();
     }
 }
 
+sub default_module {
+    my ($self) = @_;
+    return $self->get_module(0);
+}
 
 =head1 AUTHOR
 
