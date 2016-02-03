@@ -71,9 +71,15 @@ sub render {
 
     my $inner_content = $self->_render($template,$args);
 
-    my $content = $self->_render('layout.html', {content => $inner_content});
+    my $layout_args = {
+        flash => $self->flash,
+        content => $inner_content,
+    };
+    my $content = $self->_render('layout.html', $layout_args);
 
     $self->template_output($content);
+   
+    $self->empty_flash();
 }
 
 sub _render {
@@ -126,6 +132,22 @@ sub i18n_format {
     my $msg = sprintf( gettext($msgid), @args );
     utf8::decode($msg);
     return $msg;
+}
+
+sub error {
+    my ($self, $message) = @_;
+    $self->render("error.html", {message => $message});
+}
+
+sub empty_flash {
+    my ($self) = @_;
+    $self->session->{flash} = {};
+}
+
+sub flash {
+    my ($self) = @_;
+    $self->session->{flash} //= {};
+    return $self->session->{flash};
 }
 
 =head1 AUTHOR

@@ -27,7 +27,7 @@ sub required_fields_child {
 sub execute_child {
     my ($self) = @_;
 
-    if($self->app->request->param("pin")){
+    if($self->app->request->method eq "POST" && defined($self->app->request->param("pin"))){
         $self->validation();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
@@ -90,14 +90,20 @@ sub validate_pin {
 sub validation {
     my ($self) = @_;
 
-    my $pin = $self->app->hashed_params->{'pin'} || die "Can't find PIN in request";
+    my $pin = $self->app->hashed_params->{'pin'};
+    unless($pin){
+        $self->app->flash->{error} = "No PIN provided.";
+        $self->prompt_code;
+        return;
+    }
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
         pf::activation::set_status_verified($pin);
         $self->done();
     }
     else {
-        die "Can't validate PIN : $reason.";
+        $self->app->flash->{error} = "Can't validate PIN : $reason.";
+        $self->prompt_code();
     }
 }
 
