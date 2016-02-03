@@ -46,6 +46,7 @@ use pf::CHI;
 use pf::access_filter::dhcp;
 
 use List::MoreUtils qw(uniq);
+use List::Util qw(pairmap);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
@@ -95,6 +96,7 @@ sub radius_authorize : Public {
     if ($@) {
         $logger->error("radius authorize failed with error: $@");
     }
+
     return $return;
 }
 
@@ -1125,6 +1127,27 @@ sub copy_directory : Public {
 sub rest_ping :Public :RestPath(/rest/ping){
     my ($class, $args) = @_;
     return "pong - ".$args->{message};
+}
+
+sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) { 
+    my ($class, $radius_request) = @_;
+    my $logger = pf::log::get_logger();
+    
+    # transform the request according to what radius_authorize expects
+    my %remapped_radius_request = map {
+        $_ => $radius_request->{$_}->{value}->[0];
+    } keys %{$radius_request};
+
+    my $return = $class->radius_authorize(%remapped_radius_request); 
+
+    # transform back the reply to what FreeRADIUS expects
+    shift @$return;
+    my %mapped_return = pairmap { 
+        # we cheat a little and declare everything to be "type" : "string"
+        $a =>  { "value" => [ $b ], "type" => "string" } 
+    } @$return; 
+
+    return \%mapped_return;
 }
 
 =head1 AUTHOR
