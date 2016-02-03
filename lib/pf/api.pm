@@ -1107,6 +1107,11 @@ sub metascan_process : Public {
     pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );    
 }
 
+sub rest_ping :Public :RestPath(/rest/ping){
+    my ($class, $args) = @_;
+    return "pong - ".$args->{message};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
