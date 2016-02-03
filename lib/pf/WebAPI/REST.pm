@@ -1,4 +1,4 @@
-package pf::WebAPI::JSONRPC;
+package pf::WebAPI::REST;
 
 =head1 NAME
 
@@ -26,18 +26,11 @@ use List::MoreUtils qw(any);
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
 
-our $JSONRPC_ERROR_CODE_GENERIC_ERROR   = -32000;
-our $JSONRPC_ERROR_CODE_INVALID_REQUEST = -32600;
-our $JSONRPC_ERROR_CODE_NOT_FOUND       = -32601;
-our $JSONRPC_ERROR_CODE_PARSE_ERROR     = -32700;
-
 our %ALLOW_CONTENT_TYPE = (
-    'application/json-rpc'    => undef,
-    'application/jsonrequest' => undef,
+    'application/json'        => undef,
 );
 
-our $CONTENT_TYPE = 'application/json-rpc';
-our $RPC_VERSION  = "2.0";
+our $CONTENT_TYPE = 'application/json';
 
 sub allowed {return exists $ALLOW_CONTENT_TYPE{$_[0]}}
 
@@ -52,7 +45,7 @@ sub handler {
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_PARSE_ERROR, "Cannot parse request\n", $@),
+            $self->make_error_object("Cannot parse request", $@),
         );
     }
     my $ref_type = ref $data;
@@ -61,31 +54,39 @@ sub handler {
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request\n"),
+            $self->make_error_object("Invalid request"),
         );
     }
 
-    my ($method, $id, $jsonrpc) = @{$data}{qw(method id jsonrpc)};
-    unless (defined $method) {
-        get_logger->error("Invalid request, no method defined");
-        return $self->send_response(
-            $r,
-            Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request, no method defined\n"),
-        );
-    }
+    my ($method, $id) = ($r->uri, 1);
     my $dispatch_to = $self->dispatch_to;
-    my $response_content = '';
     my $method_sub;
-    unless ( $method_sub = $dispatch_to->isPublic($method)) {
-        get_logger->error("Invalid request no method defined");
-        return $self->send_response(
-            $r,
-            Apache2::Const::HTTP_NOT_FOUND,
-            $self->make_error_object(undef, $JSONRPC_ERROR_CODE_NOT_FOUND, "Method '$method' not found\n"),
-        );
+    
+    if(my $rest_method = $self->dispatch_to->restPath($method)){
+        pf::log::get_logger->info("Found method $rest_method for REST path $method");
+        $method_sub = $rest_method;
     }
+    # We fallback to using the method name
+    else {
+        substr($method, 0,1) = "";
+        # We replace slashes with underscore
+        $method =~ s/\//\_/g;
+
+        unless ( $dispatch_to->isPublic($method) ) {
+            get_logger->error("Invalid request no method defined or method is not public");
+            return $self->send_response(
+                $r,
+                Apache2::Const::HTTP_NOT_FOUND,
+                $self->make_error_object("Method '$method' not found"),
+            );
+        }
+        else {
+            $method_sub = sub { my $call_on = shift @_; $call_on->$method(@_) }
+        }
+    }
+
     my @args;
+    my $response_content = '';
     if (exists $data->{'params'}) {
         my $params = $data->{'params'};
         if (ref($params) eq 'ARRAY') {
@@ -95,25 +96,27 @@ sub handler {
         }
         pf::util::webapi::add_mac_to_log_context(\@args);
     }
-    if (defined $id) {
-        my $object;
-        eval {
-            $object = {
-                (defined $jsonrpc ? (jsonrpc => $jsonrpc) : ()),
-                result => [$dispatch_to->$method(@args)],
-                id     => $id,
-            }
-        };
-        if ($@) {
-            get_logger->error($@);
-            return $self->send_response(
-                $r,
-                Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-                $self->make_error_object($id, $JSONRPC_ERROR_CODE_GENERIC_ERROR, $@)
-            );
-        }
-        return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
+    else {
+        @args = ($data);
     }
+
+    my $object;
+    eval {
+        $object = $method_sub->($self->dispatch_to, @args);
+        unless(ref($object) eq "ARRAY" || ref($object) eq "HASH"){
+            $object = {result => $object};
+        }
+    };
+    if ($@) {
+        get_logger->error($@);
+        return $self->send_response(
+            $r,
+            Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
+            $self->make_error_object($@)
+        );
+    }
+    return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
+    
     # Notify message defer until later
     $r->push_handlers(
         PerlCleanupHandler => sub {
@@ -149,8 +152,8 @@ sub get_all_content {
 }
 
 sub make_error_object {
-    my ($self, $id, $code, $message, $data) = @_;
-    return {jsonrpc => "2.0", id => $id, error => {code => $code, message => $message}, data => $data};
+    my ($self, $message, $data) = @_;
+    return {error => {message => $message, detail => $data}};
 }
 
 =head1 AUTHOR
@@ -159,7 +162,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
