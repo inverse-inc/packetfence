@@ -234,7 +234,7 @@ post-auth {
     rest
     # Tell the outer "post-auth" block not to send to packetfence again
     update { 
-       &reply:PacketFence-Handled := "true"
+       &outer.session-state:PacketFence-Handled := "true"
     } 
         
 	#  After authenticating the user, do another SQL query.
@@ -250,13 +250,6 @@ post-auth {
 #	ldap
 
 
-	#
-	#  Instead of "use_tunneled_reply", uncomment the
-	#  next two "update" blocks.
-	#
-	update {
-		&outer.session-state: := &reply:
-	}
 
 	#
 	#  These attributes are for the inner session only.

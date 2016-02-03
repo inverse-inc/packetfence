@@ -323,21 +323,10 @@ post-auth {
 
     # If the request has not been handled inside the inner-tunnel
     # send it to packetfence
-    if (! &reply:PacketFence-Handled ) {
+    if (! &session-state:PacketFence-Handled ) {
         packetfence
         -sql
     }
-    # delete the PF handled attribute from the reply
-    update {
-        &reply:PacketFence-Handled !* ANY
-    }
-        
-	#
-	#  After authenticating the user, do another SQL query.
-	#
-	#  See "Authentication Logging Queries" in mods-available/sql
-	#-sql
-
 
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
