@@ -13,9 +13,9 @@ Base Module for Dynamic Routing
 use Moose;
 use pf::log;
 
-has 'id' => (is => 'rw', required => 1);
+has 'id' => (is => 'ro', required => 1);
 
-has session => (is => 'rw', builder => '_build_session', lazy => 1);
+has session => (is => 'rw', builder => '_build_session');
 
 has new_node_info => (is => 'rw', builder => '_build_new_node_info', lazy => 1);
 
@@ -36,7 +36,9 @@ after 'username' => sub {
 
 sub _build_session {
     my ($self) = @_;
-    my $module_session = $self->app->session()->{"module_".$self->id} //= {};
+    my $module_session_id = "module_".$self->id;
+    $self->app->session()->{$module_session_id} = $self->app->session()->{$module_session_id} // {};
+    my $module_session = $self->app->session()->{$module_session_id};
     return $module_session;
 }
 

@@ -13,7 +13,7 @@ Role for modules that manage other modules
 use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
-has 'current_module' => (is => 'rw', builder => '_build_current_module');
+has 'current_module' => (is => 'rw', builder => '_build_current_module', lazy => 1);
 
 has 'modules' => (
     traits  => ['Array'], 
@@ -30,7 +30,7 @@ has 'modules' => (
 
 has 'module_map' => (is => 'rw', default => sub { {} });
 
-has 'completed' => (is => 'rw', builder => '_build_completed');
+has 'completed' => (is => 'rw', builder => '_build_completed', lazy => 1);
 
 after 'current_module' => sub {
     my ($self) = @_;
