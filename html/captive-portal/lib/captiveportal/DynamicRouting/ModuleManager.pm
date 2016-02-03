@@ -13,6 +13,8 @@ Role for modules that manage other modules
 use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
+use pf::log;
+
 has 'current_module' => (is => 'rw', builder => '_build_current_module', lazy => 1);
 
 has 'modules' => (
@@ -56,6 +58,10 @@ before 'done' => sub {
 sub add_module {
     my ($self, $module) = @_;
     $module->renderer($self);
+    if($self->module_map->{$module->id}){
+        get_logger->debug("Module ".$module->id." already part of ".$self->id.". Not adding again.");
+        return;
+    }
     $self->_add_module($module);
     $self->module_map->{$module->id} = $module;
 }

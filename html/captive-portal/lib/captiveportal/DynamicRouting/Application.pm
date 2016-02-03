@@ -18,7 +18,9 @@ use Locale::gettext qw(gettext ngettext);
 
 has 'session' => (is => 'rw', required => 1);
 
-has 'root_module' => (is => 'rw');
+has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::RootModule");
+
+has 'root_module_id' => (is => 'rw');
 
 has 'request' => (is => 'ro', required => 1);
 

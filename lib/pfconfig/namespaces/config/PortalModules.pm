@@ -1,35 +1,45 @@
-package captiveportal::DynamicRouting::OrModule;
+package pfconfig::namespaces::config::PortalModules;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::OrModule
-
-=head1 DESCRIPTION
-
-For giving a choice between multiple modules
+pfconfig::namespaces::config::PortalModules
 
 =cut
 
-use Moose;
-extends 'captiveportal::DynamicRouting::ModuleManager';
+=head1 DESCRIPTION
 
-sub next {
+pfconfig::namespaces::config::PortalModules
+
+This module creates the configuration hash associated to portal_modules.conf
+
+=cut
+
+use strict;
+use warnings;
+
+use pfconfig::namespaces::config;
+use pf::file_paths;
+
+use base 'pfconfig::namespaces::config';
+
+sub init {
     my ($self) = @_;
-    $self->done();
+    $self->{file} = "/usr/local/pf/conf/portal_modules.conf";
 }
 
-before 'execute_child' => sub {
+sub build_child {
     my ($self) = @_;
-    if($self->app->request->path =~ /^\/switchto\/(.+)/){
-        $self->current_module($1);
+
+    my %tmp_cfg = %{$self->{cfg}};
+
+    foreach my $module_id (keys %tmp_cfg){
+        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields));
     }
-};
 
-sub render {
-    my ($self, @params) = @_;
-    my $inner_content = $self->app->_render(@params);
-    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [$self->all_modules], current_module => $self->current_module});
+    return \%tmp_cfg;
 }
+
+=back
 
 =head1 AUTHOR
 
@@ -58,7 +68,10 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+
 

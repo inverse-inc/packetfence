@@ -18,16 +18,22 @@ use pf::config;
 use pf::util;
 use pf::log;
 
-has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
+has 'source' => (is => 'rw', isa => 'pf::Authentication::Source', builder => '_build_source', lazy => 1);
+
+has 'source_id' => (is => 'rw');
 
 has 'required_fields' => (is => 'rw', isa => 'ArrayRef[Str]', builder => '_build_required_fields', lazy => 1);
 
-has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', required => 1);
+has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]});
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
 has 'pid_field' => ('is' => 'rw' );
 
+after 'source_id' => sub {
+    my ($self) = @_;
+    $self->_build_source();
+};
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -35,6 +41,11 @@ use pf::Authentication::constants;
 sub _build_request_fields {
     my ($self) = @_;
     return $self->app->hashed_params()->{fields} || {};
+}
+
+sub _build_source {
+    my ($self) = @_;
+    return pf::authentication::getAuthenticationSource($self->{source_id});
 }
 
 sub execute_actions {

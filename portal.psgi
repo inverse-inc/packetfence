@@ -7,10 +7,7 @@ use lib '/usr/local/pf/lib';
 use lib '/usr/local/pf/html/captive-portal/lib';
 
 use captiveportal::DynamicRouting::Application;
-use captiveportal::DynamicRouting::RootModule;
-use captiveportal::DynamicRouting::OrModule;
-use captiveportal::DynamicRouting::AuthModule::SMS;
-use captiveportal::DynamicRouting::AuthModule::Login;
+use captiveportal::DynamicRouting::Factory;
 
 use pf::Portal::ProfileFactory;
 use pf::authentication;
@@ -25,17 +22,11 @@ my $app = sub {
     my $mac = "00:11:22:33:44:55";
     my $profile = pf::Portal::ProfileFactory->instantiate($mac); 
     
-    my $application = captiveportal::DynamicRouting::Application->new(session => $session, profile => $profile, request => $req);
+    my $application = captiveportal::DynamicRouting::Application->new(session => $session, profile => $profile, request => $req, root_module_id => "root_module");
     $application->session->{client_mac} = $mac;
-    my $root_module = captiveportal::DynamicRouting::RootModule->new(id => 'root', app => $application, modules => []);
-    my $or_module = captiveportal::DynamicRouting::OrModule->new(id => 'auth_or', app => $application, modules => [], parent => $root_module);
-    my $sms_module = captiveportal::DynamicRouting::AuthModule::SMS->new(id => 'sms', source => pf::authentication::getAuthenticationSource('sms'), custom_fields => ["user_email"], app => $application, parent => $or_module);
-    my $login_module = captiveportal::DynamicRouting::AuthModule::Login->new(id => 'login', source => pf::authentication::getAuthenticationSource('inverse'), custom_fields => [], app => $application, parent => $or_module);
-    $or_module->add_module($sms_module);
-    $or_module->add_module($login_module);
-    $root_module->add_module($or_module);
-    $application->root_module($root_module);
 
+    my $factory = captiveportal::DynamicRouting::Factory->new();
+    $factory->build_application($application);
     $application->execute();
 
 
