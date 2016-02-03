@@ -624,7 +624,7 @@ eap {
 		#
 		#  allowed values: {no, yes}
 		#
-		use_tunneled_reply = no
+		use_tunneled_reply = yes
 
 		#
 		#  The inner tunneled request can be sent
