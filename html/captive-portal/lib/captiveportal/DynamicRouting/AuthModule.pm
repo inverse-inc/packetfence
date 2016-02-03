@@ -14,6 +14,7 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
 use Tie::IxHash;
+use List::MoreUtils qw(uniq);
 use pf::config;
 use pf::util;
 use pf::log;
@@ -28,7 +29,7 @@ has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]})
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
-has 'pid_field' => ('is' => 'rw' );
+has 'pid_field' => ('is' => 'rw', default => 'user_email');
 
 after 'source_id' => sub {
     my ($self) = @_;
@@ -59,7 +60,7 @@ sub execute_actions {
 
 sub _build_required_fields {
     my ($self) = @_;
-    return [@{$self->required_fields_child}, @{$self->custom_fields}];
+    return [uniq($self->pid_field, @{$self->required_fields_child}, @{$self->custom_fields})];
 }
 
 sub merged_fields {
@@ -123,6 +124,17 @@ sub create_local_account {
     );
 
     get_logger->info("Local account for external source " . $self->source->id . " created with PID " . $self->app->session->{username});
+}
+
+sub prompt_fields {
+    my ($self, $type, $args) = @_;
+    $args //= {};
+    $self->render("signin.html", {
+        type => $type, 
+        previous_request => $self->app->request->parameters(),
+        fields => $self->merged_fields,
+        %{$args},
+    });
 }
 
 =head1 AUTHOR

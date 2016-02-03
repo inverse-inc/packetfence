@@ -12,6 +12,7 @@ SMS authentication module
 
 use Moose;
 extends "captiveportal::DynamicRouting::AuthModule";
+with 'captiveportal::DynamicRouting::FieldValidation';
 
 use pf::person;
 use pf::activation;
@@ -37,7 +38,7 @@ sub execute_child {
         $self->validate_info();
     }
     else {
-        $self->prompt_info();
+        $self->prompt_fields();
     }
 }
 
@@ -46,21 +47,12 @@ sub prompt_code {
     $self->render("sms/validate.html");
 }
 
-sub prompt_info {
-    my ($self) = @_;
-    my $previous = $self->app->request->parameters();
-    $self->render("signin.html", {
-        type => "SMS", 
-        previous_request => $self->app->request->parameters(),
-        fields => $self->merged_fields,
-    });
-}
-
 sub validate_info {
     my ($self) = @_;
-    my $phonenumber = $self->request_fields->{phonenumber} || die "Can't find phone number field";
-    my $pid = $self->request_fields->{$self->pid_field} || die "Can't find PID field";
-    my $mobileprovider = $self->request_fields->{mobileprovider} || die "Can't find Mobile phone provider field";
+
+    my $phonenumber = $self->request_fields->{phonenumber};
+    my $pid = $self->request_fields->{$self->pid_field};
+    my $mobileprovider = $self->request_fields->{mobileprovider};
 
     # not sure we should set the portal + source here...
     person_modify($self->current_mac, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);

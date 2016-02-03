@@ -21,7 +21,7 @@ sub next {
 before 'execute_child' => sub {
     my ($self) = @_;
     if($self->app->request->path =~ /^\/switchto\/(.+)/){
-        $self->current_module($1);
+        $self->current_module($1) if($self->module_map->{$1});
     }
 };
 

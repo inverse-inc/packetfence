@@ -63,7 +63,7 @@ sub execute {
 }
 
 sub execute_child {
-    # implement me in subclasses
+    inner();
 }
 
 sub execute_actions {

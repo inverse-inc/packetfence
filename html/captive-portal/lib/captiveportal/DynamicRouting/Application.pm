@@ -87,7 +87,7 @@ sub render {
 sub _render {
     my ($self, $template, $args) = @_;
     
-    get_logger->trace(sub { use Data::Dumper ; "Rendering template $template with args : ".Dumper($args)});
+#    get_logger->trace(sub { use Data::Dumper ; "Rendering template $template with args : ".Dumper($args)});
     
     our $TT_OPTIONS = {
         ABSOLUTE => 1, 

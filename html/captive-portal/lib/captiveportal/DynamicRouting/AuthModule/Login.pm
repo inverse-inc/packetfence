@@ -12,6 +12,7 @@ Login registration
 
 use Moose;
 extends 'captiveportal::DynamicRouting::AuthModule';
+with 'captiveportal::DynamicRouting::FieldValidation';
 
 use pf::util;
 use pf::log;
@@ -39,7 +40,7 @@ sub execute_child {
             fields => $self->merged_fields,
         });
     }
-}
+};
 
 sub authenticate {
     my ($self) = @_;

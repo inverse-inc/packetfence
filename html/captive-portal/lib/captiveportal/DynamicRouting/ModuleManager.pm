@@ -14,23 +14,13 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module';
 
 use pf::log;
+use List::MoreUtils qw(firstval any);
 
 has 'current_module' => (is => 'rw', builder => '_build_current_module', lazy => 1);
 
-has 'modules' => (
-    traits  => ['Array'], 
-    isa => 'ArrayRef[captiveportal::DynamicRouting::Module]', 
-    default => sub { [] }, 
-    handles => {
-        _add_module => 'push',
-        all_modules => 'elements',
-        find_module => 'first',
-        get_module => 'get',
-        count_modules => 'count',
-    },
-);
-
 has 'module_map' => (is => 'rw', default => sub { {} });
+
+has 'modules_order' => (is => 'rw', required => 1);
 
 has 'completed' => (is => 'rw', builder => '_build_completed', lazy => 1);
 
@@ -55,34 +45,56 @@ before 'done' => sub {
     $self->completed(1);
 };
 
+sub find_module {
+    my ($self,  $module) = @_;
+    return firstval { $_ eq $module } values %{$self->module_map};
+}
+
+sub count_modules {
+    my ($self) = @_;
+    return length(keys(%{$self->module_map}));
+}
+
+sub get_module {
+    my ($self, $index) = @_;
+    return $self->module_map->{$self->modules_order->[$index]};
+}
+
+sub all_modules {
+    my ($self, $index) = @_;
+    return map {
+        $self->module_map->{$_}
+    } @{$self->modules_order};
+}
+
 sub add_module {
     my ($self, $module) = @_;
     $module->renderer($self);
-    if($self->module_map->{$module->id}){
-        get_logger->debug("Module ".$module->id." already part of ".$self->id.". Not adding again.");
-        return;
-    }
-    $self->_add_module($module);
+    die "Module ".$module->id." is not declared in the ordering." unless(any {$_ eq $module->id} @{$self->modules_order}) ;
     $self->module_map->{$module->id} = $module;
 }
 
-sub execute_child {
+augment 'execute_child' => sub {
     my ($self) = @_;
     my $module;
 
     if($self->completed){
+        get_logger->debug("Completed module ".$self->id);
         $self->done();
     }
     elsif($self->current_module && ($module = $self->module_map->{$self->current_module})){
+        get_logger->debug("Executing current module from session ".$module->id);
         $module->execute();
     }
     elsif ($module = $self->default_module){
+        get_logger->debug("Executing default module from session ".$module->id);
         $module->execute;
     }
     else {
+        get_logger->debug("No other module to execute, we're done.");
         $self->done();
     }
-}
+};
 
 sub default_module {
     my ($self) = @_;

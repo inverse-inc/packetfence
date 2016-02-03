@@ -42,7 +42,7 @@ sub build_application {
     if($self->graph->is_cyclic){
         die "Profile modules graph is cyclic, this means there is an infinite loop that needs to be fixed...";
     }
-    
+
     $self->instantiate_all();
     $self->create_modules_hierarchy();
 }
@@ -102,6 +102,7 @@ sub instantiate {
     $args{id} = $id;
 
     # The modules are inserted by the factory
+    $args{modules_order} = $args{modules};
     delete $args{modules};
 
     if (%args) {

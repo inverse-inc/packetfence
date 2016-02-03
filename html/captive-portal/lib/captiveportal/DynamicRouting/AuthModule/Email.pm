@@ -11,6 +11,17 @@ Login registration
 =cut
 
 use Moose;
+extends 'captiveportal::DynamicRouting::AuthModule';
+with 'captiveportal::DynamicRouting::FieldValidation';
+
+sub required_fields_child {
+    return ["user_email"];
+}
+
+sub execute_child {
+    my ($self) = @_;
+    $self->prompt_fields();
+};
 
 =head1 AUTHOR
 
