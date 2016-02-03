@@ -51,6 +51,17 @@ has_field 'activation_domain' =>
     },
   );
 
+has_field 'ldap_email_attribute' => (
+    type => 'Text',
+    label => 'LDAP email attribute',
+    required => 0,
+    default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('ldap_email_attribute')->default,
+    tags => {
+        after_element => \&help,
+        help => 'LDAP attribute name that store the email address against which the filter will match.',
+    },
+);
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.

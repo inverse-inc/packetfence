@@ -19,6 +19,7 @@ has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
+has 'ldap_email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 
 =head2 available_attributes
 
