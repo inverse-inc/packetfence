@@ -115,6 +115,17 @@ sub handler {
             $self->make_error_object($@)
         );
     }
+    
+    # check the radius return code if it was a radius reply
+    if ( $method =~ /^\/radius/ ) { 
+        my $radius_return = shift @$object; 
+        my %mapped_object = @$object; 
+        $object = \%mapped_object; 
+        
+        unless ($radius_return == 2) { 
+            return $self->send_response($r, Apache2::Const::HTTP_UNAUTHORIZED, $object);
+        }
+    }
     return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
     
     # Notify message defer until later
