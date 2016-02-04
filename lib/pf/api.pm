@@ -1126,15 +1126,29 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     my $return = $class->radius_authorize(%remapped_radius_request); 
 
     # transform back the reply to what FreeRADIUS expects
+    #my %mapped_return = pairmap { $a => $b } @$return; 
+
+    return $return;
+    #return \%mapped_return;
+}
+
+sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) { 
+    my ($class, $radius_request) = @_;
+    my $logger = pf::log::get_logger();
+    
+    # transform the request according to what radius_authorize expects
+    my %remapped_radius_request = map {
+        $_ => $radius_request->{$_}->{value}->[0];
+    } keys %{$radius_request};
+
+    my $return = $class->radius_switch_access(%remapped_radius_request); 
+
+    # transform back the reply to what FreeRADIUS expects
     shift @$return;
-    my %mapped_return = pairmap { 
-        # we cheat a little and declare everything to be "type" : "string"
-        $a =>  { "value" => [ $b ], "type" => "string" } 
-    } @$return; 
+    my %mapped_return = pairmap { $a => $b } @$return; 
 
     return \%mapped_return;
 }
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
