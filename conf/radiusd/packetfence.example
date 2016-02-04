@@ -59,7 +59,6 @@ authorize {
 	suffix
 	ntdomain
 
-    %%multi_domain%%
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
 	#  authentication.
@@ -328,6 +327,7 @@ post-auth {
         -sql
     }
 
+    linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
@@ -349,6 +349,7 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
+        linelog
 	}
 }
 

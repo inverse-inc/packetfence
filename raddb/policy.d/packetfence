@@ -33,3 +33,11 @@ packetfence-local-auth {
 
 }
 ### END Local SQL authentication
+packetfence-switch-access { 
+    if ( \
+        ( &Service-Type ==  "NAS-Prompt-User") && \
+        ( &NAS-Port-Type == "Virtual" || &NAS-Port-Type == "Async") ) {
+            rest-switch-access  
+    }
+    
+} 

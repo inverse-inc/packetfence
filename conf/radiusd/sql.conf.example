@@ -295,6 +295,7 @@ sql pfguest {
             LIMIT 1 "
 
         postauth_query = ""
+        group_membership_query = "select 1"
         pool = sql
 }
 
@@ -331,6 +332,7 @@ sql pfsponsor {
             LIMIT 1 "
 
         postauth_query = ""
+        group_membership_query = "select 1"
         pool = sql
 }
 
@@ -369,6 +371,7 @@ sql pfsms {
 
 
         postauth_query = ""
+        group_membership_query = "select 1"
         pool = sql
 }
 
@@ -402,5 +405,6 @@ sql pflocal {
           AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{SQL-User-Name}') "
 
         postauth_query = ""
+        group_membership_query = "select 1"
         pool = sql 
 }

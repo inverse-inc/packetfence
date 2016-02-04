@@ -63,6 +63,7 @@ authorize {
 	suffix
 	ntdomain
 
+    %%multi_domain%%
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
