@@ -37,7 +37,6 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
-use pf::util::statsd qw(called);
 use pf::StatsD;
 use List::MoreUtils qw(any);
 use NetAddr::IP;
@@ -228,6 +227,10 @@ sub process_pkt {
                 return;
             }
 
+            my $statsd_interface = $interface;
+            $statsd_interface =~ s/\./_/g;
+            $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt.count" );
+
             # we send all IPv4 DHCPv4 codepath
             if($l2->{type} eq ETH_TYPE_IP) {
                 my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
@@ -238,10 +241,6 @@ sub process_pkt {
                 $apiclient->notify('process_dhcpv6', $udp_payload_b64);
             }
         };
-
-        my $statsd_interface = $interface;
-        $statsd_interface =~ s/\./_/g;
-        $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::" . called() . ".count" );
 
         if($@) {
             $logger->error("Error processing packet: $@");
