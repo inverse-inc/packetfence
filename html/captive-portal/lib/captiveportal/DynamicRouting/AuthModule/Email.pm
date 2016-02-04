@@ -14,14 +14,94 @@ use Moose;
 extends 'captiveportal::DynamicRouting::AuthModule';
 with 'captiveportal::DynamicRouting::FieldValidation';
 
+use pf::auth_log;
+use pf::config;
+use pf::log;
+use pf::authentication;
+use pf::Authentication::constants;
+use Date::Format qw(time2str);
+use pf::util;
+
 sub required_fields_child {
     return ["user_email"];
 }
 
 sub execute_child {
     my ($self) = @_;
-    $self->prompt_fields();
+    if($self->app->request->method eq "POST"){
+        $self->do_email_registration();
+    }
+    else{
+        $self->prompt_fields();
+    }
 };
+
+sub do_email_registration {
+    my ($self) = @_;
+    my $logger = get_logger;
+
+    # fetch role for this user
+    my $source = $self->source;
+    my $pid = $self->request_fields->{$self->pid_field};
+    my $user_email = $self->request_fields->{user_email};
+
+    my %info;
+    $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
+
+    # form valid, adding person (using modify in case person already exists)
+    my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
+    $self->update_person_from_fields(notes => $note);
+
+    $info{'firstname'} = $self->request_fields->{firstname};
+    $info{'lastname'} = $self->request_fields->{lastname};
+    $info{'telephone'} = $self->request_fields->{phonenumber};
+    $info{'company'} = $self->request_fields->{company};
+    $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+    utf8::decode($info{'subject'});
+
+    # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
+    my ( $auth_return, $err, $errargs_ref ) =
+      pf::activation::create_and_send_activation_code(
+        $self->current_mac,
+        $pid, $user_email,
+        $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION,
+        $pf::activation::GUEST_ACTIVATION,
+        $self->app->profile->getName,
+        %info,
+      );
+    
+    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
+
+
+    $self->new_node_info->{unregdate} = $info{unregdate};
+
+    $self->session->{fields} = $self->request_fields;
+    $self->username($pid);
+
+    $self->done();
+
+}
+
+# overriding here since we don't want the unregdate to be updated as they will be at the end of the process
+after 'execute_actions' => sub {
+    my ($self) = @_;
+
+    get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
+    # Use the activation timeout to set the unregistration date
+    my $timeout = normalize_time( $self->source->{email_activation_timeout} );
+    my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
+    get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
+
+    $self->new_node_info->{unregdate} = $unregdate;
+};
+
+sub auth_source_params {
+    my ($self) = @_;
+    return {
+        'username'   => $self->request_fields->{$self->pid_field},
+        'user_email' => $self->request_fields->{user_email}
+    };
+}
 
 =head1 AUTHOR
 

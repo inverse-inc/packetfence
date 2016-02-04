@@ -14,7 +14,6 @@ use Moose;
 extends "captiveportal::DynamicRouting::AuthModule";
 with 'captiveportal::DynamicRouting::FieldValidation';
 
-use pf::person;
 use pf::activation;
 use pf::log;
 use pf::constants;
@@ -54,8 +53,7 @@ sub validate_info {
     my $pid = $self->request_fields->{$self->pid_field};
     my $mobileprovider = $self->request_fields->{mobileprovider};
 
-    # not sure we should set the portal + source here...
-    person_modify($self->current_mac, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
+    $self->update_person_from_fields();
     pf::activation::sms_activation_create_send( $self->current_mac, $pid, $phonenumber, $self->app->profile->getName, $mobileprovider );
 
     $self->username($pid);

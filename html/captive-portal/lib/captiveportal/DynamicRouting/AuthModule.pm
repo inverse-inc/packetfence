@@ -16,6 +16,7 @@ extends 'captiveportal::DynamicRouting::Module';
 use Tie::IxHash;
 use List::MoreUtils qw(uniq);
 use pf::config;
+use pf::person;
 use pf::util;
 use pf::log;
 
@@ -135,6 +136,14 @@ sub prompt_fields {
         fields => $self->merged_fields,
         %{$args},
     });
+}
+
+sub update_person_from_fields {
+    my ($self, %options) = @_;
+    $options{additionnal_fields} //= {};
+    $options{pid} //= $self->request_fields->{$self->pid_field};
+    # not sure we should set the portal + source here...
+    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
 }
 
 =head1 AUTHOR
