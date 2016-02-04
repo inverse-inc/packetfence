@@ -37,8 +37,6 @@ use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
-use pf::util::statsd qw(called);
-use pf::StatsD;
 use List::MoreUtils qw(any);
 use NetAddr::IP;
 use pf::SwitchFactory;
@@ -182,9 +180,6 @@ sub dhcp_detector {
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
     if ($process || !$pf::cluster::cluster_enabled){
-        my $statsd_interface = $interface;
-        $statsd_interface =~ s/\./_/g;
-        $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::" . called() . ".count" );
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
