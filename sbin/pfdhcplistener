@@ -214,7 +214,7 @@ sub process_pkt {
             # For these reasons, we must peek directly at the data.
             # skip the first 12 bytes of the frame (src + dst eth addr)
             # grab the ether_type field and discard the rest:
-            my ($ether_type, undef) = unpack("x[12]nC*", $packet);
+            my ($ether_type, undef) = unpack("x[12]nC*", $pkt);
             if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
                 $logger->trace("Ignoring packet because we already listen on a VLAN interface");
                 return;
