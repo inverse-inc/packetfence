@@ -548,6 +548,8 @@ sub returnRadiusAccessAccept {
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
                 $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
             }
             $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=$role";
