@@ -448,7 +448,15 @@ sub ldap_filter_for_conditions {
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
   my (@ldap_conditions, $expression);
-  $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
+
+  # Handling stripped_username condition
+  if ( isenabled($self->{'stripped_user_name'}) && defined($params->{'stripped_user_name'}) && $params->{'stripped_user_name'} ne '' ) {
+      $params->{'username'} = $params->{'stripped_user_name'};
+  } elsif ( isenabled($self->{'stripped_user_name'}) ) {
+      my ($username, $realm) = strip_username($params->{'username'});
+      $params->{'username'} = $username;
+  }
+
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {
