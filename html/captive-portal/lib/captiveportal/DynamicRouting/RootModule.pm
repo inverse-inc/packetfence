@@ -42,9 +42,10 @@ sub execute_child {
     my ($self) = @_;
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg"){
-        $self->app->flash->{notice} = "You network access should already be enabled.";
+        $self->app->flash->{notice} = "Your network access should already be enabled.";
         $self->release();
     }
+    $self->SUPER::execute_child();
 }
 
 sub execute_actions {

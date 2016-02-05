@@ -34,18 +34,14 @@ sub execute_child {
         $self->authenticate();
     }
     else {
-        $self->render("signin.html", {
-            type => "Login", 
-            previous_request => $self->app->request->parameters(),
-            fields => $self->merged_fields,
-        });
+        $self->prompt_fields("Login");
     }
 };
 
 sub authenticate {
     my ($self) = @_;
-    my $username = $self->request_fields->{$self->pid_field} || die "Can't find PID field";
-    my $password = $self->request_fields->{password} || die "Missing password";
+    my $username = $self->request_fields->{$self->pid_field};
+    my $password = $self->request_fields->{password};
     
     my ($stripped_username, $realm) = strip_username($username);
 
@@ -73,7 +69,9 @@ sub authenticate {
             get_logger->info("Successfully authenticated ".$username);
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
-            die($message);
+            $self->app->flash->{error} = $message;
+            $self->prompt_fields("Login");
+            return;
         }
     }
     

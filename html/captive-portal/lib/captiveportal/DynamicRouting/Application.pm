@@ -15,6 +15,7 @@ use Moose;
 use Template::AutoFilter;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
+use captiveportal::DynamicRouting::I18N;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -47,8 +48,12 @@ sub BUILD {
 };
 
 sub rendering_map {
-    return {
-    };
+    my ($self, $previous) = @_;
+    use captiveportal::DynamicRouting::RenderingMap;
+    my $i18n = captiveportal::DynamicRouting::I18N->new;
+    my $form = captiveportal::DynamicRouting::RenderingMap->new(language_handle => $i18n);
+    $form->process(params => $previous);
+    return $form;
 }
 
 sub set_current_module {
@@ -102,7 +107,7 @@ sub _render {
         return $self->i18n($string);
     };
 
-    $args->{rendering_map} = $self->rendering_map;
+    $args->{rendering_map} = $self->rendering_map(defined($args->{previous_request}) ? $args->{previous_request}->as_hashref : {});
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';

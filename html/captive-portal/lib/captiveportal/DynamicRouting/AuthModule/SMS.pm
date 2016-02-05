@@ -17,6 +17,7 @@ with 'captiveportal::DynamicRouting::FieldValidation';
 use pf::activation;
 use pf::log;
 use pf::constants;
+use pf::sms_carrier;
 
 has '+pid_field' => (default => sub { "phonenumber" });
 
@@ -37,8 +38,17 @@ sub execute_child {
         $self->validate_info();
     }
     else {
-        $self->prompt_fields();
+        $self->prompt_fields_sms("SMS");
     }
+}
+
+sub prompt_fields_sms {
+    my ($self) = @_;
+
+    my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
+    $self->prompt_fields("SMS", {
+        sms_carriers => \@carriers, 
+    });
 }
 
 sub prompt_code {
