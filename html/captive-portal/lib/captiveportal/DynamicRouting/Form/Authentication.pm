@@ -1,4 +1,4 @@
-package captiveportal::DynamicRouting::RenderingMap;
+package captiveportal::DynamicRouting::Form::Authentication;
 
 =head1 NAME
 
@@ -21,7 +21,7 @@ has_field 'fields[username]' => (type => 'Text', label => 'Username');
 
 has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
-has_field 'fields[user_email]' => (type => "Text", label => "Email");
+has_field 'fields[user_email]' => (type => "Email", label => "Email");
 
 has_field 'fields[phonenumber]' => (type => "Text", label => "Phone number");
 

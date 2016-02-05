@@ -19,6 +19,7 @@ use pf::config;
 use pf::person;
 use pf::util;
 use pf::log;
+use captiveportal::DynamicRouting::Form::Authentication;
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source', builder => '_build_source', lazy => 1);
 
@@ -39,6 +40,15 @@ after 'source_id' => sub {
 
 use pf::authentication;
 use pf::Authentication::constants;
+
+sub form {
+    my ($self) = @_;
+    my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters()->as_hashref() : {};
+    my $i18n = captiveportal::DynamicRouting::I18N->new;
+    my $form = captiveportal::DynamicRouting::Form::Authentication->new(language_handle => $i18n);
+    $form->process(params => $params);
+    return $form;
+}
 
 sub _build_request_fields {
     my ($self) = @_;
@@ -128,12 +138,13 @@ sub create_local_account {
 }
 
 sub prompt_fields {
-    my ($self, $type, $args) = @_;
+    my ($self, $args) = @_;
     $args //= {};
     $self->render("signin.html", {
-        type => $type, 
+        type => $self->source->type, 
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
+        form => $self->form,
         %{$args},
     });
 }

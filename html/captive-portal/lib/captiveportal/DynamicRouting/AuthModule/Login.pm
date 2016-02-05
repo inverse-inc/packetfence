@@ -34,7 +34,7 @@ sub execute_child {
         $self->authenticate();
     }
     else {
-        $self->prompt_fields("Login");
+        $self->prompt_fields();
     }
 };
 
@@ -70,7 +70,7 @@ sub authenticate {
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $message;
-            $self->prompt_fields("Login");
+            $self->prompt_fields();
             return;
         }
     }

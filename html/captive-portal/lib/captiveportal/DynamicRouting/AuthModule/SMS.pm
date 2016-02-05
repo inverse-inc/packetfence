@@ -38,15 +38,15 @@ sub execute_child {
         $self->validate_info();
     }
     else {
-        $self->prompt_fields_sms("SMS");
+        $self->prompt_fields();
     }
 }
 
-sub prompt_fields_sms {
+sub prompt_fields {
     my ($self) = @_;
 
     my @carriers = map { { label => $_->{name}, value => $_->{id} } } @{sms_carrier_view_all($self->source)};
-    $self->prompt_fields("SMS", {
+    $self->SUPER::prompt_fields({
         sms_carriers => \@carriers, 
     });
 }

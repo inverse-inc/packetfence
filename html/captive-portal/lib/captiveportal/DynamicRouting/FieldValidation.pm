@@ -46,6 +46,12 @@ sub handle_posted_fields {
         $self->prompt_fields();
         return 0;
     }
+    my $form = $self->form($self->request_fields);
+    if($form->has_errors){
+        $self->app->flash->{error} = "An error occured while processing the request.";
+        $self->prompt_fields();
+        return 0;
+    }
     return 1;
 }
 

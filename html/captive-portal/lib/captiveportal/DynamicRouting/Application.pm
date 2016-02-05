@@ -47,15 +47,6 @@ sub BUILD {
     $self->hashed_params($hashed);
 };
 
-sub rendering_map {
-    my ($self, $previous) = @_;
-    use captiveportal::DynamicRouting::RenderingMap;
-    my $i18n = captiveportal::DynamicRouting::I18N->new;
-    my $form = captiveportal::DynamicRouting::RenderingMap->new(language_handle => $i18n);
-    $form->process(params => $previous);
-    return $form;
-}
-
 sub set_current_module {
     my ($self, $module) = @_;
     $self->session->{current_module_id} = $module;
@@ -106,8 +97,6 @@ sub _render {
         my $string = shift;
         return $self->i18n($string);
     };
-
-    $args->{rendering_map} = $self->rendering_map(defined($args->{previous_request}) ? $args->{previous_request}->as_hashref : {});
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';

@@ -1,13 +1,13 @@
 
 <form action="/signup" method="post">
   [% IF sms_carriers %]
-    [% out = rendering_map.get_field("mobileprovider").options(sms_carriers) %]
+    [% out = form.get_field("mobileprovider").options(sms_carriers) %]
   [% END %]
 
   [% FOREACH field IN fields.keys %]
   <div class="field">
     <!--    <input type="text" name="fields[[% field %]]" value="[% previous_request.$field %]"> -->
-    [% rendering_map.get_field(field).render | none %]
+    [% form.get_field(field).render | none %]
   </div>
   [% END %]
 
