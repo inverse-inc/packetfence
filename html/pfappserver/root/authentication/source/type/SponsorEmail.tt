@@ -1,4 +1,3 @@
 [% form.field('activation_domain').render | none %]
-[% form.field('ldap_email_attribute').render | none %]
 [% form.field('allow_localdomain').render | none %]
 [% form.field('create_local_account').render | none %]
