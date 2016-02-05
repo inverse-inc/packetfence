@@ -35,6 +35,7 @@ sub release {
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
     };
+    $self->app->reset_session;
     $self->render("release.html", $args);
 }
 
@@ -44,6 +45,7 @@ sub execute_child {
     if($node->{status} eq "reg"){
         $self->app->flash->{notice} = "Your network access should already be enabled.";
         $self->release();
+        return;
     }
     $self->SUPER::execute_child();
 }

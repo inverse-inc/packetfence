@@ -154,6 +154,14 @@ sub flash {
     return $self->session->{flash};
 }
 
+sub reset_session {
+    my ($self) = @_;
+    foreach my $key (keys %{$self->session}){
+        next if($key eq "flash");
+        delete $self->session->{$key};
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
