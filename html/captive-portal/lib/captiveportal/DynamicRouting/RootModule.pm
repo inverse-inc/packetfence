@@ -14,6 +14,7 @@ use Moose;
 extends 'captiveportal::DynamicRouting::AndModule';
 
 use pf::node;
+use pf::config;
 
 has '+parent' => (required => 0);
 
@@ -25,7 +26,16 @@ sub done {
 
 sub release {
     my ($self) = @_;
-    $self->render("release.html");
+    my $args = {
+        timer         => $Config{'trapping'}{'redirtimer'},
+        destination_url  => $self->app->session->{destination_url} || $self->app->profile->getRedirectURL(),
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
+        retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+        auto_redirect => $Config{'captive_portal'}{'network_detection'},
+        image_path => $Config{'captive_portal'}{'image_path'},
+    };
+    $self->render("release.html", $args);
 }
 
 sub execute_child {

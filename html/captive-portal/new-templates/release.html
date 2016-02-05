@@ -1,1 +1,33 @@
-<h1>Bye-bye</h1>
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  $('#toReplace').html("[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") | html %]");
+}; 
+
+var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
+var txt_web_notification = "[% i18n("Network access has been granted") %]"
+
+// once the page is loaded
+$(document).ready(function() {
+  setTimeout(function() {
+    detectNetworkAccess([% retry_delay %], "[% destination_url %]", "[% external_ip %]", "[% image_path %]");
+  }, [% initial_delay %] * 1000);
+
+  // require access to web notifications now so it's ready when the access is activated
+  initWebNotifications();
+});
+
+</script>
+
+<div id="about">
+  <img src="/content/images/unlock.png" alt="Access granted" />
+  <p id="toReplace">[% i18n("Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected.") %]</p>
+  <p id="browser_notes"></p>
+  <script type="text/javascript" src="/content/timerbar.js"></script>
+  <noscript><p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p></noscript>
+</div>
+
+[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
+<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
+
