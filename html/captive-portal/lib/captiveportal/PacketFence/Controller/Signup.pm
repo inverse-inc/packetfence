@@ -507,7 +507,7 @@ sub validateBySponsorSource : Private {
 
     if ( $request->param('by_sponsor') ) {
         my $sponsor_email = lc( $request->param('sponsor_email') );
-        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN, 'ldap_attribute' => $ldap_email_attribute }, $Actions::MARK_AS_SPONSOR );
+        my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
 
         if (!defined $value) {
             # sponsor check did not pass
