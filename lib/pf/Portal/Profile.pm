@@ -22,6 +22,7 @@ use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
 use pf::util;
+use pf::config::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
@@ -612,6 +613,10 @@ sub getFieldsForSources {
     return uniq @fields;
 }
 
+sub getUserSources {
+    my ($self, $username, $realm) = @_;
+    return get_user_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+}
 
 =back
 

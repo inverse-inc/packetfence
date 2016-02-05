@@ -417,21 +417,19 @@ Get internal and exclusive sources for a username and realm
 =cut
 
 sub get_user_sources {
-    my ($profile, $username, $realm) = @_;
+    my ($sources, $username, $realm) = @_;
 
     my $realm_source = get_realm_source($username, $realm);
 
-    my @sources = ($profile->getInternalSources, $profile->getExclusiveSources );
-
-    if( $realm_source && any { $_ eq $realm_source} @sources ){
-        get_logger->info("Realm source ".$realm_source->{id}." is part of the portal profile sources. Using it as the only auth source.");
+    if( $realm_source && any { $_ eq $realm_source} @$sources ){
+        get_logger->info("Realm source ".$realm_source->{id}." is part of the available sources. Using it as the only auth source.");
         return ($realm_source);
     }
     else {
         if (defined($realm)) {
             get_logger->info("Realm source ".( (defined($realm_source->{id}) && $realm_source->{id} ne "") ? "$realm_source->{id}" : "undef" ) ." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
         }
-        return @sources;
+        return @$sources;
     }
 
 
