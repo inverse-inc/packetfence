@@ -61,6 +61,7 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
+has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 
 our $logger = get_logger();
 
@@ -452,7 +453,7 @@ sub ldap_filter_for_conditions {
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {
-      $expression = '(|(mail=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
+      $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
   }
 
   if ($expression) {
