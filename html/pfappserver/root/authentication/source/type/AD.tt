@@ -8,6 +8,7 @@
 [% form.field('basedn').render | none %]
 [% form.field('scope').render | none %]
 [% form.field('usernameattribute').render | none %]
+[% form.field('email_attribute').render | none %]
 [% form.field('binddn').render | none %]
 [% form.field('cache_match').render | none %]
         <div class="control-group">
