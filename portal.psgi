@@ -11,6 +11,7 @@ use captiveportal::DynamicRouting::Factory;
 
 use pf::Portal::ProfileFactory;
 use pf::authentication;
+use File::Slurp;
 
 my $app = sub {
     my $env = shift; # PSGI env
@@ -18,6 +19,21 @@ my $app = sub {
     my $req = Plack::Request->new($env);
 
     return $req->new_response(200)->finalize() if($req->path =~ /favicon/);
+    
+    my $res = $req->new_response(200); # new Plack::Response
+
+    if($req->path =~ /^\/(content|common)/){
+        my $path = ($req->path =~ /^\/common/) ? $req->path : "/captive-portal".$req->path;
+        my $content = read_file("/usr/local/pf/html".$path);
+        if($path =~ /\.css$/){
+            $res->content_type('text/css');
+        }
+        elsif($path =~ /\.js$/){
+            $res->content_type('text/javascript');
+        }
+        $res->body($content);
+        return $res->finalize();
+    }
 
     my $mac = "00:11:22:33:44:55";
     my $profile = pf::Portal::ProfileFactory->instantiate($mac); 
@@ -30,7 +46,6 @@ my $app = sub {
     $application->execute();
 
 
-    my $res = $req->new_response(200); # new Plack::Response
     $res->body($application->template_output);
     $res->finalize;
 }; 
