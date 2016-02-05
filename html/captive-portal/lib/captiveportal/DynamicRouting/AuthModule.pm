@@ -21,9 +21,9 @@ use pf::util;
 use pf::log;
 use captiveportal::DynamicRouting::Form::Authentication;
 
-has 'source' => (is => 'rw', isa => 'pf::Authentication::Source', builder => '_build_source', lazy => 1);
+has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
-has 'source_id' => (is => 'rw');
+has 'source_id' => (is => 'rw', trigger => \&_build_source);
 
 has 'required_fields' => (is => 'rw', isa => 'ArrayRef[Str]', builder => '_build_required_fields', lazy => 1);
 
@@ -32,11 +32,6 @@ has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]})
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
 has 'pid_field' => ('is' => 'rw', default => 'user_email');
-
-after 'source_id' => sub {
-    my ($self) = @_;
-    $self->_build_source();
-};
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -57,7 +52,7 @@ sub _build_request_fields {
 
 sub _build_source {
     my ($self) = @_;
-    return pf::authentication::getAuthenticationSource($self->{source_id});
+    $self->source(pf::authentication::getAuthenticationSource($self->{source_id}));
 }
 
 sub execute_actions {
@@ -141,7 +136,6 @@ sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
     $self->render("signin.html", {
-        type => $self->source->type, 
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,

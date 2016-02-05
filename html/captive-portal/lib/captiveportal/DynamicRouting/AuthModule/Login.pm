@@ -24,6 +24,42 @@ use pf::Authentication::constants;
 
 has '+pid_field' => (default => sub { "username" });
 
+has '+source_id' => (trigger => \&_build_sources );
+
+has 'sources' => (is => 'rw', default => sub {[]});
+
+around 'source' => sub {
+    my ($orig, $self, $source) = @_;
+
+    # We don't modify the setting behavior
+    if($source){
+        $self->$orig($source);
+    }
+
+    # If the source is set in the session we use it.
+    if($self->session->{source}){
+        return $self->session->{source};
+    }
+    else {
+        $self->$orig();
+    }
+};
+
+sub _build_sources {
+    my ($self, $source_id, $previous) = @_; 
+    my @sources;
+    if($source_id eq "_PROFILE_SOURCES_"){
+        @sources = ($self->app->profile->getInternalSources, $self->app->profile->getExclusiveSources);
+    }
+    else {
+        my @source_ids = split(/\s*,\s*/, $source_id);
+        @sources = map { pf::authentication::getAuthenticationSource($_) } @source_ids;
+    }
+    
+    get_logger->debug(sub { use Data::Dumper ; "Module ".$self->id." is using sources : ".Dumper(\@sources) });
+    $self->sources(\@sources);
+}
+
 sub required_fields_child {
     return ["username", "password"];
 }
@@ -45,7 +81,7 @@ sub authenticate {
     
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = get_user_sources($self->app->profile, $username, $realm);
+    my @sources = get_user_sources($self->sources, $username, $realm);
 
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is
@@ -67,6 +103,7 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
+            $self->session->{source} = pf::authentication::getAuthenticationSource($source_id);
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $message;
@@ -74,6 +111,7 @@ sub authenticate {
             return;
         }
     }
+
     
     # not sure we should set the portal + source here...
     person_modify($self->current_mac, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
