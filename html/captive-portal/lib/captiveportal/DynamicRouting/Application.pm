@@ -94,6 +94,14 @@ sub _render {
         AUTO_FILTER => 'html',
     };
 
+    use Template::Stash;
+
+    # define list method to return new list of odd numbers only
+    $args->{ i18n } = sub {
+        my $string = shift;
+        return $self->i18n($string);
+    };
+
     $args->{rendering_map} = $self->rendering_map;
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
