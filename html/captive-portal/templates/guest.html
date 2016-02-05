@@ -39,19 +39,19 @@
               [% END %]
             [% ELSIF (field == 'sponsor_email') %]
               <span>[% i18n("Sponsor's email") %]</span>
-              <input class="field" name="[% field %]" type="text" value="[% sponsor_email | html %]" /><br/>
+              <input class="field" name="[% field %]" type="email" value="[% sponsor_email | html %]" /><br/>
               [% IF sponsored_guest_allowed %]
                 <em>Required for sponsored network access</em>
               [% END %]
             [% ELSIF (field == 'email') %]
               <span>[% i18n("$field") %]</span>
-              <input class="field" name="[% field %]" type="text" value="[% email | html %]" /><br/>
+              <input class="field" name="[% field %]" type="email" value="[% email | html %]" /><br/>
               [% IF email_guest_allowed %]
                 <em>Required for email network access</em>
               [% END %]
             [% ELSIF ( field == 'phone') %]
               <span>[% i18n("$field") %]</span>
-              <input class="field" name="[% field %]" type="text" value="[% phone | html %]" /><br/>
+              <input class="field" name="[% field %]" type="tel" value="[% phone | html %]" /><br/>
               [% IF sms_guest_allowed %]
                 <em>Required for SMS network access</em>
               [% END %]
