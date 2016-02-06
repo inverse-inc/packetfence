@@ -184,7 +184,7 @@ sub process_pkt {
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
-            # Skip frames that aren't ETH_TYPE_IP to avoid processing frames more than
+            # Skip frames that has a VLAN tag to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
             #
             # On post-2008 kernels, with network devices supporting VLAN acceleration
@@ -196,9 +196,14 @@ sub process_pkt {
             # Also, NetPacket::Ethernet::decode will skip the VLAN header from
             # a tagged frame and return the 'inner' ether_type of the frame.
             #
-            # For these reasons, we must peek directly at the data.
-            # skip the first 12 bytes of the frame (src + dst eth addr)
-            # grab the ether_type field and discard the rest:
+            # For this reason we chec to see if $l2->{tpid} is set
+            #
+            if ( defined $l2->{tpid} ) {
+                $logger->trace("Skipping VLAN packets.");
+                return;
+            }
+
+            # Skip frames that aren't ETH_TYPE_IP/ETH_TYPE_IPv6
             if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
                 $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame since it is probably addressed to another interface (offload decapsulated tagged packet)");
                 return;
