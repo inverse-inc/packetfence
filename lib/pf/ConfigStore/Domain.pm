@@ -15,7 +15,7 @@ pf::ConfigStore::Domain
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($domain_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $domain_config_file };

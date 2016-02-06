@@ -21,7 +21,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use Data::Dumper;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($domain_config_file);
 
 use base 'pfconfig::namespaces::config';
 

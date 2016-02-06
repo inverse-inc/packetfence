@@ -2,7 +2,7 @@ package pf::services::manager::radsniff;
 
 =head1 NAME
 
-pf::services::manager::radsniff management module. 
+pf::services::manager::radsniff management module.
 
 =cut
 
@@ -14,7 +14,7 @@ pf::services::manager::radsniff
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 use pf::util;
 use pf::config;
 use Moo;

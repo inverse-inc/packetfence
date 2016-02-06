@@ -1,4 +1,5 @@
 package pf::ConfigStore::Cluster;
+
 =head1 NAME
 
 pf::ConfigStore::Realm
@@ -15,7 +16,7 @@ pf::ConfigStore::Realm
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($cluster_config_file);;
 extends 'pf::ConfigStore';
 
 sub configFile { $cluster_config_file };
@@ -52,4 +53,3 @@ USA.
 =cut
 
 1;
-

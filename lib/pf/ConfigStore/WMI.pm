@@ -15,7 +15,7 @@ pf::ConfigStore::WMI
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($wmi_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $wmi_config_file };

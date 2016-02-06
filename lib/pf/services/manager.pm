@@ -38,7 +38,7 @@ To include the new service in pfcmd service
 
 use strict;
 
-use pf::file_paths;
+use pf::file_paths qw($var_dir $install_dir);
 use pf::log;
 use pf::util;
 use Moo;
@@ -104,11 +104,11 @@ Lower values start first and are stopped last.
 
 has orderIndex => ( is => 'ro', builder => 1, lazy => 1 );
 
-sub _build_orderIndex { 
+sub _build_orderIndex {
     my ($self) = @_;
     require pf::config;
     my $name = $self->name;
-    $name =~ s/\./_/g ; 
+    $name =~ s/\./_/g ;
     my $index = $pf::config::Config{'services'}{"${name}_order"} // 100 ;
     return $index;
 }

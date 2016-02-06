@@ -15,7 +15,7 @@ pf::ConfigStore::Pfdetect
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($pfdetect_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $pfdetect_config_file };

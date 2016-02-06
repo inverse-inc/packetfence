@@ -14,7 +14,7 @@ pf::ConfigStore::Scan
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $scan_config_file };

@@ -32,7 +32,16 @@ use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+    $lib_dir
+    $install_dir
+    $network_config_file
+    $bin_dir
+    $log_dir
+    @log_files
+    $generated_conf_dir
+);
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 

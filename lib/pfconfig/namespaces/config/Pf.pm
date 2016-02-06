@@ -22,7 +22,13 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
-use pf::file_paths;
+use pfconfig::log;
+use pf::file_paths qw(
+    $pf_default_file
+    $pf_config_file
+    $pf_omapi_key_file
+    $log_dir
+);
 use pf::util;
 use List::MoreUtils qw(uniq);
 

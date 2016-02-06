@@ -18,6 +18,7 @@ use POSIX;
 use base ('pf::Switch');
 
 use pf::constants;
+use pf::file_paths qw($lib_dir);
 use pf::config;
 sub description { 'Trapeze Wireless Controller' }
 

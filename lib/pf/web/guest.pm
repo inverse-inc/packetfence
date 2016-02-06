@@ -46,6 +46,7 @@ BEGIN {
 use pf::log;
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($conf_dir);
 use pf::password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);

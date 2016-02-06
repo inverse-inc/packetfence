@@ -1,7 +1,8 @@
 package pf::services::manager::radiusd_child;
+
 =head1 NAME
 
-pf::services::manager::radiusd_child 
+pf::services::manager::radiusd_child
 
 =cut
 
@@ -17,7 +18,11 @@ The first manager will create the config for all radiusd processes through the g
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+    $install_dir
+    $var_dir
+);
 use pf::util;
 use pf::config;
 use NetAddr::IP;
@@ -36,7 +41,7 @@ Executed once for ALL processes
 =cut
 sub generateConfig {
     my ($self, $quick) = @_;
- 
+
     unless($CONFIG_GENERATED){
         $self->_generateConfig();
 

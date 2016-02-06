@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($violations_config_file);
 
 use base 'pfconfig::namespaces::config';
 

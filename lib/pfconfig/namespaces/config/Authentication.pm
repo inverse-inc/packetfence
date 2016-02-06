@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($authentication_config_file);
 use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -103,7 +103,7 @@ sub build_child {
                     else {
                         $current_rule->add_action(
                             pf::Authentication::Action->new(
-                                { 
+                                {
                                     type    => $type,
                                     class   => pf::Authentication::Action->getRuleClassForAction($type),
                                 }
@@ -139,7 +139,7 @@ sub build_child {
     my %resources;
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
-    $resources{authentication_config_hash}  = \%authentication_config_hash; 
+    $resources{authentication_config_hash}  = \%authentication_config_hash;
 
     return \%resources;
 

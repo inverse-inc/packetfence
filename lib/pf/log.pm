@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use pf::file_paths;
+use pf::file_paths qw($log_conf_dir $log_config_file);
 use pf::log::trapper;
 use File::Basename qw(basename);
 

@@ -22,6 +22,11 @@ use Net::Netmask;
 use pf::constants;
 use NetAddr::IP;
 use pf::config;
+use pf::file_paths qw(
+    $var_dir
+    $conf_dir
+    $generated_conf_dir
+);
 use pf::log;
 use pf::util;
 use pf::cluster;

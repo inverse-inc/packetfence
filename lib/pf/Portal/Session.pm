@@ -32,6 +32,7 @@ use File::Spec::Functions;
 
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($conf_dir);
 use pf::iplog;
 use pf::Portal::ProfileFactory;
 use pf::util;

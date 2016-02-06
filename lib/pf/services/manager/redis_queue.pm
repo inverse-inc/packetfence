@@ -15,8 +15,6 @@ pf::services::manager::redis_queue
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::config;
 
 extends 'pf::services::manager::redis';
 
@@ -57,4 +55,3 @@ USA.
 =cut
 
 1;
-

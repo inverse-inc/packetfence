@@ -6,6 +6,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
+use pf::file_paths qw($conf_dir);
 use pf::log;
 use pf::util;
 use pf::Portal::Session;

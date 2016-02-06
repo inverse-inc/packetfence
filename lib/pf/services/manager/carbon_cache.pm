@@ -15,7 +15,10 @@ carbon-cache daemon manager module for PacketFence.
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw(
+    $install_dir
+    $conf_dir
+);
 use pf::util;
 use pf::config;
 use pf::cluster;

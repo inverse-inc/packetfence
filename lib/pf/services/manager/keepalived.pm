@@ -18,6 +18,12 @@ use IPC::Cmd qw[can_run run];
 use List::MoreUtils qw(uniq);
 use POSIX;
 use pf::config;
+use pf::file_paths qw(
+    $generated_conf_dir
+    $install_dir
+    $var_dir
+    $conf_dir
+);
 use pf::log;
 use pf::util;
 use pf::cluster;
@@ -104,7 +110,7 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    return $cluster_enabled; 
+    return $cluster_enabled;
 }
 
 =head1 AUTHOR

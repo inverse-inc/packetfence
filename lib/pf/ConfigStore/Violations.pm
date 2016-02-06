@@ -14,7 +14,7 @@ pf::ConfigStore::Violations
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($violations_config_file);
 
 use pf::violation_config;
 
@@ -55,7 +55,7 @@ sub listTriggers {
         if (defined($trigger)) {
             my @violation_triggers = $self->split_list($trigger);
             @triggers{@violation_triggers} = ();
-            
+
         }
     }
     return [sort keys %triggers];

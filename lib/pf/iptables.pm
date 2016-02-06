@@ -37,6 +37,7 @@ BEGIN {
 
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
+use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);

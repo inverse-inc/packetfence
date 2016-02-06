@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($profiles_config_file);
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::constants::Portal::Profile;

@@ -30,7 +30,9 @@ use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+);
 use pf::util;
 use pf::log;
 use pf::authentication;

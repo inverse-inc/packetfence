@@ -14,7 +14,7 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($profiles_config_file);
 
 use pf::ConfigStore;
 

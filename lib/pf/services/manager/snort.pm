@@ -1,4 +1,5 @@
 package pf::services::manager::snort;
+
 =head1 NAME
 
 pf::services::manager::snort add documentation
@@ -16,7 +17,12 @@ use warnings;
 use Moo;
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::pf_conf_trapping_engine';
-use pf::file_paths;
+use pf::file_paths qw(
+    $install_dir
+    $conf_dir
+    $generated_conf_dir
+    $var_dir
+);
 use pf::log;
 use pf::constants;
 use pf::config;

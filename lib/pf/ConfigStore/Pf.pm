@@ -16,7 +16,7 @@ use Moo;
 use namespace::autoclean;
 use pf::config;
 use pf::config::cached;
-use pf::file_paths;
+use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
 
@@ -35,9 +35,9 @@ sub pfconfigNamespace {'config::Pf'}
 sub _buildCachedConfig {
     my ($self) = @_;
     return pf::config::cached->new(
-        -file         => $config_file,
+        -file         => $pf_config_file,
         -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $default_config_file),
+        -import       => pf::config::cached->new(-file => $pf_default_file),
         -onpostreload => [
             'reload_pf_config' => sub {
                 my ($config) = @_;
@@ -87,7 +87,7 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
             }
-        } elsif ( $type eq 'merged_list' ) { 
+        } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));

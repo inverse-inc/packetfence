@@ -1,4 +1,5 @@
 package pf::services::manager::winbindd;
+
 =head1 NAME
 
 pf::services::manager::winbindd add documentation
@@ -20,7 +21,9 @@ use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;
 use Errno qw(EINTR EAGAIN);
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw(
+    $var_dir
+);
 use pf::domain;
 use pf::services::manager::winbindd_child;
 

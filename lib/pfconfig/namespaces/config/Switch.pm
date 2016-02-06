@@ -20,7 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($switches_config_file);
 use pf::util;
 use List::MoreUtils qw(any uniq);
 

@@ -14,7 +14,6 @@ pf::util::pfqueue - pfqueue
 
 use strict;
 use warnings;
-use pf::file_paths;
 use pf::log;
 use pf::config::pfqueue;
 use pf::Redis;

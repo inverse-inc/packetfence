@@ -93,8 +93,8 @@ BEGIN {
     @EXPORT_OK = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
-        $default_config_file $pf_default_file
-        $config_file $pf_config_file
+        $pf_default_file
+        $pf_config_file
         $network_config_file
         $oauth_ip_file
         $pf_doc_file

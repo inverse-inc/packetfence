@@ -15,7 +15,7 @@ pf::ConfigStore::PKI_Provider
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($pki_provider_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $pki_provider_config_file }

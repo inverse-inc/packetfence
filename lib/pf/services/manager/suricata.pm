@@ -14,7 +14,11 @@ pf::services::manager::suricata
 use strict;
 use warnings;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw(
+    $install_dir
+    $conf_dir
+    $generated_conf_dir
+);
 use pf::constants;
 use pf::config;
 use pf::violation_config;

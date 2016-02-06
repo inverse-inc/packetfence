@@ -72,6 +72,7 @@ use base ('pf::Switch');
 
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($lib_dir);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;

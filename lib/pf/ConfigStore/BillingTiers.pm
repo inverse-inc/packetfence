@@ -14,8 +14,7 @@ pf::ConfigStore::BillingTiers
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::util;
+use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $billing_tiers_config_file };

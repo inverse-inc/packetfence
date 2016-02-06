@@ -20,7 +20,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($wmi_config_file);
 
 use base 'pfconfig::namespaces::config';
 

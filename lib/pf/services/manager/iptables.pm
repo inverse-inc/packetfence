@@ -14,7 +14,7 @@ pf::services::manager::iptables
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 use pf::config;
 use pf::log;
 use pf::util;

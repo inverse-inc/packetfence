@@ -22,6 +22,7 @@ use POSIX;
 use base ('pf::Switch::HP::Controller_MSM710');
 
 use pf::config;
+use pf::file_paths qw($lib_dir);
 sub description { 'HP ProCurve MSM Access Point' }
 
 # importing switch constants

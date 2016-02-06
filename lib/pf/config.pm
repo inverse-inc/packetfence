@@ -268,10 +268,6 @@ tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 
 tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
-sub import {
-    pf::config->export_to_level(1,@_);
-    pf::file_paths->export_to_level(1);
-}
 use pf::util::apache qw(url_parser);
 
 $thread = 0;

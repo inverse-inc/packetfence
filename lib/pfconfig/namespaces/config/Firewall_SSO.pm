@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
 use NetAddr::IP;
+use pf::file_paths qw($firewall_sso_config_file);
 
 use base 'pfconfig::namespaces::config';
 

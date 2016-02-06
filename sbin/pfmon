@@ -32,7 +32,7 @@ BEGIN {
     use pf::log(service => 'pfmon');
 }
 
-use pf::file_paths;
+use pf::file_paths qw($var_dir);
 use pf::accounting qw(acct_maintenance);
 use pf::config;
 use pf::config::cached;

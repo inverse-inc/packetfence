@@ -14,7 +14,7 @@ pf::ConfigStore::Provisioning
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($provisioning_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
 

@@ -14,7 +14,11 @@ pf::services::manager::redis
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+    $generated_conf_dir
+    $install_dir
+);
 use pf::config;
 use pf::util;
 

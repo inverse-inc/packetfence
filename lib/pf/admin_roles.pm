@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
 use pf::constants;

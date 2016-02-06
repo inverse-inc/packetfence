@@ -15,7 +15,7 @@ pf::ConfigStore::Realm
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($realm_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $realm_config_file };

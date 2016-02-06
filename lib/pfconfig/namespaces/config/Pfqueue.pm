@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($pfqueue_config_file);
 use pf::util;
 use pf::constants::pfqueue qw(
     $PFQUEUE_WORKERS_DEFAULT

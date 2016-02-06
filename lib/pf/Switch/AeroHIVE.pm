@@ -43,6 +43,7 @@ use base ('pf::Switch');
 
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($lib_dir);
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;

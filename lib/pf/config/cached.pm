@@ -261,7 +261,10 @@ When using a value that was dervived from a configuration use a sub routine to c
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw(
+    $cache_control_file
+    @stored_config_files
+);
 use Time::HiRes qw(stat time gettimeofday);
 use pf::log;
 use pf::CHI;

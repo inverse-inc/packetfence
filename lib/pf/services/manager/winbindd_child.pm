@@ -1,7 +1,8 @@
 package pf::services::manager::winbindd_child;
+
 =head1 NAME
 
-pf::services::manager::winbindd_child 
+pf::services::manager::winbindd_child
 
 =cut
 
@@ -18,7 +19,7 @@ The first manager will create the namespaces for all winbindd processes through 
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($domains_chroot_dir);
 use pf::config;
 use pf::util;
 use pf::config;
@@ -29,14 +30,14 @@ our $CONFIG_GENERATED = 0;
 
 sub generateConfig {
     my ($self, $quick) = @_;
- 
+
     unless($CONFIG_GENERATED){
         # we want to refresh the domain list to the latest available
         # when restarting the service
         # Restarting through pfcmd service pf restart does the configreload after the managers have been instanciated
         $self->_refresh_domains();
 
-        $self->build_namespaces();   
+        $self->build_namespaces();
 
         $CONFIG_GENERATED = 1;
     }
@@ -117,4 +118,3 @@ USA.
 =cut
 
 1;
-

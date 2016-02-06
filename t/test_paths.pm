@@ -23,10 +23,11 @@ our $test_dir;
 BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
-    use pf::file_paths;
+    use pf::file_paths qw($install_dir);
     use pfconfig::constants;
 
     $test_dir = rel2abs(dirname($INC{'test_paths.pm'})) if exists $INC{'test_paths.pm'};
+    remove_tree('/tmp/chi');
     $test_dir ||= catdir($install_dir,'t');
     $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');

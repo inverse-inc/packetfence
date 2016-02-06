@@ -16,6 +16,12 @@ use warnings;
 use Moo;
 use pf::constants;
 use pf::config;
+use pf::file_paths qw(
+    $install_dir
+    $generated_conf_dir
+    $var_dir
+    $conf_dir
+);
 use pf::SwitchFactory;
 use pf::util;
 use pf::log;

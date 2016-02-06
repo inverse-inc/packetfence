@@ -26,6 +26,7 @@ use pf::log;
 our $VERSION = 1.00;
 
 use pf::config;
+use pf::file_paths qw($ui_config_file);
 use pf::config::cached;
 
 my $singleton;

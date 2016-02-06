@@ -1,4 +1,5 @@
 package pf::ConfigStore::DhcpFilters;
+
 =head1 NAME
 
 pf::ConfigStore::DhcpFilters
@@ -15,7 +16,7 @@ pf::ConfigStore::DhcpFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($dhcp_filters_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $dhcp_filters_config_file };
@@ -52,4 +53,3 @@ USA.
 =cut
 
 1;
-

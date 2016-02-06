@@ -22,7 +22,7 @@ use pf::log;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
 use pf::config;
-use pf::file_paths;
+use pf::file_paths qw($ssl_configuration_file);
 use pf::util;
 use pf::config::util;
 use pf::web;

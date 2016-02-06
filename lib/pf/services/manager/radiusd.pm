@@ -13,7 +13,11 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw(
+    $var_dir
+    $conf_dir
+    $install_dir
+);
 use pf::util;
 use pf::config;
 use Moo;
