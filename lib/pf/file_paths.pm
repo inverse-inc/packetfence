@@ -27,9 +27,9 @@ our (
 
     #Config files
     #pf.conf.default
-    $default_config_file, $pf_default_file,
+    $pf_default_file,
     #pf.conf
-    $config_file, $pf_config_file,
+    $pf_config_file,
     #network.conf
     $network_config_file,
     #oauth2-ips.conf
@@ -86,13 +86,11 @@ our (
 
 BEGIN {
 
-    *config_file = \$pf_config_file; # TODO: To be deprecated. See $pf_config_file
-    *default_config_file = \$pf_default_file;  # TODO: To be deprecated. See $pf_default_file
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
         $default_config_file $pf_default_file
