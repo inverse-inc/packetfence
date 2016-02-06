@@ -42,7 +42,7 @@ use List::MoreUtils qw(any);
 use NetAddr::IP;
 use pf::SwitchFactory;
 use MIME::Base64();
-use NetPacket::Ethernet qw(ETH_TYPE_IP);
+use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
@@ -213,8 +213,7 @@ sub process_pkt {
             # For these reasons, we must peek directly at the data.
             # skip the first 12 bytes of the frame (src + dst eth addr)
             # grab the ether_type field and discard the rest:
-            my ($ether_type, undef) = unpack("x[12]nC*", $pkt);
-            if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
+            if ( ($l2->{type} ne ETH_TYPE_IP) || ($l2->{type} ne ETH_TYPE_IPv6) ) {
                 $logger->trace("Ignoring packet because we already listen on a VLAN interface");
                 return;
             }
@@ -224,11 +223,11 @@ sub process_pkt {
             $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt.count" );
 
             # we send all IPv4 DHCPv4 codepath
-            if($l2->{type} eq ETH_TYPE_IP) {
+            if ( $l2->{type} eq ETH_TYPE_IP ) {
                 my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
                 $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
             }
-            else{
+            else {
                 my $apiclient = pf::api::queue->new;
                 $apiclient->notify('process_dhcpv6', $udp_payload_b64);
             }
