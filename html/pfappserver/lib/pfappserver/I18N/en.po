@@ -3292,11 +3292,11 @@ msgid "Nodes"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-msgid "Nodes Offline"
+msgid "Offline Nodes"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
-msgid "Nodes Online"
+msgid "Online Nodes"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
