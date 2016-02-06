@@ -223,13 +223,21 @@ form {
                   <table style="width:100%">
                     <tbody>
                       <tr class="row-fluid">
-                        <td>
-                        [% INCLUDE per_page_select.tt %]
+                        <td colspan="2" >
+                          <div class="control-group">
+                            <div class="controls">
+                            [% INCLUDE per_page_select.tt %]
+                            </div>
+                          </div>
                         </td>
                       </tr>
                       <tr class="row-fluid">
                         <td>
-                         [% PROCESS search_options disabled=0 %]
+                          <div class="control-group">
+                            <div class="controls">
+                             [% PROCESS search_options disabled=0 %]
+                            </div>
+                          </div>
                         </td>
                         <td>
                           <div class="btn-group pull-right">
