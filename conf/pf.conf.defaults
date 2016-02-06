@@ -1291,10 +1291,10 @@ acct_maintenance_interval=60s
 # Interval at which PacketFence runs the polling enforcement on the provisioners
 provisioning_compliance_poll_interval=300s
 #
-# maintenance.online_node_state_update_interval
+# maintenance.online_node_count_interval
 #
 # Interval at which PacketFence updates the online node state
-online_node_state_update_interval=15m
+online_node_count_interval=15m
 
 [active_active]
 #

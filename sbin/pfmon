@@ -214,7 +214,7 @@ sub registertasks  {
         }
     );
     register_task(
-        'update node online stats', 'online_node_state_update_interval', \&update_node_online_stats
+        'update node online stats', 'online_node_count_interval', \&update_node_online_stats
     );
 }
 

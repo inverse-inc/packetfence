@@ -2547,7 +2547,7 @@ msgstr ""
 msgid "Interval at which PacketFence runs violation maintenance"
 msgstr ""
 
-# conf/documentation.conf (maintenance.online_node_state_update_interval)
+# conf/documentation.conf (maintenance.online_node_count_interval)
 msgid "Interval at which PacketFence updates the online node state"
 msgstr ""
 
@@ -7539,7 +7539,7 @@ msgid "maintenance.nodes_maintenance_interval"
 msgstr "Nodes Maintenance Interval"
 
 # conf/documentation.conf
-msgid "maintenance.online_node_state_update_interval"
+msgid "maintenance.online_node_count_interval"
 msgstr "Online Node State Update Interval"
 
 # conf/documentation.conf
