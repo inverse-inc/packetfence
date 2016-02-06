@@ -106,7 +106,7 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
-        WHERE mac=?
+        WHERE mac = ?
         ORDER BY start_time DESC, end_time DESC
         LIMIT 25
     ]);
@@ -114,7 +114,7 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_history_switchport_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
-        WHERE switch=? and port=?
+        WHERE switch = ? and port = ?
         ORDER BY start_time desc, end_time desc
     ]);
 
@@ -123,7 +123,7 @@ sub locationlog_db_prepare {
           UNIX_TIMESTAMP(start_time) AS start_timestamp,
           UNIX_TIMESTAMP(end_time) AS end_timestamp
         FROM locationlog
-        WHERE mac=? AND start_time < from_unixtime(?) AND end_time > from_unixtime(?)
+        WHERE mac = ? AND start_time < from_unixtime(?) AND end_time > from_unixtime(?)
         ORDER BY start_time desc, end_time desc
     ]);
 
@@ -131,7 +131,7 @@ sub locationlog_db_prepare {
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
         WHERE
-            switch=? AND port=? AND start_time < from_unixtime(?)
+            switch = ? AND port = ? AND start_time < from_unixtime(?)
             AND end_time > from_unixtime(?)
         ORDER BY start_time desc, end_time desc
     ]);
@@ -161,14 +161,14 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_view_open_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
-        WHERE end_time=0
+        WHERE end_time = 0
         ORDER BY start_time desc
     ]);
 
     $locationlog_statements->{'locationlog_view_open_mac_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
-        WHERE mac=? AND end_time=0
+        WHERE mac = ? AND end_time = 0
         ORDER BY start_time desc
     ]);
 
@@ -176,7 +176,7 @@ sub locationlog_db_prepare {
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
             LEFT JOIN node USING (mac)
-        WHERE switch=? AND port=? AND node.voip=? AND end_time = 0
+        WHERE switch = ? AND port = ? AND node.voip = ? AND end_time = 0
         ORDER BY start_time desc
     ]);
 
@@ -184,8 +184,8 @@ sub locationlog_db_prepare {
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
             LEFT JOIN node USING (mac)
-        WHERE switch=? AND port=?
-            AND (node.voip='' OR node.voip='no')
+        WHERE switch = ? AND port = ?
+            AND (node.voip = '' OR node.voip = 'no')
             AND end_time = 0
         ORDER BY start_time desc
     ]);
@@ -194,8 +194,8 @@ sub locationlog_db_prepare {
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
         FROM locationlog
             LEFT JOIN node USING (mac)
-        WHERE switch=? AND port=?
-            AND node.voip='yes'
+        WHERE switch = ? AND port = ?
+            AND node.voip = 'yes'
             AND end_time = 0
         ORDER BY start_time desc
     ]);
@@ -231,14 +231,14 @@ sub locationlog_db_prepare {
         UPDATE locationlog
             INNER JOIN node USING (mac)
         SET end_time = now()
-        WHERE switch = ? AND port = ? AND (node.voip='no' or node.voip='') AND end_time = 0
+        WHERE switch = ? AND port = ? AND (node.voip = 'no' or node.voip = '') AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
         UPDATE locationlog
             INNER JOIN node USING (mac)
         SET end_time = now()
-        WHERE switch = ? AND port = ? AND node.voip='yes' AND end_time = 0
+        WHERE switch = ? AND port = ? AND node.voip = 'yes' AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_mac_sql'} = get_db_handle()->prepare(
@@ -251,10 +251,10 @@ sub locationlog_db_prepare {
         qq [ delete from locationlog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
 
     $locationlog_statements->{'locationlog_set_session_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE locationlog SET session_id=? WHERE mac=? AND end_time = 0 ]);
+        qq [ UPDATE locationlog SET session_id = ? WHERE mac = ? AND end_time = 0 ]);
 
     $locationlog_statements->{'locationlog_get_session_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE session_id=? AND end_time = 0 order by start_time desc]);
+        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE session_id = ? AND end_time = 0 order by start_time desc]);
 
     $locationlog_statements->{'locationlog_online_nodes_count_sql'} = get_db_handle()->prepare(
         qq [ SELECT count(*) nb from locationlog WHERE end_time = 0]);
