@@ -199,13 +199,13 @@ sub process_pkt {
             # For this reason we chec to see if $l2->{tpid} is set
             #
             if ( defined $l2->{tpid} ) {
-                $logger->trace("Skipping VLAN packets.");
+                $logger->trace("Skipping VLAN packets since it is probably addressed to another interface (offload decapsulated tagged packet).");
                 return;
             }
 
             # Skip frames that aren't ETH_TYPE_IP/ETH_TYPE_IPv6
             if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
-                $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame since it is probably addressed to another interface (offload decapsulated tagged packet)");
+                $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame");
                 return;
             }
 
