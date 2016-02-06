@@ -16,7 +16,7 @@
     columns_list = [
         { name => 'status', label => l('Status') },
         { name => 'online', label => l('Online/Offline') },
-        { name => 'mac', label => l('MAC') },
+        { name => 'mac', label => l('MAC Address') },
         { name => 'detect_date', label => l('Detected Date') },
         { name => 'regdate', label => l('Registration Date') },
         { name => 'unregdate', label => l('Unregistration Date') },
