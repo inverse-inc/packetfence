@@ -2,12 +2,11 @@ package pfappserver::Form::NodeSearch;
 
 =head1 NAME
 
-pfappserver::Form::Node - Web form for a node
-pfappserver::Form::Search::Node - Web form for searching Nodes
+pfappserver::Form::NodeSearch
 
 =head1 DESCRIPTION
 
-Form definition to create or update a node.
+Web form for a searching a node
 
 =cut
 
@@ -19,7 +18,7 @@ extends 'pfappserver::Form::AdvancedSearch';
 =over
 
 
-=item online
+=item online_date
 
 =cut
 
@@ -28,7 +27,7 @@ has_field 'online_date' =>
    type => 'Compound',
   );
 
-=item online.start
+=item online_date.start
 
 =cut
 
