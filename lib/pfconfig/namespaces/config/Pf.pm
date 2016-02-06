@@ -22,7 +22,6 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
-use pfconfig::log;
 use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
