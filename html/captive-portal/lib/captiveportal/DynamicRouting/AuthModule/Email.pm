@@ -54,7 +54,7 @@ sub do_email_registration {
 
     $info{'firstname'} = $self->request_fields->{firstname};
     $info{'lastname'} = $self->request_fields->{lastname};
-    $info{'telephone'} = $self->request_fields->{phonenumber};
+    $info{'telephone'} = $self->request_fields->{telephone};
     $info{'company'} = $self->request_fields->{company};
     $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
     utf8::decode($info{'subject'});

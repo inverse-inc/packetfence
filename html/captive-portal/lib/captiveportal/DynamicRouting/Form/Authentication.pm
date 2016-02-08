@@ -25,7 +25,7 @@ has_field 'fields[user_email]' => (type => "Email", label => "Email");
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
-has_field 'fields[phonenumber]' => (type => "Text", label => "Phone number");
+has_field 'fields[telephone]' => (type => "Text", label => "Phone number");
 
 has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers);
 

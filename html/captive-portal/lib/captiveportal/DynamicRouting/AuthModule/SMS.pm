@@ -20,10 +20,10 @@ use pf::constants;
 use pf::sms_carrier;
 use pf::web::guest;
 
-has '+pid_field' => (default => sub { "phonenumber" });
+has '+pid_field' => (default => sub { "telephone" });
 
 sub required_fields_child {
-    return ["phonenumber", "mobileprovider"];
+    return ["telephone", "mobileprovider"];
 }
 
 sub execute_child {
@@ -60,7 +60,7 @@ sub prompt_pin {
 sub validate_info {
     my ($self) = @_;
 
-    my $phonenumber = $self->request_fields->{phonenumber};
+    my $telephone = $self->request_fields->{telephone};
     my $pid = $self->request_fields->{$self->pid_field};
     my $mobileprovider = $self->request_fields->{mobileprovider};
     
@@ -71,10 +71,10 @@ sub validate_info {
     }
 
     $self->update_person_from_fields();
-    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $phonenumber, $self->app->profile->getName, $mobileprovider );
+    pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider );
 
     $self->username($pid);
-    $self->session->{phonenumber} = $phonenumber;
+    $self->session->{telephone} = $telephone;
     $self->session->{mobileprovider} = $mobileprovider;
 
     $self->session->{fields} = $self->request_fields;
@@ -125,7 +125,7 @@ sub auth_source_params {
     my ($self) = @_;
     return {
         username => $self->app->session->{username},
-        phonenumber => $self->session->{phonenumber}
+        telephone => $self->session->{telephone}
     };
 }
 
