@@ -120,6 +120,10 @@ sub handler {
     if ( $method =~ /^\/radius/ ) { 
         my $radius_return = shift @$object; 
         my %mapped_object = @$object; 
+        %mapped_object = ( %{$mapped_object{"RADIUS_AUDIT"}}, %mapped_object);
+
+        delete $mapped_object{"RADIUS_AUDIT"};
+        use Data::Dumper; $logger->warn("Dumping mapped_object : ". Dumper \%mapped_object);
         $object = \%mapped_object; 
         
         unless ($radius_return == 2) { 

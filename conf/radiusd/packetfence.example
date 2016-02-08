@@ -322,11 +322,12 @@ post-auth {
 
     # If the request has not been handled inside the inner-tunnel
     # send it to packetfence
-    if (! &session-state:PacketFence-Handled ) {
+    if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
         packetfence
         -sql
     }
 
+	attr_filter.packetfence_post_auth
     linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
@@ -338,9 +339,12 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
-		# log failed authentications in SQL, too.
-		-sql
+        if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+		    # log failed authentications in SQL, too.
+		    -sql
+        }
 		attr_filter.access_reject
+		attr_filter.packetfence_post_auth
 
 		# Insert EAP-Failure message if the request was
 		# rejected by policy instead of because of an
