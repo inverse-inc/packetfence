@@ -12,6 +12,7 @@ Application definition for Dynamic Routing
 
 use Moose;
 
+use CHI;
 use Template::AutoFilter;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
@@ -46,6 +47,32 @@ sub BUILD {
     }
     $self->hashed_params($hashed);
 };
+
+sub user_cache {
+    my ($self) = @_;
+    return CHI->new(
+        driver     => 'SubNamespace',
+        chi_object => pf::CHI->new(namespace => 'httpd.portal'),
+        namespace  => $self->current_mac,
+    );
+}
+
+=head2 reached_retry_limit
+
+Test if the retry limit has been reached for a session key
+If the max is undef or 0 then check is disabled
+
+=cut
+
+sub reached_retry_limit {
+    my ( $self, $retry_key, $max ) = @_;
+    return 0 unless $max;
+    my $cache = $self->user_cache;
+    my $retries = $cache->get($retry_key) || 1;
+    $retries++;
+    $cache->set($retry_key,$retries,$self->profile->{_block_interval});
+    return $retries > $max;
+}
 
 sub set_current_module {
     my ($self, $module) = @_;

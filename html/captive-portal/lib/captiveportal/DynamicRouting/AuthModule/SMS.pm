@@ -18,6 +18,7 @@ use pf::activation;
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
+use pf::web::guest;
 
 has '+pid_field' => (default => sub { "phonenumber" });
 
@@ -32,7 +33,7 @@ sub execute_child {
         $self->validation();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
-        $self->prompt_code();
+        $self->prompt_pin();
     }
     elsif($self->app->request->method eq "POST"){
         $self->validate_info();
@@ -51,7 +52,7 @@ sub prompt_fields {
     });
 }
 
-sub prompt_code {
+sub prompt_pin {
     my ($self) = @_;
     $self->render("sms/validate.html");
 }
@@ -62,6 +63,12 @@ sub validate_info {
     my $phonenumber = $self->request_fields->{phonenumber};
     my $pid = $self->request_fields->{$self->pid_field};
     my $mobileprovider = $self->request_fields->{mobileprovider};
+    
+    if ($self->app->reached_retry_limit('sms_request_limit', $self->app->profile->{_sms_request_limit})) {
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
+        $self->prompt_fields();
+        return 0;
+    }
 
     $self->update_person_from_fields();
     pf::activation::sms_activation_create_send( $self->current_mac, $pid, $phonenumber, $self->app->profile->getName, $mobileprovider );
@@ -72,13 +79,14 @@ sub validate_info {
 
     $self->session->{fields} = $self->request_fields;
 
-    $self->prompt_code();
+    $self->prompt_pin();
 }
 
 sub validate_pin {
     my ($self, $pin) = @_;
 
     get_logger->debug("Mobile phone number validation attempt");
+
     if (my $record = pf::activation::validate_code($pin)) {
         return ($TRUE, 0, $record);
     }
@@ -89,11 +97,17 @@ sub validate_pin {
 
 sub validation {
     my ($self) = @_;
+        
+    if ($self->app->reached_retry_limit('sms_retries', $self->app->profile->{_sms_pin_retry_limit})) {
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
+        $self->prompt_pin();
+        return;
+    }
 
     my $pin = $self->app->hashed_params->{'pin'};
     unless($pin){
-        $self->app->flash->{error} = "No PIN provided.";
-        $self->prompt_code;
+        $self->app->flash->{error} = $self->app->i18n("No PIN provided.");
+        $self->prompt_pin;
         return;
     }
     my ($status, $reason, $record) = $self->validate_pin($pin);
@@ -102,8 +116,8 @@ sub validation {
         $self->done();
     }
     else {
-        $self->app->flash->{error} = "Can't validate PIN : $reason.";
-        $self->prompt_code();
+        $self->app->flash->{error} = $GUEST::ERRORS{$reason};
+        $self->prompt_pin();
     }
 }
 

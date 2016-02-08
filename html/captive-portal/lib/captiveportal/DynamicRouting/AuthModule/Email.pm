@@ -76,6 +76,7 @@ sub do_email_registration {
     $self->new_node_info->{unregdate} = $info{unregdate};
 
     $self->session->{fields} = $self->request_fields;
+    $self->app->session->{user_email} = $user_email;
     $self->username($pid);
 
     $self->done();
@@ -98,8 +99,7 @@ after 'execute_actions' => sub {
 sub auth_source_params {
     my ($self) = @_;
     return {
-        'username'   => $self->request_fields->{$self->pid_field},
-        'user_email' => $self->request_fields->{user_email}
+        user_email => $self->app->session->{user_email},
     };
 }
 

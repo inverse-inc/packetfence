@@ -12,6 +12,7 @@ Base Module for Dynamic Routing
 
 use Moose;
 use pf::log;
+use pf::config;
 
 has 'id' => (is => 'ro', required => 1);
 
@@ -52,6 +53,19 @@ sub _build_new_node_info {
 sub current_mac {
     my ($self) = @_;
     return $self->app->session()->{"client_mac"};
+}
+
+sub _release_args {
+    my ($self) = @_;
+    return {
+        timer         => $Config{'trapping'}{'redirtimer'},
+        destination_url  => $self->app->session->{destination_url} || $self->app->profile->getRedirectURL(),
+        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
+        retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        external_ip => $Config{'captive_portal'}{'network_detection_ip'},
+        auto_redirect => $Config{'captive_portal'}{'network_detection'},
+        image_path => $Config{'captive_portal'}{'image_path'},
+    };
 }
 
 sub execute {

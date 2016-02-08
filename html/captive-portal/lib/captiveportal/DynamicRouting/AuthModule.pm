@@ -94,7 +94,7 @@ sub create_local_account {
     get_logger->info("SESSION : ".Dumper($self->session));
 
     unless($self->session->{fields}->{user_email}){
-        die "Can't create account since there is no user e-mail.";
+        get_logger->error("Can't create account since there is no user e-mail in the session.");
     }
 
     get_logger->debug("External source local account creation is enabled for this source. We proceed");

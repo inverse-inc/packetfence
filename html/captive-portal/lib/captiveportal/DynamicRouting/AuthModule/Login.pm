@@ -21,6 +21,7 @@ use List::MoreUtils qw(all);
 use pf::auth_log;
 use pf::person;
 use pf::Authentication::constants;
+use pf::web::guest;
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -90,6 +91,12 @@ sub authenticate {
         $username = $stripped_username;
     }
 
+    if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
+        $self->prompt_fields();
+        return;
+    }
+
     if(isenabled($self->app->profile->reuseDot1xCredentials)) {
         my $mac       = $self->current_mac;
         my $node_info = node_view($mac);
@@ -106,7 +113,7 @@ sub authenticate {
             $self->session->{source} = pf::authentication::getAuthenticationSource($source_id);
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
-            $self->app->flash->{error} = $message;
+            $self->app->flash->{error} = $self->app->i18n($message);
             $self->prompt_fields();
             return;
         }
