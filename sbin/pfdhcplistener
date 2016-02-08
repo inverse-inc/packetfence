@@ -213,7 +213,7 @@ sub process_pkt {
             # For these reasons, we must peek directly at the data.
             # skip the first 12 bytes of the frame (src + dst eth addr)
             # grab the ether_type field and discard the rest:
-            if ( ($l2->{type} ne ETH_TYPE_IP) || ($l2->{type} ne ETH_TYPE_IPv6) ) {
+            if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
                 $logger->trace("Ignoring packet because we already listen on a VLAN interface");
                 return;
             }
