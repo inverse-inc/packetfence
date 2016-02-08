@@ -66,8 +66,14 @@ sub execute_actions {
 
 sub _build_required_fields {
     my ($self) = @_;
-    return [uniq($self->pid_field, @{$self->required_fields_child}, @{$self->custom_fields})];
+    my @fields;
+    push @fields, $self->pid_field if(defined($self->pid_field));
+    push @fields, (@{$self->required_fields_child}, @{$self->custom_fields});
+    return [uniq(@fields)];
 }
+
+# implement this in childs
+sub required_fields_child {[]}
 
 sub merged_fields {
     my ($self) = @_;

@@ -120,8 +120,7 @@ sub authenticate {
     }
 
     
-    # not sure we should set the portal + source here...
-    person_modify($self->current_mac, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
+    $self->update_person_from_fields();
     $self->username($username);
     $self->done();
 }
