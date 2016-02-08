@@ -13,7 +13,14 @@ And module
 use Moose;
 extends 'captiveportal::DynamicRouting::ModuleManager';
 
-has 'current_module_index' => (is => 'rw', default => sub {0});
+use pf::log;
+
+has 'current_module_index' => (is => 'rw', builder => '_build_current_module_index', lazy => 1);
+
+sub _build_current_module_index {
+    my ($self) = @_;
+    return $self->session->{current_module_index} // 0;
+}
 
 after 'current_module_index' => sub {
     my ($self) = @_;
@@ -23,11 +30,13 @@ after 'current_module_index' => sub {
 sub next {
     my ($self) = @_;
     $self->current_module_index($self->current_module_index + 1);
+    get_logger->debug("Executing module ".$self->current_module_index."/".$self->count_modules);
     if($self->current_module_index >= $self->count_modules){
         $self->done();
     }
     else {
-        $self->execute();
+        $self->current_module($self->get_module($self->current_module_index)->id);
+        $self->app->redirect("/captive-portal");
     }
 }
 

@@ -52,7 +52,7 @@ sub find_module {
 
 sub count_modules {
     my ($self) = @_;
-    return length(keys(%{$self->module_map}));
+    return scalar(@{$self->modules_order});
 }
 
 sub get_module {
@@ -74,7 +74,7 @@ sub add_module {
     $self->module_map->{$module->id} = $module;
 }
 
-augment 'execute_child' => sub {
+sub execute_child {
     my ($self) = @_;
     my $module;
 
