@@ -43,17 +43,19 @@ sub execute_child {
 sub check_release {
     my ($self) = @_;
     unless($self->session->{activation_code}){
-        $self->app->flash->{error} = "Cannot restore activation code from user session.";
+        get_logger->error("Cannot restore activation code from user session.");
         pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
         $self->app->redirect("/signup");
         return;
     }
     my $record = pf::activation::view_by_code($self->session->{activation_code}); 
-    unless($record->{status} eq "verified"){
-        $self->app->response_code(401);
+    if($record->{status} eq "verified"){
+        get_logger->info("Activation record has been validated.");
+        $self->done();
     }
     else {
-        $self->done();
+        get_logger->debug("Activation record has not yet been validated");
+        $self->app->response_code(401);
     }
 }
 
@@ -100,6 +102,7 @@ sub do_sponsor_registration {
 
     $self->session->{activation_code} = $activation_code;
     $self->app->session->{user_email} = $user_email;
+    $self->username($user_email);
 
     $self->update_person_from_fields();
 
