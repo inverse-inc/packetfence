@@ -25,9 +25,9 @@
 #  "coa" list:
 #
 #	update coa {
-#	       User-Name = "%{User-Name}"
-#	       Acct-Session-Id = "%{Acct-Session-Id}"
-#	       NAS-IP-Address = "%{NAS-IP-Address}"
+#	       &User-Name = "%{User-Name}"
+#	       &Acct-Session-Id = "%{Acct-Session-Id}"
+#	       &NAS-IP-Address = "%{NAS-IP-Address}"
 #	}
 #
 #  And the CoA packet will be sent.  You can also send Disconnect
@@ -37,7 +37,7 @@
 #  preacct, etc.), EXCEPT for pre-proxy and post-proxy.  The CoA
 #  packets CANNOT be sent if the original request has been proxied.
 #
-#  The CoA functionality works best when the RADIUS server and 
+#  The CoA functionality works best when the RADIUS server and
 #  the NAS receiving CoA packets are on the same network.
 #
 #  If "update coa { ... " is used, and then later it becomes necessary
@@ -45,7 +45,7 @@
 #  CoA packet:
 #
 #	update control {
-#		Send-CoA-Request = No
+#		&Send-CoA-Request = No
 #	}
 #
 #  The default destination of a CoA packet is the NAS (or client)
@@ -80,14 +80,7 @@
 #  Disconnect packets), an IP address (or IPv6 address), a
 #  destination port, and a shared secret.
 #
-#  This information *cannot* go into a "client" section.  In the future,
-#  FreeRADIUS will be able to receive, and to proxy CoA packets.
-#  Having the CoA configuration as below means that we can later do
-#  load-balancing, fail-over, etc. of CoA servers.  If the CoA
-#  configuration went into a "client" section, it would be impossible
-#  to do proper proxying of CoA requests.
-#
-home_server localhost-coa {
+home_server example-coa {
 	type = coa
 
 	#
@@ -95,7 +88,9 @@ home_server localhost-coa {
 	#  with an ipaddr or ipv6addr.  It CANNOT point to a virtual
 	#  server.
 	#
-	ipaddr = 127.0.0.1
+	#  Change this IP address to the IP address of the NAS.
+	#
+	ipaddr = 192.0.2.42
 	port = 3799
 
 	#  This secret SHOULD NOT be the same as the shared
@@ -118,7 +113,7 @@ home_server_pool coa {
 	type = fail-over
 
 	# Point to the CoA server above.
-	home_server = localhost-coa
+	home_server = example-coa
 
 	#  CoA requests are run through the pre-proxy section.
 	#  CoA responses are run through the post-proxy section.
@@ -142,7 +137,7 @@ home_server_pool coa {
 server originate-coa.example.com {
   pre-proxy {
 	update proxy-request {
-		NAS-IP-Address = 127.0.0.1
+		NAS-IP-Address = 192.0.2.42
 	}
   }
 
@@ -150,7 +145,7 @@ server originate-coa.example.com {
   # Handle the responses here.
   #
   post-proxy {
-	switch "%{proxy-reply:Packet-Type}" {
+	switch &proxy-reply:Packet-Type {
 		case CoA-ACK {
 			ok
 		}
