@@ -59,9 +59,11 @@ sub execute_child {
     }
 }
 
-sub handle_callback {
+sub get_token {
     my ($self) = @_;
+    
     my $code = $self->app->request->parameters->{code};
+    
     my $token;
     eval {
         $token = $self->get_client->get_access_token($code);
@@ -73,16 +75,21 @@ sub handle_callback {
         $self->landing();
         return;
     }
+    return $token;
+}
+
+sub handle_callback {
+    my ($self) = @_;
+
+    my $token = $self->get_token();
+    return unless($token);
 
     # request a JSON response
     my $h = HTTP::Headers->new( 'x-li-format' => 'json' );
     my $response = $token->get($self->source->{'protected_resource_url'}, $h ); 
-    
-    
+
     if ($response->is_success) {
-        my $json      = new JSON;
-        my $info = $json->decode($response->content());
-        
+        my $info = $self->_decode_response($response); 
         my $pid = $self->_extract_username_from_response($info); 
         
         $self->username($pid);
@@ -95,12 +102,19 @@ sub handle_callback {
         $self->done();
     }
     else {
-        get_logger->info("OAuth2: failed to validate the token, redireting to login page");
+        get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
+        get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
         pf::auth_log::change_record_status($self->source->type, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = $self->app->i18n("OAuth2 Error: Failed to validate the token, please retry");
         $self->landing();
         return;
     }
+}
+
+sub _decode_response {
+    my ($self, $response) = @_;
+    my $json = new JSON;
+    return $json->decode($response->content());
 }
 
 sub _extract_username_from_response {

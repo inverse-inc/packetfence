@@ -16,6 +16,7 @@ use LWP;
 use pf::log;
 use Digest::HMAC_SHA1;
 use MIME::Base64;
+use CGI;
 
 extends 'pf::Authentication::Source::OAuthSource';
 
