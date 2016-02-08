@@ -32,6 +32,8 @@ has 'profile' => (is => 'rw', required => 1, isa => "pf::Portal::Profile");
 
 has 'template_output' => (is => 'rw');
 
+has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
+
 sub BUILD {
     my ($self) = @_;
     my $hashed = {};
@@ -130,6 +132,12 @@ sub _render {
     $processor->process("/usr/local/pf/html/captive-portal/new-templates/$template", $args, \$output) || die("Can't generate template $template: ".$processor->error);
 
     return $output;
+}
+
+sub redirect {
+    my ($self, $url, $code) = @_;
+    $self->template_output($url);
+    $self->response_code($code || 301);
 }
 
 sub i18n {

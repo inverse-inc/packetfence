@@ -26,7 +26,10 @@ sub required_fields_child {
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->method eq "POST"){
+    if($self->app->request->path eq "/sponsor/check"){
+        $self->check_release();
+    }
+    elsif($self->app->request->method eq "POST"){
         $self->do_sponsor_registration();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sponsor')){
@@ -34,6 +37,23 @@ sub execute_child {
     }
     else{
         $self->prompt_fields();
+    }
+}
+
+sub check_release {
+    my ($self) = @_;
+    unless($self->session->{activation_code}){
+        $self->app->flash->{error} = "Cannot restore activation code from user session.";
+        pf::activation::invalidate_codes_for_mac($self->current_mac, "sponsor");
+        $self->app->redirect("/signup");
+        return;
+    }
+    my $record = pf::activation::view_by_code($self->session->{activation_code}); 
+    unless($record->{status} eq "verified"){
+        $self->app->response_code(401);
+    }
+    else {
+        $self->done();
     }
 }
 
@@ -54,9 +74,6 @@ sub do_sponsor_registration {
 
     get_logger->info( "Adding guest person " . $pid );
 
-    # set node in pending mode
-    $info{'status'} = $pf::node::STATUS_PENDING;
-
     $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
 
     # fetch more info for the activation email
@@ -68,7 +85,7 @@ sub do_sponsor_registration {
     utf8::decode($info{'subject'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    my ( $auth_return, $err, $errargs_ref ) =
+    my ( $auth_return, $err, $activation_code ) =
       pf::activation::create_and_send_activation_code(
         $self->current_mac,
         $pid,
@@ -81,6 +98,7 @@ sub do_sponsor_registration {
     
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
+    $self->session->{activation_code} = $activation_code;
     $self->app->session->{user_email} = $user_email;
 
     $self->update_person_from_fields();

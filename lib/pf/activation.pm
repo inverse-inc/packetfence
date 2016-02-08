@@ -508,7 +508,7 @@ sub create_and_send_activation_code {
       }
     }
 
-    return ($success, $err);
+    return ($success, $err, $activation_code);
 }
 
 # returns the validated activation record hashref or undef

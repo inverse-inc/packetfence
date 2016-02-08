@@ -4,20 +4,23 @@ var txt_web_notification = "[% i18n("Network access has been granted") %]"
 
 // once the page is loaded
 $(document).ready(function() {
-  setTimeout(function() {
-    detectNetworkAccess([% retry_delay %], "[% destination_url %]", "[% external_ip %]", "[% image_path %]");
-  }, [% initial_delay %] * 1000);
+    setInterval(function(){
+      $.ajax({
+        url : '/sponsor/check',
+        method : 'POST',
+      }).done(function(){
+        window.location = "/signup";
+      });
+    }, 5000)
 });
 </script>
 
-        <div id="about">
-          <img src="/content/images/lock.png" alt="You are not authorized" />
-          <h1>[% i18n("Registration pending.") %]</h1>
-          <p>[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
-          <p id="browser_notes"></p>
-          <noscript><p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p></noscript>
-        </div>
+<div id="about">
+  <img src="/content/images/lock.png" alt="You are not authorized" />
+  <h1>[% i18n("Registration pending.") %]</h1>
+  <p>[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
+  <p id="browser_notes"></p>
+  <noscript><p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p></noscript>
+</div>
 
-[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
-<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
 

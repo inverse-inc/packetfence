@@ -46,7 +46,13 @@ my $app = sub {
     $application->execute();
 
 
-    $res->body($application->template_output);
+    if($application->response_code =~ /^(301|302)$/){
+        $res->redirect($application->template_output, $application->response_code);
+    }
+    else {
+        $res->body($application->template_output);
+        $res->status($application->response_code);
+    }
     $res->finalize;
 }; 
 
