@@ -292,58 +292,11 @@ sub doSponsorRegistration : Private {
 
         my ( %info, $template );
 
-        # Guest on-site sponsor registration
-        # If MAC is defined, it's a guest already here that we need to register
-        if ( defined($node_mac) ) {
-            my $node_info = node_attributes($node_mac);
-            $pid = $node_info->{'pid'};
-            if ( !defined($node_info) || ref($node_info) ne 'HASH' ) {
-
-                $logger->warn(
-                    "Problem finding more information about a MAC address ($node_mac) to enable guest access"
-                );
-                $self->showError($c,
-                    "There was a problem trying to find the computer to register. The problem has been logged."
-                );
-            }
-            if ( $node_info->{'status'} eq $pf::node::STATUS_REGISTERED ) {
-
-                    $logger->warn(
-                        "node mac: $node_mac has already been registered.");
-                    $self->showError($c,
-                        ["The device with MAC address %s has already been authorized to your network.",
-                        $node_mac]
-                    );
-            }
-
-            # register the node
-            %info = %{$node_info};
-
-            $c->session->{'unregdate'} = $info{'unregdate'};
-
-            pf::auth_log::record_completed_guest($source->id, $node_mac, $pf::auth_log::COMPLETED);
-
-            $c->session->{"username"} = $pid;
-            $c->session->{source_id} = $source->{id};
-            $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info;
-            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
-            $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
-
-            # We send email to the guest confirming that network access has been enabled
-            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
-            $info{'email'} = $info{'pid'};
-            $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
-            pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
-        }
-
-        # Guest off-site sponsor registration
-        # If pid is set in activation record then we are activating a guest who pre-registered
-        elsif ( defined( $activation_record->{'pid'} ) ) {
+        if ( defined( $activation_record->{'pid'} ) ) {
             $pid = $activation_record->{'pid'};
 
             # populating variables used to send email
-            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
             $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
 
             # TO:
