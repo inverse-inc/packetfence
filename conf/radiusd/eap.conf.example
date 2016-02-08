@@ -738,7 +738,7 @@ eap {
 		#
 		#  This will cache attributes for the final Access-Accept.
 		#
-		use_tunneled_reply = no
+		use_tunneled_reply = yes
 
 		#  When the tunneled session is proxied, the
 		#  home server may not understand EAP-MSCHAP-V2.

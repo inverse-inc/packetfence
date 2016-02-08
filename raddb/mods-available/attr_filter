@@ -48,3 +48,13 @@ attr_filter attr_filter.accounting_response {
 	key = "%{User-Name}"
 	filename = ${modconfdir}/${.:name}/accounting_response
 }
+
+# Delete all PacketFence specific attributes from the reply
+#
+attr_filter attr_filter.packetfence_post_auth { 
+	key = "%{User-Name}"
+    # relaxed means that we allow attributes that do not match the filters
+    # otherwise they would be filtered out.
+    relaxed = yes
+	filename = ${modconfdir}/${.:name}/packetfence-post-auth
+}

@@ -29,12 +29,6 @@ authorize {
 	#
 	filter_username
 
-	#
-	#  Do checks on outer / inner User-Name, so that users
-	#  can't spoof us by using incompatible identities
-	#
-	filter_inner_identity
-
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -233,10 +227,6 @@ post-auth {
 	#
     #packetfence
     rest
-    # Tell the outer "post-auth" block not to send to packetfence again
-    update { 
-       &outer.session-state:PacketFence-Handled := "true"
-    } 
         
 	#  After authenticating the user, do another SQL query.
 	#

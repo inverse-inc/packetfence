@@ -1,3 +1,6 @@
+# This file is generated from a template at /usr/local/pf/conf/radiusd/rest.conf
+# Any changes made to this file will be lost on restart
+
 rest {
 	#
 	#  This subsection configures the tls related items
@@ -36,7 +39,9 @@ rest {
 	#
 	# If you wish to disable this pre-caching and reachability check,
 	# comment out the configuration item below.
-	connect_uri = "http://127.0.0.1:7070/authorize/"
+	connect_uri = "http://127.0.0.1:7070/"
+    # uncomment the following line if you are using http authentication to the rest service
+	#connect_uri = "http://'':''@127.0.0.1:7070/authorize/"
 
 	#
 	#  How long before new connection attempts timeout, defaults to 4.0 seconds.
@@ -161,8 +166,9 @@ rest {
 		tls = ${..tls}
 	}
 	post-auth {
-		uri = "${..connect_uri}/user/%{User-Name}/mac/%{Called-Station-ID}?action=post-auth"
+		uri = "${..connect_uri}/radius/rest/authorize"
 		method = 'post'
+        body = 'json'
 		tls = ${..tls}
 	}
 
