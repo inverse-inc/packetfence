@@ -1514,7 +1514,8 @@ Web auth requires at least MAC Authentication Bypass to be activated on the swit
 
 PacketFence switch configuration:
 
-* Select the type to 'Cisco Catalyst 2960 with Web Auth'
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If undefine then it will use the role name)
 * Set Role by Url for registration to 'http://<your_captive_portal_ip>'
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
