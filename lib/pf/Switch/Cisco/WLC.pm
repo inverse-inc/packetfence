@@ -430,6 +430,13 @@ sub returnRadiusAccessAccept {
             });
             pf::locationlog::locationlog_set_session($mac, $session_id);
             my $redirect_url = $self->getUrlByName($args->{'user_role'})."/cep$session_id";
+            #override role if a role in role map is define
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
             $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
             push @av_pairs, "url-redirect-acl=".$args->{'user_role'};
             push @av_pairs, "url-redirect=".$redirect_url;
