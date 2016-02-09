@@ -662,7 +662,7 @@ sub shouldAutoRegister {
     }
     my $role = $self->filterVlan('AutoRegister',$args);
     if ($role) {
-        if ($args->{'switch'}->getVlanByName($role) eq -1) {
+        if (defined($args->{'switch'}->getVlanByName($role)) && $args->{'switch'}->getVlanByName($role) eq -1) {
             return 0;
         } else {
             return $role;
