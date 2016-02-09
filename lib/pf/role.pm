@@ -644,9 +644,10 @@ sub shouldAutoRegister {
     my $logger = $self->logger;
 
     $logger->trace("[$args->{'mac'}] asked if should auto-register device");
+    my $switch = $args->{'switch'};
 
     # handling switch-config first because I think it's the most important to honor
-    if (defined($args->{'switch'}->{switch_in_autoreg_mode}) && $args->{'switch'}->{switch_in_autoreg_mode}) {
+    if (defined($switch->{switch_in_autoreg_mode}) && $switch->{switch_in_autoreg_mode}) {
         $logger->trace("returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
         return 1;
 
@@ -662,7 +663,8 @@ sub shouldAutoRegister {
     }
     my $role = $self->filterVlan('AutoRegister',$args);
     if ($role) {
-        if (defined($args->{'switch'}->getVlanByName($role)) && $args->{'switch'}->getVlanByName($role) eq -1) {
+        my $vlan = $switch->getVlanByName($role);
+        if (defined($vlan) && $vlan eq -1) {
             return 0;
         } else {
             return $role;
