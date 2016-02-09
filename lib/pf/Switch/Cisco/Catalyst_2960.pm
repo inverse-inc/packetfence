@@ -402,7 +402,6 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip(),
-            nas_port => '3799',
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
@@ -423,26 +422,7 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-
-        # Roles are configured and the user should have one.
-        # We send a regular disconnect if there is an open trapping violation
-        # to ensure the VLAN is actually changed to the isolation VLAN.
-        if (  defined($role) &&
-            ( violation_count_reevaluate_access($mac) == 0 )  &&
-            ( $node_info->{'status'} eq 'reg' )
-           ) {
-
-            $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
-        }
-        else {
-            $connection_info = {
-                nas_ip => $send_disconnect_to,
-                secret => $self->{'_radiusSecret'},
-                LocalAddr => $self->deauth_source_ip(),
-                nas_port => '3799',
-            };
-            $response = perform_disconnect($connection_info, $attributes_ref);
-        }
+        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
