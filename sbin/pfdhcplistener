@@ -183,20 +183,6 @@ sub process_pkt {
     if ($process || !$pf::cluster::cluster_enabled){
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
-            my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
-            my $l4 = NetPacket::UDP->decode($l3->{'data'});
-            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
-            my %args = (
-                src_mac => clean_mac($l2->{'src_mac'}),
-                dest_mac => clean_mac($l2->{'dest_mac'}),
-                src_ip => $l3->{'src_ip'},
-                dest_ip => $l3->{'dest_ip'},
-                is_inline_vlan => $is_inline_vlan,
-                interface => $interface,
-                interface_ip => $interface_ip,
-                interface_vlan => $interface_vlan,
-                net_type => $net_type,
-            );
 
             # Skip frames that aren't ETH_TYPE_IP to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
@@ -214,9 +200,24 @@ sub process_pkt {
             # skip the first 12 bytes of the frame (src + dst eth addr)
             # grab the ether_type field and discard the rest:
             if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
-                $logger->trace("Ignoring packet because we already listen on a VLAN interface");
+                $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame since it is probably addressed to another interface (offload decapsulated tagged packet)");
                 return;
             }
+
+            my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
+            my $l4 = NetPacket::UDP->decode($l3->{'data'});
+            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
+            my %args = (
+                src_mac => clean_mac($l2->{'src_mac'}),
+                dest_mac => clean_mac($l2->{'dest_mac'}),
+                src_ip => $l3->{'src_ip'},
+                dest_ip => $l3->{'dest_ip'},
+                is_inline_vlan => $is_inline_vlan,
+                interface => $interface,
+                interface_ip => $interface_ip,
+                interface_vlan => $interface_vlan,
+                net_type => $net_type,
+            );
 
             my $statsd_interface = $interface;
             $statsd_interface =~ s/\./_/g;
