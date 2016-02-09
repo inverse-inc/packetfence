@@ -1,17 +1,35 @@
-package captiveportal::Controller::Billing;
-use Moose;
-
-BEGIN { extends 'captiveportal::PacketFence::Controller::Billing'; }
+package captiveportal::DynamicRouting::Routed;
 
 =head1 NAME
 
-captiveportal::Controller::Billing - Billing Controller for captiveportal
+captiveportal::DynamicRouting::Routed
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Routing role to apply on a module
 
 =cut
+
+use Moose::Role;
+use pf::log;
+
+has 'route_map' => (is => 'rw', default => sub{ {} });
+
+around 'execute_child' => sub {
+    my $orig = shift;
+    my $self = shift;
+
+    foreach my $regex (keys %{$self->route_map}){
+        my $path = '/'.$self->app->request->path();
+        get_logger->debug("Checking if $path matches $regex");
+        if($path =~ /^$regex$/){
+            get_logger->debug("Found a route match : $regex");
+            $self->route_map->{$regex}->($self);
+            return;
+        }
+    }
+    $self->$orig();
+};
 
 =head1 AUTHOR
 
@@ -40,6 +58,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+

@@ -47,10 +47,10 @@ sub landing {
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->path eq "/oauth2/callback"){
+    if($self->app->request->path eq "oauth2/callback"){
         $self->handle_callback();
     }
-    elsif($self->app->request->path eq "/oauth2/go"){
+    elsif($self->app->request->path eq "oauth2/go"){
         pf::auth_log::record_oauth_attempt($self->source->type, $self->current_mac);
         $self->app->redirect($self->get_client->authorize);
     }

@@ -13,6 +13,7 @@ Login registration
 use Moose;
 extends 'captiveportal::DynamicRouting::AuthModule';
 with 'captiveportal::DynamicRouting::FieldValidation';
+with 'captiveportal::DynamicRouting::MultiSource';
 
 use pf::util;
 use pf::log;
@@ -24,42 +25,6 @@ use pf::Authentication::constants;
 use pf::web::guest;
 
 has '+pid_field' => (default => sub { "username" });
-
-has '+source_id' => (trigger => \&_build_sources );
-
-has 'sources' => (is => 'rw', default => sub {[]});
-
-around 'source' => sub {
-    my ($orig, $self, $source) = @_;
-
-    # We don't modify the setting behavior
-    if($source){
-        $self->$orig($source);
-    }
-
-    # If the source is set in the session we use it.
-    if($self->session->{source}){
-        return $self->session->{source};
-    }
-    else {
-        $self->$orig();
-    }
-};
-
-sub _build_sources {
-    my ($self, $source_id, $previous) = @_; 
-    my @sources;
-    if($source_id eq "_PROFILE_SOURCES_"){
-        @sources = ($self->app->profile->getInternalSources, $self->app->profile->getExclusiveSources);
-    }
-    else {
-        my @source_ids = split(/\s*,\s*/, $source_id);
-        @sources = map { pf::authentication::getAuthenticationSource($_) } @source_ids;
-    }
-    
-    get_logger->debug(sub { use Data::Dumper ; "Module ".$self->id." is using sources : ".Dumper(\@sources) });
-    $self->sources(\@sources);
-}
 
 sub required_fields_child {
     return ["username", "password"];

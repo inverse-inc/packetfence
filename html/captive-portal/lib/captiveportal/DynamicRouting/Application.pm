@@ -115,8 +115,9 @@ sub _render {
 #    get_logger->trace(sub { use Data::Dumper ; "Rendering template $template with args : ".Dumper($args)});
     
     our $TT_OPTIONS = {
-        ABSOLUTE => 1, 
         AUTO_FILTER => 'html',
+        RELATIVE => 1,
+        INCLUDE_PATH => "/usr/local/pf/html/captive-portal/new-templates",
     };
 
     use Template::Stash;
@@ -129,7 +130,7 @@ sub _render {
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';
-    $processor->process("/usr/local/pf/html/captive-portal/new-templates/$template", $args, \$output) || die("Can't generate template $template: ".$processor->error);
+    $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error);
 
     return $output;
 }

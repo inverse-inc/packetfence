@@ -1,23 +1,19 @@
-[% title = i18n("PacketFence Registration System") %]
 
-[%# WELCOME TEXT %]
-<div id="about">
-    <img src="/content/images/registration.png" alt="Registration" />
-    <h1>[% i18n("Guest Registration") %]</h1>
-    <p>[% i18n("guest network disclaimer") %]</p>
-    <hr/>
-</div>
-    [%# ERROR %]
-    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
 
 <form id="billing_form" name="billing" method="post" action="/billing/confirm">
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
+  
+  [% FOREACH field IN fields.keys %]
+  <div class="field">
+    [% form.get_field(field).render | none %]
+  </div>
+  [% END %]
 
-  [% IF profile.billing_tiers.size %]
+  [% IF billing_tiers.size %]
   [%# TIERS CHOICE %]
-  <div class="input">
-    <span>[% i18n("Internet Access Package") %]</span>
-    [% FOREACH tier IN profile.billing_tiers %]
+  <h4>[% i18n("Internet Access Package") %]</h4>
+  <div>
+    [% FOREACH tier IN billing_tiers %]
     <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
               value="[% i18n(tier.id) | html %]"/>
     <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>

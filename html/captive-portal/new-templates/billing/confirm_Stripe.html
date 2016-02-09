@@ -1,0 +1,62 @@
+
+[% INCLUDE 'billing/tier.html' %]
+<hr>
+
+<form action="/billing/verify" method="POST" id="payment-form">
+  <div class="error"><p id="payment-errors"></p></div>
+
+  <div class="input">
+    <span>Name</span>
+    <input class="field" type="text" size="20" data-stripe="name" />
+  </div>
+
+  <div class="input">
+    <span>Card Number</span>
+    <input class="field" type="text" size="20" data-stripe="number"/>
+  </div>
+
+  <div class="input">
+    <span>CVC</span>
+    <input class="field" type="text" size="4" data-stripe="cvc"/>
+  </div>
+
+  <div class="input">
+    <span>Expiration (MM/YYYY)</span>
+    <input type="text" size="2" data-stripe="exp-month"/>
+    /
+    <input type="text" size="4" data-stripe="exp-year"/>
+  </div>
+  <input type="hidden" name="stripeToken" value=""/>
+
+  <div class="input">
+    <button class="btn" type="submit">Submit Payment</button>
+  </div>
+</form>
+
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+
+<script type="text/javascript">
+  // This identifies your website in the createToken call below
+    function stripeResponseHandler(status, response) {
+        if(response.error) {
+            $('#payment-errors').html(response.error.message);
+        }
+        else {
+            var token = response.id;
+            var form = $('#payment-form input[name="stripeToken"]').val(token);
+            $('#payment-form')[0].submit();
+        }
+    };
+    if(typeof Stripe !== 'undefined' ) {
+        Stripe.setPublishableKey('[% billing.publishable_key %]');
+        $('#payment-form').submit(function(e) {
+            Stripe.card.createToken(this, stripeResponseHandler);
+            return false;
+        });
+    }
+    else {
+        $('#payment-errors').html('Unable to proceed with payment please contact your service provider');
+    }
+      // ...
+</script>
+

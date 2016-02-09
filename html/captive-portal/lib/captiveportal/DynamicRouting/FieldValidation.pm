@@ -16,7 +16,7 @@ around 'execute_child' => sub {
     my $orig = shift;
     my $self = shift;
 
-    if($self->app->request->method eq "POST" && $self->app->request->path eq "/signup"){
+    if($self->app->request->method eq "POST" && $self->app->request->path eq "signup"){
         if($self->handle_posted_fields()){
             return $self->$orig(@_);  
         }
@@ -38,21 +38,25 @@ sub validate_required_fields {
     return \@errors;
 }
 
-sub handle_posted_fields {
+sub validate_form {
     my ($self) = @_;
+
     my $errors = $self->validate_required_fields();
     if(@$errors){
         $self->app->flash->{error} = "The following errors prevented the request to be fulfilled : ".join(', ', @$errors);
-        $self->prompt_fields();
         return 0;
     }
     my $form = $self->form($self->request_fields);
     if($form->has_errors){
         $self->app->flash->{error} = "An error occured while processing the request.";
-        $self->prompt_fields();
         return 0;
     }
     return 1;
+}
+
+sub handle_posted_fields {
+    my ($self) = @_;
+    $self->prompt_fields unless($self->validate_form());
 }
 
 

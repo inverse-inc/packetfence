@@ -6,7 +6,6 @@
 
   [% FOREACH field IN fields.keys %]
   <div class="field">
-    <!--    <input type="text" name="fields[[% field %]]" value="[% previous_request.$field %]"> -->
     [% form.get_field(field).render | none %]
   </div>
   [% END %]

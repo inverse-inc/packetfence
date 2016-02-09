@@ -36,10 +36,8 @@ Catalyst Controller.
 sub begin : Private {
     my ($self, $c) = @_;
     unless( $c->profile->getBillingSources() ) {
-        $c->response->redirect("/captive-portal?destination_url=".uri_escape($c->portalSession->profile->getRedirectURL));
-        $c->detach;
+        $self->showError("Couldn't find any billing source");
     }
-    $c->forward(CaptivePortal => 'validateMac');
 }
 
 =head2 source
@@ -241,37 +239,38 @@ sub processTransaction : Private {
     my $pid  = $session->{'email'} || $default_pid;
     my $billing = $c->stash->{billing};
 
-    # Grab additional infos about the node
-    my %info;
+    my $application = $c->stash->{application};
+
+    my $info = $application->root_module->new_node_info();
     my $access_duration = normalize_time($tier->{'access_duration'});
-    $info{'pid'}      = $pid;
-    $info{'category'} = $tier->{'role'};
-    $info{'unregdate'} =
+    # we set it in the root_module in case we can't find the billing module due to a session error.
+    $application->root_module->username($pid);
+
+    $info->{'category'} = $tier->{'role'};
+    $info->{'unregdate'} =
       POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
     if (isenabled($tier->{'use_time_balance'})) {
-        $info{'time_balance'} =
+        $info->{'time_balance'} =
           normalize_time($tier->{'access_duration'});
 
         # Check if node has some access time left; if so, add it to the new duration
         my $node = node_view($mac);
         if ($node && $node->{'time_balance'} > 0) {
             if ($node->{'last_start_timestamp'} > 0) {
-
                 # Node is active; compute the actual access time left
                 my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
                 my $now        = time;
                 if ($expiration > $now) {
-                    $info{'time_balance'} += ($expiration - $now);
+                    $info->{'time_balance'} += ($expiration - $now);
                 }
             }
             else {
-
                 # Node is inactive; add the remaining access time to the purchased access time
-                $info{'time_balance'} += $node->{'time_balance'};
+                $info->{'time_balance'} += $node->{'time_balance'};
             }
         }
-        $logger->info("Usage duration for $mac is now " . $info{'time_balance'});
+        $logger->info("Usage duration for $mac is now " . $info->{'time_balance'});
     }
 
     # Close violations that use the 'Accounting::BandwidthExpired' trigger
@@ -280,9 +279,14 @@ sub processTransaction : Private {
         violation_force_close($mac, $vid);
     }
 
-    # Register the node and release it
-    $c->forward('CaptivePortal' => 'webNodeRegister', [$info{pid}, %info]);
-    $c->forward('CaptivePortal' => 'endPortalSession');
+    my $module = $captiveportal::DynamicRouting::Factory::INSTANTIATED_MODULES{$application->{billing_module_id}};
+    if($module) {
+        $module->done();
+    }
+    else {
+        node_modify($mac, %{$application->root_module->new_node_info});
+        $self->showError("Could not find billing module in your session. Your level of access has been recorded. Please contact your local support staff");
+    }
 }
 
 

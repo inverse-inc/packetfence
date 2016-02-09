@@ -202,6 +202,7 @@ sub charge {
 
 sub verify {
     my ($self, $session, $params, $uri) = @_;
+    use Data::Dumper; get_logger->debug(Dumper($params));
     my $token = $params->{stripeToken};
     die "No Token found" unless defined $token;
     my $style = $self->style;

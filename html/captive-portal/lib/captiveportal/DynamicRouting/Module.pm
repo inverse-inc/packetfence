@@ -24,9 +24,14 @@ has app => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Ap
 
 has parent => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting::Module');
 
-has username => (is => 'rw');
+has username => (is => 'rw', builder => '_build_username', lazy => 1);
 
 has renderer => (is => 'rw');
+
+sub _build_username {
+    my ($self) = @_;
+    return $self->app->session->{username};
+}
 
 after 'username' => sub {
     my ($self) = @_;

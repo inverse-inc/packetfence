@@ -26,7 +26,7 @@ sub required_fields_child {
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->path eq "/sponsor/check"){
+    if($self->app->request->path eq "sponsor/check"){
         $self->check_release();
     }
     elsif($self->app->request->method eq "POST"){

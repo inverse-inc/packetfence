@@ -129,6 +129,7 @@ sub dynamic_application :Private {
         $c->response->body($application->template_output);
         $c->response->status($application->response_code);
     }
+    $c->detach;
 }
 
 =head2 setupCommonStash
