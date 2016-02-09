@@ -38,7 +38,7 @@ use pf::Authentication::constants;
 
 sub form {
     my ($self) = @_;
-    my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters()->as_hashref() : {};
+    my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters() : {};
     my $i18n = captiveportal::DynamicRouting::I18N->new;
     my $form = captiveportal::DynamicRouting::Form::Authentication->new(language_handle => $i18n);
     $form->process(params => $params);

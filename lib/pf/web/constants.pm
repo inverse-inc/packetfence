@@ -58,23 +58,12 @@ tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 =cut
 
 # normal flow
-Readonly::Scalar our $URL_ACCESS                => '/access';
-Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
-Readonly::Scalar our $URL_AUP                   => '/aup';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
 Readonly::Scalar our $URL_WISPR                 => '/wispr';
-Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
-Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
-Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
-Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
-Readonly::Scalar our $URL_OAUTH2_LINKEDIN       => '/oauth2/linkedin';
-Readonly::Scalar our $URL_OAUTH2_WIN_LIVE       => '/oauth2/windowslive';
-Readonly::Scalar our $URL_OAUTH2_TWITTER        => '/oauth2/twitter';
-Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
-Readonly::Scalar our $URL_RELEASE               => '/release';
+Readonly::Scalar our $URL_OAUTH2                => '/oauth2/(.+)';
 Readonly::Scalar our $URL_STATUS                => '/status';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';

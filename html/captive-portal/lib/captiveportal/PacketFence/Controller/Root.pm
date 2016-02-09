@@ -20,6 +20,9 @@ use POSIX;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
+use Plack::Request;
+use captiveportal::DynamicRouting::Factory;
+use captiveportal::DynamicRouting::Application;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -47,8 +50,49 @@ sub auto : Private {
     my ( $self, $c ) = @_;
     $c->forward('setupCommonStash');
     $c->forward('setupLanguage');
+    
+    my $request = $c->request;
+    my $profile = $c->portalSession->profile;
+    my $application = captiveportal::DynamicRouting::Application->new(
+        session => $c->session, 
+        profile => $profile, 
+        request => $request, 
+        root_module_id => "root_module"
+    );
+    $application->session->{client_mac} = $c->portalSession->clientMac;
+    $application->session->{client_ip} = $c->portalSession->clientIp;
+    my $factory = captiveportal::DynamicRouting::Factory->new();
+    $factory->build_application($application);
+
+    $c->stash(application => $application);
     return 1;
 }
+
+# MOVE ME IN APPLICATION
+sub _build_destinationUrl {
+    my ($self) = @_;
+    my $url = $self->_destination_url;
+
+    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
+        return $self->profile->getRedirectURL;
+    }
+
+    my $host = URI::URL->new($url)->host();
+
+    get_logger->debug("Destination URL host is : $host");
+
+    my @portal_hosts = portal_hosts();
+    # if the destination URL points to the portal, we put the default URL of the portal profile
+    if ( any { $_ eq $host } @portal_hosts) {
+        get_logger->info("Replacing destination URL since it points to the captive portal");
+        return $self->profile->getRedirectURL;
+    }
+
+    # Respect the user's initial destination URL
+    return decode_entities(uri_unescape($url));
+}
+
 
 =head2 index
 
@@ -58,19 +102,33 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->response->redirect('captive-portal');
+    $c->forward('dynamic_application');
 }
 
 
+=head2 default
+
+We send everything we don't know about inside the dynamic application
+
+=cut
+
 sub default : Path {
     my ( $self, $c ) = @_;
-    my $request  = $c->request;
-    my $r = $request->{'env'}->{'psgi.input'};
-    if ($r->can('pnotes') && $r->pnotes('last_uri') ) {
-        $c->forward(CaptivePortal => 'index');
+    $c->forward('dynamic_application');
+}
+
+sub dynamic_application :Private {
+    my ($self, $c) = @_;
+    my $application = $c->stash->{application};
+    $application->execute();
+
+    if($application->response_code =~ /^(301|302)$/){
+        $c->response->redirect($application->template_output, $application->response_code);
     }
-    $c->response->body('Page not found');
-    $c->response->status(404);
+    else {
+        $c->response->body($application->template_output);
+        $c->response->status($application->response_code);
+    }
 }
 
 =head2 setupCommonStash
@@ -83,7 +141,6 @@ sub setupCommonStash : Private {
     my ( $self, $c ) = @_;
     my $logger = $c->log();
     my $portalSession   = $c->portalSession;
-    my $destination_url = $portalSession->destinationUrl;
 
     if (defined( $portalSession->clientMac ) ) {
         my $node_info = node_view($portalSession->clientMac);
@@ -97,7 +154,6 @@ sub setupCommonStash : Private {
     }
     $c->stash(
         pf::web::constants::to_hash(),
-        destination_url => encode_entities($destination_url),
         logo            => $c->profile->getLogo,
     );
     $c->stash(
