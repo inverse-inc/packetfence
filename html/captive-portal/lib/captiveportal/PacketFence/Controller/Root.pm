@@ -65,35 +65,11 @@ sub auto : Private {
     $factory->build_application($application);
 
     $application->process_user_agent();
+    $application->process_destination_url();
     $application->process_fingerbank();
 
     $c->stash(application => $application);
     return 1;
-}
-
-# MOVE ME IN APPLICATION
-sub _build_destinationUrl {
-    my ($self) = @_;
-    my $url = $self->_destination_url;
-
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
-        return $self->profile->getRedirectURL;
-    }
-
-    my $host = URI::URL->new($url)->host();
-
-    get_logger->debug("Destination URL host is : $host");
-
-    my @portal_hosts = portal_hosts();
-    # if the destination URL points to the portal, we put the default URL of the portal profile
-    if ( any { $_ eq $host } @portal_hosts) {
-        get_logger->info("Replacing destination URL since it points to the captive portal");
-        return $self->profile->getRedirectURL;
-    }
-
-    # Respect the user's initial destination URL
-    return decode_entities(uri_unescape($url));
 }
 
 

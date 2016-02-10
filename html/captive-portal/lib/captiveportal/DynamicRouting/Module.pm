@@ -69,7 +69,7 @@ sub _release_args {
     my ($self) = @_;
     return {
         timer         => $Config{'trapping'}{'redirtimer'},
-        destination_url  => $self->app->session->{destination_url} || $self->app->profile->getRedirectURL(),
+        destination_url  => $self->app->session->{destination_url},
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay   => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},

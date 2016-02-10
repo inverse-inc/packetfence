@@ -20,6 +20,11 @@ use Locale::gettext qw(gettext ngettext);
 use captiveportal::DynamicRouting::I18N;
 use pf::node;
 use pf::useragent;
+use pf::util;
+use pf::config::util;
+use List::MoreUtils qw(any);
+use URI::Escape::XS qw(uri_unescape);
+use HTML::Entities;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -154,6 +159,31 @@ sub execute {
     $self->root_module->execute();
 }
 
+sub process_destination_url {
+    my ($self) = @_;
+    my $url = $self->request->parameters->{destination_url} || $self->session->{destination_url};
+
+    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
+        $url = $self->profile->getRedirectURL;
+    }
+
+    my $host = URI::URL->new($url)->host();
+
+    my @portal_hosts = portal_hosts();
+    # if the destination URL points to the portal, we put the default URL of the portal profile
+    if ( any { $_ eq $host } @portal_hosts) {
+        get_logger->info("Replacing destination URL since it points to the captive portal");
+        return $self->profile->getRedirectURL;
+    }
+
+    $url = decode_entities(uri_unescape($url));
+    $self->session->{destination_url} = $url;
+
+    get_logger->debug("Destination is : ".$self->session->{destination_url});
+}
+
+
 sub render {
     my ($self, $template, $args) = @_;
 
@@ -254,8 +284,9 @@ sub flash {
 
 sub reset_session {
     my ($self) = @_;
+    my @ignore = qw(flash destination_url);
     foreach my $key (keys %{$self->session}){
-        next if($key eq "flash");
+        next if(any { $key eq $_ } @ignore);
         delete $self->session->{$key};
     }
 }
