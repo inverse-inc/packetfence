@@ -91,6 +91,12 @@ sub parseTrap {
     {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
+    } elsif ( $trapString
+        =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.([0-9]+) = INTEGER: [a-z]+(\([0-9]+\))/
+        )
+    {
+        $trapHashRef->{'trapType'} = ( ( $2 == 2 ) ? "down" : "up" );
+        $trapHashRef->{'trapIfIndex'} = $1;
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
