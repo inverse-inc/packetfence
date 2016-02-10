@@ -462,7 +462,7 @@ sub update_node_online_stats {
     if (defined $number) {
         $pf::StatsD::statsd->gauge("nodes.online", $number, 1);
     } else {
-        get_logger->error("Error update online nodes count");
+        get_logger->error("Error updating online nodes count");
     }
 }
 
