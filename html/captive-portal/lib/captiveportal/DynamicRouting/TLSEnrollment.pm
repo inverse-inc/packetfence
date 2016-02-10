@@ -87,7 +87,10 @@ Process order of the TLSProfile controller
 sub cert_process {
     my ($self) = @_;
     my $logger = get_logger;
-    $self->process_form();
+    unless($self->process_form()) {
+        $self->prompt_info();
+        return;
+    }
     unless($self->prepare_profile()){
         $self->app->error("Problem while preparing the TLS profile");
         return;
@@ -110,9 +113,8 @@ sub process_form  {
     my $pki_provider = $self->pki_provider;
 
     if(!defined $passwd || $passwd eq '') {
-        $self->flash->{error} = "No Password given";
-        $self->prompt_info();
-        return;
+        $self->app->flash->{error} = "No Password given";
+        return $FALSE;
     }
 
     my $certificate_email;
@@ -123,9 +125,8 @@ sub process_form  {
         $certificate_email = $self->app->request->param('certificate_email');
     }
     else {
-        $self->flash->{error} = "No e-mail given";
-        $self->prompt_info();
-        return;
+        $self->app->flash->{error} = "No e-mail given";
+        return $FALSE;
     }
 
     my $node_info = node_view($mac);
@@ -138,6 +139,8 @@ sub process_form  {
         certificate_pwd   => $passwd,
     };
     $user_cache->set("pki_session" => $pki_session);
+    
+    return $TRUE;
 }
 
 =head2 get_bundle

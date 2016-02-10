@@ -122,11 +122,7 @@ Returns the user/mac specific cache
 
 sub user_cache {
     my ($c) = @_;
-    return CHI->new(
-        driver     => 'SubNamespace',
-        chi_object => pf::CHI->new(namespace => 'httpd.portal'),
-        namespace  => $c->portalSession->clientMac
-    );
+    return $c->stash->{application}->user_cache;
 }
 
 has portalSession => (

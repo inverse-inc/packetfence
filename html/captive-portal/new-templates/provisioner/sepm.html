@@ -1,0 +1,27 @@
+<h3>[% i18n("To complete your network activation you need to install the Symantec Endpoint Manager") %]</h3>
+<p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
+<a id="primary_download" href="[% provisioner.agent_download_uri %]">[% i18n("Click here to download") %]</a>
+
+[% IF provisioner.alt_agent_download_uri %]
+<h5>If you find the program above not working you can try this one : </h5>
+<a id="alternate_download" href="[% provisioner.alt_agent_download_uri %]">[% i18n("Alternate installer") %]</a>
+
+<!-- MOVE THIS SOMEWHERE ELSE ??? -->
+<script> 
+    // check if windows 64 bits
+    // swap the primary and alternate
+    if (navigator.userAgent.indexOf("WOW64") != -1 || 
+        navigator.userAgent.indexOf("Win64") != -1 ){
+        var new_primary = $('alternate_download').getAttribute("href");
+        if(new_primary != ""){
+            $('alternate_download').setAttribute('href', $('primary_download').getAttribute('href'));
+            $('primary_download').setAttribute('href', new_primary);
+        }
+    }
+</script>
+
+[% END %]
+
+<br/>
+<a href="/captive-portal">[% i18n("Continue") %]</a>
+
