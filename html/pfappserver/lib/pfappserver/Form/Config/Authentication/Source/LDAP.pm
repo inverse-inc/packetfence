@@ -121,7 +121,7 @@ has_field 'email_attribute' => (
     default => pf::Authentication::Source::LDAPSource->meta->get_attribute('email_attribute')->default,
     tags => {
         after_element => \&help,
-        help => 'LDAP attribute name that store the email address against which the filter will match.',
+        help => 'LDAP attribute name that stores the email address against which the filter will match.',
     },
 );
 
