@@ -151,8 +151,6 @@ sub current_module_id {
 
 sub execute {
     my ($self) = @_;
-    $self->process_user_agent();
-    $self->process_fingerbank();
     $self->root_module->execute();
 }
 
