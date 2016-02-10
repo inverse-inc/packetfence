@@ -64,9 +64,7 @@ sub auto : Private {
     my $factory = captiveportal::DynamicRouting::Factory->new();
     $factory->build_application($application);
 
-    $application->process_user_agent();
-    $application->process_destination_url();
-    $application->process_fingerbank();
+    $application->preprocessing();
 
     $c->stash(application => $application);
     return 1;

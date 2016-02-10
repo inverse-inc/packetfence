@@ -15,6 +15,8 @@ extends 'captiveportal::DynamicRouting::AndModule';
 
 use pf::node;
 use pf::config;
+use pf::violation;
+use pf::constants::scan qw($POST_SCAN_VID);
 
 has '+parent' => (required => 0);
 
@@ -30,8 +32,27 @@ sub release {
     $self->render("release.html", $self->_release_args());
 }
 
+sub handle_violations {
+    my ($self) = @_;
+    my $mac           = $self->current_mac;
+
+    my $violation = violation_view_top($mac);
+
+    return 1 unless(defined($violation));
+        
+    return 1 if ($violation->{vid} == $POST_SCAN_VID);
+
+    $self->app->redirect("/violation");
+    return 0;
+}
+
 sub execute_child {
     my ($self) = @_;
+    
+    # Make sure there are no outstanding violations
+    return unless($self->handle_violations());
+
+    # The user should be released, he is already registered and doesn't have any violation
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg"){
         $self->app->flash->{notice} = "Your network access should already be enabled.";

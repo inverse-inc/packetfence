@@ -154,6 +154,13 @@ sub current_module_id {
     return $self->session->{current_module_id};
 }
 
+sub preprocessing {
+    my ($self) = @_; 
+    $self->process_user_agent();
+    $self->process_destination_url();
+    $self->process_fingerbank();
+}
+
 sub execute {
     my ($self) = @_;
     $self->root_module->execute();
