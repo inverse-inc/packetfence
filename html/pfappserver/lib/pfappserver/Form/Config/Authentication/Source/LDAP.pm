@@ -114,6 +114,17 @@ has_field 'cache_match',
              help => 'Will cache results of matching a rule' },
   );
 
+has_field 'email_attribute' => (
+    type => 'Text',
+    label => 'Email attribute',
+    required => 0,
+    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('email_attribute')->default,
+    tags => {
+        after_element => \&help,
+        help => 'LDAP attribute name that stores the email address against which the filter will match.',
+    },
+);
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.
