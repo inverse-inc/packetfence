@@ -17,6 +17,8 @@ use Moo;
 use pf::log;
 use pf::constants;
 
+has id => (is => 'rw', required => 1);
+
 has ca_cert_path => (is => 'rw');
 
 has server_cert_path => (is => 'rw');
