@@ -380,6 +380,7 @@ sub guestRegistrationOnly {
        pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default => undef,
        pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default => undef,
        pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
+       pf::Authentication::Source::NullSource->meta->get_attribute('type')->default => undef,
       );
 
     my $result = all { exists $registration_types{$_->{'type'}} } @sources;
@@ -436,7 +437,7 @@ Check if the profile needs no password
 
 sub noPasswordNeeded {
     my ($self) = @_;
-    return isenabled($self->reuseDot1xCredentials) || any { $_ eq $SELFREG_MODE_NULL || $_ eq $SELFREG_MODE_KICKBOX } @{ $self->getGuestModes };
+    return isenabled($self->reuseDot1xCredentials) || $self->getInternalSources == 0;
 }
 
 =item noUsernameNeeded
@@ -447,7 +448,7 @@ Check if the profile needs no username
 
 sub noUsernameNeeded {
     my ($self) = @_;
-    return isenabled($self->reuseDot1xCredentials) || any { $_->type eq 'Null' && isdisabled( $_->email_required ) } $self->getSourcesAsObjects;
+    return isenabled($self->reuseDot1xCredentials) || $self->getInternalSources == 0;
 }
 
 =item provisionerObjects

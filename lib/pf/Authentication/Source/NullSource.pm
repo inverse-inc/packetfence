@@ -22,7 +22,7 @@ use pf::util;
 
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'exclusive');
+has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
@@ -80,16 +80,16 @@ sub match_in_subclass {
     return $username;
 }
 
-=head2 authenticate
+=head2 mandatoryFields
 
 =cut
 
-sub authenticate {
-    my ($self, $username, $password) = @_;
-    if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
-        return ($TRUE, $AUTH_SUCCESS_MSG);
+sub mandatoryFields {
+    my ($self) = @_;
+    if (isenabled($self->email_required)) {
+        return (qw(email));
     }
-    return ($FALSE, $INVALID_EMAIL_MSG);
+    return ();
 }
 
 =head1 AUTHOR
