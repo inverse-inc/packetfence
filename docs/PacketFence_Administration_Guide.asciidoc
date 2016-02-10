@@ -3292,38 +3292,32 @@ Then get the remote sensor from Inverse's download website http://inverse.ca/dow
 
 Create the directory `C:\udp-reflector` and move the downloaded file inside.
 
-Now we will create a task so the reflector starts on boot.
+Now we will create a service so the reflector starts on boot.
 
-Go in *Startup/Task Scheduler* and create a new Task.
+First download and unzip nssm from https://nssm.cc/download
 
-In General:
+Next create a batch file `udpreflector.bat` in `C:\udp-reflector` that contain:
+`C:\udp-reflector\udp_reflector.exe -s pcap0:67 -d 192.168.1.5:767 -b 25000`
+
+Where `pcap0` is the interface where your DHCP is listening (use `C:\udp-reflector\udp_reflector.exe -l` to list interfaces)
+
+Then run `nssm install udpreflector`
+
+In Application:
 [options="compact"]
-* Name it *dhcp-reflector*
-* Select 'Run whether the user is logged on or not'
-* Check 'Run with highest privileges'
+* In 'Path' set it to `C:\udp-reflector\udpreflector.bat`
+* In 'Startup directory' set it to `C:\udp-reflector\`
+* In 'Arguments' set it to nothing
 
-In Triggers:
+In Details:
 [options="compact"]
-* Create a new trigger
-* In _Begin the task:_, select _At startup_
-* Leave the other options as default and save.
+* In 'Startup type' select Automatic
 
-In Actions:
+In Log on:
 [options="compact"]
-* Create a new action
-* Set the action to 'Start a program'
-* In 'Program/script' set it to `C:\udp-reflector\udp_reflector.exe`,
-* In 'Add arguments' put `-s pcap0:67 -d 192.168.1.5:767 -b 25000`
-  - where `pcap0` is the interface where your DHCP is listening (use `C:\udp-reflector\udp_reflector.exe -l` to list interfaces)
-  - where `192.168.1.5` is the management IP of PacketFence
+* In 'Log on as' select Local System account
 
-In Settings:
-[options="compact"]
-* Uncheck _Stop the task if it runs longer than:_
-
-Then press _OK_ and save the task.
-
-Now start the task manually by right clicking on it and choosing 'Run'.
+Then press 'Install service'
 
 The DHCP traffic should now be reflected on your PacketFence server.
 
