@@ -32,7 +32,7 @@ has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
         '/billing' => \&index,
         '/billing/cancel' => \&cancel,
-        '/billing/verify' => \&verify,
+        '/billing/(.+)/verify' => \&verify,
         '/billing/confirm' => \&confirm,
     );
     return \%map;
@@ -162,6 +162,8 @@ sub confirm {
     return $self->index() unless($self->validate_form());
 
     return unless($self->validate());
+
+    $self->update_person_from_fields();
 
     my $billing = $self->source;
 

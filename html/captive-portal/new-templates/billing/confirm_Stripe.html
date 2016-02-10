@@ -2,7 +2,7 @@
 [% INCLUDE 'billing/tier.html' %]
 <hr>
 
-<form action="/billing/verify" method="POST" id="payment-form">
+<form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
   <div class="error"><p id="payment-errors"></p></div>
 
   <div class="input">
