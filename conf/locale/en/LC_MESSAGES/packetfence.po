@@ -790,7 +790,7 @@ msgid "register: not allowed to register"
 msgstr "You are not allowed to register on this network."
 
 msgid "register: should be allowed"
-msgstr "If you thing that you must be allowed to connect then contact the IT support."
+msgstr "If you believe that you must be allowed to connect then contact your local support staff."
 
 # html/captive-portal/templates/enabler.html
 # html/captive-portal/templates/provisioner/android.html
