@@ -29,7 +29,14 @@ $(document).ready(function() {
   });
 });
 </script>
-
+        [% IF blackhole %]
+        <div id="about">
+          <img src="/content/images/lock.png" alt="You are not allowed" />
+          <p>[% i18n("register: not allowed to register") %]</p>
+          <p>[% i18n("register: should be allowed") %]</p>
+          <hr/>
+        </div>
+        [% ELSE %]
         [%# Welcome text %]
         <div id="about">
           <img src="/content/images/lock.png" alt="You are not authorized" />
@@ -133,5 +140,5 @@ $(document).ready(function() {
             </div>
           [% END %]         
         </form>
-
+        [% END %]
 [% INCLUDE footer.html %]

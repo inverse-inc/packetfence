@@ -786,6 +786,12 @@ msgstr "As we may need to contact users regarding individual systems, all system
 msgid "register: to complete"
 msgstr "To complete the registration process, you will need to authenticate using your username and password."
 
+msgid "register: not allowed to register"
+msgstr "You are not allowed to register on this network."
+
+msgid "register: should be allowed"
+msgstr "If you believe that you must be allowed to connect then contact your local support staff."
+
 # html/captive-portal/templates/enabler.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
