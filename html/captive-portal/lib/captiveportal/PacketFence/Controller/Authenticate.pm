@@ -607,6 +607,7 @@ sub showLogin : Private {
         oauth2_win_live => is_in_list( $SELFREG_MODE_WIN_LIVE, $guestModes ),
         oauth2_twitter  => is_in_list( $SELFREG_MODE_TWITTER, $guestModes ),
         billing         => $c->profile->hasBilling(),
+        saml_sources    => [$c->profile->getSAMLSources],
         guest_allowed   => $guest_allowed,
     );
 

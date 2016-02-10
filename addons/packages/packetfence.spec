@@ -268,6 +268,8 @@ Requires: iproute >= 3.0.0, samba < 4, krb5-workstation
 Requires: iproute, vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
+# SAML
+Requires: lasso-perl
 
 # for dashboard
 Requires: python-django, python-django-tagging, pyparsing

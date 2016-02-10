@@ -180,6 +180,17 @@ sub hasBilling {
     return (scalar($self->getBillingSources()) > 0);
 }
 
+=item getSAMLSources
+
+Get the SAML sources configured in this portal profile
+
+=cut
+
+sub getSAMLSources {
+    my ($self) = @_;
+    return map { ($_->type eq "SAML") ? $_ : () } $self->getSourcesAsObjects();
+}
+
 =item getDescripton
 
 Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
@@ -336,6 +347,17 @@ If the profile has a chained auth source
 sub hasChained {
     my ($self) = @_;
     return defined ($self->getSourceByType('chained')) ;
+}
+
+=item hasSource
+
+If the profile has a specific source
+
+=cut
+
+sub hasSource {
+    my ($self, $source_id) = @_;
+    return any { $_->id eq $source_id } $self->getSourcesAsObjects();
 }
 
 =item getSourceByType

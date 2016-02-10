@@ -1,0 +1,18 @@
+
+[% form.field('sp_entity_id').render | none %]
+[% form.field('sp_key_path').render | none %]
+[% form.field('sp_cert_path').render | none %]
+[% form.field('idp_metadata_path').render | none %]
+[% form.field('idp_entity_id').render | none %]
+[% form.field('idp_cert_path').render | none %]
+[% form.field('idp_ca_cert_path').render | none %]
+[% form.field('username_attribute').render | none %]
+[% form.field('authorization_source_id').render | none %]
+
+[% IF source.id %]
+<div class="control-group">
+  <h4 class="controls">
+    <a target="_blank" href="[% c.uri_for(c.controller("Config::Authentication::SAML").action_for('metadata'), source.id) %]">Download Service Provider metadata</a>
+  </h4>
+</div>
+[% END %]
