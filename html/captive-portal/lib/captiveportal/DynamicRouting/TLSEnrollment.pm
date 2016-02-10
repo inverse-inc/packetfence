@@ -129,7 +129,7 @@ sub process_form  {
         return $FALSE;
     }
 
-    my $node_info = node_view($mac);
+    my $node_info = $self->node_info();
     my $certificate_cn = $pki_provider->user_cn($node_info);
     my $user_cache = $self->app->user_cache;
     my $pki_session = {

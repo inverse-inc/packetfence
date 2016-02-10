@@ -13,6 +13,8 @@ Base Module for Dynamic Routing
 use Moose;
 use pf::log;
 use pf::config;
+use Hash::Merge qw(merge);
+use pf::node;
 
 has 'id' => (is => 'ro', required => 1);
 
@@ -53,6 +55,13 @@ sub _build_new_node_info {
     my ($self) = @_;
     $self->app->session()->{"new_node_info"} //= {};
     return $self->app->session()->{"new_node_info"};
+}
+
+sub node_info {
+    my ($self) = @_;
+    Hash::Merge::set_behavior( 'RIGHT_PRECEDENT' );
+    my $node_info = merge(node_view($self->current_mac), $self->new_node_info, {username => $self->username} );
+    return $node_info;
 }
 
 sub current_mac {
