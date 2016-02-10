@@ -13,7 +13,7 @@ use pf::locationlog;
 use pf::authentication;
 use pf::Authentication::constants;
 use HTML::Entities;
-use List::MoreUtils qw(any uniq);
+use List::MoreUtils qw(any uniq all);
 use pf::config;
 use pf::person qw(person_modify);
 use Email::Valid;
@@ -507,11 +507,17 @@ sub authenticationLogin : Private {
 
 
     my $username = _clean_username($request->param("username"));
-    my $realm;
-    ($username, $realm) = strip_username($username);
+    my ($stripped_username, $realm) = strip_username($username);
     my $password = $request->param("password");
 
     my @sources = $self->getSources($c, $username, $realm);
+    
+    # If all sources use the stripped username, we strip it
+    # Otherwise, we leave it as is
+    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
+    if($use_stripped){
+        $username = $stripped_username;
+    }
 
     if(isenabled($profile->reuseDot1xCredentials)) {
         my $mac       = $portalSession->clientMac;
