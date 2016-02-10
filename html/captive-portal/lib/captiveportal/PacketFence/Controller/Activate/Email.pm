@@ -370,6 +370,7 @@ sub doSponsorRegistration : Private {
         # send to a success page
         $c->stash(
             template => $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE );
+        $c->delete_session();
         $c->detach;
     } else {
         $logger->warn( "No active sponsor source for profile "
