@@ -42,7 +42,7 @@ use List::MoreUtils qw(any);
 use NetAddr::IP;
 use pf::SwitchFactory;
 use MIME::Base64();
-use NetPacket::Ethernet qw(ETH_TYPE_IP);
+use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
@@ -183,6 +183,31 @@ sub process_pkt {
     if ($process || !$pf::cluster::cluster_enabled){
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
+
+            # Skip frames that has a VLAN tag to avoid processing frames more than
+            # once when pfdhcplistener listens on both a vlan interface and its parent
+            #
+            # On post-2008 kernels, with network devices supporting VLAN acceleration
+            # (HW tagging/stripping), ethernet frames always appear untagged to libpcap.
+            # The library reconstructs the original frame by looking at the PACKET_AUXDATA
+            # (pcap-linux.c: pcap_read_packet) *after* the frame has passed the bpf filters.
+            # In other words, we cannot use bpf filters to ignore VLAN packets.
+            #
+            # Also, NetPacket::Ethernet::decode will skip the VLAN header from
+            # a tagged frame and return the 'inner' ether_type of the frame.
+            #
+            # For this reason we check to see if $l2->{tpid} is set
+            if ( defined $l2->{tpid} ) {
+                $logger->trace("Skipping VLAN packets since it is probably addressed to another interface (offload decapsulated tagged packet).");
+                return;
+            }
+
+            # Skip frames that aren't ETH_TYPE_IP/ETH_TYPE_IPv6
+            if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
+                $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame");
+                return;
+            }
+
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
             my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
@@ -198,37 +223,16 @@ sub process_pkt {
                 net_type => $net_type,
             );
 
-            # Skip frames that aren't ETH_TYPE_IP to avoid processing frames more than
-            # once when pfdhcplistener listens on both a vlan interface and its parent
-            #
-            # On post-2008 kernels, with network devices supporting VLAN acceleration
-            # (HW tagging/stripping), ethernet frames always appear untagged to libpcap.
-            # The library reconstructs the original frame by looking at the PACKET_AUXDATA
-            # (pcap-linux.c: pcap_read_packet) *after* the frame has passed the bpf filters.
-            # In other words, we cannot use bpf filters to ignore VLAN packets.
-            #
-            # Also, NetPacket::Ethernet::decode will skip the VLAN header from
-            # a tagged frame and return the 'inner' ether_type of the frame.
-            #
-            # For these reasons, we must peek directly at the data.
-            # skip the first 12 bytes of the frame (src + dst eth addr)
-            # grab the ether_type field and discard the rest:
-            my ($ether_type, undef) = unpack("x[12]nC*", $pkt);
-            if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
-                $logger->trace("Ignoring packet because we already listen on a VLAN interface");
-                return;
-            }
-
             my $statsd_interface = $interface;
             $statsd_interface =~ s/\./_/g;
             $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt.count" );
 
             # we send all IPv4 DHCPv4 codepath
-            if($l2->{type} eq ETH_TYPE_IP) {
+            if ( $l2->{type} eq ETH_TYPE_IP ) {
                 my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
                 $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
             }
-            else{
+            else {
                 my $apiclient = pf::api::queue->new;
                 $apiclient->notify('process_dhcpv6', $udp_payload_b64);
             }
