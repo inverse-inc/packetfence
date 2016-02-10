@@ -1,0 +1,34 @@
+
+<div id="about" class="underlined">
+  <img src="/content/images/registration.png" alt="Registration" />
+  <h1>[% i18n("Certificate generation for EAP TLS connection") %]</h1>
+  <p>
+    [% i18n("In order to complete the registration process, you need to generate your user certificate.") %]
+  </p>
+  <p>
+    [% i18n("A random certificate password has been generated for you. Please note it as it will be necessary to complete the process.") %]
+  </p>
+  <p>
+    [% i18n("You can also modify the password below.") %]
+  </p>
+  <hr/>
+</div>
+
+<form method="post" action="">
+  <div class="input">
+    
+    <span>[% i18n("Password") %]</span>
+    <input class="field" name="certificate_pwd" type="text" autocorrect="off" autocapitalize="off" value="[% certificate_pwd | html %]" />
+
+    <input type="hidden" name="certificate_email" value="not_needed" />
+  </div>
+
+  [% submit %]
+  <div class="input">
+
+    <input type="submit" class="btn" name="submit" value="[% i18n("Generate certificate") %]" /><br/>
+
+  </div>
+
+</form>
+

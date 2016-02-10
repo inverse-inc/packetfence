@@ -59,6 +59,7 @@ sub execute_actions {
     my ($self) = @_;
     $self->new_node_info->{'unregdate'} = pf::authentication::match($self->source->id, $self->auth_source_params, $Actions::SET_UNREG_DATE);
     $self->new_node_info->{'category'} = pf::authentication::match( $self->source->id, $self->auth_source_params, $Actions::SET_ROLE );
+    $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
         $self->create_local_account();
     }
