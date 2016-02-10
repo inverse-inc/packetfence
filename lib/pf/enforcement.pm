@@ -47,6 +47,9 @@ use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
+use pf::firewallsso;
+use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use pf::iplog;
 
 use Readonly;
 
@@ -77,6 +80,24 @@ sub reevaluate_access {
 
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
+
+    if(isenabled($Config{advanced}{sso_on_access_reevaluation})){
+        my $node = node_attributes($mac);
+        my $ip = pf::iplog::mac2ip($mac);
+        if($ip){
+            my $firewallsso = pf::firewallsso->new;
+            if($node->{status} eq $STATUS_REGISTERED){
+                $firewallsso->do_sso('Update', $mac, $ip, $DEFAULT_LEASE_LENGTH);
+            }
+            else {
+                $firewallsso->do_sso('Stop', $mac, $ip, $DEFAULT_LEASE_LENGTH);
+            }
+        }
+        else {
+            $logger->error("Can't do SSO for $mac because can't find its IP address");
+        }
+    }
+
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ( !$locationlog_entry ) {
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
