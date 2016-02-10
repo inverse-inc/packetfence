@@ -197,7 +197,6 @@ sub process_pkt {
             # a tagged frame and return the 'inner' ether_type of the frame.
             #
             # For this reason we chec to see if $l2->{tpid} is set
-            #
             if ( defined $l2->{tpid} ) {
                 $logger->trace("Skipping VLAN packets since it is probably addressed to another interface (offload decapsulated tagged packet).");
                 return;
