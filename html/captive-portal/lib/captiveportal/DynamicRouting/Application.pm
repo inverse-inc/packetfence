@@ -13,10 +13,13 @@ Application definition for Dynamic Routing
 use Moose;
 
 use CHI;
+use Cache::FileCache;
 use Template::AutoFilter;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::DynamicRouting::I18N;
+use pf::node;
+use pf::useragent;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -34,6 +37,9 @@ has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
 
+# to cache the cache objects
+has 'cache_cache' => (is => 'rw', default => sub {{}});
+
 sub BUILD {
     my ($self) = @_;
     my $hashed = {};
@@ -50,12 +56,26 @@ sub BUILD {
     $self->hashed_params($hashed);
 };
 
+#TODO : migrate this to CHI ?
+sub user_agent_cache {
+    my ($self) = @_;
+    $self->cache_cache->{user_agent_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
+    return $self->cache_cache->{user_agent_cache};
+}
+
+#TODO : migrate this to CHI ?
+sub lost_devices_cache {
+    my ($self) = @_;
+    $self->cache_cache->{lost_devices_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
+    return $self->cache_cache->{lost_devices_cache};
+}
+
 sub user_cache {
     my ($self) = @_;
     return CHI->new(
         driver     => 'SubNamespace',
         chi_object => pf::CHI->new(namespace => 'httpd.portal'),
-        namespace  => $self->current_mac,
+        namespace  => $self->root_module->current_mac,
     );
 }
 
@@ -76,6 +96,48 @@ sub reached_retry_limit {
     return $retries > $max;
 }
 
+sub process_user_agent {
+    my ( $self ) = @_;
+    my $user_agent    = $self->request->user_agent;
+    my $logger        = get_logger();
+    my $mac           = $self->root_module->current_mac;
+    unless ($user_agent) {
+        $logger->warn("has no user agent");
+        return;
+    }
+
+    # caching useragents, if it's the same don't bother triggering violations
+    my $cached_useragent = $self->user_agent_cache->get($mac);
+
+    # Cache hit
+    return
+      if ( defined($cached_useragent) && $user_agent eq $cached_useragent );
+
+    # Caching and updating node's info
+    $logger->debug("adding user-agent to cache");
+    $self->user_agent_cache->set( $mac, $user_agent, "5 minutes" );
+
+    # Recording useragent
+    $logger->info("Updating node user_agent with useragent: '$user_agent'");
+    node_modify( $mac, ( 'user_agent' => $user_agent ) );
+
+    # updates the node_useragent information and fires relevant violations triggers
+    return pf::useragent::process_useragent( $mac, $user_agent );
+}
+
+sub process_fingerbank {
+    my ( $self ) = @_;
+
+    my %fingerbank_query_args = (
+        user_agent          => $self->request->user_agent,
+        mac                 => $self->root_module->current_mac,
+        ip                  => $self->root_module->current_ip,
+    );
+
+    pf::fingerbank::process(\%fingerbank_query_args);
+}
+
+# IS this still necessary ? I don't think so
 sub set_current_module {
     my ($self, $module) = @_;
     $self->session->{current_module_id} = $module;
@@ -89,6 +151,8 @@ sub current_module_id {
 
 sub execute {
     my ($self) = @_;
+    $self->process_user_agent();
+    $self->process_fingerbank();
     $self->root_module->execute();
 }
 

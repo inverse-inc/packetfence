@@ -60,6 +60,11 @@ sub current_mac {
     return $self->app->session()->{"client_mac"};
 }
 
+sub current_ip {
+    my ($self) = @_;
+    return $self->app->session()->{"client_ip"};
+}
+
 sub _release_args {
     my ($self) = @_;
     return {

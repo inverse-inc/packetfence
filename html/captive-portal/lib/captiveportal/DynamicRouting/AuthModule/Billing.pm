@@ -30,10 +30,11 @@ has '+pid_field' => (default => sub { "user_email" });
 
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
-        '/billing' => \&index,
         '/billing/cancel' => \&cancel,
         '/billing/(.+)/verify' => \&verify,
         '/billing/confirm' => \&confirm,
+        # fallback to the index
+        '/(.*)' => \&index,
     );
     return \%map;
 });
