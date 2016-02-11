@@ -81,7 +81,8 @@ sub handleAnswerInRule {
         } else {
             foreach my $key (keys %$radius_reply_ref) {
                 if (exists($radius_reply->{$key})) {
-                    if (defined(reftype($radius_reply->{$key})) && reftype($radius_reply->{$key}) eq 'ARRAY') {
+                    my $type = reftype($radius_reply->{$key});
+                    if (defined($type) && $type eq 'ARRAY') {
                         my @attribute;
                         push(@attribute,@{$radius_reply_ref->{$key}});
                         push(@attribute,@{$radius_reply->{$key}});
