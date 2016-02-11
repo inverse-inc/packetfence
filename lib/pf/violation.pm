@@ -614,10 +614,10 @@ Returns 1 if at least one violation is added, 0 otherwise.
 =cut
 
 sub violation_trigger {
+    my $timer = pf::StatsD::Timer->new;
+
     my ( $argv ) = @_;
     my $logger = get_logger();
-
-    my $timer = pf::StatsD::Timer->new;
 
     # Making sure we have all required arguments to process a violation triggering
     my @require = qw(mac tid type);
