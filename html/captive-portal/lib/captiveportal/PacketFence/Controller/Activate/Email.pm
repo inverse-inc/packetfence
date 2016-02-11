@@ -82,7 +82,11 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
-        $c->forward('doEmailRegistration', [$code]);
+        # We want to bypass the release process because we want to go back in the app with the reg status
+        $c->stash->{application}->session->{release_bypass} = $TRUE;
+        $c->stash->{application}->session->{email_completed} = $TRUE;
+        $c->forward(Root => 'dynamic_application');
+        $c->detach();
     }
 
     #
@@ -115,110 +119,6 @@ sub login : Private {
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
         username => $c->request->param_encoded("username"),
     );
-}
-
-=head2 doEmailRegistration
-
-TODO: documention
-
-=cut
-
-sub doEmailRegistration : Private {
-    my ( $self, $c, $code ) = @_;
-    my $request           = $c->request;
-    my $logger            = $c->log();
-    my $activation_record = $c->stash->{activation_record};
-    my $profile           = $c->profile;
-    my $node_mac          = $c->portalSession->guestNodeMac;
-    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'contact_info' };
-    my $auth_params = {
-        'username'   => $pid,
-        'user_email' => $email
-    };
-
-    my $email_type =
-      pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
-
-    if ($source) {
-
-        # On-site email guests self-registration
-        # if we have a MAC, guest was on-site and we need to proceed with registration
-        if ( defined($node_mac) && valid_mac($node_mac) ) {
-            my %info;
-
-            # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
-            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
-
-            pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $pf::auth_log::COMPLETED);
-
-            $c->session->{"username"} = $pid;
-            $c->session->{"unregdate"} = $info{'unregdate'};
-            $c->session->{source_id} = $source->{id};
-            $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info;
-            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
-
-            # change the unregdate of the node associated with the submitted code
-            # FIXME
-            node_modify(
-                $node_mac,
-                (   'unregdate' => $c->stash->{info}->{unregdate},
-                    'status'    => 'reg',
-                    'category'  => $c->stash->{info}->{category},
-                )
-            );
-
-            $c->stash(
-                template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $c->stash->{info}{unregdate}
-            );
-        }
-
-        # Pre-registration email guests self-registration
-        # if we don't have the MAC it means it's a preregister guest generate a password and send
-        # an email with an access code
-        else {
-            my %info = (
-                'pid'     => $pid,
-                'email'   => $email,
-                'subject' => utf8::decode(i18n_format(
-                    "%s: Guest access confirmed!",
-                    $Config{'general'}{'domain'}
-                )),
-                'currentdate' =>
-                  POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
-            );
-
-            # we create a password using the actions from
-            # the email authentication source;
-            my $actions = &pf::authentication::match( $source->{id}, $auth_params );
-            $info{'password'} =
-              pf::password::generate( $pid, $actions );
-
-            # send on-site guest credentials by email
-            pf::web::guest::send_template_email(
-                $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
-                $info{'subject'}, \%info
-            );
-
-            $c->stash(
-                template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
-                %info
-            );
-        }
-
-        # code has been consumed, deactivate
-        pf::activation::set_status_verified($code);
-        $c->detach;
-    } else {
-        $logger->warn( "No active email source for profile "
-              . $profile->getName
-              . ", redirecting to "
-              . $c->portalSession->destinationUrl );
-        $c->response->redirect( $c->portalSession->destinationUrl );
-    }
 }
 
 =head2 doSponsorRegistration

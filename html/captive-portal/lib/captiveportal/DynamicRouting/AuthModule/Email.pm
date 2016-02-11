@@ -21,6 +21,8 @@ use pf::authentication;
 use pf::Authentication::constants;
 use Date::Format qw(time2str);
 use pf::util;
+use pf::node;
+use pf::enforcement;
 
 sub required_fields_child {
     return ["email"];
@@ -28,7 +30,12 @@ sub required_fields_child {
 
 sub execute_child {
     my ($self) = @_;
-    if($self->app->request->method eq "POST"){
+    # the user has completed his activation
+    if($self->app->session->{email_completed}){
+        $self->app->session->{release_bypass} = $FALSE;
+        $self->done();
+    }
+    elsif($self->app->request->method eq "POST"){
         $self->do_email_registration();
     }
     else{
@@ -72,34 +79,48 @@ sub do_email_registration {
     
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
-
-    $self->new_node_info->{unregdate} = $info{unregdate};
-
     $self->session->{fields} = $self->request_fields;
     $self->app->session->{email} = $email;
     $self->username($pid);
 
-    $self->done();
-
+    # We compute the data and release the user
+    # He will come back afterwards.
+    $self->execute_actions();
+    $self->new_node_info->{status} = "reg";
+    $self->app->root_module->apply_new_node_info();
+    pf::enforcement::reevaluate_access( $self->current_mac, 'manage_register' );
+    $self->render("release.html", $self->_release_args());
 }
 
 # overriding here since we don't want the unregdate to be updated as they will be at the end of the process
 after 'execute_actions' => sub {
     my ($self) = @_;
 
-    get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
-    # Use the activation timeout to set the unregistration date
-    my $timeout = normalize_time( $self->source->{email_activation_timeout} );
-    my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
-    get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
+    # If the user has completed the flow, we set the unreg date to the one initially computed 
+    if($self->app->session->{email_completed}){
+        get_logger->info("Extending duration to ".$self->session->{unregdate});
+        $self->app->flash->{success} = "Email activation code has been verified. Access granted until : ".$self->session->{unregdate};
+        $self->new_node_info->{unregdate} = $self->session->{unregdate};
+    }
+    else {
+        # we record the unregdate to reuse it after
+        $self->session->{unregdate} = $self->new_node_info->{unregdate};
 
-    $self->new_node_info->{unregdate} = $unregdate;
+        get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
+        # Use the activation timeout to set the unregistration date
+        my $timeout = normalize_time( $self->source->{email_activation_timeout} );
+        my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
+        get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
+
+        $self->new_node_info->{unregdate} = $unregdate;
+    }
 };
 
 sub auth_source_params {
     my ($self) = @_;
     return {
         user_email => $self->app->session->{email},
+        username => $self->username(),
     };
 }
 

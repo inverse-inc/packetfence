@@ -56,6 +56,7 @@ sub check_release {
     else {
         get_logger->debug("Activation record has not yet been validated");
         $self->app->response_code(401);
+        $self->app->template_output('');
     }
 }
 

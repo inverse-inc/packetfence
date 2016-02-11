@@ -65,6 +65,8 @@ sub execute_actions {
     if(isenabled($self->source->{create_local_account})){
         $self->create_local_account();
     }
+    
+    get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
 }
 
 sub _build_required_fields {

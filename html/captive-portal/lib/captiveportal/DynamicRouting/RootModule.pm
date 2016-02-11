@@ -53,9 +53,10 @@ sub execute_child {
     return unless($self->handle_violations());
 
     # The user should be released, he is already registered and doesn't have any violation
+    # HACK alert : E-mail registration has the user registered but still going in the portal
+    # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
-    if($node->{status} eq "reg"){
-        $self->app->flash->{notice} = "Your network access should already be enabled.";
+    if($node->{status} eq "reg" && !$self->app->session->{release_bypass}){
         $self->release();
         return;
     }
