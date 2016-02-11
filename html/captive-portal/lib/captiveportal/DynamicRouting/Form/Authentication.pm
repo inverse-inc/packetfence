@@ -13,6 +13,12 @@ Application definition for Dynamic Routing
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 
+has 'app' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application', required => 1);
+
+has '+field_name_space' => ( default => 'captiveportal::DynamicRouting::Form::Field' );
+has '+widget_name_space' => ( default => 'captiveportal::DynamicRouting::Form::Widget' );
+
+use pf::log;
 use pf::sms_carrier;
 
 has 'source' => (is => 'rw');
@@ -28,6 +34,17 @@ has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 has_field 'fields[telephone]' => (type => "Text", label => "Phone number");
 
 has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers);
+
+has_field 'fields[aup]' => (type => 'AUP', validate_method => \&check_aup);
+
+sub check_aup {
+    my ($self) = @_;
+    get_logger->info("AUP value is : ".$self->value);
+    unless($self->value){
+        $self->add_error("You must accept the terms and conditions");
+        $self->form->app->flash->{error} = "You must accept the terms and conditions";
+    }
+}
 
 sub get_field {
     my ($self, $name) = @_;

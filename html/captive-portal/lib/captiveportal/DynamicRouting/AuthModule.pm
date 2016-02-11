@@ -31,7 +31,9 @@ has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]})
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
-has 'pid_field' => ('is' => 'rw', default => 'user_email');
+has 'pid_field' => ('is' => 'rw', default => sub {'user_email'});
+
+has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -40,7 +42,7 @@ sub form {
     my ($self) = @_;
     my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters() : {};
     my $i18n = captiveportal::DynamicRouting::I18N->new;
-    my $form = captiveportal::DynamicRouting::Form::Authentication->new(language_handle => $i18n);
+    my $form = captiveportal::DynamicRouting::Form::Authentication->new(language_handle => $i18n, app => $self->app);
     $form->process(params => $params);
     return $form;
 }
@@ -68,6 +70,7 @@ sub execute_actions {
 sub _build_required_fields {
     my ($self) = @_;
     my @fields;
+    push @fields, 'aup' if($self->with_aup);
     push @fields, $self->pid_field if(defined($self->pid_field));
     push @fields, (@{$self->required_fields_child}, @{$self->custom_fields});
     return [uniq(@fields)];
