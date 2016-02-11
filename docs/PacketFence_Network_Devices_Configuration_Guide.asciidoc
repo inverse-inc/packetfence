@@ -1304,7 +1304,8 @@ PacketFence switch configuration
 
 * Select the type to 'Cisco Catalyst 2960'
 * Set the 'Registration' role to 'registration' (If undefine then it will use the role name)
-* Set Role by Url for registration to 'http://<your_captive_portal_ip>'
+* Set Role by Url for registration to 'http://<your_captive_portal_ip>/$session_id'
+* The Url can contain dynamic parameters, like the mac address ($mac)
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 Downloadable ACLs
@@ -1516,7 +1517,8 @@ PacketFence switch configuration:
 
 * Select the type to 'Cisco Catalyst 2960'
 * Set the 'Registration' role to 'registration' (If undefine then it will use the role name)
-* Set Role by Url for registration to 'http://<your_captive_portal_ip>'
+* Set Role by Url for registration to 'http://<your_captive_portal_ip>/$session_id'
+* The Url can contain dynamic parameters, like the mac address ($mac)
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
