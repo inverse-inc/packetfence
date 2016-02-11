@@ -884,6 +884,7 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
+    pf::CHI->new(namespace => 'configfiles')->clear() if $force;
     foreach my $cs (pf::config->configStores()) {
         my $temp = $cs->new;
         #Force the loading of cached config
