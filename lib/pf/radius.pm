@@ -139,15 +139,6 @@ sub authorize {
     # let's check if an old port sec entry needs to be removed in another switch
     $self->_handleStaticPortSecurityMovement($args);
 
-    # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
-    # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
-    my $weActOnThisCall = $self->_doWeActOnThisCall($args);
-    if ($weActOnThisCall == 0) {
-        $logger->info("We decided not to act on this radius call. Stop handling request from $switch_ip.");
-        $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
-        goto CLEANUP;
-    }
-
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
@@ -424,76 +415,6 @@ sub extractApMacFromRadiusRequest {
     return;
 }
 
-=item * _doWeActOnThisCall
-
-Is this request of any interest?
-
-returns 0 for no, 1 for yes
-
-=cut
-
-sub _doWeActOnThisCall {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    $logger->trace("_doWeActOnThisCall called");
-
-    # lets assume we don't act
-    my $do_we_act = 0;
-
-    # TODO we could implement some way to know if the same request is being worked on and drop right here
-
-    # is it wired or wireless? call sub accordingly
-    if (defined($args->{'connection_type'})) {
-
-        if (($args->{'connection_type'} & $WIRELESS) == $WIRELESS) {
-            $do_we_act = $self->_doWeActOnThisCallWireless($args);
-
-        } elsif (($args->{'connection_type'} & $WIRED) == $WIRED) {
-            $do_we_act = $self->_doWeActOnThisCallWired($args);
-        } else {
-            $do_we_act = 0;
-        }
-
-    } else {
-        # we won't act on an unknown request type
-        $do_we_act = 0;
-    }
-    return $do_we_act;
-}
-
-=item * _doWeActOnThisCallWireless
-
-Is this wireless request of any interest?
-
-returns 0 for no, 1 for yes
-
-=cut
-
-sub _doWeActOnThisCallWireless {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    $logger->trace("_doWeActOnThisCallWireless called");
-
-    # for now we always act on wireless radius authorize
-    return 1;
-}
-
-=item * _doWeActOnThisCallWired - is this wired request of any interest?
-
-Pass all the info you can
-
-returns 0 for no, 1 for yes
-
-=cut
-
-sub _doWeActOnThisCallWired {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    $logger->trace("_doWeActOnThisCallWired called");
-
-    # for now we always act on wired radius authorize
-    return 1;
-}
 
 =item * _authorizeVoip - RADIUS authorization of VoIP
 
