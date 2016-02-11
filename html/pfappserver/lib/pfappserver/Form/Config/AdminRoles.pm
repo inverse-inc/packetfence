@@ -73,6 +73,14 @@ has_field 'allowed_access_levels' =>
              help => 'List of access levels available to the admin user. If none are provided then all access levels are available' },
   );
 
+has_field 'allowed_unreg_date' =>
+  (
+   type => 'DatePicker',
+   label => 'Maximum allowed unregistration date',
+   tags => { after_element => \&help,
+             help => 'The maximal unregistration date that can be set.' },
+  );
+
 has_field 'allowed_access_durations' =>
   (
    type => 'Text',

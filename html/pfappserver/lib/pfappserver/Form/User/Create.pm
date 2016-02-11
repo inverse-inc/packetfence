@@ -95,9 +95,25 @@ sub validate {
     if (scalar @actions == 0) {
         $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
     }
+    $self->_check_allowed_unreg_date("Unregistration date provided is after the maximum allowed.");
     $self->_check_allowed_options($Actions::SET_ACCESS_DURATION,'allowed_access_durations',"Access Duration provided is not an allowed access duration");
     $self->_check_allowed_options($Actions::SET_ACCESS_LEVEL,'allowed_access_levels',"Access Level provided is not an allowed access level");
     $self->_check_allowed_options($Actions::SET_ROLE,'allowed_roles',"Role provided is not an allowed role");
+}
+
+=head2 _check_allowed_unreg_date
+
+check to see the unregdate in the actions can be set according to the user role
+
+=cut
+
+sub _check_allowed_unreg_date {
+    my ($self, $error_msg) = @_;
+    if ( my $action = first { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}} ) {
+        unless(check_allowed_unreg_date([$self->ctx->user->roles], $action->{value})){
+            $self->field('actions')->add_error($error_msg);
+        }
+    }
 }
 
 
