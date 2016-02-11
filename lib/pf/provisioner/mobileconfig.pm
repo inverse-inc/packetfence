@@ -227,7 +227,7 @@ sub _build_profile_template {
     my $eap_type = $self->eap_type;
     if (defined($eap_type)) {
         if ($eap_type == 13) {
-            return "wireless-profile-eap.xml";
+            return "wireless-profile-tls.xml";
         } elsif ($eap_type == 25) {
             return "wireless-profile-peap.xml";
         }
