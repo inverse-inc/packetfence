@@ -254,14 +254,14 @@ Copied from Cisco Catalyst 2960
 =cut
 
 sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = $this->logger;
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
 
     # if can't SNMP read abort
-    return if ( !$this->connectRead() );
+    return if ( !$self->connectRead() );
 
     #Transfer ifIndex to LLDP index
-    my $lldpPort = $this->ifIndexToLldpLocalPort($ifIndex);
+    my $lldpPort = $self->ifIndexToLldpLocalPort($ifIndex);
     if (!defined($lldpPort)) {
         $logger->info("Unable to lookup LLDP port from IfIndex. LLDP VoIP detection will not work. Is LLDP enabled?");
         return;
@@ -274,9 +274,8 @@ sub getPhonesLLDPAtIfIndex {
         "SNMP get_next_request for lldpRemSysCapEnabled: "
         . "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
     );
-    my $result = $this->{_sessionRead}->get_table(
-        -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
-    );
+    my $cache = $self->cache;
+    my $result = $cache->compute([$self->{'_id'},$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort], sub { $self->{_sessionRead}->get_table( -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort" ); });
 
     # Cap entries look like this:
     # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
@@ -290,13 +289,13 @@ sub getPhonesLLDPAtIfIndex {
             my $lldpRemIndex = $1;
 
             # make sure that what is connected is a VoIP phone based on lldpRemSysCapEnabled information
-            if ( $this->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
+            if ( $self->getBitAtPosition($result->{$oid}, $SNMP::LLDP::TELEPHONE) ) {
                 # we have a phone on the port. Get the MAC
                 $logger->trace(
                     "SNMP get_request for lldpRemPortId: "
                     . "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
                 );
-                my $portIdResult = $this->{_sessionRead}->get_request(
+                my $portIdResult = $self->{_sessionRead}->get_request(
                     -varbindlist => [
                         "$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"
                     ]
