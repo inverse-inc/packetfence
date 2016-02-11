@@ -420,16 +420,9 @@ sub returnRadiusAccessAccept {
 
     if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
-            my $mac = $args->{'mac'};
-            my $session_id = generate_session_id(6);
-            my $chi = pf::CHI->new(namespace => 'httpd.portal');
-            $chi->set($session_id,{
-                client_mac => $mac,
-                wlan => $args->{'ssid'},
-                switch_id => $self->{_id},
-            });
-            pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $self->getUrlByName($args->{'user_role'})."/cep$session_id";
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
+            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
@@ -450,6 +443,20 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
+}
+
+sub setSession {
+    my($args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
 }
 
 =head2 radiusDisconnect
