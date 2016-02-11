@@ -117,9 +117,7 @@ use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
-use pf::accounting qw(node_accounting_current_sessionid);
-use pf::node qw(node_attributes node_view);
-use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::util::radius qw(perform_coa);
 use pf::web::util;
 
 sub description { 'Cisco Catalyst 2960' }
@@ -365,7 +363,6 @@ sub deauthenticateMacRadius {
 
 
     # perform CoA
-    my $acctsessionid = node_accounting_current_sessionid($mac);
     $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
@@ -405,11 +402,7 @@ sub radiusDisconnect {
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $acctsessionid = node_accounting_current_sessionid($mac);
-        my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
