@@ -124,7 +124,7 @@ Depends: ${misc:Depends}, vlan, make,
  nodejs, freeradius-utils (>=3.0), libapache2-mod-wsgi,
  python-twisted-bin (<=13.0), python-twisted-core (<=13.0), graphite-web,
 # EAP TLS
- libcrypt-smime-perl
+ libcrypt-smime-perl, libnumber-range-perl
 Recommends:  freeradius (>= 3.0.10), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.

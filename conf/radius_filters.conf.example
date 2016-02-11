@@ -97,6 +97,12 @@
 #
 # Then PacketFence will evaluate the answer4 to Cisco-AVPair => url-redirect-acl=default;url-redirect=http://192.168.1.2/cepab23bc
 #
+# You can also define a range of int values and it will return a random number in this range:
+#
+# answer5 = Session-Timeout => 200..300,500..700
+#
+# will return a radius attribute Session-Timeout with a value between 200 and 300 or between 500 and 700
+#
 # filter can be for the scope returnRadiusAccessAccept:
 #     node_info.autoreg
 #     node_info.status
