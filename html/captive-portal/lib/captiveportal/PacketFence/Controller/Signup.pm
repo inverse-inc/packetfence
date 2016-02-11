@@ -182,7 +182,7 @@ sub doEmailSelfRegistration : Private {
 
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
-    $session->{source_id} = $source->{id};
+    $session->{source_id} = $source;
     $session->{source_match} = undef;
     $c->forward(Authenticate => 'setRole');
 
@@ -301,12 +301,12 @@ sub doSponsorSelfRegistration : Private {
     # fetch role for this user
     $c->stash->{pid} = $pid;
     $c->stash->{info} = \%info;
-    $session->{source_id} = $source->{id};
+    $session->{source_id} = $source;
     $session->{source_match} = undef;
     $c->forward('Authenticate' => 'setRole');
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+    $info{'unregdate'} = &pf::authentication::match([$source], $auth_params, $Actions::SET_UNREG_DATE);
 
     # set node in pending mode
     $info{'status'} = $pf::node::STATUS_PENDING;

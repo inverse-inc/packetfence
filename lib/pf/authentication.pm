@@ -242,6 +242,7 @@ sub authenticate {
     my $message;
     foreach my $current_source (@sources) {
         my $result;
+        my $connection;
         $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
@@ -249,7 +250,7 @@ sub authenticate {
         # First match wins!
         if ($result) {
             $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
-            return ($result, $message, $current_source->id);
+            return ($result, $message, $current_source);
         }
     }
 
@@ -287,15 +288,17 @@ sub match {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
         $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
     }
-
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
+    } elsif (defined(ref($source_id)) && (ref($source_id) ne '')) {
+        @sources = ($source_id);
     } else {
         my $source = getAuthenticationSource($source_id);
         if (defined $source) {
             @sources = ($source);
         }
     }
+
     foreach my $source (@sources) {
         $actions = $source->match($params);
         next unless defined $actions;

@@ -6605,6 +6605,10 @@ msgid "advanced.reevaluate_access_reasons"
 msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
+msgid "advanced.radius_attributes"
+msgstr "RADIUS attributes" 
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 

@@ -12,6 +12,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::log;
+use pf::config;
+use List::MoreUtils qw(uniq);
 
 use Authen::Radius;
 
@@ -28,9 +30,9 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+  my @attributes = @{$Config{advanced}->{radius_attributes}};
+  my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
+  return [@$super_attributes, @radius_attributes];
 }
 
 =head2  authenticate
@@ -47,13 +49,14 @@ sub authenticate {
     Host => "$self->{'host'}:$self->{'port'}",
     Secret => $self->{'secret'},
   );
-
+  Authen::Radius->load_dictionary('/usr/local/pf/lib/pf/util/dictionary');
   if (defined $radius) {
      my $result = $radius->check_pwd($username, $password);
 
      if ($radius->get_error() eq 'ENONE') {
 
        if ($result) {
+        $self->connection($radius);
         return ($TRUE, $AUTH_SUCCESS_MSG);
       } else {
         return ($FALSE, $AUTH_FAIL_MSG);
@@ -73,11 +76,20 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
+    my $radius = $self->connection;
     my $username =  $params->{'username'};
+
     foreach my $condition (@{ $own_conditions }) {
         if ($condition->{'attribute'} eq "username") {
             if ( $condition->matches("username", $username) ) {
                 push(@{ $matching_conditions }, $condition);
+            }
+        }
+        for my $attribute ($radius->get_attributes()) {
+            if ($condition->{'attribute'} eq $attribute->{'Name'} ) {
+                if ( $condition->matches($condition->{'attribute'}, $attribute->{'Value'}) ) {
+                    push(@{ $matching_conditions }, $condition);
+                }
             }
         }
     }

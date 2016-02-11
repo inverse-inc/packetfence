@@ -291,7 +291,6 @@ sub match_in_subclass {
     }
     my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
 
-
     my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     if (! defined($filter)) {
         $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");

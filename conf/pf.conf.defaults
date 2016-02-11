@@ -1093,6 +1093,12 @@ ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,member
 # Amount of pfdns processes to start
 pfdns_processes=4
 
+# advanced.radius_attributes
+#
+# List of RADIUS attributes that can be used in the sources configuration
+radius_attributes=NAS-ID,Called-Station-Id,Calling-Station-Id
+
+
 [omapi]
 #
 # omapi.ip2mac_lookup
