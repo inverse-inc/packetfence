@@ -23,15 +23,25 @@ use pf::sms_carrier;
 
 has 'source' => (is => 'rw');
 
+my %skip = (
+    email => 1,
+    pid => 1,
+    sponsor => 1,
+    portal => 1,
+    source => 1,
+);
+foreach my $field (@pf::person::FIELDS){
+    next if(exists($skip{$field}));
+    has_field "fields[$field]" => (type => 'Text');
+}
+
 has_field 'fields[username]' => (type => 'Text', label => 'Username');
 
 has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
-has_field 'fields[user_email]' => (type => "Email", label => "Email");
+has_field 'fields[email]' => (type => "Email", label => "Email");
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
-
-has_field 'fields[telephone]' => (type => "Text", label => "Phone number");
 
 has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers);
 

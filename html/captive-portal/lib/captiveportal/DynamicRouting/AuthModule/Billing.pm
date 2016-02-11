@@ -26,7 +26,7 @@ use pf::config::util;
 use pf::util;
 use pf::node;
 
-has '+pid_field' => (default => sub { "user_email" });
+has '+pid_field' => (default => sub { "email" });
 
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (

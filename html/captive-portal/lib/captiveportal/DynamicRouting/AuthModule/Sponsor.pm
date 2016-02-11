@@ -21,7 +21,7 @@ use pf::Authentication::constants;
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
 sub required_fields_child {
-    return ["user_email", "sponsor"];
+    return ["email", "sponsor"];
 }
 
 sub execute_child {
@@ -68,7 +68,7 @@ sub do_sponsor_registration {
 
     my $source = $self->source;
     my $pid = $self->request_fields->{$self->pid_field};
-    my $user_email = $self->request_fields->{user_email};
+    my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
 
     # form valid, adding person (using modify in case person already exists)
@@ -101,8 +101,8 @@ sub do_sponsor_registration {
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
     $self->session->{activation_code} = $activation_code;
-    $self->app->session->{user_email} = $user_email;
-    $self->username($user_email);
+    $self->app->session->{email} = $email;
+    $self->username($email);
 
     $self->update_person_from_fields();
 
@@ -129,7 +129,7 @@ sub _validate_sponsor {
 sub auth_source_params {
     my ($self) = @_;
     return {
-        user_email => $self->app->session->{user_email},
+        user_email => $self->app->session->{email},
     };
 }
 

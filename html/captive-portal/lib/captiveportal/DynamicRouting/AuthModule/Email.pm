@@ -23,7 +23,7 @@ use Date::Format qw(time2str);
 use pf::util;
 
 sub required_fields_child {
-    return ["user_email"];
+    return ["email"];
 }
 
 sub execute_child {
@@ -43,7 +43,7 @@ sub do_email_registration {
     # fetch role for this user
     my $source = $self->source;
     my $pid = $self->request_fields->{$self->pid_field};
-    my $user_email = $self->request_fields->{user_email};
+    my $email = $self->request_fields->{email};
 
     my %info;
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
@@ -63,7 +63,7 @@ sub do_email_registration {
     my ( $auth_return, $err, $errargs_ref ) =
       pf::activation::create_and_send_activation_code(
         $self->current_mac,
-        $pid, $user_email,
+        $pid, $email,
         $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION,
         $pf::activation::GUEST_ACTIVATION,
         $self->app->profile->getName,
@@ -76,7 +76,7 @@ sub do_email_registration {
     $self->new_node_info->{unregdate} = $info{unregdate};
 
     $self->session->{fields} = $self->request_fields;
-    $self->app->session->{user_email} = $user_email;
+    $self->app->session->{email} = $email;
     $self->username($pid);
 
     $self->done();
@@ -99,7 +99,7 @@ after 'execute_actions' => sub {
 sub auth_source_params {
     my ($self) = @_;
     return {
-        user_email => $self->app->session->{user_email},
+        user_email => $self->app->session->{email},
     };
 }
 

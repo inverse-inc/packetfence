@@ -24,7 +24,7 @@ has 'pid_field' => (is => 'rw', builder => '_build_pid_field', lazy => 1);
 
 sub _build_pid_field {
     my ($self) = @_;
-    return $self->requires_email ? "user_email" : undef;
+    return $self->requires_email ? "email" : undef;
 }
 
 sub execute_child {

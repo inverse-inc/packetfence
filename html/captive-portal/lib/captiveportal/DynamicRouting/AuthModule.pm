@@ -31,7 +31,7 @@ has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]})
 
 has 'request_fields' => (is => 'rw', traits => ['Hash'], builder => '_build_request_fields', lazy => 1);
 
-has 'pid_field' => ('is' => 'rw', default => sub {'user_email'});
+has 'pid_field' => ('is' => 'rw', default => sub {'email'});
 
 has 'with_aup' => ('is' => 'rw', default => sub {1});
 
@@ -103,7 +103,7 @@ sub create_local_account {
     use Data::Dumper;
     get_logger->info("SESSION : ".Dumper($self->session));
 
-    unless($self->session->{fields}->{user_email}){
+    unless($self->session->{fields}->{email}){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
     }
 
@@ -130,7 +130,7 @@ sub create_local_account {
     my %info = (
         'pid'       => $self->app->session->{username},
         'password'  => $password,
-        'email'     => $self->session->{fields}->{user_email},
+        'email'     => $self->session->{fields}->{email},
         'subject'   => $self->app->i18n_format(
             "%s: Guest account creation information", $Config{'general'}{'domain'}
         ),
