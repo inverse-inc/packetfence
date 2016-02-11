@@ -66,6 +66,7 @@ my $switch = pf::SwitchFactory->instantiate('192.168.0.1');
 
 # redefining violation functions (we stay in pf::role's context because methods are imported there from pf::violation)
 my $mock = new Test::MockModule('pf::role');
+my $mock_violation = new Test::MockModule('pf::violation');
 # emulate the presence of a violation
 # TODO this is a cheap test, the false in view_top is to avoid the cascade of vid, class, etc. checking
 # mocked node_attributes returns violation node
@@ -74,15 +75,15 @@ $mock->mock('node_attributes', sub {
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => '1'}
 });
-$mock->mock('violation_count_reevaluate_access', sub { return (1); });
-$mock->mock('violation_view_top', sub { return $FALSE; });
+$mock_violation->mock('violation_count_reevaluate_access', sub { return (1); });
+$mock_violation->mock('violation_view_top', sub { return $FALSE; });
 
 my $role;
 $role = $role_obj->fetchRoleForNode({ mac => 'bb:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001'});
 is($role->{role}, 'isolation', "determine vlan for node with violation");
 
 # violation_count_reevaluate_access will return 0
-$mock->mock('violation_count_reevaluate_access', sub { return (0); });
+$mock_violation->mock('violation_count_reevaluate_access', sub { return (0); });
 
 # mocking used node method calls
 $mock->mock('node_exist', sub { return (1); });
