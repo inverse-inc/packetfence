@@ -2519,7 +2519,20 @@ Restart the rsyslog daemon
 
 At this point, Suricata should be able to extract MD5 checksum of downloaded file and send the related log entry to PacketFence.
 
-A configuration of a new pfdetect parser as well as some violations are the only remaining steps to make full usage of the OPSWAT Metascan integration.
+A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metascan integration.
+
+Configuration of a new 'syslog parser' should use the followings:
+
+  Type: suricata_http
+  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
+
+Configuration of a new violation can use the following trigger types:
+
+  Type: metascan
+  Triggers ID: The scan result returned by OPSWAT Metascan online
+
+  Type: suricata_md5
+  Trigger ID: The MD5 hash returned by Suricata
 
 Security Onion
 ^^^^^^^^^^^^^^
