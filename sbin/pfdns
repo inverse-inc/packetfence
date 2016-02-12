@@ -233,11 +233,11 @@ sub response_handler {
 
             my $node = node_attributes($mac);
             if($node->{status} eq $STATUS_REGISTERED){
-                $logger->info("Node $mac is registered, returning resolved domain.");
+                $logger->info("Node is registered, returning resolved domain.");
                 return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
             }
             else {
-                $logger->info("Node $mac is unregistered, returning portal domain.");
+                $logger->info("Node is unregistered, returning portal domain.");
                 return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
             }
         }
