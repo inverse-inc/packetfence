@@ -123,7 +123,7 @@ sub check_allowed_unreg_date {
         
         #If no option is defined then any date is allowed
         # we got one that is unlimited so we're good
-        unless(defined($max_unreg_date_value)){
+        unless(defined($max_unreg_date_value) && $max_unreg_date_value){
             $result = $TRUE;
             last;
         }
