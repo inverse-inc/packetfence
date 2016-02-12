@@ -16,6 +16,7 @@ use warnings;
 
 use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
+use pf::log;
 
 use Moo;
 extends 'pf::provisioner';
@@ -93,7 +94,7 @@ The certificate chain for signing in PEM format
 
 has cert_chain => (is => 'rw');
 
-=head2 cert_chain
+=head2 cert_sign
 
 The certificate for signing in PEM format
 
@@ -115,7 +116,7 @@ The template to use for profile
 
 =cut
 
-has profile_template => (is => 'rw', default => sub { "wireless-profile.xml" });
+has profile_template => (is => 'rw', lazy => 1, builder =>1 );
 
 =head2 can_sign_profile
 
@@ -125,7 +126,65 @@ Enabled or disables the signing of the profile
 
 has can_sign_profile => (is => 'rw', default => sub { 0 } );
 
+has server_certificate_path => (is => 'rw');
+
+has server_certificate => (is => 'ro' , builder => 1, lazy => 1);
+
 =head1 METHODS
+
+=head2 _build_server_cert
+
+Builds an X509 object the server_cert_path
+
+=cut
+
+sub _build_server_certificate {
+    my ($self) = @_;
+    return Crypt::OpenSSL::X509->new_from_file($self->server_certificate_path);
+}
+
+sub _raw_server_cert_string {
+    my ($self, $cert) = @_;
+    my $cert_pem = $cert->as_string();
+    $cert_pem =~ s/-----END CERTIFICATE-----\n.*//smg;
+    $cert_pem =~ s/.*-----BEGIN CERTIFICATE-----\n//smg;
+    return $cert_pem;
+}
+
+sub _certificate_cn {
+    my ($self, $cert) = @_;
+    if($cert->subject =~ /CN=(.*?)(,|$)/g){
+        return $1;
+    }
+    else {
+        get_logger->error("Cannot find CN of server certificate at ".$self->server_certificate_path);
+        return undef;
+    }
+}
+
+=head2 raw_server_cert_string
+
+Get the server certificate content minus the ascii armor
+
+=cut
+
+sub raw_server_cert_string {
+    my ($self) = @_;
+    use Data::Dumper;
+    get_logger->info('Certificate content HELLO'.$self->server_certificate);
+    return $self->_raw_server_cert_string($self->server_certificate);
+}
+
+sub server_certificate_cn {
+    my ($self) = @_;
+    my $cn = $self->_certificate_cn($self->server_certificate);
+    if(defined($cn)){
+        return $cn;
+    }
+    else {
+        get_logger->error("cannot find cn of server certificate at ".$self->server_certificate_path);
+    }
+}
 
 =head2 authorize
 
@@ -155,6 +214,25 @@ sub sign_profile {
         $smime->setPublicKey($self->cert_chain);
     }
     return decode_base64($smime->signonly_attached($content));
+}
+
+=head2 _build_profile_template
+
+Creates a template from the eap type
+
+=cut
+
+sub _build_profile_template {
+    my ($self) = @_;
+    my $eap_type = $self->eap_type;
+    if (defined($eap_type)) {
+        if ($eap_type == 13) {
+            return "wireless-profile-tls.xml";
+        } elsif ($eap_type == 25) {
+            return "wireless-profile-peap.xml";
+        }
+    } 
+    return "wireless-profile-noeap.xml";
 }
 
 =head1 AUTHOR

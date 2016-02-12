@@ -48,6 +48,7 @@ ProvisionerView.prototype.toggleInputs = function(e) {
     this.togglePkiProvider(e);
     this.toggleWifiKey(e);
     this.toggleEapType(e);
+    this.toggleServerCertificate(e);
 };
 
 ProvisionerView.prototype.toggleWifiKey = function(e) {
@@ -84,3 +85,18 @@ ProvisionerView.prototype.togglePkiProvider = function(e) {
         pki_input.hide();
     }
 };
+
+ProvisionerView.prototype.toggleServerCertificate = function(e) {
+    var security_type = $('#security_type option:selected').text();
+    var eap_type = $('#eap_type option:selected').text();
+    var server_certificate = $('#server_certificate_path').closest('.control-group');
+    if (security_type == "WPA2" && eap_type == "PEAP") {
+        server_certificate.show();
+    }
+    else {
+        server_certificate.hide();
+    }
+};
+
+
+

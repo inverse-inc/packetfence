@@ -60,7 +60,17 @@ has_field 'passcode' =>
   (
    type => 'Text',
    label => 'Wifi Key',
+   tags => { after_element => \&help,
+             help => 'The WiFi key to join the SSID' },
   );
+
+has_field 'server_certificate_path' =>
+ (
+  type => 'Path',
+  label => 'RADIUS server certificate path',
+  tags => { after_element => \&help,
+            help => 'The path to the RADIUS server certificate' },       
+ );
 
 has_field 'cert_chain' =>
   (
@@ -121,7 +131,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider server_certificate_path) ],
   );
 
 has_block signing =>
