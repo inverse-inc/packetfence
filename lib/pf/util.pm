@@ -1096,6 +1096,10 @@ sub strip_username {
     elsif($username =~ /\\\\(.*)\\(.*)/) {
         return ($2,$1);
     }
+    # domain\\user
+    elsif($username =~ /(.*)\\\\(.*)/) {
+        return ($2,$1);
+    }
     # domain\user
     elsif($username =~ /(.*)\\(.*)/) {
         return ($2,$1);
