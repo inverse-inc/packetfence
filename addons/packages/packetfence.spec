@@ -269,7 +269,7 @@ Requires: iproute, vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
 # SAML
-Requires: lasso-perl = 2.3.6
+Requires: lasso-perl
 
 # for dashboard
 Requires: python-django, python-django-tagging, pyparsing
