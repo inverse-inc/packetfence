@@ -1,31 +1,29 @@
-package pfconfig::constants;
+package pfconfig::namespaces::FilterEngine::MdmScopes;
 
 =head1 NAME
 
-pfconfig::constants
+pfconfig::namespaces::FilterEngine::MdmScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::constants
-
-Constants for pfconfig
+pfconfig::namespaces::FilterEngine::MdmScopes
 
 =cut
 
 use strict;
 use warnings;
-use Readonly;
+use pf::log;
+use pfconfig::namespaces::config;
+use pfconfig::namespaces::config::MdmFilters;
 
-our $CONFIG_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf";
-our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
-Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
+use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
-
-Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
-
-=bac
+sub parentConfig {
+    my ($self) = @_;
+    return pfconfig::namespaces::config::MdmFilters->new($self->{cache});
+}
 
 =head1 AUTHOR
 
@@ -33,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -55,8 +53,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
-

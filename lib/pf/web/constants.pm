@@ -82,6 +82,10 @@ Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
 
+# MDM related
+Readonly::Scalar our $URL_OPSWAT_BOARDING       => '/central-management/endpoint/register';
+Readonly::Scalar our $URL_OPSWAT_API            => '/mdm/opswat/(.+)';
+
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email(.*)';

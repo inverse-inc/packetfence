@@ -44,8 +44,10 @@ use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
 use pf::access_filter::dhcp;
+use pf::access_filter::mdm;
+use pfconfig::config;
 
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
@@ -1120,6 +1122,94 @@ Copy a directory on this server
 sub copy_directory : Public {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
+}
+
+sub rest_ping :Public :RestPath(/rest/ping){
+    my ($class, $args) = @_;
+    return "pong - ".$args->{message};
+}
+
+sub mdm_opswat_register :Public :RestPath(/mdm/opswat/register) {
+    my ($class, $args) = @_;
+    my $provisioner;
+    my @macs = map { pf::util::clean_mac($_->{mac}) } @{$args->{network_adapter_info}};
+
+    foreach my $mac (@macs){
+        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+        if($provisioner = $profile->findProvisioner($mac)){
+            if($provisioner->type == "local_opswat") {
+                last;
+            }
+        }
+    }
+
+    if($provisioner){
+        use Data::UUID;
+        my $uuid = Data::UUID->new->create;
+        my $device_id = Data::UUID->new->to_string($uuid);
+        my $config = $pf::config::ConfigProvisioning{$provisioner->id};
+        foreach my $mac (@macs){
+            pf::node::node_modify($mac, device_id => $device_id);
+        }
+        
+        # record it as a ping
+        $class->mdm_opswat_ping({device_id => $device_id});
+
+        return {
+            update_url => $provisioner->agent_update_url,
+            licensing_host => $provisioner->licensing_host,
+            reporting_host => $provisioner->reporting_host, 
+            api_port => 80,
+            ping_url => "/mdm/opswat/ping",
+            reporting_url => "/mdm/opswat/report",
+            device_id => $device_id,
+        }
+    }
+    else {
+        die "Can't find OPSWAT configuration";
+    }
+}
+
+sub mdm_opswat_ping :Public :RestPath(/mdm/opswat/ping) {
+    my ($class, $args) = @_;
+    my $backend = pfconfig::config->new->get_backend();
+    my $ping_key = $args->{device_id}."-last-ping";
+    my $previous_ping = $backend->get($ping_key);
+    my $current_ping = time;
+    if($previous_ping){
+        pf::log::get_logger->info("Updating device $args->{device_id} last seen time from $previous_ping to $current_ping");
+    }
+    else {
+        pf::log::get_logger->info("First time seeing device $args->{device_id}.");
+    }
+    $backend->set($ping_key, $current_ping);
+    return {rp_time => 60};
+}
+
+sub mdm_opswat_report :Public :RestPath(/mdm/opswat/report) {
+    my ($class, $args) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $products = $args->{detected_products};
+
+    my @result;
+    my $filter = pf::access_filter::mdm->new;
+    my @flags;
+    foreach my $product (@$products){
+        $logger->debug(sub { use Data::Dumper ; "Evaluating product : ",Dumper($product) });
+        @result = $filter->filter('OpswatProduct', $product);
+        push @flags, @result if(@result);
+    }
+
+    @result = $filter->filter("OpswatGlobal", $args);
+    push @flags, @result if(@result);
+
+    @result = $filter->filter('OpswatReport', { flags => \@flags });
+    push @flags, @result if(@result);
+    $logger->info("Flags found via MDM engine : ".join(', ',@flags));
+    return {
+        compliant => (any { $_ eq "non-compliant" } @flags) ? 0 : 1,
+    };
 }
 
 =head1 AUTHOR

@@ -15,7 +15,9 @@ Configuration access to pfconfig.conf
 =cut
 
 use pfconfig::constants;
+use UNIVERSAL::require;
 use Config::IniFiles;
+use pf::util;
 
 sub new {
     my ($class) = @_;
@@ -37,6 +39,24 @@ sub init {
 sub section {
     my ( $self, $name ) = @_;
     return $self->{cfg}{$name};
+}
+
+sub get_backend {
+    my ( $self ) = @_;
+    my $cfg    = $self->section('general');
+
+    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
+
+    my $type   = "pfconfig::backend::$name";
+
+    $type = untaint_chain($type);
+
+    # load the module to instantiate
+    if ( !( eval "$type->require()" ) ) {
+        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+    }
+
+    $self->{cache} = $type->new();
 }
 
 =back

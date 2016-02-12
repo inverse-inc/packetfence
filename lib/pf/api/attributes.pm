@@ -15,26 +15,60 @@ pf::api::attributes
 use strict;
 use warnings;
 use Scalar::Util( );
+use List::MoreUtils qw(any);
 
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
     Fork => 1,
 );
 
+our $REST_PATHS_REGEX = '^RestPath\(.*\)';
+
 our %TAGS;
+our %REST_PATHS;
 
 sub MODIFY_CODE_ATTRIBUTES {
     my ($class, $code, @attrs) = @_;
-    my (@bad, @good);
+    my (@bad, @good, $rest_path);
     foreach my $attr (@attrs) {
         if (exists $ALLOWED_ATTRIBUTES{$attr} ) {
             push @good, $attr;
-        } else {
+        } 
+        elsif ( $attr =~ /$REST_PATHS_REGEX/ ){
+            $rest_path = $attr;
+        }
+        else {
             push @bad, $attr;
         }
     }
-    _updateTags($code,@good) unless @bad;
+    unless(@bad){
+        _updateTags($code,@good);
+        if($rest_path) {
+            _updateRestPath($code, $rest_path);
+        }
+    }
     return @bad;
+}
+
+sub _parseRestPath {
+    my ($tag) = @_;
+    if($tag =~ /\((.*)\)/){
+        return $1;
+    }
+    return undef;
+}
+
+sub restPath {
+    my ($class, $path) = @_;
+    return $REST_PATHS{$path};
+}
+
+sub _updateRestPath {
+    my ($code, $rest_path) = @_;
+    my %attrs;
+    my $ref_add = Scalar::Util::refaddr($code);
+    my $path = _parseRestPath($rest_path);
+    $REST_PATHS{$path} = $code;
 }
 
 sub _updateTags {

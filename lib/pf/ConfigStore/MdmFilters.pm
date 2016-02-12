@@ -1,31 +1,28 @@
-package pfconfig::constants;
-
+package pf::ConfigStore::MdmFilters;
 =head1 NAME
 
-pfconfig::constants
+pf::ConfigStore::MdmFilters
+Store mdm filter rules
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::constants
-
-Constants for pfconfig
+pf::ConfigStore::MdmFilters
 
 =cut
 
 use strict;
 use warnings;
-use Readonly;
+use Moo;
+use pf::file_paths;
+extends 'pf::ConfigStore';
 
-our $CONFIG_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf";
-our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
-Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
+sub configFile { $pf::file_paths::mdm_filters_config_file };
 
+sub pfconfigNamespace {'config::MdmFilters'}
 
-Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
-
-=bac
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
@@ -33,7 +30,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -55,8 +52,4 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
 

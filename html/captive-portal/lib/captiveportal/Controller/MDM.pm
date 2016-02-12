@@ -1,31 +1,17 @@
-package pfconfig::constants;
+package captiveportal::Controller::MDM;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::Controller::MDM'; }
 
 =head1 NAME
 
-pfconfig::constants
-
-=cut
+captiveportal::Controller::Root - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 
-pfconfig::constants
-
-Constants for pfconfig
+[enter your description here]
 
 =cut
-
-use strict;
-use warnings;
-use Readonly;
-
-our $CONFIG_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf";
-our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
-Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
-
-
-Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
-
-=bac
 
 =head1 AUTHOR
 
@@ -54,9 +40,7 @@ USA.
 
 =cut
 
-1;
+__PACKAGE__->meta->make_immutable;
 
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
+1;
 

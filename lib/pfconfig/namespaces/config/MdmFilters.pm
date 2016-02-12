@@ -1,31 +1,43 @@
-package pfconfig::constants;
+package pfconfig::namespaces::config::MdmFilters;
 
 =head1 NAME
 
-pfconfig::constants
+pfconfig::namespaces::config::MdmFilter
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::constants
+pfconfig::namespaces::config::MdmFilters
 
-Constants for pfconfig
+This module creates the configuration hash associated to mdm_filters.conf
 
 =cut
 
 use strict;
 use warnings;
-use Readonly;
 
-our $CONFIG_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf";
-our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
-Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
+use pfconfig::namespaces::config;
+use pf::file_paths;
 
+use base 'pfconfig::namespaces::config';
 
-Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
+sub init {
+    my ($self) = @_;
+    $self->{file} = $mdm_filters_config_file;
+    $self->{child_resources} = [ 'FilterEngine::MdmScopes' ];
+}
 
-=bac
+sub build_child {
+    my ($self) = @_;
+
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    $self->cleanup_whitespaces( \%tmp_cfg );
+
+    return \%tmp_cfg;
+
+}
 
 =head1 AUTHOR
 
@@ -33,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
