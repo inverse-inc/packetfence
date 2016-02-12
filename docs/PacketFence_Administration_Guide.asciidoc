@@ -2517,7 +2517,7 @@ Restart the rsyslog daemon
 
   service rsyslog restart
 
-At this point, Suricata should be able to extract MD5 checksum of downloaded file and send the related log entry to PacketFence.
+At this point, Suricata should be able to extract MD5 checksum of downloaded files and send the related log entry to PacketFence.
 
 A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metascan integration.
 
