@@ -43,6 +43,7 @@ use pf::CHI;
 use pf::ConfigStore::Interface;
 use pf::cluster;
 use pf::SwitchFactory;
+use pf::node;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -95,6 +96,7 @@ my $loadb_ip;
 my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
+my @routed_dns_enforcement_nets_named;
 
 my $CHI_CACHE = pf::CHI->new( namespace => 'pfdns' );
 our $IPSET_SESSION = 'pfsession_passthrough';
@@ -112,6 +114,7 @@ foreach my $interface ( @{$cs->readAllIds} ) {
         defined ($Config{$full_interface}{'enforcement'}) &&
         (
           ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN)
+          || ($Config{$full_interface}{'enforcement'} eq $IF_ENFORCEMENT_DNS)
           || is_type_inline($Config{$full_interface}{'enforcement'})
         )
     ){
@@ -133,10 +136,12 @@ foreach my $network ( keys %ConfigNetworks ) {
         } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
             my $isolation_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_isolation_nets_named, $isolation_obj;
-
         } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
             my $registration_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
             push @routed_registration_nets_named, $registration_obj;
+        } elsif ( pf::config::is_network_type_dns_enforcement($network) ) {
+            my $dns_enforcement_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_dns_enforcement_nets_named, $dns_enforcement_obj;
         }
     }
 }
@@ -194,8 +199,9 @@ END {
 sub response_handler {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     pf::config::cached::ReloadConfigs();
-    $logger->trace(sub { "Process $0 handling request" });
     my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
+    my $ip_addr = $ip->addr;
+    $logger->trace(sub { "Process $0 handling request for IP : $ip_addr" });
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
@@ -214,7 +220,69 @@ sub response_handler {
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
+    
+    foreach my $network (@routed_dns_enforcement_nets_named) {
+        if ($network->contains($ip)) {
+            $logger->trace("Performing DNS enforcement on $ip");
+            my $mac = pf::iplog::ip2mac($ip_addr);
+
+            unless($mac){
+                $logger->warn("Can't lookup IP $ip_addr to a MAC address. Returning result as if unreg.");
+                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            }
+
+            my $node = node_attributes($mac);
+            if($node->{status} eq $STATUS_REGISTERED){
+                $logger->info("Node is registered, returning resolved domain.");
+                return resolve($qname, $qclass, $qtype, $peerhost, $query, $conn);
+            }
+            else {
+                $logger->info("Node is unregistered, returning portal domain.");
+                return regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+            }
+        }
+    }
+
+    $logger->debug("$ip_addr did not match any known networks. Not responding to DNS request.");
 }
+
+=head2 resolve
+
+Resolve a domain using the operating system configured DNS servers and return it as an answer
+
+=cut
+
+sub resolve {
+    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my ($rcode, @ans, @auth, @add);
+
+    my ($ttl, $rdata);
+    my $res   = Net::DNS::Resolver->new;
+    my $reply = $CHI_CACHE->compute("resolve-$qtype-$qname", sub { $res->search($qname, $qtype) });
+
+    $logger->debug("Query for public domain ($qtype) : $qname");
+
+    $rcode = "NXDOMAIN";
+    if ($qname && $qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
+        my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    }
+    elsif ($reply) {
+        $rcode = "NOERROR";
+        push @ans, $reply->answer;
+    }
+    # mark the answer as authoritive (by setting the 'aa' flag
+    my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    return @answer;
+}
+
+=head2 regzone
+
+Resolve a DNS entry for a client that should see the captive portal
+
+=cut
 
 sub regzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
@@ -225,7 +293,7 @@ sub regzone {
         if ( ($qname =~ /$OAUTH::ALLOWED_SOURCES_DOMAINS/o && $OAUTH::ALLOWED_SOURCES_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
-            my $query = $CHI_CACHE->compute($qname, sub { $res->search($qname) });
+            my $query = $CHI_CACHE->compute("passthrough-$qname", sub { $res->search($qname) });
             if ($query) {
                 add_answers_to_ipset($query,$IPSET_SESSION,$HTTP_PORT,$HTTPS_PORT);
                 foreach my $rr ($query->answer) {
@@ -250,7 +318,7 @@ sub regzone {
         } else {
             #Check if the answer already exist
             my ($ttl, $rdata);
-            my $query = $CHI_CACHE->get($qname);
+            my $query = $CHI_CACHE->get("regzone-$qname");
             if ($query) {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
@@ -288,7 +356,7 @@ sub regzone {
                 my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
                 my $reply = $resolver->search($qname, $qtype);
                 foreach my $answer ($reply->answer) {
-                    my $query = $CHI_CACHE->compute($answer->target, sub { $resolver->search($answer->target, 'A') });
+                    my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
                         get_logger->info("Resolved $qname as an Active Directory domain name. Adding passthroughs into ipset.");
                         add_answers_to_ipset($query,$IPSET_SESSION,$answer->port, 'udp:88', 'udp:123', 'udp:135', '135', 'udp:137', 'udp:138', '139', 'udp:389', 'udp:445', '445', 'udp:464', '464', 'tcp:1025', '49155', '49156', '49172');
@@ -303,7 +371,9 @@ sub regzone {
     }
 
     # mark the answer as authoritive (by setting the 'aa' flag
-    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    my @answer = ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+    $logger->trace(sub { use Data::Dumper; "Response : ".Dumper(\@answer) });
+    return @answer;
 }
 
 =head2 add_answers_to_ipset
@@ -344,6 +414,11 @@ sub add_ip_port_to_ipset {
     }
 }
 
+=head2 isolzone
+
+Resolve a DNS name for a client in isolation (no passthroughs, just returns the captive portal records)
+
+=cut
 
 sub isolzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;

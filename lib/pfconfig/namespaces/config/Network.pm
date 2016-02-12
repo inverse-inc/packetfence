@@ -19,6 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths;
+use pf::constants;
 use pf::constants::config;
 use pfconfig::util qw(is_type_inline);
 
@@ -55,10 +56,28 @@ sub is_network_type_vlan_reg {
 
     my $result = get_network_type($type);
     if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_REG ) {
-        return 1;
+        return $TRUE;
     }
     else {
-        return 0;
+        return $FALSE;
+    }
+}
+
+=head2 is_network_type_dns_enforcement
+
+Returns true if given network is of type dns-enforcement and false otherwise.
+
+=cut
+
+sub is_network_type_dns_enforcement {
+    my ($type) = @_;
+
+    my $result = get_network_type($type);
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT ) {
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
     }
 }
 
@@ -73,10 +92,10 @@ sub is_network_type_vlan_isol {
 
     my $result = get_network_type($type);
     if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_VLAN_ISOL ) {
-        return 1;
+        return $TRUE;
     }
     else {
-        return 0;
+        return $FALSE;
     }
 }
 
@@ -91,10 +110,10 @@ sub is_network_type_inline {
 
     my $result = get_network_type($type);
     if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_INLINE ) {
-        return 1;
+        return $TRUE;
     }
     else {
-        return 0;
+        return $FALSE;
     }
 }
 
@@ -116,6 +135,12 @@ sub get_network_type {
 
         # vlan-isolation
         return $pf::constants::config::NET_TYPE_VLAN_ISOL;
+
+    }
+    elsif ( $type =~ /^$pf::constants::config::NET_TYPE_DNS_ENFORCEMENT$/i ) {
+
+        # dns-enforcement
+        return $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT;
 
     }
     elsif ( is_type_inline($type) ) {

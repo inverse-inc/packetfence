@@ -44,11 +44,13 @@ use DateTime;
 use pf::constants::Portal::Profile;
 use pf::cluster;
 use pf::constants::config qw(
+  $IF_ENFORCEMENT_DNS
   $IF_ENFORCEMENT_VLAN
   $IF_ENFORCEMENT_INLINE
   $IF_ENFORCEMENT_INLINE_L2
   $IF_ENFORCEMENT_INLINE_L3
 
+  $NET_TYPE_DNS_ENFORCEMENT
   $NET_TYPE_VLAN_REG
   $NET_TYPE_VLAN_ISOL
   $NET_TYPE_INLINE
@@ -158,7 +160,7 @@ BEGIN {
         %ConfigFloatingDevices
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_VID $thread $fqdn $reverse_fqdn
-        $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
+        $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
         $WIRELESS $WIRED $EAP
@@ -173,7 +175,7 @@ BEGIN {
         $HTTP $HTTPS
         normalize_time access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
-        is_vlan_enforcement_enabled is_inline_enforcement_enabled is_type_inline
+        is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
@@ -450,6 +452,7 @@ Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 # simple cache for faster config lookup
 my $cache_vlan_enforcement_enabled;
 my $cache_inline_enforcement_enabled;
+my $cache_dns_enforcement_enabled;
 
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
@@ -727,6 +730,33 @@ sub is_inline_enforcement_enabled {
     return $FALSE;
 }
 
+=item is_dns_enforcement_enabled
+
+Returns true or false based on if dns enforcement is enabled or not
+
+=cut
+
+sub is_dns_enforcement_enabled {
+
+    # cache hit
+    return $cache_dns_enforcement_enabled if (defined($cache_dns_enforcement_enabled));
+
+    foreach my $interface (@internal_nets) {
+        my $device = "interface " . $interface->tag("int");
+
+        if (defined($Config{$device}{'enforcement'}) && $Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_DNS) {
+            # cache the answer for future access
+            $cache_dns_enforcement_enabled = $TRUE;
+            return $TRUE;
+        }
+    }
+
+    # if we haven't exited at this point, it means there are no vlan enforcement
+    # cache the answer for future access
+    $cache_dns_enforcement_enabled = $FALSE;
+    return $FALSE;
+}
+
 =item is_type_inline
 
 =cut
@@ -760,6 +790,11 @@ sub get_network_type {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
+    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT$/i ) {
+
+        # dns-enforcement
+        return $NET_TYPE_DNS_ENFORCEMENT;
+
     } elsif (is_type_inline($type)) {
         # inline
         return $NET_TYPE_INLINE;
@@ -792,6 +827,24 @@ sub is_network_type_vlan_reg {
     if (defined($result) && $result eq $NET_TYPE_VLAN_REG) {
         return $TRUE;
     } else {
+        return $FALSE;
+    }
+}
+
+=head2 is_network_type_dns_enforcement
+
+Returns true if given network is of type dns-enforcement and false otherwise.
+
+=cut
+
+sub is_network_type_dns_enforcement {
+    my ($type) = @_;
+
+    my $result = get_network_type($type);
+    if ( defined($result) && $result eq $pf::constants::config::NET_TYPE_DNS_ENFORCEMENT ) {
+        return $TRUE;
+    }
+    else {
         return $FALSE;
     }
 }

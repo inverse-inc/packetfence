@@ -22,7 +22,7 @@ extends 'Catalyst::Model';
 my @mechanisms           = qw/vlan inline option webauth/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
-    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
+    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation', 'dns-enforcement' ],
     inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
 #    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
     webauth     => ['management', 'portal'],

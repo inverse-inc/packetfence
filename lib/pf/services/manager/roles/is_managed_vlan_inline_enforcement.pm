@@ -19,7 +19,7 @@ use Moo::Role;
 
 around isManaged => sub {
     my $orig = shift;
-    return (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled()) && $orig->(@_);
+    return (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled() || is_dns_enforcement_enabled()) && $orig->(@_);
 };
 
 =head1 AUTHOR
