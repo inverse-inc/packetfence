@@ -2469,7 +2469,7 @@ In the case that Suricata is running on a separate server, Suricata configuratio
 OPSWAT Metascan integration
 +++++++++++++++++++++++++++
 
-It is possible to trigger violations based on threatness level of downloaded files. This is possible with OPSWAT Metascan integration in conjunction with Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
+It is possible to trigger violations based on threat level of downloaded files using the OPSWAT Metascan integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
 
 First, an OPSWAT portal account is required to make use of the API. Such account can be obtained through the OPSWAT portal: https://portal.opswat.com.
 
@@ -2484,11 +2484,13 @@ On the Suricata server (syslog-ng is preferred due to easier and more powerful c
 Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
 
   ### PacketFence / OPSWAT Metascan integration
-  # This line specifies where the files-json.log file is located (make sure the path fits your installation)
+  # This line specifies where the files-json.log file is located
+  # -> Make sure to configure the right path along with the right filename
   source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
   # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
+  # -> Make sure to configure the right PacketFence management interface IP address
   destination d_packetfence { udp("PACKETFENCE_MGMT_IP" port(514)); };
-  # This line indicates syslog-ng to use the s_suricata_files source with the d_packetfence destination
+  # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence destination
   log { source(s_suricata_files); destination(d_packetfence); };
 
 A restart of the syslog-ng daemon is required
