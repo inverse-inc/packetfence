@@ -116,6 +116,7 @@ conf/templates/emails-guest_sponsor_confirmed.txt.tt
 conf/templates/emails-guest_sponsor_preregistration.txt.tt
 html/pfappserver/pfappserver.conf
 html/captive-portal/captiveportal.conf
+nytprof/
 
 
 # translations
