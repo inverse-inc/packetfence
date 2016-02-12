@@ -1,39 +1,51 @@
-package pf::pftest;
+package pfappserver::Form::NodeSearch;
 
 =head1 NAME
 
-pf::pftest add documentation
-
-=head1 SYNOPSIS
-
-pftest <cmd> [options]
-
- Commands
-  authentication              | checks authentication sources
-  mysql                       | runs the mysql tuner
-  profile_filter              | checks which profile will be used for a mac
-  iplog                       | checks for multiple open iplog entries
-  locationlog                 | checks for multiple open locationlog entries
-
-Please view "pftest.pl help <command>" for details on each option
+pfappserver::Form::NodeSearch
 
 =head1 DESCRIPTION
 
-pf::pftest
+Web form for a searching a node
 
 =cut
 
-use strict;
-use warnings;
-use base qw(pf::cmd::subcmd);
-use pf::pftest::help; #Preload help
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::AdvancedSearch';
 
-sub helpActionCmd { "pf::pftest::help" }
+=head2 Form Fields
 
-=head1 AUTHOR
+=over
 
-Inverse inc. <info@inverse.ca>
 
+=item online_date
+
+=cut
+
+has_field 'online_date' =>
+  (
+   type => 'Compound',
+  );
+
+=item online_date.start
+
+=cut
+
+has_field 'online_date.start' =>
+  (
+   type => 'DatePicker',
+  );
+
+=item end
+
+=cut
+
+has_field 'online_date.end' =>
+  (
+   type => 'DatePicker',
+  );
+
+=back
 
 =head1 COPYRIGHT
 
@@ -58,5 +70,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
-

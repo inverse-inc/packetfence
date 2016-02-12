@@ -79,7 +79,7 @@ var SwitchView = function(options) {
             that.updateInlineTrigger($(this));
         });
 
-        $('[data-provide="typeahead"]').typeahead({
+        options.parent.find('[data-provide="typeahead"]').typeahead({
             source: $.proxy(that.searchSwitch, that),
             minLength: 2,
             items: 11,

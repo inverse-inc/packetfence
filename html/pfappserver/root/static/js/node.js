@@ -36,47 +36,57 @@ Nodes.prototype.post = function(options) {
  * The NodeView class defines the DOM operations from the Web interface.
  */
 var NodeView = function(options) {
+    var that = this;
     this.nodes = options.nodes;
 
     var read = $.proxy(this.readNode, this);
+    var body = $('body');
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
-    this.proxyClick($('body'), '.node [href*="node"][href$="/read"]', this.readNode);
+    this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
 
-    this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
+    this.proxyFor(body, 'show', '#modalNode', this.showNode);
 
-    this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
+    this.proxyFor(body, 'submit', 'form[name="nodes"]', this.createNode);
 
-    this.proxyFor($('body'), 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
+    this.proxyFor(body, 'submit', 'form[name="simpleNodeSearch"]', this.submitSearch);
 
-    this.proxyFor($('body'), 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
+    this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchField);
 
-    this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
+    this.proxyFor(body, 'change', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpField);
 
-    this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
+    this.proxyFor(body, 'submit', 'form[name="advancedNodeSearch"]', this.submitSearch);
 
-    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
+    this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchField);
 
-    this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
+    this.proxyFor(body, 'change', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpField);
 
-    this.proxyClick($('body'), '#modalNode [href*="/run/"]', this.runViolation);
+    this.proxyFor(body, 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    this.proxyClick($('body'), '#modalNode #reevaluateNode', this.reevaluateAccess);
+    this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
 
-    this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
+
+    this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
+
+    this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
+
+    this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
+
+    this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or sort the query */
-    this.proxyClick($('body'), '.nodes .pagination a', this.searchPagination);
+    this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
 
-    this.proxyClick($('body'), '#nodes thead a', this.reorderSearch);
+    this.proxyClick(body, '#nodes thead a', this.reorderSearch);
 
-    this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
+    this.proxyClick(body, '#toggle_all_items', this.toggleAllItems);
 
-    this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
+    this.proxyClick(body, '[name="items"]', this.toggleActionsButton);
 
-    this.proxyClick($('body'), '#node_bulk_actions .bulk_action', this.submitItems);
+    this.proxyClick(body, '#node_bulk_actions .bulk_action', this.submitItems);
 
-    this.proxyClick($('body'), '[id$="Empty"] [href="#add"]', function(e) {
+    this.proxyClick(body, '[id$="Empty"] [href="#add"]', function(e) {
         var emptyDiv = $(e.currentTarget).closest('[id$="Empty"]');
         var match = /(.+)Empty/.exec(emptyDiv.attr('id'));
         var id = match[1];
@@ -86,17 +96,19 @@ var NodeView = function(options) {
         return false;
     });
 
-    this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
-        /* Enable autocompletion of owner on tab of single node creation */
-        $('[data-provide="typeahead"]').typeahead({
-            source: $.proxy(this.searchUser, this),
-            minLength: 2,
-            items: 11,
-            matcher: function(item) { return true; }
-        });
+    this.proxyFor(body, 'section.loaded', '#section', function(e) {
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
     });
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
+
+    this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
+
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -551,3 +563,103 @@ NodeView.prototype.submitItems = function(e) {
         });
     }
 };
+
+NodeView.prototype.changeSearchFieldKeep = function(e) {
+    this.handleChangeSearchField(e, true);
+};
+
+NodeView.prototype.changeSearchField = function(e) {
+    this.handleChangeSearchField(e, false);
+};
+
+NodeView.prototype.handleChangeSearchField = function(e, keep) {
+    var search_input = $(e.currentTarget);
+    var op_input = search_input.next();
+    var search_type = search_input.val();
+    var value_input = op_input.next();
+    var op_input_template_id = '#' + search_type + "_op";
+    var op_input_template = $(op_input_template_id);
+    if (op_input_template.length == 0 ) {
+        op_input_template = $('#default_op');
+    }
+    if (op_input_template.length) {
+        changeInputFromTemplate(op_input, op_input_template);
+    }
+    var value_template_id = '#' + search_type + "_value";
+    var value_template = $(value_template_id);
+    if (value_template.length == 0 ) {
+        value_template = $('#default_value');
+    }
+    if (value_template.length) {
+        changeInputFromTemplate(value_input, value_template, keep);
+    }
+    this.setupTypeAhead(search_input);
+};
+
+NodeView.prototype.changeOpFieldKeep = function(e) {
+    this.handleChangeOpField(e, true);
+};
+
+NodeView.prototype.changeOpField = function(e) {
+    this.handleChangeOpField(e, false);
+};
+
+NodeView.prototype.handleChangeOpField = function(e, keep) {
+    var op_input = $(e.currentTarget);
+    var search_input = op_input.prev();
+    var value_input = op_input.next();
+    var search_type = search_input.val();
+    var op_type = op_input.val();
+    var value_template_id = '#' +  search_type + "_value_" + op_type + "_op" ;
+    var value_template = $(value_template_id);
+    var value_input_id = value_input.attr("id");
+    if (value_template.length) {
+        changeInputFromTemplate(value_input, value_template, keep);
+    }
+    this.setupTypeAhead(search_input);
+};
+
+NodeView.prototype.setupTypeAhead = function(search_input) {
+    var search_type = search_input.val();
+    var op_input = search_input.next();
+    var value_input = op_input.next();
+    var op_input_value = op_input.val();
+    if(op_input_value != "equal" && op_input_value != "not_equal") {
+        return;
+    }
+    if(search_type == "switch_id") {
+        value_input.typeahead({
+            source: $.proxy(this.searchSwitch, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
+        });
+    }
+    if(search_type == "person_name") {
+        value_input.typeahead({
+            source: $.proxy(this.searchUser, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; }
+        });
+    }
+};
+
+NodeView.prototype.searchSwitch = function(query, process) {
+    this.nodes.post({
+        url: '/config/switch/search',
+        data: {
+            'json': 1,
+            'all_or_any': 'any',
+            'searches.0.name': 'id',
+            'searches.0.op': 'like',
+            'searches.0.value': query,
+        },
+        success: function(data) {
+            var results = $.map(data.items, function(i) {
+                return i.id;
+            });
+            process(results);
+        }
+    });
+}

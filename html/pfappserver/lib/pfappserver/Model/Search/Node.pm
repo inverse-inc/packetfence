@@ -42,7 +42,7 @@ sub setup_query {
     my ($self, $builder, $params) = @_;
     $self->add_joins($builder, $params);
     $self->add_searches($builder, $params);
-    $self->add_date_range($builder, $params, @{$params}{qw(start end)});
+    $self->add_date_range($builder, $params, 'detect_date', @{$params}{qw(start end)});
     $self->add_limit($builder, $params);
     $self->add_order_by($builder, $params);
 }
@@ -95,8 +95,11 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
+            L_("IF(locationlog.end_time = '0000-00-00 00:00:00', 'on' ,'off')", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
-            { table => 'locationlog', name => 'switch', as => 'switch_ip' }
+            { table => 'locationlog', name => 'switch', as => 'switch_id' },
+            { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
+            { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -168,13 +171,14 @@ sub make_builder {
                             },
                         ],
                         [ 'AND' ],
-                           [
-                               {
-                                   'table'  => 'locationlog',
-                                   'name'   => 'end_time',
-                               },
-                               'IS NULL',
-                            ],
+                        [
+                           {
+                               'table'  => 'locationlog',
+                               'name'   => 'end_time',
+                           },
+                           '=',
+                           '0000-00-00 00:00:00'
+                        ],
                     ],
                 },
         );
@@ -182,6 +186,10 @@ sub make_builder {
 
 my %COLUMN_MAP = (
     person_name => 'pid',
+    online => {
+        'table' => 'locationlog',
+        'name'  => 'end_time',
+    },
     category => {
         table => 'node_category',
         name  => 'name',
@@ -194,30 +202,17 @@ my %COLUMN_MAP = (
        table => 'node',
        name  => 'device_class',
     },
-    switch_ip   => {
-       table => 'locationlog_distinct',
+    switch_id   => {
+       table => 'locationlog',
        name  => 'switch',
-       joins => [
-           {
-               'table'  => \"( select DISTINCT mac, switch from locationlog )",
-               'as'  => 'locationlog_distinct',
-               'join' => 'LEFT',
-               'on' =>
-               [
-                   [
-                       {
-                           'table' => 'locationlog_distinct',
-                           'name'  => 'mac',
-                       },
-                       '=',
-                       {
-                           'table' => 'node',
-                           'name'  => 'mac',
-                       }
-                   ],
-               ],
-           },
-       ]
+    },
+    switch_ip   => {
+       table => 'locationlog',
+       name  => 'switch_ip',
+    },
+    switch_mac   => {
+       table => 'locationlog',
+       name  => 'switch_mac',
     },
     last_ip   => {
        table => 'iplog',
@@ -330,21 +325,21 @@ sub add_order_by {
 }
 
 sub add_date_range {
-    my ($self, $builder, $params, $start, $end) = @_;
+    my ($self, $builder, $column, $params, $start, $end) = @_;
     if ($start) {
-        $builder->where('detect_date', '>=', "$start 00:00");
+        $builder->where($column, '>=', "$start 00:00");
     }
     if ($end) {
-        $builder->where('detect_date', '<=', "$end 23:59");
+        $builder->where($column, '<=', "$end 23:59");
     }
 }
 
 sub process_query {
-    my ($self,$query) = @_;
+    my ($self, $query) = @_;
     my $new_query = $self->SUPER::process_query($query);
     return unless defined $new_query;
     my $old_column = $new_query->[0];
-    $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column}  : $old_column;
+    $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column} : $old_column;
     return $new_query;
 }
 
@@ -359,6 +354,46 @@ sub add_joins {
                     {table => 'violation_status', name => 'status', as => 'violation_status'},
                     {table => 'violation_status_class', name => 'description', as => 'violation_name'}
                 );
+            }
+        }
+    }
+    if ($params->{online_date}) {
+        my $online_date = $params->{online_date};
+        my $start = $online_date->{start};
+        my $end = $online_date->{end};
+        $builder->from({
+            'table' => \"(SELECT DISTINCT locationlog.mac FROM locationlog WHERE start_time >= \"$start 00:00:00\" and end_time <= \"$end 23:59\")",
+            'as'    => 'online_date',
+            'join'  => 'LEFT',
+            'on' => [
+                [
+                    {
+                        'table' => 'online_date',
+                        'name'  => 'mac',
+                    },
+                    '=',
+                    {
+                        'table' => 'node',
+                        'name'  => 'mac',
+                    }
+                ]
+            ],
+        });
+        $builder->where({table => 'online_date', name => 'mac'}, '!=', undef);
+    }
+}
+
+sub _pre_process_query {
+    my ($self, $query) = @_;
+    #Change the query for the online
+    if ($query->{name} eq 'online') {
+        if($query->{op} eq 'equal') {
+            my $value = $query->{value};
+            if ($value eq 'on') {
+                $query->{value} = '0000-00-00 00:00:00';
+            } elsif($value eq 'off') {
+                $query->{op} = 'is_null';
+                $query->{value} = undef;
             }
         }
     }

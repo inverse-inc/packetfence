@@ -50,6 +50,7 @@ use pf::ConfigStore::Provisioning;
 use pf::factory::provisioner;
 use pf::SwitchFactory;
 use pf::radius_audit_log;
+use pf::StatsD;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -211,6 +212,9 @@ sub registertasks  {
         'account maintenance','acct_maintenance_interval',sub {
             acct_maintenance();
         }
+    );
+    register_task(
+        'update node online stats', 'online_node_count_interval', \&update_node_online_stats
     );
 }
 
@@ -449,6 +453,18 @@ sub usr1_sighandler {
    db_cancel_current_query();
 }
 
+=head2 update_node_online_stats
+
+=cut
+
+sub update_node_online_stats {
+    my $number = locationlog_online_nodes_count();
+    if (defined $number) {
+        $pf::StatsD::statsd->gauge("nodes.online", $number, 1);
+    } else {
+        get_logger->error("Error updating online nodes count");
+    }
+}
 
 =head1 AUTHOR
 

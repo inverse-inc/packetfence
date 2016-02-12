@@ -2547,6 +2547,10 @@ msgstr ""
 msgid "Interval at which PacketFence runs violation maintenance"
 msgstr ""
 
+# conf/documentation.conf (maintenance.online_node_count_interval)
+msgid "Interval at which PacketFence updates the online node state"
+msgstr ""
+
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds"
 msgstr ""
@@ -3287,6 +3291,14 @@ msgstr ""
 msgid "Nodes"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Offline Nodes"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Online Nodes"
+msgstr ""
+
 # html/pfappserver/root/admin/reports.tt
 msgid "Nodes States"
 msgstr ""
@@ -3382,6 +3394,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Online"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -7521,6 +7537,10 @@ msgstr "Node Cleanup Interval"
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Nodes Maintenance Interval"
+
+# conf/documentation.conf
+msgid "maintenance.online_node_count_interval"
+msgstr "Online Node State Update Interval"
 
 # conf/documentation.conf
 msgid "maintenance.provisioning_compliance_poll_interval"
