@@ -2542,23 +2542,19 @@ On the Security Onion server:
 
 NOTE: Must be done on the master server running 'sguild'.
 
-Configure `/etc/syslog-ng/syslog-ng.conf` by adding the followings which will enable sending sguild log entries to PacketFence:
+Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending sguild log entries to PacketFence:
 
-  # This line specifies where the sguild.log file is located, and informs syslog-ng to tail the file, the program_override inserts the string sguil_alert into the string
-  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("sguil_alert")); };
-
+  ### PacketFence / IDS integration
+  # This line specifies where the sguild.log file is located
+  # -> Make sure to configure the right patch along with the right filename (on a Security Onion setup, that should be pretty much standard)
+  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
   # This line filters on the string “Alert Received”
   filter f_sguil { match("Alert Received"); };
-
-  # This line tells syslog-ng to send the data read to the IP address of the PacketFence management interface, via UDP to port 514
-  destination d_sguil_udp { udp("PACKENTFENCE_MGMT_IP" port(514)); };
-
-  # This log section tells syslog-ng how to structure the previous ‘source / filter / destination’ and is what actually puts them into play
-  log {
-      source(s_sguil);
-      filter(f_sguil);
-      destination(d_sguil_udp);
-  };
+  # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
+  # -> Make sure to configure the right PacketFence management interface IP address
+  destination d_packetfence { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+  # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence destination
+  log { source(s_sguil); filter(f_sguil); destination(d_sguil_udp); };
 
 A restart of the syslog-ng daemon is then required
 
@@ -2571,18 +2567,22 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
+Configure `/etc/rsyslog.d/securityonion_ids.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
 
-  :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
+  if $programname == 'securityonion_ids' then /usr/local/pf/var/securityonion_ids
   & ~
 
 Make sure the receiving alert pipe (FIFO) exists
 
-  mkfifo /usr/local/pf/var/security_onion_alerts
+  mkfifo /usr/local/pf/var/securityonion_ids
 
 Restart the rsyslog daemon
 
   service rsyslog restart
+
+At this point, Security Onion should be able to send detected alerts log entries to PacketFence.
+
+A configuration of a new pfdetect parser as well as some violations are the only remaining steps to make full usage of the Security Onion IDS integration.
 
 Violations
 ^^^^^^^^^^
