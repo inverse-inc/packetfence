@@ -143,7 +143,7 @@ evaluate all the variables
 
 sub evalParam {
     my ($answer, $args) = @_;
-    $answer = random($answer) if rangeValidator($answer);
+    $answer = _random($answer) if rangeValidator($answer);
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
     $answer =~ s/\${([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
