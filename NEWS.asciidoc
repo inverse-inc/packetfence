@@ -3,7 +3,7 @@ PacketFence NEWS
 
 Project homepage: https://www.packetfence.org/
 
-Please report bugs to: http://www.packetfence.org/bugs/
+Please report bugs to: https://github.com/inverse-inc/packetfence/issues
 
 Interested in contributing to the project? http://www.packetfence.org/support/community.html
 
@@ -25,23 +25,23 @@ Enhancements
 ++++++++++++
 
 * Support for floating devices on HP Procurve switches
-* RADIUS coa support added to Brocade switches
+* RADIUS CoA support added to Brocade switches
 * The NULL authorization source can now be combined with other sources
-* Added possibility to trigger Firewall Single-Sign-On when an endpoint changes status
-* The username on a captive portal will no longer be stripped unless the authentication sources used all need it to be stripped
+* Added possibility to trigger Firewall Single Sign-On when an endpoint changes status
+* The username on a captive portal will no longer be stripped unless required otherwise
 * Improved UDP reflector documentation
 * Improved vendor specific attributes in radius filters
-* New ability to specify on which LDAP attribute we should match for SponsorEmail
-* New ability to strip a username in LDAP source even if not present in RADIUS request
+* Now able to specify on which LDAP attribute we should match for SponsorEmail
+* Now able to strip a username in LDAP source even if not present in RADIUS request
 
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
-* Fixed incorrect provisioning that ignored broadcast state of provisioned SSID.
+* Fixed incorrect provisioning that ignored broadcast state of provisioned SSID
 * Present a login page without login form when a blackhole source is used on the portal profile (#1021)
 * Fixed incorrect provisioning templates that required entering a password twice (#1119)
 * Fixed ambiguous SQL accounting stored procedure that could return duplicate results
-* Fixes incorrect IPv6 dhcp in pfdhcplistener 
+* Fixes incorrect IPv6 DHCP processing in pfdhcplistener 
 
 
 Version 5.6.1 released on 2016-01-25
