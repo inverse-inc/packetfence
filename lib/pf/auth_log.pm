@@ -127,7 +127,7 @@ sub record_completed_guest {
 
 sub record_auth {
     my ($source, $mac, $pid, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_auth_sql', process_name, $source, $mac, $pid, $status));
+    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_auth_sql', process_name, $source, $mac, $pid // '', $status));
 }
 
 sub change_record_status {
