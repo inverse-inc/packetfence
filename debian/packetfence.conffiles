@@ -107,7 +107,9 @@
 /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
-/usr/local/pf/html/captive-portal/templates/wireless-profile.xml
+/usr/local/pf/html/captive-portal/templates/wireless-profile-noeap.xml
+/usr/local/pf/html/captive-portal/templates/wireless-profile-peap.xml
+/usr/local/pf/html/captive-portal/templates/wireless-profile-tls.xml
 /usr/local/pf/html/captive-portal/templates/enabler.html
 /usr/local/pf/html/captive-portal/templates/register_1.html
 /usr/local/pf/html/captive-portal/templates/redirect.html
