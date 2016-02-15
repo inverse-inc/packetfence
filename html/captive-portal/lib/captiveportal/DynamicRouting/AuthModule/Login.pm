@@ -26,6 +26,8 @@ use pf::web::guest;
 
 has '+pid_field' => (default => sub { "username" });
 
+has '+sources' => (isa => 'ArrayRef[pf::Authentication::Source::SQLSource|pf::Authentication::Source::LDAPSource|pf::Authentication::Source|pf::Authentication::Source::HtpasswdSource|pf::Authentication::Source::KerberosSource]');
+
 sub required_fields_child {
     return ["username", "password"];
 }

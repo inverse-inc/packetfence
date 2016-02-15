@@ -28,6 +28,8 @@ use pf::node;
 
 has '+pid_field' => (default => sub { "email" });
 
+has '+sources' => (isa => 'ArrayRef[pf::Authentication::Source::BillingSource]');
+
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
         '/billing/(.+)/cancel' => \&cancel,

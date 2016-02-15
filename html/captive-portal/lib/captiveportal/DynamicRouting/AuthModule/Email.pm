@@ -14,6 +14,8 @@ use Moose;
 extends 'captiveportal::DynamicRouting::AuthModule';
 with 'captiveportal::DynamicRouting::FieldValidation';
 
+has '+source' => (isa => 'pf::Authentication::Source::EmailSource');
+
 use pf::auth_log;
 use pf::config;
 use pf::log;
