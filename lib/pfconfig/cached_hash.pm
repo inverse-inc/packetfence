@@ -65,6 +65,7 @@ sub TIEHASH {
     $self->init();
 
     $self->{"_namespace"} = $config;
+    $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
 
     $self->{element_socket_method} = "hash_element";
 

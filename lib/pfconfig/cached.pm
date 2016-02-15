@@ -250,7 +250,7 @@ sub is_valid {
     my ($self)         = @_;
     my $logger         = $self->logger;
     my $what           = $self->{_namespace};
-    my $control_file   = pfconfig::util::control_file_path($what);
+    my $control_file   = $self->{_control_file_path};
     my $file_timestamp = (  stat($control_file) )[9];
 
     unless ( defined($file_timestamp) ) {
