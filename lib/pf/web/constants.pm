@@ -76,6 +76,7 @@ Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
 Readonly::Scalar our $URL_SPONSOR_CHECK         => '/sponsor/check';
+Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
