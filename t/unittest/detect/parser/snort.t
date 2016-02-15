@@ -33,7 +33,7 @@ my $result = $parser->parse($alert);
 
 is($result->{srcip}, "10.220.10.186");
 is($result->{events}->{detect}, "2221002");
-is($result->{events}->{suricata}, "SURICATA HTTP request field missing colon");
+is($result->{events}->{suricata_event}, "SURICATA HTTP request field missing colon");
 
 #This test will running last
 use Test::NoWarnings;
