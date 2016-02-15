@@ -194,6 +194,7 @@ sub process_destination_url {
 sub render {
     my ($self, $template, $args) = @_;
 
+    get_logger->debug("Rendering $template");
 
     my $inner_content = $self->_render($template,$args);
 
@@ -237,7 +238,7 @@ sub _render {
 sub redirect {
     my ($self, $url, $code) = @_;
     $self->template_output($url);
-    $self->response_code($code || 301);
+    $self->response_code($code || 302);
 }
 
 sub i18n {
@@ -297,6 +298,7 @@ sub reset_session {
         delete $self->session->{$key};
     }
 }
+
 
 =head1 AUTHOR
 
