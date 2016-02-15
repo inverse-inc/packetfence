@@ -3,6 +3,7 @@ package pf::Connection;
 use Moose;
 
 use pf::constants;
+use pf::radius::constants
 use pf::config;
 use pf::log;
 
@@ -15,6 +16,7 @@ has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAu
 has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
 has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
 has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
+
 
 our $logger = get_logger();
 
@@ -108,6 +110,10 @@ sub identifyType {
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
+    if ( $nas_port_type =~ /^\d+/ ) { 
+        # if it's an integer, look up the type in the radius constants.
+        $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
+    } 
     ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $self->transport("Wireless") : $self->transport("Wired");
 
     # Handling EAP connection

@@ -110,6 +110,56 @@ Readonly::Scalar our $ETHERNET => 6;
 
 =back
 
+S port types taken from the FreeRADIUS dictionaries.
+When using the REST module, FreeRADIUS sends and integer that corresponds to these.
+See
+    /usr/share/freeradius/dictionary.iana
+    /usr/share/freeradius/dictionary.rfc2865
+    /usr/share/freeradius/dictionary.rfc3580
+    /usr/share/freeradius/dictionary.rfc4603
+
+=cut
+
+Readonly::Hash our %NAS_port_type => (
+    0  => "Async",
+    1  => "Sync",
+    2  => "ISDN",
+    3  => "ISDN-V120",
+    4  => "ISDN-V110",
+    5  => "Virtual",
+    6  => "PIAFS",
+    7  => "HDLC-Clear-Channel",
+    8  => "X.25",
+    9  => "X.75",
+    10 => "G.3-Fax",
+    11 => "SDSL",
+    12 => "ADSL-CAP",
+    13 => "ADSL-DMT",
+    14 => "IDSL",
+    15 => "Ethernet",
+    16 => "xDSL",
+    17 => "Cable",
+    18 => "Wireless-Other",
+    19 => "Wireless-802.11",
+    20 => "Token-Ring",
+    21 => "FDDI",
+    22 => "Wireless-CDMA2000",
+    23 => "Wireless-UMTS",
+    24 => "Wireless-1X-EV",
+    25 => "IAPP",
+    26 => "FTTP",
+    27 => "Wireless-802.16",
+    28 => "Wireless-802.20",
+    29 => "Wireless-802.22",
+    30 => "xPON",
+    31 => "Wireless-XGP",
+    32 => "PPPoA",
+    33 => "PPPoEoA",
+    34 => "PPPoEoE",
+    35 => "PPPoEoVLAN",
+    36 => "PPPoEoQinQ",
+);
+
 =back
 
 =head1 AUTHOR
