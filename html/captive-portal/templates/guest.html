@@ -84,10 +84,6 @@
             <input type="submit" class="btn" name="by_sponsor" value="[% i18n("Register through a Sponsor") %]" /><br/>
             [% END %]
 
-            [% IF null_guest_allowed  %]
-            <input type="submit" class="btn" name="by_null" value="[% i18n("Register") %]" />
-            [% END %]
-
             [% IF email_guest_allowed %]
             <div class="note bg">
               [% IF is_preregistration %]
@@ -109,6 +105,15 @@
               <p>[% i18n("If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.") %]</p>
             </div>
             <input type="submit" class="btn" name="by_sms" value="[% i18n("Register by SMS") %]" />
+            [% END %]
+
+            [% IF null_guest_allowed  %]
+            <div class="note bg">
+              <p>
+                [% i18n("Click here to register") %]
+              </p>
+            </div>
+            <input type="submit" class="btn" name="by_null" value="[% i18n("Register") %]" />
             [% END %]
 
           </div>
