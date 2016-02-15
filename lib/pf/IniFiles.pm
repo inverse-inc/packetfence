@@ -224,6 +224,18 @@ sub _getFileTimestamp {
     return $timestamp;
 }
 
+sub ClearSection {
+    my $self = shift;
+    my $sect = shift;
+    $self->_caseify(\$sect);
+    if (not defined $sect or !$self->SectionExists($sect) ) {
+        return undef;
+    }
+    foreach my $parameter ($self->Parameters($sect)) {
+        $self->delval($sect, $parameter);
+    }
+}
+
 
 =head1 AUTHOR
 
@@ -254,4 +266,3 @@ USA.
 =cut
 
 1;
-
