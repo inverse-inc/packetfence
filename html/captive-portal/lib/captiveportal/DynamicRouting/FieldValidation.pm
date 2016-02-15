@@ -31,7 +31,7 @@ sub validate_required_fields {
     my ($self) = @_;
     my @errors;
     foreach my $field (@{$self->required_fields}){
-        unless(defined($self->request_fields->{$field})){
+        unless(defined($self->request_fields->{$field}) && $self->request_fields->{$field}){
             push @errors, "$field is required";
         }
     }
