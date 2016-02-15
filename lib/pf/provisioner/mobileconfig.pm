@@ -170,8 +170,6 @@ Get the server certificate content minus the ascii armor
 
 sub raw_server_cert_string {
     my ($self) = @_;
-    use Data::Dumper;
-    get_logger->info('Certificate content HELLO'.$self->server_certificate);
     return $self->_raw_server_cert_string($self->server_certificate);
 }
 
