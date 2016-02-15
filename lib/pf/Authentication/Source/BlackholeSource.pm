@@ -1,4 +1,5 @@
 package pf::Authentication::Source::BlackholeSource;
+
 =head1 NAME
 
 pf::Authentication::Source::BlackholeSource add documentation
@@ -96,6 +97,14 @@ sub authenticate {
     return ($FALSE, 'Not allowed');
 }
 
+=head2 has_authentication_rules
+
+Whether or not the source should have authentication rules
+
+=cut
+
+sub has_authentication_rules { $FALSE }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -124,4 +133,3 @@ USA.
 =cut
 
 1;
-
