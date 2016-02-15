@@ -33,7 +33,6 @@ Readonly our $KICKBOX_HOST => "https://api.kickbox.io";
 Readonly our $VERIFY_URI => "/v2/verify";
 Readonly our @ACCEPTABLE_RESULTS => qw(deliverable);
 
-has '+class' => (default => 'exclusive');
 has '+type' => (default => 'Kickbox');
 has 'api_key' => (isa => 'Str', is => 'rw');
 has '+email_required' => (isa => 'Str', is => 'rw', default => 'yes');
