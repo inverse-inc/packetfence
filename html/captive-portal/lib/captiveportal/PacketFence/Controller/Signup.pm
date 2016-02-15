@@ -208,7 +208,7 @@ sub doEmailSelfRegistration : Private {
         $profile->getName,
         %info,
       );
-    
+
     pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # if we are on-site: register the node
@@ -339,7 +339,7 @@ sub doSponsorSelfRegistration : Private {
         $profile->getName,
         %info,
       );
-    
+
     pf::auth_log::record_guest_attempt($source->id, $c->portalSession->clientMac, $pid);
 
     # on-site: redirection will show pending page (unless there's a violation for the node)
@@ -608,8 +608,8 @@ sub validateMandatoryFields : Private {
         $source_type = 'email' if $request->param('by_email');
         $source_type = 'sms' if $request->param('by_sms');
         $source_type = 'sponsoremail' if $request->param('by_sponsor');
-        $source = $profile->getSourceByType($source_type);
         $source_type = 'null' if $request->param('by_null');
+        $source = $profile->getSourceByType($source_type);
     }
 
     $logger->info("Validating mandatory and custom fields for '".$source->id."' based self-registration");
