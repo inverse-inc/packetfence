@@ -26,10 +26,6 @@ use pf::util;
 use pf::node;
 use pf::enforcement;
 
-sub required_fields_child {
-    return ["email"];
-}
-
 sub execute_child {
     my ($self) = @_;
     # the user has completed his activation

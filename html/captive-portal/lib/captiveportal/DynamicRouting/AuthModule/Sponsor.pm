@@ -20,10 +20,6 @@ use pf::Authentication::constants;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
-sub required_fields_child {
-    return ["email", "sponsor"];
-}
-
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->path eq "sponsor/check"){

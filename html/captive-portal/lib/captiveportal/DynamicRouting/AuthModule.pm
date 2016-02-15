@@ -74,7 +74,7 @@ sub _build_required_fields {
     my @fields;
     push @fields, 'aup' if($self->with_aup);
     push @fields, $self->pid_field if(defined($self->pid_field));
-    push @fields, (@{$self->required_fields_child}, @{$self->custom_fields});
+    push @fields, (@{$self->source->mandatoryFields()}, @{$self->required_fields_child}, @{$self->custom_fields});
     return [uniq(@fields)];
 }
 

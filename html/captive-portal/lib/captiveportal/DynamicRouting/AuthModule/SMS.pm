@@ -24,10 +24,6 @@ has '+pid_field' => (default => sub { "telephone" });
 
 has '+source' => (isa => 'pf::Authentication::Source::SMSSource');
 
-sub required_fields_child {
-    return ["telephone", "mobileprovider"];
-}
-
 sub execute_child {
     my ($self) = @_;
 

@@ -72,7 +72,7 @@ List of mandatory fields for this source
 =cut
 
 sub mandatoryFields {
-    return qw(email sponsor_email);
+    return qw(email sponsor);
 }
 
 =head1 AUTHOR
