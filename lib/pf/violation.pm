@@ -615,8 +615,19 @@ Returns 1 if at least one violation is added, 0 otherwise.
 
 sub violation_trigger {
     my $timer = pf::StatsD::Timer->new;
-    my ( $mac, $tid, $type ) = @_;
+
+    my ( $argv ) = @_;
     my $logger = get_logger();
+
+    # Making sure we have all required arguments to process a violation triggering
+    my @require = qw(mac tid type);
+    my @found = grep {exists $argv->{$_}} @require;
+    return (0) unless pf::util::validate_argv(\@require, \@found);
+
+    my $mac = $argv->{'mac'};
+    my $tid = $argv->{'tid'};
+    my $type = $argv->{'type'};
+
     $logger->trace("Triggering violation $type $tid for mac $mac");
     return (0) if ( !$tid );
     $type = lc($type);
@@ -711,6 +722,8 @@ sub violation_trigger {
           }
         }
         $data{'release_date'} = $date;
+
+        $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
 
         $logger->info("calling violation_add with vid=$vid mac=$mac release_date=$date (trigger ${type}::${tid})");
         violation_add($mac, $vid, %data);

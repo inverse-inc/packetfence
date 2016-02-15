@@ -44,6 +44,7 @@ use File::Slurp;
 use pf::file_paths;
 use pf::CHI;
 use pf::access_filter::dhcp;
+use pf::metascan();
 
 use List::MoreUtils qw(uniq);
 use File::Copy::Recursive qw(dircopy);
@@ -69,7 +70,7 @@ sub event_add : Public {
     if ($srcmac) {
 
         # trigger a violation
-        pf::violation::violation_trigger($srcmac, $id, $type);
+        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
 
     } else {
         $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
@@ -168,7 +169,7 @@ sub update_iplog : Public {
     my ($class, %postdata) = @_;
     my @require = qw(mac ip);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -195,7 +196,7 @@ sub unreg_node_for_pid : Public {
     my $logger = pf::log::get_logger();
     my @require = qw(pid);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my @node_infos =  pf::node::node_view_reg_pid($postdata{'pid'});
     $logger->info("Unregistering ".scalar(@node_infos)." node(s) for ".$postdata{'pid'});
@@ -246,7 +247,7 @@ sub firewallsso : Public {
     my ($class, %postdata) = @_;
     my @require = qw(method mac ip timeout);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -282,7 +283,7 @@ sub ReAssignVlan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(connection_type switch mac ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -317,7 +318,7 @@ sub desAssociate : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -340,7 +341,7 @@ sub firewall : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -441,9 +442,9 @@ sub trigger_violation : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac tid type);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
-    return (pf::violation::violation_trigger($postdata{'mac'}, $postdata{'tid'}, $postdata{'type'}));
+    return (pf::violation::violation_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'} } ));
 }
 
 =head2 release_all_violations
@@ -481,7 +482,7 @@ sub modify_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     if (defined($postdata{'unregdate'})) {
         if (pf::util::valid_date($postdata{'unregdate'})) {
@@ -504,7 +505,7 @@ sub register_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac pid);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
     return;
@@ -520,7 +521,7 @@ sub deregister_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     pf::node::node_deregister($postdata{'mac'}, %postdata);
     return;
@@ -536,7 +537,7 @@ sub node_information : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $node_info = pf::node::node_view($postdata{'mac'});
     return $node_info;
@@ -547,7 +548,7 @@ sub notify_configfile_changed : Public {
     my $logger = pf::log::get_logger;
     my @require = qw(server conf_file);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
+    return unless pf::util::validate_argv(\@require, \@found);
 
     # we light expire pfconfig cluster configuration on this server so it uses the distributed configuration
     my $payload = {
@@ -583,7 +584,7 @@ sub download_configfile : Public {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
+    return unless pf::util::validate_argv(\@require, \@found);
 
     die "Config file $postdata{conf_file} doesn't exist" unless(-e $postdata{conf_file});
     my $config = read_file($postdata{conf_file});
@@ -595,7 +596,7 @@ sub distant_download_configfile : Public {
     my ($class, %postdata) = @_;
     my @require = qw(conf_file from);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
+    return unless pf::util::validate_argv(\@require, \@found);
 
     my $file = $postdata{conf_file};
     my %data = ( conf_file => $file );
@@ -609,7 +610,7 @@ sub expire_cluster : Public {
     my ($class, %postdata) = @_;
     my @require = qw(namespace conf_file);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
+    return unless pf::util::validate_argv(\@require, \@found);
 
     my $logger = pf::log::get_logger;
 
@@ -662,7 +663,7 @@ sub expire : Public {
     my $logger = pf::log::get_logger;
     my @require = qw(namespace light);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require, \@found);
+    return unless pf::util::validate_argv(\@require, \@found);
 
     my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
     if($all){
@@ -675,27 +676,6 @@ sub expire : Public {
     return { error => 0 };
 }
 
-=head2 validate_argv
-
-Test if the required arguments are provided
-
-=cut
-
-sub validate_argv {
-    my ($require, $found) = @_;
-    my $logger = pf::log::get_logger();
-
-    if (!(@{$require} == @{$found})) {
-        my %diff;
-        @diff{ @{$require} } = @{$require};
-        delete @diff{ @{$found} };
-        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
-        return 0;
-    }
-    return 1;
-}
-
-
 =head2 add_person
 
 Add a new person
@@ -706,7 +686,7 @@ sub add_person : Public {
     my ($class, %params) = @_;
     my @require = qw(pid);
     my @found = grep {exists $params{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
     my $logger = pf::log::get_logger();
     my $pid    = delete $params{pid};
     my $sendmail = delete $params{sendmail};
@@ -793,7 +773,7 @@ sub modify_person : Public {
     my ($class, %params) = @_;
     my @require = qw(pid);
     my @found = grep {exists $params{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
     my $pid = delete $params{pid};
     my $logger = pf::log::get_logger();
     unless(pf::person::person_exist($pid)) {
@@ -821,15 +801,6 @@ sub delete_person {
     return $result;
 }
 
-
-=head2 whowasi
-
-Return the parent function name
-
-=cut
-
-sub whowasi { ( caller(2) )[3] }
-
 =head2 trigger_scan
 
 Check if we have to launch a scan for the device
@@ -840,7 +811,7 @@ sub trigger_scan : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(ip mac net_type);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
@@ -879,7 +850,7 @@ sub close_violation : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac vid);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
 
@@ -901,7 +872,7 @@ sub dynamic_register_node : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac username);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,  \@found);
+    return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
     my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
@@ -1008,7 +979,7 @@ sub detect_computername_change : Public {
               "( ".$node_attributes->{computername}." -> $new_computername ).".
               "Possible MAC spoofing.");
 
-            pf::violation::violation_trigger($mac, "hostname_change", "internal");
+            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "hostname_change", 'type' => "internal" } );
             return 1;
         }
     }
@@ -1025,7 +996,7 @@ sub reevaluate_access : Public {
     my ($class, %postdata )  = @_;
     my @require = qw(mac reason);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,\@found);
+    return unless pf::util::validate_argv(\@require,\@found);
 
     my $logger = pf::log::get_logger();
 
@@ -1043,7 +1014,7 @@ sub process_dhcp : Public {
     my ($class, %postdata) = @_;
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type udp_payload_b64);
     my @found = grep {exists $postdata{$_}} @require;
-    return unless validate_argv(\@require,\@found);
+    return unless pf::util::validate_argv(\@require,\@found);
     
     $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
     pf::dhcp::processor->new(%postdata)->process_packet();
@@ -1120,6 +1091,20 @@ Copy a directory on this server
 sub copy_directory : Public {
     my ($class, $source_dir, $dest_dir) = @_;
     return dircopy($source_dir, $dest_dir);
+}
+
+=head2 metascan_process
+
+=cut
+
+sub metascan_process : Public {
+    my ( $class, $data ) = @_;
+
+    my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
+    return if !defined($metascan_scan_result_id);
+
+    my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
+    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );    
 }
 
 =head1 AUTHOR

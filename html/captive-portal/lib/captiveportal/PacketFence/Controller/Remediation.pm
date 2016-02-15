@@ -53,6 +53,7 @@ sub index : Path : Args(0) {
         my $node_info = node_view($mac);
         $c->stash(
             'template'     => 'remediation.html',
+            'notes'        => $violation->{'notes'},
             map { $_ => $node_info->{$_} }
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)

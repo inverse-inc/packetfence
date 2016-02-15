@@ -2525,10 +2525,84 @@ Since the suricata IDS is not packaged with the distros (except maybe Fedora, wh
 
 The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
 
+NOTE: To benefit the OPSWAT Metascan integration, Suricata needs to be built with libnss / libnspr support. Make sure to use JSON output. More information on how to achieve this can be found there: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/MD5
+
 Configuration
 +++++++++++++
 
-PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
+Depending on whether or not Suricata is running on the PacketFence server, configuration is different.
+
+When running locally, PacketFence provides a basic `suricata.yaml` that can be modified to suit different needs. The file is located in `/usr/local/pf/conf`.
+
+In the case that Suricata is running on a separate server, Suricata configuration will have to be handled separately, which is not the purpose of the present guide.
+
+OPSWAT Metascan integration
++++++++++++++++++++++++++++
+
+It is possible to trigger violations based on threat level of downloaded files using the OPSWAT Metascan integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
+
+First, an OPSWAT portal account is required to make use of the API. Such account can be obtained through the OPSWAT portal: https://portal.opswat.com.
+
+Other requirement is a Suricata working installation built with libnss / libnspr support as described in the upper "Installation" section.
+
+Along with the OPSWAT API key for Metascan Online (they call it 'License Key') and the working Suricata installation, some configuration (PacketFence based AND Suricata based) are also required.
+
+Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
+
+On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
+
+Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
+
+  ### PacketFence / OPSWAT Metascan integration
+  # This line specifies where the files-json.log file is located
+  # -> Make sure to configure the right path along with the right filename
+  source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
+  # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
+  # -> Make sure to configure the right PacketFence management interface IP address
+  destination d_packetfence { udp("PACKETFENCE_MGMT_IP" port(514)); };
+  # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence destination
+  log { source(s_suricata_files); destination(d_packetfence); };
+
+A restart of the syslog-ng daemon is required
+
+  service syslog-ng restart
+
+On the PacketFence server:
+
+Modify rsyslog configuration to allow incoming UDP packets by uncommenting the following two lines in `/etc/rsyslog.conf`:
+
+  $ModLoad imudp
+  $UDPServerRun 514
+
+Configure `/etc/rsyslog.d/suricata_files.conf` by adding the following which will enable reception of Suricata MD5 file store log entries:
+
+  if $programname == 'suricata_files' then /usr/local/pf/var/suricata_files
+  & ~
+
+Make sure the receiving alert pipe (FIFO) exists
+
+  mkfifo /usr/local/pf/var/suricata_files
+
+Restart the rsyslog daemon
+
+  service rsyslog restart
+
+At this point, Suricata should be able to extract MD5 checksum of downloaded files and send the related log entry to PacketFence.
+
+A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metascan integration.
+
+Configuration of a new 'syslog parser' should use the followings:
+
+  Type: suricata_http
+  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
+
+Configuration of a new violation can use the following trigger types:
+
+  Type: metascan
+  Triggers ID: The scan result returned by OPSWAT Metascan online
+
+  Type: suricata_md5
+  Trigger ID: The MD5 hash returned by Suricata
 
 Security Onion
 ^^^^^^^^^^^^^^
@@ -2551,23 +2625,19 @@ On the Security Onion server:
 
 NOTE: Must be done on the master server running 'sguild'.
 
-Configure `/etc/syslog-ng/syslog-ng.conf` by adding the followings which will enable sending sguild log entries to PacketFence:
+Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending sguild log entries to PacketFence:
 
-  # This line specifies where the sguild.log file is located, and informs syslog-ng to tail the file, the program_override inserts the string sguil_alert into the string
-  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("sguil_alert")); };
-
+  ### PacketFence / IDS integration
+  # This line specifies where the sguild.log file is located
+  # -> Make sure to configure the right patch along with the right filename (on a Security Onion setup, that should be pretty much standard)
+  source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
   # This line filters on the string “Alert Received”
   filter f_sguil { match("Alert Received"); };
-
-  # This line tells syslog-ng to send the data read to the IP address of the PacketFence management interface, via UDP to port 514
-  destination d_sguil_udp { udp("PACKENTFENCE_MGMT_IP" port(514)); };
-
-  # This log section tells syslog-ng how to structure the previous ‘source / filter / destination’ and is what actually puts them into play
-  log {
-      source(s_sguil);
-      filter(f_sguil);
-      destination(d_sguil_udp);
-  };
+  # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
+  # -> Make sure to configure the right PacketFence management interface IP address
+  destination d_packetfence { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+  # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence destination
+  log { source(s_sguil); filter(f_sguil); destination(d_sguil_udp); };
 
 A restart of the syslog-ng daemon is then required
 
@@ -2580,18 +2650,35 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/security_onion.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
+Configure `/etc/rsyslog.d/securityonion_ids.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
 
-  :programname, isequal, "sguil_alert" |/usr/local/pf/var/security_onion_alerts
+  if $programname == 'securityonion_ids' then /usr/local/pf/var/securityonion_ids
   & ~
 
 Make sure the receiving alert pipe (FIFO) exists
 
-  mkfifo /usr/local/pf/var/security_onion_alerts
+  mkfifo /usr/local/pf/var/securityonion_ids
 
 Restart the rsyslog daemon
 
   service rsyslog restart
+
+At this point, Security Onion should be able to send detected alerts log entries to PacketFence.
+
+A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the Security Onion IDS integration.
+
+Configuration of a new 'syslog parser' should use the followings:
+
+  Type: security_onion
+  Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/securityonion_ids
+
+Configuration of a new violation can use the following trigger types:
+
+  Type: detect
+  Triggers ID: The IDS triggered rule ID
+
+  Type: suricata_event
+  Trigger ID: The rule class of the triggered IDS alert
 
 Violations
 ^^^^^^^^^^

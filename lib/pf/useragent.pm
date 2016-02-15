@@ -470,7 +470,7 @@ sub process_useragent {
     foreach my $browser_property ($browserDetect->browser_properties()) {
         my $tid = property_to_tid($browser_property);
         $logger->debug("sending USERAGENT::$tid ($browser_property) trigger");
-        violation_trigger( $mac, $tid, "USERAGENT" );
+        violation_trigger( { 'mac' => $mac, 'tid' => $tid, 'type' => "USERAGENT" } );
     }
 
     return $TRUE;

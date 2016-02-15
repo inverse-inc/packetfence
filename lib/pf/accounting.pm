@@ -415,19 +415,19 @@ sub acct_maintenance {
 
                     if ($direction eq $DIRECTION_IN) {
                          if(node_acct_maintenance_bw_inbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                              violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                              violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     } elsif ($direction eq $DIRECTION_OUT) {
                          if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                                 violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     } else {
                          if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) {
-                                 violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                                 violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                          }
                     }
                 } else {
-                    violation_trigger($cleanedMac, $acct_policy, $TRIGGER_TYPE_ACCOUNTING);
+                    violation_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                 }
             }
         }

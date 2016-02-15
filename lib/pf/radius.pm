@@ -328,7 +328,7 @@ sub accounting {
                     }
                     if ($time_balance == 0) {
                         # Trigger violation
-                        violation_trigger($mac, $ACCOUNTING_POLICY_TIME, $TRIGGER_TYPE_ACCOUNTING);
+                        violation_trigger( { 'mac' => $mac, 'tid' => $ACCOUNTING_POLICY_TIME, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                     }
                 }
             }

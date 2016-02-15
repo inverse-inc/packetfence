@@ -390,7 +390,7 @@ sub getRegisteredRole {
     my $provisioner = $profile->findProvisioner($args->{'mac'},$args->{'node_info'});
     if (defined($provisioner) && $provisioner->{enforce}) {
         $logger->info("Triggering provisioner check");
-        pf::violation::violation_trigger($args->{'mac'}, $TRIGGER_ID_PROVISIONER, $TRIGGER_TYPE_PROVISIONER);
+        pf::violation::violation_trigger( { 'mac' => $args->{'mac'}, 'tid' => $TRIGGER_ID_PROVISIONER, 'type' => $TRIGGER_TYPE_PROVISIONER } );
     }
 
     my $scan = $profile->findScan($args->{'mac'},$args->{'node_info'});
