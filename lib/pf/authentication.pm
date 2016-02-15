@@ -242,13 +242,13 @@ sub authenticate {
     my $message;
     foreach my $current_source (@sources) {
         my $result;
-        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
+        $logger->trace("Trying to authenticate ".(defined($username) ? "'$username'" : "anonymous")." with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for ".(defined($username) ? "'$username'" : "anonymous")." in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }

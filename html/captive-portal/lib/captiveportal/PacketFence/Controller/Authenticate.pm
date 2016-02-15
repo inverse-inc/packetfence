@@ -544,7 +544,7 @@ sub authenticationLogin : Private {
                 "source_match" => $source_id,
             );
             # Logging USER/IP/MAC of the just-authenticated user
-            $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
+            $logger->info("Successfully authenticated ".(defined($username) ? "'$username'" : "'$default_pid'")."/".$portalSession->clientIp."/".$portalSession->clientMac);
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $portalSession->clientMac, $username, $pf::auth_log::FAILED);
             $c->error($message);
