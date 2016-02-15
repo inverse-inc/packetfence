@@ -58,6 +58,7 @@ tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 =cut
 
 # normal flow
+Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
@@ -70,6 +71,7 @@ Readonly::Scalar our $URL_OAUTH2                => '/oauth2/(.+)';
 Readonly::Scalar our $URL_STATUS                => '/status';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
+Readonly::Scalar our $URL_STATUS_BILLING        => '/status/billing';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';

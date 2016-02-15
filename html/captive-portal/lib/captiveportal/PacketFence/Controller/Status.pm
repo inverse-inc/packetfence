@@ -27,6 +27,7 @@ Catalyst Controller.
 
 sub begin :Private {
     my ( $self, $c ) = @_;
+    $c->session->{release_bypass} = $TRUE;
     $c->forward('setupCurrentNodeInfo');
 }
 

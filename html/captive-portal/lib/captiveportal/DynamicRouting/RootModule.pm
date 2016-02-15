@@ -12,11 +12,23 @@ Root module for Dynamic Routing
 
 use Moose;
 extends 'captiveportal::DynamicRouting::AndModule';
+with 'captiveportal::DynamicRouting::Routed';
 
+has '+route_map' => (default => sub {
+    tie my %map, 'Tie::IxHash', (
+        '/status/billing' => \&direct_route_billing, 
+        '/billing.*' => \&check_billing_bypass,
+    );
+    return \%map;
+
+});
+
+use pf::log;
 use pf::node;
 use pf::config;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
+use captiveportal::DynamicRouting::AuthModule::Billing;
 
 has '+parent' => (required => 0);
 
@@ -28,6 +40,8 @@ sub done {
 
 sub release {
     my ($self) = @_;
+    return $self->app->redirect("/access") unless($self->app->request->path eq "access");
+
     $self->app->reset_session;
     $self->render("release.html", $self->_release_args());
 }
@@ -48,7 +62,7 @@ sub handle_violations {
 
 sub execute_child {
     my ($self) = @_;
-    
+
     # Make sure there are no outstanding violations
     return unless($self->handle_violations());
 
@@ -57,8 +71,7 @@ sub execute_child {
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg" && !$self->app->session->{release_bypass}){
-        $self->release();
-        return;
+        return $self->release();
     }
     $self->SUPER::execute_child();
 }
@@ -71,7 +84,39 @@ sub execute_actions {
 
 sub apply_new_node_info {
     my ($self) = @_;
+    get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
+    $self->app->flash->{notice} = "Role ".$self->new_node_info->{category}." has been assigned to your device with unregistration date : ".$self->new_node_info->{unregdate};
     node_modify($self->current_mac, %{$self->new_node_info()});
+}
+
+sub direct_route_billing {
+    my ($self) = @_;
+    my $node = node_view($self->current_mac);
+    if($node->{status} eq "reg"){
+        $self->session->{direct_route_billing} = $TRUE;
+        $self->module_map({'_DYNAMIC_BILLING_MODULE_' => captiveportal::DynamicRouting::AuthModule::Billing->new(
+                    id => '_DYNAMIC_BILLING_MODULE_', 
+                    app => $self->app, 
+                    parent => $self, 
+                    source_id => join(',',map {$_->id} $self->app->profile->getBillingSources()),
+                )});
+        $self->modules_order(['_DYNAMIC_BILLING_MODULE_']);
+        $self->SUPER::execute_child();
+    }
+    else {
+        $self->app->error("This section cannot be accessed by unregistered users");
+    }
+    
+}
+
+sub check_billing_bypass {
+    my ($self) = @_;
+    if($self->session->{direct_route_billing}){
+        $self->direct_route_billing();
+    }
+    else {
+        $self->app->error("Nothing to do here...");
+    }
 }
 
 =head1 AUTHOR
