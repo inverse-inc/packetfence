@@ -369,13 +369,14 @@ sub unknownState : Private {
             $switch = pf::SwitchFactory->instantiate($last_switch_id);
         }
 
-        if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
+        my $session = new pf::Portal::Session()->session;
+        if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
             $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
             $c->stash(
                 template => 'webFormRelease.html',
                 content => $switch->getAcceptForm($mac,
                                 $c->stash->{destination_url},
-                                new pf::Portal::Session()->session,
+                                $session,
                                 ),
             );
             $c->detach;
@@ -475,13 +476,14 @@ sub webNodeRegister : Private {
                 $switch = pf::SwitchFactory->instantiate($last_switch_id);
             }
         }
-        if(defined($switch) && $switch && $switch->supportsWebFormRegistration){
-            $logger->info("Switch supports web form release.");
+        my $session = new pf::Portal::Session()->session;
+        if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
+            $logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
             $c->stash(
                 template => 'webFormRelease.html',
                 content => $switch->getAcceptForm($mac,
                                 $c->stash->{destination_url},
-                                new pf::Portal::Session()->session,
+                                $session,
                                 ),
             );
             $c->detach;
