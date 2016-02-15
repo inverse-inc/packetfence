@@ -77,7 +77,7 @@ sub verify {
     };
     if ($@) {
         get_logger->error($@);
-        $self->app->flash->{error} = "Unable to process payment";
+        $self->app->flash->{billing_error} = "Unable to process payment";
         $self->index();
         return 0;
     }
@@ -138,7 +138,6 @@ sub process_transaction {
     }
 
     $self->done();
-
 }
 
 # we handle these ourselves
