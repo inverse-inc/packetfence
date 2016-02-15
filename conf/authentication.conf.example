@@ -57,3 +57,10 @@ action1=set_access_duration=1D
 description=Null Source
 type=Null
 email_required=no
+
+[null rule catchall]
+description=catchall
+class=authentication
+match=all
+action0=set_role=guest
+action1=set_access_duration=1D
