@@ -121,3 +121,15 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
+
+--
+-- Alter locationlog
+--
+
+ALTER TABLE `locationlog` MODIFY `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
+
+--
+-- Alter locationlog_archive
+--
+
+ALTER TABLE `locationlog_archive` MODIFY `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
