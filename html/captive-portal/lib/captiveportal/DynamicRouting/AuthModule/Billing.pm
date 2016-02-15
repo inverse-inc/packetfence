@@ -30,7 +30,7 @@ has '+pid_field' => (default => sub { "email" });
 
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
-        '/billing/cancel' => \&cancel,
+        '/billing/(.+)/cancel' => \&cancel,
         '/billing/(.+)/verify' => \&verify,
         '/billing/confirm' => \&confirm,
         # fallback to the index
@@ -61,7 +61,20 @@ sub index {
     });
 }
 
-sub cancel {}
+sub cancel {
+    my ($self, $c) = @_;
+    my $billing = $self->source();
+    my $data;
+    eval {
+        $data = $billing->cancel($self->session, $self->app->request->parameters, $self->app->request->uri);
+    };
+    if ($@) {
+        get_logger->error($@);
+    }
+    $self->app->flash->{notice} = 'Order was canceled';
+    $self->index();
+}
+
 sub verify {
     my ($self) = @_;
 
