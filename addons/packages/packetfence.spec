@@ -412,8 +412,6 @@ done
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # build ntlm_auth_wrapper
 make bin/ntlm_auth_wrapper
-# build window-agent
-make windows-agent
 # Define git_commit_id
 echo %{git_commit} > conf/git_commit_id
 
