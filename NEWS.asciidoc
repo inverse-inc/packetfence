@@ -20,6 +20,7 @@ New Features
 * DNS based enforcement as a new enforcement mode for routed networks
 * Captive portal authentication now supports SAML authentication
 * It is now possible to search for nodes that are online based on RADIUS accounting
+* Integration with Suricata MD5 extraction module to scan against OPSWAT MetaScan online scanner
 
 Enhancements
 ++++++++++++
