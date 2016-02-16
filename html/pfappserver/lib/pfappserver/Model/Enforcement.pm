@@ -26,6 +26,7 @@ my %types   = (
     inline      => [ 'management', 'inline', 'inlinel2', 'inlinel3' ], # inline is kept for backwards compat.
 #    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
     webauth     => ['management', 'portal'],
+    other       => ['dns-enforcement'],
 );
 
 =head1 METHODS
