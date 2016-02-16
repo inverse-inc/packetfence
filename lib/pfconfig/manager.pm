@@ -38,6 +38,7 @@ use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
 use pf::log;
 use pf::util;
+use Fcntl;
 use Time::HiRes qw(stat time);
 use File::Find;
 use pfconfig::util;
@@ -46,6 +47,7 @@ use POSIX::2008;
 use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
+use pf::constants::user;
 
 =head2 config_builder
 
@@ -198,26 +200,14 @@ That sends the signal that the raw memory is expired
 
 sub touch_cache {
     my ( $self, $what ) = @_;
-    my $logger = get_logger;
     $what =~ s/\//;/g;
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
 
-    if ( !-e $filename ) {
-        my $fh;
-        unless ( open( $fh, ">$filename" ) ) {
-            $logger->error("Can't create $filename\nPlease run 'pfcmd fixpermissions'");
-            return 0;
-        }
-        close($fh);
-    }
-    if ( -e $filename ) {
-        my $command = 'touch --date=@'.time.' '."'".$filename."'";
-        $command = untaint_chain($command);
-        `$command`;
-    }
-    my ( undef, undef, $uid, $gid ) = getpwnam('pf');
-    chown( $uid, $gid, $filename );
+    sysopen(my $fh,$filename,O_RDWR | O_CREAT);
+    POSIX::2008::futimens(fileno $fh);
+    chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
+    close($fh);
 }
 
 =head2 get_cache
