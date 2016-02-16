@@ -36,6 +36,7 @@ sub init {
     my ($self) = @_;
     $self->{expandable_params} = [];
     $self->{child_resources}   = [];
+    $self->{added_params}      = {};
 }
 
 sub _parse_error {
@@ -51,12 +52,10 @@ sub build {
 
     my %tmp_cfg;
 
-    my %added_params = ();
+    $self->{added_params}->{-file} = $self->{file};
+    $self->{added_params}->{-allowempty} = 1;
 
-    $added_params{-file} = $self->{file};
-    $added_params{-allowempty} = 1;
-
-    tie %tmp_cfg, 'Config::IniFiles', %added_params or $self->_parse_error();
+    tie %tmp_cfg, 'Config::IniFiles', %{$self->{added_params}} or $self->_parse_error();
 
     @{ $self->{ordered_sections} } = keys %tmp_cfg;
 

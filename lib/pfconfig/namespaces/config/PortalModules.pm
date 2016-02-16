@@ -19,12 +19,16 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths;
+use Config::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file} = "/usr/local/pf/conf/portal_modules.conf";
+    
+    my $defaults = Config::IniFiles->new( -file => "/usr/local/pf/conf/portal_modules.conf.defaults" );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
