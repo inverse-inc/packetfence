@@ -238,6 +238,7 @@ sub connect {
     my ($received_startup_message,$len);
 
     ($received_startup_message, $len) = $self->read_sock(8);
+    die "Cannot connect to OMAPI service" if !defined $received_startup_message;
     my ($version,$headerLength) = unpack('N2',$received_startup_message);
     my $startup_message = pack("N2",$version,$headerLength);
     $len = $self->send_sock($startup_message) || die "error sending startup message";
