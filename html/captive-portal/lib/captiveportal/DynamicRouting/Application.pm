@@ -230,7 +230,7 @@ sub _render {
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';
-    $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error);
+    $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
     return $output;
 }
