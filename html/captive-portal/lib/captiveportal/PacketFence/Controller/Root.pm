@@ -57,7 +57,7 @@ sub auto : Private {
         session => $c->session, 
         profile => $profile, 
         request => $request, 
-        root_module_id => "root_module"
+        root_module_id => $profile->{_root_module},
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIp;
