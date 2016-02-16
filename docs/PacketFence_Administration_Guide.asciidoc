@@ -2637,7 +2637,7 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   # -> Make sure to configure the right PacketFence management interface IP address
   destination d_packetfence { udp("PACKENTFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence destination
-  log { source(s_sguil); filter(f_sguil); destination(d_sguil_udp); };
+  log { source(s_sguil); filter(f_sguil); destination(d_packetfence); };
 
 A restart of the syslog-ng daemon is then required
 
