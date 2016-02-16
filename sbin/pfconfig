@@ -133,12 +133,12 @@ while($RUNNING) {
     my $socket;
     my $line;
     eval {
-        $socket = $listner->accept();
+        my $paddr = accept($socket,$listner);
         #Check if a signal was caught
-        unless (defined $socket || $! == EINTR) {
+        unless (defined $paddr || $! == EINTR) {
             die("Can't accept connection: $!\n");
         }
-        if($socket) {
+        if($paddr) {
             chomp( $line = <$socket> );
 
             if($line eq "exit") {exit}
@@ -159,6 +159,7 @@ while($RUNNING) {
                 print "undef";
             }
         }
+        $socket = undef;
     };
     if($@){
         print STDERR "$line : $@";
