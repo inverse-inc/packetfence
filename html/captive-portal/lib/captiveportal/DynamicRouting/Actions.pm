@@ -10,13 +10,23 @@ Actions for Dynamic Routing
 
 =cut
 
-use Moose;
+use strict;
+use warnings;
+use base qw(Exporter);
+our @EXPORT = qw(
+    %AUTHENTICATION_ACTIONS
+);
 
-sub set_role { $_[0]->new_node_info->{category} = $_[1]; }
+use pf::authentication;
+use pf::Authentication::constants;
 
-sub set_unregdate { $_[0]->new_node_info->{unregdate} = $_[1] }
-
-sub set_access_duration { $_[0]->new_node_info->{unregdate} = access_duration($_[1]) }
+our %AUTHENTICATION_ACTIONS = (
+    set_role => sub { $_[0]->new_node_info->{category} = $_[1]; },
+    set_unregdate => sub { $_[0]->new_node_info->{unregdate} = $_[1] },
+    set_access_duration => sub { $_[0]->new_node_info->{unregdate} = access_duration($_[1]) },
+    unregdate_from_source => sub { $_[0]->new_node_info->{unregdate} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_UNREG_DATE); },
+    role_from_source => sub { $_[0]->new_node_info->{category} = pf::authentication::match($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ROLE); },
+);
 
 =head1 AUTHOR
 
@@ -44,8 +54,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 

@@ -80,6 +80,7 @@ sub execute_actions {
     my ($self) = @_;
     $self->new_node_info->{status} = "reg";
     $self->apply_new_node_info();
+    return $TRUE;
 }
 
 sub apply_new_node_info {

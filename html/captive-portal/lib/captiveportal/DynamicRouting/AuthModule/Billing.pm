@@ -25,6 +25,7 @@ use pf::config::violation;
 use pf::config::util;
 use pf::util;
 use pf::node;
+use pf::constants;
 
 has '+pid_field' => (default => sub { "email" });
 
@@ -156,7 +157,7 @@ sub process_transaction {
 }
 
 # we handle these ourselves
-sub execute_actions {}
+sub execute_actions {$TRUE}
 
 sub find_source {
     my ($self, $source_id) = @_;

@@ -35,8 +35,11 @@ has 'pid_field' => ('is' => 'rw', default => sub {'email'});
 
 has 'with_aup' => ('is' => 'rw', default => sub {1});
 
+has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
+
 use pf::authentication;
 use pf::Authentication::constants;
+use captiveportal::DynamicRouting::Actions;
 
 sub form {
     my ($self) = @_;
@@ -59,14 +62,25 @@ sub _build_source {
 
 sub execute_actions {
     my ($self) = @_;
-    $self->new_node_info->{'unregdate'} = pf::authentication::match($self->source->id, $self->auth_source_params, $Actions::SET_UNREG_DATE);
-    $self->new_node_info->{'category'} = pf::authentication::match( $self->source->id, $self->auth_source_params, $Actions::SET_ROLE );
+
+    while(my ($action, $params) = each %{$self->actions}){
+        get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
+        $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
+    }
+
+    unless(defined($self->new_node_info->{unregdate}) && defined($self->new_node_info->{unregdate})){
+        get_logger->warn("Cannot find unregdate and role for user.");
+        $self->app->flash->{error} = "You do not have permission to register a device with this username";
+        return $FALSE;        
+    }
+
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
         $self->create_local_account();
     }
     
     get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
+    return $TRUE;
 }
 
 sub _build_required_fields {

@@ -37,7 +37,26 @@ sub build_child {
     my %tmp_cfg = %{$self->{cfg}};
 
     foreach my $module_id (keys %tmp_cfg){
-        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields));
+        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions));
+        
+        if(defined($tmp_cfg{$module_id}{actions})){
+            my @actions = @{$tmp_cfg{$module_id}{actions}};
+            if(@actions){
+                my $new_actions = {};
+                foreach my $action (@{$tmp_cfg{$module_id}{actions}}){
+                    if($action =~ /(.+)\((.*)\)/){
+                        my $action_name = $1;
+                        my $action_params = $2;
+                        $new_actions->{$action_name} = [split(/\s*,\s*/, $action_params)];
+                    }
+                }
+                $tmp_cfg{$module_id}{actions} = $new_actions;
+            }
+            else {
+                $tmp_cfg{$module_id}{actions} = undef;
+            }
+        }
+        
     }
 
     return \%tmp_cfg;

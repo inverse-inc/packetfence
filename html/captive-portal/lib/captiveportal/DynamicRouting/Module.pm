@@ -101,11 +101,18 @@ sub execute_child {
 
 sub execute_actions {
     # implement me in subclasses
+    return $TRUE;
 }
 
 sub done {
     my ($self) = @_;
-    $self->execute_actions();
+    unless($self->execute_actions()){
+        get_logger->warn("Execute actions of module ".$self->id." did not succeed.");
+        # we give a generic message if there is none in the flash error
+        $self->app->flash->{error} = "Could not execute actions." unless($self->app->flash->{error});
+        $self->app->redirect("/captive-portal");
+        return;
+    }
     $self->parent->next();
 }
 

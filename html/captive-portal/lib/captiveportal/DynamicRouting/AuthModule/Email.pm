@@ -112,6 +112,7 @@ after 'execute_actions' => sub {
 
         $self->new_node_info->{unregdate} = $unregdate;
     }
+    return $TRUE;
 };
 
 sub auth_source_params {
