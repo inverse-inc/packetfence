@@ -36,28 +36,11 @@ use pfconfig::timeme;
 use pf::log;
 use pfconfig::util qw($undef_element);
 use pfconfig::constants;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
+use pf::Sereal qw($DECODER);
 use bytes;
 
-=head2 ENCODER
-
-The encoder for the communications with pfconfig
-See CLONE where this needs to be recreated
-
-=cut
-
-our $ENCODER = Sereal::Encoder->new;
-
-=head2 DECODER
-
-The decoder for the communications with pfconfig
-See CLONE where this needs to be recreated
-
-=cut
-
-our $DECODER = Sereal::Decoder->new;
 
 =head2 new
 
@@ -226,7 +209,7 @@ sub _get_from_socket {
     # it returns it as a sereal hash
     my $result;
     if ( $response && $response ne "undef\n" ) {
-        eval { $result = $DECODER->decode($response); };
+        eval { $result = sereal_decode_with_object($DECODER, $response); };
         if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
@@ -271,17 +254,6 @@ sub is_valid {
         $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }
-}
-
-=head2 CLONE
-
-Called when cloning the module. Used to create new encoders, if not they'll be undefed
-
-=cut
-
-sub CLONE {
-    $ENCODER = Sereal::Encoder->new;
-    $DECODER = Sereal::Decoder->new;
 }
 
 sub logger {
