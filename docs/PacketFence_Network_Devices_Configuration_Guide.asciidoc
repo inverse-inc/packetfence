@@ -1775,6 +1775,7 @@ Netlogin (Mac Authentication)
 
   configure netlogin vlan temp
   enable netlogin mac
+  configure netlogin add mac-list default
   configure netlogin dynamic-vlan enable
   configure netlogin dynamic-vlan uplink-ports 50
   configure netlogin mac authentication database-order radius
