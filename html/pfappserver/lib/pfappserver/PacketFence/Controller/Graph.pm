@@ -470,10 +470,10 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'columns' => 1
                },
                {
-                'description' => 'Nodes Online',
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(*.nodes.online,0)',
-                'columns' => 1
+                'description' => 'Endpoints Online',
+                'vtitle' => 'Endpoints',
+                'target' => 'aliasByNode(stats.gauges.*.nodes.online,2)',
+                'columns' => 2
                },
               ];
 
