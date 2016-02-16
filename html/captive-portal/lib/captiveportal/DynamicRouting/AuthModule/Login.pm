@@ -77,7 +77,7 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
-            $self->session->{source} = pf::authentication::getAuthenticationSource($source_id);
+            $self->source(pf::authentication::getAuthenticationSource($source_id));
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $self->app->i18n($message);
