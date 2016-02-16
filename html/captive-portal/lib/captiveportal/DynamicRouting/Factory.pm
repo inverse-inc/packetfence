@@ -22,6 +22,7 @@ use Module::Pluggable search_path => 'captiveportal::DynamicRouting', sub_name =
 use pfconfig::cached_hash;
 use Graph;
 use List::MoreUtils qw(any);
+use captiveportal::DynamicRouting::util;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');
 
@@ -55,7 +56,7 @@ sub instantiate_all {
 sub instantiate_child {
     my ($self, $module_id, $parent_id) = @_;
     
-    my %args = %{$ConfigPortalModules{$module_id}};
+    my %args = %{$ConfigPortalModules{clean_id($module_id)}};
     if($parent_id){
         $args{parent} = $INSTANTIATED_MODULES{$parent_id};
     }
@@ -101,6 +102,12 @@ sub instantiate {
     my $object;
     $args{id} = $id;
 
+    my @new_modules_ids;
+    foreach my $sub_module_id (@{$args{modules}}){
+        push @new_modules_ids, generate_id($id, $sub_module_id);
+    }
+    $args{modules} = \@new_modules_ids;
+
     # The modules are inserted by the factory
     $args{modules_order} = $args{modules};
     delete $args{modules};
@@ -114,11 +121,12 @@ sub instantiate {
 
 sub add_to_graph {
     my ($self, $module_id) = @_;
-    my $modules = $ConfigPortalModules{$module_id}{modules};
+    my $modules = $ConfigPortalModules{clean_id($module_id)}{modules};
     foreach my $sub_module_id (@$modules){
-        $self->graph->add_path($module_id, $sub_module_id);
-        if($ConfigPortalModules{$sub_module_id}{modules}){
-            $self->add_to_graph($sub_module_id);
+        my $u_sub_module_id = generate_id($module_id, $sub_module_id);
+        $self->graph->add_path($module_id, $u_sub_module_id);
+        if($ConfigPortalModules{clean_id($u_sub_module_id)}{modules}){
+            $self->add_to_graph($u_sub_module_id);
         }
     }
 }
