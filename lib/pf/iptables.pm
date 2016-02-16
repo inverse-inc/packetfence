@@ -172,7 +172,7 @@ sub generate_filter_if_src_to_chain {
 
         my $cluster_ip = $ConfigCluster{$CLUSTER}->{"interface $dev"}->{ip};
         # VLAN enforcement
-        if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
+        if ($enforcement_type eq $IF_ENFORCEMENT_VLAN || $enforcement_type eq $IF_ENFORCEMENT_DNS) {
             if ($dev =~ m/(\w+):\d+/) {
                 $dev = $1;
             }
