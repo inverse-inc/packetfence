@@ -204,10 +204,14 @@ sub touch_cache {
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
 
-    sysopen(my $fh,$filename,O_RDWR | O_CREAT);
-    POSIX::2008::futimens(fileno $fh);
-    chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
-    close($fh);
+    if (sysopen(my $fh,$filename,O_RDWR | O_CREAT)) {
+        POSIX::2008::futimens(fileno $fh);
+        chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
+        close($fh);
+    }
+    else {
+        get_logger->error("Can't create/open $filename\nPlease run 'pfcmd fixpermissions'");
+    }
 }
 
 =head2 get_cache
