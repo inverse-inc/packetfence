@@ -121,20 +121,20 @@ sub authorize {
         stripped_user_name => $stripped_user_name,
         realm => $realm,
         nas_port_type => $nas_port_type,
-        eap_type => $eap_type,
+        eap_type => $eap_type // '',
         mac => $mac,
         ifIndex => $port,
         user_name => $user_name,
-        nas_port_id => $nas_port_type,
+        nas_port_id => $nas_port_type // '',
         session_id => $session_id,
         connection_type => $connection_type,
         connection_sub_type => $connection_sub_type,
         radius_request => $radius_request,
     };
 
-    $logger->trace("received a radius authorization request with parameters: ".
-        "nas port type => $nas_port_type, switch_ip => ($switch_ip), EAP-Type => $eap_type, ".
-        "mac => [$mac], port => $port, username => \"$user_name\"");
+    $logger->trace( sub { "received a radius authorization request with parameters: ".
+        "nas port type => $args->{nas_port_type}, switch_ip => ($switch_ip), EAP-Type => $args->{eap_type}, ".
+        "mac => [$mac], port => $port, username => \"$user_name\"" });
 
     # let's check if an old port sec entry needs to be removed in another switch
     $self->_handleStaticPortSecurityMovement($args);
