@@ -14,12 +14,13 @@ pfconfig::backend::mysql
 
 use strict;
 use warnings;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use Sereal::Decoder qw(sereal_decode_with_object);
 use DBI;
 use pfconfig::config;
 use Try::Tiny;
 use pf::log;
+use pf::Sereal qw($DECODER $ENCODER);
 
 use base 'pfconfig::backend';
 
@@ -36,6 +37,7 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
+    return $self->{_db} if (defined $self->{_db});
     my $logger = get_logger;
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
@@ -47,6 +49,7 @@ sub _get_db {
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
+    $self->{_db} = $db;
     return $db;
 }
 
@@ -86,10 +89,8 @@ sub get {
     }
     my $element;
     while ( my $row = $statement->fetchrow_hashref() ) {
-        my $decoder = Sereal::Decoder->new;
-        $element = $decoder->decode( $row->{value} );
+        $element = sereal_decode_with_object($DECODER, $row->{value});
     }
-    $db->disconnect();
     return $element;
 }
 
@@ -107,8 +108,7 @@ sub set {
         $self->_db_error();
         return 0;
     }
-    my $encoder = Sereal::Encoder->new;
-    $value = $encoder->encode($value);
+    $value = sereal_encode_with_object($ENCODER, $value);
     my $result;
     eval {
         $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
@@ -117,7 +117,6 @@ sub set {
         $logger->error("Couldn't insert in table. Error : $@");
         return 0;
     }
-    $db->disconnect();
     return $result;
 }
 
@@ -135,7 +134,6 @@ sub remove {
         return 0;
     }
     my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
-    $db->disconnect();
     return $result;
 }
 
@@ -153,7 +151,6 @@ sub clear {
         return 0;
     }
     my $result = $db->do( "DELETE FROM keyed" );
-    $db->disconnect();
     return $result;
 }
 
@@ -181,7 +178,6 @@ sub list {
     }
     my @keys = @{$statement->fetchall_arrayref()};
     @keys = map { $_->[0] } @keys;
-    $db->disconnect();
     return @keys;
 }
 
@@ -209,11 +205,16 @@ sub list_matching {
     }
     my @keys = @{$statement->fetchall_arrayref()};
     @keys = map { $_->[0] } @keys;
-    $db->disconnect();
     return @keys;
 }
 
-=back
+sub reset {
+    my ($self) = @_;
+    my $db = $self->{_db};
+    return unless defined $db;
+    $db->disconnect();
+    delete $self->{_db};
+}
 
 =head1 AUTHOR
 
