@@ -582,8 +582,8 @@ sub update_iplog {
         my $firewallsso = pf::firewallsso->new;
         $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
         $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
-
-        if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
+        my $last_connection_type = $view_mac->{'last_connection_type'};
+        if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
             $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
     }
