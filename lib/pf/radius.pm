@@ -313,7 +313,7 @@ sub accounting {
 
         # On accounting stop/update, check the usage duration of the node
         if ($mac && $user_name) {
-            my $session_time = int $radius_request->{'Acct-Session-Time'};
+            my $session_time = int ($radius_request->{'Acct-Session-Time'} // 0);
             if ($session_time > 0) {
                 my $node_attributes = node_attributes($mac);
                 if (defined $node_attributes->{'time_balance'}) {
