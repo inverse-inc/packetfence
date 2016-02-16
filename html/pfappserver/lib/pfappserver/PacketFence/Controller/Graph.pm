@@ -361,6 +361,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
     my $graphs = [];
     my $width = $c->request->param('width');
+    $start //= '';
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
 
