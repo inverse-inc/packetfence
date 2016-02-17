@@ -8,8 +8,6 @@ use Locale::gettext qw(gettext ngettext);
 sub maketext {
     my $self = shift;
     my @args = @_;
-    use Data::Dumper; use pf::log;
-    get_logger->info(Dumper(\@args));
     $args[0] =~ s/\[\_.+?\]/\%s/g;
     if(@args > 1){
         return $self->i18n_format(@args);

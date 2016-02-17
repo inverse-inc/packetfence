@@ -28,7 +28,7 @@ before 'execute_child' => sub {
 sub render {
     my ($self, @params) = @_;
     my $inner_content = $self->app->_render(@params);
-    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [$self->all_modules], current_module => $self->current_module});
+    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
 }
 
 =head1 AUTHOR

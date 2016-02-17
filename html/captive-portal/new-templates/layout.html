@@ -4,9 +4,13 @@
     <script src="/common/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="/common/pf.js" type="text/javascript"></script>
   </head>
-  <h1>Zi portal</h1>
+  <h1>PacketFence captive portal</h1>
   [% FOREACH level IN flash.keys %]
   <h3 class="flash-[% level %]">[% flash.$level %]</h3>
   [% END %]
   [% content | none %]
+
+  <div>
+    <a href="/logout">Restart from the beginning</a>
+  </div>
 </html>

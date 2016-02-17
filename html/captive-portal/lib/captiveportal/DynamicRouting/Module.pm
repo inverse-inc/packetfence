@@ -30,6 +30,9 @@ has username => (is => 'rw', builder => '_build_username', lazy => 1);
 
 has renderer => (is => 'rw');
 
+# Should the module be displayed in the choices
+sub display {$TRUE}
+
 sub _build_username {
     my ($self) = @_;
     return $self->app->session->{username};

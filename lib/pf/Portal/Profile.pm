@@ -374,6 +374,25 @@ sub getSourceByType {
     return first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
 }
 
+=item getSourcesByType
+
+Returns ALL the sources object for the requested source type for the current captive portal profile
+
+=cut
+
+sub getSourcesByType {
+    my ($self, $type) = @_;
+    return unless $type;
+    $type = uc($type);
+    return grep {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
+}
+
+sub getSourcesByObjectClass {
+    my ($self, $class) = @_;
+    return unless($class);
+    return grep {$_->isa($class)} $self->getSourcesAsObjects();
+}
+
 =item getSourceByTypeForChained
 
 Returns the first source object for the requested source type for chained sources in the current captive portal profile.

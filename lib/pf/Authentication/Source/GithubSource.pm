@@ -15,6 +15,7 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Github');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
+has '+dynamic_routing_module' => (default => 'AuthModule::OAuth::Github');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'user,user:email');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);

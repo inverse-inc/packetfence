@@ -13,10 +13,23 @@ MultiSource role to apply on a module to allow it to use multiple sources
 use Moose::Role;
 use pf::log;
 use List::Util qw(first);
+use List::MoreUtils qw(uniq);
+use pf::constants;
 
 has 'source_id' => (is => 'rw', trigger => \&_build_sources );
 
 has 'sources' => (is => 'rw', default => sub {[]});
+
+has 'multi_source_types' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{[]});
+
+has 'multi_source_auth_classes' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{[]});
+
+has 'multi_source_object_classes' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{[]});
+
+sub display {
+    my ($self) = @_;
+    return @{$self->sources} ? $TRUE : $FALSE;
+}
 
 around 'source' => sub {
     my ($orig, $self, $source) = @_;
@@ -42,14 +55,19 @@ sub _build_sources {
     my ($self, $source_id, $previous) = @_; 
     my @sources;
     if($source_id eq "_PROFILE_SOURCES_"){
-        @sources = ($self->app->profile->getInternalSources, $self->app->profile->getExclusiveSources);
+#        @sources = ($self->app->profile->getInternalSources, $self->app->profile->getExclusiveSources);
+        my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
+        my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
+        my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
+        push @sources, (@sources_by_type, @sources_by_auth_class, @sources_by_object_class);
+        @sources = uniq(@sources);
     }
     else {
         my @source_ids = split(/\s*,\s*/, $source_id);
         @sources = map { pf::authentication::getAuthenticationSource($_) } @source_ids;
     }
     
-    get_logger->debug(sub { use Data::Dumper ; "Module ".$self->id." is using sources : ".Dumper(\@sources) });
+    get_logger->debug(sub { "Module ".$self->id." is using sources : ".join(',', (map {$_->id} @sources)) });
     $self->sources(\@sources);
 }
 

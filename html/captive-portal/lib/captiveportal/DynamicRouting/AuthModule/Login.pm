@@ -28,6 +28,8 @@ has '+pid_field' => (default => sub { "username" });
 
 has '+sources' => (isa => 'ArrayRef[pf::Authentication::Source::SQLSource|pf::Authentication::Source::LDAPSource|pf::Authentication::Source|pf::Authentication::Source::HtpasswdSource|pf::Authentication::Source::KerberosSource]');
 
+has '+multi_source_auth_classes' => (default => sub{["internal"]});
+
 sub required_fields_child {
     return ["username", "password"];
 }
@@ -49,7 +51,15 @@ sub authenticate {
     
     my ($stripped_username, $realm) = strip_username($username);
 
-    my @sources = get_user_sources($self->sources, $username, $realm);
+    my @sources = get_user_sources($self->sources, $stripped_username, $realm);
+    get_logger->info("Authenticating user using sources : ", join(',', (map {$_->id} @sources)));
+
+    unless(@sources){
+        get_logger->info("No sources found for $username");
+        $self->app->flash->{error} = "No authentication source found for this username";
+        $self->prompt_fields();
+        return;
+    }
 
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is

@@ -17,6 +17,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'SMS');
 has '+unique' => (default => 1);
+has '+dynamic_routing_module' => (default => 'AuthModule::SMS');
 has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 

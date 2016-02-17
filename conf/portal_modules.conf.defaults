@@ -1,28 +1,29 @@
 [default_policy]
 description=Default portal policy
 type=RootModule
-modules=default_login_policy,default_provisioning_policy
+modules=default_registration_policy,default_provisioning_policy
+
+[default_registration_policy]
+type=OrModule
+modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy
 
 [default_login_policy]
-type=OrModule
-modules=profile_sources_login,default_email,default_sms,default_sponsor
-
-[profile_sources_login]
 type=AuthModule::Login
 source_id=_PROFILE_SOURCES_
 
-[default_sms]
-type=AuthModule::SMS
-source_id=sms
-custom_fields=email
+[default_guest_policy]
+type=AuthModule::AuthChoice
+multi_source_object_classes=pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::SponsorEmailSource
+source_id=_PROFILE_SOURCES_
 
-[default_email]
-type=AuthModule::Email
-source_id=email
+[default_oauth_policy]
+type=AuthModule::AuthChoice
+multi_source_object_classes=pf::Authentication::Source::OAuthSource
+source_id=_PROFILE_SOURCES_
 
-[default_sponsor]
-type=AuthModule::Sponsor
-source_id=sponsor
+[default_billing_policy]
+type=AuthModule::Billing
+source_id=_PROFILE_SOURCES_
 
 [default_provisioning_policy]
 type=Provisioning

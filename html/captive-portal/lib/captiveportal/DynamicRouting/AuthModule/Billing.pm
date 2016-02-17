@@ -16,6 +16,8 @@ with 'captiveportal::DynamicRouting::FieldValidation';
 with 'captiveportal::DynamicRouting::Routed';
 with 'captiveportal::DynamicRouting::MultiSource';
 
+has '+multi_source_auth_classes' => (default => sub {['billing']});
+
 use Tie::IxHash;
 use pf::log;
 use List::Util qw(first);

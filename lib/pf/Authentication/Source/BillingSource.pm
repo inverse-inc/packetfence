@@ -38,6 +38,8 @@ has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');
 
+has '+dynamic_routing_module' => (default => 'AuthModule::Billing');
+
 =head2 has_authentication_rules
 
 Whether or not the source should have authentication rules

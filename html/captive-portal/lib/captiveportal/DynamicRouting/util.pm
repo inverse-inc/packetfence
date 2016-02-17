@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(
-    clean_id generate_id
+    clean_id generate_id generate_dynamic_module_id
 );
 
 our %MODULES_UID;
@@ -28,6 +28,11 @@ sub clean_id {
 sub generate_id {
     my ($parent_id, $id) = @_;
     return $parent_id . '+' . $id;
+}
+
+sub generate_dynamic_module_id {
+    my ($id) = @_;
+    return '_DYNAMIC_SOURCE_'.$id.'_';
 }
 
 =head1 AUTHOR

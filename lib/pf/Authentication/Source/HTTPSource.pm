@@ -22,6 +22,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'HTTP' );
+has '+dynamic_routing_module' => (default => 'AuthModule::Login');
 has 'protocol' => ( isa => 'Str', is => 'rw', default => 'http' );
 has 'host' => ( isa => 'Str', is => 'rw', default => '127.0.0.1' );
 has 'port' => ( isa => 'Int', is => 'rw', default => '10000' );

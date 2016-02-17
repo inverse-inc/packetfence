@@ -18,6 +18,7 @@ has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
         '/status/billing' => \&direct_route_billing, 
         '/billing.*' => \&check_billing_bypass,
+        '/logout' => \&logout,
     );
     return \%map;
 
@@ -31,6 +32,12 @@ use pf::constants::scan qw($POST_SCAN_VID);
 use captiveportal::DynamicRouting::AuthModule::Billing;
 
 has '+parent' => (required => 0);
+
+sub logout {
+    my ($self) = @_;
+    $self->app->reset_session;
+    $self->app->redirect("/captive-portal"); 
+}
 
 sub done {
     my ($self) = @_;
@@ -115,9 +122,7 @@ sub check_billing_bypass {
     if($self->session->{direct_route_billing}){
         $self->direct_route_billing();
     }
-    else {
-        $self->app->error("Nothing to do here...");
-    }
+    $self->SUPER::execute_child();
 }
 
 =head1 AUTHOR

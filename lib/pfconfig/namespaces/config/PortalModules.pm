@@ -37,7 +37,7 @@ sub build_child {
     my %tmp_cfg = %{$self->{cfg}};
 
     foreach my $module_id (keys %tmp_cfg){
-        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions));
+        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
         
         if(defined($tmp_cfg{$module_id}{actions})){
             my @actions = @{$tmp_cfg{$module_id}{actions}};
