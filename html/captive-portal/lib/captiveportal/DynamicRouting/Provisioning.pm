@@ -24,6 +24,10 @@ has 'current_module' => (is => 'rw');
 
 has 'skipable' => (is => 'rw');
 
+sub allowed_urls {[
+    '/provisioning',
+]}
+
 sub BUILDARGS {
     my ($class, @args) = @_;
     my $args = $class->SUPER::BUILDARGS(@args);

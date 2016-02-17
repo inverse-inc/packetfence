@@ -24,7 +24,7 @@ has '+route_map' => (default => sub {
         '/saml/redirect' => \&redirect,
         '/saml/assertion' => \&assertion,
         # fallback to the index
-        '/(.*)' => \&index,
+        '/captive-portal' => \&index,
     );
     return \%map;
 });

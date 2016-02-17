@@ -25,10 +25,16 @@ has '+pid_field' => (default => sub { "telephone" });
 
 has '+source' => (isa => 'pf::Authentication::Source::SMSSource');
 
+sub allowed_urls_auth_module {
+    return [
+        '/activate/sms',
+    ];
+}
+
 sub execute_child {
     my ($self) = @_;
 
-    if($self->app->request->method eq "POST" && defined($self->app->request->param("pin"))){
+    if($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
         $self->validation();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
@@ -90,7 +96,7 @@ sub validate_pin {
         return ($TRUE, 0, $record);
     }
     else {
-        pf::auth_log::change_record_status($source->id, $self->current_mac, $pf::auth_log::FAILED);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         return ($FALSE, $GUEST::ERROR_INVALID_PIN);
     }
 }
@@ -113,7 +119,7 @@ sub validation {
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
         pf::activation::set_status_verified($pin);
-        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED);
+        pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
         $self->done();
     }
     else {

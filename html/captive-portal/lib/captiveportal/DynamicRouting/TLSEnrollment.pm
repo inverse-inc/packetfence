@@ -35,6 +35,10 @@ has 'pki_provider_id' => (is => 'rw', trigger => \&_build_pki_provider, required
 
 has 'pki_provider_type' => (is => 'ro', builder => '_build_pki_provider_type', lazy => 1);
 
+sub allowed_urls {[
+    '/tls-enrollment',
+]}
+
 sub _build_pki_provider {
     my ($self) = @_;
     $self->pki_provider(pf::factory::pki_provider->new($self->{pki_provider_id}));

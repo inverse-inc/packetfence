@@ -20,6 +20,12 @@ use pf::Authentication::constants;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
+sub allowed_urls_auth_module {
+    return [
+        '/sponsor/check',
+    ];
+}
+
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->path eq "sponsor/check"){

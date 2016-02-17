@@ -14,6 +14,7 @@ use Moose;
 use pf::log;
 use pf::config;
 use Hash::Merge qw(merge);
+use List::MoreUtils qw(any);
 use pf::node;
 
 has 'id' => (is => 'ro', required => 1);
@@ -95,7 +96,29 @@ sub execute {
     if($self->parent){
         $self->parent->current_module($self->id);
     }
+
+
+    unless($self->path_is_allowed('/'.$self->app->request->path)){
+        get_logger->debug('/'.$self->app->request->path." is not allowed in module : ".$self->id);
+        $self->app->redirect("/captive-portal");
+        return;
+    }
+
     $self->execute_child();
+}
+
+sub allowed_urls {[]}
+
+sub path_is_allowed {
+    my ($self, $path) = @_;
+    use Data::Dumper;
+    get_logger->debug("Allowed URLs for $path are : ".Dumper($self->allowed_urls)."any gices : ".any {$_ eq $path} @{$self->allowed_urls});
+    if(!@{$self->allowed_urls} || $path eq "/captive-portal" || (any {$_ eq $path} @{$self->allowed_urls}) || ($self->can('path_method') && $self->path_method($path))){
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 sub execute_child {

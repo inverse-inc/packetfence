@@ -41,6 +41,16 @@ use pf::authentication;
 use pf::Authentication::constants;
 use captiveportal::DynamicRouting::Actions;
 
+sub allowed_urls {
+    my ($self) = @_;
+    return [
+        '/signup',
+        @{$self->allowed_urls_auth_module()},
+    ];
+}
+
+sub allowed_urls_auth_module {[]}
+
 sub form {
     my ($self) = @_;
     my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters() : {};

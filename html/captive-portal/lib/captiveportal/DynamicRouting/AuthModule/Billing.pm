@@ -39,7 +39,8 @@ has '+route_map' => (default => sub {
         '/billing/(.+)/verify' => \&verify,
         '/billing/confirm' => \&confirm,
         # fallback to the index
-        '/(.*)' => \&index,
+        '/billing(.*)' => \&index,
+        '/captive-portal' => \&index,
     );
     return \%map;
 });

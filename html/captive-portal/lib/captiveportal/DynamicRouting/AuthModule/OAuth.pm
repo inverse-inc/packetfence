@@ -22,6 +22,13 @@ has 'token_scheme' => (is => 'rw', default => sub {"auth-header:OAuth"});
 
 has '+source' => (isa => 'pf::Authentication::Source::OAuthSource');
 
+sub allowed_urls_auth_module {
+    return [
+        '/oauth2/go',
+        '/oauth2/callback',
+    ];
+}
+
 sub get_client {
     my ($self) = @_;
     my $source = $self->source;

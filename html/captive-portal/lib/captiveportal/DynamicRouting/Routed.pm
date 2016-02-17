@@ -19,17 +19,26 @@ around 'execute_child' => sub {
     my $orig = shift;
     my $self = shift;
 
+    my $method = $self->path_method('/'.$self->app->request->path());
+    if(defined($method)){
+        $method->($self);
+    }
+    else {
+        $self->$orig();
+    }
+};
+
+sub path_method {
+    my ($self, $path) = @_;
     foreach my $regex (keys %{$self->route_map}){
-        my $path = '/'.$self->app->request->path();
         get_logger->debug("Checking if $path matches $regex");
         if($path =~ /^$regex$/){
             get_logger->debug("Found a route match : $regex");
-            $self->route_map->{$regex}->($self);
-            return;
+            return $self->route_map->{$regex};
         }
     }
-    $self->$orig();
-};
+    return undef;
+}
 
 =head1 AUTHOR
 
