@@ -15,6 +15,7 @@ extends 'captiveportal::DynamicRouting::AuthModule';
 with 'captiveportal::DynamicRouting::Routed';
 
 use pf::util;
+use pf::auth_log;
 
 has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
 
@@ -40,6 +41,7 @@ sub index {
 
 sub redirect {
     my ($self) = @_;
+    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
     $self->app->redirect($self->source->sso_url);
 }
 
@@ -54,11 +56,13 @@ sub assertion {
     }
 
     if($username){
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
         $self->username($username);
         $self->done();
     }
     else {
         $self->app->error($msg);
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
     }
 }
 

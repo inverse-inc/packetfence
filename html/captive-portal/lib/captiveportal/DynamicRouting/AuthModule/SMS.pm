@@ -19,6 +19,7 @@ use pf::log;
 use pf::constants;
 use pf::sms_carrier;
 use pf::web::guest;
+use pf::auth_log;
 
 has '+pid_field' => (default => sub { "telephone" });
 
@@ -89,6 +90,7 @@ sub validate_pin {
         return ($TRUE, 0, $record);
     }
     else {
+        pf::auth_log::change_record_status($source->id, $self->current_mac, $pf::auth_log::FAILED);
         return ($FALSE, $GUEST::ERROR_INVALID_PIN);
     }
 }
@@ -111,6 +113,7 @@ sub validation {
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
         pf::activation::set_status_verified($pin);
+        pf::auth_log::record_completed_guest($source->id, $self->current_mac, $pf::auth_log::COMPLETED);
         $self->done();
     }
     else {
