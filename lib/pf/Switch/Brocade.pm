@@ -119,7 +119,7 @@ sub getVersion {
 =item _dot1xPortReauthenticate
 
 Actual implementation.
- 
+
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
@@ -135,7 +135,7 @@ sub dot1xPortReauthenticate {
         return 0;
     }
 
-    $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
+    $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");
     my $result = $self->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::FORCE_UNAUTHORIZED
     ]);
@@ -269,13 +269,10 @@ sub getPhonesLLDPAtIfIndex {
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+    my $baseoid = "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort";
 
-    $logger->trace(
-        "SNMP get_next_request for lldpRemSysCapEnabled: "
-        . "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
-    );
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort], sub { $self->{_sessionRead}->get_table( -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort" ); });
+    $logger->trace(sub {"SNMP get_next_request for lldpRemSysCapEnabled: $baseoid"});
+    my $result = $self->cachedSNMPRequest([-baseoid => $baseoid]);
 
     # Cap entries look like this:
     # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
