@@ -101,6 +101,21 @@ has_field 'VoIPEnabled' =>
    type => 'Toggle',
    label => 'VoIP',
   );
+
+has_field 'VoIPLLDPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPLLDPDetect',
+   default => 'Y',
+  );
+
+has_field 'VoIPCDPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPCDPDetect',
+   default => 'Y',
+  );
+
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -242,7 +257,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (

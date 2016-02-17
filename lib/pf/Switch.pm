@@ -373,8 +373,8 @@ sub connectRead {
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
         $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $self->{_sessionRead}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
+        my $cache = $self->cache;
+        my $result = $cache->compute([$self->{'_id'},$oid_sysLocation], { expires_in => '10m'}, sub { $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysLocation] )} );
         if ( !defined($result) ) {
             $logger->error( "error creating SNMP v"
                     . $self->{_SNMPVersion}
@@ -1145,7 +1145,8 @@ sub getIfDesc {
         return '';
     }
     $logger->trace("SNMP get_request for ifDesc: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $cache = $self->cache;
+    my $result = $cache->compute([$self->{'_id'},$oid], sub { $self->{_sessionRead}->get_request( -varbindlist => [$oid] )});
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1167,7 +1168,8 @@ sub getIfName {
         return '';
     }
     $logger->trace("SNMP get_request for ifName: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $cache = $self->cache;
+    my $result = $cache->compute([$self->{'_id'},$oid], sub { $self->{_sessionRead}->get_request( -varbindlist => [$oid] )});
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1398,12 +1400,16 @@ sub getPhonesDPAtIfIndex {
     my @phones = ();
     # CDP
     if ($self->supportsCdp()) {
-        push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPCDPDetect}) || isenabled($self->{_VoIPCDPDetect}) ) {
+            push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        }
     }
 
     # LLDP
     if ($self->supportsLldp()) {
-        push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPLLDPDetect}) || isenabled($self->{_VoIPLLDPDetect}) ) {
+            push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        }
     }
 
     # filtering duplicates w/ hashmap (key collisions handles it)
