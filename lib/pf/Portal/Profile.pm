@@ -96,19 +96,6 @@ sub getGuestModes {
 
 *guest_modes = \&getGuestModes;
 
-=item getChainedGuestModes
-
-Returns the available enabled modes for guest self-registration for chained sources for the current captive portal profile.
-
-=cut
-
-sub getChainedGuestModes {
-    my ($self) = @_;
-    return $self->{'_chained_guest_modes'};
-}
-
-*chained_guest_modes = \&getChainedGuestModes;
-
 =item getTemplatePath
 
 Returns the path for custom templates for the current captive portal profile.
@@ -339,17 +326,6 @@ sub getSourcesByClass {
     return grep { $_->class eq $class } $self->getSourcesAsObjects();
 }
 
-=item hasChained
-
-If the profile has a chained auth source
-
-=cut
-
-sub hasChained {
-    my ($self) = @_;
-    return defined ($self->getSourceByType('chained')) ;
-}
-
 =item hasSource
 
 If the profile has a specific source
@@ -393,19 +369,6 @@ sub getSourcesByObjectClass {
     return grep {$_->isa($class)} $self->getSourcesAsObjects();
 }
 
-=item getSourceByTypeForChained
-
-Returns the first source object for the requested source type for chained sources in the current captive portal profile.
-
-=cut
-
-sub getSourceByTypeForChained {
-    my ($self, $type) = @_;
-    return unless $type;
-    $type = uc($type);
-    return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
-}
-
 =item guestRegistrationOnly
 
 Returns true if the profile only uses "sign-in" authentication sources (SMS, email or sponsor).
@@ -446,7 +409,7 @@ Verify if the guest mode is allowed for the profile
 
 sub guestModeAllowed {
     my ($self, $mode) = @_;
-    return any { $mode eq $_} @{$self->getGuestModes}, @{$self->getChainedGuestModes} ;
+    return any { $mode eq $_} @{$self->getGuestModes};
 }
 
 =item nbregpages

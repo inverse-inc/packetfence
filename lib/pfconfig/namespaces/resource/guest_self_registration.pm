@@ -48,7 +48,7 @@ sub _set_guest_self_registration {
         $pf::constants::config::SELFREG_MODE_SPONSOR,  $pf::constants::config::SELFREG_MODE_GOOGLE,
         $pf::constants::config::SELFREG_MODE_FACEBOOK, $pf::constants::config::SELFREG_MODE_GITHUB,
         $pf::constants::config::SELFREG_MODE_LINKEDIN, $pf::constants::config::SELFREG_MODE_WIN_LIVE,
-        $pf::constants::config::SELFREG_MODE_TWITTER,  $pf::constants::config::SELFREG_MODE_CHAINED,
+        $pf::constants::config::SELFREG_MODE_TWITTER,
         )
     {
         $self->{guest_self_registration}{$mode} = $TRUE
@@ -61,7 +61,6 @@ sub _guest_modes_from_sources {
     $sources ||= [];
     my %modeClasses = (
         external => undef,
-        Chained  => undef,
     );
     my %is_in = map { $_ => undef } @$sources;
     my @guest_modes

@@ -5550,10 +5550,6 @@ msgstr ""
 msgid "The hostname of the the database storing the Graphite dashboard settings.Will default to database.user if none is provided."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
-msgid "The internal source used to authenticate"
-msgstr ""
-
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
 msgid "The interval in seconds for the page count threshold."
 msgstr ""
@@ -5639,10 +5635,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
-msgid "The rules of the chained source are applied"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
@@ -8707,7 +8699,6 @@ msgstr "User Name"
 # pf::Authentication::Source::AuthorizeNetSource (available_attributes)
 # pf::Authentication::Source::BillingSource (available_attributes)
 # pf::Authentication::Source::BlackholeSource (available_attributes)
-# pf::Authentication::Source::ChainedSource (available_attributes)
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)

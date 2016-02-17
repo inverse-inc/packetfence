@@ -143,7 +143,7 @@ sub doSponsorRegistration : Private {
     my $profile = $c->profile;
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
+    my $source = $profile->getSourceByType($sponsor_type);
 
     if ($source) {
 

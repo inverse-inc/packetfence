@@ -78,7 +78,6 @@ sub _from_profile {
         ];
     }
     $profile{guest_modes} = _guest_modes_from_sources($sources);
-    $profile{chained_guest_modes} = _chained_guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
     $profile{template_path} = $profile_name;
     my $instance =  pf::Portal::Profile->new( \%profile );
@@ -107,25 +106,6 @@ sub _guest_modes_from_sources {
     return \@guest_modes;
 }
 
-
-=head2 _chained_guest_modes_from_sources
-
-Extract the guest modes from the chained sources
-
-=cut
-
-sub _chained_guest_modes_from_sources {
-    my ($sources) = @_;
-    $sources ||= [];
-    my %modeClasses = (
-        external  => undef,
-        exclusive => undef,
-    );
-    my %is_in = map { $_ => undef } @$sources;
-    my @modes = map { lc($_->getChainedAuthenticationSourceObject->type)} grep { exists $is_in{$_->id} && $_->type eq 'Chained'} @{pf::authentication::getAllAuthenticationSources()};
-
-    return \@modes;
-}
 
 =head1 AUTHOR
 

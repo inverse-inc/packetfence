@@ -5910,10 +5910,6 @@ msgid ""
 "The hostname of the the database storing the Graphite dashboard settings."
 msgstr "L'hôte où est hébergé la base de données de graphite"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
-msgid "The internal source used to authenticate"
-msgstr "La source interne utilisée pour authentifier"
-
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
 msgid "The interval in seconds for the page count threshold."
 msgstr ""
@@ -6010,10 +6006,6 @@ msgstr "Le rôle à attribuer à des consoles de jeux. Si aucun n'est sélection
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
 msgstr "La règle n´a pas été trouvée. "
-
-# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Chained.pm
-msgid "The rules of the chained source are applied"
-msgstr "Les règles de la source chaînée sont appliquées"
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The short name of the billing tier"
@@ -9092,7 +9084,6 @@ msgstr ""
 # pf::Authentication::Source::AuthorizeNetSource (available_attributes)
 # pf::Authentication::Source::BillingSource (available_attributes)
 # pf::Authentication::Source::BlackholeSource (available_attributes)
-# pf::Authentication::Source::ChainedSource (available_attributes)
 # pf::Authentication::Source::FacebookSource (available_attributes)
 # pf::Authentication::Source::GithubSource (available_attributes)
 # pf::Authentication::Source::GoogleSource (available_attributes)
