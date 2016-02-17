@@ -5,7 +5,7 @@ modules=default_registration_policy,default_provisioning_policy
 
 [default_registration_policy]
 type=OrModule
-modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy
+modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy,default_saml_policy
 
 [default_login_policy]
 type=AuthModule::Login
@@ -23,6 +23,11 @@ source_id=_PROFILE_SOURCES_
 
 [default_billing_policy]
 type=AuthModule::Billing
+source_id=_PROFILE_SOURCES_
+
+[default_saml_policy]
+type=AuthModule::AuthChoice
+multi_source_object_classes=pf::Authentication::Source::SAMLSource
 source_id=_PROFILE_SOURCES_
 
 [default_provisioning_policy]
