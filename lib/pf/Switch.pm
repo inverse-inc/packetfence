@@ -1497,16 +1497,18 @@ sub isPhoneAtIfIndex {
         return 1;
     }
 
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
-        $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
-        return 1;
-    }
+    if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+            $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
+            return 1;
+        }
 
-    #unknown DHCP fingerprint or no DHCP fingerprint
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
-        $logger->debug(
-            "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
-        );
+        #unknown DHCP fingerprint or no DHCP fingerprint
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
+            $logger->debug(
+                "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
+            );
+        }
     }
 
     if (defined($ifIndex)) {

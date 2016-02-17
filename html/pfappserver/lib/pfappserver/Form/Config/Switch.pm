@@ -107,6 +107,8 @@ has_field 'VoIPLLDPDetect' =>
    type => 'Toggle',
    label => 'VoIPLLDPDetect',
    default => 'Y',
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with a SNMP request in the LLDP MIB'},
   );
 
 has_field 'VoIPCDPDetect' =>
@@ -114,6 +116,17 @@ has_field 'VoIPCDPDetect' =>
    type => 'Toggle',
    label => 'VoIPCDPDetect',
    default => 'Y',
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with a SNMP request in the CDP MIB'},
+  );
+
+has_field 'VoIPDHCPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPDHCPDetect',
+   default => 'Y',
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with the DHCP Fingerprint'},
   );
 
 has_field 'uplink_dynamic' =>
@@ -257,7 +270,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort portalURL) ],
   );
 has_field 'SNMPVersion' =>
   (
