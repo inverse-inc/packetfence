@@ -1215,6 +1215,9 @@ fi
 
 %changelog
 
+* Wed Feb 17 2016 Inverse <info@inverse.ca> - 5.7.0-1
+- New release 5.7.0
+
 * Wed Jan 13 2016 Inverse <info@inverse.ca> - 5.6.0-1
 - New release 5.6.0
 
