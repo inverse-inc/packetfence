@@ -15,6 +15,7 @@ use Moose;
 use CHI;
 use Cache::FileCache;
 use Template::AutoFilter;
+use pf::constants;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
 use captiveportal::DynamicRouting::I18N;
@@ -201,8 +202,11 @@ sub render {
     my $layout_args = {
         flash => $self->flash,
         content => $inner_content,
+        client_mac => $self->root_module->current_mac,
+        client_ip => $self->root_module->current_ip,
     };
-    my $content = $self->_render('layout.html', $layout_args);
+    $args->{layout} //= $TRUE;
+    my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
 
     $self->template_output($content);
    

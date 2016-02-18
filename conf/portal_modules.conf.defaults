@@ -37,4 +37,4 @@ source_id=_PROFILE_SOURCES_
 
 [default_provisioning_policy]
 type=Provisioning
-skipable=disabled
+skipable=enabled

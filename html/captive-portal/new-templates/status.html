@@ -1,0 +1,171 @@
+
+<script type="text/javascript" src="/content/countdown.min.js"></script>
+<script type="text/javascript">
+var paused = false;
+
+$(document).ready(function() {
+  [%- IF showLogin %]
+  // Don't propagate mouse clicks on disabled buttons and links
+  $('.btn').on('click', function(event) {
+    if ($(this).hasClass('disabled')) {
+      event.stopPropagation();
+      return false;
+    }
+  });
+
+  // Toggle the disable state of the buttons and links when the user
+  // accepts or refuses the AUP
+  $("input[name='aup_signed']").each(function() {
+    $(this).on('change', function(event) {
+      var accepted = this.checked;
+      $('.btn').each(function() {
+        if (accepted)
+          $(this).removeClass('disabled');
+        else
+          $(this).addClass('disabled');
+      });
+    });
+  });
+  [% END %]
+
+  [%- IF node.expiration %]
+  // Initialization of the countdown
+  $("#expiration").html(countdown([% node.expiration %] * 1000,
+                                  null,
+                                  countdown.DAYS|countdown.HOURS|countdown.MINUTES,
+                                  2).toString());
+  // Timer to update the countdown
+  var timerId = countdown(
+    [% node.expiration %] * 1000,
+    function(ts) {
+      var secs = Math.round(ts.value/1000);
+      if (secs >= 0) {
+        // No more time
+        window.location = "[% URL_STATUS %]?ts=" + ts.value;
+        return;
+      }
+      if (secs > -60 || secs % 60 == 0) {
+        // Countdown bellow 1 minute or on a minute; verify network access
+        $.ajax({
+          url: "[% URL_STATUS %]?ts=" + ts.value,
+        })
+        .done(function() {
+          if (paused) {
+            window.location = "[% URL_STATUS %]?ts=" + ts.value;
+            return;
+          }
+          $("#expiration").html(ts.toString());
+        })
+        .fail(function() {
+          paused = true;
+          $("#expiration").parent().hide();
+          $("#pause").show();
+        });
+      }
+    },
+    countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS,
+    2);
+  [%- ELSIF node.time_balance %]
+  $("#timeleft").html(countdown(new Date().getTime() + [% node.time_balance %] * 1000,
+                                null,
+                                countdown.DAYS|countdown.HOURS|countdown.MINUTES,
+                                2).toString());
+  [%- END %]
+  $('#popup a[target="_new"]').on("click", function(event) {
+    event.stopPropagation();
+    var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
+    if (window.focus) { newwindow.focus() }
+    return false;
+  });
+});
+</script>
+
+
+        [%# Welcome text %]
+        <div id="about">
+          <img src="/content/images/unlock.png" alt="User" />
+          <p>[% i18n("Your Network Access Status") %]</p>
+          <hr/>
+        </div>
+        <div>
+          [%- IF node.status == 'reg' %]
+          <div>[% i18n_format("Your device is registered to <strong>%s</strong>", node.pid) %]</div>
+          [%- ELSE %]
+          <div>[% i18n("Your current device is not registered on our network.") %]</div>
+          [%- END %]
+          [%- IF node.expiration %]
+          <div>[% i18n('Your network access ends in <strong id="expiration"></strong>') %]</div>
+          <div id="pause" style="display: none">[% i18n("Your network access is <strong>paused</strong>") %]</div>
+          [%- ELSIF node.time_balance %]
+          <div>[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.time_balance ) %]</div>
+          [%- ELSIF node.time_balance == 0 %]
+          <div>[% i18n("Your network access has expired.") %]</div>
+          [%- END %]
+          [% IF showLogin %]
+          <div>[% i18n("Login to manage registered devices") %]</div>
+          <div>
+            <form name="login" method="post" action="/status/login">
+              [%# AUP %]
+              <div class="input">
+                <div>[% i18n("Acceptable Use Policy") %]</div>
+                [% INCLUDE aup_text.html %]
+                [%# The space below is intententionnal %]
+                <div class="notmobile"><label><input name="aup_signed" type="checkbox" /> [% i18n("I accept the terms") %]</label></div>
+              </div>
+          
+              [%# User / Pass %]
+              <div class="input">
+                <span>[% i18n("Username") %]</span>
+                <input class="field" name="username" id="username" type="text" value="[% username %]" />
+              </div>
+              <div class="input">
+                <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
+              </div>
+              
+              [%# submit %]
+              <div class="input">
+                <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
+              </div>
+
+              [%- IF billing %]
+              <div class="input">
+                <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+                <a href="[% URL_STATUS_BILLING %]">[% i18n("Extend your access") %]</a>
+              </div>
+              [%- END %]
+         
+            </form>
+          </div>
+          [% ELSIF nodes.size > 0 %]
+          <div>
+          <table>
+            <caption>[% i18n("Your registered devices") %]</caption>
+            <thead>
+              <tr>
+                <th>[% i18n("MAC Address") %]</th>
+                <th class="hidden-popup">[% i18n("OS Type") %]</th>
+                <th class="hidden-popup">[% i18n("Registration Date") %]</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              [%- FOREACH n IN nodes %]
+              [% NEXT IF n.status != 'reg' %]
+              <tr>
+                <td>[% n.mac %]</td>
+                <td class="hidden-popup">[% n.dhcp_fingerprint %]</td>
+                <td class="hidden-popup">[% n.regdate IF n.regdate != '0000-00-00 00:00:00' %]</td>
+                <td style="text-align: right"><a href="/node/manager/unreg/[% n.mac %]" class="btn">[% i18n("Unregister") %]</a></td>
+              </tr>
+          [%- END %]
+            </tbody>
+          </table>
+          </div>
+          [%- ELSE %]
+            <div>[% i18n("You have no registered devices.") %]</div>
+          [% END %]
+          [% UNLESS showLogin %]
+            <a class="btn" href="/status/logout">Logout</a>
+          [% END  %]
+        </div>
+

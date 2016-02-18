@@ -61,8 +61,8 @@ our $VERSION = 1.41;
 our $PREREGISTRATION_CONFIRMED_TEMPLATE = 'guest/preregistration.html';
 our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
 our $EMAIL_PREREG_CONFIRMED_TEMPLATE = 'guest/preregistration_confirmation.html';
-our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
-our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
+our $SPONSOR_CONFIRMED_TEMPLATE = "activation/sponsor_accepted.html";
+our $SPONSOR_LOGIN_TEMPLATE = "activation/sponsor_login.html";
 
 # flag used in URLs
 Readonly our $GUEST_REGISTRATION => "guest-register";

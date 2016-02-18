@@ -69,7 +69,7 @@ sub index : Path : Args(0) {
         }
     }
     # User is authenticated so display registration page
-    $c->stash(template => 'device-registration.html');
+    $c->stash(template => 'device-registration/registration.html');
 }
 
 =head2 gaming_registration
@@ -119,12 +119,12 @@ sub login : Local : Args(0) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
-    $c->stash( template => 'device-login.html' );
+    $c->stash( template => 'device-registration/login.html' );
 }
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( template => 'device-landing.html' );
+    $c->stash( template => 'device-registration/landing.html' );
 }
 
 sub registerNode : Private {

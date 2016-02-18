@@ -297,7 +297,7 @@ sub end : ActionClass('RenderView') {
         my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
         $c->stash(
             template => 'error.html',
-            txt_message => $txt_message,
+            message => $txt_message,
         );
         $c->response->status(500);
         $c->clear_errors;

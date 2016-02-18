@@ -5,20 +5,26 @@ use warnings;
 use Locale::gettext qw(gettext ngettext);
 use Moose;
 use utf8;
-extends 'Catalyst::View::TT';
+extends 'Catalyst::View';
 
-__PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.html',
-    ENCODING           => 'utf-8',
-    render_die         => 1,
-    expose_methods     => [qw(i18n ni18n i18n_format)],
-);
+#__PACKAGE__->config(
+#    TEMPLATE_EXTENSION => '.html',
+#    ENCODING           => 'utf-8',
+#    render_die         => 1,
+#    expose_methods     => [qw(i18n ni18n i18n_format)],
+#);
+#
+#before process => sub {
+#    my ( $self, $c ) = @_;
+#    my $include_path = $c->portalSession->templateIncludePath;
+#    @{ $self->include_path } = @$include_path;
+#};
 
-before process => sub {
-    my ( $self, $c ) = @_;
-    my $include_path = $c->portalSession->templateIncludePath;
-    @{ $self->include_path } = @$include_path;
-};
+sub process {
+    my ($self, $c) = @_;
+    $c->stash->{application}->render($c->stash->{template}, $c->stash);
+    $c->response->body($c->stash->{application}->template_output);
+}
 
 sub i18n {
     my ( $self, $c, $msgid ) = @_;
