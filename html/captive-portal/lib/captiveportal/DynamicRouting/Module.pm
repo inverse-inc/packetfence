@@ -16,6 +16,7 @@ use pf::config;
 use Hash::Merge qw(merge);
 use List::MoreUtils qw(any);
 use pf::node;
+use pf::person;
 
 has 'id' => (is => 'ro', required => 1);
 
@@ -46,6 +47,9 @@ after 'username' => sub {
     get_logger->info("User ".$self->{username}." has authenticated on the portal.");
     $self->new_node_info->{pid} = $self->{username};
     $self->app->session->{username} = $self->{username};
+    if(!person_exist($self->{username})){
+        person_add($self->{username});
+    }
 };
 
 sub _build_session {
