@@ -81,6 +81,7 @@ conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
 conf/listener.msg
 conf/provisioning.conf
+conf/portal_modules.conf
 conf/popup.msg
 conf/profiles.conf
 conf/snmptrapd.conf
