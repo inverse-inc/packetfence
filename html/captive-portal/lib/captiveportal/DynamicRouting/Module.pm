@@ -19,6 +19,8 @@ use pf::node;
 
 has 'id' => (is => 'ro', required => 1);
 
+has 'description' => (is => 'rw');
+
 has session => (is => 'rw', builder => '_build_session');
 
 has new_node_info => (is => 'rw', builder => '_build_new_node_info', lazy => 1);

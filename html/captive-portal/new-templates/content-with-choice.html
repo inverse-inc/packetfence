@@ -2,7 +2,7 @@
 
 <ul>
 [% FOREACH module IN modules %]
-<li><a [% IF current_module == module.id %]class="selected"[% END %]href="/switchto/[% module.id %]">[% module.id %]</a></li>
+<li><a [% IF current_module == module.id %]class="selected"[% END %]href="/switchto/[% module.id %]">[% module.description || module.id %]</a></li>
 [% END %]
 </ul>
 

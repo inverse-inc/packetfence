@@ -32,6 +32,7 @@ sub BUILD {
         my $module = "captiveportal::DynamicRouting::".$source->dynamic_routing_module;
         $self->add_module($module->new(
             id => generate_id($self->id, generate_dynamic_module_id($source->id)),
+            description => $source->description,
             app => $self->app,
             parent => $self,
             source_id => $source->id,
