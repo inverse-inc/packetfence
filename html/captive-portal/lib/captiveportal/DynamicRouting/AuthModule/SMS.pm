@@ -131,7 +131,7 @@ sub validation {
 sub auth_source_params {
     my ($self) = @_;
     return {
-        username => $self->app->session->{username},
+        username => $self->username,
         telephone => $self->session->{telephone}
     };
 }

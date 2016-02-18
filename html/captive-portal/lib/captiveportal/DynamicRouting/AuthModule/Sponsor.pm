@@ -132,6 +132,7 @@ sub _validate_sponsor {
 sub auth_source_params {
     my ($self) = @_;
     return {
+        username => $self->username,
         user_email => $self->app->session->{email},
     };
 }
