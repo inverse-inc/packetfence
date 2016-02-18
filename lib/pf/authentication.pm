@@ -296,6 +296,8 @@ sub match {
             @sources = ($source);
         }
     }
+    $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
+
     foreach my $source (@sources) {
         $actions = $source->match($params);
         next unless defined $actions;
