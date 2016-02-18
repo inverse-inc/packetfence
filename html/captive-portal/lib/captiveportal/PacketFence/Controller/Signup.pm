@@ -151,7 +151,7 @@ TODO: documention
 
 sub doEmailSelfRegistration : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger();
+    my $logger        = $c->log();
     my $portalSession = $c->portalSession;
     my $session       = $c->session;
     my $profile       = $c->profile;
@@ -262,7 +262,7 @@ TODO: documention
 
 sub doSponsorSelfRegistration : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger();
+    my $logger        = $c->log();
     my $profile       = $c->profile;
     my $request       = $c->request;
     my $session       = $c->session;
@@ -374,7 +374,7 @@ sub doSmsSelfRegistration : Private {
     my %info;
     my $profile        = $c->profile;
     my $request        = $c->request;
-    my $logger         = get_logger();
+    my $logger         = $c->log();
     my $session        = $c->session;
     my $mac            = $portalSession->clientMac;
     my $mobileprovider = $request->param("mobileprovider");
@@ -649,7 +649,7 @@ sub authenticateSelfRegistration : Private {
 
 sub showSelfRegistrationPage : Private {
     my ( $self, $c ) = @_;
-    my $logger  = get_logger();
+    my $logger  = $c->log();
     my $profile = $c->profile;
     my $request = $c->request;
     my @sources = $profile->getExternalSources;

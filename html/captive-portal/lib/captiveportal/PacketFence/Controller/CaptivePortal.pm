@@ -90,7 +90,7 @@ Records the user agent information
 sub nodeRecordUserAgent : Private {
     my ( $self, $c ) = @_;
     my $user_agent    = $c->request->user_agent;
-    my $logger        = get_logger();
+    my $logger        = $c->log();
     my $portalSession = $c->portalSession;
     my $mac           = $portalSession->clientMac;
     unless ($user_agent) {
@@ -392,7 +392,7 @@ sub unknownState : Private {
 
 sub endPortalSession : Private {
     my ( $self, $c ) = @_;
-    my $logger        = get_logger();
+    my $logger        = $c->log;
     my $portalSession = $c->portalSession;
     my $profile       = $c->profile;
 
@@ -448,7 +448,7 @@ See F<pf::web::custom> for examples.
 
 sub webNodeRegister : Private {
     my ($self, $c, $pid, %info ) = @_;
-    my $logger        = get_logger();
+    my $logger        = $c->get();
     my $portalSession = $c->portalSession;
 
     # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
