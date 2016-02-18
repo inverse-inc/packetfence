@@ -28,12 +28,7 @@ use pf::enforcement;
 
 sub execute_child {
     my ($self) = @_;
-    # the user has completed his activation
-    if($self->app->session->{email_completed}){
-        $self->app->session->{release_bypass} = $FALSE;
-        $self->done();
-    }
-    elsif($self->app->request->method eq "POST"){
+    if($self->app->request->method eq "POST"){
         $self->do_email_registration();
     }
     else{
@@ -94,24 +89,16 @@ sub do_email_registration {
 after 'execute_actions' => sub {
     my ($self) = @_;
 
-    # If the user has completed the flow, we set the unreg date to the one initially computed 
-    if($self->app->session->{email_completed}){
-        get_logger->info("Extending duration to ".$self->session->{unregdate});
-        $self->app->flash->{success} = "Email activation code has been verified. Access granted until : ".$self->session->{unregdate};
-        $self->new_node_info->{unregdate} = $self->session->{unregdate};
-    }
-    else {
-        # we record the unregdate to reuse it after
-        $self->session->{unregdate} = $self->new_node_info->{unregdate};
+    # we record the unregdate to reuse it after
+    $self->app->user_cache->set("email_unregdate", $self->new_node_info->{unregdate});
 
-        get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
-        # Use the activation timeout to set the unregistration date
-        my $timeout = normalize_time( $self->source->{email_activation_timeout} );
-        my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
-        get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
+    get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
+    # Use the activation timeout to set the unregistration date
+    my $timeout = normalize_time( $self->source->{email_activation_timeout} );
+    my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
+    get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
 
-        $self->new_node_info->{unregdate} = $unregdate;
-    }
+    $self->new_node_info->{unregdate} = $unregdate;
     return $TRUE;
 };
 

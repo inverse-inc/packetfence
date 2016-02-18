@@ -82,10 +82,14 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
-        # We want to bypass the release process because we want to go back in the app with the reg status
-        $c->stash->{application}->session->{release_bypass} = $TRUE;
-        $c->stash->{application}->session->{email_completed} = $TRUE;
-        $c->forward(Root => 'dynamic_application');
+        my $unregdate = $c->user_cache->get("email_unregdate");
+        get_logger->info("Extending duration to $unregdate");
+        node_modify($c->portalSession->clientMac, unregdate => $unregdate);
+        pf::activation::set_status_verified($code);
+        $c->stash(
+            template => "activation/email.html",
+            message => "Email activation code has been verified. Access granted until : $unregdate",
+        );
         $c->detach();
     }
 
