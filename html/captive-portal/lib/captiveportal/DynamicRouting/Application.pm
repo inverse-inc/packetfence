@@ -296,7 +296,7 @@ sub flash {
 
 sub reset_session {
     my ($self) = @_;
-    my @ignore = qw(flash destination_url);
+    my @ignore = qw(flash destination_url client_mac client_ip);
     foreach my $key (keys %{$self->session}){
         next if(any { $key eq $_ } @ignore);
         delete $self->session->{$key};
