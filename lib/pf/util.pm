@@ -1199,17 +1199,8 @@ sub touch_file {
     my ( $filename) = @_;
 
     if (sysopen(my $fh,$filename,O_RDWR | O_CREAT)) {
-        my $old_timestamp = (stat($fh))[9];
-        my $new_timestamp = $old_timestamp;
-        my $fd = fileno $fh;
-        my $counter = 0;
-        while( $old_timestamp == $new_timestamp) {
-            #Sleep for at least for one microsecond
-            Time::HiRes::nanosleep(1000);
-            my ($seconds, $microseconds) = Time::HiRes::gettimeofday();
-            POSIX::2008::futimens($fd, $seconds, $microseconds * 1000,$seconds, $microseconds * 1000);
-            $new_timestamp = (stat($fh))[9];
-        }
+        my ($seconds, $microseconds) = Time::HiRes::gettimeofday();
+        POSIX::2008::futimens(fileno $fh, $seconds, $microseconds * 1000,$seconds, $microseconds * 1000);
         chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
         close($fh);
     }
