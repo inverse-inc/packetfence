@@ -98,6 +98,7 @@ sub _build_required_fields {
     my @fields;
     push @fields, 'aup' if($self->with_aup);
     push @fields, $self->pid_field if(defined($self->pid_field));
+    push @fields, 'email' if(defined($self->source) && isenabled($self->source->{create_local_account}));
     push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @{$self->custom_fields});
     return [uniq(@fields)];
 }
@@ -131,6 +132,7 @@ sub create_local_account {
 
     unless($self->session->{fields}->{email}){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
+        return;
     }
 
     get_logger->debug("External source local account creation is enabled for this source. We proceed");
