@@ -322,7 +322,7 @@ sub is_valid {
 
     # if the timestamp of the file is after the one we have in memory
     # then we are expired
-    if ( $memory_timestamp > $file_timestamp ) {
+    if ( $memory_timestamp >= $file_timestamp ) {
         $logger->trace("Memory configuration is still valid for key $what");
         return 1;
     }

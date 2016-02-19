@@ -246,7 +246,7 @@ sub is_valid {
 #$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
 # if the timestamp of the file is after the one we have in memory
 # then we are expired
-    if ( $memory_timestamp > $file_timestamp ) {
+    if ( $memory_timestamp >= $file_timestamp ) {
         $logger->trace( sub { "Memory configuration is still valid for key $what in local cached_hash" });
         return 1;
     }
