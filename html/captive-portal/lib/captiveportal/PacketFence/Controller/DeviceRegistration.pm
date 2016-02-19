@@ -161,7 +161,7 @@ sub registerNode : Private {
             $info{'mac'} = $mac;
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
-            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
+            node_modify($mac, status => "reg", %info);
         }
     } else {
         $self->showError($c,"Please verify the provided MAC address.");
