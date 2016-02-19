@@ -67,6 +67,21 @@ sub _build_new_node_info {
     return $self->app->session()->{"new_node_info"};
 }
 
+sub pretty_class_name {
+    my ($self) = @_;
+    my $name = ref($self);
+    $name =~ s/::/-/g;
+    $name =~ s/^captiveportal-DynamicRouting-//g;
+    return $name;
+}
+
+sub pretty_id {
+    my ($self) = @_;
+    my $name = $self->id;
+    $name =~ s/\+/\-/g;
+    return $name;
+}
+
 sub node_info {
     my ($self) = @_;
     Hash::Merge::set_behavior( 'RIGHT_PRECEDENT' );
