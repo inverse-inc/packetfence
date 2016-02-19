@@ -13,6 +13,11 @@ For giving a choice between multiple modules
 use Moose;
 extends 'captiveportal::DynamicRouting::ModuleManager';
 
+use pf::util;
+use pf::log;
+
+has 'show_first_module_on_default' => (is => 'rw', isa => 'Str', default => sub{'disabled'});
+
 sub next {
     my ($self) = @_;
     $self->done();
@@ -28,7 +33,24 @@ before 'execute_child' => sub {
 sub render {
     my ($self, @params) = @_;
     my $inner_content = $self->app->_render(@params);
+    $self->render_choice($inner_content);
+}
+
+sub render_choice {
+    my ($self, $inner_content) = @_;
     $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
+}
+
+sub default_behavior {
+    my ($self) = @_;
+    if(isenabled($self->show_first_module_on_default)){
+        get_logger->debug("Default behavior is to show the first module");
+        $self->default_module->execute();
+    }
+    else {
+        get_logger->debug("Default behavior is to show only the choice");
+        $self->render_choice(); 
+    }
 }
 
 =head1 AUTHOR

@@ -86,15 +86,16 @@ sub execute_child {
         get_logger->debug("Executing current module from session ".$module->id);
         $module->execute();
     }
-    elsif ($module = $self->default_module){
-        get_logger->debug("Executing default module from session ".$module->id);
-        $module->execute;
-    }
     else {
-        get_logger->debug("No other module to execute, we're done.");
-        $self->done();
+        get_logger->debug("No current module. Executing default behavior");
+        $self->default_behavior();
     }
 };
+
+sub default_behavior {
+    my ($self) = @_;
+    $self->default_module->execute();
+}
 
 sub default_module {
     my ($self) = @_;

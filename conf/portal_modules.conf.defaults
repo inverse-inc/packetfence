@@ -14,6 +14,7 @@ source_id=_PROFILE_SOURCES_
 
 [default_guest_policy]
 description=Guest signup
+show_first_module_on_default=enabled
 type=AuthModule::AuthChoice
 multi_source_object_classes=pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
 source_id=_PROFILE_SOURCES_
