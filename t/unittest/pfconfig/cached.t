@@ -28,6 +28,7 @@ use_ok("pfconfig::util");
 
 my $cached_test = pfconfig::cached->new();
 $cached_test->{_namespace} = 'testing';
+$cached_test->{"_control_file_path"} = pfconfig::util::control_file_path("testing");
 
 my $manager = pfconfig::manager->new();
 $manager->touch_cache('testing');
