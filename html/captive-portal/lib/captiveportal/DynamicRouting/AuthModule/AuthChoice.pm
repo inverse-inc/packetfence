@@ -26,7 +26,7 @@ sub BUILD {
     my @sources = @{$self->sources()};
 
     get_logger->debug("Building AuthChoice module using sources : ".join(',', map{$_->id} @sources) );
-    $self->modules_order([map {generate_id($self->id, generate_dynamic_module_id($_->id))} @sources]);
+    push @{$self->modules_order}, (map {generate_id($self->id, generate_dynamic_module_id($_->id))} @sources);
     foreach my $source (@sources){
         die "Missing DynamicRouting module for source : ".$source->id unless($source->dynamic_routing_module);
         my $module = "captiveportal::DynamicRouting::".$source->dynamic_routing_module;
