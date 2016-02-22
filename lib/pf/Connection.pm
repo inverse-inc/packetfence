@@ -3,7 +3,7 @@ package pf::Connection;
 use Moose;
 
 use pf::constants;
-use pf::radius::constants
+use pf::radius::constants;
 use pf::config;
 use pf::log;
 
