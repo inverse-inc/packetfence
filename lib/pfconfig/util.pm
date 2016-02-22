@@ -21,7 +21,7 @@ use pf::constants::config qw(%NET_INLINE_TYPES);
 use pf::util::networking qw(syswrite_all sysread_all read_data_with_length);
 use pfconfig::constants;
 use pfconfig::undef_element;
-use pfconfig::log;
+use pf::log;
 use pfconfig::constants;
 use IO::Socket::UNIX;
 use Sereal::Decoder;
@@ -40,7 +40,7 @@ sub fetch_socket {
 
     # The line below will log any request to pfconfig for debugging purposes
     # As the logging cost even in trace is high, it's commented out
-    #pfconfig::log::get_logger->info("Doing request to pfconfig with payload : '$payload'");
+    #get_logger->info("Doing request to pfconfig with payload : '$payload'");
 
     # we ask the cachemaster for our namespaced key
     $payload .= "\n";

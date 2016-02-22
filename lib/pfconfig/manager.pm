@@ -36,8 +36,9 @@ use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;
-use pfconfig::log;
+use pf::log;
 use pf::util;
+use Fcntl;
 use Time::HiRes qw(stat time);
 use File::Find;
 use pfconfig::util;
@@ -45,6 +46,8 @@ use POSIX;
 use POSIX::2008;
 use List::MoreUtils qw(first_index);
 use Tie::IxHash;
+use pfconfig::config;
+use pf::constants::user;
 
 =head2 config_builder
 
@@ -55,7 +58,7 @@ See it as a mini-factory
 
 sub config_builder {
     my ( $self, $namespace ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
@@ -72,7 +75,7 @@ Dynamicly requires the namespace module and instanciates the object associated t
 sub get_namespace {
     my ( $self, $name ) = @_;
 
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $full_name = $name;
 
@@ -110,7 +113,7 @@ sub is_overlayed_namespace {
 =head2 overlayed_namespaces
 
 Returns the overlayed namespaces for a static namespace
-  ex : 
+  ex :
     static namespace : "config::Pf"
     overlayed namespaces : ("config::Pf(some-argument)", "config::Pf(another-argument)")
 
@@ -167,7 +170,7 @@ Creates the backend and internal data structures for the L1 and L2 cache
 
 sub init_cache {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $cfg    = pfconfig::config->new->section('general');
 
@@ -197,26 +200,10 @@ That sends the signal that the raw memory is expired
 
 sub touch_cache {
     my ( $self, $what ) = @_;
-    my $logger = pfconfig::log::get_logger;
     $what =~ s/\//;/g;
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
-
-    if ( !-e $filename ) {
-        my $fh;
-        unless ( open( $fh, ">$filename" ) ) {
-            $logger->error("Can't create $filename\nPlease run 'pfcmd fixpermissions'");
-            return 0;
-        }
-        close($fh);
-    }
-    if ( -e $filename ) {
-        my $command = 'touch --date=@'.time.' '."'".$filename."'";
-        $command = untaint_chain($command);
-        `$command`;
-    }
-    my ( undef, undef, $uid, $gid ) = getpwnam('pf');
-    chown( $uid, $gid, $filename );
+    touch_file($filename);
 }
 
 =head2 get_cache
@@ -229,7 +216,7 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 
 sub get_cache {
     my ( $self, $what ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}->{$what};
@@ -286,7 +273,7 @@ Builds the resource associated to a namespace and then caches it in the L1 and L
 
 sub cache_resource {
     my ( $self, $what ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
@@ -316,7 +303,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ( $self, $what ) = @_;
-    my $logger         = pfconfig::log::get_logger;
+    my $logger         = get_logger;
     my $control_file   = pfconfig::util::control_file_path($what);
     my $file_timestamp = ( stat($control_file) )[9];
 
@@ -335,7 +322,7 @@ sub is_valid {
 
     # if the timestamp of the file is after the one we have in memory
     # then we are expired
-    if ( $memory_timestamp > $file_timestamp ) {
+    if ( $memory_timestamp >= $file_timestamp ) {
         $logger->trace("Memory configuration is still valid for key $what");
         return 1;
     }
@@ -359,7 +346,7 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 
 sub expire {
     my ( $self, $what, $light ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
         delete $self->{memorized_at}->{$what};
@@ -474,7 +461,7 @@ Method that expires all the namespaces defined by list_namespaces
 
 sub expire_all {
     my ($self, $light) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
         if(defined($light) && $light){

@@ -19,7 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Config::IniFiles;
-use pfconfig::log;
+use pf::log;
 use pf::file_paths;
 use pf::util;
 use List::MoreUtils qw(any uniq);
@@ -116,7 +116,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $switch ) = @_;
-    my $logger = pfconfig::log::get_logger();
+    my $logger = get_logger();
 
     if ( $switch->{uplink} && $switch->{uplink} eq 'dynamic' ) {
         $switch->{uplink_dynamic} = 'dynamic';
@@ -132,8 +132,6 @@ sub _splitInlineTrigger {
     my ( $type, $value ) = split( /::/, $trigger );
     return { type => $type, value => $value };
 }
-
-=back
 
 =head1 AUTHOR
 

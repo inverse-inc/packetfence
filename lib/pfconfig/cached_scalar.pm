@@ -23,7 +23,7 @@ the object is used
 
 This class is used with tiying
 
-Example : 
+Example :
 my $object;
 tie $object, 'pfconfig::cached_scalar', 'resource::fqdn';
 print $hash{_ip};
@@ -31,7 +31,7 @@ print $hash{_ip};
 This ties $object to the namespace 'resource::fqdn' defined in
 lib/pfconfig/namespaces/ and served though pfconfig
 
-In order to call a method on this tied object 
+In order to call a method on this tied object
 my $zammit = tied($object)->zammit
 
 =cut
@@ -42,7 +42,7 @@ use warnings;
 use Tie::Scalar;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use pfconfig::timeme;
-use pfconfig::log;
+use pf::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::Scalar', 'pfconfig::cached' );
 
@@ -59,6 +59,7 @@ sub TIESCALAR {
     $self->init();
 
     $self->{"_namespace"} = $config;
+    $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
 
     $self->{element_socket_method} = "element";
 
@@ -75,7 +76,7 @@ Other than that it proxies the call to pfconfig
 
 sub FETCH {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = $self->logger;
 
     my $subcache_value = $self->get_from_subcache("myself");
     return $subcache_value if defined($subcache_value);
@@ -87,8 +88,6 @@ sub FETCH {
 
     return $result;
 }
-
-=back
 
 =head1 AUTHOR
 

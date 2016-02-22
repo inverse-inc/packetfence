@@ -19,6 +19,7 @@ use warnings;
 
 use English qw( -no_match_vars );
 use File::Basename;
+use POSIX::2008;
 use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -27,7 +28,6 @@ use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
 use Try::Tiny;
-use pf::file_paths;
 use NetAddr::IP;
 use File::Temp;
 use Date::Parse;
@@ -35,6 +35,8 @@ use Crypt::OpenSSL::X509;
 use Encode qw(encode);
 use MIME::Lite::TT;
 use Digest::MD5;
+use Time::HiRes qw(stat time);
+use Fcntl qw(:DEFAULT);
 
 our ( %local_mac );
 
@@ -74,6 +76,7 @@ BEGIN {
         calc_page_count
         whowasi
         validate_argv
+        touch_file
     );
 }
 
@@ -81,8 +84,10 @@ BEGIN {
 #      being able to use pf::util
 use pf::constants;
 use pf::constants::config;
+use pf::constants::user;
 #use pf::config;
 use pf::log;
+use pf::file_paths;
 
 =head1 SUBROUTINES
 
@@ -1182,6 +1187,26 @@ sub validate_argv {
         return 0;
     }
     return 1;
+}
+
+=item touch_file
+
+Change the timestamp of a file based off the current from Time::HiRes
+
+=cut
+
+sub touch_file {
+    my ( $filename) = @_;
+
+    if (sysopen(my $fh,$filename,O_RDWR | O_CREAT)) {
+        my ($seconds, $microseconds) = Time::HiRes::gettimeofday();
+        POSIX::2008::futimens(fileno $fh, $seconds, $microseconds * 1000,$seconds, $microseconds * 1000);
+        chown( $pf::constants::user::PF_UID, $pf::constants::user::PF_GID, $fh );
+        close($fh);
+    }
+    else {
+        get_logger->error("Can't create/open $filename\nPlease run 'pfcmd fixpermissions'");
+    }
 }
 
 =back

@@ -33,31 +33,14 @@ use warnings;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pfconfig::timeme;
-use pfconfig::log;
+use pf::log;
 use pfconfig::util qw($undef_element);
 use pfconfig::constants;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
+use pf::Sereal qw($DECODER);
 use bytes;
 
-=head2 ENCODER
-
-The encoder for the communications with pfconfig
-See CLONE where this needs to be recreated
-
-=cut
-
-our $ENCODER = Sereal::Encoder->new;
-
-=head2 DECODER
-
-The decoder for the communications with pfconfig
-See CLONE where this needs to be recreated
-
-=cut
-
-our $DECODER = Sereal::Decoder->new;
 
 =head2 new
 
@@ -185,7 +168,7 @@ Will receive the amount of lines of the reply then the reply as a Sereal string
 
 sub _get_from_socket {
     my ( $self, $what, $method, %additionnal_info ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = $self->logger;
 
     $method = $method || $self->{element_socket_method};
 
@@ -226,7 +209,7 @@ sub _get_from_socket {
     # it returns it as a sereal hash
     my $result;
     if ( $response && $response ne "undef\n" ) {
-        eval { $result = $DECODER->decode($response); };
+        eval { $result = sereal_decode_with_object($DECODER, $response); };
         if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
@@ -248,10 +231,10 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 
 sub is_valid {
     my ($self)         = @_;
-    my $logger         = pfconfig::log::get_logger;
+    my $logger         = $self->logger;
     my $what           = $self->{_namespace};
-    my $control_file   = pfconfig::util::control_file_path($what);
-    my $file_timestamp = ( stat($control_file) )[9];
+    my $control_file   = $self->{_control_file_path};
+    my $file_timestamp = (  stat($control_file) )[9];
 
     unless ( defined($file_timestamp) ) {
         $logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
@@ -263,8 +246,8 @@ sub is_valid {
 #$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
 # if the timestamp of the file is after the one we have in memory
 # then we are expired
-    if ( $memory_timestamp > $file_timestamp ) {
-        $logger->trace("Memory configuration is still valid for key $what in local cached_hash");
+    if ( $memory_timestamp >= $file_timestamp ) {
+        $logger->trace( sub { "Memory configuration is still valid for key $what in local cached_hash" });
         return 1;
     }
     else {
@@ -273,15 +256,11 @@ sub is_valid {
     }
 }
 
-=head2 CLONE
-
-Called when cloning the module. Used to create new encoders, if not they'll be undefed
-
-=cut
-
-sub CLONE {
-    $ENCODER = Sereal::Encoder->new;
-    $DECODER = Sereal::Decoder->new;
+sub logger {
+    my ($self) = @_;
+    return $self->{logger} if defined $self->{logger};
+    $self->{logger} = get_logger(ref($self) || $self);
+    return $self->{logger};
 }
 
 =head1 AUTHOR

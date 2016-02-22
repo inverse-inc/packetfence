@@ -14,12 +14,13 @@ pfconfig::backend::mysql
 
 use strict;
 use warnings;
-use Sereal::Encoder;
-use Sereal::Decoder;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use Sereal::Decoder qw(sereal_decode_with_object);
 use DBI;
 use pfconfig::config;
 use Try::Tiny;
-use pfconfig::log;
+use pf::log;
+use pf::Sereal qw($DECODER $ENCODER);
 
 use base 'pfconfig::backend';
 
@@ -36,17 +37,19 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    return $self->{_db} if (defined $self->{_db});
+    my $logger = get_logger;
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
-    }; 
+    };
     if($@) {
         $logger->error("Caught error $@ while connecting to database.");
         return undef;
     }
+    $self->{_db} = $db;
     return $db;
 }
 
@@ -58,7 +61,7 @@ Handle a database error
 
 sub _db_error {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     $logger->error("Couldn't connect to MySQL database to access L2. This is a major problem ! Check the MySQL section in /usr/local/pf/conf/pfconfig.conf and make sure your database schema is up to date !");
 }
 
@@ -70,9 +73,9 @@ Get an element by key
 
 sub get {
     my ( $self, $key ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return undef;
     }
@@ -86,10 +89,8 @@ sub get {
     }
     my $element;
     while ( my $row = $statement->fetchrow_hashref() ) {
-        my $decoder = Sereal::Decoder->new;
-        $element = $decoder->decode( $row->{value} );
+        $element = sereal_decode_with_object($DECODER, $row->{value});
     }
-    $db->disconnect();
     return $element;
 }
 
@@ -101,14 +102,13 @@ Set an element by key
 
 sub set {
     my ( $self, $key, $value ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
-    my $encoder = Sereal::Encoder->new;
-    $value = $encoder->encode($value);
+    $value = sereal_encode_with_object($ENCODER, $value);
     my $result;
     eval {
         $result = $db->do( "REPLACE INTO keyed (id, value) VALUES(?,?)", undef, $key, $value );
@@ -117,7 +117,6 @@ sub set {
         $logger->error("Couldn't insert in table. Error : $@");
         return 0;
     }
-    $db->disconnect();
     return $result;
 }
 
@@ -130,12 +129,11 @@ Remove an element by key
 sub remove {
     my ( $self, $key ) = @_;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
     my $result = $db->do( "DELETE FROM keyed where id=?", undef, $key );
-    $db->disconnect();
     return $result;
 }
 
@@ -148,12 +146,11 @@ Clear out the backend
 sub clear {
     my ( $self ) = @_;
     my $db = $self->_get_db();
-    unless($db){ 
+    unless($db){
         $self->_db_error();
         return 0;
     }
     my $result = $db->do( "DELETE FROM keyed" );
-    $db->disconnect();
     return $result;
 }
 
@@ -165,7 +162,7 @@ List keys in the backend
 
 sub list {
     my ( $self ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
@@ -181,7 +178,6 @@ sub list {
     }
     my @keys = @{$statement->fetchall_arrayref()};
     @keys = map { $_->[0] } @keys;
-    $db->disconnect();
     return @keys;
 }
 
@@ -193,7 +189,7 @@ List keys matching a regular expression
 
 sub list_matching {
     my ( $self, $expression ) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
@@ -209,11 +205,16 @@ sub list_matching {
     }
     my @keys = @{$statement->fetchall_arrayref()};
     @keys = map { $_->[0] } @keys;
-    $db->disconnect();
     return @keys;
 }
 
-=back
+sub reset {
+    my ($self) = @_;
+    my $db = $self->{_db};
+    return unless defined $db;
+    $db->disconnect();
+    delete $self->{_db};
+}
 
 =head1 AUTHOR
 

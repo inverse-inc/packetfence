@@ -15,7 +15,7 @@ pfconfig::namespaces::interfaces
 use strict;
 use warnings;
 
-use pfconfig::log;
+use pf::log;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
 use pfconfig::util qw(is_type_inline);
@@ -58,7 +58,7 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    my $logger = pfconfig::log::get_logger;
+    my $logger = get_logger;
 
     my $config = $self->{config_resource};
     $self->{config} = $config->build();

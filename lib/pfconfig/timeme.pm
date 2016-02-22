@@ -17,7 +17,7 @@ to a function passed as an argument
 
 use strict;
 use warnings;
-use pfconfig::log;
+use pf::log;
 
 =head2 VERBOSE
 
@@ -37,7 +37,7 @@ Used to time a method ($fct)
 sub timeme {
     my ( $desc, $fct, $verbose ) = @_;
     if ( $VERBOSE || $verbose ) {
-        my $logger = pfconfig::log::get_logger;
+        my $logger = get_logger;
         my $start  = Time::HiRes::gettimeofday();
         $fct->();
         my $end = Time::HiRes::gettimeofday();
@@ -70,8 +70,6 @@ sub time_me_x {
         $verbose
     );
 }
-
-=back
 
 =head1 AUTHOR
 

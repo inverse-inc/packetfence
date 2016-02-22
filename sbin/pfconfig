@@ -27,7 +27,7 @@ BEGIN {
     umask (0);
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use pfconfig::log;
+    use pf::log (service => 'pfconfig');
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
@@ -42,7 +42,8 @@ use Getopt::Std;
 use POSIX qw(:signal_h);
 use pf::services::util;
 use pfconfig::constants;
-use Sereal::Encoder;
+use Sereal::Encoder qw(sereal_encode_with_object);
+use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
@@ -80,10 +81,8 @@ umask(0);
 my $cache = pfconfig::manager->new;
 $cache->preload_all();
 
-my $encoder = Sereal::Encoder->new;
 
-
-my $logger = pfconfig::log::get_logger;
+my $logger = get_logger;
 
 # init signal handlers
 POSIX::sigaction(
@@ -134,12 +133,12 @@ while($RUNNING) {
     my $socket;
     my $line;
     eval {
-        $socket = $listner->accept();
+        my $paddr = accept($socket,$listner);
         #Check if a signal was caught
-        unless (defined $socket || $! == EINTR) {
+        unless (defined $paddr || $! == EINTR) {
             die("Can't accept connection: $!\n");
         }
-        if($socket) {
+        if($paddr) {
             chomp( $line = <$socket> );
 
             if($line eq "exit") {exit}
@@ -160,6 +159,7 @@ while($RUNNING) {
                 print "undef";
             }
         }
+        $socket = undef;
     };
     if($@){
         print STDERR "$line : $@";
@@ -178,7 +178,6 @@ END {
 sub expire {
     my ($query, $socket) = @_;
     my $namespace = $query->{namespace};
-    my $logger = pfconfig::log::get_logger;
     my $light = $query->{light};
     if($namespace eq "__all__"){
         $cache->expire_all($light);
@@ -201,7 +200,6 @@ sub get_from_cache {
 
 sub get_element {
     my ($query, $socket) = @_;
-    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket);
     return unless(defined($elem));
     send_output({element => $elem}, $socket);
@@ -209,7 +207,6 @@ sub get_element {
 
 sub get_hash_element {
     my ($query, $socket) = @_;
-    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
 
@@ -306,7 +303,6 @@ sub get_next_key {
 
 sub get_array_element {
     my ($query, $socket) = @_;
-    my $logger = pfconfig::log::get_logger;
 
     my @keys = split ';', $query->{key};
 
@@ -347,7 +343,6 @@ sub get_array_index_exists {
 
 sub get_array_size {
     my ($query, $socket) = @_;
-    my $logger = pfconfig::log::get_logger;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
     send_output({size => $size}, $socket);
@@ -355,8 +350,7 @@ sub get_array_size {
 
 sub encode_output {
     my ($data) = @_;
-    $data = $encoder->encode($data);
-    return $data;
+    return sereal_encode_with_object($ENCODER, $data);
 }
 
 sub send_output {
