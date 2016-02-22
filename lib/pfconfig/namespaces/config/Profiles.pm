@@ -42,7 +42,7 @@ sub build_child {
     $self->cleanup_whitespaces( \%Profiles_Config );
 
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
-        foreach my $field (qw(locale mandatory_fields custom_fields_authentication_sources sources filter provisioners)) {
+        foreach my $field (qw(locale sources filter provisioners)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
         }
     }

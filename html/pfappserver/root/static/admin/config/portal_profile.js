@@ -215,8 +215,7 @@ function initCreatePage(element) {
 function initReadPage(element) {
     updateDynamicRowsAfterRemove($('#locale'));
     updateDynamicRowsAfterRemove($('#filter'));
-    updateDynamicRowsAfterRemove($('#mandatory_fields'));
-    $('#locale, #sources, #mandatory_fields').on('admin.added','tr', function(event) {
+    $('#locale, #sources').on('admin.added','tr', function(event) {
         var row = $(this);
         var siblings = row.siblings(':not(.hidden)');
         var selected_options = siblings.find("select option:selected");
@@ -249,15 +248,6 @@ function initReadPage(element) {
             tr.find('[href="#add"]').addClass('hidden');
         } else {
             tr.find('[href="#add"]').removeClass('hidden');
-        }
-    });
-    $('#mandatory_fields').on('admin.deleted','tbody', function(event) {
-        var tbody = $(this);
-        var rows = tbody.children(':not(.hidden)');
-        var row = rows.first();
-        var options = row.find("select option");
-        if( rows.length < options.length ) {
-            rows.find('[href="#add"]').removeClass('hidden');
         }
     });
     $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {

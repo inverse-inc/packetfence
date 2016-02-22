@@ -232,33 +232,6 @@ sub getSources {
 
 *sources = \&getSources;
 
-
-=item getCustomFields
-
-Returns the custom fields configured on the portal profile
-
-=cut
-
-sub getCustomFields {
-    my ( $self ) = @_;
-    return $self->{'_mandatory_fields'};
-}
-
-*customFields = \&getCustomFields;
-
-=item getCustomFieldsSources
-
-Returns which authentication sources are configured to use custom fields.
-
-=cut
-
-sub getCustomFieldsSources {
-    my ( $self ) = @_;
-    return $self->{'_custom_fields_authentication_sources'};
-}
-
-*customFieldsSources = \&getCustomFieldsSources;
-
 sub getProvisioners {
     my ($self) = @_;
     return $self->{'_provisioners'};
@@ -572,27 +545,6 @@ sub findScan {
     }
 
     return undef;
-}
-
-=item getFieldsForSources
-
-Get the combined mandatory field from the profile and the sources provided
-
-=cut
-
-sub getFieldsForSources {
-    my ($self, @sources) = @_;
-    my @fields;
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
-    if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
-        @fields = @{$self->getCustomFields};
-    }
-    my @mandatoryFields = map {$_->mandatoryFields()} @sources;
-
-    # Combine the profile and the source mandatory fields
-    push @fields, @mandatoryFields;
-    # Make sure mandatory fields are unique
-    return uniq @fields;
 }
 
 sub getUserSources {
