@@ -140,7 +140,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
 TypesConfig /etc/mime.types
 
-
+# We don't allow the TRACE HTTP method
+TraceEnable off
 
 <Perl>
 BEGIN {
