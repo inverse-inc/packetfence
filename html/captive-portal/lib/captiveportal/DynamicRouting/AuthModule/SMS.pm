@@ -34,7 +34,10 @@ sub allowed_urls_auth_module {
 sub execute_child {
     my ($self) = @_;
 
-    if($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
+    if($self->app->request->param("no-pin")){
+        $self->no_pin();
+    }
+    elsif($self->app->request->method eq "POST" && $self->app->request->path eq "activate/sms" && defined($self->app->request->param("pin"))){
         $self->validation();
     }
     elsif(pf::activation::activation_has_entry($self->current_mac,'sms')){
@@ -46,6 +49,12 @@ sub execute_child {
     else {
         $self->prompt_fields();
     }
+}
+
+sub no_pin {
+    my ($self) = @_;
+    pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
+    $self->app->redirect("/captive-portal");
 }
 
 sub prompt_fields {
