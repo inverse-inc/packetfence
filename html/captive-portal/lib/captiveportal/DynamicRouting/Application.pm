@@ -218,10 +218,12 @@ sub _render {
     
 #    get_logger->trace(sub { use Data::Dumper ; "Rendering template $template with args : ".Dumper($args)});
     
+    # this won't be needed once #1208 is merged
+    $self->app->profile->{_template_paths} = ["/usr/local/pf/html/captive-portal/new-templates"];
     our $TT_OPTIONS = {
         AUTO_FILTER => 'html',
         RELATIVE => 1,
-        INCLUDE_PATH => "/usr/local/pf/html/captive-portal/new-templates",
+        INCLUDE_PATH => $self->app->profile->{_template_paths},
     };
 
     use Template::Stash;
