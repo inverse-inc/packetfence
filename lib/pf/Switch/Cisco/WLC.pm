@@ -418,8 +418,9 @@ sub returnRadiusAccessAccept {
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
-    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
+    my $role = $args->{'user_role'};
+    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
             $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
@@ -431,9 +432,8 @@ sub returnRadiusAccessAccept {
                 delete $radius_reply_ref->{$self->returnRoleAttribute()};
             }
             $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
-            push @av_pairs, "url-redirect-acl=".$args->{'user_role'};
+            push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
-
         }
     }
 
