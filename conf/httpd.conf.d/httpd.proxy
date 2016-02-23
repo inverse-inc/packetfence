@@ -86,6 +86,9 @@
   </IfModule>
 </IfDefine>
 
+# We don't allow the TRACE HTTP method
+TraceEnable off
+
 PerlSwitches -I/usr/local/pf/lib
 PerlPostConfigRequire /usr/local/pf/lib/pf/web/proxy_modperl_require.pl
 PerlModule APR::Table
