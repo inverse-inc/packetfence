@@ -33,7 +33,7 @@ sub parse {
             srcip => $4,
             dstip => $6,
         };
-        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
+        return { srcip => $data->{srcip}, date => $data->{date}, dstip => $data->{dstip}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
     } elsif ( $line
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         )

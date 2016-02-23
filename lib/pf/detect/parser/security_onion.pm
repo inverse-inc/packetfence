@@ -32,10 +32,11 @@ sub parse {
         date    => $split1[1],
         descr   => $split1[3],
         srcip   => $split2[0],
+        dstip   => $split2[1],
         sid     => $split2[6],
     };
 
-    return { date => $data->{date}, srcip => $data->{srcip}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
+    return { date => $data->{date}, srcip => $data->{srcip}, dstip => $data->{dstip}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
 }
 
 =head1 AUTHOR
