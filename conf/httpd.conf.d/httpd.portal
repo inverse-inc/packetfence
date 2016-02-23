@@ -103,6 +103,9 @@
   </IfModule>
 </IfDefine>
 
+# We don't allow the TRACE HTTP method
+TraceEnable off
+
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/captive-portal/lib
 # mod_perl handlers are virtually assigned to /perl/
@@ -139,8 +142,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
   downgrade-1.0 force-response-1.0
 
 TypesConfig /etc/mime.types
-
-
 
 <Perl>
 BEGIN {

@@ -62,6 +62,8 @@
   </IfModule>
 </IfDefine>
 
+# We don't allow the TRACE HTTP method
+TraceEnable off
 
 PerlSwitches -I/usr/local/pf/lib
 
