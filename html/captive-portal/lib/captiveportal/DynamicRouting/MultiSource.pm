@@ -18,7 +18,7 @@ use pf::constants;
 
 has 'source_id' => (is => 'rw', trigger => \&_build_sources );
 
-has 'sources' => (is => 'rw', default => sub {[]});
+has 'sources' => (is => 'rw', default => \&_build_sources);
 
 has 'multi_source_types' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{[]});
 
@@ -54,8 +54,8 @@ around 'source' => sub {
 sub _build_sources {
     my ($self, $source_id, $previous) = @_; 
     my @sources;
-    if($source_id eq "_PROFILE_SOURCES_"){
-#        @sources = ($self->app->profile->getInternalSources, $self->app->profile->getExclusiveSources);
+    # no source id was specified (default context) or the source_id attribute is empty
+    if(!defined($source_id) || !$source_id){
         my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
         my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
         my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
@@ -69,6 +69,7 @@ sub _build_sources {
     
     get_logger->debug(sub { "Module ".$self->id." is using sources : ".join(',', (map {$_->id} @sources)) });
     $self->sources(\@sources);
+    return \@sources;
 }
 
 

@@ -10,31 +10,26 @@ modules=default_login_policy,default_guest_policy,default_oauth_policy,default_b
 [default_login_policy]
 description=Username/password login
 type=Authentication::Login
-source_id=_PROFILE_SOURCES_
 
 [default_guest_policy]
 description=Guest signup
 show_first_module_on_default=enabled
 type=Authentication::Choice
 multi_source_object_classes=pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
-source_id=_PROFILE_SOURCES_
 
 [default_oauth_policy]
 description=OAuth login
 type=Authentication::Choice
 multi_source_object_classes=pf::Authentication::Source::OAuthSource
-source_id=_PROFILE_SOURCES_
 
 [default_billing_policy]
 description=Pay for your access
 type=Authentication::Billing
-source_id=_PROFILE_SOURCES_
 
 [default_saml_policy]
 description=SAML login
 type=Authentication::Choice
 multi_source_object_classes=pf::Authentication::Source::SAMLSource
-source_id=_PROFILE_SOURCES_
 
 [default_provisioning_policy]
 type=Provisioning
