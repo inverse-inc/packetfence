@@ -58,6 +58,17 @@ after [qw(create clone)] => sub {
     }
 };
 
+before [qw(clone view _processCreatePost update)] => sub {
+    my ($self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
+    my $type = $item->{type};
+    my $form = $c->action->{form};
+    $c->stash->{current_form} = "${form}::${type}";
+};
+
+
 =head2 after view
 
 =cut
@@ -97,7 +108,7 @@ after list => sub {
         Provisioning => [],
     );
     my %type_map = (
-        '^AuthModule' => 'AuthModule',
+        '^Authentication' => 'Authentication',
     );
     foreach my $item (@items){
         my $regex_found = $FALSE;

@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::PortalModule::AuthModule::SMS;
+package pfappserver::Form::Config::PortalModule::Authentication::OAuth;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::AuthModule::SMS
+pfappserver::Form::Config::PortalModule::Authentcation::OAuth
 
 =head1 DESCRIPTION
 
@@ -11,10 +11,10 @@ Form definition to create or update an authentication portal module.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::AuthModule';
+extends 'pfappserver::Form::Config::PortalModule::Authentication';
 
-use captiveportal::DynamicRouting::AuthModule::SMS;
-sub for_module {'captiveportal::DynamicRouting::AuthModule::SMS'}
+use captiveportal::DynamicRouting::Module::Authentication::OAuth;
+sub for_module {'captiveportal::DynamicRouting::Module::Authentication::OAuth'}
 
 ## Definition
 

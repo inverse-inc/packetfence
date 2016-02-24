@@ -1,4 +1,4 @@
-package pfappserver::Form::Config::PortalModule::AuthModule;
+package pfappserver::Form::Config::PortalModule::Authentication;
 
 =head1 NAME
 
@@ -12,17 +12,18 @@ Form definition to create or update an authentication portal module.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule';
+with 'pfappserver::Base::Form::Role::Help';
 
-use captiveportal::DynamicRouting::AuthModule;
-sub for_module {'captiveportal::DynamicRouting::AuthModule'}
+use pf::log; 
+use captiveportal::DynamicRouting::Module::Authentication;
+sub for_module {'captiveportal::DynamicRouting::Module::Authentication'}
 
 ## Definition
 has_field 'source_id' =>
   (
    type => 'Select',
-   multiple => for_module->does('captiveportal::DynamicRouting::MultiSource'),
    label => 'Sources',
-   options_method => \&options_sources,
+   options => [],
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a source'},
    tags => { after_element => \&help,
@@ -33,7 +34,7 @@ has_field 'custom_fields' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Sources',
+   label => 'Mandatory fields',
    options_method => \&options_custom_fields,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a required field'},
@@ -46,7 +47,7 @@ has_field 'with_aup' =>
    type => 'Checkbox',
    label => 'Require AUP',
    checkbox_value => '1',
-   default => for_module->meta->get_attribute('with_aup')->default,
+   default => for_module->meta->get_attribute('with_aup')->default->(),
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );
@@ -56,14 +57,27 @@ has_field 'signup_template' =>
    type => 'Text',
    label => 'Signup template',
    required => 1,
-   default => for_module->meta->get_attribute('signup_template')->default,
+   default => for_module->meta->get_attribute('signup_template')->default->(),
    tags => { after_element => \&help,
              help => 'The template to use for the signup' },
   );
 
+sub BUILD {
+    my ($self) = @_;
+
+    if($self->for_module->does('captiveportal::DynamicRouting::MultiSource')){
+        $self->field('source_id')->multiple(1);
+        $self->field('source_id')->options([$self->options_sources(multiple => 1)]);
+    }
+    else {
+        $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
+    }
+
+}
 
 sub child_definition {
-    return (qw(source_id custom_fields with_aup signup_template), auth_module_definition());
+    my ($self) = @_;
+    return (qw(source_id custom_fields with_aup signup_template), $self->auth_module_definition());
 }
 
 # To override in the child modules
@@ -72,15 +86,32 @@ sub auth_module_definition {
 }
 
 sub options_sources {
-    my ($self) = @_;
+    my ($self, %options) = @_;
     require pf::authentication;
-    return map { 
-        pf::authentication::getAuthenticationSource($_)->isa(for_module->meta->get_attribute('source')->isa) ? $_->id : ()
-    } @{pf::authentication::getAllAuthenticationSources()};
+    my @sources;
+    foreach my $source (@{pf::authentication::getAllAuthenticationSources()}){
+        # We are dealing with a multi source module, meaning we are looking for the isa in the sources attribute
+        my ($isa);
+        if($options{multiple} && $self->for_module->meta->get_attribute('sources')->{isa} =~ /^ArrayRef\[(.*)\]/){
+            $isa = $1;
+        }
+        else {
+            $isa = $self->for_module->meta->get_attribute('source')->{isa};
+        }
+        get_logger->debug("Building options with isa : $isa");
+        foreach my $splitted_isa (split(/\s*\|\s*/, $isa)){
+            if($source->isa($splitted_isa)){
+                push @sources, $source->id;
+                last;
+            }
+        }
+    }
+    get_logger->debug(sub { use Data::Dumper; "The following sources are available : ".Dumper(\@sources) });
+    return map { {value => $_, label => $_} } @sources;
 }
 
 sub options_custom_fields {
-    return @pf::person::PROMPTABLE_FIELDS;
+    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
 }
 
 

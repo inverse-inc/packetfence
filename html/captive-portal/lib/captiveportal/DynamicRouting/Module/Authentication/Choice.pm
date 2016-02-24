@@ -13,7 +13,7 @@ For a choice between multiple authentication sources
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Choice';
 
-has 'source' => (is => 'rw');
+has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
 
 with 'captiveportal::DynamicRouting::MultiSource';
 

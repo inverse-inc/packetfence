@@ -40,9 +40,14 @@ has_field 'description' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type description), child_definition() ],
+   # Generated via the BUILD method
+   render_list => [],
   );
 
+sub BUILD {
+    my ($self) = @_;
+    $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
+}
 
 # To override in the child modules
 sub child_definition {
