@@ -12,11 +12,14 @@ Form definition to create or update an authentication portal module.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication';
+with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::MultiSource';
 
 use captiveportal::DynamicRouting::Module::Authentication::Choice;
 sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
 
 ## Definition
+
 
 =over
 
