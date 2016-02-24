@@ -1,0 +1,10 @@
+<h1>Portal modules</h1>
+
+[% FOREACH type IN items_by_type.keys%]
+  <h2>[% i18n(type) %]</h2>
+  <ul>
+  [% FOREACH item IN items_by_type.$type %]
+    <li><a href="[% c.uri_for(c.controller.action_for('view'), [item.id]) %]">[% i18n(item.id) %]</a></li>
+  [% END %]
+  </ul>
+[% END %]

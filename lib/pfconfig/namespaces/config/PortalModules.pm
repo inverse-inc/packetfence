@@ -25,9 +25,9 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = "/usr/local/pf/conf/portal_modules.conf";
+    $self->{file} = $portal_modules_config_file;
     
-    my $defaults = Config::IniFiles->new( -file => "/usr/local/pf/conf/portal_modules.conf.defaults" );
+    my $defaults = Config::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

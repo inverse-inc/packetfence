@@ -37,6 +37,8 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
 
+has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
+
 use pf::authentication;
 use pf::Authentication::constants;
 use captiveportal::DynamicRouting::Actions;
@@ -173,7 +175,7 @@ sub create_local_account {
 sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
-    $self->render("signin.html", {
+    $self->render($self->signup_template, {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,

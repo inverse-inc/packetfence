@@ -77,6 +77,8 @@ our (
     $dhcp_filters_config_file,
     $dns_filters_config_file,
     $admin_audit_log,
+    $portal_modules_config_file,
+    $portal_modules_default_config_file,
 );
 
 BEGIN {
@@ -131,6 +133,8 @@ BEGIN {
         $dhcp_filters_config_file
         $dns_filters_config_file
         $admin_audit_log
+        $portal_modules_config_file
+        $portal_modules_default_config_file
     );
 }
 
@@ -200,6 +204,8 @@ $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
+$portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
+$portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';

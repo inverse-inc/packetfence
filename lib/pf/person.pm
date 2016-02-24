@@ -49,6 +49,7 @@ BEGIN {
 }
 
 use pf::db;
+use List::MoreUtils qw(any);
 
 =head1 GLOBALS
 
@@ -77,6 +78,14 @@ our @FIELDS = qw(
     room_number custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6
     custom_field_7 custom_field_8 custom_field_9 portal source
 );
+
+our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source);
+
+our @PROMPTABLE_FIELDS;
+foreach my $field (@FIELDS){
+    next if(any { $_ eq $field} @NON_PROMPTABLE_FIELDS);
+    push @PROMPTABLE_FIELDS, $field;
+}
 
 =back
 

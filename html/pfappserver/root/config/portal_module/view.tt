@@ -1,0 +1,18 @@
+[% IF c.action.name == "view"  %]
+[% SET action_url = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
+[%ELSE%]
+[% SET action_url = c.req.uri %]
+[%END%]
+<form name="formItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+  <h3>[% IF item.id.defined %]<i>[% l(item.type) %]</i> [% item.id | html %][% ELSE %][% l('New portal module') %][% END %]</h3>
+
+  <div class="modal-body">
+  [%- IF item.id.defined;
+    CALL form.field('id').type_attr('hidden');
+    CALL form.field('id').do_label(0);
+  END -%]
+    [% form.block('definition').render | none %]
+  </div><!--modal-body-->
+
+
+</form>

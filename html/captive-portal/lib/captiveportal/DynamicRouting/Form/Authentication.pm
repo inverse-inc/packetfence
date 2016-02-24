@@ -25,10 +25,7 @@ has 'source' => (is => 'rw');
 
 my %skip = (
     email => 1,
-    pid => 1,
-    sponsor => 1,
-    portal => 1,
-    source => 1,
+    map { $_ => 1 } @pf::person::NON_PROMPTABLE_FIELDS,
 );
 foreach my $field (@pf::person::FIELDS){
     next if(exists($skip{$field}));
