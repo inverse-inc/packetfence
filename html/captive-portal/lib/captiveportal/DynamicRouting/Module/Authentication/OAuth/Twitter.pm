@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::Twitter;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::Twitter;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::Twitter
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Twitter
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Twitter OAuth module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 use pf::auth_log;
 use pf::log;

@@ -1,12 +1,12 @@
-package captiveportal::DynamicRouting::AndModule;
+package captiveportal::DynamicRouting::Module::Chained;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AndModule
+captiveportal::DynamicRouting::Module::Chained
 
 =head1 DESCRIPTION
 
-And module
+To chain multiple modules one after the other
 
 =cut
 

@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::AuthChoice;
+package captiveportal::DynamicRouting::Module::Authentication::Choice;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::AuthChoice
+captiveportal::DynamicRouting::Module::Authentication::Choice
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ For a choice between multiple authentication sources
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::OrModule';
+extends 'captiveportal::DynamicRouting::Module::Choice';
 
 has 'source' => (is => 'rw');
 
@@ -25,11 +25,11 @@ sub BUILD {
     my ($self) = @_;
     my @sources = @{$self->sources()};
 
-    get_logger->debug("Building AuthChoice module using sources : ".join(',', map{$_->id} @sources) );
+    get_logger->debug("Building Authentication Choice module using sources : ".join(',', map{$_->id} @sources) );
     push @{$self->modules_order}, (map {generate_id($self->id, generate_dynamic_module_id($_->id))} @sources);
     foreach my $source (@sources){
         die "Missing DynamicRouting module for source : ".$source->id unless($source->dynamic_routing_module);
-        my $module = "captiveportal::DynamicRouting::".$source->dynamic_routing_module;
+        my $module = "captiveportal::DynamicRouting::Module::".$source->dynamic_routing_module;
         $self->add_module($module->new(
             id => generate_id($self->id, generate_dynamic_module_id($source->id)),
             description => $source->description,

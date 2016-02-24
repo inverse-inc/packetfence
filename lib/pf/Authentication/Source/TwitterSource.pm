@@ -23,7 +23,7 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Twitter');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'AuthModule::OAuth::Twitter');
+has '+dynamic_routing_module' => (default => 'Authentication::OAuth::Twitter');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => '<CONSUMER KEY>');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => '<CONSUMER SECRET>';
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com');

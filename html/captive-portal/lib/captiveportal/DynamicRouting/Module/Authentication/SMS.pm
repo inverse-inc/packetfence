@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::SMS;
+package captiveportal::DynamicRouting::Module::Authentication::SMS;
 
 =head1 NAME
 
-DynamicRouting::AuthModule::SMS
+captiveportal::DynamicRouting::Module::Authentication::SMS
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ SMS authentication module
 =cut
 
 use Moose;
-extends "captiveportal::DynamicRouting::AuthModule";
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::FieldValidation';
 
 use pf::activation;

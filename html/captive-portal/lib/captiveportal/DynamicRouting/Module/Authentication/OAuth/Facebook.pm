@@ -1,17 +1,19 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::Google;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::Facebook;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::Google
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Facebook
 
 =head1 DESCRIPTION
 
-Google OAuth module
+Facebook OAuth module
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
+
+has '+source' => (isa => 'pf::Authentication::Source::FacebookSource');
 
 =head1 AUTHOR
 

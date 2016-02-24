@@ -90,10 +90,10 @@ after list => sub {
     my ($self, $c) = @_;
     my @items = @{$c->stash->{items}};
     tie my %items_by_type, 'Tie::IxHash', (
-        RootModule => [], 
-        OrModule => [],
-        AndModule => [],
-        AuthModule => [],
+        Root => [], 
+        Choice => [],
+        Chained => [],
+        Authentication => [],
         Provisioning => [],
     );
     my %type_map = (

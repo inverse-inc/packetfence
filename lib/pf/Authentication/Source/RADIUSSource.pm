@@ -19,7 +19,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'RADIUS' );
-has '+dynamic_routing_module' => (default => 'AuthModule::Login');
+has '+dynamic_routing_module' => (default => 'Authentication::Login');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);

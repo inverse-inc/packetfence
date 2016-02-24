@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::Null;
+package captiveportal::DynamicRouting::Module::Authentication::Null;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::Null
+captiveportal::DynamicRouting::Module::Authentication::Null
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Null auth module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::FieldValidation';
 
 use pf::util;

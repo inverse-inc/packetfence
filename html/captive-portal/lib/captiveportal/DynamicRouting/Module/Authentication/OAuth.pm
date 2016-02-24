@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth
+captiveportal::DynamicRouting::Module::Authentication::OAuth
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ OAuth base module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 
 use pf::log;
 use pf::config;

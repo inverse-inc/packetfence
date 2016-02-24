@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule;
+package captiveportal::DynamicRouting::Module::Authentication;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule
+captiveportal::DynamicRouting::Module::Authentication
 
 =head1 DESCRIPTION
 

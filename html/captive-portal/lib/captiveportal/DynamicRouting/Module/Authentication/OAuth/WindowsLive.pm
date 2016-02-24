@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::WindowsLive;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::WindowsLive;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::WindowsLive
+captiveportal::DynamicRouting::Module::Authentication::OAuth::WindowsLive
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ WindowsLive OAuth module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+token_scheme' => (default => "auth-header:Bearer");
 

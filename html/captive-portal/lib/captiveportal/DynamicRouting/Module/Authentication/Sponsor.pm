@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::Sponsor;
+package captiveportal::DynamicRouting::Module::Authentication::Sponsor;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Sponsor
+captiveportal::DynamicRouting::Module::Authentication::Sponsor
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Sponsoring module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 
 use pf::log;
 use pf::config;

@@ -23,7 +23,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SAML' );
-has '+dynamic_routing_module' => (default => 'AuthModule::SAML');
+has '+dynamic_routing_module' => (default => 'Authentication::SAML');
 has 'authorization_source_id' => ( is => 'rw', required => 1 );
 
 has 'sp_key_path' => ( is => 'rw', required => 1 );

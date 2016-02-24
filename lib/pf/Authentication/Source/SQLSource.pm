@@ -19,7 +19,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SQL' );
-has '+dynamic_routing_module' => (default => 'AuthModule::Login');
+has '+dynamic_routing_module' => (default => 'Authentication::Login');
 
 =head1 METHODS
 

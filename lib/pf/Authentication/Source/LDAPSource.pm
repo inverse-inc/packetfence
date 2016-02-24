@@ -48,7 +48,7 @@ Readonly our %ATTRIBUTES_MAP => (
 );
 
 has '+type' => (default => 'LDAP');
-has '+dynamic_routing_module' => (default => 'AuthModule::Login');
+has '+dynamic_routing_module' => (default => 'Authentication::Login');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );

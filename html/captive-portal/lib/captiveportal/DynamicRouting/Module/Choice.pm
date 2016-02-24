@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::OrModule;
+package captiveportal::DynamicRouting::Module::Choice;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::OrModule
+captiveportal::DynamicRouting::Module::Choice
 
 =head1 DESCRIPTION
 

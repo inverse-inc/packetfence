@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::Login;
+package captiveportal::DynamicRouting::Module::Authentication::Login;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::Login
+captiveportal::DynamicRouting::Module::Authentication::Login
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Login registration
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::FieldValidation';
 with 'captiveportal::DynamicRouting::MultiSource';
 

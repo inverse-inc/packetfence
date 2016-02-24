@@ -1,4 +1,4 @@
-package captiveportal::DynamicRouting::TLSEnrollment;
+package captiveportal::DynamicRouting::Module::TLSEnrollment;
 
 =head1 NAME
 

@@ -38,7 +38,7 @@ has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');
 
-has '+dynamic_routing_module' => (default => 'AuthModule::Billing');
+has '+dynamic_routing_module' => (default => 'Authentication::Billing');
 
 =head2 has_authentication_rules
 

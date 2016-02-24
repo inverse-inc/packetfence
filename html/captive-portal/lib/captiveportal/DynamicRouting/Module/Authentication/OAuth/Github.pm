@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::Github;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::Github;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::Github
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Github
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Github OAuth module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::GithubSource');
 

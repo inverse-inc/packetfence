@@ -19,7 +19,7 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'Kerberos' );
-has '+dynamic_routing_module' => (default => 'AuthModule::Login');
+has '+dynamic_routing_module' => (default => 'Authentication::Login');
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'realm' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');

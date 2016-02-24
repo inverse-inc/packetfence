@@ -1,26 +1,17 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::LinkedIn;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::Google;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::LinkedIn
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Google
 
 =head1 DESCRIPTION
 
-LinkedIn OAuth module
+Google OAuth module
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
-
-has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
-
-sub _decode_response {
-    my ($self, $response) = @_;
-    my $pid = $response->content();
-    $pid =~ s/"//g;
-    return {email => $pid};
-}
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 =head1 AUTHOR
 

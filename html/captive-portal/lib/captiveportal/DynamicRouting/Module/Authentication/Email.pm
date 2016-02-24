@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::Email;
+package captiveportal::DynamicRouting::Module::Authentication::Email;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::Email
+captiveportal::DynamicRouting::Module::Authentication::Email
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Login registration
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::FieldValidation';
 
 has '+source' => (isa => 'pf::Authentication::Source::EmailSource');

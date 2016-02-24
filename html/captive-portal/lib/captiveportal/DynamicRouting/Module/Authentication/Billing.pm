@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::Billing;
+package captiveportal::DynamicRouting::Module::Authentication::Billing;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::Billing
+captiveportal::DynamicRouting::Module::Authentication::Billing
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ Billing auth module
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::FieldValidation';
 with 'captiveportal::DynamicRouting::Routed';
 with 'captiveportal::DynamicRouting::MultiSource';

@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::AuthModule::SAML;
+package captiveportal::DynamicRouting::Module::Authentication::SAML;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::SAML
+captiveportal::DynamicRouting::Module::Authentication::SAML
 
 =head1 DESCRIPTION
 
@@ -11,7 +11,7 @@ SAML authentication
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule';
+extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::DynamicRouting::Routed';
 
 use pf::util;

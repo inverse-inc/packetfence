@@ -1,19 +1,26 @@
-package captiveportal::DynamicRouting::AuthModule::OAuth::Facebook;
+package captiveportal::DynamicRouting::Module::Authentication::OAuth::LinkedIn;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::AuthModule::OAuth::Facebook
+captiveportal::DynamicRouting::Module::Authentication::OAuth::LinkedIn
 
 =head1 DESCRIPTION
 
-Facebook OAuth module
+LinkedIn OAuth module
 
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AuthModule::OAuth';
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
-has '+source' => (isa => 'pf::Authentication::Source::FacebookSource');
+has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
+
+sub _decode_response {
+    my ($self, $response) = @_;
+    my $pid = $response->content();
+    $pid =~ s/"//g;
+    return {email => $pid};
+}
 
 =head1 AUTHOR
 

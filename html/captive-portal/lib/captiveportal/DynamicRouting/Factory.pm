@@ -31,7 +31,7 @@ has 'graph' => (is => 'rw', isa => 'Graph');
 our @MODULES = __PACKAGE__->modules;
 our %INSTANTIATED_MODULES;
 
-sub factory_for { 'captiveportal::DynamicRouting' }
+sub factory_for { 'captiveportal::DynamicRouting::Module' }
 
 tie our %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 

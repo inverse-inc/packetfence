@@ -17,7 +17,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'Email');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'AuthModule::Email');
+has '+dynamic_routing_module' => (default => 'Authentication::Email');
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');

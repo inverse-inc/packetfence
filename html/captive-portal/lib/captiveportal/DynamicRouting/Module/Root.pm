@@ -1,4 +1,4 @@
-package captiveportal::DynamicRouting::RootModule;
+package captiveportal::DynamicRouting::Module::Root;
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ Root module for Dynamic Routing
 =cut
 
 use Moose;
-extends 'captiveportal::DynamicRouting::AndModule';
+extends 'captiveportal::DynamicRouting::Module::Chained';
 with 'captiveportal::DynamicRouting::Routed';
 
 has '+route_map' => (default => sub {
@@ -29,7 +29,7 @@ use pf::node;
 use pf::config;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
-use captiveportal::DynamicRouting::AuthModule::Billing;
+use captiveportal::DynamicRouting::Module::Authentication::Billing;
 
 has '+parent' => (required => 0);
 
@@ -102,7 +102,7 @@ sub direct_route_billing {
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg"){
         $self->session->{direct_route_billing} = $TRUE;
-        $self->module_map({'_DYNAMIC_BILLING_MODULE_' => captiveportal::DynamicRouting::AuthModule::Billing->new(
+        $self->module_map({'_DYNAMIC_BILLING_MODULE_' => captiveportal::DynamicRouting::Module::Authentication::Billing->new(
                     id => '_DYNAMIC_BILLING_MODULE_', 
                     app => $self->app, 
                     parent => $self, 
