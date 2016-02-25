@@ -17,6 +17,7 @@ has_field 'multi_source_object_classes' =>
   (
    type => 'TextArea',
    label => 'Sources by Class',
+   element_class => ['input-xxlarge'],
    required => 0,
    tags => { after_element => \&help,
              help => 'The sources inheriting from these classes and part of the portal profile will be added to the available sources' },
@@ -25,6 +26,7 @@ has_field 'multi_source_object_classes' =>
 has_field 'multi_source_types' => 
   (
    type => 'TextArea',
+   element_class => ['input-xxlarge'],
    label => 'Sources by type',
    required => 0,
    tags => { after_element => \&help,
@@ -35,6 +37,7 @@ has_field 'multi_source_auth_classes' =>
   (
    type => 'TextArea',
    label => 'Sources by Auth Class',
+   element_class => ['input-xxlarge'],
    required => 0,
    tags => { after_element => \&help,
              help => 'The sources of these authentication classes and part of the portal profile will be added to the available sources' },

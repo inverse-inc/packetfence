@@ -31,7 +31,6 @@
           [% l('No modules selected') %]
           <a href="#add">[% l('Add a module.') %]</a>
         </p>
-        <br/>
       </div>
     </div>
   </div>
