@@ -81,7 +81,7 @@ sub user_cache {
     return CHI->new(
         driver     => 'SubNamespace',
         chi_object => pf::CHI->new(namespace => 'httpd.portal'),
-        namespace  => $self->root_module->current_mac,
+        namespace  => $self->current_mac,
     );
 }
 
@@ -106,7 +106,7 @@ sub process_user_agent {
     my ( $self ) = @_;
     my $user_agent    = $self->request->user_agent;
     my $logger        = get_logger();
-    my $mac           = $self->root_module->current_mac;
+    my $mac           = $self->current_mac;
     unless ($user_agent) {
         $logger->warn("has no user agent");
         return;
@@ -136,7 +136,7 @@ sub process_fingerbank {
 
     my %fingerbank_query_args = (
         user_agent          => $self->request->user_agent,
-        mac                 => $self->root_module->current_mac,
+        mac                 => $self->current_mac,
         ip                  => $self->root_module->current_ip,
     );
 
@@ -165,6 +165,11 @@ sub preprocessing {
 sub execute {
     my ($self) = @_;
     $self->root_module->execute();
+}
+
+sub current_mac {
+    my ($self) = @_;
+    return $self->session()->{"client_mac"};
 }
 
 sub process_destination_url {
@@ -202,7 +207,7 @@ sub render {
     my $layout_args = {
         flash => $self->flash,
         content => $inner_content,
-        client_mac => $self->root_module->current_mac,
+        client_mac => $self->current_mac,
         client_ip => $self->root_module->current_ip,
     };
     $args->{layout} //= $TRUE;

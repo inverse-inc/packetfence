@@ -91,7 +91,7 @@ sub node_info {
 
 sub current_mac {
     my ($self) = @_;
-    return $self->app->session()->{"client_mac"};
+    return $self->app->current_mac;
 }
 
 sub current_ip {
