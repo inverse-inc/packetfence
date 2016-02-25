@@ -682,30 +682,30 @@ sub generate_provisioning_passthroughs {
     my $logger = get_logger();
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'sepm')) {
         $logger->info("Adding passthrough for Symantec Endpoint Manager");
-        my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
         my @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
-        my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},$config->{boarding_port} 2>&1");
         my @lines  = pf_run($cmd);
         # Allow http communication with the MobileIron server
-        $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},80 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},80 2>&1");
         @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{boarding_host},443 2>&1");
         @lines  = pf_run($cmd);
     }
 
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'opswat')) {
         $logger->info("Adding passthrough for OPSWAT");
         # Allow http communication with the MobileIron server
-        my $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{host},80 2>&1");
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},80 2>&1");
         my @lines  = pf_run($cmd);
         # Allow https communication with the MobileIron server
-        $cmd = untaint_chain("LANG=C sudo ipset --add pfsession_passthrough $config->{host},443 2>&1");
+        $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{host},443 2>&1");
         @lines  = pf_run($cmd);
     }
 

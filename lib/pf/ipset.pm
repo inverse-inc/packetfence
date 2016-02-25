@@ -56,11 +56,11 @@ sub iptables_generate {
     $logger->warn("We are using IPSET");
     #Flush mangle table to permit ipset destroy
     $self->iptables_flush_mangle;
-    my $cmd = "LANG=C sudo ipset --destroy";
+    my $cmd = "sudo ipset --destroy";
     my @lines = pf_run($cmd);
     my @roles = pf::nodecategory::nodecategory_view_all;
 
-    $cmd = "LANG=C sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
+    $cmd = "sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
     @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
@@ -71,18 +71,18 @@ sub iptables_generate {
         # Using the role ID in the name instead of the role name due to ipset name length constraint (max32) 
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
-                $cmd = "LANG=C sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create PF-iL2_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
 
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
+                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS} 2>&1";
             }
             my @lines  = pf_run($cmd);
         }
@@ -95,7 +95,7 @@ sub iptables_generate {
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
-        $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
+        $cmd = "sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
         my @lines  = pf_run($cmd);
     }
     $self->SUPER::iptables_generate();
@@ -255,9 +255,9 @@ sub iptables_mark_node {
                 my $cmd;
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog -exist 2>&1";
+                    $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog -exist 2>&1";
                 } else {
-                    $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog,$mac -exist 2>&1";
+                    $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog,$mac -exist 2>&1";
                 }
 
                 my @lines  = pf_run($cmd);
@@ -266,9 +266,9 @@ sub iptables_mark_node {
                     my $node_info = pf::node::node_view($mac);
                     my $role_id = $node_info->{'category_id'};
                     if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        $cmd = "LANG=C sudo ipset --add PF-iL3_ID$role_id\_$network $iplog -exist 2>&1";
+                        $cmd = "sudo ipset --add PF-iL3_ID$role_id\_$network $iplog -exist 2>&1";
                     } else {
-                        $cmd = "LANG=C sudo ipset --add PF-iL2_ID$role_id\_$network $iplog -exist 2>&1";
+                        $cmd = "sudo ipset --add PF-iL2_ID$role_id\_$network $iplog -exist 2>&1";
                     }
                 }
 
@@ -294,17 +294,17 @@ sub iptables_unmark_node {
     while ( my ($network, $iplist) = each(%$ipset) ) {
         if (defined($iplist)) {
             foreach my $IP ( split( ',', $iplist ) ) {
-                my $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP -exist 2>&1";
+                my $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP -exist 2>&1";
                 my @lines  = pf_run($cmd);
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $cmd = "LANG=C sudo ipset del PF-iL3_ID$role_id\_$network $IP -exist 2>&1";
+                    $cmd = "sudo ipset del PF-iL3_ID$role_id\_$network $IP -exist 2>&1";
                 } else {
-                    $cmd = "LANG=C sudo ipset del PF-iL2_ID$role_id\_$network $IP -exist 2>&1";
+                    $cmd = "sudo ipset del PF-iL2_ID$role_id\_$network $IP -exist 2>&1";
                 }
                 pf_run($cmd);
 
-                $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $IP 2>&1";
+                $cmd = "sudo /usr/sbin/conntrack -D -s $IP 2>&1";
                 pf_run($cmd);
                 $logger->info("Flushed connections for $IP.");
 
@@ -344,9 +344,9 @@ sub get_mangle_mark_for_mac {
                 foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
                     my $cmd;
                     if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                        $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog 2>&1";
+                        $cmd = "sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog 2>&1";
                     } else {
-                        $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
+                        $cmd = "sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
                     }
                     my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
@@ -373,7 +373,7 @@ sub ipset_remove_ip {
     my ( $self, $ip, $mark, $network) = @_;
     my $logger = get_logger();
     my ($cmd, $out);
-    $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+    $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
     $out  = pf_run($cmd);
     my @lines = split "\n+", $out;
 
@@ -389,17 +389,17 @@ sub ipset_remove_ip {
         # skip comment lines from ipset list
         next if $line =~ m/:\s|:\Z/;
         if ($line =~ m/^\s* $ip , .* \s* $/ix) {
-            $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip -exist 2>&1";
+            $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip -exist 2>&1";
             $out = pf_run($cmd);
 
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                $cmd = "LANG=C sudo ipset --del PF-iL3_ID$role_id\_$network $ip -exist 2>&1";
+                $cmd = "sudo ipset --del PF-iL3_ID$role_id\_$network $ip -exist 2>&1";
             } else {
-                $cmd = "LANG=C sudo ipset --del PF-iL2_ID$role_id\_$network $ip -exist 2>&1";
+                $cmd = "sudo ipset --del PF-iL2_ID$role_id\_$network $ip -exist 2>&1";
             }
             pf_run($cmd);
 
-            $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $ip 2>&1";
+            $cmd = "sudo /usr/sbin/conntrack -D -s $ip 2>&1";
             pf_run($cmd);
             $logger->info("Flushed connections for $ip.");
         }
@@ -428,7 +428,7 @@ sub get_ip_from_ipset_by_mac {
                 $ip = $tmp_ip->addr;
             }
         } else {
-            $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
+            $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network 2>&1";
             $out = pf_run($cmd);
             my @lines = split "\n+", $out;
 
@@ -480,17 +480,17 @@ sub update_node {
             #Delete from ipset session if the ip change
             if ($net_addr->contains($old_ip)) {
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    pf_run("LANG=C sudo ipset del PF-iL3_ID$id\_$network $old_ip -exist 2>&1");
+                    pf_run("sudo ipset del PF-iL3_ID$id\_$network $old_ip -exist 2>&1");
                 } else {
-                    pf_run("LANG=C sudo ipset del PF-iL2_ID$id\_$network $old_ip -exist 2>&1");
+                    pf_run("sudo ipset del PF-iL2_ID$id\_$network $old_ip -exist 2>&1");
                 }
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
                  if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    pf_run("LANG=C sudo ipset add PF-iL3_ID$id\_$network $src_ip -exist 2>&1");
+                    pf_run("sudo ipset add PF-iL3_ID$id\_$network $src_ip -exist 2>&1");
                 } else {
-                    pf_run("LANG=C sudo ipset add PF-iL2_ID$id\_$network $src_ip -exist 2>&1");
+                    pf_run("sudo ipset add PF-iL2_ID$id\_$network $src_ip -exist 2>&1");
                 }
             }
  
@@ -552,11 +552,11 @@ sub iptables_update_set {
         my $ip = new NetAddr::IP::Lite clean_ip($ip);
         if ($net_addr->contains($ip)) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                pf_run("LANG=C sudo ipset del PF-iL3_ID$old\_$network $ip -exist 2>&1") if defined($old);
-                pf_run("LANG=C sudo ipset add PF-iL3_ID$new\_$network $ip -exist 2>&1") if defined($new);
+                pf_run("sudo ipset del PF-iL3_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("sudo ipset add PF-iL3_ID$new\_$network $ip -exist 2>&1") if defined($new);
             } else {
-                pf_run("LANG=C sudo ipset del PF-iL2_ID$old\_$network $ip -exist 2>&1") if defined($old);
-                pf_run("LANG=C sudo ipset add PF-iL2_ID$new\_$network $ip -exist 2>&1") if defined($new);
+                pf_run("sudo ipset del PF-iL2_ID$old\_$network $ip -exist 2>&1") if defined($old);
+                pf_run("sudo ipset add PF-iL2_ID$new\_$network $ip -exist 2>&1") if defined($new);
             }
         }
     }

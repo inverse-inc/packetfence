@@ -57,7 +57,7 @@ sub create {
     }
 
     # Create requested virtual interface
-    my $cmd = "LANG=C sudo vconfig add $physical_interface $vlan_id";
+    my $cmd = "sudo vconfig add $physical_interface $vlan_id";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = ["Error in creating interface VLAN [_1]",$interface];
@@ -110,7 +110,7 @@ sub delete {
     }
 
     # Delete requested virtual interface
-    my $cmd = "LANG=C sudo vconfig rem $interface";
+    my $cmd = "sudo vconfig rem $interface";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
@@ -166,7 +166,7 @@ sub down {
     }
 
     # Disable interface using "ip"
-    my $cmd = sprintf "LANG=C sudo ip link set %s down", $interface;
+    my $cmd = sprintf "sudo ip link set %s down", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = ["Can't disable interface [_1] : [_2]",$interface , $status];
@@ -313,7 +313,7 @@ sub update {
         # Delete previous IP address
         my $cmd;
         if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
-            $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
+            $cmd = sprintf "sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
@@ -331,7 +331,7 @@ sub update {
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
-            $cmd = sprintf "LANG=C sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
                 $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
@@ -568,8 +568,8 @@ sub _listInterfaces {
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
       {
-       link => "LANG=C sudo ip -4 -o link show $ifname",
-       addr => "LANG=C sudo ip -4 -o addr show %s"
+       link => "sudo ip -4 -o link show $ifname",
+       addr => "sudo ip -4 -o addr show %s"
       };
     my ($link, $addr);
     eval { $link = pf_run($cmd->{link}) };
@@ -685,7 +685,7 @@ sub up {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $cmd = sprintf "LANG=C sudo ip link set %s up", $interface;
+    my $cmd = sprintf "sudo ip link set %s up", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = ["Can't enable interface [_1]",$interface];

@@ -93,7 +93,7 @@ sub setDefaultRoute {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    my $cmd = "LANG=C sudo ip route replace to default via $gateway 2>&1";
+    my $cmd = "sudo ip route replace to default via $gateway 2>&1";
     $logger->debug("Replace default gateway: $cmd");
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
@@ -130,8 +130,7 @@ sub start_mysqld_service {
 
     my $mysql_script = 'mysqld';
     $mysql_script = 'mysql' if ( -e "/etc/init.d/mysql" );
-    # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "LANG=C setsid sudo service $mysql_script start 2>&1";
+    my $cmd = "setsid sudo service $mysql_script start 2>&1";
     $logger->debug("Starting mysqld service: $cmd");
     $status = pf_run($cmd);
 
@@ -159,8 +158,7 @@ sub restart_pfconfig {
 
     my ($status, $status_msg);
 
-    # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "LANG=C setsid sudo service packetfence-config restart 2>&1";
+    my $cmd = "setsid sudo service packetfence-config restart 2>&1";
     $logger->debug("Restarting packetfence-config service: $cmd");
     $status = pf_run($cmd);
 
