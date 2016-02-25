@@ -438,7 +438,7 @@ sub reevaluate {
     my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
-    unless(reevaluate_access($mac, "node_modify")){
+    unless(reevaluate_access($mac, "admin_modify")){
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = "The access couldn't be reevaluated.";
     }
@@ -551,7 +551,7 @@ sub _closeViolation{
     my $violation = violation_exist_id($id);
     if ($violation) {
         if (violation_force_close($violation->{mac}, $violation->{vid})) {
-            pf::enforcement::reevaluate_access($violation->{mac}, 'manage_vclose');
+            pf::enforcement::reevaluate_access($violation->{mac}, "admin_modify");
             $result = 1;
         }
     }
@@ -811,7 +811,7 @@ sub bulkReevaluateAccess {
     my ($self, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        if (reevaluate_access($mac, "node_modify")){
+        if (reevaluate_access($mac, "admin_modify")){
             $count++;
         }
     }
