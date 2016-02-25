@@ -24,7 +24,7 @@ use Catalyst qw/
   I18N
   Authentication
   Session
-  Session::Store::CHI
+  Session::Store::MAC_Based
   Session::State::Cookie
   StackTrace
   Unicode::Encoding
