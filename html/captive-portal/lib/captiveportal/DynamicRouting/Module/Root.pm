@@ -19,6 +19,7 @@ has '+route_map' => (default => sub {
         '/status/billing' => \&direct_route_billing, 
         '/billing.*' => \&check_billing_bypass,
         '/logout' => \&logout,
+        '/access' => \&release,
     );
     return \%map;
 
@@ -29,6 +30,10 @@ use pf::node;
 use pf::config;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
+use pf::inline;
+use pf::Portal::Session;
+use pf::SwitchFactory;
+use pf::enforcement qw(reevaluate_access);
 use captiveportal::DynamicRouting::Module::Authentication::Billing;
 
 has '+parent' => (required => 0);
@@ -39,18 +44,41 @@ sub logout {
     $self->app->redirect("/captive-portal"); 
 }
 
-sub done {
-    my ($self) = @_;
+around 'done' => sub {
+    my ($orig, $self) = @_;
     $self->execute_actions();
     $self->release();
-}
+};
 
 sub release {
     my ($self) = @_;
     return $self->app->redirect("/access") unless($self->app->request->path eq "access");
 
+    get_logger->info("Releasing device");
+
     $self->app->reset_session;
-    $self->render("release.html", $self->_release_args());
+
+    my $node = $self->node_info;
+    my $inline = pf::inline->new();
+    my $switch;
+    if (!($inline->isInlineIP($self->current_ip))) {
+        my $last_switch_id = $node->{last_switch};
+        if( defined $last_switch_id ) {
+            $switch = pf::SwitchFactory->instantiate($last_switch_id);
+        }
+    }
+    my $session = new pf::Portal::Session()->session;
+    if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
+        get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
+        $self->render('webFormRelease.html', { 
+            content => $switch->getAcceptForm($self->client_mac, $self->app->session->{destination_url}, $session), 
+            %{$self->_release_args()} 
+        });
+    }
+    else{
+        reevaluate_access( $self->current_mac, 'manage_register' );
+        return $self->render("release.html", $self->_release_args());
+    }
 }
 
 sub handle_violations {
