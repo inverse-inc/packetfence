@@ -4,6 +4,7 @@ type=Root
 modules=default_registration_policy,default_provisioning_policy
 
 [default_registration_policy]
+description=Default registration policy
 type=Choice
 modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy,default_saml_policy
 
@@ -32,5 +33,6 @@ type=Authentication::Choice
 multi_source_object_classes=pf::Authentication::Source::SAMLSource
 
 [default_provisioning_policy]
+description=Default Provisioning policy
 type=Provisioning
 skipable=enabled
