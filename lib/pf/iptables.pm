@@ -93,6 +93,100 @@ TODO: This list is incomplete
 
 =cut
 
+=item check
+
+Check whether or not PacketFence iptables rules are in place
+
+Checking for PacketFence generated management input rules under the filter table
+
+=cut
+
+sub check {
+    my ( $self ) = @_;
+
+    my $rules_exists = ( defined(pf_run("iptables -S | grep $FW_FILTER_INPUT_MGMT")) ) ? $TRUE : $FALSE;
+
+    return $rules_exists;
+}
+
+=item flush
+
+Flush currently configured iptables rules
+
+=cut
+
+sub flush {
+    my ( $self ) = @_;
+    my $logger = get_logger();
+
+    $logger->info("Flushing currently configured iptables rules");
+    pf_run("/sbin/iptables -t filter -F");
+    pf_run("/sbin/iptables -t nat -F");
+    pf_run("/sbin/iptables -t mangle -F");
+}
+
+=item generate
+
+Generate PacketFence iptables rules
+
+Create the configuration file to use with a restore procedure
+
+=cut
+
+sub generate {
+    my ( $self, $destination_file ) = @_;
+    my $logger = get_logger();
+
+    $destination_file = "$generated_conf_dir/iptables.conf" if ( !defined($destination_file) || $destination_file eq "" );
+
+    return $destination_file;
+}
+
+=item restore
+
+Restore iptables rules from an existing configuration file
+
+=cut
+
+sub restore {
+    my ( $self, $restore_file ) = @_;
+    my $logger = get_logger();
+
+    $restore_file = "$var_dir/iptables_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
+
+    if ( ! -e $restore_file ) {
+        $logger->error("Trying to apply / restore iptables rules from an non-existing file '$restore_file'");
+        return;
+    }
+
+    $logger->info("Applying / Restoring iptables rules from '$restore_file'");
+    pf_run("/sbin/iptables-restore < $restore_file");
+
+    return $restore_file;
+}
+
+=item save
+
+Save currently configured iptables rules
+
+=cut
+
+sub save {
+    my ( $self, $save_file ) = @_;
+    my $logger = get_logger();
+
+    $save_file = "$var_dir/iptables_system.bak" if ( !defined($save_file) || $save_file eq "" );
+
+    $logger->info("Saving existing iptables rules to '$save_file'");
+    pf_run("/sbin/iptables-save -t filter > $save_file");
+    pf_run("/sbin/iptables-save -t nat >> $save_file");
+    pf_run("/sbin/iptables-save -t mangle >> $save_file");
+
+    return $save_file;
+}
+
+
+
 =item new
 
 Constructor

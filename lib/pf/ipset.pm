@@ -48,6 +48,8 @@ use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
 
+Readonly my $SET_STATUS_CHECK => 'packetfence_status_check';
+
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
 Readonly my $FW_TABLE_NAT => 'nat';
@@ -69,6 +71,96 @@ TODO: This list is incomplete
 
 =cut
 
+=item check
+
+Check whether or not PacketFence ipset sets are in place
+
+Checking for a particular set created by PacketFence for this purpose
+
+=cut
+
+sub check {
+    my ( $self ) = @_;
+
+    my $sets_exists = ( defined(pf_run("sudo ipset list | grep $SET_STATUS_CHECK")) ) ? $TRUE : $FALSE;
+
+    return $sets_exists;
+}
+
+=item flush
+
+Flush / Destroy currently configured ipset sets
+
+=cut
+
+sub flush {
+    my ( $self ) = @_;
+    my $logger = get_logger();
+
+    $logger->info("Flushing / Destroying currently configured ipset sets");
+    pf_run("sudo ipset destroy");
+}
+
+=item generate
+
+Generate PacketFence ipset sets
+
+Create the configuration file to use with a restore procedure
+
+=cut
+
+sub generate {
+    my ( $self, $destination_file ) = @_;
+    my $logger = get_logger();
+
+    $destination_file = "$generated_conf_dir/ipset.conf" if ( !defined($destination_file) || $destination_file eq "" );
+
+    return $destination_file;
+}
+
+=item restore
+
+Restore ipset sets from an existing configuration file
+
+=cut
+
+sub restore {
+    my ( $self, $restore_file ) = @_;
+    my $logger = get_logger();
+
+    $restore_file = "$var_dir/ipset_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
+
+    if ( ! -e $restore_file ) {
+        $logger->error("Trying to apply / restore ipset sets from an non-existing file '$restore_file'");
+        return;
+    }
+
+    $logger->info("Applying / Restoring ipset sets from '$restore_file'");
+    pf_run("sudo ipset restore -f $restore_file");
+
+    return $restore_file;
+}
+
+=item save
+
+Save currently configured ipset sets
+
+=cut
+
+sub save {
+    my ( $self, $save_file ) = @_;
+    my $logger = get_logger();
+
+    $save_file = "$var_dir/ipset_system.bak" if ( !defined($save_file) || $save_file eq "" );
+
+    $logger->info("Saving existing ipset sets to '$save_file'");
+    pf_run("sudo ipset save -file $save_file");
+
+    return $save_file;
+}
+
+
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = get_logger();
@@ -82,6 +174,8 @@ sub iptables_generate {
 
     $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
     @lines  = pf_run($cmd);
+    $cmd = "LANG=C sudo ipset --create $SET_STATUS_CHECK hash:ip 2>&1";
+    @lines = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
