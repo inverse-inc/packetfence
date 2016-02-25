@@ -19,22 +19,11 @@ use pf::log;
 use captiveportal::DynamicRouting::Module::TLSEnrollment;
 use pf::util;
 
-# to store the id of the child module (TLS)
-has 'current_module' => (is => 'rw');
-
-has 'skipable' => (is => 'rw');
+has 'skipable' => (is => 'rw', default => sub {'disabled'});
 
 sub allowed_urls {[
     '/provisioning',
 ]}
-
-sub BUILDARGS {
-    my ($class, @args) = @_;
-    my $args = $class->SUPER::BUILDARGS(@args);
-    $args->{skipable} = isenabled($args->{skipable}) ? $TRUE : $FALSE;
-    
-    return $args;
-}
 
 sub next {
     my ($self) = @_;
@@ -61,7 +50,7 @@ sub is_eap_tls {
 
 sub show_provisioning {
     my ($self) = @_;
-    my $args = {provisioner => $self->get_provisioner, skipable => $self->skipable};
+    my $args = {provisioner => $self->get_provisioner, skipable => isenabled($self->skipable)};
     $self->render($self->get_provisioner->template, $args);
 }
 
@@ -84,7 +73,7 @@ sub execute_child {
     elsif ($provisioner->authorize($mac) == 0) {
         $self->show_provisioning();
     }
-    elsif ($self->app->request->parameters->{next} && $self->skipable){
+    elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();
     }
     else {
