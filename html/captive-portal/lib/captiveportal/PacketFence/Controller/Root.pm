@@ -289,6 +289,10 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+
+    # We save the user session
+    $c->_save_user_session();
+
     if (scalar $c->has_errors) {
         my $errors = $c->error;
         for my $error ( @$errors ) {

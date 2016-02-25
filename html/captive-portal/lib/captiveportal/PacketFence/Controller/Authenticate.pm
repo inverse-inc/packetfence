@@ -103,11 +103,9 @@ sub authenticationLogin : Private {
         if ($username =~ /^(.*)@/ || $username =~ /^[^\/]+\/(.*)$/ ) {
             $username = $1;
         }
-        $c->session(
-            "username"  => $username,
-            "source_id" => $sources[0]->id,
-            "source_match" => \@sources,
-        );
+        $c->user_session->{username} = $username;
+        $c->user_session->{source_id} = $sources[0]->id;
+        $c->user_session->{source_match} = \@sources;
     } else {
         # validate login and password
         ( $return, $message, $source_id ) =
@@ -115,11 +113,9 @@ sub authenticationLogin : Private {
         if ( defined($return) && $return == 1 ) {
             pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED);
             # save login into session
-            $c->session(
-                "username"  => $username // $default_pid,
-                "source_id" => $source_id,
-                "source_match" => $source_id,
-            );
+            $c->user_session->{username} = $username // $default_pid;
+            $c->user_session->{source_id} = $source_id;
+            $c->user_session->{source_match} = $source_id;
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
         } else {

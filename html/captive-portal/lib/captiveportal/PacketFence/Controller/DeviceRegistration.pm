@@ -41,8 +41,8 @@ sub begin : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $logger  = $c->log();
-    my $pid     = $c->session->{"username"};
+    my $logger  = $c->log;
+    my $pid     = $c->user_session->{"username"};
     my $request = $c->request;
 
     # See if user is trying to login and if is not already authenticated
@@ -50,7 +50,7 @@ sub index : Path : Args(0) {
         # Verify if user is authenticated
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
-        $c->delete_session;
+        $c->user_session({});
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
@@ -135,7 +135,7 @@ sub registerNode : Private {
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $self->showError($c,"$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
-            my $session = $c->session;
+            my $session = $c->user_session;
             my $source_id = $session->{source_id};
             my %info;
             my $params = { username => $pid };
