@@ -1,3 +1,9 @@
+
+<ul class="breadcrumb">
+  <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Portal Modules') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li class="active">[% item.id %]</li>
+</ul>
+
 [% IF c.action.name == "view"  %]
 [% SET action_url = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
 [%ELSE%]
