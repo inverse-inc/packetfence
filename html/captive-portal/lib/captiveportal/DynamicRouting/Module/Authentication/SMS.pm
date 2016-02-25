@@ -87,7 +87,6 @@ sub validate_info {
     $self->update_person_from_fields();
     pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider );
 
-    $self->username($pid);
     $self->session->{telephone} = $telephone;
     $self->session->{mobileprovider} = $mobileprovider;
 
@@ -127,6 +126,7 @@ sub validation {
     }
     my ($status, $reason, $record) = $self->validate_pin($pin);
     if($status){
+        $self->username($record->{pid});
         pf::activation::set_status_verified($pin);
         pf::auth_log::record_completed_guest($self->source->id, $self->current_mac, $pf::auth_log::COMPLETED);
         $self->done();
