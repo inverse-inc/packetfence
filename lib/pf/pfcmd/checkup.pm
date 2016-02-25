@@ -145,6 +145,7 @@ sub sanity_check {
     apache_filter_rules();
     db_check_version();
     valid_certs();
+    portal_modules();
 
     return @problems;
 }
@@ -1241,6 +1242,20 @@ sub valid_certs {
     else {
         # not a problem per se, we just warn you
         print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
+    }
+}
+
+sub portal_modules {
+    require pf::ConfigStore::PortalModule;
+    my $cs = pf::ConfigStore::PortalModule->new;
+    foreach my $module (@{$cs->readAll("id")}){
+        if(defined($module->{modules})){
+            foreach my $sub_module (@{$module->{modules}}){
+                unless($cs->hasId($sub_module)){
+                    add_problem($FATAL, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
+                }
+            }
+        }
     }
 }
 
