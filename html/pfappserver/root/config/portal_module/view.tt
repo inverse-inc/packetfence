@@ -14,6 +14,33 @@
     [% form.block('definition').render | none %]
   </div>
 
+  [% IF form.field('modules') %]
+  <div class="control-group">
+    <label class="control-label" for="modules">[% l('Modules') %]</label>
+    <div class="controls">
+      [% form.field('modules').render | none %]
+      <div id="modulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('modules').index > 1 %]">
+        <p>
+          <i class="icon-cog icon-large"></i>
+          [% l('No modules selected') %]
+          <a href="#add">[% l('Add a module.') %]</a>
+        </p>
+      </div>
+    </div>
+  </div>
+  [% END %]
+
   [% IF form.block('multi_source_definition') ; form.block('multi_source_definition').render | none ; END %]
 
 </form>
+
+<script>
+    $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
+        var match = /(.+)Empty/.exec(event.delegateTarget.id);
+        var id = match[1];
+        var emptyId = match[0];
+        $('#'+id).trigger('addrow');
+        $('#'+emptyId).addClass('hidden');
+        return false;
+    });
+</script>

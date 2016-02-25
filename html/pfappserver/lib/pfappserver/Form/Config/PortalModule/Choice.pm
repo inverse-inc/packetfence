@@ -1,25 +1,35 @@
-package pfappserver::Form::Config::PortalModule::Authentication::Choice;
+package pfappserver::Form::Config::PortalModule::Choice;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::Authentcation::Choice
+pfappserver::Form::Config::PortalModule:Choice
 
 =head1 DESCRIPTION
 
-Form definition to create or update an authentication portal module.
+Form definition to create or update a choice portal module.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::Choice';
+extends 'pfappserver::Base::Form::PortalModule::ModuleManager';
 with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::MultiSource';
 
-use captiveportal::DynamicRouting::Module::Authentication::Choice;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
-
+use captiveportal::DynamicRouting::Module::Choice;
+sub for_module {'captiveportal::DynamicRouting::Module::Choice'}
 ## Definition
 
+has_field 'show_first_module_on_default' =>
+  (
+   type => 'Toggle',
+   label => 'Show first module when none is selected',
+   unchecked_value => 'disabled',
+   checkbox_value => 'enabled',
+   default => for_module->meta->get_attribute('show_first_module_on_default')->default->(),
+  );
+
+sub child_definition {
+    return qw(show_first_module_on_default);
+}
 
 =over
 
@@ -50,3 +60,4 @@ USA.
 
 __PACKAGE__->meta->make_immutable;
 1;
+

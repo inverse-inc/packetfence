@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 use pf::constants;
 use pf::config::cached;
-use Tie::IxHash;
+use captiveportal::DynamicRouting::util;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -99,32 +99,7 @@ sub index :Path :Args(0) {
 
 after list => sub {
     my ($self, $c) = @_;
-    my @items = @{$c->stash->{items}};
-    tie my %items_by_type, 'Tie::IxHash', (
-        Root => [], 
-        Choice => [],
-        Chained => [],
-        Authentication => [],
-        Provisioning => [],
-    );
-    my %type_map = (
-        '^Authentication' => 'Authentication',
-    );
-    foreach my $item (@items){
-        my $regex_found = $FALSE;
-        foreach my $regex (keys(%type_map)){
-            if($item->{type} =~ /$regex/){
-                $items_by_type{$type_map{$regex}} //= [];
-                push @{$items_by_type{$type_map{$regex}}}, $item;
-                $regex_found = $TRUE;
-            }
-        }
-        unless($regex_found){
-            $items_by_type{$item->{type}} //= [];
-            push @{$items_by_type{$item->{type}}}, $item;
-        }
-    }
-    $c->stash->{items_by_type} = \%items_by_type;
+    $c->stash->{items_by_type} = captiveportal::DynamicRouting::util::modules_by_type($c->stash->{items});
 };
 
 =head1 COPYRIGHT

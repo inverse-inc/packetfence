@@ -17,7 +17,8 @@ our @EXPORT = qw(
     clean_id generate_id generate_dynamic_module_id
 );
 
-our %MODULES_UID;
+use Tie::IxHash;
+use pf::constants;
 
 sub clean_id {
     my ($uid) = @_;
@@ -34,6 +35,35 @@ sub generate_dynamic_module_id {
     my ($id) = @_;
     return '_DYNAMIC_SOURCE_'.$id.'_';
 }
+
+sub modules_by_type {
+    my ($items) = @_;
+    tie my %items_by_type, 'Tie::IxHash', (
+        Root => [], 
+        Choice => [],
+        Chained => [],
+        Authentication => [],
+        Provisioning => [],
+    );
+    my %type_map = (
+        '^Authentication' => 'Authentication',
+    );
+    foreach my $item (@$items){
+        my $regex_found = $FALSE;
+        foreach my $regex (keys(%type_map)){
+            if($item->{type} =~ /$regex/){
+                $items_by_type{$type_map{$regex}} //= [];
+                push @{$items_by_type{$type_map{$regex}}}, $item;
+                $regex_found = $TRUE;
+            }
+        }
+        unless($regex_found){
+            $items_by_type{$item->{type}} //= [];
+            push @{$items_by_type{$item->{type}}}, $item;
+        }
+    }
+    return \%items_by_type;
+};
 
 =head1 AUTHOR
 

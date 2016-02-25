@@ -1,25 +1,37 @@
-package pfappserver::Form::Config::PortalModule::Authentication::Choice;
+package pfappserver::Form::Config::PortalModule::Provisioning;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::Authentcation::Choice
+pfappserver::Form::Config::PortalModule:Choice
 
 =head1 DESCRIPTION
 
-Form definition to create or update an authentication portal module.
+Form definition to create or update a choice portal module.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::Choice';
+extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::MultiSource';
 
-use captiveportal::DynamicRouting::Module::Authentication::Choice;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
-
+use captiveportal::DynamicRouting::Module::Provisioning;
+sub for_module {'captiveportal::DynamicRouting::Module::Provisioning'}
 ## Definition
 
+has_field 'skipable' =>
+  (
+   type => 'Toggle',
+   label => 'Skipable',
+   unchecked_value => 'disabled',
+   checkbox_value => 'enabled',
+   default => for_module->meta->get_attribute('skipable')->default->(),
+   tags => { after_element => \&help,
+             help => 'Whether or not, the provisioning can be skipped' },
+  );
+
+sub child_definition {
+    return qw(skipable);
+}
 
 =over
 
@@ -50,3 +62,5 @@ USA.
 
 __PACKAGE__->meta->make_immutable;
 1;
+
+

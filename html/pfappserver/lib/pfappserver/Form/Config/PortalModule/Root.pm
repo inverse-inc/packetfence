@@ -1,22 +1,21 @@
-package pfappserver::Form::Config::PortalModule::Authentication::Choice;
+package pfappserver::Form::Config::PortalModule::Root;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::Authentcation::Choice
+pfappserver::Form::Config::PortalModule:Root
 
 =head1 DESCRIPTION
 
-Form definition to create or update an authentication portal module.
+Form definition to create or update a root portal module.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::Choice';
+extends 'pfappserver::Form::Config::PortalModule::Chained';
 with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::MultiSource';
 
-use captiveportal::DynamicRouting::Module::Authentication::Choice;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
+use captiveportal::DynamicRouting::Module::Root;
+sub for_module {'captiveportal::DynamicRouting::Module::Root'}
 
 ## Definition
 
@@ -50,3 +49,5 @@ USA.
 
 __PACKAGE__->meta->make_immutable;
 1;
+
+
