@@ -26,12 +26,12 @@ has 'completed' => (is => 'rw', builder => '_build_completed', lazy => 1);
 
 after 'current_module' => sub {
     my ($self) = @_;
-    $self->session->{current_module} = $self->{current_module};  
+    $self->app->user_cache->set($self->id."_current_module", $self->{current_module});
 };
 
 sub _build_current_module {
     my ($self) = @_;
-    return $self->session->{current_module};
+    return $self->app->user_cache->get($self->id."_current_module");
 }
 
 sub _build_completed {
