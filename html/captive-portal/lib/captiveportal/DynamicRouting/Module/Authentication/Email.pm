@@ -90,7 +90,7 @@ after 'execute_actions' => sub {
     my ($self) = @_;
 
     # we record the unregdate to reuse it after
-    $self->app->user_cache->set("email_unregdate", $self->new_node_info->{unregdate});
+    $self->app->session->{"email_unregdate"} = $self->new_node_info->{unregdate};
 
     get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
     # Use the activation timeout to set the unregistration date

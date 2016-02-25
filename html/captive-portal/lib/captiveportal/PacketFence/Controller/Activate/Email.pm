@@ -82,7 +82,7 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
-        my $unregdate = $c->user_cache->get("email_unregdate");
+        my $unregdate = $c->session->{"email_unregdate"};
         get_logger->info("Extending duration to $unregdate");
         node_modify($c->portalSession->clientMac, unregdate => $unregdate);
         pf::activation::set_status_verified($code);
