@@ -54,3 +54,11 @@ $('#section').on('click', '.delete-portal-module', function(e){
     });
   return false; 
 });
+
+$('#section').on('click', '.expand', function(e){
+  e.preventDefault();
+  $(e.target).hide(function(){
+    $($(e.target).attr('data-expand')).slideDown();
+  });
+  return false;  
+});

@@ -31,12 +31,22 @@
           [% l('No modules selected') %]
           <a href="#add">[% l('Add a module.') %]</a>
         </p>
+        <br/>
       </div>
     </div>
   </div>
   [% END %]
 
-  [% IF form.block('multi_source_definition') ; form.block('multi_source_definition').render | none ; END %]
+  [% IF form.block('multi_source_definition') %]
+  <div class="control-group">
+    <div class="controls">
+      <a href="#expand-multi-source" class="expand" data-expand="#multi_source_fields">Show advanced source filtering</a>
+    </div>
+  </div>
+  <div id="multi_source_fields" class="expandable">
+    [% form.block('multi_source_definition').render | none %]
+  </div>
+  [% END %]
 
   [%- IF can_access("PORTAL_MODULE_UPDATE") %]
   <div class="form-actions">

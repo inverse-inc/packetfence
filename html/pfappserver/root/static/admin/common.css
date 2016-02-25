@@ -156,3 +156,7 @@ li.drop-row,
 .modalBillingTier {
   width:700px;
 }
+
+.expandable {
+  display:none;
+}
