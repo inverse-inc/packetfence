@@ -58,8 +58,16 @@ sub release {
 
     $self->app->reset_session;
 
-    my $node = $self->node_info;
+    unless($self->handle_web_form_release){
+        reevaluate_access( $self->current_mac, 'manage_register' );
+        return $self->render("release.html", $self->_release_args());
+    }
+}
+
+sub handle_web_form_release {
+    my ($self) = @_;
     my $inline = pf::inline->new();
+    my $node = $self->node_info;
     my $switch;
     if (!($inline->isInlineIP($self->current_ip))) {
         my $last_switch_id = $node->{last_switch};
@@ -74,10 +82,16 @@ sub release {
             content => $switch->getAcceptForm($self->client_mac, $self->app->session->{destination_url}, $session), 
             %{$self->_release_args()} 
         });
+        return $TRUE;
     }
-    else{
+    return $FALSE;
+}
+
+sub unknown_state {
+    my ($self) = @_;
+    unless($self->handle_web_form_release){
         reevaluate_access( $self->current_mac, 'manage_register' );
-        return $self->render("release.html", $self->_release_args());
+        return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
     }
 }
 
@@ -106,7 +120,7 @@ sub execute_child {
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
     if($node->{status} eq "reg" && !$self->app->session->{release_bypass}){
-        return $self->release();
+        return $self->unknown_state();
     }
     $self->SUPER::execute_child();
 }
