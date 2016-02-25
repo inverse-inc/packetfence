@@ -16,6 +16,14 @@ extends 'pfappserver::Form::Config::PortalModule::Authentication';
 use captiveportal::DynamicRouting::Module::Authentication::Billing;
 sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Billing'}
 
+has_field '+signup_template' => ( required => 0 );
+
+# overriding to remove the signup template
+sub child_definition {
+    my ($self) = @_;
+    return (qw(source_id custom_fields with_aup));
+}
+
 ## Definition
 
 =over
