@@ -37,18 +37,20 @@ $('#section').on('submit', 'form[name="formItem"]', function(e) {
 
 $('#section').on('click', '.delete-portal-module', function(e){
   e.preventDefault();
-  var button;
+  var button = $(e.target);
+  button.button('loading');
   $.ajax({
         type: 'GET',
-        url: button.attr('action'),
+        url: button.attr('href'),
     }).always(function() {
-        btn.button('reset');
     }).done(function(data, textStatus, jqXHR) {
-        window.location.reload();
+        showSuccess(button.closest('.table'), "Deleted");
+        button.closest('tr').remove();
     }).fail(function(jqXHR) {
+        button.button('reset');
         $("body,html").animate({scrollTop:0}, 'fast');
         var status_msg = getStatusMsg(jqXHR);
-        showPermanentError(button, status_msg);
+        showPermanentError(button.closest('.table'), status_msg);
     });
   return false; 
 });
