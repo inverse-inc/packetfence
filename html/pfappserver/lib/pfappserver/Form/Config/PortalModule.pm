@@ -47,11 +47,19 @@ has_block definition =>
 sub BUILD {
     my ($self) = @_;
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
+    $self->setup();
 }
 
 # To override in the child modules
 sub child_definition {
     return ();
+}
+
+# Meant for overriding or to place hooks around
+# as problems were hit when placings hooks around BUILD
+# which anyway is not recommended
+sub setup {
+    return;
 }
 
 =over

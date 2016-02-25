@@ -25,6 +25,7 @@
         'admin/config/roles',
         'admin/config/scan-wmi',
         'admin/config/filters',
+        'admin/config/portal_modules',
         'js/interface',
         'js/bootstrapSwitch',
         ]

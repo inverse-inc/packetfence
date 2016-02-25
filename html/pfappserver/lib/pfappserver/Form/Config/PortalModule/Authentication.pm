@@ -13,23 +13,13 @@ Form definition to create or update an authentication portal module.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::WithSource';
 
 use pf::log; 
 use captiveportal::DynamicRouting::Module::Authentication;
 sub for_module {'captiveportal::DynamicRouting::Module::Authentication'}
 
 ## Definition
-has_field 'source_id' =>
-  (
-   type => 'Select',
-   label => 'Sources',
-   options => [],
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a source'},
-   tags => { after_element => \&help,
-             help => 'The sources to use in the module. If no sources are specified, all the sources on the Portal Profile will be used' },
-  );
-
 has_field 'custom_fields' =>
   (
    type => 'Select',
@@ -62,19 +52,6 @@ has_field 'signup_template' =>
              help => 'The template to use for the signup' },
   );
 
-sub BUILD {
-    my ($self) = @_;
-
-    if($self->for_module->does('captiveportal::DynamicRouting::MultiSource')){
-        $self->field('source_id')->multiple(1);
-        $self->field('source_id')->options([$self->options_sources(multiple => 1)]);
-    }
-    else {
-        $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
-    }
-
-}
-
 sub child_definition {
     my ($self) = @_;
     return (qw(source_id custom_fields with_aup signup_template), $self->auth_module_definition());
@@ -83,31 +60,6 @@ sub child_definition {
 # To override in the child modules
 sub auth_module_definition {
     return ();
-}
-
-sub options_sources {
-    my ($self, %options) = @_;
-    require pf::authentication;
-    my @sources;
-    foreach my $source (@{pf::authentication::getAllAuthenticationSources()}){
-        # We are dealing with a multi source module, meaning we are looking for the isa in the sources attribute
-        my ($isa);
-        if($options{multiple} && $self->for_module->meta->get_attribute('sources')->{isa} =~ /^ArrayRef\[(.*)\]/){
-            $isa = $1;
-        }
-        else {
-            $isa = $self->for_module->meta->get_attribute('source')->{isa};
-        }
-        get_logger->debug("Building options with isa : $isa");
-        foreach my $splitted_isa (split(/\s*\|\s*/, $isa)){
-            if($source->isa($splitted_isa)){
-                push @sources, $source->id;
-                last;
-            }
-        }
-    }
-    get_logger->debug(sub { use Data::Dumper; "The following sources are available : ".Dumper(\@sources) });
-    return map { {value => $_, label => $_} } @sources;
 }
 
 sub options_custom_fields {

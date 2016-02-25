@@ -14,12 +14,17 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Choice';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::MultiSource';
+with 'pfappserver::Base::Form::Role::WithSource';
 
 use captiveportal::DynamicRouting::Module::Authentication::Choice;
 sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
 
 ## Definition
 
+sub child_definition {
+    my ($self) = @_;
+    return qw(source_id);
+}
 
 =over
 
