@@ -9,4 +9,3 @@
 [% form.field('protected_resource_url').render | none %]
 [% form.field('redirect_url').render | none %]
 [% form.field('domains').render | none %]
-[% form.field('create_local_account').render | none %]
