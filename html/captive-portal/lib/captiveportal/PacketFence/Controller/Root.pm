@@ -299,10 +299,15 @@ sub end : ActionClass('RenderView') {
             $c->log->error($error);
         }
         my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
-        $c->stash(
-            template => 'error.html',
-            message => $txt_message,
-        );
+        if($c->stash->{application}){
+            $c->stash(
+                template => 'error.html',
+                message => $txt_message,
+            );
+        }
+        else {
+            $c->response->body("Application error : ".$txt_message);
+        }
         $c->response->status(500);
         $c->clear_errors;
     }
