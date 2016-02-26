@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Moose;
 
-use Module::Pluggable search_path => 'captiveportal::DynamicRouting', sub_name => 'modules' , require => 1, except => ['captiveportal::DynamicRouting::Factory', 'captiveportal::DynamicRouting::Application'];
+use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1, except => ['captiveportal::DynamicRouting::Module'];
 use pfconfig::cached_hash;
 use Graph;
 use List::MoreUtils qw(any);
