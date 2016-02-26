@@ -133,6 +133,7 @@ sub process_user_agent {
 
 sub process_fingerbank {
     my ( $self ) = @_;
+    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
 
     my %fingerbank_query_args = (
         user_agent          => $self->request->user_agent,
@@ -157,6 +158,7 @@ sub current_module_id {
 
 sub preprocessing {
     my ($self) = @_; 
+    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->process_user_agent();
     $self->process_destination_url();
     $self->process_fingerbank();
@@ -164,6 +166,7 @@ sub preprocessing {
 
 sub execute {
     my ($self) = @_;
+    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->root_module->execute();
 }
 
