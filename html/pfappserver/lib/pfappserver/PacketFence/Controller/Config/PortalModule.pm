@@ -17,6 +17,9 @@ use namespace::autoclean;
 use pf::constants;
 use pf::config::cached;
 use captiveportal::DynamicRouting::util;
+use captiveportal::DynamicRouting::Factory;
+use Tie::IxHash;
+use List::MoreUtils qw(any);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -100,7 +103,40 @@ sub index :Path :Args(0) {
 after list => sub {
     my ($self, $c) = @_;
     $c->stash->{items_by_type} = captiveportal::DynamicRouting::util::modules_by_type($c->stash->{items});
+
+    tie my %types, 'Tie::IxHash', (map { $_ => [] } @{ordered_module_types()});
+    my @skip = qw(TLSEnrollment Authentication Authentication::OAuth);
+    foreach my $module (@captiveportal::DynamicRouting::Factory::MODULES){
+        $module =~ s/^captiveportal::DynamicRouting::Module:://g;
+        next if (any {$_ eq $module} @skip);
+
+        if($module =~ /^(.+?)::(.+?)/){
+            my $type = $1;
+            $types{$type} //= [];
+            push @{$types{$type}}, $module;
+            next;
+        }
+        else {
+            $types{$module} //= [];
+        }
+    }
+    foreach my $type (keys %types){
+        $types{$type} = [sort(@{$types{$type}})];
+    }
+    $c->stash->{types} = \%types;
 };
+
+sub create_type : Path('create') : Args(1) {
+    my ($self, $c, $type) = @_;
+    my $form = $c->action->{form};
+
+    $c->stash->{current_form} = "${form}::${type}";
+    
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    $c->stash->{$itemKey}{type} = $type;
+    $c->forward('create');
+}
 
 =head1 COPYRIGHT
 

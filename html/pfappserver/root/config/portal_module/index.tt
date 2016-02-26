@@ -1,4 +1,28 @@
-<h1>Portal modules</h1>
+
+
+<h1>
+Portal modules
+
+  <div class="btn-group">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Portal module') %] <span class="caret"></span></a>
+    <ul id="createPortalModule" class="dropdown-menu">
+      [% FOREACH type IN types.keys -%]
+        [% IF types.$type.size %]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l(type) %]</a>
+        <ul class="dropdown-menu" id="internal_types">
+        [% FOREACH subtype IN types.$type %]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), subtype) %]">[% l(subtype) %]</a></li>
+        [% END %]
+          </ul>
+        </li>
+        [% ELSE %]
+        <li><a class="createItem" href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+        [% END %]
+      [% END -%]
+    </ul>
+  </div>
+</h1>
 
 <table class="table">
   <thead>

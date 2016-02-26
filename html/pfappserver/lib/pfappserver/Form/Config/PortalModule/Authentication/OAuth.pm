@@ -16,6 +16,14 @@ extends 'pfappserver::Form::Config::PortalModule::Authentication';
 use captiveportal::DynamicRouting::Module::Authentication::OAuth;
 sub for_module {'captiveportal::DynamicRouting::Module::Authentication::OAuth'}
 
+has_field '+signup_template' => ( required => 0 );
+
+# overriding to remove the signup template and custom fields
+sub child_definition {
+    my ($self) = @_;
+    return (qw(source_id with_aup));
+}
+
 ## Definition
 
 =over

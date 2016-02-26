@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(
-    clean_id generate_id generate_dynamic_module_id id_parts id_is_cyclic
+    clean_id generate_id generate_dynamic_module_id id_parts id_is_cyclic ordered_module_types
 );
 
 use Tie::IxHash;
@@ -56,14 +56,20 @@ sub generate_dynamic_module_id {
     return '_DYNAMIC_SOURCE_'.$id.'_';
 }
 
+sub ordered_module_types {
+    return [
+        'Root', 
+        'Choice',
+        'Chained',
+        'Authentication',
+        'Provisioning',
+    ];
+}
+
 sub modules_by_type {
     my ($items) = @_;
     tie my %items_by_type, 'Tie::IxHash', (
-        Root => [], 
-        Choice => [],
-        Chained => [],
-        Authentication => [],
-        Provisioning => [],
+        map { $_ => [] } @{ordered_module_types()}
     );
     my %type_map = (
         '^Authentication' => 'Authentication',
