@@ -37,7 +37,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -96,6 +96,25 @@ has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
+  );
+
+=head2 root_module
+
+The root module of the portal
+
+=cut
+
+has_field 'root_module' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 1,
+   label => 'Root Portal Module',
+   options_method => \&options_root_module,
+   element_class => ['chzn-select'],
+#   element_attr => {'data-placeholder' => 'Click to add a required field'},
+   tags => { after_element => \&help,
+             help => 'The Root Portal Module to use' },
   );
 
 =head2 locale
@@ -402,6 +421,17 @@ Returns the list of scan to be displayed
 
 sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
+}
+
+=head2 options_root_module
+
+Returns the list of root modules to be displayed
+
+=cut
+
+sub options_root_module {
+    my $cs = pf::ConfigStore::PortalModule->new;
+    return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
 
 =head2 validate
