@@ -267,7 +267,7 @@ sub getRegisteredRole {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
     my $logger = Log::Log4perl->get_logger();
 
