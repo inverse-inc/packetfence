@@ -155,7 +155,9 @@ This needs to be called at the end of the request of whenever we want to save th
 
 sub _save_user_session {
     my ($c) = @_;
-    $c->_user_session_backend->set("user_session:".$c->request->cookie('CGISESSION')->value(), $c->user_session);
+    if($c->request->cookie('CGISESSION')){
+        $c->_user_session_backend->set("user_session:".$c->request->cookie('CGISESSION')->value(), $c->user_session);
+    }
 }
 
 =head2 user_session
