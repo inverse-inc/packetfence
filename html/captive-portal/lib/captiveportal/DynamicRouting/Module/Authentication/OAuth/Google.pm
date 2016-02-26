@@ -13,6 +13,8 @@ Google OAuth module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
+has '+source' => (isa => 'pf::Authentication::Source::GoogleSource');
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

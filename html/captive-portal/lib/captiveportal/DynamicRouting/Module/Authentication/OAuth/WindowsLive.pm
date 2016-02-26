@@ -15,6 +15,8 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+token_scheme' => (default => "auth-header:Bearer");
 
+has '+source' => (isa => 'pf::Authentication::Source::WindowsLiveSource');
+
 sub _extract_username_from_response {
     my ($self, $info) = @_;
     return $info->{emails}->{account};

@@ -15,6 +15,8 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
 
+has '+source' => (isa => 'pf::Authentication::Source::LinkedInSource');
+
 sub _decode_response {
     my ($self, $response) = @_;
     my $pid = $response->content();

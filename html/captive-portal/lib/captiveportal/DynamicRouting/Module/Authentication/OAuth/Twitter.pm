@@ -13,6 +13,8 @@ Twitter OAuth module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
+has '+source' => (isa => 'pf::Authentication::Source::TwitterSource');
+
 use pf::auth_log;
 use pf::log;
 
