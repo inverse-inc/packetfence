@@ -47,6 +47,7 @@ sub build_application {
 
 sub instantiate_all {
     my ($self) = @_;
+    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->instantiate_child($self->application->root_module_id);
 }
 
