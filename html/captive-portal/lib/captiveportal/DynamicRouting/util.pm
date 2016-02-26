@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(
-    clean_id generate_id generate_dynamic_module_id
+    clean_id generate_id generate_dynamic_module_id id_parts id_is_cyclic
 );
 
 use Tie::IxHash;
@@ -29,6 +29,26 @@ sub clean_id {
 sub generate_id {
     my ($parent_id, $id) = @_;
     return $parent_id . '+' . $id;
+}
+
+sub id_parts {
+    my ($id) = @_;
+    return split('\+', $id);
+}
+
+sub id_is_cyclic {
+    my ($id) = @_;
+    my @parts = id_parts($id);
+    my %seen;
+    foreach my $part (@parts){
+        if(exists($seen{$part})){
+            return $TRUE;
+        }
+        else {
+            $seen{$part} = $TRUE;
+        }
+    }
+    return $FALSE;
 }
 
 sub generate_dynamic_module_id {

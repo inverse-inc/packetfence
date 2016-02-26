@@ -40,9 +40,6 @@ sub build_application {
     $self->application($application);
     $self->graph(Graph->new);
     $self->add_to_graph($self->application->root_module_id);
-    if($self->graph->is_cyclic){
-        die "Profile modules graph is cyclic, this means there is an infinite loop that needs to be fixed...";
-    }
 
     $self->instantiate_all();
     $self->create_modules_hierarchy();
@@ -124,6 +121,9 @@ sub add_to_graph {
     my $modules = $ConfigPortalModules{clean_id($module_id)}{modules};
     foreach my $sub_module_id (@$modules){
         my $u_sub_module_id = generate_id($module_id, $sub_module_id);
+        if(id_is_cyclic($u_sub_module_id)){
+            die "Modules are cyclic which is not allowed. Detected on ID : $u_sub_module_id";
+        }
         $self->graph->add_path($module_id, $u_sub_module_id);
         if($ConfigPortalModules{clean_id($u_sub_module_id)}{modules}){
             $self->add_to_graph($u_sub_module_id);
