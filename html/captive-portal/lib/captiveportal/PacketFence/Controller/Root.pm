@@ -23,6 +23,7 @@ use List::MoreUtils qw(uniq);
 use Plack::Request;
 use captiveportal::DynamicRouting::Factory;
 use captiveportal::DynamicRouting::Application;
+use pf::StatsD::Timer;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -50,7 +51,15 @@ sub auto : Private {
     my ( $self, $c ) = @_;
     $c->forward('setupCommonStash');
     $c->forward('setupLanguage');
+    $c->forward('setupDynamicRouting');
     
+    return 1;
+}
+
+sub setupDynamicRouting : Private {
+    my ($self, $c) = @_;
+    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+
     my $request = $c->request;
     my $profile = $c->portalSession->profile;
     my $application = captiveportal::DynamicRouting::Application->new(
@@ -67,9 +76,7 @@ sub auto : Private {
     $application->preprocessing();
 
     $c->stash(application => $application);
-    return 1;
 }
-
 
 =head2 index
 
@@ -79,6 +86,8 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
+    my $timer = pf::StatsD::Timer->new;
+
     $c->forward('dynamic_application');
 }
 
