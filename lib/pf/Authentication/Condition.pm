@@ -66,7 +66,6 @@ my %OPS = (
 sub matches {
     my ($self, $attr, $v) = @_;
     if (defined $v) {
-        my ($time, $time_v);
         my $value = $self->{value};
         if ($self->{'attribute'} eq 'current_time') {
             my ($hour, $min) = $value =~ m/(\d+):(\d+)/;
