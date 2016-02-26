@@ -20,6 +20,12 @@ has_field 'id' =>
    type => 'Text',
    label => 'Identifier',
    required => 1,
+   apply => [
+       {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/,
+           message =>
+             'The id is invalid. A portal module id can only contain alphanumeric characters, dashes, and or underscores'
+       }
+   ],
    messages => { required => 'Please specify an identifier' },
   );
 
