@@ -16,10 +16,17 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'Authentication::Sponsor');
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Sponsor' }
 
 =head2 available_attributes
 

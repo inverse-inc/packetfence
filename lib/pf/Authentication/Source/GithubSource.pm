@@ -15,7 +15,6 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Github');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'Authentication::OAuth::Github');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'user,user:email');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
@@ -27,6 +26,14 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://a
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/github');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'api.github.com,*.github.com,github.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::Github' }
 
 =head2 lookup_from_provider_info
 

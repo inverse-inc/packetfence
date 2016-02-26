@@ -22,7 +22,6 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'HTTP' );
-has '+dynamic_routing_module' => (default => 'Authentication::Login');
 has 'protocol' => ( isa => 'Str', is => 'rw', default => 'http' );
 has 'host' => ( isa => 'Str', is => 'rw', default => '127.0.0.1' );
 has 'port' => ( isa => 'Int', is => 'rw', default => '10000' );
@@ -32,6 +31,14 @@ has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 
 =head1 METHODS
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
 
 =head2 has_authentication_rules
 

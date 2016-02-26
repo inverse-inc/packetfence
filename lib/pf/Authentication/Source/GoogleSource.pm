@@ -15,7 +15,6 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'Google');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'Authentication::OAuth::Google');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://accounts.google.com');
@@ -27,6 +26,14 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://w
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/google');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com,*.gstatic.com,googleapis.com,accounts.youtube.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::Google' }
 
 =head2 lookup_from_provider_info
 

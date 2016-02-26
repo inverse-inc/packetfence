@@ -17,7 +17,6 @@ extends 'pf::Authentication::Source::OAuthSource';
 has '+type' => (default => 'LinkedIn');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'Authentication::OAuth::LinkedIn');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://www.linkedin.com');
@@ -28,6 +27,14 @@ has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://a
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/linkedin');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::LinkedIn' }
 
 =head2 lookup_from_provider_info
 

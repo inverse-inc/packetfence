@@ -23,7 +23,6 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SAML' );
-has '+dynamic_routing_module' => (default => 'Authentication::SAML');
 has 'authorization_source_id' => ( is => 'rw', required => 1 );
 
 has 'sp_key_path' => ( is => 'rw', required => 1 );
@@ -36,6 +35,14 @@ has 'idp_metadata_path' => ( is => 'rw', required => 1 );
 has 'idp_entity_id' => ( is => 'rw', required => 1 );
 
 has 'username_attribute' => ( is => 'rw', default => "urn:oid:0.9.2342.19200300.100.1.1" );
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::SAML' }
 
 =head2 has_authentication_rules
 

@@ -25,8 +25,15 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
-has '+dynamic_routing_module' => (default => 'Authentication::Null');
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Null' }
 
 =head2 available_attributes
 
