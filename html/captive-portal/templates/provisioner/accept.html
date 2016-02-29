@@ -1,14 +1,10 @@
-[% title = i18n("PacketFence Registration System") %]
-[% INCLUDE header.html %]
 
 
+<h3>[% i18n("You should not seeing this page, something went wrong.") %]</h3>
+<h3>[% i18n("To the user : try clicking Continue to see if it fixes the problem") %]</h3>
+<h3>[% i18n("To the administrator : you should probably file a bug report on the PacketFence website") %]</h3>
 
-    <h3>[% i18n("You should not seeing this page, something went wrong.") %]</h3>
-    <h3>[% i18n("To the user : try clicking Continue to see if it fixes the problem") %]</h3>
-    <h3>[% i18n("To the administrator : you should probably file a bug report on the PacketFence website") %]</h3>
-
-    <br/>
-    <a href="/captive-portal">[% i18n("Continue") %]</a>
+<br/>
+[% IF skipable %]<a href="/captive-portal?next=next">[% i18n("Continue") %]</a>[% END %]
 
 
-[% INCLUDE footer.html %]

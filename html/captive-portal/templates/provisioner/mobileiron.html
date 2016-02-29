@@ -1,21 +1,17 @@
-[% title = i18n("PacketFence Registration System") %]
-[% INCLUDE header.html %]
+<h3>[% i18n("To complete your network activation you need to install MobileIron") %]</h3>
+<p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
 
-    <h3>[% i18n("To complete your network activation you need to install MobileIron") %]</h3>
-    <p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
+<h5>[% i18n("If you are using an Android phone or tablet,") %]
+<a id="primary_download" href="[% provisioner.android_download_uri %]">[% i18n("Click here to download") %]</a>
+</h5>
 
-    <h5>[% i18n("If you are using an Android phone or tablet,") %]
-    <a id="primary_download" href="[% provisioner.android_download_uri %]">[% i18n("Click here to download") %]</a>
-    </h5>
+<h5>If you are using an Apple phone or tablet,
+<a id="primary_download" href="[% provisioner.ios_download_uri %]">>[% i18n("Click here to download") %]</a>
+</h5>
 
-    <h5>If you are using an Apple phone or tablet,
-    <a id="primary_download" href="[% provisioner.ios_download_uri %]">>[% i18n("Click here to download") %]</a>
-    </h5>
+<h5>If you are using a Windows phone,
+<a id="primary_download" href="[% provisioner.windows_phone_download_uri %]">>[% i18n("Click here to download") %]</a>
+</h5>
 
-    <h5>If you are using a Windows phone,
-    <a id="primary_download" href="[% provisioner.windows_phone_download_uri %]">>[% i18n("Click here to download") %]</a>
-    </h5>
+<a href="/captive-portal">[% i18n("Continue") %]</a>
 
-    <a href="/captive-portal">[% i18n("Continue") %]</a>
-
-[% INCLUDE footer.html %]

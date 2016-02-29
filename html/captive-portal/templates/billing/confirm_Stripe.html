@@ -1,10 +1,6 @@
-[% INCLUDE header.html %]
 
-[% INCLUDE billing/tier.html %]
+[% INCLUDE 'billing/tier.html' %]
 <hr>
-[% IF txt_validation_error.defined %]
-<div class="error"><p>[% txt_validation_error %]</p></div>
-[% END %]
 
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
   <div class="error"><p id="payment-errors"></p></div>
@@ -43,27 +39,24 @@
   // This identifies your website in the createToken call below
     function stripeResponseHandler(status, response) {
         if(response.error) {
-            $('payment-errors').update(response.error.message);
+            $('#payment-errors').html(response.error.message);
         }
         else {
             var token = response.id;
-            var form = $('payment-form');
-            var input = form["stripeToken"];
-            $(input).setValue(token);
-            form.submit();
+            var form = $('#payment-form input[name="stripeToken"]').val(token);
+            $('#payment-form')[0].submit();
         }
     };
     if(typeof Stripe !== 'undefined' ) {
         Stripe.setPublishableKey('[% billing.publishable_key %]');
-        $('payment-form').onsubmit = function(e) {
+        $('#payment-form').submit(function(e) {
             Stripe.card.createToken(this, stripeResponseHandler);
             return false;
-        };
+        });
     }
     else {
-        $('payment-errors').update('Unable to proceed with payment please contact your service provider');
+        $('#payment-errors').html('Unable to proceed with payment please contact your service provider');
     }
       // ...
 </script>
 
-[% INCLUDE footer.html %]
