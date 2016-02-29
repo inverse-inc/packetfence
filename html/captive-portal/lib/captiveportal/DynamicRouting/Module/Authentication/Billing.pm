@@ -265,8 +265,7 @@ Validate information that has been selected(tier,provider)
 sub validate {
     my ($self) = @_;
     my $request = $self->app->request;
-    use Data::Dumper;
-    get_logger->info("parameters in the request : ".Dumper($request->param_names));
+
     my $source_param = first { /^billing_source_/ } $request->param_names;
     if($source_param =~ /^billing_source_(.*)/) {
         return $self->index() unless($self->find_source($1));

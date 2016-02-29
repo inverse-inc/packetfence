@@ -216,8 +216,7 @@ Whether or not the current request path is allowed in this module
 
 sub path_is_allowed {
     my ($self, $path) = @_;
-    use Data::Dumper;
-    get_logger->debug("Allowed URLs for $path are : ".Dumper($self->allowed_urls)."any gices : ".any {$_ eq $path} @{$self->allowed_urls});
+    get_logger->trace(sub { use Data::Dumper ; "Allowed URLs for $path are : ".Dumper($self->allowed_urls)});
     if(!@{$self->allowed_urls} || $path eq "/captive-portal" || (any {$_ eq $path} @{$self->allowed_urls}) || ($self->can('path_method') && $self->path_method($path))){
         return $TRUE;
     }
