@@ -17,7 +17,7 @@ Portal modules
           </ul>
         </li>
         [% ELSE %]
-        <li><a class="createItem" href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+        <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
         [% END %]
       [% END -%]
     </ul>
