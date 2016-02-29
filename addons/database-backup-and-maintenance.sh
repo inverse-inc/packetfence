@@ -93,9 +93,9 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
     fi
 
     if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
-        echo "Backup started on `date +%F_%Hh%M`" >> /var/log/innobackup.log
-        innobackupex --password=$DB_PWD  --no-timestamp --stream=tar ./ 2>> /var/log/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.tar.gz
-        tail -1 /var/log/innobackup.log | grep 'innobackupex: completed OK!' && \
+        echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
+        innobackupex --password=$DB_PWD  --no-timestamp --stream=tar ./ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.tar.gz
+        tail -1 /usr/local/pf/logs/innobackup.log | grep 'innobackupex: completed OK!' && \
           find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.tar.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
         INNOBACK_RC=$?
     else
@@ -128,6 +128,8 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
       eval "rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY"
     fi
 
-    exit $INNOBACK_RC
+    if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
+      exit $INNOBACK_RC
+    fi
 
 fi
