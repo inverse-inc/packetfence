@@ -54,7 +54,7 @@ sub options_modules {
         options => [
             map { {
                 value => $_->{id},
-                label => $_->{description}
+                label => $_->{id}
             } } @{$modules_by_type->{$_}}
         ]
     } } keys(%$modules_by_type);
