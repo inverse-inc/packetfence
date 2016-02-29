@@ -49,6 +49,8 @@ sub landing {
     my ($self) = @_;
     $self->render('oauth2/landing.html', {
         source => $self->source,
+        with_aup => $self->with_aup,
+        form => $self->form,
     });
 }
 
@@ -57,9 +59,15 @@ sub execute_child {
     if($self->app->request->path eq "oauth2/callback"){
         $self->handle_callback();
     }
-    elsif($self->app->request->path eq "oauth2/go"){
-        pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-        $self->app->redirect($self->get_client->authorize);
+    elsif($self->app->request->path eq "oauth2/go" && $self->app->request->method eq "POST"){
+        if(!$self->with_aup || $self->request_fields->{aup}){
+            pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
+            $self->app->redirect($self->get_client->authorize);
+        }
+        else {
+            $self->app->flash->{error} = "You must accept the terms and conditions";
+            $self->landing();
+        }
     }
     else {
         $self->landing();

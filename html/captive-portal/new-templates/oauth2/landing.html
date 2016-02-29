@@ -1,3 +1,11 @@
 <h4>You are about to authenticate against [% source.description %]</h4>
 
-<a href="/oauth2/go">Click here to login on the external provider</a>
+<form action="/oauth2/go" method="POST">
+
+  [% IF with_aup %]
+  [% form.get_field('aup').render | none %]
+  [% END %]
+
+  <input type="submit" value="Click here to login on the external provider">
+
+</form>
