@@ -116,7 +116,6 @@ ok( $value , "set_access_duration matched on set_unreg_date");
 
 ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_duration is a date");
 
-
 $source_id_ref = undef;
 
 is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
@@ -142,6 +141,8 @@ is_deeply(
 
 is($source_id_ref, "tls_all", "Source id ref is found");
 
+$source_id_ref = undef;
+
 is_deeply(
     pf::authentication::match("tls_any", { SSID => 'tls',
         radius_request => {'TLS-Client-Cert-Serial' => 'notls' }, rule_class => 'authentication'
@@ -162,6 +163,8 @@ is_deeply(
 );
 
 is($source_id_ref, "tls_any", "Source id ref is found");
+
+$source_id_ref = undef;
 
 is_deeply(
     pf::authentication::match("tls_any", { SSID => 'notls',
