@@ -27,8 +27,18 @@ has_field 'show_first_module_on_default' =>
    default => for_module->meta->get_attribute('show_first_module_on_default')->default->(),
   );
 
+has_field 'template' =>
+  (
+   type => 'Text',
+   label => 'Template',
+   default => for_module->meta->get_attribute('template')->default->(),
+   tags => { after_element => \&help,
+             help => 'The template to use to display the choices' },
+  );
+
+
 sub child_definition {
-    return qw(show_first_module_on_default);
+    return qw(show_first_module_on_default template);
 }
 
 =over

@@ -18,6 +18,8 @@ use pf::log;
 
 has 'show_first_module_on_default' => (is => 'rw', isa => 'Str', default => sub{'disabled'});
 
+has 'template' => (is => 'rw', isa => 'Str', default => sub {'content-with-choice.html'});
+
 sub next {
     my ($self) = @_;
     $self->done();
@@ -38,7 +40,7 @@ sub render {
 
 sub render_choice {
     my ($self, $inner_content) = @_;
-    $self->SUPER::render('content-with-choice.html', {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
+    $self->SUPER::render($self->template, {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
 }
 
 sub default_behavior {
