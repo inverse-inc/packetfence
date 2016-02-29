@@ -2,11 +2,11 @@ package captiveportal::DynamicRouting::Form::Authentication;
 
 =head1 NAME
 
-DynamicRouting::RenderingMap
+captiveportal::DynamicRouting::Form::Authentication
 
 =head1 DESCRIPTION
 
-Application definition for Dynamic Routing
+Form definition for the Authentication on the portal
 
 =cut
 
