@@ -197,6 +197,12 @@ These are already handled in process_transaction
 
 sub execute_actions {$TRUE}
 
+=head2 find_source
+
+Find a billing source by ID
+
+=cut
+
 sub find_source {
     my ($self, $source_id) = @_;
     my $profile = $self->app->profile;
