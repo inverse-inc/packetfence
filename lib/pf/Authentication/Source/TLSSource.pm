@@ -17,6 +17,7 @@ use warnings;
 use Moose;
 use pf::constants;
 use pf::Authentication::constants;
+use List::Util qw(first);
 
 extends 'pf::Authentication::Source';
 
@@ -52,6 +53,21 @@ Only the authentication actions should be available
 
 sub available_actions {
     return [@{$Actions::ACTIONS{$Rules::AUTH}}];
+}
+
+=head2 match_in_subclass
+
+=cut
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $radius_params = $params->{radius_request};
+    # If match any we just want the first
+    my @conditions = $rule->match eq $Rules::ANY ?
+        first { $self->match_condition($_, $radius_params) } @$own_conditions :
+        grep { $self->match_condition($_, $radius_params) } @$own_conditions;
+    push @$matching_conditions, @conditions;
+    return @conditions == 0 ? undef : 1;
 }
 
 =head1 AUTHOR
