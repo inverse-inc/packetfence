@@ -20,15 +20,17 @@ use Moose;
 
 use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1, except => ['captiveportal::DynamicRouting::Module'];
 use pfconfig::cached_hash;
+use pf::constants;
+use pf::util;
 use Graph;
 use List::MoreUtils qw(any);
 use captiveportal::DynamicRouting::util;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');
 
-has 'graph' => (is => 'rw', isa => 'Graph');
+has 'graph' => (is => 'rw', isa => 'Graph', default => sub {Graph->new});
 
-our @MODULES = __PACKAGE__->modules;
+our @MODULES = map {untaint_chain($_)} __PACKAGE__->modules;
 our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
@@ -38,7 +40,6 @@ tie our %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 sub build_application {
     my ($self, $application) = @_;
     $self->application($application);
-    $self->graph(Graph->new);
     $self->add_to_graph($self->application->root_module_id);
 
     $self->instantiate_all();
@@ -140,6 +141,18 @@ sub getModuleName {
     die "type is not defined for $name" unless defined $type;
     die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
+}
+
+sub check_cyclic {
+    my ($self, $id) = @_;
+    $self->graph(Graph->new);
+    eval {
+        $self->add_to_graph($id);
+    };
+    if($@){
+        return ($FALSE, $@);
+    }
+    return ($TRUE);
 }
 
 =head1 AUTHOR

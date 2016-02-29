@@ -37,6 +37,7 @@ use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
 use lib $conf_dir;
+use lib $install_dir."/html/captive-portal/lib";
 
 BEGIN {
     use Exporter ();
@@ -1247,6 +1248,10 @@ sub valid_certs {
 
 sub portal_modules {
     require pf::ConfigStore::PortalModule;
+    require pf::Portal::ProfileFactory;
+    require captiveportal::DynamicRouting::Application;
+    require captiveportal::DynamicRouting::Factory;
+
     my $cs = pf::ConfigStore::PortalModule->new;
     foreach my $module (@{$cs->readAll("id")}){
         if(defined($module->{modules})){
@@ -1254,6 +1259,13 @@ sub portal_modules {
                 unless($cs->hasId($sub_module)){
                     add_problem($FATAL, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
                 }
+            }
+        }
+        if($module->{type} eq "Root"){
+            my $factory = captiveportal::DynamicRouting::Factory->new();
+            my ($result, $msg) = $factory->check_cyclic($module->{id});
+            unless($result) {
+                add_problem($FATAL, $msg);
             }
         }
     }
