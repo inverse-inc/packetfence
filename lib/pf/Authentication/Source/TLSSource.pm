@@ -61,6 +61,9 @@ sub available_actions {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    my $match = $rule->match;
+    #Return early if it was already matched
+    return 1 if $match eq $Rules::ANY && @$matching_conditions > 0;
     my $radius_params = $params->{radius_request};
     # If match any we just want the first
     my @conditions = $rule->match eq $Rules::ANY ?
