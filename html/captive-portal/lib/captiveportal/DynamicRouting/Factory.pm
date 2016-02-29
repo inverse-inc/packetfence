@@ -25,6 +25,7 @@ use pf::util;
 use Graph;
 use List::MoreUtils qw(any);
 use captiveportal::DynamicRouting::util;
+use pf::config;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');
 
@@ -34,8 +35,6 @@ our @MODULES = map {untaint_chain($_)} __PACKAGE__->modules;
 our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
-
-tie our %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 sub build_application {
     my ($self, $application) = @_;

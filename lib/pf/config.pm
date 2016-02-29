@@ -139,6 +139,8 @@ our (
     %ConfigBillingTiers,
 #adminroles.conf
     %ConfigAdminRoles,
+#portal_modules.conf
+    %ConfigPortalModules,
 );
 
 BEGIN {
@@ -191,6 +193,7 @@ BEGIN {
         %ConfigDetect
         %ConfigBillingTiers
         %ConfigAdminRoles
+        %ConfigPortalModules
     );
 }
 
@@ -260,6 +263,8 @@ tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
 tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
 
 tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
+
+tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 sub import {
     pf::config->export_to_level(1,@_);

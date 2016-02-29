@@ -20,6 +20,8 @@ use captiveportal::DynamicRouting::util;
 use captiveportal::DynamicRouting::Factory;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
+use JSON::MaybeXS;
+use pf::config;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -125,6 +127,28 @@ after list => sub {
     }
     $c->stash->{types} = \%types;
 };
+
+after list => sub {
+    my ($self, $c) = @_;
+    my @roots = $self->getModel($c)->configStore->search("type", "Root", "id");
+    my @structured_roots;
+    foreach my $root (@roots){
+        push @structured_roots, $self->_module_as_hashref($root->{id});
+    }
+    $c->stash->{structured_roots} = \@structured_roots;
+    $c->stash->{structured_roots_json} = encode_json($c->stash->{structured_roots});
+};
+
+sub _module_as_hashref : Private {
+    my ($self, $id) = @_;
+    my $modules = $ConfigPortalModules{$id}{modules};
+    return {
+        label => "$id (".$ConfigPortalModules{$id}{description}.")",
+        id => $id,
+        children => [map { $self->_module_as_hashref($_) } @$modules],
+    };
+}
+
 
 sub create_type : Path('create') : Args(1) {
     my ($self, $c, $type) = @_;

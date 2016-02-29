@@ -28,13 +28,16 @@
         'admin/config/portal_modules',
         'js/interface',
         'js/bootstrapSwitch',
+        'js/tree.jquery',
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'css/bootstrapSwitch',
+        'css/jqtree',
         'admin/config/switches',
+        'admin/config/portal_modules',
         'admin/config/violations',
         ] -%]
 

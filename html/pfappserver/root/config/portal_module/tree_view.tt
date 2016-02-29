@@ -1,0 +1,20 @@
+
+<div id="modulesTree">
+</div>
+
+<script>
+var data = JSON.parse('[% structured_roots_json | js %]');
+$(function() {
+    $('#modulesTree').tree({
+        data: data
+    });
+    $('#modulesTree').bind(
+      'tree.click',
+      function(event){
+        var node = event.node;
+        window.location.hash = '#config/portal_module/'+node.id+'/read';
+      }
+    );
+});
+</script>
+

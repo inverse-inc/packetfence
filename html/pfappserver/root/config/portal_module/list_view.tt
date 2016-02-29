@@ -1,0 +1,31 @@
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>[% l('Identifier') %]</th>
+      <th>[% l('Description') %]</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH type IN items_by_type.keys%]
+      <tr class="category-header">
+        <th colspan="3">[% i18n(type) %]</th>
+      </tr>
+      [% FOREACH item IN items_by_type.$type %]
+      <tr>
+        <td class="item"><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+        <td>[% item.description | html %]</td>
+        <td>
+          [%- IF can_access("PORTAL_MODULE_DELETE") %]
+          <a class="btn btn-mini" href="[% c.pf_hash_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
+          [%- END %]
+          [%- IF can_access("PORTAL_MODULE_DELETE") %]
+          <a class="btn btn-mini btn-danger delete-portal-module" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+          [%- END %]
+        </td>
+      </tr>
+      [% END -%]
+    [% END %]
+  </tbody>
+</table>
