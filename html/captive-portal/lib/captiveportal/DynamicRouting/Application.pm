@@ -230,6 +230,17 @@ sub current_mac {
     return $self->session()->{"client_mac"};
 }
 
+=head2 current_ip
+
+Get the IP address that is tied to the current request
+
+=cut
+
+sub current_ip {
+    my ($self) = @_;
+    return $self->app->session()->{"client_ip"};
+}
+
 =head2 process_destination_url
 
 Destination URL handling

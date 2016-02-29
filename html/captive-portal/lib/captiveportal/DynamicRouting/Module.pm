@@ -18,9 +18,9 @@ use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
 
-has 'id' => (is => 'ro', required => 1);
+has id => (is => 'ro', required => 1);
 
-has 'description' => (is => 'rw');
+has description => (is => 'rw');
 
 has session => (is => 'rw', builder => '_build_session');
 
@@ -154,7 +154,7 @@ The IP address for the current request
 
 sub current_ip {
     my ($self) = @_;
-    return $self->app->session()->{"client_ip"};
+    return $self->app->current_ip;
 }
 
 =head2 _release_args
