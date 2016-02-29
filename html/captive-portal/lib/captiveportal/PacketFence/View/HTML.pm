@@ -7,24 +7,24 @@ use Moose;
 use utf8;
 extends 'Catalyst::View';
 
-#__PACKAGE__->config(
-#    TEMPLATE_EXTENSION => '.html',
-#    ENCODING           => 'utf-8',
-#    render_die         => 1,
-#    expose_methods     => [qw(i18n ni18n i18n_format)],
-#);
-#
-#before process => sub {
-#    my ( $self, $c ) = @_;
-#    my $include_path = $c->portalSession->templateIncludePath;
-#    @{ $self->include_path } = @$include_path;
-#};
+
+=head2 process
+
+Process the view using the informations in the stash
+
+=cut
 
 sub process {
     my ($self, $c) = @_;
     $c->stash->{application}->render($c->stash->{template}, $c->stash);
     $c->response->body($c->stash->{application}->template_output);
 }
+
+=head2 i18n
+
+Internationalize a string
+
+=cut
 
 sub i18n {
     my ( $self, $c, $msgid ) = @_;
@@ -34,6 +34,12 @@ sub i18n {
 
     return $msg;
 }
+
+=head2 ni18n
+
+Internationalize a string that can be plural or singular
+
+=cut
 
 sub ni18n {
     my ( $self, $c, $singular, $plural, $category ) = @_;
@@ -47,8 +53,6 @@ sub ni18n {
 =head2 i18n_format
 
 Pass message id through gettext then sprintf it.
-
-Meant to be called from the TT templates.
 
 =cut
 
