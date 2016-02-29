@@ -2,7 +2,7 @@ package captiveportal::DynamicRouting::Actions;
 
 =head1 NAME
 
-DynamicRouting::Actions
+captiveportal::DynamicRouting::Actions
 
 =head1 DESCRIPTION
 

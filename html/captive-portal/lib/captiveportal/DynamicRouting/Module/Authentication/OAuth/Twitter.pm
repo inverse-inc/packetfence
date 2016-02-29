@@ -18,10 +18,22 @@ has '+source' => (isa => 'pf::Authentication::Source::TwitterSource');
 use pf::auth_log;
 use pf::log;
 
+=head2 get_client
+
+The client is the TwitterSource class
+
+=cut
+
 sub get_client {
     my ($self) = @_;
     return $self->source;
 }
+
+=head2 get_token
+
+Get the token through the TwitterSource class
+
+=cut
 
 sub get_token {
     my ($self) = @_;
@@ -30,6 +42,12 @@ sub get_token {
     get_logger->info("Got token $oauth_token and verifier $oauth_verifier to finish authorization with Twitter");
     return  $self->get_client->get_access_token($oauth_token, $oauth_verifier);
 }
+
+=head2 handle_callback
+
+Handle the callback through the TwitterSource class
+
+=cut
 
 sub handle_callback {
     my ($self) = @_;

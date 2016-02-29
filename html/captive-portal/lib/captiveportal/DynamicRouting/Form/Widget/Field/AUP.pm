@@ -13,6 +13,12 @@ AUP Widget
 use Moose::Role;
 with 'HTML::FormHandler::Widget::Field::Checkbox';
 
+=head2 render_element
+
+Render the AUP with its checkbox
+
+=cut
+
 sub render_element {
     my ($self, $result) = @_;
     my $checkbox = HTML::FormHandler::Widget::Field::Checkbox::render_element($self, $result);
@@ -23,6 +29,12 @@ sub render_element {
 
     return $div;
 }
+
+=head2 render
+
+Render the field
+
+=cut
 
 sub render {
     my ($self, $result) = @_;

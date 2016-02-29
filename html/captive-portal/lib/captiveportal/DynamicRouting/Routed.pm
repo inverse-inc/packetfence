@@ -15,6 +15,12 @@ use pf::log;
 
 has 'route_map' => (is => 'rw', default => sub{ {} });
 
+=head2 around execute_child
+
+Route to the appropriate method if necessary
+
+=cut
+
 around 'execute_child' => sub {
     my $orig = shift;
     my $self = shift;
@@ -27,6 +33,12 @@ around 'execute_child' => sub {
         $self->$orig();
     }
 };
+
+=head2 path_method
+
+Get the method associated to a path if it exists
+
+=cut
 
 sub path_method {
     my ($self, $path) = @_;

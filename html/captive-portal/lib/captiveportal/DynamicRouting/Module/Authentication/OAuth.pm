@@ -22,12 +22,24 @@ has 'token_scheme' => (is => 'rw', default => sub {"auth-header:OAuth"});
 
 has '+source' => (isa => 'pf::Authentication::Source::OAuthSource');
 
+=head2 allowed_urls_auth_module
+
+The allowed URLs in this module
+
+=cut
+
 sub allowed_urls_auth_module {
     return [
         '/oauth2/go',
         '/oauth2/callback',
     ];
 }
+
+=head2 get_client
+
+Get the OAuth2 client
+
+=cut
 
 sub get_client {
     my ($self) = @_;
@@ -45,6 +57,12 @@ sub get_client {
     );
 }
 
+=head2 landing
+
+Display the landing page for the OAuth provider
+
+=cut
+
 sub landing {
     my ($self) = @_;
     $self->render('oauth2/landing.html', {
@@ -53,6 +71,12 @@ sub landing {
         form => $self->form,
     });
 }
+
+=head2 execute_child
+
+Execute the module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -74,6 +98,12 @@ sub execute_child {
     }
 }
 
+=head2 get_token
+
+Get the OAuth2 token
+
+=cut
+
 sub get_token {
     my ($self) = @_;
     
@@ -92,6 +122,12 @@ sub get_token {
     }
     return $token;
 }
+
+=head2 handle_callback
+
+Handle the callback from the OAuth2 provider and fetch the protected resource
+
+=cut
 
 sub handle_callback {
     my ($self) = @_;
@@ -126,16 +162,34 @@ sub handle_callback {
     }
 }
 
+=head2 _decode_response
+
+Decode the response from the provider
+
+=cut
+
 sub _decode_response {
     my ($self, $response) = @_;
     my $json = new JSON;
     return $json->decode($response->content());
 }
 
+=head2 _extract_username_from_response
+
+Extract the username from the response of the provider
+
+=cut
+
 sub _extract_username_from_response {
     my ($self, $info) = @_;
     return $info->{email};
 }
+
+=head2 auth_source_params
+
+The parameters available for source matching
+
+=cut
 
 sub auth_source_params {
     my ($self) = @_;

@@ -2,7 +2,7 @@ package captiveportal::DynamicRouting::Application;
 
 =head1 NAME
 
-DynamicRouting::Application
+captiveportal::DynamicRouting::Application
 
 =head1 DESCRIPTION
 
@@ -46,6 +46,12 @@ has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
 # to cache the cache objects
 has 'cache_cache' => (is => 'rw', default => sub {{}});
 
+=head2 BUILD
+
+Additionnal building on the application
+
+=cut
+
 sub BUILD {
     my ($self) = @_;
     my $hashed = {};
@@ -62,19 +68,37 @@ sub BUILD {
     $self->hashed_params($hashed);
 };
 
-#TODO : migrate this to CHI ?
+=head2 user_agent_cache
+
+The User agent cache
+TODO : migrate this to CHI ?
+
+=cut
+
 sub user_agent_cache {
     my ($self) = @_;
     $self->cache_cache->{user_agent_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_UserAgents' } );
     return $self->cache_cache->{user_agent_cache};
 }
 
-#TODO : migrate this to CHI ?
+=head2 lost_devices_cache
+
+The lost devices cache
+TODO : migrate this to CHI ?
+
+=cut
+
 sub lost_devices_cache {
     my ($self) = @_;
     $self->cache_cache->{lost_devices_cache} //= new Cache::FileCache( { 'namespace' => 'CaptivePortal_LostDevices' } );
     return $self->cache_cache->{lost_devices_cache};
 }
+
+=head2 user_cache
+
+User based cache
+
+=cut
 
 sub user_cache {
     my ($self) = @_;
@@ -101,6 +125,12 @@ sub reached_retry_limit {
     $cache->set($retry_key,$retries,$self->profile->{_block_interval});
     return $retries > $max;
 }
+
+=head2 process_user_agent
+
+Process the user agent
+
+=cut
 
 sub process_user_agent {
     my ( $self ) = @_;
@@ -131,6 +161,12 @@ sub process_user_agent {
     return pf::useragent::process_useragent( $mac, $user_agent );
 }
 
+=head2 process_fingerbank
+
+Fingerbank processing
+
+=cut
+
 sub process_fingerbank {
     my ( $self ) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
@@ -144,17 +180,23 @@ sub process_fingerbank {
     pf::fingerbank::process(\%fingerbank_query_args);
 }
 
-# IS this still necessary ? I don't think so
-sub set_current_module {
-    my ($self, $module) = @_;
-    $self->session->{current_module_id} = $module;
-}
+=head2 current_module_id
+
+Get the current module ID
+
+=cut
 
 sub current_module_id {
     my ($self) = @_;
     $self->session->{current_module_id} //= $self->root_module->id;
     return $self->session->{current_module_id};
 }
+
+=head2 preprocessing
+
+Processing that needs to occur before we execute the application
+
+=cut
 
 sub preprocessing {
     my ($self) = @_; 
@@ -164,16 +206,41 @@ sub preprocessing {
     $self->process_fingerbank();
 }
 
+=head2 execute
+
+Application execution
+This will cycle through the proper modules and the appropriate module will set template_output and status
+
+=cut
+
 sub execute {
     my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->root_module->execute();
 }
 
+=head2 current_mac
+
+The MAC address that is tied to the current request
+
+=cut
+
 sub current_mac {
     my ($self) = @_;
     return $self->session()->{"client_mac"};
 }
+
+=head2 process_destination_url
+
+Destination URL handling
+
+Will compute it using the following logic : 
+- Use the Destination URL specified as a param or the one stored in the session
+- Check if the profile requires a forced destination URL, in this case use the one of the profile
+- If there is no destination URL at this point, use the one from the portal
+- Now, if the destination URL points to one of the portal IP or hostname, replace it with the one from the profile
+
+=cut
 
 sub process_destination_url {
     my ($self) = @_;
@@ -200,6 +267,12 @@ sub process_destination_url {
 }
 
 
+=head2 render
+
+Render a template inside the application layout
+
+=cut
+
 sub render {
     my ($self, $template, $args) = @_;
 
@@ -220,6 +293,12 @@ sub render {
    
     $self->empty_flash();
 }
+
+=head2 _render
+
+Render a template using Template Toolkit.
+
+=cut
 
 sub _render {
     my ($self, $template, $args) = @_;
@@ -249,11 +328,23 @@ sub _render {
     return $output;
 }
 
+=head2 redirect
+
+Create a response that will redirect the user
+
+=cut
+
 sub redirect {
     my ($self, $url, $code) = @_;
     $self->template_output($url);
     $self->response_code($code || 302);
 }
+
+=head2 i18n
+
+Internationalize a string
+
+=cut
 
 sub i18n {
     my ( $self, $msgid ) = @_;
@@ -263,6 +354,12 @@ sub i18n {
 
     return $msg;
 }
+
+=head2 ni18n
+
+Internationalize a string that can be singular/plural
+
+=cut
 
 sub ni18n {
     my ( $self, $singular, $plural, $category ) = @_;
@@ -277,8 +374,6 @@ sub ni18n {
 
 Pass message id through gettext then sprintf it.
 
-Meant to be called from the TT templates.
-
 =cut
 
 sub i18n_format {
@@ -288,21 +383,45 @@ sub i18n_format {
     return $msg;
 }
 
+=head2 error
+
+Create the template for an error
+
+=cut
+
 sub error {
     my ($self, $message) = @_;
     $self->render("error.html", {message => $message});
 }
+
+=head2 empty_flash
+
+Empty the flash
+
+=cut
 
 sub empty_flash {
     my ($self) = @_;
     $self->session->{flash} = {};
 }
 
+=head2 flash
+
+Access the flash
+
+=cut
+
 sub flash {
     my ($self) = @_;
     $self->session->{flash} //= {};
     return $self->session->{flash};
 }
+
+=head2 reset_session
+
+Reset the session except for attributes that are not related to the device state
+
+=cut
 
 sub reset_session {
     my ($self) = @_;

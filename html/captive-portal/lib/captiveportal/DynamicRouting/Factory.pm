@@ -36,6 +36,12 @@ our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
 
+=head2 build_application
+
+Build the application and all its modules
+
+=cut
+
 sub build_application {
     my ($self, $application) = @_;
     $self->application($application);
@@ -45,11 +51,23 @@ sub build_application {
     $self->create_modules_hierarchy();
 }
 
+=head2 instantiate_all
+
+Instantiate all the Application Module objects so they can be configured after
+
+=cut
+
 sub instantiate_all {
     my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->instantiate_child($self->application->root_module_id);
 }
+
+=head2 instantiate_child
+
+Instantiate a module and all of its child modules
+
+=cut
 
 sub instantiate_child {
     my ($self, $module_id, $parent_id) = @_;
@@ -70,6 +88,12 @@ sub instantiate_child {
 
 }
 
+=head2 create_modules_hierarchy
+
+Go through the graph from the bottom to the top to set the parent in the modules
+
+=cut
+
 sub create_modules_hierarchy {
     my ($self) = @_;
     my @exterior = $self->graph->exterior_vertices;
@@ -79,6 +103,12 @@ sub create_modules_hierarchy {
     $self->application->root_module($INSTANTIATED_MODULES{$self->application->root_module_id});
     
 }
+
+=head2 add_modules_hierarchy
+
+Go through the graph paths up to the root to set the childs in the objects
+
+=cut
 
 sub add_modules_hierarchy {
     my ($self, $module_id, $child_id) = @_;
@@ -94,6 +124,12 @@ sub add_modules_hierarchy {
         $self->add_modules_hierarchy($parent_id, $module_id);
     }
 }
+
+=head2 instantiate
+
+Instantiate a module from the configuration
+
+=cut
 
 sub instantiate {
     my ($self,$id,%args) = @_;
@@ -117,6 +153,14 @@ sub instantiate {
     return $object;
 }
 
+=head2 add_to_graph
+
+Add a module and all of its child modules to the graph
+Will die if the graph is cyclic (detected by seeing if the same module ID is there twice in the unique ID that contains the full path)
+  ex : root_module+this_will_cycle+some_module+this_will_cycle
+
+=cut
+
 sub add_to_graph {
     my ($self, $module_id) = @_;
     my $modules = $ConfigPortalModules{clean_id($module_id)}{modules};
@@ -132,6 +176,12 @@ sub add_to_graph {
     }
 }
 
+=head2 getModuleName
+
+Get the module class name from the type in the configuration
+
+=cut
+
 sub getModuleName {
     my ($class,$name,%data) = @_;
     my $mainClass = $class->factory_for;
@@ -141,6 +191,12 @@ sub getModuleName {
     die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
     $subclass;
 }
+
+=head2 check_cyclic
+
+Given an ID, check if there is a cycle in its childs
+
+=cut
 
 sub check_cyclic {
     my ($self, $id) = @_;

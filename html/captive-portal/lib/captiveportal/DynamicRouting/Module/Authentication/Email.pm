@@ -26,6 +26,12 @@ use pf::util;
 use pf::node;
 use pf::enforcement;
 
+=head2 execute_child
+
+Execute this module
+
+=cut
+
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->method eq "POST"){
@@ -35,6 +41,12 @@ sub execute_child {
         $self->prompt_fields();
     }
 };
+
+=head2 do_email_registration
+
+Perform the e-mail registration using the provided info
+
+=cut
 
 sub do_email_registration {
     my ($self) = @_;
@@ -85,7 +97,12 @@ sub do_email_registration {
     $self->render("release.html", $self->_release_args());
 }
 
-# overriding here since we don't want the unregdate to be updated as they will be at the end of the process
+=head2 execute_actions
+
+Override the actions since there is an activation timeout for the unregdate.
+
+=cut
+
 after 'execute_actions' => sub {
     my ($self) = @_;
 
@@ -101,6 +118,12 @@ after 'execute_actions' => sub {
     $self->new_node_info->{unregdate} = $unregdate;
     return $TRUE;
 };
+
+=head2 auth_source_params
+
+The parameters available for source matching
+
+=cut
 
 sub auth_source_params {
     my ($self) = @_;

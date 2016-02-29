@@ -25,11 +25,23 @@ has '+pid_field' => (default => sub { "telephone" });
 
 has '+source' => (isa => 'pf::Authentication::Source::SMSSource');
 
+=head2 allowed_urls_auth_module
+
+The allowed URLs in this module
+
+=cut
+
 sub allowed_urls_auth_module {
     return [
         '/activate/sms',
     ];
 }
+
+=head2 execute_child
+
+Execute the module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -51,11 +63,23 @@ sub execute_child {
     }
 }
 
+=head2 no_pin
+
+User has no PIN, so we invalidate all of them and redirect back to the beginning
+
+=cut
+
 sub no_pin {
     my ($self) = @_;
     pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
     $self->app->redirect("/captive-portal");
 }
+
+=head2 prompt_fields
+
+Prompt fields with source specific SMS carriers
+
+=cut
 
 sub prompt_fields {
     my ($self) = @_;
@@ -66,10 +90,22 @@ sub prompt_fields {
     });
 }
 
+=head2 prompt_pin
+
+Prompt for the activation PIN
+
+=cut
+
 sub prompt_pin {
     my ($self) = @_;
     $self->render("sms/validate.html");
 }
+
+=head2 validate_info
+
+Validate the provided informations during the signup
+
+=cut
 
 sub validate_info {
     my ($self) = @_;
@@ -95,6 +131,12 @@ sub validate_info {
     $self->prompt_pin();
 }
 
+=head2 validate_pin
+
+Validate the provided PIN
+
+=cut
+
 sub validate_pin {
     my ($self, $pin) = @_;
 
@@ -108,6 +150,12 @@ sub validate_pin {
         return ($FALSE, $GUEST::ERROR_INVALID_PIN);
     }
 }
+
+=head2 validation
+
+Validate the provided PIN, check the retry limit and handle actions if its valid
+
+=cut
 
 sub validation {
     my ($self) = @_;
@@ -136,6 +184,12 @@ sub validation {
         $self->prompt_pin();
     }
 }
+
+=head2 auth_source_params
+
+The parameters available for source matching
+
+=cut
 
 sub auth_source_params {
     my ($self) = @_;

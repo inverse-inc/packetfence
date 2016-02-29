@@ -26,10 +26,22 @@ has 'multi_source_auth_classes' => (is => 'rw', isa => 'ArrayRef[Str]', default 
 
 has 'multi_source_object_classes' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub{[]});
 
+=head2 display
+
+The module should only be displayed if it has sources
+
+=cut
+
 sub display {
     my ($self) = @_;
     return @{$self->sources} ? $TRUE : $FALSE;
 }
+
+=head2 around source
+
+Record the current active source after it has been set
+
+=cut
 
 around 'source' => sub {
     my ($orig, $self, $source) = @_;
@@ -50,6 +62,14 @@ around 'source' => sub {
         $self->$orig();
     }
 };
+
+=head2 _build_sources
+
+Build the sources from the source_id and the filtering attributes
+If source_id is not defined or empty, the filtering attributes will be applied to all the portal profile sources
+Otherwise, the sources defined in source_id will be used even if they are not part of the portal profile
+
+=cut
 
 sub _build_sources {
     my ($self, $source_id, $previous) = @_; 

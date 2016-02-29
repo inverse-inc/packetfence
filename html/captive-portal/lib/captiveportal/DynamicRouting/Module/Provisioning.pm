@@ -21,9 +21,22 @@ use pf::util;
 
 has 'skipable' => (is => 'rw', default => sub {'disabled'});
 
+=head2 allowed_urls
+
+The allowed URLs for the module
+
+=cut
+
 sub allowed_urls {[
     '/provisioning',
 ]}
+
+=head2 next
+
+Handle the next of a child module
+This module can have a TLSEnrolment child module, so when that is the case, we continue on the actual provisioning of the device
+
+=cut
 
 sub next {
     my ($self) = @_;
@@ -33,11 +46,23 @@ sub next {
     }
 }
 
+=head2 get_provisioner
+
+Get the provisioner from the session or the portal profile
+
+=cut
+
 sub get_provisioner {
     my ($self) = @_;
     $self->session->{provisioner} //= $self->app->profile->findProvisioner($self->current_mac);
     return $self->session->{provisioner};
 }
+
+=head2 is_eap_tls
+
+Check if we are doing EAP-TLS enrollment
+
+=cut
 
 sub is_eap_tls {
     my ($self) = @_;
@@ -48,11 +73,23 @@ sub is_eap_tls {
     return $FALSE;
 }
 
+=head2 show_provisioning
+
+Show the provisioner template
+
+=cut
+
 sub show_provisioning {
     my ($self) = @_;
     my $args = {provisioner => $self->get_provisioner, skipable => isenabled($self->skipable)};
     $self->render($self->get_provisioner->template, $args);
 }
+
+=head2 execute_child
+
+Find the provisioner and proceed to the actions related to it
+
+=cut
 
 sub execute_child {
     my ($self) = @_;

@@ -44,6 +44,12 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 
 has_field 'fields[aup]' => (type => 'AUP', validate_method => \&check_aup);
 
+=head2 check_aup
+
+Check that the AUP has been properly accepted
+
+=cut
+
 sub check_aup {
     my ($self) = @_;
     get_logger->info("AUP value is : ".$self->value);
@@ -53,11 +59,23 @@ sub check_aup {
     }
 }
 
+=head2 get_field
+
+Get a field following the standard field[$name] by its name 
+
+=cut
+
 sub get_field {
     my ($self, $name) = @_;
     $name = "fields[".$name."]";
     return $self->field($name) || die "Can't build field $name";
 }
+
+=head2 sms_carriers
+
+The SMS carriers that are available
+
+=cut
 
 sub sms_carriers {
     my ($self) = @_;

@@ -30,9 +30,21 @@ has '+sources' => (isa => 'ArrayRef[pf::Authentication::Source::SQLSource|pf::Au
 
 has '+multi_source_auth_classes' => (default => sub{["internal"]});
 
+=head2 required_fields_child
+
+Username and password are required for login
+
+=cut
+
 sub required_fields_child {
     return ["username", "password"];
 }
+
+=head2 execute_child
+
+Execute this module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -43,6 +55,12 @@ sub execute_child {
         $self->prompt_fields();
     }
 };
+
+=head2 authenticate
+
+Authenticate the POSTed username and password
+
+=cut
 
 sub authenticate {
     my ($self) = @_;
@@ -101,6 +119,12 @@ sub authenticate {
     $self->username($username);
     $self->done();
 }
+
+=head2 authenticate
+
+The password available for matching in the source
+
+=cut
 
 sub auth_source_params {
     my ($self) = @_;

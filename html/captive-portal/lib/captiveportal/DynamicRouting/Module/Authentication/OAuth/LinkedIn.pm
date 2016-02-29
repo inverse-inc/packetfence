@@ -17,6 +17,12 @@ has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
 
 has '+source' => (isa => 'pf::Authentication::Source::LinkedInSource');
 
+=head2 _decode_response
+
+The e-mail is returned as a quoted string
+
+=cut
+
 sub _decode_response {
     my ($self, $response) = @_;
     my $pid = $response->content();

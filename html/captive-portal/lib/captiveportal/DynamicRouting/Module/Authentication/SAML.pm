@@ -29,21 +29,45 @@ has '+route_map' => (default => sub {
     return \%map;
 });
 
+=head2 execute_child
+
+Execute the module
+
+=cut
+
 sub execute_child {
     my ($self) = @_;
     $self->index();
 }
+
+=head2 index
+
+SAML index
+
+=cut
 
 sub index {
     my ($self) = @_;
     $self->render("saml.html", {source => $self->source});
 }
 
+=head2 redirect
+
+Redirect the user to the SAML IDP
+
+=cut
+
 sub redirect {
     my ($self) = @_;
     pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
     $self->app->redirect($self->source->sso_url);
 }
+
+=head2 assertion
+
+Handle the assertion that comes back from the IDP
+
+=cut
 
 sub assertion {
     my ($self) = @_;

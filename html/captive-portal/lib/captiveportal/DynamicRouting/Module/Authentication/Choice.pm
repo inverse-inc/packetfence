@@ -21,6 +21,12 @@ use pf::log;
 use pf::constants;
 use captiveportal::DynamicRouting::util;
 
+=head2 BUILD
+
+Create the dynamic modules based on the sources of the module
+
+=cut
+
 sub BUILD {
     my ($self) = @_;
     my @sources = @{$self->sources()};
@@ -39,6 +45,12 @@ sub BUILD {
         ));
     }
 }
+
+=head2 execute_child
+
+Validate there are sources and display a message if there are none. Otherwise, let Choice handle it
+
+=cut
 
 sub execute_child {
     my ($self) = @_;

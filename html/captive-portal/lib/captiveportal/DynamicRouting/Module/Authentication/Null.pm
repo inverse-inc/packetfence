@@ -22,10 +22,22 @@ has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
 has 'pid_field' => (is => 'rw', builder => '_build_pid_field', lazy => 1);
 
+=head2 _build_pid_field
+
+Email is only required if the source says so
+
+=cut
+
 sub _build_pid_field {
     my ($self) = @_;
     return $self->requires_email ? "email" : undef;
 }
+
+=head2 execute_child
+
+Execute this module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;    
@@ -36,6 +48,12 @@ sub execute_child {
         $self->prompt_fields();
     }
 }
+
+=head2 authenticate
+
+Validate the submitted informations
+
+=cut
 
 sub authenticate {
     my ($self) = @_;
@@ -63,6 +81,12 @@ sub authenticate {
     $self->username($pid);
     $self->done();
 }
+
+=head2 requires_email
+
+Whether or not the email is required
+
+=cut
 
 sub requires_email {
     my ($self) = @_;

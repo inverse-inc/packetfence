@@ -17,6 +17,12 @@ has '+token_scheme' => (default => "auth-header:Bearer");
 
 has '+source' => (isa => 'pf::Authentication::Source::WindowsLiveSource');
 
+=head2 _extract_username_from_response
+
+Get the username from the response
+
+=cut
+
 sub _extract_username_from_response {
     my ($self, $info) = @_;
     return $info->{emails}->{account};

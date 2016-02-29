@@ -12,6 +12,12 @@ Field Validation role
 
 use Moose::Role;
 
+=head2 around execute_child
+
+This will validate the required fields when a POST is made on /signup
+
+=cut
+
 around 'execute_child' => sub {
     my $orig = shift;
     my $self = shift;
@@ -27,6 +33,12 @@ around 'execute_child' => sub {
     $self->$orig(@_);
 };
 
+=head2 validate_required_fields
+
+Check if there are missing fields in the request based on required_fields
+
+=cut
+
 sub validate_required_fields {
     my ($self) = @_;
     my @errors;
@@ -37,6 +49,12 @@ sub validate_required_fields {
     }
     return \@errors;
 }
+
+=head2 validate_form
+
+Validate that the form fields are valid and all the required fields are there
+
+=cut
 
 sub validate_form {
     my ($self) = @_;
@@ -53,6 +71,12 @@ sub validate_form {
     }
     return 1;
 }
+
+=head2 handle_posted_fields
+
+Handle a POST of the fields
+
+=cut
 
 sub handle_posted_fields {
     my ($self) = @_;

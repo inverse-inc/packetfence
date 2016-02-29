@@ -1,9 +1,26 @@
 package captiveportal::DynamicRouting::I18N;
 
+=head1 NAME
+
+captiveportal::DynamicRouting::I18N
+
+=head1 DESCRIPTION
+
+For the internationalization of the fields
+
+=cut
+
 use Moose;
 extends 'HTML::FormHandler::I18N';
 
 use Locale::gettext qw(gettext ngettext);
+
+=head2 handle_posted_fields
+
+Internationalize a string
+Escapes the bracket arguments to put them in %s format which is used by the portal PO files
+
+=cut
 
 sub maketext {
     my $self = shift;
@@ -17,6 +34,12 @@ sub maketext {
     }
 }
 
+=head2 i18n
+
+Internationalize a string without arguments
+
+=cut
+
 sub i18n {
     my ( $self, $msgid ) = @_;
 
@@ -25,6 +48,12 @@ sub i18n {
 
     return $msg;
 }
+
+=head2 ni18n
+
+Internationalize a string which can be plural or singular
+
+=cut
 
 sub ni18n {
     my ( $self, $singular, $plural, $category ) = @_;
@@ -39,8 +68,6 @@ sub ni18n {
 
 Pass message id through gettext then sprintf it.
 
-Meant to be called from the TT templates.
-
 =cut
 
 sub i18n_format {
@@ -50,5 +77,33 @@ sub i18n_format {
     return $msg;
 }
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;
+
+

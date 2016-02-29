@@ -35,19 +35,43 @@ has 'pki_provider_id' => (is => 'rw', trigger => \&_build_pki_provider, required
 
 has 'pki_provider_type' => (is => 'ro', builder => '_build_pki_provider_type', lazy => 1);
 
+=head2 allowed_urls
+
+The allowed URLs
+
+=cut
+
 sub allowed_urls {[
     '/tls-enrollment',
 ]}
+
+=head2 _build_pki_provider
+
+Builder for the PKI provider
+
+=cut
 
 sub _build_pki_provider {
     my ($self) = @_;
     $self->pki_provider(pf::factory::pki_provider->new($self->{pki_provider_id}));
 }
 
+=head2 _build_pki_provider_type
+
+Builder for the PKI provider type
+
+=cut
+
 sub _build_pki_provider_type {
     my ($self) = @_;
     return $pf::factory::pki_provider::MODULES{ref($self->pki_provider)}{'type'};
 }
+
+=head2 execute_child
+
+Execute the module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -58,6 +82,12 @@ sub execute_child {
         $self->prompt_info();
     }
 }
+
+=head2 prompt_info
+
+Prompt for the necessary informations to complete the certificate request
+
+=cut
 
 sub prompt_info {
     my ($self) = @_;

@@ -17,15 +17,34 @@ use pf::log;
 
 has 'current_module_index' => (is => 'rw', builder => '_build_current_module_index', lazy => 1);
 
+=head2 _build_current_module_index
+
+Builder for the current module index inside the modules_order array
+
+=cut
+
 sub _build_current_module_index {
     my ($self) = @_;
     return $self->session->{current_module_index} // 0;
 }
 
+=head2 after current_module_index
+
+Update the current_module_index in the session after setting it
+
+=cut
+
 after 'current_module_index' => sub {
     my ($self) = @_;
     $self->session->{current_module_index} = $self->{current_module_index};  
 };
+
+=head2 next
+
+Continue onto the next child module
+If we have completed all the modules in modules_order, we have completed this module
+
+=cut
 
 sub next {
     my ($self) = @_;

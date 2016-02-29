@@ -20,16 +20,28 @@ use pf::Authentication::constants;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
+=head2 allowed_urls_auth_module
+
+The allowed URLs in this module
+
+=cut
+
 sub allowed_urls_auth_module {
     return [
         '/sponsor/check',
     ];
 }
 
+=head2 execute_child
+
+Execute the module
+
+=cut
+
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->path eq "sponsor/check"){
-        $self->check_release();
+        $self->check_activation();
     }
     elsif($self->app->request->method eq "POST"){
         $self->do_sponsor_registration();
@@ -42,7 +54,13 @@ sub execute_child {
     }
 }
 
-sub check_release {
+=head2 check_activation
+
+Check if the access has been approved
+
+=cut
+
+sub check_activation {
     my ($self) = @_;
     unless($self->session->{activation_code}){
         get_logger->error("Cannot restore activation code from user session.");
@@ -61,6 +79,12 @@ sub check_release {
         $self->app->template_output('');
     }
 }
+
+=head2 do_sponsor_registration
+
+Handle the signup and create the sponsor request
+
+=cut
 
 sub do_sponsor_registration {
     my ($self) = @_;
@@ -112,10 +136,22 @@ sub do_sponsor_registration {
     $self->waiting_room();
 }
 
+=head2 waiting_room
+
+Push the user in a waiting room where he will wait for the access to be activated
+
+=cut
+
 sub waiting_room {
     my ($self) = @_;
     $self->render("waiting.html", $self->_release_args());
 }
+
+=head2 _validate_sponsor
+
+Validate the provided sponsor is allowed to do sponsoring
+
+=cut
 
 sub _validate_sponsor {
     my ($self, $sponsor_email) = @_;
@@ -128,6 +164,12 @@ sub _validate_sponsor {
     }
     return 1; 
 }
+
+=head2 auth_source_params
+
+The parameters available for source matching
+
+=cut
 
 sub auth_source_params {
     my ($self) = @_;

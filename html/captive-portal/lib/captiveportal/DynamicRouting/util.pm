@@ -20,21 +20,46 @@ our @EXPORT = qw(
 use Tie::IxHash;
 use pf::constants;
 
+=head2 clean_id
+
+Clean the fully qualified ID to get only its general identifier
+ex : root+child+something -> something
+
+=cut
+
 sub clean_id {
     my ($uid) = @_;
     $uid =~ s/^(.+)\+//g;
     return $uid;
 }
 
+=head2 generate_id
+
+Generate an ID based on its ID and its parent ID
+
+=cut
+
 sub generate_id {
     my ($parent_id, $id) = @_;
     return $parent_id . '+' . $id;
 }
 
+=head2 id_parts
+
+Get all the individual parts that form an ID
+
+=cut
+
 sub id_parts {
     my ($id) = @_;
     return split('\+', $id);
 }
+
+=head2 id_is_cyclic
+
+Check if an ID contains a cycle
+
+=cut
 
 sub id_is_cyclic {
     my ($id) = @_;
@@ -51,10 +76,22 @@ sub id_is_cyclic {
     return $FALSE;
 }
 
+=head2 generate_dynamic_module_id
+
+Generate a dynamic module ID
+
+=cut
+
 sub generate_dynamic_module_id {
     my ($id) = @_;
-    return '_DYNAMIC_SOURCE_'.$id.'_';
+    return '_DYNAMIC_MODULE_'.$id.'_';
 }
+
+=head2 ordered_module_types
+
+The prefered order of the module types
+
+=cut
 
 sub ordered_module_types {
     return [
@@ -65,6 +102,12 @@ sub ordered_module_types {
         'Provisioning',
     ];
 }
+
+=head2 modules_by_type
+
+Given an ArrayRef of modules, get a HashRef of these modules by their type
+
+=cut
 
 sub modules_by_type {
     my ($items) = @_;

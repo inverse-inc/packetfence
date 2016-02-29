@@ -24,20 +24,44 @@ has 'modules_order' => (is => 'rw', required => 1);
 
 has 'completed' => (is => 'rw', builder => '_build_completed', lazy => 1);
 
+=head2 after current_module
+
+Set the current module in the session after setting it
+
+=cut
+
 after 'current_module' => sub {
     my ($self) = @_;
     $self->session->{current_module} = $self->{current_module};
 };
+
+=head2 _build_current_module
+
+Builder to restore the current module from the session
+
+=cut
 
 sub _build_current_module {
     my ($self) = @_;
     return $self->session->{current_module};
 }
 
+=head2 _build_completed
+
+Builder to restore the completed attribute from the session
+
+=cut
+
 sub _build_completed {
     my ($self) = @_;
     return $self->session->{completed} // 0;
 }
+
+=head2 before done
+
+Before the module calls done, we record that we completed what had to be done here.
+
+=cut
 
 before 'done' => sub {
     my ($self) = @_;
@@ -45,27 +69,57 @@ before 'done' => sub {
     $self->completed(1);
 };
 
+=head2 find_module
+
+Find a module by its object reference
+
+=cut
+
 sub find_module {
     my ($self,  $module) = @_;
     return firstval { $_ eq $module } values %{$self->module_map};
 }
+
+=head2 count_modules
+
+Count the amount of modules
+
+=cut
 
 sub count_modules {
     my ($self) = @_;
     return scalar(@{$self->modules_order});
 }
 
+=head2 get_module
+
+Get a module by its index
+
+=cut
+
 sub get_module {
     my ($self, $index) = @_;
     return $self->module_map->{$self->modules_order->[$index]};
 }
 
+=head2 all_modules
+
+Get all the modules
+
+=cut
+
 sub all_modules {
-    my ($self, $index) = @_;
+    my ($self) = @_;
     return map {
         $self->module_map->{$_}
     } @{$self->modules_order};
 }
+
+=head2 add_module
+
+Add a module to the available ones
+
+=cut
 
 sub add_module {
     my ($self, $module) = @_;
@@ -73,6 +127,15 @@ sub add_module {
     die "Module ".$module->id." is not declared in the ordering." unless(any {$_ eq $module->id} @{$self->modules_order}) ;
     $self->module_map->{$module->id} = $module;
 }
+
+=head2 execute_child
+
+Send the flow to the proper child module
+- If the flow is completed, we notify our parent
+- Otherwise, we look for the current module in the session
+- If all of the above fail, we execute the default behavior of the module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -92,10 +155,22 @@ sub execute_child {
     }
 };
 
+=head2 default_behavior
+
+What to do by default. In this case we execute the default module
+
+=cut
+
 sub default_behavior {
     my ($self) = @_;
     $self->default_module->execute();
 }
+
+=head2 default_module
+
+The default module
+
+=cut
 
 sub default_module {
     my ($self) = @_;

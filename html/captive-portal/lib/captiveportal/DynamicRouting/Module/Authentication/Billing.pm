@@ -45,6 +45,12 @@ has '+route_map' => (default => sub {
     return \%map;
 });
 
+=head2 around index,cancel,verify,confirm
+
+Check that we have access to billing sources before continuing
+
+=cut
+
 around qw(index cancel verify confirm) => sub {
     my $orig = shift;
     my $self = shift;
@@ -56,6 +62,12 @@ around qw(index cancel verify confirm) => sub {
     }
 };
 
+=head2 index
+
+Present the tiers and providers to the user
+
+=cut
+
 sub index {
     my ($self) = @_;
 
@@ -66,6 +78,12 @@ sub index {
         form => $self->form,
     });
 }
+
+=head2 cancel
+
+Cancel a billing transaction
+
+=cut
 
 sub cancel {
     my ($self, $c) = @_;
@@ -80,6 +98,12 @@ sub cancel {
     $self->app->flash->{notice} = 'Order was canceled';
     $self->index();
 }
+
+=head2 verify
+
+Verify a billing transaction
+
+=cut
 
 sub verify {
     my ($self) = @_;
@@ -104,6 +128,12 @@ sub verify {
         $self->process_transaction();
     }
 }
+
+=head2 process_transaction
+
+Process a transaction that has been verified
+
+=cut
 
 sub process_transaction {
     my ($self) = @_;
@@ -159,7 +189,12 @@ sub process_transaction {
     $self->done();
 }
 
-# we handle these ourselves
+=head2 execute_actions
+
+These are already handled in process_transaction
+
+=cut
+
 sub execute_actions {$TRUE}
 
 sub find_source {
@@ -174,6 +209,12 @@ sub find_source {
     $self->source($billing);
     return 1;
 }
+
+=head2 confirm
+
+Confirm billing transaction
+
+=cut
 
 sub confirm {
     my ($self) = @_;
@@ -208,6 +249,12 @@ sub confirm {
         tier => $self->session->{tier},
     });
 }
+
+=head2 validate
+
+Validate information that has been selected(tier,provider)
+
+=cut
 
 sub validate {
     my ($self) = @_;

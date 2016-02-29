@@ -38,17 +38,35 @@ use captiveportal::DynamicRouting::Module::Authentication::Billing;
 
 has '+parent' => (required => 0);
 
-sub logout {
-    my ($self) = @_;
-    $self->app->reset_session;
-    $self->app->redirect("/captive-portal"); 
-}
+=head2 around done
+
+Once this is done, we release the user on the network
+
+=cut
 
 around 'done' => sub {
     my ($orig, $self) = @_;
     $self->execute_actions();
     $self->release();
 };
+
+=head2 logout
+
+Logout of the captive portal
+
+=cut
+
+sub logout {
+    my ($self) = @_;
+    $self->app->reset_session;
+    $self->app->redirect("/captive-portal"); 
+}
+
+=head2 release
+
+Reevaluate the access of the user and show the release page
+
+=cut
 
 sub release {
     my ($self) = @_;
@@ -63,6 +81,12 @@ sub release {
         return $self->render("release.html", $self->_release_args());
     }
 }
+
+=head2 handle_web_form_release
+
+Handle release done through a form posted for web authentication
+
+=cut
 
 sub handle_web_form_release {
     my ($self) = @_;
@@ -87,6 +111,12 @@ sub handle_web_form_release {
     return $FALSE;
 }
 
+=head2 unknown_state
+
+When the user shouldn't on the portal, but he is
+
+=cut
+
 sub unknown_state {
     my ($self) = @_;
     unless($self->handle_web_form_release){
@@ -94,6 +124,12 @@ sub unknown_state {
         return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
     }
 }
+
+=head2 handle_violations
+
+Check if the user has a violation and redirect him to the proper page if he does
+
+=cut
 
 sub handle_violations {
     my ($self) = @_;
@@ -108,6 +144,12 @@ sub handle_violations {
     $self->app->redirect("/violation");
     return 0;
 }
+
+=head2 execute_actions
+
+Execute the flow for this module
+
+=cut
 
 sub execute_child {
     my ($self) = @_;
@@ -125,6 +167,12 @@ sub execute_child {
     $self->SUPER::execute_child();
 }
 
+=head2 execute_actions
+
+Register the device and apply the new node info
+
+=cut
+
 sub execute_actions {
     my ($self) = @_;
     $self->new_node_info->{status} = "reg";
@@ -132,12 +180,24 @@ sub execute_actions {
     return $TRUE;
 }
 
+=head2 apply_new_node_info
+
+Apply the new node info in the session to the node
+
+=cut
+
 sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
     $self->app->flash->{notice} = "Role ".$self->new_node_info->{category}." has been assigned to your device with unregistration date : ".$self->new_node_info->{unregdate};
     node_modify($self->current_mac, %{$self->new_node_info()});
 }
+
+=head2 direct_route_billing
+
+Bypass to allow direct access to billing module from the status page or post-registration
+
+=cut
 
 sub direct_route_billing {
     my ($self) = @_;
@@ -158,6 +218,12 @@ sub direct_route_billing {
     }
     
 }
+
+=head2 check_billing_bypass
+
+Do we need to bypass to billing
+
+=cut
 
 sub check_billing_bypass {
     my ($self) = @_;

@@ -20,10 +20,22 @@ has 'show_first_module_on_default' => (is => 'rw', isa => 'Str', default => sub{
 
 has 'template' => (is => 'rw', isa => 'Str', default => sub {'content-with-choice.html'});
 
+=head2 next
+
+Once we complete one of the child modules, this module is done
+
+=cut
+
 sub next {
     my ($self) = @_;
     $self->done();
 }
+
+=head2 before execute_child
+
+Allow to switch from one of the choice to another via the /switchto/MODULE_ID path
+
+=cut
 
 before 'execute_child' => sub {
     my ($self) = @_;
@@ -32,16 +44,35 @@ before 'execute_child' => sub {
     }
 };
 
+=head2 render
+
+Override normal behavior to render with a menu
+
+=cut
+
 sub render {
     my ($self, @params) = @_;
     my $inner_content = $self->app->_render(@params);
     $self->render_choice($inner_content);
 }
 
+=head2 render_choice
+
+Render the template surrounded by choices to switch between the different available modules
+
+=cut
+
 sub render_choice {
     my ($self, $inner_content) = @_;
     $self->SUPER::render($self->template, {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
 }
+
+=head2 default_behavior
+
+Define what should be the default behavior
+The show_first_module_on_default will determine if a default choice is selected for the user
+
+=cut
 
 sub default_behavior {
     my ($self) = @_;

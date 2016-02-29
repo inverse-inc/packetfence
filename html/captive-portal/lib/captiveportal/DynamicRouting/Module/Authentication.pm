@@ -43,6 +43,12 @@ use pf::authentication;
 use pf::Authentication::constants;
 use captiveportal::DynamicRouting::Actions;
 
+=head2 allowed_urls
+
+The URLs that are allowed
+
+=cut
+
 sub allowed_urls {
     my ($self) = @_;
     return [
@@ -51,7 +57,19 @@ sub allowed_urls {
     ];
 }
 
+=head2 allowed_urls_auth_module
+
+The URLs that are allowed in the subclasses. Meant to be overriden
+
+=cut
+
 sub allowed_urls_auth_module {[]}
+
+=head2 form
+
+The form for this module
+
+=cut
 
 sub form {
     my ($self) = @_;
@@ -62,15 +80,35 @@ sub form {
     return $form;
 }
 
+=head2 _build_request_fields
+
+Builder for the request fields
+
+=cut
+
 sub _build_request_fields {
     my ($self) = @_;
     return $self->app->hashed_params()->{fields} || {};
 }
 
+=head2 _build_source
+
+Builder for the source using the source_id attribute
+
+=cut
+
 sub _build_source {
     my ($self) = @_;
     $self->source(pf::authentication::getAuthenticationSource($self->{source_id}));
 }
+
+=head2 execute_actions
+
+Actions to execute once the module has completed
+Will assign a role and unregdate in the new_node_info
+Will also create the local account if necessary
+
+=cut
 
 sub execute_actions {
     my ($self) = @_;
@@ -95,6 +133,12 @@ sub execute_actions {
     return $TRUE;
 }
 
+=head2 _build_required_fields
+
+Build the required fields based on the PID field, the custom fields and the mandatory fields of the source
+
+=cut
+
 sub _build_required_fields {
     my ($self) = @_;
     my @fields;
@@ -105,8 +149,19 @@ sub _build_required_fields {
     return [uniq(@fields)];
 }
 
-# implement this in childs
+=head2 required_fields_child
+
+Required fields by the child authentication module. Meant to be overriden
+
+=cut
+
 sub required_fields_child {[]}
+
+=head2 required_fields_child
+
+Merge the required fields with the values provided in the request
+
+=cut
 
 sub merged_fields {
     my ($self) = @_;
@@ -117,6 +172,12 @@ sub merged_fields {
     return \%merged;
 }
 
+=head2 auth_source_params
+
+The params for the authentication source
+
+=cut
+
 sub auth_source_params {
     my ($self) = @_;
     return {
@@ -124,13 +185,16 @@ sub auth_source_params {
     }
 }
 
+=head2 create_local_account
+
+Create a local account using the email in the session
+
+=cut
+
 sub create_local_account {
     my ( $self, $password ) = @_;
 
     my $auth_params = $self->auth_source_params();
-
-    use Data::Dumper;
-    get_logger->info("SESSION : ".Dumper($self->session));
 
     unless($self->session->{fields}->{email}){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
@@ -172,6 +236,12 @@ sub create_local_account {
     get_logger->info("Local account for external source " . $self->source->id . " created with PID " . $self->app->session->{username});
 }
 
+=head2 prompt_fields
+
+Prompt for the necessary fields
+
+=cut
+
 sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
@@ -182,6 +252,12 @@ sub prompt_fields {
         %{$args},
     });
 }
+
+=head2 update_person_from_fields
+
+Update the person using the fields that have been collected
+
+=cut
 
 sub update_person_from_fields {
     my ($self, %options) = @_;
