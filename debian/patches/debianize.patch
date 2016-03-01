@@ -35,7 +35,7 @@ index 42ec516..653bc03 100644
  # 
  # services.collectd_binary
  # 
-@@ -627,7 +627,7 @@ radsniff3_binary=/usr/bin/radsniff3
+@@ -627,7 +627,7 @@ radsniff_binary=/usr/bin/radsniff
  # services.p0f_binary
  # 
  # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.

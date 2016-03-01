@@ -2,7 +2,7 @@ package pf::services::manager::radsniff;
 
 =head1 NAME
 
-pf::services::manager::radsniff3 management module. 
+pf::services::manager::radsniff management module. 
 
 =cut
 

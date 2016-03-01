@@ -694,12 +694,12 @@ statsd_order=93
 # services.radsniff
 #
 # Should radsniff be started?
-radsniff3=enabled
+radsniff=enabled
 #
-# services.radsniff3_order
+# services.radsniff_order
 #
 # Order in which to start this service 
-radsniff3_order=94
+radsniff_order=94
 #
 # services.p0f
 #
@@ -778,8 +778,8 @@ collectd_binary=/usr/sbin/collectd
 # 
 # services.radsniff_binary
 # 
-# Location of the radsniff3 binary. Only necessary to change if you are not running the pre-packaged version.
-radsniff3_binary=/usr/bin/radsniff3
+# Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
+radsniff_binary=/usr/bin/radsniff
 # 
 # services.p0f_binary
 # 

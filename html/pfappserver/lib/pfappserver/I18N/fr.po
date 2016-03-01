@@ -2997,9 +2997,9 @@ msgstr ""
 msgid "Location of the p0f binary."
 msgstr ""
 
-# conf/documentation.conf (services.radsniff3_binary)
+# conf/documentation.conf (services.radsniff_binary)
 msgid "Location of the radsniff binary."
-msgstr "Emplacement du binaire radsniff3."
+msgstr "Emplacement du binaire radsniff."
 
 # conf/documentation.conf (services.redis_binary)
 msgid ""
@@ -3736,7 +3736,7 @@ msgstr "Système d'exploitation"
 # conf/documentation.conf (services.pfqueue_order)
 # conf/documentation.conf (services.pfsetvlan_order)
 # conf/documentation.conf (services.radiusd_order)
-# conf/documentation.conf (services.radsniff3_order)
+# conf/documentation.conf (services.radsniff_order)
 # conf/documentation.conf (services.redis_cache_order)
 # conf/documentation.conf (services.redis_queue_order)
 # conf/documentation.conf (services.snmptrapd_order)
@@ -5439,7 +5439,7 @@ msgstr "Est-ce que pfsetvlan doit être démarré ? Gardez le activé sauf si vo
 msgid "Should radiusd be managed by PacketFence?"
 msgstr "Est-ce radiusd doit être géré par PacketFence ?"
 
-# conf/documentation.conf (services.radsniff3)
+# conf/documentation.conf (services.radsniff)
 msgid "Should radsniff be managed by PacketFence?"
 msgstr "Est-ce radsniff doit être géré par PacketFence ?"
 
@@ -7479,7 +7479,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
-# conf/documentation.conf (services.radsniff3 options)
+# conf/documentation.conf (services.radsniff options)
 # conf/documentation.conf (services.redis_cache options)
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.snmptrapd options)
@@ -7579,7 +7579,7 @@ msgstr ""
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.radiusd options)
-# conf/documentation.conf (services.radsniff3 options)
+# conf/documentation.conf (services.radsniff options)
 # conf/documentation.conf (services.redis_cache options)
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.snmptrapd options)
@@ -8794,15 +8794,15 @@ msgid "services.radiusd_order"
 msgstr ""
 
 # conf/documentation.conf
-msgid "services.radsniff3"
-msgstr "radsniff3"
+msgid "services.radsniff"
+msgstr "radsniff"
 
 # conf/documentation.conf
-msgid "services.radsniff3_binary"
-msgstr "Emplacement de radsniff3"
+msgid "services.radsniff_binary"
+msgstr "Emplacement de radsniff"
 
 # conf/documentation.conf
-msgid "services.radsniff3_order"
+msgid "services.radsniff_order"
 msgstr ""
 
 # conf/documentation.conf
