@@ -151,6 +151,7 @@ sub match {
     my ($self, $params) = @_;
 
     my $common_attributes = $self->common_attributes();
+    my $available_attributes = $self->available_attributes();
     my $logger = get_logger();
 
     # Add current date & time to the list of parameters
@@ -180,7 +181,7 @@ sub match {
                     push(@matching_conditions, $condition);
                 }
             }
-            elsif (grep { $_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
+            elsif (grep { $_->{value} eq $condition->attribute } @$available_attributes) {
                 # A condition on a source-specific attribute
                 push(@own_conditions, $condition);
             }
