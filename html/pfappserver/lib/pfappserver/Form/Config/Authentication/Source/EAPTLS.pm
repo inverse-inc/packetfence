@@ -1,14 +1,14 @@
-package pfappserver::Form::Config::Authentication::Source::TLS;
+package pfappserver::Form::Config::Authentication::Source::EAPTLS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::TLS add documentation
+pfappserver::Form::Config::Authentication::Source::EAPTLS add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Form::Config::Authentication::Source::TLS
+pfappserver::Form::Config::Authentication::Source::EAPTLS
 
 =cut
 
@@ -18,7 +18,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::Authentication::Source::TLSSource;
+use pf::Authentication::Source::EAPTLSSource;
 
 =head1 AUTHOR
 

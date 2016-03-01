@@ -1,14 +1,14 @@
-package pf::Authentication::Source::TLSSource;
+package pf::Authentication::Source::EAPTLSSource;
 
 =head1 NAME
 
-pf::Authentication::Source::TLSSource add documentation
+pf::Authentication::Source::EAPTLSSource add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Authentication::Source::TLSSource
+pf::Authentication::Source::EAPTLSSource
 
 =cut
 
