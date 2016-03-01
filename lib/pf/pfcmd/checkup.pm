@@ -1219,7 +1219,7 @@ sub valid_certs {
     my $radius_configured = -e "$install_dir/raddb/radiusd.conf" ? 1 : 0 ;
     if ( $radius_configured ) {
 
-        $radius_conf = read_file("$install_dir/raddb/eap.conf");
+        $radius_conf = read_file("$install_dir/raddb/mods-enabled/eap");
 
         if($radius_conf =~ /certificate_file =\s*(.*)\s*/){
              $radius_crt = $1;

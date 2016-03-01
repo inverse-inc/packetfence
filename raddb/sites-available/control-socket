@@ -3,9 +3,6 @@
 #
 #	Control socket interface.
 #
-#	HIGHLY experimental!  It should NOT be used in production
-#	environments.
-#
 #	In the future, we will add username/password checking for
 #	connections to the control socket.  We will also add
 #	command authorization, where the commands entered by the
@@ -20,7 +17,7 @@
 #	See also the "radmin" program, which is used to communicate
 #	with the server over the control socket.
 #
-#	$Id$
+#	$Id: 97ba9ef972539af80dcaf84090b55d991095a93e $
 #
 ######################################################################
 listen {
@@ -40,10 +37,29 @@ listen {
 	socket = ${run_dir}/${name}.sock
 
 	#
+	#  Peercred auth
+	#
+	#  By default the server users the peercred feature of unix
+	#  sockets to get the UID and GID of the user connecting to
+	#  the socket. You may choose to disable this functionality
+	#  and rely on the file system for enforcing permissions.
+	#
+	#  On most Unix systems, the permissions set on the socket
+	#  are not enforced, but the ones on the directory containing
+	#  the socket are.
+	#
+	#  To use filesystem permissions you should create a new
+	#  directory just to house the socket file, and set
+	#  appropriate permissions on that.
+	#
+#	peercred = no
+#	socket = ${run_dir}/control/${name}.sock
+
+	#
 	#  The following two parameters perform authentication and
 	#  authorization of connections to the control socket.
 	#
-	#  If not set, then ANYONE can connect to the control socket,	
+	#  If not set, then ANYONE can connect to the control socket,
 	#  and have complete control over the server.  This is likely
 	#  not what you want.
 	#
@@ -72,5 +88,5 @@ listen {
 	#	ro = read only access (default)
 	#	rw = read/write access.
 	#
-	mode = rw
+#	mode = rw
 }

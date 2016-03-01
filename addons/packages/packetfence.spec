@@ -92,7 +92,7 @@ Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 2.2.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils
+Requires: freeradius >= 3.0.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -537,7 +537,6 @@ cd $RPM_BUILD_ROOT/usr/local/pf/conf
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
-ln -s ../sites-available/default default
 ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
@@ -906,6 +905,8 @@ fi
                         /usr/local/pf/conf/radiusd/auth.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/load_balancer.conf
                         /usr/local/pf/conf/radiusd/load_balancer.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/rest.conf
+                        /usr/local/pf/conf/radiusd/rest.conf.example
 %config(noreplace)      /usr/local/pf/conf/realm.conf
                         /usr/local/pf/conf/realm.conf.example
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
@@ -1138,11 +1139,12 @@ fi
 %dir                    /usr/local/pf/raddb
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
-%attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence.pm
-%attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence-soh.pm
 %config                 /usr/local/pf/raddb/proxy.conf
 %config                 /usr/local/pf/raddb/users
-%config(noreplace)      /usr/local/pf/raddb/modules/*
+%config(noreplace)      /usr/local/pf/raddb/policy.d/*
+%config(noreplace)      /usr/local/pf/raddb/mods-enabled/*
+%config(noreplace)      /usr/local/pf/raddb/mods-config/*
+%config(noreplace)      /usr/local/pf/raddb/mods-available/*
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/buffered-sql
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/coa
 %attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/control-socket

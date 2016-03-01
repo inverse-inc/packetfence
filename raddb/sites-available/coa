@@ -13,7 +13,7 @@ listen {
 	type = coa
 	ipaddr = *
 	port = 3799
-	server = coa
+	virtual_server = coa
 }
 
 server coa {
@@ -26,12 +26,18 @@ server coa {
 		#  Just set Proxy-To-Realm, or Home-Server-Pool, and the
 		#  packets will be proxied.
 
+		#  Do proxying based on realms here.  You don't need
+		#  "IPASS" or "ntdomain", as the proxying is based on
+		#  the Operator-Name attribute.  It contains the realm,
+		#  and ONLY the realm (prefixed by a '1')
+		suffix
+
 		#  Insert your own policies here.
 		ok
 	}
 
 	#  When a packet is sent, it is processed through the
-	#  recv-coa section.  This applies to *both* CoA-Request and
+	#  send-coa section.  This applies to *both* CoA-Request and
 	#  Disconnect-Request packets.
 	send-coa {
 		#  Sample module.

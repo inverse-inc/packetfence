@@ -1,11 +1,11 @@
 ######################################################################
 #
-#	Make file to be installed in /usr/local/pf/var/radiusd/certs
-#       to enable the easy creation of certificates.
+#	Make file to be installed in /etc/raddb/certs to enable
+#	the easy creation of certificates.
 #
 #	See the README file in this directory for more information.
-#	
-#	$Id$
+#
+#	$Id: cc12464c6c7754aff2f0c8d6e116708c94ff2168 $
 #
 ######################################################################
 
@@ -22,7 +22,7 @@ DH_KEY_SIZE	= 2048
 #
 ######################################################################
 .PHONY: all
-all: index.txt serial dh random server ca
+all: index.txt serial dh server ca client
 
 .PHONY: client
 client: client.pem
@@ -32,6 +32,9 @@ ca: ca.der
 
 .PHONY: server
 server: server.pem server.vrfy
+
+.PHONY: verify
+verify: server.vrfy client.vrfy
 
 passwords.mk: server.cnf ca.cnf client.cnf
 	@echo "PASSWORD_SERVER	= '$(shell grep output_password server.cnf | sed 's/.*=//;s/^ *//')'"		> $@
@@ -56,7 +59,7 @@ dh:
 ca.key ca.pem: ca.cnf
 	@[ -f index.txt ] || $(MAKE) index.txt
 	@[ -f serial ] || $(MAKE) serial
-	openssl req -new -x509 -keyout ca.key -out ca.pem \
+	openssl req -new -x509 -nodes -keyout ca.key -out ca.pem \
 		-days $(CA_DEFAULT_DAYS) -config ./ca.cnf
 
 ca.der: ca.pem
@@ -68,10 +71,10 @@ ca.der: ca.pem
 #
 ######################################################################
 server.csr server.key: server.cnf
-	openssl req -new  -out server.csr -keyout server.key -config ./server.cnf
+	openssl req -new  -out server.csr -nodes -keyout server.key -config ./server.cnf
 
 server.crt: server.csr ca.key ca.pem
-	openssl ca -batch -keyfile ca.key -cert ca.pem -in server.csr  -key $(PASSWORD_CA) -out server.crt -extensions xpserver_ext -extfile xpextensions -config ./server.cnf
+	openssl ca -batch -keyfile ca.key -cert ca.pem -in server.csr -out server.crt -extensions xpserver_ext -extfile xpextensions -config ./server.cnf
 
 server.p12: server.crt
 	openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12  -passin pass:$(PASSWORD_SERVER) -passout pass:$(PASSWORD_SERVER)
@@ -81,18 +84,19 @@ server.pem: server.p12
 
 .PHONY: server.vrfy
 server.vrfy: ca.pem
-	openssl verify -CAfile ca.pem server.pem
+	@openssl verify -CAfile ca.pem server.pem
 
 ######################################################################
 #
-#  Create a new client certificate, signed by the the above CA
+#  Create a new client certificate, signed by the the above server
+#  certificate.
 #
 ######################################################################
 client.csr client.key: client.cnf
-	openssl req -new  -out client.csr -keyout client.key -config ./client.cnf
+	openssl req -new  -out client.csr -nodes -keyout client.key -config ./client.cnf
 
 client.crt: client.csr ca.pem ca.key
-	openssl ca -batch -keyfile ca.key -cert ca.pem -in client.csr  -key $(PASSWORD_CA) -out client.crt -extensions xpclient_ext -extfile xpextensions -config ./client.cnf
+	openssl ca -batch -keyfile ca.key -cert ca.pem -in client.csr -out client.crt -extensions xpclient_ext -extfile xpextensions -config ./client.cnf
 
 client.p12: client.crt
 	openssl pkcs12 -export -in client.crt -inkey client.key -out client.p12  -passin pass:$(PASSWORD_CLIENT) -passout pass:$(PASSWORD_CLIENT)
@@ -102,7 +106,7 @@ client.pem: client.p12
 	cp client.pem $(USER_NAME).pem
 
 .PHONY: client.vrfy
-client.vrfy: ca.pem client.pem 
+client.vrfy: ca.pem client.pem
 	c_rehash .
 	openssl verify -CApath . client.pem
 
@@ -116,13 +120,6 @@ index.txt:
 
 serial:
 	@echo '01' > serial
-
-random:
-	@if [ -c /dev/urandom ] ; then \
-		dd if=/dev/urandom of=./random count=10 >/dev/null 2>&1; \
-	else \
-		date > ./random; \
-	fi
 
 print:
 	openssl x509 -text -in server.crt
@@ -138,4 +135,5 @@ clean:
 #
 destroycerts:
 	rm -f *~ dh *.csr *.crt *.p12 *.der *.pem *.key index.txt* \
-			serial* random *\.0 *\.1
+			serial*  *\.0 *\.1
+

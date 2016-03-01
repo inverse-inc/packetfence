@@ -12,10 +12,10 @@
 #
 #	The purpose of this virtual server is to de-couple the storage
 #	of long-term accounting data in SQL from "live" information
-#	needed by the RADIUS server as it is running. 
+#	needed by the RADIUS server as it is running.
 #
 #	The benefit of this approach is that for a busy server, the
-#	overhead of performing SQL qeuries may be significant.  Also,
+#	overhead of performing SQL queries may be significant.  Also,
 #	if the SQL databases are large (as is typical for ones storing
 #	months of data), the INSERTs and UPDATEs may take a relatively
 #	long time.  Rather than slowing down the RADIUS server by
@@ -32,7 +32,7 @@
 #	the server will have time to read the detail file, and insert
 #	the data into a long-term SQL database.
 #
-#	$Id$
+#	$Id: ba71ea5ae42b054e8b43ad54092a768b76050bcb $
 #
 ######################################################################
 
@@ -57,7 +57,7 @@ server buffered-sql {
 		#  allows databases to "catch up", and gives the
 		#  server time to notice that other packets may have
 		#  arrived.
-		#		
+		#
 		#  The pause is calculated dynamically, to ensure that
 		#  the load due to reading the detail files is limited
 		#  to a small percentage of CPU time.  The
@@ -69,7 +69,7 @@ server buffered-sql {
 		#  If the "load_factor" is set to 100, then the server
 		#  will read packets as fast as it can, usually
 		#  causing databases to go into overload.
-		#  
+		#
 		load_factor = 10
 
 		#
@@ -89,6 +89,15 @@ server buffered-sql {
 		#  Useful range of values: 5 to 30
 		retry_interval = 30
 
+		#
+		#  Track progress through the detail file.  When the detail
+		#  file is large, and the server is re-started, it will
+		#  read from the START of the file.
+		#
+		#  Setting "track = yes" means it will skip packets which
+		#  have already been processed.  The default is "no".
+		#
+	#	track = yes
 	}
 
 	#
@@ -96,18 +105,18 @@ server buffered-sql {
 	#
 	preacct {
 		preprocess
-	
+
 		#
 		#  Ensure that we have a semi-unique identifier for every
 		#  request, and many NAS boxes are broken.
 		acct_unique
-	
+
 		#
 		#  Read the 'acct_users' file.  This isn't always
 		#  necessary, and can be deleted if you do not use it.
 		files
 	}
-	
+
 	#
 	#  Accounting.  Log the accounting data.
 	#
@@ -121,7 +130,7 @@ server buffered-sql {
 
 		#  Cisco VoIP specific bulk accounting
 	#	pgsql-voip
-	
+
 	}
 
 	# The requests are not being proxied, so no pre/post-proxy

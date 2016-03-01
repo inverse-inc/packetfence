@@ -24,6 +24,7 @@ pf::client::setClient("pf::api::local");
 use SOAP::Transport::HTTP;
 use pf::WebAPI::MsgPack;
 use pf::WebAPI::JSONRPC;
+use pf::WebAPI::REST;
 
 
 # set proper logger tid based on if we are run from mod_perl or not
@@ -45,6 +46,7 @@ if (exists($ENV{MOD_PERL})) {
 my $server_soap = SOAP::Transport::HTTP::Apache->dispatch_to('PFAPI');
 my $server_msgpack = pf::WebAPI::MsgPack->new({dispatch_to => 'pf::api'});
 my $server_jsonrpc = pf::WebAPI::JSONRPC->new({dispatch_to => 'pf::api'});
+my $server_rest = pf::WebAPI::REST->new({dispatch_to => 'pf::api'});
 
 sub handler {
     my ($r) = @_;
@@ -59,6 +61,8 @@ sub handler {
         return $server_msgpack->handler($r);
     } elsif (pf::WebAPI::JSONRPC::allowed($content_type)) {
         return $server_jsonrpc->handler($r);
+    } elsif (pf::WebAPI::REST::allowed($content_type)) {
+        return $server_rest->handler($r);
     } else {
         return $server_soap->handler($r);
     }

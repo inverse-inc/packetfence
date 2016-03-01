@@ -1,0 +1,43 @@
+# packetfence-local-auth
+# Try to get the Cleartext-Password from any of the pfguest, pfsponsor or pfsms
+# databases.
+# If this fails, the mschap module will try to authenticate using ntlm_auth.
+
+packetfence-local-auth { 
+    ####Activate local user eap authentication based on a specific SSID ####
+    if (Called-Station-SSID == "%{redis:get FR:CONFIG:LOCAL_AUTH:SSID}") {
+    # Disable ntlm_auth
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := No
+        }
+    # Check password table for local user
+        pflocal
+        if (fail || notfound) {
+    # Check password table with email and password for a sponsor registration
+            pfguest
+            if (fail || notfound) {
+    # Check password table with email and password for a guest registration
+                pfsponsor
+                if (fail || notfound) {
+    # Check activation table with phone number and PIN code 
+                    pfsms
+                    if (fail || notfound) {
+                        update control {
+                           &MS-CHAP-Use-NTLM-Auth := Yes
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+### END Local SQL authentication
+packetfence-switch-access { 
+    if ( \
+        ( &Service-Type ==  "NAS-Prompt-User") && \
+        ( &NAS-Port-Type == "Virtual" || &NAS-Port-Type == "Async") ) {
+            rest-switch-access  
+    }
+    
+} 

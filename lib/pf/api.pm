@@ -47,6 +47,7 @@ use pf::access_filter::dhcp;
 use pf::metascan();
 
 use List::MoreUtils qw(uniq);
+use List::Util qw(pairmap);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
@@ -96,6 +97,7 @@ sub radius_authorize : Public {
     if ($@) {
         $logger->error("radius authorize failed with error: $@");
     }
+
     return $return;
 }
 
@@ -1107,6 +1109,46 @@ sub metascan_process : Public {
     pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );    
 }
 
+sub rest_ping :Public :RestPath(/rest/ping){
+    my ($class, $args) = @_;
+    return "pong - ".$args->{message};
+}
+
+sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) { 
+    my ($class, $radius_request) = @_;
+    my $logger = pf::log::get_logger();
+    
+    # transform the request according to what radius_authorize expects
+    my %remapped_radius_request = map {
+        $_ => $radius_request->{$_}->{value}->[0];
+    } keys %{$radius_request};
+
+    my $return = $class->radius_authorize(%remapped_radius_request); 
+
+    # transform back the reply to what FreeRADIUS expects
+    #my %mapped_return = pairmap { $a => $b } @$return; 
+
+    return $return;
+    #return \%mapped_return;
+}
+
+sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) { 
+    my ($class, $radius_request) = @_;
+    my $logger = pf::log::get_logger();
+    
+    # transform the request according to what radius_authorize expects
+    my %remapped_radius_request = map {
+        $_ => $radius_request->{$_}->{value}->[0];
+    } keys %{$radius_request};
+
+    my $return = $class->radius_switch_access(%remapped_radius_request); 
+
+    # transform back the reply to what FreeRADIUS expects
+    shift @$return;
+    my %mapped_return = pairmap { $a => $b } @$return; 
+
+    return \%mapped_return;
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

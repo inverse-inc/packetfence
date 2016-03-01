@@ -17,13 +17,13 @@
 #	"status" port.
 #
 #	The server statistics are available ONLY on socket of type
-#	"status".  Qeuries for statistics sent to any other port
+#	"status".  Queries for statistics sent to any other port
 #	are ignored.
 #
 #	Similarly, a socket of type "status" will not process
 #	authentication or accounting packets.  This is for security.
 #
-#	$Id$
+#	$Id: e7d4346310b837d56bffe4c991b4e5680742ebc0 $
 #
 ######################################################################
 
@@ -34,7 +34,7 @@ server status {
 		type = status
 
 		ipaddr = 127.0.0.1
-		port = 18120
+		port = 18121
 	}
 
 	#
@@ -84,11 +84,11 @@ server status {
 #
 #	All packets for a particular client (globally defined)
 #		FreeRADIUS-Statistics-Type = 35
-#		FreeRADIUS-Stats-Client-IP-Address = 192.168.1.1
+#		FreeRADIUS-Stats-Client-IP-Address = 192.0.2.1
 #
 #	All packets for a client attached to a "listen" ip/port
 #		FreeRADIUS-Statistics-Type = 35
-#		FreeRADIUS-Stats-Client-IP-Address = 192.168.1.1
+#		FreeRADIUS-Stats-Client-IP-Address = 192.0.2.1
 #		FreeRADIUS-Stats-Server-IP-Address = 127.0.0.1
 #		FreeRADIUS-Stats-Server-Port = 1812
 #
@@ -99,7 +99,7 @@ server status {
 #
 #	All packets for a home server IP / port
 #		FreeRADIUS-Statistics-Type = 131
-#		FreeRADIUS-Stats-Server-IP-Address = 192.168.1.2
+#		FreeRADIUS-Stats-Server-IP-Address = 192.0.2.2
 #		FreeRADIUS-Stats-Server-Port = 1812
 
 #
