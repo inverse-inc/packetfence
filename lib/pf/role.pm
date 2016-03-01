@@ -436,7 +436,7 @@ sub getRegisteredRole {
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
     elsif ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) {
-        if ( (isenabled($args->{'node_info'}->{'autoreg'}) && $args->{'autoreg'}) or isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
+        if ( (isenabled($args->{'node_info'}->{'autoreg'}) && $args->{'autoreg'}) && isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
             $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
