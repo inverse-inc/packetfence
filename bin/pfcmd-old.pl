@@ -1261,7 +1261,7 @@ sub getManagers {
             my @managers;
             if ($includeDependsOn) {
                 push @managers, grep {defined $_}
-                  map {pf::services::get_service_manager($_)} @{$m->dependsOnServices};
+                  map {pf::services::get_service_manager($_)} @{$m->startDependsOnServices};
             }
             if($m->isa("pf::services::manager::submanager")) {
                 push @managers,$m->managers;
