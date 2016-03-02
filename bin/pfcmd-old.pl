@@ -76,6 +76,7 @@ use constant {
     INSTALL_DIR        => '/usr/local/pf',
     JUST_MANAGED       => 1,
     INCLUDE_START_DEPENDS_ON => 2,
+    INCLUDE_STOP_DEPENDS_ON => 3,
 };
 
 use lib INSTALL_DIR . "/lib";
@@ -1252,16 +1253,20 @@ sub getManagers {
     my ($services,$flags) = @_;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
+    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
+    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @serviceManagers =
         grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) && !$_->isvirtual }
         map {
             my $m = $_;
             my @managers;
-            if ($includeDependsOn) {
+            if ( $includeStartDependsOn ) {
                 push @managers, grep {defined $_}
                   map {pf::services::get_service_manager($_)} @{$m->startDependsOnServices};
+            } elsif ( $includeStopDependsOn ) {
+                push @managers, grep {defined $_}
+                  map {pf::services::get_service_manager($_)} @{$m->stopDependsOnServices};
             }
             if($m->isa("pf::services::manager::submanager")) {
                 push @managers,$m->managers;
@@ -1284,7 +1289,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
+    my @managers = getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
     my %exclude = ();
     my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
     @managers = ();
