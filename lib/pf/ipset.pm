@@ -48,7 +48,9 @@ use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
 use pf::config::cluster;
 
-Readonly my $SET_STATUS_CHECK => 'packetfence_status_check';
+Readonly our $SET_PASSTHROUGHS  => 'PF_passthroughs';
+Readonly our $SET_PORTAL_DENY   => 'PF_portal_deny';
+Readonly our $SET_STATUS_CHECK  => 'PF_status_check';
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -80,11 +82,7 @@ Checking for a particular set created by PacketFence for this purpose
 =cut
 
 sub check {
-    my ( $self ) = @_;
-
-    my $sets_exists = ( defined(pf_run("sudo ipset list | grep $SET_STATUS_CHECK")) ) ? $TRUE : $FALSE;
-
-    return $sets_exists;
+    return ( defined(pf_run("sudo ipset list | grep $SET_STATUS_CHECK")) ) ? $TRUE : $FALSE;
 }
 
 =item flush
@@ -94,7 +92,6 @@ Flush / Destroy currently configured ipset sets
 =cut
 
 sub flush {
-    my ( $self ) = @_;
     my $logger = get_logger();
 
     $logger->info("Flushing / Destroying currently configured ipset sets");
@@ -110,10 +107,35 @@ Create the configuration file to use with a restore procedure
 =cut
 
 sub generate {
-    my ( $self, $destination_file ) = @_;
+    my ( $destination_file ) = @_;
     my $logger = get_logger();
 
     $destination_file = "$generated_conf_dir/ipset.conf" if ( !defined($destination_file) || $destination_file eq "" );
+
+    $logger->info("Generating PacketFence ipset configuration file under '$destination_file'");
+
+    my %sets = ();
+
+    # PacketFence status check set
+    $sets{'packetfence'} .= "create $SET_STATUS_CHECK hash:ip\n";
+
+    # Inline enforcement technique specific sets
+    my @roles = pf::nodecategory::nodecategory_view_all;
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        my $networkBlock = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+        foreach my $role ( @roles ) {
+            $sets{'inline'} .= "create PF_$network\_ID" . $role->{'category_id'} . " bitmap:ip range $network/$networkBlock->{BITS}\n";
+        }
+    }
+
+    # Portal specific sets (mod_evasive for hammering devices)
+    $sets{'portal'} .= "create $SET_PORTAL_DENY hash:ip timeout 300\n";
+
+    # pfdns specific sets (passthrough)
+    $sets{'pfdns'} .= "create $SET_PASSTHROUGHS hash:ip,port\n";
+
+    parse_template( \%sets, "$conf_dir/ipset.conf", $destination_file );
 
     return $destination_file;
 }
@@ -125,10 +147,10 @@ Restore ipset sets from an existing configuration file
 =cut
 
 sub restore {
-    my ( $self, $restore_file ) = @_;
+    my ( $restore_file ) = @_;
     my $logger = get_logger();
 
-    $restore_file = "$var_dir/ipset_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
+    $restore_file = "$generated_conf_dir/ipset_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
 
     if ( ! -e $restore_file ) {
         $logger->error("Trying to apply / restore ipset sets from an non-existing file '$restore_file'");
@@ -148,10 +170,10 @@ Save currently configured ipset sets
 =cut
 
 sub save {
-    my ( $self, $save_file ) = @_;
+    my ( $save_file ) = @_;
     my $logger = get_logger();
 
-    $save_file = "$var_dir/ipset_system.bak" if ( !defined($save_file) || $save_file eq "" );
+    $save_file = "$generated_conf_dir/ipset_system.bak" if ( !defined($save_file) || $save_file eq "" );
 
     $logger->info("Saving existing ipset sets to '$save_file'");
     pf_run("sudo ipset save -file $save_file");
