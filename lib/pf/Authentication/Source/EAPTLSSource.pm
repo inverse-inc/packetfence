@@ -22,7 +22,7 @@ use List::Util qw(first);
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
-has '+type' => (default => 'TLS');
+has '+type' => (default => 'EAPTLS');
 
 =head2 available_attributes
 
