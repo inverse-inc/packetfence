@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Authentication::Source::EAPTLS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Authentication::Source::EAPTLS add documentation
+pfappserver::Form::Config::Authentication::Source::EAPTLS
 
 =cut
 
