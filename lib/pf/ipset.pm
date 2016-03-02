@@ -116,8 +116,10 @@ sub generate {
 
     my %sets = ();
 
-    # PacketFence status check set
-    $sets{'packetfence'} .= "create $SET_STATUS_CHECK hash:ip\n";
+    # Static sets variables
+    $sets{'SET_STATUS_CHECK'}   .= $SET_STATUS_CHECK;
+    $sets{'SET_PORTAL_DENY'}    .= $SET_PORTAL_DENY;
+    $sets{'SET_PASSTHROUGHS'}   .= $SET_PASSTHROUGHS;
 
     # Inline enforcement technique specific sets
     my @roles = pf::nodecategory::nodecategory_view_all;
@@ -128,12 +130,6 @@ sub generate {
             $sets{'inline'} .= "create PF_$network\_ID" . $role->{'category_id'} . " bitmap:ip range $network/$networkBlock->{BITS}\n";
         }
     }
-
-    # Portal specific sets (mod_evasive for hammering devices)
-    $sets{'portal'} .= "create $SET_PORTAL_DENY hash:ip timeout 300\n";
-
-    # pfdns specific sets (passthrough)
-    $sets{'pfdns'} .= "create $SET_PASSTHROUGHS hash:ip,port\n";
 
     parse_template( \%sets, "$conf_dir/ipset.conf", $destination_file );
 
