@@ -1324,6 +1324,11 @@ provisioning_compliance_poll_interval=300s
 #
 # Interval at which PacketFence updates the online node count
 online_node_count_interval=15m
+#
+# maintenance.fingerbank_data_update_interval
+#
+# Interval at which PacketFence updates the local Fingerbank data from the cloud API
+fingerbank_data_update_interval=1m
 
 [active_active]
 #

@@ -52,6 +52,8 @@ use pf::SwitchFactory;
 use pf::radius_audit_log;
 use pf::StatsD;
 use pf::person;
+use fingerbank::Config;
+use fingerbank::Util;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -222,6 +224,9 @@ sub registertasks  {
     );
     register_task(
         'update node online stats', 'online_node_count_interval', \&update_node_online_stats
+    );
+    register_task(
+        'fingerbank data update', 'fingerbank_data_update_interval', \&update_fingerbank_data
     );
 }
 
@@ -470,6 +475,50 @@ sub update_node_online_stats {
         $pf::StatsD::statsd->gauge("nodes.online", $number, 1);
     } else {
         get_logger->error("Error updating online nodes count");
+    }
+}
+
+=head2 update_fingerbank_data
+
+=cut
+
+sub update_fingerbank_data {
+
+    if(fingerbank::Config::is_api_key_configured){
+        _update_fingerbank_component("p0f map", sub{
+            fingerbank::Config::update_p0f_map();
+        });
+
+        _update_fingerbank_component("Upstream database", sub{
+            my ($status, $status_msg) = fingerbank::DB::update_upstream();
+            pf::fingerbank::sync_upstream_db();
+            return ($status, $status_msg);
+        });
+        
+        _update_fingerbank_component("Redis combination map", sub{
+            my ($status, $status_msg) = fingerbank::Redis::update_from_api();
+            return ($status, $status_msg);
+        });
+    }
+    else {
+        get_logger->debug("Can't update fingerbank data since there is no API key configured");
+    }
+
+}
+
+sub _update_fingerbank_component {
+    my ($name, $sub) = @_;
+    my $logger = get_logger;
+
+    my ($status, $status_msg) = $sub->();
+
+    if(fingerbank::Util::is_success($status)){
+        $logger->info("Successfully updated $name");
+    }
+    else {
+        my $msg = "Couldn't update $name, code : $status";
+        $msg .= ", msg : $status_msg" if(defined($status_msg));
+        $logger->error($msg);
     }
 }
 
