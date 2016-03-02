@@ -182,6 +182,12 @@ When done, look in `/proc/drbd` and make sure you see:
 MySQL Configuration
 ^^^^^^^^^^^^^^^^^^^
 
+First you need to ensure it will not start on boot : 
+
+```
+chkconfig mysql off
+```
+
 NOTE: By default MySQL puts its data in `/var/lib/mysql`. In order to replicate data between the two servers, we mount the DRBD partition under `/var/lib/mysql`. 
 
 When first starting MySQL, the partition must be mounted.
