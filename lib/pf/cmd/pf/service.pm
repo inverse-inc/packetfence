@@ -75,6 +75,7 @@ use List::MoreUtils qw(part any true all);
 use constant {
     JUST_MANAGED       => 1,
     INCLUDE_START_DEPENDS_ON => 2,
+    INCLUDE_STOP_DEPENDS_ON => 3,
 };
 my $logger = get_logger();
 
@@ -218,6 +219,7 @@ sub getManagers {
     $flags = 0 unless defined $flags;
     my %seen;
     my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
+    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
@@ -225,8 +227,10 @@ sub getManagers {
         next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
         my @managers;
         #Get dependencies
-        if ($includeStartDependsOn) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices}
+        if ( $includeStartDependsOn ) {
+            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices};
+        } elsif ( $includeStopDependsOn ) {
+            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->stopDependsOnServices};
         }
         if($m->isa("pf::services::manager::submanager")) {
             push @managers,$m->managers;
@@ -249,7 +253,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = reverse sort _byIndexOrder getManagers(\@services);
+    my @managers = reverse sort _byIndexOrder getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
 
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {

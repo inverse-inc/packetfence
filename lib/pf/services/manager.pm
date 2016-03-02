@@ -87,6 +87,14 @@ services that this service needs in order to start
 
 has startDependsOnServices => (is => 'ro', default => sub { [qw( httpd.admin)] } );
 
+=head2 stopDependsOnServices
+
+Services that need to be stopped before this service can be stopped
+
+=cut
+
+has stopDependsOnServices => (is => 'ro', default => sub { [] });
+
 =head2 orderIndex
 
 Value to use when sorting services for the start or stop order.
