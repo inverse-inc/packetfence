@@ -71,7 +71,7 @@ sub action {
         perform_rsso($connection_info,$attributes,$vsa);
         $logger->info("Node $mac registered and allowed to pass the Firewall");
         return 1;
-    } else {
+    } elsif($method eq "Stop") {
         my $username = $node_info->{'pid'};
         $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
         return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
