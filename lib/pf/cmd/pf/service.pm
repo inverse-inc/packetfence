@@ -73,9 +73,9 @@ use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_S
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use constant {
-    JUST_MANAGED       => 1,
-    INCLUDE_START_DEPENDS_ON => 2,
-    INCLUDE_STOP_DEPENDS_ON => 3,
+    JUST_MANAGED                => 0b0000001,
+    INCLUDE_START_DEPENDS_ON    => 0b0000010,
+    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
 };
 my $logger = get_logger();
 

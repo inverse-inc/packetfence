@@ -74,9 +74,9 @@ use Scalar::Util qw(tainted);
 
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
-    JUST_MANAGED       => 1,
-    INCLUDE_START_DEPENDS_ON => 2,
-    INCLUDE_STOP_DEPENDS_ON => 3,
+    JUST_MANAGED                => 0b0000001,
+    INCLUDE_START_DEPENDS_ON    => 0b0000010,
+    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
 };
 
 use lib INSTALL_DIR . "/lib";
