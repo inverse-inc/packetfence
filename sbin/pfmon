@@ -480,6 +480,8 @@ sub update_node_online_stats {
 
 =head2 update_fingerbank_data
 
+Update all the Fingerbank data from the API
+
 =cut
 
 sub update_fingerbank_data {
@@ -505,6 +507,12 @@ sub update_fingerbank_data {
     }
 
 }
+
+=head2 _update_fingerbank_component
+
+Update a Fingerbank component and validate that it succeeds
+
+=cut
 
 sub _update_fingerbank_component {
     my ($name, $sub) = @_;
