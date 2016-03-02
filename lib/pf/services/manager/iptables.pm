@@ -22,7 +22,7 @@ has '+shouldCheckup' => ( default => sub { 1 } );
 
 has '+launcher' => ( default => sub { "iptables" } );
 
-has '+dependsOnServices' => ( is => 'ro', default => sub { [] } );
+has '+dependsOnServices' => ( is => 'ro', default => sub { ["ipset"] } );
 
 has 'runningServices' => ( is => 'rw', default => sub { 0 } );
 
