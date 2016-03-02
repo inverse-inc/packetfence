@@ -38,6 +38,6 @@ has '+launcher' => (
     }
 );
 
-has dependsOnServices => ( is => 'ro', default => sub { [qw(collectd)] } );
+has startDependsOnServices => ( is => 'ro', default => sub { [qw(collectd)] } );
 
 1;

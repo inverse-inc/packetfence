@@ -58,15 +58,12 @@ sub action {
         };
 
         my $attributes = {
-            'Acct-Session-Id' =>  $acctsessionid,
             'Acct-Status-Type' => $method,
             'User-Name' => $username,
-            'Session-Timeout' => $timeout,
             'Class' => $node_info->{'category'},
             'Called-Station-Id' => '00:11:22:33:44:55',
             'Framed-IP-Address' => $ip,
             'Calling-Station-Id' => $mac,
-            'Proxy-State' => 'fe80000000000000700fa698f0a9a42100007357',
         };
 
         my $vsa = [];
@@ -74,8 +71,32 @@ sub action {
         perform_rsso($connection_info,$attributes,$vsa);
         $logger->info("Node $mac registered and allowed to pass the Firewall");
         return 1;
-    } else {
-        return 0;
+    } elsif($method eq "Stop") {
+        my $username = $node_info->{'pid'};
+        $username = $node_info->{'last_dot1x_username'} if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x');
+        return 0 if ( $ConfigFirewallSSO{$firewall_conf}->{'uid'} eq '802.1x' && $node_info->{'last_dot1x_username'} eq '');
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $connection_info = {
+          nas_ip => $firewall_conf,
+          nas_port => $ConfigFirewallSSO{$firewall_conf}->{'port'},
+          secret => $ConfigFirewallSSO{$firewall_conf}->{'password'},
+        };
+
+        my $attributes = {
+            'Acct-Session-Id' =>  "acct_pf-$mac",
+            'Acct-Status-Type' => 'Stop',
+            'User-Name' => $username,
+            'Class' => $node_info->{'category'},
+            'Called-Station-Id' => '00:11:22:33:44:55',
+            'Framed-IP-Address' => $ip,
+            'Calling-Station-Id' => $mac,
+        };
+
+        my $vsa = [];
+
+        perform_rsso($connection_info,$attributes,$vsa);
+        $logger->info("Node $mac unregistered and disallowed to pass the Firewall");
+        return 1;
     }
 }
 

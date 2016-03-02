@@ -626,6 +626,7 @@ do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Enabling $service startup script"
     /sbin/chkconfig --add $service > /dev/null 2>&1
+    /sbin/chkconfig $service on > /dev/null 2>&1
   fi
 done
 

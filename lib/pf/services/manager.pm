@@ -79,13 +79,21 @@ sprintf-formatted string that control how the services should be started
 
 has launcher => ( is => 'rw', lazy => 1);
 
-=head2 dependsOnServices
+=head2 startDependsOnServices
 
 services that this service needs in order to start
 
 =cut
 
-has dependsOnServices => (is => 'ro', default => sub { [qw( httpd.admin)] } );
+has startDependsOnServices => (is => 'ro', default => sub { [qw( httpd.admin)] } );
+
+=head2 stopDependsOnServices
+
+Services that need to be stopped before this service can be stopped
+
+=cut
+
+has stopDependsOnServices => (is => 'ro', default => sub { [] });
 
 =head2 orderIndex
 

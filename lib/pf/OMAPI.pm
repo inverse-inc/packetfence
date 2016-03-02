@@ -24,12 +24,10 @@ use warnings;
 use Moo;
 use MIME::Base64;
 use Net::IP;
-use pf::log;
 use Digest::HMAC_MD5 qw(hmac_md5);
 use IO::Socket::INET;
-use IO::Socket::Timeout;
 use Socket qw(MSG_WAITALL);
-use Errno qw(ETIMEDOUT EWOULDBLOCK);
+use Time::HiRes qw(alarm);
 
 our $VERSION = '0.01';
 
@@ -236,16 +234,24 @@ sub connect {
     my ($self) = @_;
     return 1 if $self->connected;
     my ($received_startup_message,$len);
-
-    ($received_startup_message, $len) = $self->read_sock(8);
-    die "Cannot connect to OMAPI service" if !defined $received_startup_message;
-    my ($version,$headerLength) = unpack('N2',$received_startup_message);
-    my $startup_message = pack("N2",$version,$headerLength);
-    $len = $self->send_sock($startup_message) || die "error sending startup message";
+    my $sock = $self->sock;
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout sending on OMAPI socket"); };
+        alarm $self->timeout;
+        $len = $sock->read($received_startup_message,8);
+        my ($version,$headerLength) = unpack('N2',$received_startup_message);
+        my $startup_message = pack("N2",$version,$headerLength);
+        $len = $sock->send($startup_message) || die "error sending startup message";
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        die $@;
+    }
 
     unless ($self->send_auth()) {
         $self->connected(0);
-        $self->sock->close();
+        $sock->close();
         $self->clear_sock();
         die "Error send auth";
     }
@@ -253,62 +259,6 @@ sub connect {
     return 1;
 }
 
-=head2 read_sock
-
-Execute a read on the current socket
-
-=cut
-
-sub read_sock {
-    my ($self, $len) = @_;
-    my $reply;
-    my $reply_length = $self->sock->read($reply, $len);
-    $reply = $self->validate_reply($reply);
-    return ($reply, $reply_length);
-}
-
-=head2 recv_sock
-
-Execute a recv on the current socket
-
-=cut
-
-sub recv_sock {
-    my ($self, $len) = @_;
-    my $reply;
-    my $reply_length = $self->sock->recv($reply, $len);
-    $reply = $self->validate_reply($reply);
-    return ($reply, $reply_length);
-}
-
-=head2 send_sock
-
-Execute a send on the current socket
-
-=cut
-
-sub send_sock {
-    my ($self, $message) = @_;
-    my $reply = $self->sock->send($message);
-    return $self->validate_reply($reply);
-}
-
-=head2 validate_reply
-
-Validate the reply coming from the socket
-
-Return undef if invalid, return the reply if valid
-
-=cut
-
-sub validate_reply {
-    my ($self, $reply) = @_;
-    if (! $reply && ( 0+$! == ETIMEDOUT || 0+$! == EWOULDBLOCK )) {
-        get_logger->error("Timeout while reading from the OMAPI socket");
-        return undef;
-    }
-    return $reply;
-}
 
 =head2 send_auth
 
@@ -365,7 +315,16 @@ sub send {
     my ($self) = @_;
     $self->_build_message;
     my $result;
-    $result = $self->send_sock(${$self->buffer});
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout sending on OMAPI socket"); };
+        alarm $self->timeout;
+        $result = $self->sock->send(${$self->buffer});
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        pf::log::get_logger->error($@);
+    }
     return $result;
 }
 
@@ -378,7 +337,16 @@ get the reply of the message
 sub get_reply {
     my ($self) = @_;
     my $data;
-    ($data, undef) = $self->recv_sock(64*1024);
+    eval {
+        local $SIG{ALRM} = sub { die ("Timeout reading on OMAPI socket"); };
+        alarm $self->timeout;
+        $self->sock->recv($data,64*1024);
+        alarm 0;
+    };
+    alarm 0;
+    if($@) {
+        pf::log::get_logger->error($@);
+    }
     return $self->parse_stream($data) ;
 }
 
@@ -428,9 +396,6 @@ Creates a socket
 sub _build_sock {
     my ($self) = @_;
     my $sock = IO::Socket::INET->new(PeerAddr => $self->host, PeerPort => $self->port, Timeout => $self->timeout, Proto => 'tcp') || die "Can't bind : $@\n";
-    IO::Socket::Timeout->enable_timeouts_on($sock);
-    $sock->read_timeout($self->timeout);
-    $sock->write_timeout($self->timeout);
     return $sock;
 }
 
@@ -592,7 +557,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 

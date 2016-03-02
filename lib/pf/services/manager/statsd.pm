@@ -36,6 +36,6 @@ sub generateConfig {
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/statsd_config.js", '//' );
 }
 
-has dependsOnServices => (is => 'ro', default => sub { [qw(carbon_relay)] } );
+has startDependsOnServices => (is => 'ro', default => sub { [qw(carbon_relay)] } );
 
 1;
