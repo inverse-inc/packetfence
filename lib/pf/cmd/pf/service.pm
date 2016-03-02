@@ -217,7 +217,7 @@ sub getManagers {
     my ($services,$flags) = @_;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
+    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
@@ -225,7 +225,7 @@ sub getManagers {
         next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
         my @managers;
         #Get dependencies
-        if ($includeDependsOn) {
+        if ($includeStartDependsOn) {
             @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices}
         }
         if($m->isa("pf::services::manager::submanager")) {
