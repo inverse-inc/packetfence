@@ -2,7 +2,7 @@ package pf::Authentication::Source::EAPTLSSource;
 
 =head1 NAME
 
-pf::Authentication::Source::EAPTLSSource add documentation
+pf::Authentication::Source::EAPTLSSource
 
 =cut
 
@@ -26,7 +26,7 @@ has '+type' => (default => 'EAPTLS');
 
 =head2 available_attributes
 
-Allow to make a condition on the user's email address.
+Allow TLS Certificate attributes to be matched against
 
 =cut
 
