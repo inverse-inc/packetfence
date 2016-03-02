@@ -1,0 +1,24 @@
+# ipset configuration template
+# ============================
+
+## PacketFence internal sets
+# Status check set
+create %%SET_STATUS_CHECK%% hash:ip
+
+## Captive portal related sets
+# mod_evasive for hammering devices
+create %%SET_PORTAL_DENY%% hash:ip timeout 300
+# Parking feature for stale devices
+create %%SET_PORTAL_PARKING%% hash:ip
+
+## pfdns related sets
+# Passthroughs / OAuth
+create %%SET_PASSTHROUGHS%% hash:ip,port
+
+# Inline enforcement related sets
+%%inline%%
+
+
+# Insert custom sets below
+#ie.
+#create PF_zaymitte hash:ip
