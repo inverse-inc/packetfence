@@ -74,8 +74,9 @@ use Scalar::Util qw(tainted);
 
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
-    JUST_MANAGED       => 1,
-    INCLUDE_DEPENDS_ON => 2,
+    JUST_MANAGED                => 0b0000001,
+    INCLUDE_START_DEPENDS_ON    => 0b0000010,
+    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
 };
 
 use lib INSTALL_DIR . "/lib";
@@ -1208,7 +1209,7 @@ sub postPfStartService {
 
 sub startService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
+    my @managers = getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -1252,16 +1253,20 @@ sub getManagers {
     my ($services,$flags) = @_;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
+    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
+    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @serviceManagers =
         grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) && !$_->isvirtual }
         map {
             my $m = $_;
             my @managers;
-            if ($includeDependsOn) {
+            if ( $includeStartDependsOn ) {
                 push @managers, grep {defined $_}
-                  map {pf::services::get_service_manager($_)} @{$m->dependsOnServices};
+                  map {pf::services::get_service_manager($_)} @{$m->startDependsOnServices};
+            } elsif ( $includeStopDependsOn ) {
+                push @managers, grep {defined $_}
+                  map {pf::services::get_service_manager($_)} @{$m->stopDependsOnServices};
             }
             if($m->isa("pf::services::manager::submanager")) {
                 push @managers,$m->managers;
@@ -1284,7 +1289,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
+    my @managers = getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
     my %exclude = ();
     my ($push_managers,$infront_managers) = part { exists $exclude{ $_->name  } ? 0 : 1 } @managers;
     @managers = ();
@@ -1322,7 +1327,7 @@ sub watchService {
     my ($service,@services) = @_;
     my @stoppedServiceManagers =
         grep { $_->status eq '0'  }
-        getManagers(\@services, JUST_MANAGED | INCLUDE_DEPENDS_ON);
+        getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
         $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));

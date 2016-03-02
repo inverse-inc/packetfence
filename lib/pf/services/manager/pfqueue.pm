@@ -34,17 +34,17 @@ The sprintf string to launch service
 
 has '+launcher' => (default => sub { '%1$s -d' } );
 
-=head2 dependsOnServices
+=head2 startDependsOnServices
 
 Add redis_queue to the list of dependecies
 
 =cut
 
-around dependsOnServices => sub {
+around startDependsOnServices => sub {
     my ($orig, $self) = (shift, shift);
-    my $dependsOnServices = $self->$orig(@_);
-    push @$dependsOnServices,'redis_queue';
-    return $dependsOnServices;
+    my $startDependsOnServices = $self->$orig(@_);
+    push @$startDependsOnServices,'redis_queue';
+    return $startDependsOnServices;
 };
 
 =head1 AUTHOR
