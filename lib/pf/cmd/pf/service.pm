@@ -74,7 +74,7 @@ use pf::services;
 use List::MoreUtils qw(part any true all);
 use constant {
     JUST_MANAGED       => 1,
-    INCLUDE_DEPENDS_ON => 2,
+    INCLUDE_START_DEPENDS_ON => 2,
 };
 my $logger = get_logger();
 
@@ -142,7 +142,7 @@ sub postPfStartService {
 sub startService {
     my ($service,@services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
+    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -217,7 +217,7 @@ sub getManagers {
     my ($services,$flags) = @_;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
+    my $includeDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
     my @serviceManagers;
@@ -297,7 +297,7 @@ sub watchService {
     my ($service,@services) = @_;
     my @stoppedServiceManagers =
         grep { $_->status eq '0'  }
-        getManagers(\@services, JUST_MANAGED | INCLUDE_DEPENDS_ON);
+        getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
         $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));

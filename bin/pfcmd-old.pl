@@ -75,7 +75,7 @@ use Scalar::Util qw(tainted);
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
     JUST_MANAGED       => 1,
-    INCLUDE_DEPENDS_ON => 2,
+    INCLUDE_START_DEPENDS_ON => 2,
 };
 
 use lib INSTALL_DIR . "/lib";
@@ -1208,7 +1208,7 @@ sub postPfStartService {
 
 sub startService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
+    my @managers = getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
@@ -1252,7 +1252,7 @@ sub getManagers {
     my ($services,$flags) = @_;
     $flags = 0 unless defined $flags;
     my %seen;
-    my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
+    my $includeDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
     my $justManaged      = $flags & JUST_MANAGED;
     my @serviceManagers =
         grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) && !$_->isvirtual }
@@ -1322,7 +1322,7 @@ sub watchService {
     my ($service,@services) = @_;
     my @stoppedServiceManagers =
         grep { $_->status eq '0'  }
-        getManagers(\@services, JUST_MANAGED | INCLUDE_DEPENDS_ON);
+        getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
         $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
