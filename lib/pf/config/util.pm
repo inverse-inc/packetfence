@@ -429,7 +429,7 @@ sub get_user_sources {
     }
     else {
         if (defined($realm)) {
-            get_logger->info("Realm source ".$realm_source->{id}." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
+            get_logger->info("Realm source ".( (defined($realm_source->{id}) && $realm_source->{id} ne "") ? "$realm_source->{id}" : "undef" ) ." is configured in the realm $realm but is not in the portal profile. Ignoring it and using the portal profile sources.");
         }
         return @sources;
     }
