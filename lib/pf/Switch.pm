@@ -2746,7 +2746,7 @@ sub returnRadiusAccessAccept {
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
-            $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS reply");
+            $logger->info("(".$self->{'_id'}.") Added VLAN $args->{'vlan'} to the returned RADIUS Access-Accept");
             $radius_reply_ref = {
                 'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
                 'Tunnel-Type' => $RADIUS::VLAN,
@@ -2777,7 +2777,6 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $logger->info("(".$self->{'_id'}.") Returning ACCEPT with VLAN $args->{'vlan'} ".( (defined($role) && $role ne "") ? "and role $role" : "" ));
     my $status = $RADIUS::RLM_MODULE_OK;
     if (!isenabled($args->{'unfiltered'})) {
         my $filter = pf::access_filter::radius->new;
