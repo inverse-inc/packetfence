@@ -238,7 +238,7 @@ Get the IP address that is tied to the current request
 
 sub current_ip {
     my ($self) = @_;
-    return $self->app->session()->{"client_ip"};
+    return $self->session()->{"client_ip"};
 }
 
 =head2 process_destination_url
