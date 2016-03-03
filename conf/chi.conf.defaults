@@ -33,10 +33,6 @@ expires_in=6h
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
-[storage fingerbank l1_cache]
-# Fingerbank uses raw as an L1 storage to improve performances
-storage=raw
-
 [storage pfdns]
 #
 # storage pfdns.expires_in
@@ -75,10 +71,6 @@ expires_on_backend = 1
 #
 # How long to try to reconnect before giving up
 reconnect=60
-
-[storage mem]
-driver=Memory
-global=1
 
 [storage switch]
 #
