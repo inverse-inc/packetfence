@@ -1274,10 +1274,7 @@ Configure the global configuration of the switch using the section __MAC Authent
 
 Then add this additionnal configuration on the global level
 
-  ip dhcp snooping
   ip device tracking
-  nmsp enable
-  udld enable
   ip http server
   ip http secure-server
   snmp-server community public RO
@@ -1319,6 +1316,19 @@ Add the following configuration setting on the global level
 
    ip device tracking
 
+For IOS 12.2 create this acl and assign it to the switch port interface:
+
+ ip access-list extended Auth-Default-ACL
+  permit udp any range bootps 65347 any range bootpc 65348
+  permit udp any any range bootps 65347
+  permit udp any any eq domain
+  deny   ip any any
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
 Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
 
 Now in the PacketFence interface go in the switch configuration and in the Roles tab.
@@ -1349,9 +1359,25 @@ image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="
 Web auth and Downloadable ACLs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It's possible to mix web authentication and downloadable ACLs starting from the IOS version 15.0, for example if you want to be able to redirect the device to the captive portal when a violation is triggered.
+It's possible to mix web authentication and downloadable ACLs starting from the IOS version 12.2, per example if you want to be able to redirect the device to the captive portal when a violation is triggered.
 To do that first you need to configure PacketFence with Role by Url and with Role by access list (For each role you need).
 On the switch you need to change the Auth-Default-ACL to add the portal ip address:
+
+For IOS 12.2:
+
+  ip access-list extended Auth-Default-ACL
+   permit udp any range bootps 65347 any range bootpc 65348
+   permit udp any any range bootps 65347
+   permit ip any host ip_of_the_captiv_portal
+   permit udp any any eq domain
+   deny   ip any any
+
+ And assign this ACL on the switch port yo want to do ACL per port.
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
 
 For IOS 15.0:
 
@@ -1512,6 +1538,10 @@ Web auth requires at least MAC Authentication Bypass to be activated on the swit
    permit tcp any any eq 443
   ip access-list extended registered
    permit ip any any
+
+Global config settings:
+
+ ip device tracking
 
 PacketFence switch configuration:
 
