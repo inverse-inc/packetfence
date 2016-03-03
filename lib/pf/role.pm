@@ -591,6 +591,7 @@ sub getNodeInfoForAutoReg {
             connection_type => connection_type_to_str($args->{'connection_type'}),
             SSID => $args->{'ssid'},
             stripped_user_name => $stripped_user,
+            radius_request => $args->{radius_request},
         };
 
         my $source;
