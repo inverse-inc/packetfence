@@ -231,7 +231,8 @@ sub authorize {
 
     # Fetch VLAN depending on node status
     my $role = $role_obj->fetchRoleForNode($args);
-    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap})) || 0;
+    my $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
+    $vlan = $role->{vlan} || $vlan || 0;
 
     $args->{'node_info'}{'source'} = $role->{'source'} if (defined($role->{'source'}) && $role->{'source'} ne '');
     $args->{'node_info'}{'portal'} = $role->{'portal'} if (defined($role->{'portal'}) && $role->{'portal'} ne '');
