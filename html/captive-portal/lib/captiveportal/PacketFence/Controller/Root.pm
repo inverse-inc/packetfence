@@ -20,7 +20,6 @@ use POSIX;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
-use Plack::Request;
 use captiveportal::DynamicRouting::Factory;
 use captiveportal::DynamicRouting::Application;
 use pf::StatsD::Timer;
