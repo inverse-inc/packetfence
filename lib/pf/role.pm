@@ -449,6 +449,7 @@ sub getRegisteredRole {
                 SSID => $args->{'ssid'},
                 stripped_user_name => $stripped_user,
                 rule_class => 'authentication',
+                radius_request => $args->{radius_request},
             };
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
             # create a person entry for pid if it doesn't exist
@@ -590,6 +591,7 @@ sub getNodeInfoForAutoReg {
             connection_type => connection_type_to_str($args->{'connection_type'}),
             SSID => $args->{'ssid'},
             stripped_user_name => $stripped_user,
+            radius_request => $args->{radius_request},
         };
 
         my $source;

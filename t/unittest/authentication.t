@@ -14,12 +14,13 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 15;                      # last test to print
+use Test::More tests => 21;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
+use lib '/usr/local/pf/lib';
 BEGIN {
-    use lib '/usr/local/pf/lib';
+    use lib '/usr/local/pf/t';
     use PfFilePaths;
 }
 
@@ -115,7 +116,77 @@ ok( $value , "set_access_duration matched on set_unreg_date");
 
 ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_duration is a date");
 
+$source_id_ref = undef;
+
 is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication' }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
+
+is_deeply(
+    pf::authentication::match("tls_all", { SSID => 'tls',
+        radius_request => {'TLS-Client-Cert-Serial' => 'tls' }, rule_class => 'authentication'
+    }, undef, \$source_id_ref),
+    [
+        pf::Authentication::Action->new({
+            'value' => 'default',
+            'type'  => 'set_role',
+            'class' => 'authentication',
+        }),
+        pf::Authentication::Action->new({
+            'value' => '12h',
+            'type'  => 'set_access_duration',
+            'class' => 'authentication',
+        })
+    ],
+    "match tls source rule all conditions"
+);
+
+is($source_id_ref, "tls_all", "Source id ref is found");
+
+$source_id_ref = undef;
+
+is_deeply(
+    pf::authentication::match("tls_any", { SSID => 'tls',
+        radius_request => {'TLS-Client-Cert-Serial' => 'notls' }, rule_class => 'authentication'
+    }, undef, \$source_id_ref),
+    [
+        pf::Authentication::Action->new({
+            'value' => 'default',
+            'type'  => 'set_role',
+            'class' => 'authentication',
+        }),
+        pf::Authentication::Action->new({
+            'value' => '12h',
+            'type'  => 'set_access_duration',
+            'class' => 'authentication',
+        })
+    ],
+    "match tls_any source rule any conditions"
+);
+
+is($source_id_ref, "tls_any", "Source id ref is found");
+
+$source_id_ref = undef;
+
+is_deeply(
+    pf::authentication::match("tls_any", { SSID => 'notls',
+        radius_request => {'TLS-Client-Cert-Serial' => 'tls' }, rule_class => 'authentication'
+    }, undef, \$source_id_ref),
+    [
+        pf::Authentication::Action->new({
+            'value' => 'default',
+            'type'  => 'set_role',
+            'class' => 'authentication',
+        }),
+        pf::Authentication::Action->new({
+            'value' => '12h',
+            'type'  => 'set_access_duration',
+            'class' => 'authentication',
+        })
+    ],
+    "match tls_any source rule any conditions"
+);
+
+is($source_id_ref, "tls_any", "Source id ref is found");
+
 
 =head1 AUTHOR
 

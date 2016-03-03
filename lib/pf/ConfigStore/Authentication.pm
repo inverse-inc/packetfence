@@ -63,7 +63,7 @@ sub readAuthenticationConfigFile {
 }
 
 sub setModuleSources {
-    @auth_sources = sub { return @pf::authentication::authentication_sources }->();
+    @auth_sources = @pf::authentication::authentication_sources;
     %auth_lookup = map { $_->id => $_ } grep { defined $_ } @auth_sources;
 }
 
