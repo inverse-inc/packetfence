@@ -271,6 +271,8 @@ Requires: iproute, vconfig
 Requires: wmi, perl(Net::WMIClient)
 # SAML
 Requires: lasso-perl 
+# Captive Portal Dynamic Routing
+Requires: perl(Graph)
 
 # for dashboard
 Requires: python-django, python-django-tagging, pyparsing
