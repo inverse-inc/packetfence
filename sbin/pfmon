@@ -54,7 +54,8 @@ use pf::StatsD;
 use pf::person;
 use pf::fingerbank;
 use fingerbank::Config;
-use fingerbank::Util;
+use fingerbank::Redis;
+use fingerbank::DB;
 
 pf::SwitchFactory::preLoadModules();
 
