@@ -52,6 +52,7 @@ use pf::SwitchFactory;
 use pf::radius_audit_log;
 use pf::StatsD;
 use pf::person;
+use pf::fingerbank;
 use fingerbank::Config;
 use fingerbank::Util;
 
@@ -487,17 +488,17 @@ Update all the Fingerbank data from the API
 sub update_fingerbank_data {
 
     if(fingerbank::Config::is_api_key_configured){
-        _update_fingerbank_component("p0f map", sub{
+        pf::fingerbank::_update_fingerbank_component("p0f map", sub{
             fingerbank::Config::update_p0f_map();
         });
 
-        _update_fingerbank_component("Upstream database", sub{
+        pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
             my ($status, $status_msg) = fingerbank::DB::update_upstream();
             pf::fingerbank::sync_upstream_db();
             return ($status, $status_msg);
         });
         
-        _update_fingerbank_component("Redis combination map", sub{
+        pf::fingerbank::_update_fingerbank_component("Redis combination map", sub{
             my ($status, $status_msg) = fingerbank::Redis::update_from_api();
             return ($status, $status_msg);
         });
@@ -506,28 +507,6 @@ sub update_fingerbank_data {
         get_logger->debug("Can't update fingerbank data since there is no API key configured");
     }
 
-}
-
-=head2 _update_fingerbank_component
-
-Update a Fingerbank component and validate that it succeeds
-
-=cut
-
-sub _update_fingerbank_component {
-    my ($name, $sub) = @_;
-    my $logger = get_logger;
-
-    my ($status, $status_msg) = $sub->();
-
-    if(fingerbank::Util::is_success($status)){
-        $logger->info("Successfully updated $name");
-    }
-    else {
-        my $msg = "Couldn't update $name, code : $status";
-        $msg .= ", msg : $status_msg" if(defined($status_msg));
-        $logger->error($msg);
-    }
 }
 
 =head1 AUTHOR
