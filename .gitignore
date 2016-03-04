@@ -52,6 +52,10 @@ conf/nessus/remotescan.nessus
 conf/networks.conf
 conf/radiusd/acct.conf
 conf/radiusd/auth.conf
+conf/dns_filters.conf
+conf/radiusd/radiusd.conf
+conf/radiusd/sql.conf
+conf/radiusd/proxy.conf.inc
 conf/radiusd/clients.conf.inc
 conf/radiusd/eap.conf
 conf/radiusd/load_balancer.conf
