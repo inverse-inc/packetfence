@@ -237,6 +237,16 @@ enabled=Y
 grace=0s
 delay_by=2m
 
+[1300003]
+priority=1
+desc=Parking violation
+max_enable=3
+grace=10m
+actions=log,reevaluate_access
+enabled=Y
+auto_enable=Y
+vlan=registration
+
 #
 # 1400000 - 1499999 Reserved for local violations
 #
