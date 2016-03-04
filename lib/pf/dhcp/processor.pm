@@ -478,7 +478,7 @@ sub check_for_parking {
         # the locationlog entries will always be old.
         unless( $connection->isSNMP() ){
             $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking violation");
-            pf::parking::trigger_parking($client_mac);
+            pf::parking::trigger_parking($client_mac, $client_ip);
         }
         else {
             $logger->debug("Cannot trigger parking for $client_mac as it is connected via SNMP enforcement.");
@@ -647,17 +647,25 @@ sub update_iplog {
         return;
     }
 
-    my $oldip  = pf::iplog::mac2ip($srcmac);
-    my $oldmac = pf::iplog::ip2mac($srcip);
+    # we have to check directly in the DB since the OMAPI already contains the
+    # current lease info
+    my $oldip  = pf::iplog::_mac2ip_sql($srcmac);
+    my $oldmac = pf::iplog::_ip2mac_sql($srcip);
+    $logger->debug("Computed old IP $oldip and old MAC $oldmac");
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
         $firewallsso->do_sso('Stop', $srcmac,$oldip,undef);
         $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
+
         my $last_connection_type = $view_mac->{'last_connection_type'};
         if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
             $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
         }
+    }
+    elsif ($oldmac && $oldmac ne $srcmac) {
+        # Remove the actions that were for the previous MAC address
+        pf::parking::unpark_actions($oldmac,$srcip);
     }
     my %data = (
         'mac' => $srcmac,

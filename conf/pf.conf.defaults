@@ -1409,4 +1409,8 @@ threshold=0
 #
 # Place the device in the DHCP parking group when it is detected doing parking
 place_in_dhcp_parking_group=enabled
-
+#
+# parking.show_parking_portal
+#
+# Show the parking portal to the device instead of the usual portal
+show_parking_portal=enabled
