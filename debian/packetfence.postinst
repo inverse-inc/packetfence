@@ -87,7 +87,7 @@ case "$1" in
 	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	    echo "Building default RADIUS certificates..."
 	    cd /usr/local/pf/raddb/certs
-	    make dh 
+	    make
 	else
 	    echo "DH already exists, won't touch it!"
         fi

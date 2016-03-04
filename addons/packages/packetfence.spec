@@ -639,12 +639,11 @@ fi
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   echo "Building default RADIUS certificates..."
   cd /usr/local/pf/raddb/certs
-  make dh
+  make
 else
   echo "DH already exists, won't touch it!"
 fi
 
-#Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/conf/pf.conf ]; then
   echo "Touch pf.conf because it doesnt exist"
   touch /usr/local/pf/conf/pf.conf
