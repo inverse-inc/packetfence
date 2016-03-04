@@ -1390,3 +1390,10 @@ api_key=
 #
 # OPSWAT MetaScan Online Scanner URL for hash queries
 query_url_hash=https://hashlookup.metascan-online.com/v2/hash/
+
+[parking]
+#
+# parking.lease_length
+#
+# Lease length (in seconds) when a device is in parking
+lease_length=3600

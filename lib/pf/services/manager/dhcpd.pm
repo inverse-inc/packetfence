@@ -175,6 +175,8 @@ $network {
 EOT
     }
 
+    $tags{parking_lease_length} = $Config{parking}{lease_length};
+
     parse_template( \%tags, "$conf_dir/dhcpd.conf", "$generated_conf_dir/dhcpd.conf" );
     return 1;
 }
