@@ -1691,7 +1691,7 @@ Interface Template (Mac Authentication):
    authentication timer reauthenticate server
    service-policy type control subscriber MACAUTH
 
-Interface Template (801.1x):
+Interface Template (802.1x):
 
   template identity-template-dot1x
    dot1x pae authenticator
