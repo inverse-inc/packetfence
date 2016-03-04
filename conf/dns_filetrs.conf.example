@@ -4,12 +4,12 @@
 #
 # Make a simple rule like this:
 #
-# [cisco]
+# [packetfence]
 # filter = qname
 # operator = is
 # value = www.packetfence.org
 #
-# [1:cisco]
+# [1:packetfence]
 # scope = registration
 # answer = $qname 30 IN A 10.0.0.1
 # rcode = NOERROR
