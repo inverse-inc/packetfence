@@ -36,9 +36,9 @@ rest {
 	#
 	# If you wish to disable this pre-caching and reachability check,
 	# comment out the configuration item below.
-	connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/authorize/"
+	connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/"
     # uncomment the following line if you are using http authentication to the rest service
-	#connect_uri = "%%rpc_proto%%://%%rpc_user%%:%%rpc_pass%%@%%rpc_host%%:%%rpc_port%%/authorize/"
+	#connect_uri = "%%rpc_proto%%://%%rpc_user%%:%%rpc_pass%%@%%rpc_host%%:%%rpc_port%%/"
 
 	#
 	#  How long before new connection attempts timeout, defaults to 4.0 seconds.
