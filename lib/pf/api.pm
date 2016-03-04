@@ -23,6 +23,7 @@ use pf::Authentication::constants;
 use pf::config();
 use pf::config::util();
 use pf::config::cached;
+use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::iplog();
@@ -65,10 +66,9 @@ sub event_add : Public {
     my $logger = pf::log::get_logger();
 
     my ($type, $id) = each %{$postdata{'events'}};
-    $logger->info("violation: $id - IP $postdata{'srcip'}") if (defined($postdata{'srcip'}));
+    $logger->info("violation: $id - IP SRC $postdata{'srcip'} - IP DST $postdata{'dstip'}") if (defined($postdata{'srcip'}) && defined($postdata{'dst'}));
     if (defined ($pf::config::Config{'trapping'}{'range'}) && $pf::config::Config{'trapping'}{'range'} ne '') {
-        foreach my $network (split(',',$pf::config::Config{'trapping'}{'range'})) {
-            my $net_addr = NetAddr::IP->new($network);
+        foreach my $net_addr (@TRAPPING_RANGE) {
             if (defined $postdata{'srcip'}) {
                 my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'srcip'});
                 if ($net_addr->contains($ip)) {
@@ -99,14 +99,14 @@ sub event_add : Public {
         # fetch IP associated to MAC
         my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
         if ($srcmac) {
+
             # trigger a violation
             pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-
+            return(1);
         } else {
             $logger->info("violation on IP $postdata{'srcip'} with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
             return(0);
         }
-        return(1);
     }
 }
 
