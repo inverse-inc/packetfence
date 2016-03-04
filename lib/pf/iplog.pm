@@ -674,7 +674,7 @@ sub _get_omapi_client {
     my ($self) = @_;
     return unless pf::config::is_omapi_lookup_enabled;
 
-    return pf::OMAPI->new( $Config{omapi} );
+    return pf::OMAPI->get_client();
 }
 
 =head2 _lookup_cached_omapi

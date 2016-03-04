@@ -246,6 +246,8 @@ actions=log,reevaluate_access
 enabled=Y
 auto_enable=Y
 vlan=registration
+trigger=Internal::parking_detected
+
 
 #
 # 1400000 - 1499999 Reserved for local violations

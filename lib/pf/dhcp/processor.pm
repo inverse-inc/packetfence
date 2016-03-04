@@ -40,6 +40,9 @@ use pf::log;
 use pf::StatsD::Timer;
 use pf::Redis;
 use pf::CHI;
+use pf::locationlog;
+use DateTime::Format::MySQL;
+use pf::parking;
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -408,6 +411,8 @@ sub handle_new_ip {
     $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
     $self->update_iplog( $client_mac, $client_ip, $lease_length );
 
+    $self->check_for_parking($client_mac, $client_ip);
+
     my %data = (
        'ip' => $client_ip,
        'mac' => $client_mac,
@@ -416,6 +421,70 @@ sub handle_new_ip {
     $self->{api_client}->notify('trigger_scan', %data );
     my $firewallsso = pf::firewallsso->new;
     $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
+}
+
+=head2 check_for_parking
+
+Check if a device should be in parking and adjust the lease time through OMAPI
+
+=cut
+
+sub check_for_parking {
+    my ($self, $client_mac, $client_ip) = @_;
+
+    unless(defined($Config{parking}{threshold}) && $Config{parking}{threshold}){
+        get_logger->trace("Not parking threshold configured, so will not try to do parking detection");
+        return;
+    }
+
+    get_logger->debug("Checking if $client_mac is in parking state");
+    
+    my $node = node_view($client_mac);
+
+    if($node->{status} eq $STATUS_REGISTERED){
+        get_logger->debug("Not checking parking for $client_mac since the node is registered");
+        return;
+    }
+
+    my @locationlogs = locationlog_history_mac($client_mac);
+    my $locationlog;
+    # Trying the oldest locationlog entry that contains the same role as the
+    # current one
+    foreach my $entry (@locationlogs){
+        unless(defined($locationlog)){
+            $locationlog = $entry;
+        }
+        else {
+            if($entry->{role} eq $locationlog->{role}){
+                 $locationlog = $entry;
+            }
+        }
+    }
+
+    unless(defined($locationlog)){
+        get_logger->warn("Couldn't find any locationlog entry for $client_mac");
+        return;
+    }
+
+    get_logger->info("Found locationlog entry with role : with start date ".$locationlog->{start_time});
+    my $time = DateTime::Format::MySQL->parse_datetime($locationlog->{'start_time'});
+    my $now = time;
+    if (($now - $time->epoch) > $Config{parking}{threshold}) {
+        my $diff = $now - $time->epoch;
+        $logger->debug("Current connection type : ".$locationlog->{connection_type});
+        my $connection = pf::Connection->new();
+        $connection->_stringToAttributes($locationlog->{connection_type});
+        # This doesn't work against SNMP as there is no reauthentication, so
+        # the locationlog entries will always be old.
+        unless( $connection->isSNMP() ){
+            $logger->warn("$client_mac STUCK on the registration role for $diff seconds $client_ip. Triggering parking violation");
+            pf::parking::trigger_parking($client_mac);
+        }
+        else {
+            $logger->debug("Cannot trigger parking for $client_mac as it is connected via SNMP enforcement.");
+        }
+    }
+
 }
 
 =head2 parse_dhcp_release

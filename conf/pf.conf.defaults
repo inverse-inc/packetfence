@@ -1397,3 +1397,16 @@ query_url_hash=https://hashlookup.metascan-online.com/v2/hash/
 #
 # Lease length (in seconds) when a device is in parking
 lease_length=3600
+#
+# parking.lease_length
+#
+# The threshold (in seconds) after which a device will be placed in parking
+# A value of 0 deactivates the parking detection.
+# The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold
+threshold=0
+#
+# parking.place_in_dhcp_parking_group
+#
+# Place the device in the DHCP parking group when it is detected doing parking
+place_in_dhcp_parking_group=enabled
+

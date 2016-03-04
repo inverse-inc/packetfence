@@ -29,6 +29,7 @@ use IO::Socket::INET;
 use Socket qw(MSG_WAITALL);
 use Time::HiRes qw(alarm);
 use pf::log;
+use pf::config;
 
 our $VERSION = '0.01';
 
@@ -313,7 +314,7 @@ sub create_host {
     $self->connect();
     my $previous_entry = $self->lookup({"type" => "host"}, {"hardware-address" => $mac, "hardware-type" => 1});
     if($previous_entry->{op} == 3){
-        get_logger->warn("Entry for $mac already exists. Cannot create it...");
+        get_logger->info("Entry for $mac already exists. Cannot create it...");
     }
     else {
         my $result = $self->send_msg($OPEN, { "type" => "host", "create" => 1, exclusive => 1 }, { "name" => "dynhost-$mac", "hardware-address" => $mac, "hardware-type" => 1, %{$assignments}});
@@ -602,6 +603,17 @@ sub _sign {
     my $buffer = $self->buffer;
     my $digest = hmac_md5(substr($$buffer,4), $self->key);
     $$buffer .= $digest;
+}
+
+=head2 get_omapi_client
+
+Get the default OMAPI client based on the configuration
+
+=cut
+
+sub get_client {
+    my ($class) = @_;
+    return $class->new($Config{omapi});
 }
 
 =head1 AUTHOR
