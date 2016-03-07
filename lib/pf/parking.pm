@@ -23,12 +23,26 @@ use pf::constants;
 use pf::config;
 use pf::util;
 
+=head2 trigger_parking
+
+Trigger the parking actions for a device if needed
+Will check if there is already a parking violation opened, if not, will open one
+Will make sure the proper parking actions are applied
+
+=cut
+
 sub trigger_parking {
     my ($mac,$ip) = @_;
     if(violation_count_open_vid($mac, $PARKING_VID) || violation_trigger( { mac => $mac, tid => 'parking_detected', type => 'INTERNAL' } )){
         park($mac,$ip);
     }
 }
+
+=head2 park
+
+Park a device by making its lease higher and by pointing it to another portal
+
+=cut
 
 sub park {
     my ($mac,$ip) = @_;
@@ -45,6 +59,12 @@ sub park {
     }
 }
 
+=head2 unpark
+
+Attempt to unpark a device. The parking violation needs to be successfully closed for the actions to be removed.
+
+=cut
+
 sub unpark {
     my ($mac,$ip) = @_;
     if(violation_close($mac, $PARKING_VID) != -1){
@@ -56,6 +76,12 @@ sub unpark {
         return $FALSE;
     }
 }
+
+=head2 remove_parking_actions
+
+Remove the parking actions that were taken against an IP + MAC
+
+=cut
 
 sub remove_parking_actions {
     my ($mac, $ip) = @_;
