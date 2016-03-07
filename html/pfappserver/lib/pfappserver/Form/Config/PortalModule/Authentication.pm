@@ -32,6 +32,17 @@ has_field 'custom_fields' =>
              help => 'The additionnal fields that should be required for registration' },
   );
 
+has_field 'pid_field' =>
+  (
+   type => 'Select',
+   label => 'PID field',
+   options_method => \&options_pid_field,
+   element_class => ['chzn-select'],
+   default => for_module->meta->get_attribute('pid_field')->default->(),
+   tags => { after_element => \&help,
+             help => 'Which field should be used as the PID.' },
+  );
+
 has_field 'with_aup' =>
   (
    type => 'Checkbox',
@@ -54,7 +65,7 @@ has_field 'signup_template' =>
 
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id custom_fields with_aup signup_template), $self->auth_module_definition());
+    return (qw(source_id pid_field custom_fields with_aup signup_template), $self->auth_module_definition());
 }
 
 # To override in the child modules
@@ -64,6 +75,10 @@ sub auth_module_definition {
 
 sub options_custom_fields {
     return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
+}
+
+sub options_pid_field {
+    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;    
 }
 
 
