@@ -16,13 +16,13 @@ use strict;
 use warnings;
 use pf::log;
 use pfconfig::namespaces::config;
-use pfconfig::namespaces::config::DNSFilters;
+use pfconfig::namespaces::config::DNS_Filters;
 
 use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
 sub parentConfig {
     my ($self) = @_;
-    return pfconfig::namespaces::config::DNSFilters->new($self->{cache});
+    return pfconfig::namespaces::config::DNS_Filters->new($self->{cache});
 }
 
 =head1 AUTHOR

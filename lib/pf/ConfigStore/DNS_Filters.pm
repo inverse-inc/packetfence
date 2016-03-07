@@ -1,43 +1,28 @@
-package pfconfig::namespaces::config::DNSFilters;
+package pf::ConfigStore::DNS_Filters;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pf::ConfigStore::DNS_Filters add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
-
-This module creates the configuration hash associated to somefile.conf
+pf::ConfigStore::DNS_Filters
 
 =cut
 
 use strict;
 use warnings;
-
-use pfconfig::namespaces::config;
+use Moo;
 use pf::file_paths;
+extends 'pf::ConfigStore';
 
-use base 'pfconfig::namespaces::config';
+sub configFile { $dns_filters_config_file };
 
-sub init {
-    my ($self) = @_;
-    $self->{file} = $dns_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::DNSScopes'];
-}
+sub pfconfigNamespace {'config::DNS_Filters'}
 
-sub build_child {
-    my ($self) = @_;
-
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    $self->cleanup_whitespaces( \%tmp_cfg );
-
-    return \%tmp_cfg;
-
-}
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
@@ -67,7 +52,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:

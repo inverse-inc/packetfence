@@ -21,7 +21,7 @@ use pf::ConfigStore::VlanFilters;
 use pf::ConfigStore::RadiusFilters;
 use pf::ConfigStore::DhcpFilters;
 use pf::ConfigStore::ApacheFilters;
-use pf::ConfigStore::DNSFilters;
+use pf::ConfigStore::DNS_Filters;
 
 our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 
@@ -38,7 +38,7 @@ our %CONFIGSTORE_MAP = (
     $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => pf::ConfigStore::RadiusFilters->new,
     $FILTERS_IDENTIFIERS{DHCP_FILTERS}   => pf::ConfigStore::DhcpFilters->new,
     $FILTERS_IDENTIFIERS{APACHE_FILTERS} => pf::ConfigStore::ApacheFilters->new,
-    $FILTERS_IDENTIFIERS{DNS_FILTERS} => pf::ConfigStore::DNSFilters->new,
+    $FILTERS_IDENTIFIERS{DNS_FILTERS} => pf::ConfigStore::DNS_Filters->new,
 );
 
 our %ENGINE_MAP = (

@@ -17,7 +17,7 @@ use pf::api::jsonrpcclient;
 use pf::log;
 
 use base qw(pf::access_filter);
-tie our %ConfigDNSFilters, 'pfconfig::cached_hash', 'config::DNSFilters';
+tie our %ConfigDNS_Filters, 'pfconfig::cached_hash', 'config::DNS_Filters';
 tie our %DNSFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::DNSScopes';
 
 =head2 filterRule
