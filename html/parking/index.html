@@ -1,4 +1,10 @@
+<script>
+function release(target){
+  target.parentElement.innerHTML = "One moment please"
+}
+</script>
+
 <h1>Parking</h1>
 
-<p>Please note that the period to register your device has been exceeded. In order to access the registration portal, <a href="/cgi-bin/release.pl">please click here.</a></p>
+<p>Please note that the period to register your device has been exceeded. In order to access the registration portal, <a href="/cgi-bin/release.pl" onclick="release(this)">please click here.</a></p>
 
