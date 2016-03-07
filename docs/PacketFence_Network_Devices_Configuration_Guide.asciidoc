@@ -1428,8 +1428,8 @@ NOTE: AAA authentication is slow to come up after a reload of the IOS XE switche
 Identity Networking Policy
 ++++++++++++++++++++++++++
 
-Starting from version 15.2(1)E (IOS) and 3.4.0E (IOSXE) , Cisco introduce the Identity Based Networking Services.
-It mean that you can create a authentication workflow on the switch and create interfaces templates.
+Starting from version 15.2(1)E (IOS) and 3.4.0E (IOSXE) , Cisco introduced the Identity Based Networking Services.
+It means that you can create an authentication workflow on the switch and create interfaces templates.
 
 To enable it:
 
@@ -1450,7 +1450,7 @@ AAA groups and configuration:
   aaa authorization network default group packetfence 
   radius-server vsa send authentication
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server dead-criteria time 5 tries 4
   radius-server deadtime 1
@@ -1465,16 +1465,16 @@ CoA configuration:
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
 
-Activate SNMP on the switch:
+Enable SNMP on the switch:
 
   snmp-server community public RO
 
-Activate http and https server
+Enable HTTP and HTTPS server:
 
   ip http server
   ip http secure-server
 
-Activate ip device tracking
+Enable IP device tracking:
 
   ip device tracking
 
@@ -1527,14 +1527,14 @@ Class map:
  match method dot1x
  match result-type method dot1x authoritative
 
-Policy Map:
+Policy map:
 
-On the 3 following configurations if the radius server is down then we will apply
+On the 3 following configurations if the RADIUS server is down then we will apply
  CRITICAL_AUTH_VLAN, DEFAULT_CRITICAL_VOICE_TEMPLATE and CRITICAL-ACCESS service template.
-If the radius server goes up then it reinitialize the authentication if the port is in
+If the RADIUS server goes up then it reinitializes the authentication if the port is in
 IN_CRITICAL_VLAN.
 
-for 802.1X with Mac Authentication fallback:
+for 802.1X with MAC Authentication fallback:
 
  policy-map type control subscriber DOT1X_MAB
   event session-started match-all
@@ -1582,7 +1582,7 @@ for 802.1X with Mac Authentication fallback:
    10 class always do-until-failure
     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
 
-for Mac Authentication only:
+for MAC Authentication only:
 
   policy-map type control subscriber MACAUTH
    event session-started match-all
@@ -1616,7 +1616,7 @@ for Mac Authentication only:
     10 class always do-until-failure
      10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
 
-for 802.1X Only:
+for 802.1X only:
 
   policy-map type control subscriber DOT1X
    event session-started match-all
@@ -1657,7 +1657,7 @@ for 802.1X Only:
     10 class always do-until-failure
      10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
 
-Interface Template (802.1x Mac Authentication):
+Interface Template (802.1X MAC Authentication):
 
   template identity-template-mab
    dot1x pae authenticator
@@ -1674,7 +1674,7 @@ Interface Template (802.1x Mac Authentication):
    authentication timer reauthenticate server
    service-policy type control subscriber DOT1X_MAB
 
-Interface Template (Mac Authentication):
+Interface Template (MAC Authentication):
 
   template identity-template-macauth
    dot1x pae authenticator
@@ -1691,7 +1691,7 @@ Interface Template (Mac Authentication):
    authentication timer reauthenticate server
    service-policy type control subscriber MACAUTH
 
-Interface Template (802.1x):
+Interface Template (802.1X):
 
   template identity-template-dot1x
    dot1x pae authenticator
@@ -1708,16 +1708,16 @@ Interface Template (802.1x):
    authentication timer reauthenticate server
    service-policy type control subscriber DOT1X
 
-On each interface for 802.1x with Mac Authentcation:
+On each interface for 802.1X with MAC Authentcation:
 
   source template identity-template-mab
   dot1x timeout tx-period 5
 
-On each interface for Mac Authentication:
+On each interface for MAC Authentication:
 
   source template identity-template-macauth
 
-On each interface for 802.1x:
+On each interface for 802.1X:
 
   source template identity-template-dot1x
   dot1x timeout tx-period 5
