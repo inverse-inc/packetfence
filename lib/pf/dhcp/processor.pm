@@ -647,11 +647,9 @@ sub update_iplog {
         return;
     }
 
-    # we have to check directly in the DB since the OMAPI already contains the
-    # current lease info
+    # we have to check directly in the DB since the OMAPI already contains the current lease info
     my $oldip  = pf::iplog::_mac2ip_sql($srcmac);
     my $oldmac = pf::iplog::_ip2mac_sql($srcip);
-    $logger->debug("Computed old IP $oldip and old MAC $oldmac");
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
