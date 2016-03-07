@@ -62,6 +62,9 @@ sub iptables_generate {
 
     $cmd = "sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
     @lines  = pf_run($cmd);
+    
+    $cmd = "LANG=C sudo ipset --create parking hash:ip 2>&1";
+    @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
