@@ -14,7 +14,7 @@ pf::pfqueue::consumer::redis
 
 use strict;
 use warnings;
-use Redis::Fast;
+use pf::Redis;
 use Time::HiRes qw(usleep);
 use Sereal::Decoder qw(sereal_decode_with_object);
 use pf::log;
@@ -132,7 +132,7 @@ Build the redis client
 
 sub _build_redis {
     my ($self) = @_;
-    return Redis::Fast->new(%{$self->redis_args}, on_connect => \&on_connect);
+    return pf::Redis->new(%{$self->redis_args}, on_connect => \&on_connect);
 }
 
 =head2 process_delayed_jobs

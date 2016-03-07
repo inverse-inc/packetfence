@@ -15,7 +15,6 @@ use namespace::autoclean;
 use pf::config::pfqueue;
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX $PFQUEUE_EXPIRED_COUNTER);
-use Redis::Fast;
 
 has redis => (is => 'ro', builder => 1, lazy => 1);
 

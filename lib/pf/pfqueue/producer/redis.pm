@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Moo;
 extends qw(pf::pfqueue::producer);
-use Redis::Fast;
+use pf::Redis;
 use pf::file_paths;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
@@ -69,7 +69,7 @@ sub _build_redis {
     else {
         $args{server} = $server;
     }
-    return Redis::Fast->new(%args);
+    return pf::Redis->new(%args);
 }
 
 =head2 submit
