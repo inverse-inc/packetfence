@@ -24,7 +24,11 @@ our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => \%CLIENTS);
 
 sub new {
     my ($self, @args) = @_;
-    return $CHI_CACHE->compute(\@args, { expire_if => \&expire_if }, sub { return Redis::Fast->new(@args)});
+    my %key = @args;
+    if (exists $key{on_connect} && ref ($key{on_connect}) eq 'CODE') {
+        $key{on_connect} = "$key{on_connect}";
+    }
+    return $CHI_CACHE->compute(\%key, { expire_if => \&expire_if }, sub { return Redis::Fast->new(@args)});
 }
 
 sub expire_if {
