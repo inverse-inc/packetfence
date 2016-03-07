@@ -24,7 +24,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = "/usr/local/pf/conf/vlan_filters.conf.defaults";
+    $self->{file} = $vlan_filters_config_default_file;
     $self->{child_resources} = [ 'config::VlanFilters'];
 }
 
