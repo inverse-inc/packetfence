@@ -305,6 +305,8 @@ sub lookup {
 
 =head2 create_host
 
+Create a host entry using the OMAPI
+
 =cut
 
 sub create_host {
@@ -326,6 +328,12 @@ sub create_host {
         }
     }
 }
+
+=head2 delete_host
+
+Remove a host entry using the OMAPI
+
+=cut
 
 sub delete_host {
     my ($self, $mac) = @_;
