@@ -309,7 +309,7 @@ sub accounting {
             #handle radius floating devices
             $self->_handleAccountingFloatingDevices($switch, $mac, $port);
             #Close old locationlog
-            locationlog_update_end_mac($mac);
+            locationlog_update_end_mac_switch($mac, $switch->{id});
         }
 
         # On accounting stop/update, check the usage duration of the node
