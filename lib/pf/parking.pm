@@ -36,7 +36,7 @@ sub park {
 sub unpark {
     my ($mac,$ip) = @_;
     if(violation_close($mac, $PARKING_VID) != -1){
-        unpark_actions($mac,$ip);
+        remove_parking_actions($mac,$ip);
         return $TRUE;
     }
     else {
@@ -45,8 +45,7 @@ sub unpark {
     }
 }
 
-#rename to remove_parking_actions
-sub unpark_actions {
+sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
     my $omapi = pf::OMAPI->get_client();

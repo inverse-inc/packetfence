@@ -663,7 +663,7 @@ sub update_iplog {
     }
     elsif ($oldmac && $oldmac ne $srcmac) {
         # Remove the actions that were for the previous MAC address
-        pf::parking::unpark_actions($oldmac,$srcip);
+        pf::parking::remove_parking_actions($oldmac,$srcip);
     }
     my %data = (
         'mac' => $srcmac,
