@@ -596,7 +596,7 @@ sub _is_locationlog_accurate {
     # did something changed
     my $vlanChanged = '0';
     if (defined($vlan)) {
-        $vlanChanged = (exists($locationlog_mac->{'vlan'}) &&  $locationlog_mac->{'vlan'} ne $vlan);
+        $vlanChanged = (exists($locationlog_mac->{'vlan'}) && defined($locationlog_mac->{'vlan'}) &&  $locationlog_mac->{'vlan'} ne $vlan);
     }
     my $switchChanged = ($locationlog_mac->{'switch'} ne $switch);
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
