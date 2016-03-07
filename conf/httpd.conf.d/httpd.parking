@@ -62,7 +62,7 @@ ServerTokens OS
 # /etc/sysconfig/httpd must be set appropriately if this location is
 # changed.
 #
-PidFile run/httpd.pid
+PidFile /usr/local/pf/var/run/httpd.parking.pid
 
 #
 # Timeout: The number of seconds before receives and sends time out.
@@ -573,13 +573,13 @@ Alias /icons/ "/var/www/icons/"
 # The same rules about trailing "/" apply to ScriptAlias directives as to
 # Alias.
 #
-ScriptAlias /cgi-bin/ "/var/www/cgi-bin/"
+ScriptAlias /cgi-bin/ "/usr/local/pf/html/parking/cgi-bin/"
 
 #
 # "/var/www/cgi-bin" should be changed to whatever your ScriptAliased
 # CGI directory exists, if you have that configured.
 #
-<Directory "/var/www/cgi-bin">
+<Directory "/usr/local/pf/html/parking/cgi-bin">
     AllowOverride None
     Options None
     Order allow,deny
@@ -1001,10 +1001,3 @@ BrowserMatch "^Dreamweaver-WebDAV-SCM1" redirect-carefully
 # The first VirtualHost section is used for requests without a known
 # server name.
 #
-#<VirtualHost *:80>
-#    ServerAdmin webmaster@dummy-host.example.com
-#    DocumentRoot /www/docs/dummy-host.example.com
-#    ServerName dummy-host.example.com
-#    ErrorLog logs/dummy-host.example.com-error_log
-#    CustomLog logs/dummy-host.example.com-access_log common
-#</VirtualHost>
