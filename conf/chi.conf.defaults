@@ -50,7 +50,7 @@ driver = Redis
 # storage redis.redis_class
 #
 # The redis client class
-redis_class = Redis::Fast
+redis_class = pf::Redis
 #
 # storage redis.server
 #
