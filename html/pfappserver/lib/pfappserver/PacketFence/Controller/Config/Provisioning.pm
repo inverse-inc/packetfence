@@ -16,6 +16,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::factory::provisioner;
 use pf::config;
+use List::MoreUtils qw(any);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -60,7 +61,7 @@ before [qw(remove)] => sub {
     # We check that it's not used by any portal profile
     my $count = 0;
     while (my ($id, $config) = each %Profiles_Config) {
-        $count ++ if ( $c->stash->{'id'} ~~ $config->{provisioners});
+        $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{provisioners}});
     }
 
     if ($count > 0) {
