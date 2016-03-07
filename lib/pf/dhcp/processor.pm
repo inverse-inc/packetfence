@@ -580,7 +580,7 @@ sub update_iplog {
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         my $firewallsso = pf::firewallsso->new;
-        $firewallsso->do_sso('Stop',$oldmac,$oldip,undef);
+        $firewallsso->do_sso('Stop', $srcmac,$oldip,undef);
         $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
 
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
