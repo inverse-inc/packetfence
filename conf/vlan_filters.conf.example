@@ -257,37 +257,37 @@
 
 # This rules are predefined by packetfence and to disconnect device that comming from a secure connection to an open one (remove these rules mean that you know what you are doing).
 
-[wiremacauth]
+[wire_mac_auth]
 filter = connection_type
 operator = is
 value = WIRED_MAC_AUTH
 
-[wirelessmacauth]
+[wireless_mac_auth]
 filter = connection_type
 operator = is
 value = Wireless-802.11-NoEAP
 
-[nodewireeap]
+[node_wire_eap]
 filter = node_info.last_connection_type
 operator = is
 value = Ethernet-EAP
 
-[nodewirelesseap]
+[node_wireless_eap]
 filter = node_info.last_connection_type
 operator = is
 value = Wireless-802.11-EAP
 
-[nodereg]
+[node_reg]
 filter = node_info.status
 operator = is
 value = reg
 
-[nodeautoreg]
-filter = node_info.status
+[node_auto_reg]
+filter = node_info.autoreg
 operator = is
-value = reg
+value = yes
 
-[1:(wiremacauth|wirelessmacauth)&(nodewireeap|nodewirelesseap)&nodereg&nodeautoreg]
+[1:(wire_mac_auth|wireless_mac_auth)&(node_wire_eap|node_wireless_eap)&node_reg&node_autoreg]
 scope = RegisteredRole
 action = modify_node
 action_param = mac = $mac, status = unreg, autoreg = no
