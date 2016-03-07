@@ -16,6 +16,7 @@ Check if an array includes the value defined in the condition
 use strict;
 use warnings;
 use Moose;
+use List::MoreUtils qw(any);
 extends qw(pf::condition);
 
 =head2 value
@@ -38,7 +39,7 @@ Check if the value is part of the array that is passed as an argument
 
 sub match {
     my ($self,$arg) = @_;
-    return $self->value ~~ $arg;
+    return any { $self->value eq $_ } @$arg;
 }
 
 =head1 AUTHOR
