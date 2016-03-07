@@ -29,6 +29,7 @@ use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
 use pf::authentication;
+use pf::constants::parking qw($PARKING_IPSET_NAME);
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -63,7 +64,7 @@ sub iptables_generate {
     $cmd = "sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
     @lines  = pf_run($cmd);
     
-    $cmd = "LANG=C sudo ipset --create parking hash:ip 2>&1";
+    $cmd = "LANG=C sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
     @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
