@@ -519,6 +519,16 @@ httpd_portal=enabled
 # Order in which to start this service 
 httpd_portal_order=20
 #
+# services.httpd_parking
+#
+# Should httpd.parking be started?
+httpd_parking=enabled
+#
+# services.httpd_portal_order
+#
+# Order in which to start this service 
+httpd_parking_order=20
+#
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
