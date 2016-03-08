@@ -773,10 +773,8 @@ sub pf_run {
     my ($command, %options) = @_;
     my $logger = get_logger();
 
-    # REVIEW AND DISCUSS THIS ! IS IT OK TO DO THIS ?
-    # IMO yes.
-    # Also this comment needs to be removed before the merge
-    $command = untaint_chain($command);
+    # Prefixing command using LANG=C to avoid system locale messing up with return
+    $command = 'LANG=C ' . $command;
 
     local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that

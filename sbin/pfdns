@@ -408,7 +408,7 @@ add ipset rule to the cache if it is not already there
 sub add_ip_port_to_ipset {
     my ($setname,$ip,$port) = @_;
     unless (is_in_ipset_cache($setname,$ip,$port)) {
-        my $cmd = "LANG=C sudo ipset --add $setname $ip,$port 2>&1";
+        my $cmd = "sudo ipset --add $setname $ip,$port 2>&1";
         my $_EXIT_CODE_EXISTS = "1";
         my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
     }
