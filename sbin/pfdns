@@ -45,6 +45,7 @@ use pf::cluster;
 use pf::SwitchFactory;
 use pf::node;
 use Storable 'dclone';
+use pf::access_filter::dns;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -217,7 +218,7 @@ sub response_handler {
     foreach my $network (@routed_registration_nets_named) {
         if ($network->contains($ip)) {
            my @reply = $filter->filter('registration', $args);
-           return @reply if @reply;
+           return @reply if (scalar(@reply) > 1);
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
@@ -225,7 +226,7 @@ sub response_handler {
         if ($network->contains($ip)) {
            # Should be different for isolation network.
            my @reply = $filter->filter('isolation', $args);
-           return @reply if @reply;
+           return @reply if (scalar(@reply) > 1);
            return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
@@ -234,7 +235,7 @@ sub response_handler {
         if ($network->contains($ip)) {
            # Should be different for inline
            my @reply = $filter->filter('inline', $args);
-           return @reply if @reply;
+           return @reply if (scalar(@reply) > 1);
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
