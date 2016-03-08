@@ -1,11 +1,3 @@
-package pf::Redis;
-
-sub clone {
-    return $_[0];
-}
-
-sub CLONE_SKIP { 1 }
-
 package pf::CHI;
 
 =head1 NAME
@@ -24,8 +16,7 @@ use strict;
 use warnings;
 use base qw(CHI);
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
-use CHI::Driver;
-use Data::Clone();
+use Clone();
 use pf::file_paths;
 use pf::IniFiles;
 use Hash::Merge;
@@ -36,10 +27,10 @@ use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
 use pf::Redis;
-
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
+
 
 Hash::Merge::specify_behavior(
     {
@@ -104,12 +95,6 @@ our %DEFAULT_CONFIG = (
     }
 );
 
-our %DRIVER_SETUP = (
-    File => \&setFileDriverParams,
-    DBI => \&setDBIDriverParams,
-    Redis => \&setRedisDriverParams,
-);
-
 our %DEFAULT_STORAGE = %{$DEFAULT_CONFIG{storage}{redis}};
 
 sub chiConfigFromIniFile {
@@ -118,11 +103,16 @@ sub chiConfigFromIniFile {
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
+    my $dbi = delete $args{dbi};
     copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
-        if (defined $driver && exists $DRIVER_SETUP{$driver}) {
-            $DRIVER_SETUP{$driver}->($storage,\%args);
+        if (defined $driver) {
+            if($driver eq 'File') {
+                setFileDriverParams($storage);
+            } elsif($driver eq 'DBI') {
+                setDBIDriverParams($storage, $dbi);
+            }
         }
         foreach my $param (qw(servers traits roles)) {
             next unless exists $storage->{$param};
@@ -131,7 +121,6 @@ sub chiConfigFromIniFile {
         }
         push @{$storage->{traits}}, '+pf::Role::CHI::Driver::ComputeWithUndef';
     }
-    delete $args{dbi};
     setDefaultStorage($args{storage});
     setRawL1CacheAsLast($args{storage}{configfiles});
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
@@ -145,7 +134,7 @@ sub setDefaultStorage {
     my $merge = Hash::Merge->new('PF_CHI_MERGE');
     foreach my $name (@CACHE_NAMESPACES) {
         $storageUnits->{$name} = {} unless exists $storageUnits->{$name};
-        my $clonedDefaults = Data::Clone::clone($defaults);
+        my $clonedDefaults = Clone::clone($defaults);
         my $storage = $storageUnits->{$name};
         %$storage = %{$merge->merge( $storage, $clonedDefaults )};
     }
@@ -170,8 +159,7 @@ sub setFileDriverParams {
 }
 
 sub setDBIDriverParams {
-    my ($storage, $args) = @_;
-    my $dbi = $args->{dbi};
+    my ($storage, $dbi) = @_;
     $storage->{table_prefix} = 'cache_';
     $storage->{dbh} = sub {
         my ($db,$host,$port,$user,$pass) = @{$dbi}{qw(db host port user pass)};
@@ -203,21 +191,8 @@ sub sectionData {
     return \%args;
 }
 
-sub setRedisDriverParams {
-    my ($storage, $args) = @_;
-    my $redis_options = CHI::Driver->non_common_constructor_params($storage);
-    my $driver = $storage->{driver} // $storage->{driver_class};
-    foreach my $key (keys %$redis_options) {
-        delete $storage->{$key};
-    }
-    my $redis_class = $redis_options->{redis_class} // 'Redis';
-    $storage->{redis} = $redis_class->new(%$redis_options);
-    $storage->{driver} = $driver;
-}
-
 sub CLONE {
     pf::CHI->clear_memoized_cache_objects;
-    __PACKAGE__->config(chiConfigFromIniFile());
 }
 
 sub preload_chi_drivers {
