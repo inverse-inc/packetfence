@@ -81,11 +81,11 @@
                     <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
                   [% ELSE %]
                     [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
-                    [% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %]
+                    [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                   [% END %]
                 </span>
                   [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port | html %]</span>[% END %]
-                  [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan | html %]</span>[% END %]
+                  [%- IF node.last_role.length %] <span class="badge badge-info">role [% node.last_role | html %]</span>[% END %]
                   <span class="label">On [% node.last_start_time | html %]</span></div>
             </div>
             [%- END %]
@@ -184,7 +184,7 @@
                         <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
                       [% ELSE %]
                         [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
-                        [% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan | html %]</span>[% END %]
+                        [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                       [% END %]
                     </td>
                     <td>[% l(item.connection_type) %]</td>
