@@ -27,6 +27,7 @@ use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
 use pf::Redis;
+use CHI::Driver;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -214,6 +215,21 @@ Will change a scalar to an array ref if it is not one already
 sub listify($) {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
+
+=head2 get_redis_config
+
+Get the redis config from pf::CHI
+
+=cut
+
+sub get_redis_config {
+    # This code was adapted from CHI::Driver::Redis::BUILD
+    my $config = CHI::Driver->non_common_constructor_params(pf::CHI->config->{storage}{redis});
+    $config->{encoding} //= undef;
+    delete @$config{qw(redis redis_class redis_options prefix driver traits)};
+    return $config;
+}
+
 
 
 =head1 AUTHOR
