@@ -420,6 +420,12 @@ sub locationlog_insert_closed {
     return (1);
 }
 
+=item locationlog_update_end_mac_switch_port
+
+End an open locationlog based off mac, switch and port
+
+=cut
+
 sub locationlog_update_end_mac_switch_port {
     my ( $mac, $switch, $port ) = @_;
     my $logger = get_logger();
