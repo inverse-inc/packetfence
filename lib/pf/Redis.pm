@@ -27,7 +27,8 @@ sub new {
 }
 
 sub expire_if {
-    my ($redis, $cache) = @_;
+    my ($object, $cache) = @_;
+    my $redis = $object->value;
     return $redis->ping;
 }
 
