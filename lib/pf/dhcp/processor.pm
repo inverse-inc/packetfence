@@ -126,6 +126,13 @@ sub _get_redis_client {
     }
 }
 
+
+=head2 _get_redis_config
+
+Get the redis config from pf::CHI
+
+=cut
+
 sub _get_redis_config {
     my $config = CHI::Driver->non_common_constructor_params(pf::CHI->config->{storage}{redis});
     $config->{encoding} //= undef;
