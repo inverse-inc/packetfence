@@ -40,7 +40,6 @@ use pf::log;
 use pf::StatsD::Timer;
 use pf::Redis;
 use pf::CHI;
-use CHI::Driver;
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -120,27 +119,12 @@ sub _get_redis_client {
         return $self->{redis_client};
     }
     else {
-        my $config = _get_redis_config();
+        my $config = pf::CHI::get_redis_config();
         $self->{redis_client} = pf::Redis->new(%$config, on_connect => \&_on_redis_connect);
         return $self->{redis_client};
     }
 }
 
-
-=head2 _get_redis_config
-
-Get the redis config from pf::CHI
-
-=cut
-
-sub _get_redis_config {
-    my $config = CHI::Driver->non_common_constructor_params(pf::CHI->config->{storage}{redis});
-    $config->{encoding} //= undef;
-    foreach my $param (qw(redis redis_class redis_options prefix driver traits)) {
-        delete $config->{$param};
-    }
-    return $config;
-}
 
 =head2 process_packet
 
