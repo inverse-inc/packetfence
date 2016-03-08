@@ -244,6 +244,7 @@ sub match_with_object {
     my ($self, $params) = @_;
     $self->preMatchProcessing();
     my $object = $self->get_user_object($params);
+    return undef if !defined $object;
     my $rule = $self->match_first_rule($object, $params);
     $self->postMatchProcessing();
     return defined $rule ? $rule->{actions} : undef;
