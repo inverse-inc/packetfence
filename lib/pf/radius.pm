@@ -375,8 +375,31 @@ sub update_locationlog_accounting {
         }
         my $vlan;
         $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
+        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
         my $node_info = node_attributes($mac);
-        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $node_info->{category});
+        my $args = {
+            ssid => $ssid,
+            node_info => $node_info,
+            switch => $switch,
+            switch_mac => $switch_mac,
+            switch_ip => $switch_ip,
+            source_ip => $source_ip,
+            stripped_user_name => $stripped_user_name,
+            realm => $realm,
+            nas_port_type => $nas_port_type,
+            eap_type => $eap_type // '',
+            mac => $mac,
+            ifIndex => $port,
+            user_name => $user_name,
+            nas_port_id => $nas_port_type // '',
+            session_id => $session_id,
+            connection_type => $connection_type,
+            connection_sub_type => $connection_sub_type,
+            radius_request => $radius_request,
+        };
+        my $role_obj = new pf::role::custom();
+        my $role = $role_obj->fetchRoleForNode($args);
+        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role->{role});
     }
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
 }
