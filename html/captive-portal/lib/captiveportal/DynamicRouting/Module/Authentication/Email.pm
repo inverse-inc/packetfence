@@ -1,137 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::Email;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Email'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::Email
+captiveportal::DynamicRouting::Module::Authentication::Email - Email Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Login registration
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::Role::FieldValidation';
-
-has '+source' => (isa => 'pf::Authentication::Source::EmailSource');
-
-use pf::auth_log;
-use pf::config;
-use pf::log;
-use pf::authentication;
-use pf::Authentication::constants;
-use Date::Format qw(time2str);
-use pf::util;
-use pf::node;
-use pf::enforcement;
-
-=head2 execute_child
-
-Execute this module
-
-=cut
-
-sub execute_child {
-    my ($self) = @_;
-    if($self->app->request->method eq "POST"){
-        $self->do_email_registration();
-    }
-    else{
-        $self->prompt_fields();
-    }
-};
-
-=head2 do_email_registration
-
-Perform the e-mail registration using the provided info
-
-=cut
-
-sub do_email_registration {
-    my ($self) = @_;
-    my $logger = get_logger;
-
-    # fetch role for this user
-    my $source = $self->source;
-    my $pid = $self->request_fields->{$self->pid_field};
-    my $email = $self->request_fields->{email};
-
-    my %info;
-    $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
-
-    # form valid, adding person (using modify in case person already exists)
-    my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
-    $self->update_person_from_fields(notes => $note);
-
-    $info{'firstname'} = $self->request_fields->{firstname};
-    $info{'lastname'} = $self->request_fields->{lastname};
-    $info{'telephone'} = $self->request_fields->{telephone};
-    $info{'company'} = $self->request_fields->{company};
-    $info{'subject'} = $self->app->i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
-    utf8::decode($info{'subject'});
-
-    # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    my ( $auth_return, $err, $errargs_ref ) =
-      pf::activation::create_and_send_activation_code(
-        $self->current_mac,
-        $pid, $email,
-        $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION,
-        $pf::activation::GUEST_ACTIVATION,
-        $self->app->profile->getName,
-        %info,
-      );
-    
-    pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
-
-    $self->session->{fields} = $self->request_fields;
-    $self->app->session->{email} = $email;
-    $self->username($pid);
-
-    # We compute the data and release the user
-    # He will come back afterwards.
-    $self->execute_actions();
-    $self->new_node_info->{status} = "reg";
-    $self->app->root_module->apply_new_node_info();
-    pf::enforcement::reevaluate_access( $self->current_mac, 'manage_register' );
-    $self->render("release.html", $self->_release_args());
-}
-
-=head2 execute_actions
-
-Override the actions since there is an activation timeout for the unregdate.
-
-=cut
-
-after 'execute_actions' => sub {
-    my ($self) = @_;
-
-    # we record the unregdate to reuse it after
-    $self->app->session->{"email_unregdate"} = $self->new_node_info->{unregdate};
-
-    get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
-    # Use the activation timeout to set the unregistration date
-    my $timeout = normalize_time( $self->source->{email_activation_timeout} );
-    my $unregdate = POSIX::strftime( "%Y-%m-%d %H:%M:%S",localtime( time + $timeout ) );
-    get_logger->debug( "Registration for guest ".$self->app->session->{username}." is valid until $unregdate (delay of $timeout s)" );
-
-    $self->new_node_info->{unregdate} = $unregdate;
-    return $TRUE;
-};
-
-=head2 auth_source_params
-
-The parameters available for source matching
-
-=cut
-
-sub auth_source_params {
-    my ($self) = @_;
-    return {
-        user_email => $self->app->session->{email},
-        username => $self->username(),
-    };
-}
 
 =head1 AUTHOR
 

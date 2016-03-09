@@ -1,17 +1,42 @@
-package captiveportal::DynamicRouting::Module::Chained;
-use Moose;
-
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Chained'; }
+package captiveportal::PacketFence::DynamicRouting::Module::Message;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Chained - Chained Controller for captiveportal
+DynamicRouting::Module::Message
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Module to show a message to the user
 
 =cut
+
+use Moose;
+extends 'captiveportal::DynamicRouting::Module';
+
+has 'template' => (is => 'rw', default => sub {'message.html'});
+
+has 'skipable' => (is => 'rw', default => sub {1});
+
+has 'message' => (is => 'rw', required => 1);
+
+=head2 execute_child
+
+Display the message to the user and handle the continue if applicable
+
+=cut
+
+sub execute_child {
+    my ($self) = @_;
+    if($self->app->request->param('next') && $self->skipable){
+        $self->done();
+    }
+    else {
+        $self->render($self->template, {
+            message => $self->message, 
+            skipable => $self->skipable,
+        });
+    }
+}
 
 =head1 AUTHOR
 

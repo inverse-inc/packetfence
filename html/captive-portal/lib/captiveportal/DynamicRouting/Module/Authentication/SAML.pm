@@ -1,94 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::SAML;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::SAML'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::SAML
+captiveportal::DynamicRouting::Module::Authentication::SAML - SAML Controller for captiveportal
 
 =head1 DESCRIPTION
 
-SAML authentication
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::Role::Routed';
-
-use pf::util;
-use pf::auth_log;
-
-has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
-
-has '+route_map' => (default => sub {
-    tie my %map, 'Tie::IxHash', (
-        '/saml/redirect' => \&redirect,
-        '/saml/assertion' => \&assertion,
-        # fallback to the index
-        '/captive-portal' => \&index,
-    );
-    return \%map;
-});
-
-=head2 execute_child
-
-Execute the module
-
-=cut
-
-sub execute_child {
-    my ($self) = @_;
-    $self->index();
-}
-
-=head2 index
-
-SAML index
-
-=cut
-
-sub index {
-    my ($self) = @_;
-    $self->render("saml.html", {source => $self->source});
-}
-
-=head2 redirect
-
-Redirect the user to the SAML IDP
-
-=cut
-
-sub redirect {
-    my ($self) = @_;
-    pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac);
-    $self->app->redirect($self->source->sso_url);
-}
-
-=head2 assertion
-
-Handle the assertion that comes back from the IDP
-
-=cut
-
-sub assertion {
-    my ($self) = @_;
-
-    my ($username, $msg) = $self->source->handle_response($self->app->request->param("SAMLResponse"));
-
-    # We strip the username if the authorization source requires it.
-    if(isenabled($self->source->authorization_source->{stripped_user_name})){
-        ($username, undef) = strip_username($username);
-    }
-
-    if($username){
-        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
-        $self->username($username);
-        $self->done();
-    }
-    else {
-        $self->app->error($msg);
-        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
-    }
-}
 
 =head1 AUTHOR
 

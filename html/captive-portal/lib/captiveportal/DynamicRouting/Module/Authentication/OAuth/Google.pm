@@ -1,19 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::OAuth::Google;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Google'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::OAuth::Google
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Google - Google Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Google OAuth module
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
-
-has '+source' => (isa => 'pf::Authentication::Source::GoogleSource');
 
 =head1 AUTHOR
 

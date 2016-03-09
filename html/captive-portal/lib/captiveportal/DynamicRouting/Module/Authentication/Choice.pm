@@ -1,66 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::Choice;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Choice'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::Choice
+captiveportal::DynamicRouting::Module::Authentication::Choice - Choice Controller for captiveportal
 
 =head1 DESCRIPTION
 
-For a choice between multiple authentication sources
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Choice';
-
-has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
-
-with 'captiveportal::Role::MultiSource';
-
-use pf::log;
-use pf::constants;
-use captiveportal::util;
-
-=head2 BUILD
-
-Create the dynamic modules based on the sources of the module
-
-=cut
-
-sub BUILD {
-    my ($self) = @_;
-    my @sources = @{$self->sources()};
-
-    get_logger->debug("Building Authentication Choice module using sources : ".join(',', map{$_->id} @sources) );
-    push @{$self->modules_order}, (map {generate_id($self->id, generate_dynamic_module_id($_->id))} @sources);
-    foreach my $source (@sources){
-        die "Missing DynamicRouting module for source : ".$source->id unless($source->dynamic_routing_module);
-        my $module = "captiveportal::DynamicRouting::Module::".$source->dynamic_routing_module;
-        $self->add_module($module->new(
-            id => generate_id($self->id, generate_dynamic_module_id($source->id)),
-            description => $source->description,
-            app => $self->app,
-            parent => $self,
-            source_id => $source->id,
-        ));
-    }
-}
-
-=head2 execute_child
-
-Validate there are sources and display a message if there are none. Otherwise, let Choice handle it
-
-=cut
-
-sub execute_child {
-    my ($self) = @_;
-    
-    unless(@{$self->sources}){
-        $self->app->error("No authentication sources found in configuration. Select another option.");
-        return;
-    }
-    $self->SUPER::execute_child();
-}
 
 =head1 AUTHOR
 

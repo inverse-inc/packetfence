@@ -1,19 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::OAuth::Facebook;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Facebook'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::OAuth::Facebook
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Facebook - Facebook Controller for captiveportal
 
 =head1 DESCRIPTION
 
-Facebook OAuth module
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
-
-has '+source' => (isa => 'pf::Authentication::Source::FacebookSource');
 
 =head1 AUTHOR
 

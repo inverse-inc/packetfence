@@ -1,34 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::OAuth::LinkedIn;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::LinkedIn'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::OAuth::LinkedIn
+captiveportal::DynamicRouting::Module::Authentication::OAuth::LinkedIn - LinkedIn Controller for captiveportal
 
 =head1 DESCRIPTION
 
-LinkedIn OAuth module
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
-
-has '+token_scheme' => (default => 'uri-query:oauth2_access_token');
-
-has '+source' => (isa => 'pf::Authentication::Source::LinkedInSource');
-
-=head2 _decode_response
-
-The e-mail is returned as a quoted string
-
-=cut
-
-sub _decode_response {
-    my ($self, $response) = @_;
-    my $pid = $response->content();
-    $pid =~ s/"//g;
-    return {email => $pid};
-}
 
 =head1 AUTHOR
 

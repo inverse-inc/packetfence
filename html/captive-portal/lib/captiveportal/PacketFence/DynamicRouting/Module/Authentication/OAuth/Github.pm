@@ -1,17 +1,32 @@
-package captiveportal::DynamicRouting::Module::Chained;
-use Moose;
-
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Chained'; }
+package captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Github;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Chained - Chained Controller for captiveportal
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Github
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Github OAuth module
 
 =cut
+
+use Moose;
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
+
+has '+source' => (isa => 'pf::Authentication::Source::GithubSource');
+
+has '+token_scheme' => (default => sub{"uri-query:access_token"});
+
+=head2 _extract_username_from_response
+
+Create a generic username if no e-mail is in the response
+
+=cut
+
+sub _extract_username_from_response {
+    my ($self, $info) = @_;
+    return $info->{email} || $info->{login}.'@github';
+}
 
 =head1 AUTHOR
 

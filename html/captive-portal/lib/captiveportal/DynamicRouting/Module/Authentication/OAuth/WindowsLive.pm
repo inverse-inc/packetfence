@@ -1,32 +1,17 @@
 package captiveportal::DynamicRouting::Module::Authentication::OAuth::WindowsLive;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::WindowsLive'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Authentication::OAuth::WindowsLive
+captiveportal::DynamicRouting::Module::Authentication::OAuth::WindowsLive - WindowsLive Controller for captiveportal
 
 =head1 DESCRIPTION
 
-WindowsLive OAuth module
+[enter your description here]
 
 =cut
-
-use Moose;
-extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
-
-has '+token_scheme' => (default => "auth-header:Bearer");
-
-has '+source' => (isa => 'pf::Authentication::Source::WindowsLiveSource');
-
-=head2 _extract_username_from_response
-
-Get the username from the response
-
-=cut
-
-sub _extract_username_from_response {
-    my ($self, $info) = @_;
-    return $info->{emails}->{account};
-}
 
 =head1 AUTHOR
 

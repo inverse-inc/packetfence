@@ -1,17 +1,19 @@
-package captiveportal::DynamicRouting::Module::Chained;
-use Moose;
-
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Chained'; }
+package captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Google;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Chained - Chained Controller for captiveportal
+captiveportal::DynamicRouting::Module::Authentication::OAuth::Google
 
 =head1 DESCRIPTION
 
-[enter your description here]
+Google OAuth module
 
 =cut
+
+use Moose;
+extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
+
+has '+source' => (isa => 'pf::Authentication::Source::GoogleSource');
 
 =head1 AUTHOR
 
