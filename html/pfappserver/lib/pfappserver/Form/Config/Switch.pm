@@ -92,7 +92,7 @@ has_field 'AccessListMap' =>
 has_field 'UrlMap' =>
   (
    type => 'Toggle',
-   label => 'Role by Url',
+   label => 'Role by Web Auth URL',
    default => undef,
   );
 has_field 'cliAccess' =>

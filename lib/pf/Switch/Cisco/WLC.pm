@@ -110,6 +110,8 @@ use pf::constants;
 use pf::config;
 use pf::web::util;
 use pf::util;
+use pf::node;
+use pf::util::radius qw(perform_coa perform_disconnect);
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -443,20 +445,6 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
-}
-
-sub setSession {
-    my($args) = @_;
-    my $mac = $args->{'mac'};
-    my $session_id = generate_session_id(6);
-    my $chi = pf::CHI->new(namespace => 'httpd.portal');
-    $chi->set($session_id,{
-        client_mac => $mac,
-        wlan => $args->{'ssid'},
-        switch_id => $args->{'switch'}->{'_id'},
-    });
-    pf::locationlog::locationlog_set_session($mac, $session_id);
-    return $session_id;
 }
 
 =head2 radiusDisconnect

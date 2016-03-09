@@ -3045,6 +3045,26 @@ sub returnAuthorizeRead {
     return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "PacketFence does not support this switch for enable access login" ) ];
 }
 
+=head2 setSession
+
+Create a session id and save in in the locationlog.
+
+=cut
+
+sub setSession {
+    my($args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
+}
+
 =back
 
 =head1 AUTHOR

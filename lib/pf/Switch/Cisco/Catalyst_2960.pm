@@ -386,7 +386,7 @@ sub radiusDisconnect {
         return;
     }
 
-    $logger->info("deauthenticating $mac");
+    $logger->info("deauthenticating");
 
     my $send_disconnect_to = $self->{'_ip'};
     # allowing client code to override where we connect with NAS-IP-Address
@@ -510,7 +510,7 @@ sub returnRadiusAccessAccept {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
             $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
             $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
-            #override role if a role in role map is define
+            #override role if a role in role map is defined
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
                 my $role_map = $self->getRoleByName($args->{'user_role'});
                 $role = $role_map if (defined($role_map));
@@ -533,20 +533,6 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
-sub setSession {
-    my($args) = @_;
-    my $mac = $args->{'mac'};
-    my $session_id = generate_session_id(6);
-    my $chi = pf::CHI->new(namespace => 'httpd.portal');
-    $chi->set($session_id,{
-        client_mac => $mac,
-        wlan => $args->{'ssid'},
-        switch_id => $args->{'switch'}->{'_id'},
-    });
-    pf::locationlog::locationlog_set_session($mac, $session_id);
-    return $session_id;
-}
-
 =head2 returnAccessListAttribute
 
 Returns the attribute to use when pushing an ACL using RADIUS
@@ -560,7 +546,7 @@ sub returnAccessListAttribute {
 
 =head2 returnRoleAttribute
 
-What RADIUS Attribute (usually VSA) should the role returned into.
+What RADIUS Attribute (usually VSA) should the role be returned into.
 
 =cut
 
