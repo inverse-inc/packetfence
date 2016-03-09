@@ -309,7 +309,7 @@ sub accounting {
             #handle radius floating devices
             $self->_handleAccountingFloatingDevices($switch, $mac, $port);
             #Close old locationlog
-            if (enabled($Config{advanced}{'locationlog_close_on_accounting_stop'})) {
+            if (isenabled($Config{advanced}{'locationlog_close_on_accounting_stop'})) {
                 locationlog_update_end_mac_switch_port($mac, $switch->{_id}, $port);
             }
         }
