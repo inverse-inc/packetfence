@@ -7192,6 +7192,10 @@ msgid "expire.locationlog"
 msgstr "Location logs"
 
 # conf/documentation.conf
+msgid "expire.node"
+msgstr "Node"
+
+# conf/documentation.conf
 msgid "expire.person"
 msgstr "Person"
 
