@@ -1262,6 +1262,11 @@ radius_audit_log_cleanup_timeout=10s
 # node cleanup interval
 node_cleanup_interval=60s
 #
+# maintenance.person_cleanup_interval
+#
+# person cleanup interval
+person_cleanup_interval=8h
+#
 # maintenance.traplog_cleanup_interval
 #
 # traplog cleanup interval
