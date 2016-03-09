@@ -19,7 +19,7 @@ use pf::config;
 use pf::person;
 use pf::util;
 use pf::log;
-use captiveportal::DynamicRouting::Form::Authentication;
+use captiveportal::Form::Authentication;
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
@@ -75,7 +75,7 @@ sub form {
     my ($self) = @_;
     my $params = defined($self->app->request->parameters()) ? $self->app->request->parameters() : {};
     my $i18n = captiveportal::DynamicRouting::I18N->new;
-    my $form = captiveportal::DynamicRouting::Form::Authentication->new(language_handle => $i18n, app => $self->app);
+    my $form = captiveportal::Form::Authentication->new(language_handle => $i18n, app => $self->app);
     $form->process(params => $params);
     return $form;
 }

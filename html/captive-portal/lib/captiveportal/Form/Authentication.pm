@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::Form::Authentication;
+package captiveportal::Form::Authentication;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Form::Authentication
+captiveportal::Form::Authentication
 
 =head1 DESCRIPTION
 
@@ -15,8 +15,8 @@ extends 'HTML::FormHandler';
 
 has 'app' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application', required => 1);
 
-has '+field_name_space' => ( default => 'captiveportal::DynamicRouting::Form::Field' );
-has '+widget_name_space' => ( default => 'captiveportal::DynamicRouting::Form::Widget' );
+has '+field_name_space' => ( default => 'captiveportal::Form::Field' );
+has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
 
 use pf::log;
 use pf::sms_carrier;

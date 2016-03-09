@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::Form::Field::AUP;
+package captiveportal::Form::Field::AUP;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Form::Field::AUP
+captiveportal::Form::Field::AUP
 
 =head1 DESCRIPTION
 
