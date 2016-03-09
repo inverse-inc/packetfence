@@ -1265,7 +1265,7 @@ node_cleanup_interval=60s
 # maintenance.person_cleanup_interval
 #
 # person cleanup interval
-person_cleanup_interval=8h
+person_cleanup_interval=60s
 #
 # maintenance.traplog_cleanup_interval
 #
