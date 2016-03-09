@@ -41,7 +41,7 @@ has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
 use pf::authentication;
 use pf::Authentication::constants;
-use captiveportal::DynamicRouting::Actions;
+use captiveportal::Base::Actions;
 
 =head2 allowed_urls
 

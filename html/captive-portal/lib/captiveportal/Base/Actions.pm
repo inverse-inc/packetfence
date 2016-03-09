@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::Actions;
+package captiveportal::Base::Actions;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Actions
+captiveportal::Base::Actions
 
 =head1 DESCRIPTION
 
