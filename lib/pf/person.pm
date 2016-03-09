@@ -38,6 +38,8 @@ BEGIN {
         person_nodes
         person_violations
         person_custom_search
+        person_cleanup
+        persons_without_nodes
     );
     @EXPORT_OK = qw( $PID_RE );
 }
@@ -163,6 +165,14 @@ sub person_db_prepare {
                    custom_field_7, custom_field_8, custom_field_9, portal, source
             FROM person
             WHERE pid = ? ]);
+
+    $person_statements->{'persons_without_nodes_sql'} = get_db_handle()->prepare(
+        qq[ 
+            SELECT person.pid as pid from person 
+            LEFT JOIN node on node.pid=person.pid  
+            GROUP BY pid 
+            HAVING count(node.mac)=0;
+            ]);
 
 
     $person_db_prepared = 1;
@@ -373,6 +383,29 @@ sub person_violations {
     my ($pid) = @_;
 
     return db_data(PERSON, $person_statements, 'person_violations_sql', $pid);
+}
+
+=head2 persons_without_nodes
+
+Get all the persons who are not the owner of at least one node.
+
+=cut
+
+sub persons_without_nodes {
+   return db_data(PERSON, $person_statements, 'persons_without_nodes_sql'); 
+}
+
+=head2 person_cleanup
+
+Clean all persons that are not the owner of a node
+
+=cut
+
+sub person_cleanup {
+    my @to_delete = map { $_->{pid} } persons_without_nodes();
+    foreach my $pid (@to_delete) {
+        person_delete($pid);
+    }
 }
 
 =head1 AUTHOR
