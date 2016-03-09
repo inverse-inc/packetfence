@@ -272,6 +272,8 @@ Create `/etc/ha.d/haresources` with the following content:
   pf1.example.com drbddisk::mysql Filesystem::/dev/drbd0::/var/lib/mysql::ext4 \ 
   mysqld
 
+As for the previous file, make sure to adjust hostname, in this case pf1.example.com, accordingly for each servers.
+
 Create `/etc/ha.d/authkeys` with the following content (make sure to change the hash for security concerns):
 
   auth 1
@@ -281,7 +283,9 @@ and change its rights like this:
 
   # chmod 600 /etc/ha.d/authkeys
 
-NOTE: Make sure port 694 is opened (through iptables) on both servers
+Changing the hash can be achieved by running `echo -n password | sha1sum | awk '{print $1}'`, where 'password' would be a password of your choice.
+
+NOTE: Make sure udp port 694 is opened (through iptables) on both servers. Important mainly if an existing iptables configuration is in place on the server. PacketFence does allow it on it's 'high-availability' interface.
 
 Start Heartbeat:
 
