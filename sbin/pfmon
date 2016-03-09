@@ -51,6 +51,7 @@ use pf::factory::provisioner;
 use pf::SwitchFactory;
 use pf::radius_audit_log;
 use pf::StatsD;
+use pf::person;
 
 pf::SwitchFactory::preLoadModules();
 
