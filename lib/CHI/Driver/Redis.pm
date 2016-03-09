@@ -110,13 +110,14 @@ sub get_keys {
 sub _get_keys {
     my ($self) = @_;
 
-    my $cursor = "0";
+    my $cursor = undef;
     my @keys;
-    do {
+    while(!defined($cursor) || $cursor ne "0") {
+        $cursor //= "0";
         my @result = $self->redis->scan($cursor, 'match', $self->key_prefix.'*');
         $cursor = shift(@result);
         push @keys, @{shift(@result)};
-    } while($cursor ne "0");
+    } 
 
     # SCAN can return duplicate keys
     return uniq(@keys);
@@ -133,8 +134,6 @@ sub remove {
 
     return unless defined($key);
 
-    my $ns = $self->prefix . $self->namespace;
-
     my $skey = uri_escape($key);
 
     $self->redis->del($self->key_prefix . $skey);
@@ -143,10 +142,9 @@ sub remove {
 sub store {
     my ($self, $key, $data, $expires_in) = @_;
 
-    my $ns = $self->prefix . $self->namespace;
 
     my $skey = uri_escape($key);
-    my $realkey = $ns . '||' . $skey;
+    my $realkey = $self->key_prefix . $skey;
 
     $self->redis->sadd($self->prefix . 'chinamespaces', $self->namespace);
     $self->redis->set($realkey, $data);
