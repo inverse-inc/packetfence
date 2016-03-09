@@ -26,6 +26,7 @@ use pf::config::util;
 use List::MoreUtils qw(any);
 use URI::Escape::XS qw(uri_unescape);
 use HTML::Entities;
+use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -151,7 +152,7 @@ sub process_user_agent {
 
     # Caching and updating node's info
     $logger->debug("adding user-agent to cache");
-    $self->user_agent_cache->set( $mac, $user_agent, "5 minutes" );
+    $self->user_agent_cache->set( $mac, $user_agent, $USER_AGENT_CACHE_EXPIRATION);
 
     # Recording useragent
     $logger->info("Updating node user_agent with useragent: '$user_agent'");
