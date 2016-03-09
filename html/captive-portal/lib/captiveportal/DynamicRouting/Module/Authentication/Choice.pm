@@ -15,7 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Choice';
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
 
-with 'captiveportal::DynamicRouting::Role::MultiSource';
+with 'captiveportal::Role::MultiSource';
 
 use pf::log;
 use pf::constants;

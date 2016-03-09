@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::Role::Routed;
+package captiveportal::Role::Routed;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Role::Routed
+captiveportal::Role::Routed
 
 =head1 DESCRIPTION
 

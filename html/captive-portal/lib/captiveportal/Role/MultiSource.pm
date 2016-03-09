@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::Role::MultiSource;
+package captiveportal::Role::MultiSource;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Role::MultiSource
+captiveportal::Role::MultiSource
 
 =head1 DESCRIPTION
 

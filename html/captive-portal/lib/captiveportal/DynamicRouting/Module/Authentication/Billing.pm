@@ -13,8 +13,8 @@ Billing auth module
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
-with 'captiveportal::DynamicRouting::Role::Routed';
-with 'captiveportal::DynamicRouting::Role::MultiSource';
+with 'captiveportal::Role::Routed';
+with 'captiveportal::Role::MultiSource';
 
 has '+multi_source_auth_classes' => (default => sub {['billing']});
 
