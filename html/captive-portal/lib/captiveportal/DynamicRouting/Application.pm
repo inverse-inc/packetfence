@@ -18,7 +18,7 @@ use Template::AutoFilter;
 use pf::constants;
 use pf::log;
 use Locale::gettext qw(gettext ngettext);
-use captiveportal::DynamicRouting::I18N;
+use captiveportal::Base::I18N;
 use pf::node;
 use pf::useragent;
 use pf::util;

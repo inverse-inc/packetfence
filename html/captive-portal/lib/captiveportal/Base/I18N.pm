@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::I18N;
+package captiveportal::Base::I18N;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::I18N
+captiveportal::Base::I18N
 
 =head1 DESCRIPTION
 
