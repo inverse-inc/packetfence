@@ -181,6 +181,12 @@ sub registertasks  {
         }
     );
     register_task(
+        'person cleanup','person_cleanup_interval',sub {
+            person_cleanup()
+              if ( isenabled($Config{'expire'}{'person'}) );
+        }
+    );
+    register_task(
         'traplog cleanup','traplog_cleanup_interval',sub {
             traplog_cleanup( $Config{'expire'}{'traplog'} )
               if ( $Config{'expire'}{'traplog'} );

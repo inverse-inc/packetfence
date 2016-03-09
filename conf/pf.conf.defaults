@@ -383,6 +383,12 @@ host=localhost
 # node=90D
 node=0D
 #
+# expire.person
+#
+# Users that do not own any device will be deleted.
+# Locally created users will only be deleted when their account expires.
+person=disabled
+#
 # expire.iplog
 #
 # Time which you would like to keep logs on IP/MAC information.

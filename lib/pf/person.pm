@@ -16,6 +16,9 @@ deletion, read info, ...
 use strict;
 use warnings;
 use pf::log;
+use pf::password;
+use DateTime;
+use DateTime::Format::MySQL;
 
 use constant PERSON => 'person';
 
@@ -397,13 +400,24 @@ sub persons_without_nodes {
 
 =head2 person_cleanup
 
-Clean all persons that are not the owner of a node
+Clean all persons that are not the owner of a node and that are not a local account that is still valid
 
 =cut
 
 sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
+    my $now = DateTime->now();
     foreach my $pid (@to_delete) {
+        my $password = pf::password::view($pid);
+        if(defined($password)){
+            my $expiration = DateTime::Format::MySQL->parse_datetime($password->{expiration});
+            my $cmp = DateTime->compare($now, $expiration);
+            if($cmp < 0){
+                get_logger->debug("Not deleting $pid because the local account is still valid.");
+                next;
+            }
+        }
+        # We're all good for deletion
         person_delete($pid);
     }
 }
