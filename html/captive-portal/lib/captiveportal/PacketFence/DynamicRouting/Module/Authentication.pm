@@ -181,9 +181,9 @@ The params for the authentication source
 
 sub auth_source_params {
     my ($self) = @_;
-    my $locationlog_entry = locationlog_view_open_mac($mac);
+    my $locationlog_entry = locationlog_view_open_mac($self->current_mac);
     return {
-        username => $self->app->session->{username},
+        username => $self->username(),
         mac => $self->current_mac,
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
