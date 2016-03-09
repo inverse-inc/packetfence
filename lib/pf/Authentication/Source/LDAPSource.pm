@@ -279,6 +279,12 @@ sub get_user_object {
     return $result->pop_entry;
 }
 
+=head2 match_first_rule
+
+Match the first rule that success
+
+=cut
+
 sub match_first_rule {
     my ($self, $object, $params) = @_;
     my %common_attributes_lookup = map { $_->{value} => undef } @{$self->common_attributes()};
@@ -290,6 +296,12 @@ sub match_first_rule {
     }
     return undef;
 }
+
+=head2 match_rule
+
+Match the rule based parameters and user entry
+
+=cut
 
 sub match_rule {
     my ($self, $rule, $object, $params, $lookup) = @_;
@@ -315,6 +327,12 @@ sub match_rule {
            && (@$member_conditions == 0 || $self->match_member_conditions($object, $member_conditions, $rule->match));
 }
 
+=head2 match_member_conditions
+
+Match ldap group members
+
+=cut
+
 sub match_member_conditions {
     my ($self, $object, $member_conditions, $match) = @_;
     my $dn_search = escape_filter_value($object->dn);
@@ -329,6 +347,12 @@ sub match_member_conditions {
     }
     return all { $self->match_group_filter($connection, $object, $dn_search, $_) } @$member_conditions;
 }
+
+=head2 match_group_filter
+
+Match based off group filter
+
+=cut
 
 sub match_group_filter {
     my ($self, $connection, $entry, $dn_search, $condition) = @_;
@@ -357,11 +381,23 @@ sub match_group_filter {
     return 1;
 }
 
+=head2 match_ldap_condition
+
+Match based off ldap conditions
+
+=cut
+
 sub match_ldap_condition {
     my ($self, $condition, $object) = @_;
     my $attribute = $condition->attribute;
     return any { $condition->matches($attribute, $_) } @{$object->get_value($attribute, asref => 1) // []};
 }
+
+=head2 make_ldap_filter_for_user
+
+Make the ldap filter for the user
+
+=cut
 
 sub make_ldap_filter_for_user {
     my ($self, $params) = @_;
