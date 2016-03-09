@@ -416,6 +416,8 @@ sub person_cleanup {
                 get_logger->debug("Not deleting $pid because the local account is still valid.");
                 next;
             }
+            # We delete the password too
+            pf::password::_delete($pid);
         }
         # We're all good for deletion
         person_delete($pid);
