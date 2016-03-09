@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::Authenticate'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::Authenticate - Authenticate Controller for captiveportal
 
 =head1 DESCRIPTION
 
