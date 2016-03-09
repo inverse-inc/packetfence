@@ -816,6 +816,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/portal_modules.conf
+%config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
