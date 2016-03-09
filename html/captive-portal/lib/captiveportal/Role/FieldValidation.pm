@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::FieldValidation;
+package captiveportal::Role::FieldValidation;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::FieldValidation
+captiveportal::Role::FieldValidation
 
 =head1 DESCRIPTION
 

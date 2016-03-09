@@ -12,7 +12,7 @@ Null auth module
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::DynamicRouting::FieldValidation';
+with 'captiveportal::Role::FieldValidation';
 
 use pf::util;
 use pf::config;

@@ -12,7 +12,7 @@ Login registration
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::DynamicRouting::FieldValidation';
+with 'captiveportal::Role::FieldValidation';
 
 has '+source' => (isa => 'pf::Authentication::Source::EmailSource');
 

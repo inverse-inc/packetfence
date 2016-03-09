@@ -12,7 +12,7 @@ Login registration
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::DynamicRouting::FieldValidation';
+with 'captiveportal::Role::FieldValidation';
 with 'captiveportal::DynamicRouting::Role::MultiSource';
 
 use pf::util;

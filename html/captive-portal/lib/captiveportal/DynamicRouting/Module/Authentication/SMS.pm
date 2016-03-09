@@ -12,7 +12,7 @@ SMS authentication module
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::DynamicRouting::FieldValidation';
+with 'captiveportal::Role::FieldValidation';
 
 use pf::activation;
 use pf::log;
