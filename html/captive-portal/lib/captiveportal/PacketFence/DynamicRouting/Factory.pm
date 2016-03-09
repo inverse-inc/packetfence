@@ -2,7 +2,7 @@ package captiveportal::PacketFence::DynamicRouting::Factory;
 
 =head1 NAME
 
-pf::factory::firewallsso 
+captiveportal::PacketFence::DynamicRouting::Factory
 
 =cut
 
@@ -10,7 +10,7 @@ pf::factory::firewallsso
 
 pf::factory::firewallsso
 
-The factory for creating pf::firewallsso objects
+The factory for creating captiveportal::PacketFence::DynamicRouting::Module objects
 
 =cut
 
@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Moose;
 
-use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1, except => ['captiveportal::DynamicRouting::Module'];
+use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1;
 use pfconfig::cached_hash;
 use pf::constants;
 use pf::util;
