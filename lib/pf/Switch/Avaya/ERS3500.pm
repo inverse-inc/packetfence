@@ -24,10 +24,6 @@ use Net::SNMP;
 
 use base ('pf::Switch::Avaya');
 
-sub supportsWiredMacAuth { return $SNMP::TRUE; }
-sub supportsWiredDot1x { return $SNMP::TRUE; }
-# VoIP technology supported
-sub supportsRadiusVoip { return $SNMP::TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $SNMP::TRUE; }
 
 sub description { 'Avaya ERS 3500 Series' }

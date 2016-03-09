@@ -638,7 +638,7 @@ Avaya
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
 
-802.1X with MAC Authentication bypass and VoIP
+802.1X with MAC Authentication Bypass and VoIP
 ++++++++++++++++++++++++++++++++++++++++++++++
 
 Global config settings:
@@ -663,6 +663,7 @@ Global config settings:
   vlan name 5 "Guest"
   vlan name 100 "Voice"
 
+  #Uplink configuration
   vlan ports 24 tagging tagAll 
   vlan configcontrol autopvid
 
@@ -689,7 +690,7 @@ Global config settings:
 Port 1 configuration:
 
   interface FastEthernet ALL
-  vlan ports 1 tagging taggAll
+  vlan ports 1 tagging tagAll
   vlan members 2,3,4,5 1
   vlan ports 1 pvid 2
   eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable

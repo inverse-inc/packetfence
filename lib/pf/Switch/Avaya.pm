@@ -42,6 +42,7 @@ use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::log;
 
 sub description { 'Avaya Switch Module' }
 
@@ -57,9 +58,15 @@ sub supportsWiredMacAuth { return $SNMP::TRUE; }
 sub supportsWiredDot1x { return $SNMP::TRUE }
 sub supportsRadiusVoip { return $SNMP::TRUE }
 
+=item identifyConnectionType
+
+Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
+
+=cut
+
 sub _identifyConnectionType {
-    my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $nas_port_type, $eap_type, $mac, $user_name) = @_;
+    my $logger = $self->logger();
 
     unless( defined($nas_port_type) ){
         $logger->info("Request type is not set. On Nortel this means it's MAC AUTH");
@@ -67,12 +74,25 @@ sub _identifyConnectionType {
     }
     
     # if we're not overiding, we call the parent method
-    return $this->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+    return $self->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
 }
 
+=item parseRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type (Ethernet, Wireless, etc.)
+Network Device IP
+EAP
+MAC
+NAS-Port (port)
+User-Name
+
+=cut
+
+
 sub parseRequest {
-    my ($this, $radius_request) = @_;
+    my ($self, $radius_request) = @_;
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'}) || clean_mac($radius_request->{'User-Name'});
     my $user_name = $radius_request->{'User-Name'};
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
@@ -89,9 +109,21 @@ sub parseRequest {
 }
 
 
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
 sub getVoipVsa {
     return {};
 }
+
+=item parseTrap
+
+Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
+
+=cut
 
 sub parseTrap {
     my ( $self, $trapString ) = @_;
@@ -130,6 +162,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=item getIfIndex
+
+return the ifindex based on the slot number and the port number
+
+=cut
+ 
 sub getIfIndex {
     my ($self, $ifDesc_param,$param2) = @_;
 
@@ -147,6 +185,12 @@ sub getIfIndex {
         }
     }
 }
+
+=item getBoardPortFromIfIndex
+
+return the slot and the port number based on the ifindex
+
+=cut
 
 sub getBoardPortFromIfIndex {
     my ( $self, $ifIndex ) = @_;
@@ -178,6 +222,12 @@ sub getBoardPortFromIfIndexForSecurityStatus {
     return ( $board, $port );
 }
 
+=item getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => ifIndex => Array(VLANs)
+
+=cut
+
 sub getAllSecureMacAddresses {
     my ($self) = @_;
     my $logger = $self->logger;
@@ -206,6 +256,12 @@ sub getAllSecureMacAddresses {
 
     return $secureMacAddrHashRef;
 }
+
+=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
+
+Returns an hashref with MAC => Array(VLANs)
+
+=cut
 
 sub getSecureMacAddresses {
     my ( $self, $ifIndex ) = @_;
@@ -241,8 +297,10 @@ sub getSecureMacAddresses {
 }
 
 
-#called with $authorized set to true, creates a new line to authorize the MAC
-#when $authorized is set to false, deletes an existing line
+=item authorizeMAC - authorize a MAC address and de-authorize the previous one if required
+
+=cut
+
 sub _authorizeMAC {
     my ( $self, $ifIndex, $mac, $authorize ) = @_;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
@@ -309,6 +367,15 @@ sub _authorizeMAC {
     $logger->warn("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
     return;
 }
+
+=item getPhonesLLDPAtIfIndex
+
+Return list of MACs found through LLDP on a given ifIndex.
+
+If this proves to be generic enough, it could be promoted to L<pf::Switch>.
+In that case, create a generic ifIndexToLldpLocalPort also.
+
+=cut
 
 sub getPhonesLLDPAtIfIndex {
     my ( $self, $ifIndex ) = @_;
