@@ -15,7 +15,7 @@ extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::ConfigStore::PortalModule;
-use captiveportal::DynamicRouting::util;
+use captiveportal::util;
 
 has_field 'modules' =>
   (
@@ -46,7 +46,7 @@ sub options_modules {
     my $cs = pf::ConfigStore::PortalModule->new;
     my $modules = $cs->readAll("id");
 
-    my $modules_by_type = captiveportal::DynamicRouting::util::modules_by_type($modules);
+    my $modules_by_type = captiveportal::util::modules_by_type($modules);
     delete $modules_by_type->{Root};
 
     return map { {

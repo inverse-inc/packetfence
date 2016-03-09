@@ -1,8 +1,8 @@
-package captiveportal::DynamicRouting::util;
+package captiveportal::util;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::util
+captiveportal::util
 
 =head1 DESCRIPTION
 

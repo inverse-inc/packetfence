@@ -24,7 +24,7 @@ use pf::constants;
 use pf::util;
 use Graph;
 use List::MoreUtils qw(any);
-use captiveportal::DynamicRouting::util;
+use captiveportal::util;
 use pf::config;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');

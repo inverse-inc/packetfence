@@ -19,7 +19,7 @@ with 'captiveportal::Role::MultiSource';
 
 use pf::log;
 use pf::constants;
-use captiveportal::DynamicRouting::util;
+use captiveportal::util;
 
 =head2 BUILD
 

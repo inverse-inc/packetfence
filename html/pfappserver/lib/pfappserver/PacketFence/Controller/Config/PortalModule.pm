@@ -16,7 +16,7 @@ use namespace::autoclean;
 
 use pf::constants;
 use pf::config::cached;
-use captiveportal::DynamicRouting::util;
+use captiveportal::util;
 use captiveportal::DynamicRouting::Factory;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
@@ -104,7 +104,7 @@ sub index :Path :Args(0) {
 
 after list => sub {
     my ($self, $c) = @_;
-    $c->stash->{items_by_type} = captiveportal::DynamicRouting::util::modules_by_type($c->stash->{items});
+    $c->stash->{items_by_type} = captiveportal::util::modules_by_type($c->stash->{items});
 
     tie my %types, 'Tie::IxHash', (map { $_ => [] } @{ordered_module_types()});
     my @skip = qw(TLSEnrollment Authentication Authentication::OAuth);
