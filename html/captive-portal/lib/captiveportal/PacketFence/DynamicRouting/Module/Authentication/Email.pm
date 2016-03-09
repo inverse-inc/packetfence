@@ -119,17 +119,16 @@ after 'execute_actions' => sub {
     return $TRUE;
 };
 
-=head2 auth_source_params
+=head2 auth_source_params_child
 
 The parameters available for source matching
 
 =cut
 
-sub auth_source_params {
+sub auth_source_params_child {
     my ($self) = @_;
     return {
         user_email => $self->app->session->{email},
-        username => $self->username(),
     };
 }
 

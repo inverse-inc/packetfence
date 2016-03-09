@@ -120,19 +120,6 @@ sub authenticate {
     $self->done();
 }
 
-=head2 authenticate
-
-The password available for matching in the source
-
-=cut
-
-sub auth_source_params {
-    my ($self) = @_;
-    return {
-        username => $self->app->session->{username},
-    };
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

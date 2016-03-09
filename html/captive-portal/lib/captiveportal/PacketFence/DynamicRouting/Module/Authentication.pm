@@ -182,8 +182,17 @@ sub auth_source_params {
     my ($self) = @_;
     return {
         username => $self->app->session->{username},
+        %{$self->auth_source_params_child()},
     }
 }
+
+=head2 auth_source_params_child
+
+Meant for child modules to define their params
+
+=cut
+
+sub auth_source_params_child { {} }
 
 =head2 create_local_account
 

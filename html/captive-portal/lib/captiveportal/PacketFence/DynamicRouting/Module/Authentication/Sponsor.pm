@@ -165,16 +165,15 @@ sub _validate_sponsor {
     return 1; 
 }
 
-=head2 auth_source_params
+=head2 auth_source_params_child
 
 The parameters available for source matching
 
 =cut
 
-sub auth_source_params {
+sub auth_source_params_child {
     my ($self) = @_;
     return {
-        username => $self->username,
         user_email => $self->app->session->{email},
     };
 }
