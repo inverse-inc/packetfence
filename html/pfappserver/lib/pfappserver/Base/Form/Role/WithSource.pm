@@ -18,7 +18,7 @@ use pf::log;
 after 'setup' => sub {
     my ($self) = @_;
 
-    if($self->for_module->does('captiveportal::DynamicRouting::MultiSource')){
+    if($self->for_module->does('captiveportal::DynamicRouting::Role::MultiSource')){
         $self->field('source_id')->multiple(1);
         $self->field('source_id')->options([$self->options_sources(multiple => 1)]);
     }

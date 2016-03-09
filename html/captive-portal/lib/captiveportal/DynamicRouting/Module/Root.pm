@@ -12,7 +12,7 @@ Root module for Dynamic Routing
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Chained';
-with 'captiveportal::DynamicRouting::Routed';
+with 'captiveportal::DynamicRouting::Role::Routed';
 
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (

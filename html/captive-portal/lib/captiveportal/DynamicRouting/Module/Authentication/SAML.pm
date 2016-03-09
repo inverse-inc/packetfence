@@ -12,7 +12,7 @@ SAML authentication
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
-with 'captiveportal::DynamicRouting::Routed';
+with 'captiveportal::DynamicRouting::Role::Routed';
 
 use pf::util;
 use pf::auth_log;
