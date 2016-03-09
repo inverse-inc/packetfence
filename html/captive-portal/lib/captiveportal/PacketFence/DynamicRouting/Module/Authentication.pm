@@ -20,6 +20,7 @@ use pf::person;
 use pf::util;
 use pf::log;
 use captiveportal::Form::Authentication;
+use pf::locationlog;
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
@@ -180,8 +181,12 @@ The params for the authentication source
 
 sub auth_source_params {
     my ($self) = @_;
+    my $locationlog_entry = locationlog_view_open_mac($mac);
     return {
         username => $self->app->session->{username},
+        mac => $self->current_mac,
+        connection_type => $locationlog_entry->{'connection_type'},
+        SSID => $locationlog_entry->{'ssid'},
         %{$self->auth_source_params_child()},
     }
 }
