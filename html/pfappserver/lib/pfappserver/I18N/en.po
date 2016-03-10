@@ -8640,7 +8640,7 @@ msgstr ""
 
 # pfappserver::Model::Node (availableStatus)
 msgid "unreg"
-msgstr ""
+msgstr "unregistered"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
