@@ -44,6 +44,7 @@ use pf::ConfigStore::Interface;
 use pf::cluster;
 use pf::SwitchFactory;
 use pf::node;
+use Storable 'dclone';
 
 pf::SwitchFactory::preLoadModules();
 
@@ -257,10 +258,8 @@ sub resolve {
     my ($rcode, @ans, @auth, @add);
 
     my ($ttl, $rdata);
-    my $res   = Net::DNS::Resolver->new;
-    my $reply = $CHI_CACHE->compute("resolve-$qtype-$qname", sub { $res->search($qname, $qtype) });
-
     $logger->debug("Query for public domain ($qtype) : $qname");
+    my $reply = resolve_with_cache($qtype, $qname);
 
     $rcode = "NXDOMAIN";
     if ($qname && $qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
@@ -473,6 +472,32 @@ sub populate_ipset_cache {
             add_to_ipset_cache($session,$1,$2);
         }
     }
+}
+
+=head2 resolve_with_cache
+
+Resolve a DNS name using the cache
+This makes sure the domain name TTL is honored
+
+=cut
+
+sub resolve_with_cache {
+    my ($qtype, $qname) = @_;
+
+    my $cache_key = "resolve-$qtype-$qname";
+
+    my $res   = Net::DNS::Resolver->new;
+    my $reply = $CHI_CACHE->get($cache_key);
+    unless($reply){
+        $reply = $res->search($qname, $qtype);
+        # We need to clone the reply since accessing the answers modifies the object and makes it invalid after its deserialized from the cache the second time
+        my $cloned_reply = dclone($reply);
+        my @answers = $cloned_reply->answer;
+        if($reply){
+            $CHI_CACHE->set($cache_key, $reply, $answers[0]->ttl);
+        }
+    }
+    return $reply;
 }
 
 sub add_to_ipset_cache {
