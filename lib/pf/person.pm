@@ -15,6 +15,7 @@ deletion, read info, ...
 
 use strict;
 use warnings;
+use pf::constants;
 use pf::log;
 use pf::password;
 use DateTime;
@@ -408,6 +409,10 @@ sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
     my $now = DateTime->now();
     foreach my $pid (@to_delete) {
+        if($BUILT_IN_USERS{$pid}){
+            get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
+            next;
+        }
         my $password = pf::password::view($pid);
         if(defined($password)){
             my $expiration = DateTime::Format::MySQL->parse_datetime($password->{expiration});

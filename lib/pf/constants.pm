@@ -17,6 +17,7 @@ use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
     $FALSE $TRUE $YES $NO $default_pid $admin_pid
+    %BUILT_IN_USERS
 );
 
 # some global constants
@@ -26,6 +27,11 @@ Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 Readonly::Scalar our $default_pid => 'default';
 Readonly::Scalar our $admin_pid => 'admin';
+
+Readonly::Hash our %BUILT_IN_USERS => (
+    $default_pid => 1, 
+    $admin_pid => 1,
+);
 
 =head1 AUTHOR
 
