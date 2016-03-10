@@ -189,7 +189,7 @@ Apply the new node info in the session to the node
 sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
-    $self->app->flash->{notice} = "Role ".$self->new_node_info->{category}." has been assigned to your device with unregistration date : ".$self->new_node_info->{unregdate};
+    $self->app->flash->{notice} = $self->app->i18n_format("Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate});
     node_modify($self->current_mac, %{$self->new_node_info()});
 }
 

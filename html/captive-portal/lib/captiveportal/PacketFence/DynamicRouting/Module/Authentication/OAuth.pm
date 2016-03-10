@@ -89,7 +89,7 @@ sub execute_child {
             $self->app->redirect($self->get_client->authorize);
         }
         else {
-            $self->app->flash->{error} = "You must accept the terms and conditions";
+            $self->app->flash->{error} = $self->app->i18n("You must accept the terms and conditions");
             $self->landing();
         }
     }

@@ -147,7 +147,7 @@ sub process_form  {
     my $pki_provider = $self->pki_provider;
 
     if(!defined $passwd || $passwd eq '') {
-        $self->app->flash->{error} = "No Password given";
+        $self->app->flash->{error} = $self->app->i18n("No Password given");
         return $FALSE;
     }
 
@@ -159,7 +159,7 @@ sub process_form  {
         $certificate_email = $self->app->request->param('certificate_email');
     }
     else {
-        $self->app->flash->{error} = "No e-mail given";
+        $self->app->flash->{error} = $self->app->i18n("No e-mail given");
         return $FALSE;
     }
 

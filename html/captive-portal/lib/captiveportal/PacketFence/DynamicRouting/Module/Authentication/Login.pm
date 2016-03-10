@@ -74,7 +74,7 @@ sub authenticate {
 
     unless(@sources){
         get_logger->info("No sources found for $username");
-        $self->app->flash->{error} = "No authentication source found for this username";
+        $self->app->flash->{error} = $self->app->i18n("No authentication source found for this username");
         $self->prompt_fields();
         return;
     }
@@ -87,7 +87,7 @@ sub authenticate {
     }
 
     if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
-        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
+        $self->app->flash->{error} = $self->app->i18n($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES});
         $self->prompt_fields();
         return;
     }
