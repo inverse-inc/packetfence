@@ -17,7 +17,7 @@ with 'pfappserver::Base::Form::Role::MultiSource';
 with 'pfappserver::Base::Form::Role::WithSource';
 
 use captiveportal::DynamicRouting::Module::Authentication::Choice;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Choice'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Choice'}
 
 ## Definition
 

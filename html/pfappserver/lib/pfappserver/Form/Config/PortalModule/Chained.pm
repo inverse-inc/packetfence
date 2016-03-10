@@ -15,7 +15,7 @@ extends 'pfappserver::Base::Form::PortalModule::ModuleManager';
 with 'pfappserver::Base::Form::Role::Help';
 
 use captiveportal::DynamicRouting::Module::Chained;
-sub for_module {'captiveportal::DynamicRouting::Module::Chained'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Chained'}
 
 ## Definition
 

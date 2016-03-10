@@ -17,7 +17,7 @@ with 'pfappserver::Base::Form::Role::WithSource';
 
 use pf::log; 
 use captiveportal::DynamicRouting::Module::Authentication;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication'}
 
 ## Definition
 has_field 'custom_fields' =>

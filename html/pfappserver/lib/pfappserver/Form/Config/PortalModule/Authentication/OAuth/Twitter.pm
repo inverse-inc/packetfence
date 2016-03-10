@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication::OAuth';
 
 use captiveportal::DynamicRouting::Module::Authentication::OAuth::Twitter;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::OAuth::Twitter'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::OAuth::Twitter'}
 
 ## Definition
 

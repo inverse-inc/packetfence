@@ -15,7 +15,7 @@ extends 'pfappserver::Base::Form::PortalModule::ModuleManager';
 with 'pfappserver::Base::Form::Role::Help';
 
 use captiveportal::DynamicRouting::Module::Choice;
-sub for_module {'captiveportal::DynamicRouting::Module::Choice'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Choice'}
 ## Definition
 
 has_field 'show_first_module_on_default' =>

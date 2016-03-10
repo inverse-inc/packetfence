@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication';
 
 use captiveportal::DynamicRouting::Module::Authentication::Null;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Null'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Null'}
 
 ## Definition
 

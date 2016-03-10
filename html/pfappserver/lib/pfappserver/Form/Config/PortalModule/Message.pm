@@ -15,7 +15,7 @@ extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
 
 use captiveportal::DynamicRouting::Module::Message;
-sub for_module {'captiveportal::DynamicRouting::Module::Message'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Message'}
 ## Definition
 
 has_field 'skipable' =>

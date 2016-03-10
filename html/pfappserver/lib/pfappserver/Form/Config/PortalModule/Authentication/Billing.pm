@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Authentication';
 
 use captiveportal::DynamicRouting::Module::Authentication::Billing;
-sub for_module {'captiveportal::DynamicRouting::Module::Authentication::Billing'}
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Billing'}
 
 has_field '+signup_template' => ( required => 0 );
 
