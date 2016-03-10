@@ -7539,6 +7539,10 @@ msgid "maintenance.node_cleanup_interval"
 msgstr "Node Cleanup Interval"
 
 # conf/documentation.conf
+msgid "maintenance.person_cleanup_interval"
+msgstr "Users Cleanup Interval"
+
+# conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
 msgstr "Nodes Maintenance Interval"
 
