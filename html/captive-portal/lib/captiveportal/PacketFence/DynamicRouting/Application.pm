@@ -327,8 +327,10 @@ sub _render {
 
     # define list method to return new list of odd numbers only
     $args->{ i18n } = sub {
-        my $string = shift;
-        return $self->i18n($string);
+        return $self->i18n(@_);
+    };
+    $args->{ i18n_format } = sub {
+        return $self->i18n_format(@_);  
     };
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;

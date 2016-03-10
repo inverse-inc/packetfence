@@ -1,4 +1,4 @@
-<h4>You are about to authenticate against [% source.description %]</h4>
+<h4>[% i18n("You are about to authenticate against %s", source.description) %]</h4>
 
 <form action="/oauth2/go" method="POST">
 
@@ -6,6 +6,6 @@
   [% form.get_field('aup').render | none %]
   [% END %]
 
-  <input type="submit" value="Click here to login on the external provider">
+  <input type="submit" value="[% i18n("Click here to login on the external provider") %]">
 
 </form>
