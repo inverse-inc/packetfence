@@ -1087,6 +1087,11 @@ ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,member
 #
 # Amount of pfdns processes to start
 pfdns_processes=4
+#
+# advanced.update_iplog_with_accounting
+#
+# Use the information included in the accounting to update the iplog
+update_iplog_with_accounting=disabled
 
 [omapi]
 #
