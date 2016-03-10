@@ -486,6 +486,7 @@ sub resolve_with_cache {
     my $reply = $CHI_CACHE->get($cache_key);
     unless($reply){
         $reply = $res->search($qname, $qtype);
+        return unless($reply);
         # We need to clone the reply since accessing the answers modifies the object and makes it invalid after its deserialized from the cache the second time
         my $cloned_reply = dclone($reply);
         my @answers = $cloned_reply->answer;
