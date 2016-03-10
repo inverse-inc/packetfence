@@ -1153,9 +1153,7 @@ sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize
 sub handle_accounting_metadata : Public {
     my ($class, %RAD_REQUEST) = @_;
     my $logger = pf::log::get_logger();
-    $logger->info("Entering handling of accounting metadata");
-    use Data::Dumper;
-    $logger->info(Dumper(\%RAD_REQUEST));
+    $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
     
     my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
@@ -1173,7 +1171,7 @@ sub handle_accounting_metadata : Public {
         $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
     }
     else {
-        pf::log::get_logger->debug("Not handling packet because we're not configured to update the iplog on accounting packets.");
+        pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
     }
 
 }
