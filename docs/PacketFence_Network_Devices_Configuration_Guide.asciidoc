@@ -641,6 +641,8 @@ Nortels. See <<_nortel,Nortel section>> of this document for configuration instr
 802.1X with MAC Authentication Bypass and VoIP
 ++++++++++++++++++++++++++++++++++++++++++++++
 
+NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in `/usr/local/pf/conf/iptables.conf`
+
 Global config settings:
 
   sntp server primary address 192.168.1.5
