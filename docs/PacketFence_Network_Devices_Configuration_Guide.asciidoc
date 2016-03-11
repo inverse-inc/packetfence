@@ -638,6 +638,73 @@ Avaya
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
 
+802.1X with MAC Authentication Bypass and VoIP
+++++++++++++++++++++++++++++++++++++++++++++++
+
+NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in `/usr/local/pf/conf/iptables.conf`
+
+Global config settings:
+
+  sntp server primary address 192.168.1.5
+  sntp enable
+  radius server host 192.168.1.5 acct-enable 
+  radius server host key useStrongerSecret
+  radius server host key useStrongerSecret used-by eapol
+  radius server host key useStrongerSecret used-by non-eapol
+  radius dynamic-server client 192.168.1.5
+  radius dynamic-server client 192.168.1.5 secret useStrongerSecret
+  radius dynamic-server client 192.168.1.5 enable
+  radius dynamic-server client 192.168.1.5 process-change-of-auth-requests
+  radius dynamic-server client 192.168.1.5 process-disconnect-requests
+
+  vlan create 2,3,4,5 type port
+  vlan create 100 type port voice-vlan
+  vlan name 2 "Reg"
+  vlan name 3 "Isol"
+  vlan name 4 "Detect"
+  vlan name 5 "Guest"
+  vlan name 100 "Voice"
+
+  #Uplink configuration
+  vlan ports 24 tagging tagAll 
+  vlan configcontrol autopvid
+
+  eapol multihost allow-non-eap-enable
+  eapol multihost radius-non-eap-enable
+  eapol multihost non-eap-phone-enable
+  eapol multihost use-radius-assigned-vlan
+  eapol multihost non-eap-use-radius-assigned-vlan
+  eapol multihost eap-packet-mode unicast
+  eapol multihost non-eap-reauthentication-enable
+  eapol multihost adac-non-eap-enable
+  no eapol multihost non-eap-pwd-fmt ip-addr
+  no eapol multihost non-eap-pwd-fmt port-number
+  eapol multihost voip-vlan 1 enable vid 100
+
+  adac voice-vlan 100
+  adac uplink-port 24
+  adac op-mode tagged-frames
+  adac enable
+
+  qos if-group name TrustedLinks class trusted
+  qos if-assign port ALL name TrustedLinks
+
+Port 1 configuration:
+
+  interface FastEthernet ALL
+  vlan ports 1 tagging tagAll
+  vlan members 2,3,4,5 1
+  vlan ports 1 pvid 2
+  eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
+  eapol port 1 status auto traffic-control in re-authentication enable
+  eapol port 1 radius-dynamic-server enable
+  lldp port 1 vendor-specific avaya dot1q-framing tagged
+  no adac detection port 1 mac
+  adac port 1 tagged-frames-tagging tag-all
+  adac port 1 enable
+  spanning-tree port 1 learning fast
+
+
 Brocade
 ~~~~~~~
 
