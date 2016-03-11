@@ -75,8 +75,6 @@ Readonly our $ACCOUNTING_TRIGGER_RE => qr/
 Readonly our $DIRECTION_IN => 'IN';
 Readonly our $DIRECTION_OUT => 'OUT';
 
-our $CACHE = pf::CHI->new(namespace => "accounting");
-
 =head1 SUBROUTINES
 
 =over
@@ -450,7 +448,7 @@ Returns the current sessionid for a given mac address
 
 sub node_accounting_current_sessionid {
     my ($mac) = format_mac_for_acct(@_);
-    if(my $entry = $CACHE->get($mac)){
+    if(my $entry = pf::accounting->cache->get($mac)){
         return $entry->{'Acct-Session-Id'};
     }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
@@ -467,7 +465,7 @@ Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
 
 sub node_accounting_dynauth_attr {
     my ($mac) = format_mac_for_acct(@_);
-    if(my $entry = $CACHE->get($mac)){
+    if(my $entry = pf::accounting->cache->get($mac)){
         return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
     }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
@@ -679,6 +677,11 @@ sub _translate_bw {
         }
     }
     return (@data);
+}
+
+sub cache {
+    my ($class) = @_;
+    return pf::CHI->new(namespace => "accounting");
 }
 
 =back
