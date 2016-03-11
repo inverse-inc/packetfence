@@ -71,9 +71,17 @@ Generates the packetfence and packetfence-tunnel configuration file
 sub generate_radiusd_sitesconf {
     my %tags;
 
+    if(isenabled($Config{advanced}{record_accounting_in_sql})){
+        $tags{'accounting_sql'} = "sql";
+    }
+    else {
+        $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
+    }
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
 
+    %tags = ();
 
     if(isenabled($Config{advanced}{disable_pf_domain_auth})){
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
@@ -84,6 +92,7 @@ sub generate_radiusd_sitesconf {
     else {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 

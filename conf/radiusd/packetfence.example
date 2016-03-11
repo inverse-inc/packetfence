@@ -258,7 +258,7 @@ accounting {
 	#  Log traffic to an SQL database.
 	#
 	#  See "Accounting queries" in mods-available/sql
-	sql
+  %%accounting_sql%%
 
 	#
 	#  If you receive stop packets with zero session length,

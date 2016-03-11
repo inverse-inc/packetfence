@@ -1052,6 +1052,12 @@ reevaluate_access_reasons=node_modify,manage_register,manage_deregister,manage_v
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation
 sso_on_access_reevaluation=disabled
 #
+# advanced.record_accounting_in_sql
+#
+# Record the accounting data in the SQL tables.
+# Requires a restart of radiusd to be effective.
+record_accounting_in_sql=enabled
+#
 # advanced.pfcmd_error_color
 #
 # Color of the error text for pfcmd
