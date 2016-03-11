@@ -245,7 +245,7 @@ sub authorize {
     #TODO: Better deal with INLINE RADIUS
     $switch->synchronize_locationlog($port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}
-    ) if ( (!$role->{wasInline}) && ($vlan != -1) );
+    ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$role->{wasInline}) {

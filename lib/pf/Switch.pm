@@ -2836,7 +2836,7 @@ sub handleRadiusDeny {
     my ($self, $args) =@_;
     my $logger = $self->logger();
 
-    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+    if (defined($args->{'vlan'}) && $args->{'vlan'} eq "-1") {
         $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
         $self->disconnectRead();
         $self->disconnectWrite();

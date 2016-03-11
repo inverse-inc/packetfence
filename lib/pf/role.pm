@@ -666,7 +666,7 @@ sub shouldAutoRegister {
     my $role = $self->filterVlan('AutoRegister',$args);
     if ($role) {
         my $vlan = $switch->getVlanByName($role);
-        if (defined($vlan) && $vlan eq -1) {
+        if (defined($vlan) && $vlan eq "-1") {
             return 0;
         } else {
             return $role;
