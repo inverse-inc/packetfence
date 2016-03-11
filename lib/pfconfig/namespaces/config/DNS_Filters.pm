@@ -25,7 +25,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $dns_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::DNSScopes'];
+    $self->{child_resources} = [ 'FilterEngine::DNS_Scopes'];
 }
 
 sub build_child {

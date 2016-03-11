@@ -46,7 +46,7 @@ our %ENGINE_MAP = (
     $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => "FilterEngine::RadiusScopes",
     $FILTERS_IDENTIFIERS{DHCP_FILTERS}   => "FilterEngine::DhcpScopes",
     $FILTERS_IDENTIFIERS{APACHE_FILTERS} => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
-    $FILTERS_IDENTIFIERS{DNS_FILTERS}   => "FilterEngine::DNSScopes",
+    $FILTERS_IDENTIFIERS{DNS_FILTERS}   => "FilterEngine::DNS_Scopes",
 );
 
 =head1 AUTHOR
