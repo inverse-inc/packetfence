@@ -296,7 +296,7 @@ sub accounting {
         
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
-    my $isStart   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
+    my $isStart   = $radius_request->{'Acct-Status-Type'} eq 'Start';
     my $isStop   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
