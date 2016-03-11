@@ -16,6 +16,8 @@ Check if an array includes the value defined in the condition
 use strict;
 use warnings;
 use Moose;
+use pf::constants;
+use Scalar::Util qw(reftype);
 use List::MoreUtils qw(any);
 extends qw(pf::condition);
 
@@ -38,8 +40,10 @@ Check if the value is part of the array that is passed as an argument
 =cut
 
 sub match {
-    my ($self,$arg) = @_;
-    return any { $self->value eq $_ } @$arg;
+    my ($self, $arg) = @_;
+    return $FALSE if !defined $arg;
+    my $reftype = reftype($arg) // '';
+    return any { $self->value eq $_ } ($reftype eq 'ARRAY' ? @$arg : $arg);
 }
 
 =head1 AUTHOR
