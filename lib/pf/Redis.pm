@@ -20,11 +20,23 @@ use CHI;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
+=head2 new
+
+Will create a Redis::Fast connection or a shared one
+
+=cut
+
 sub new {
     my ($self, %args) = @_;
     my $on_connect = delete $args{on_connect};
     return $CHI_CACHE->compute(\%args, { expire_if => \&expire_if }, sub { return compute_redis(\%args, $on_connect) });
 }
+
+=head2 expire_if
+
+Test to see of the redis connection is still alive
+
+=cut
 
 sub expire_if {
     my ($object, $cache) = @_;
@@ -32,9 +44,21 @@ sub expire_if {
     return $redis->ping;
 }
 
+=head2 CLONE
+
+Will clear out the redis cache
+
+=cut
+
 sub CLONE {
     $CHI_CACHE->clear;
 }
+
+=head2 compute_redis
+
+Function to create the redis connection
+
+=cut
 
 sub compute_redis {
     my ($args, $on_connect) = @_;
