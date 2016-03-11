@@ -41,6 +41,7 @@ use List::Util qw(first);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use Hash::Merge qw (merge);
+use pf::accounting;
 
 our $VERSION = 1.03;
 
@@ -292,12 +293,18 @@ sub accounting {
         $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
+        
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
+    my $isStart   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
     my $isStop   = $radius_request->{'Acct-Status-Type'} eq 'Stop';
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
+    if($isStart || $isUpdate){
+        $pf::accounting::CACHE->set(format_mac_for_acct($mac), $radius_request);
+    }
+
     if ($isStop || $isUpdate) {
-        my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
         my $connection = pf::Connection->new;
         $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);

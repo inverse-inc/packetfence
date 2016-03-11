@@ -55,6 +55,7 @@ use pf::config::violation;
 use pf::db;
 use pf::violation;
 use pf::util;
+use pf::CHI;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -73,6 +74,8 @@ Readonly our $ACCOUNTING_TRIGGER_RE => qr/
 
 Readonly our $DIRECTION_IN => 'IN';
 Readonly our $DIRECTION_OUT => 'OUT';
+
+our $CACHE = pf::CHI->new(namespace => "accounting");
 
 =head1 SUBROUTINES
 
@@ -447,6 +450,9 @@ Returns the current sessionid for a given mac address
 
 sub node_accounting_current_sessionid {
     my ($mac) = format_mac_for_acct(@_);
+    if(my $entry = $CACHE->get($mac)){
+        return $entry->{'Acct-Session-Id'};
+    }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
@@ -461,6 +467,9 @@ Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
 
 sub node_accounting_dynauth_attr {
     my ($mac) = format_mac_for_acct(@_);
+    if(my $entry = $CACHE->get($mac)){
+        return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
+    }
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
