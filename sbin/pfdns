@@ -350,6 +350,7 @@ sub regzone {
             if ($qname =~ /(.*)_msdcs.$key/i) {
                 my $resolver = new Net::DNS::Resolver(nameservers => [$domain_dns_servers{$key}]);
                 my $reply = $resolver->search($qname, $qtype);
+                next if !defined($reply);
                 foreach my $answer ($reply->answer) {
                     my $query = $CHI_CACHE->compute("srv-".$answer->target, sub { $resolver->search($answer->target, 'A') });
                     if ($query) {
