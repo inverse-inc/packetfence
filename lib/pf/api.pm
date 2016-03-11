@@ -1165,13 +1165,15 @@ sub handle_accounting_metadata : Public {
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
     }
 
-    # Tracking IP address.
-    if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
-        $logger->info("Updating iplog from accounting request");
-        $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
-    }
-    else {
-        pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
+    if ($RAD_REQUEST{'Acct-Status-Type'} ne 'Stop'){
+        # Tracking IP address.
+        if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
+            $logger->info("Updating iplog from accounting request");
+            $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+        }
+        else {
+            pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
+        }
     }
 
 }
