@@ -53,8 +53,7 @@ sub getIfIndexByNasPortId {
     }
     my @ifDesc_val = split('/',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.17.1.4.1.2.'.$ifDesc_param;
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ])});
+    my $result = $self->cachedSNMPRequest([-varbindlist => [ $OID_ifDesc ]]);
     return $result->{"$OID_ifDesc"};
 }
 

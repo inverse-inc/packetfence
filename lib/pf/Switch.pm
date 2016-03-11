@@ -373,8 +373,7 @@ sub connectRead {
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
         $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $self->{_sessionRead}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
+        my $result = $self->cachedSNMPRequest([-varbindlist => [$oid_sysLocation]], {expires_in => '10m'});
         if ( !defined($result) ) {
             $logger->error( "error creating SNMP v"
                     . $self->{_SNMPVersion}
@@ -386,6 +385,29 @@ sub connectRead {
         }
     }
     return 1;
+}
+
+=item cachedSNMPRequest
+
+Get a cached SNMP request using the default cache expiration
+
+    $self->cachedSNMPRequest([-varbindlist => ['1.3.6.1.2.1.1.6.0']]);
+
+Get a cached SNMP request using a provided expiration
+
+    $self->cachedSNMPRequest([-varbindlist => ['1.3.6.1.2.1.1.6.0']], {expires_in => '10m'});
+
+=cut
+
+sub cachedSNMPRequest {
+    my ($self, $args, $options) = @_;
+    my $session = $self->{_sessionRead};
+    if(!defined $session) {
+        $self->logger->error("Trying read to from a undefined session");
+        return undef;
+    }
+    $options //= {};
+    return $self->cache->compute([$self->{'_id'}, $args], $options, sub {$self->{_sessionRead}->get_request(@$args)});
 }
 
 =item disconnectRead - closing read connection to switch
@@ -1145,7 +1167,7 @@ sub getIfDesc {
         return '';
     }
     $logger->trace("SNMP get_request for ifDesc: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $result = $self->cachedSNMPRequest([-varbindlist => [$oid]]);
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1167,7 +1189,7 @@ sub getIfName {
         return '';
     }
     $logger->trace("SNMP get_request for ifName: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $result = $self->cachedSNMPRequest([-varbindlist => [$oid]]);
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1398,12 +1420,16 @@ sub getPhonesDPAtIfIndex {
     my @phones = ();
     # CDP
     if ($self->supportsCdp()) {
-        push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPCDPDetect}) || isenabled($self->{_VoIPCDPDetect}) ) {
+            push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        }
     }
 
     # LLDP
     if ($self->supportsLldp()) {
-        push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPLLDPDetect}) || isenabled($self->{_VoIPLLDPDetect}) ) {
+            push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        }
     }
 
     # filtering duplicates w/ hashmap (key collisions handles it)
@@ -1471,16 +1497,18 @@ sub isPhoneAtIfIndex {
         return 1;
     }
 
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
-        $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
-        return 1;
-    }
+    if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+            $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
+            return 1;
+        }
 
-    #unknown DHCP fingerprint or no DHCP fingerprint
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
-        $logger->debug(
-            "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
-        );
+        #unknown DHCP fingerprint or no DHCP fingerprint
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
+            $logger->debug(
+                "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
+            );
+        }
     }
 
     if (defined($ifIndex)) {
@@ -2807,7 +2835,7 @@ Return RLM_MODULE_USERLOCK if the vlan id is -1
 sub handleRadiusDeny {
     my ($self, $args) =@_;
     my $logger = $self->logger();
- 
+
     if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
         $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
         $self->disconnectRead();
