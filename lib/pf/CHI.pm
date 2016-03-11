@@ -26,7 +26,8 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
-use Redis::Fast;
+use pf::Redis;
+use CHI::Driver;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -83,7 +84,7 @@ our %DEFAULT_CONFIG = (
             driver => 'Redis',
             compress_threshold => 10000,
             server => '127.0.0.1:6379',
-            redis_class => 'Redis::Fast',
+            redis_class => 'pf::Redis',
             prefix => 'pf',
             expires_on_backend => 1,
             reconnect => 60,
@@ -214,6 +215,21 @@ Will change a scalar to an array ref if it is not one already
 sub listify($) {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
+
+=head2 get_redis_config
+
+Get the redis config from pf::CHI
+
+=cut
+
+sub get_redis_config {
+    # This code was adapted from CHI::Driver::Redis::BUILD
+    my $config = CHI::Driver->non_common_constructor_params(pf::CHI->config->{storage}{redis});
+    $config->{encoding} //= undef;
+    delete @$config{qw(redis redis_class redis_options prefix driver traits)};
+    return $config;
+}
+
 
 
 =head1 AUTHOR

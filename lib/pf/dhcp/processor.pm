@@ -38,6 +38,8 @@ use NetAddr::IP;
 use pf::SwitchFactory;
 use pf::log;
 use pf::StatsD::Timer;
+use pf::Redis;
+use pf::CHI;
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -117,11 +119,12 @@ sub _get_redis_client {
         return $self->{redis_client};
     }
     else {
-        my $server = pf::CHI->config->{storage}{redis}{server};
-        $self->{redis_client} = Redis::Fast->new(server => $server, on_connect => \&_on_redis_connect);
+        my $config = pf::CHI::get_redis_config();
+        $self->{redis_client} = pf::Redis->new(%$config, on_connect => \&_on_redis_connect);
         return $self->{redis_client};
     }
 }
+
 
 =head2 process_packet
 

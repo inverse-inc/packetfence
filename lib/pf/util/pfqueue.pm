@@ -17,7 +17,7 @@ use warnings;
 use pf::file_paths;
 use pf::log;
 use pf::config::pfqueue;
-use Redis::Fast;
+use pf::Redis;
 
 BEGIN {
     use Exporter ();
@@ -45,7 +45,7 @@ sub task_counter_id {
 
 sub consumer_redis_client {
     my ($self) = @_;
-    return Redis::Fast->new( %{$ConfigPfqueue{consumer}{redis_args}});
+    return pf::Redis->new( %{$ConfigPfqueue{consumer}{redis_args}});
 }
 
 
