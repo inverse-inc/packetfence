@@ -47,6 +47,11 @@ sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
     $self->expand_lines($profile, $self->_fields_line_expanded);
+    
+    # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+    if($profile->{type} eq "Message" && ref($profile->{message}) eq 'ARRAY'){
+        $profile->{message} = join("\n", @{$profile->{message}});
+    }
 }
 
 =head2 cleanupBeforeCommit
