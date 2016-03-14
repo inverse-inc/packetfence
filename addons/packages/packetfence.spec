@@ -277,7 +277,7 @@ Requires: MySQL-python
 Requires: python-carbon, python-whisper
 Requires: graphite-web >= 0.9.12-25
 Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
-Requires: freeradius-radsniff >= 3.0.0
+Requires: freeradius-radsniff >= 3.0.10
 Requires: node
 
 # pki
