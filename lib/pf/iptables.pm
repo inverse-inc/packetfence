@@ -168,7 +168,7 @@ sub generate {
         # MANGLE
         $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
         $tags{'mangle_prerouting_inline'} .= pf::ipset::generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
-        $tags{'mangle_postrouting_inline'} .= pf::ipset::generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
 
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
@@ -940,6 +940,39 @@ sub generate_domain_rules {
     my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
     my $mgmt_int = $management_network->tag('int');
     $$domain_postrouting .= "-A POSTROUTING -s $domain_network -o $mgmt_int -j SNAT --to-source $mgmt_ip \n"
+}
+
+=item generate_mangle_postrouting_rules
+
+Generate iptables rules for the postrouting chain of the mangle table.
+
+Related to inline traffic shaping (classify)
+
+TODO: This should goes in the 'generate_mangle_rules' method but that last one should be redesigned... 2015.05.25 - dwuelfrath@inverse.ca
+
+=cut
+
+sub generate_mangle_postrouting_rules {
+    my $logger = get_logger();
+
+    my $rules = '';
+
+    my @roles = pf::nodecategory::nodecategory_view_all;
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        next if ( !pf::config::is_network_type_inline($network) );
+        foreach my $role ( @roles ) {
+            if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL3_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            } else {
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network src -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+                $rules .=  "-A $FW_POSTROUTING_INT_INLINE -m set --match-set PF-iL2_ID$role->{'category_id'}_$network dst -j CLASSIFY --set-class 1:$role->{'category_id'}\n";
+            }
+        }
+    }
+
+    return $rules;
 }
 
 =back
