@@ -108,7 +108,7 @@ after list => sub {
 
     tie my %types, 'Tie::IxHash', (map { $_ => [] } @{ordered_module_types()});
     my @skip = qw(TLSEnrollment Authentication Authentication::OAuth);
-    foreach my $module (@captiveportal::DynamicRouting::Factory::MODULES){
+    foreach my $module (@captiveportal::PacketFence::DynamicRouting::Factory::MODULES){
         $module =~ s/^captiveportal::DynamicRouting::Module:://g;
         next if (any {$_ eq $module} @skip);
 
