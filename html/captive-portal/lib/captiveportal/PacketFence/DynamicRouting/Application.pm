@@ -217,6 +217,9 @@ This will cycle through the proper modules and the appropriate module will set t
 sub execute {
     my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+    # This will be defined after the first time the user hits the dynamic routing portal
+    # Then will be true on the second time he hits the dynamic routing portal
+    $self->session->{action_made} = defined($self->session->{action_made}) ? $TRUE : $FALSE;
     $self->root_module->execute();
 }
 
@@ -332,6 +335,8 @@ sub _render {
     $args->{ i18n_format } = sub {
         return $self->i18n_format(@_);  
     };
+
+    $args->{ show_restart } //= $self->session->{action_made};
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';

@@ -15,7 +15,9 @@
     <p>MAC address : [% client_mac %]</p>
   </div>
 
+  [% IF show_restart %]
   <div>
     <a href="/logout">[% i18n("Restart from the beginning") %]</a>
   </div>
+  [% END %]
 </html>
