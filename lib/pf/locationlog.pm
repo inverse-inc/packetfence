@@ -49,6 +49,7 @@ BEGIN {
         locationlog_insert_closed
         locationlog_update_end
         locationlog_update_end_mac
+        locationlog_update_end_mac_switch_port
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
         locationlog_synchronize
@@ -225,6 +226,11 @@ sub locationlog_db_prepare {
     $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(qq[
         UPDATE locationlog SET end_time = now()
         WHERE switch = ? AND port = ? AND end_time = 0
+    ]);
+
+    $locationlog_statements->{'locationlog_update_end_mac_switch_port_sql'} = get_db_handle()->prepare(qq[
+        UPDATE locationlog SET end_time = now()
+        WHERE mac = ? AND switch = ? AND port = ? AND end_time = 0
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = get_db_handle()->prepare(qq[
@@ -411,6 +417,28 @@ sub locationlog_insert_closed {
     db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql',
         lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
         || return (0);
+    return (1);
+}
+
+=item locationlog_update_end_mac_switch_port
+
+End an open locationlog based off mac, switch and port
+
+=cut
+
+sub locationlog_update_end_mac_switch_port {
+    my ( $mac, $switch, $port ) = @_;
+    my $logger = get_logger();
+    if (!defined $mac || !defined $switch || !defined $port ) {
+        $logger->error("Invalid parameters provided mac=" . (defined $mac ? $mac : "undefined")
+              . " switch=" . (defined $switch ? $switch : "undefined")
+              . " port=" . (defined $port ? $port : "undefined"));
+        return (0);
+    }
+    $logger->debug("locationlog_update_end_mac_switch_port called with mac=$mac switch=$switch port=$port");
+    if (db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_switch_port_sql', $mac, $switch, $port)) {
+        return (0);
+    }
     return (1);
 }
 
