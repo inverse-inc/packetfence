@@ -816,6 +816,8 @@ fi
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/dns_filters.conf
+                        /usr/local/pf/conf/dns_filters.conf.example
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example

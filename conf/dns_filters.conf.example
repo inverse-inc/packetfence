@@ -1,0 +1,103 @@
+# DNS filter configuration
+#
+# you can trigger rule in pfdns on specific scope (registration, isolation, inline, dnsenforcement)
+#
+# Make a simple rule like this:
+#
+# [packetfence]
+# filter = qname
+# operator = is
+# value = www.packetfence.org
+#
+# [1:packetfence]
+# scope = registration
+# answer = $qname 30 IN A 10.0.0.1
+# rcode = NOERROR
+#
+# It means that when pfdns receive a dns request for the dns name www.packetfence.org then it will answer the ip 10.0.0.1
+# see http://search.cpan.org/~nlnetlabs/Net-DNS-0.74/lib/Net/DNS/RR.pm for more details
+#
+#
+#
+#
+# filter can be:
+#
+#     qname
+#     qclass
+#     qtype
+#     peerhost
+#     query ( http://search.cpan.org/~nlnetlabs/Net-DNS-1.04/lib/Net/DNS/Packet.pm )
+#     conn.peerhost
+#     conn.sockport
+#     conn.sockhost
+#     conn.peerport
+#     time
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#     not_defined
+#     regex
+#     date_is_before
+#     date_is_after
+#
+# value can be:
+#
+# - for qname the fqdn search (www.packetfence.org)
+#
+# - for qclass
+#    IN              1 the Internet
+#    CS              2 the CSNET class (Obsolete - used only for examples in some obsolete RFCs)
+#    CH              3 the CHAOS class
+#    HS              4 Hesiod [Dyer 87]
+#
+# - for qtype
+#    A               1 a host address
+#    NS              2 an authoritative name server
+#    CNAME           5 the canonical name for an alias
+#    SOA             6 marks the start of a zone of authority
+#    WKS             11 a well known service description
+#    PTR             12 a domain name pointer
+#    HINFO           13 host information
+#    MINFO           14 mailbox or mail list information
+#    MX              15 mail exchange
+#    TXT             16 text strings
+#
+# - for peerhost the ip addess of the client
+#
+# - for query the value in the representation of a Net::DNS::Packet packet
+#
+# - for conn
+#    ip or port
+#
+# The value of a time is specific and follow this logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
+# wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
+#
+# answer is in the format of http://search.cpan.org/~nlnetlabs/Net-DNS-1.04/lib/Net/DNS/RR.pm
+#
+# rcode can be:
+#    NOERROR   No Error
+#    FORMERR   Format Error
+#    SERVFAIL  Server Failure
+#    NXDOMAIN  Non-Existent Domain
+#    NOTIMP    Not Implemented
+#    REFUSED   Query Refused
+#    YXDOMAIN  Name Exists when it should not
+#    YXRRSET   RR Set Exists when it should not
+#    NXRRSET   RR Set that should exist does not
+#    NOTAUTH   Server Not Authoritative for zone
+#    NOTAUTH   Not Authorized
+#    NOTZONE   Name not contained in zone
+#    BADVERS   Bad OPT Version
+#    BADSIG    TSIG Signature Failure
+#    BADKEY    Key not recognized
+#    BADTIME   Signature out of time window
+#    BADMODE   Bad TKEY Mode
+#    BADNAME   Duplicate key name
+#    BADALG    Algorithm not supported
+#    BADTRUNC  Bad Truncation
