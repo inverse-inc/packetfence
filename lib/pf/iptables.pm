@@ -102,11 +102,7 @@ Checking for PacketFence generated management input rules under the filter table
 =cut
 
 sub check {
-    my ( $self ) = @_;
-
-    my $rules_exists = ( defined(pf_run("iptables -S | grep $FW_FILTER_INPUT_MGMT")) ) ? $TRUE : $FALSE;
-
-    return $rules_exists;
+    return ( defined(pf_run("iptables -S | grep $FW_FILTER_INPUT_MGMT")) ) ? $TRUE : $FALSE;
 }
 
 =item flush
@@ -116,7 +112,6 @@ Flush currently configured iptables rules
 =cut
 
 sub flush {
-    my ( $self ) = @_;
     my $logger = get_logger();
 
     $logger->info("Flushing currently configured iptables rules");
@@ -134,10 +129,75 @@ Create the configuration file to use with a restore procedure
 =cut
 
 sub generate {
-    my ( $self, $destination_file ) = @_;
+    my ( $destination_file ) = @_;
     my $logger = get_logger();
 
     $destination_file = "$generated_conf_dir/iptables.conf" if ( !defined($destination_file) || $destination_file eq "" );
+
+    $logger->info("Generating PacketFence iptables configuration file under '$destination_file'");
+
+
+    # TODO: This needs major rework
+    my %tags = (
+        'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
+        'filter_forward_vlan' => '', 'filter_forward_domain' => '',
+        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
+        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
+        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
+        'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
+        'domain_postrouting' => '','mangle_postrouting_inline' => '',
+    );
+
+    # global substitution variables
+    $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
+    $tags{'webservices_port'} = $Config{'ports'}{'soap'};
+    $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
+    $tags{'status_port'} = $Config{'ports'}{'pf_status'};
+    $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
+    # FILTER
+    # per interface-type pointers to pre-defined chains
+    $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
+
+    if (is_inline_enforcement_enabled()) {
+        # Note: I'm giving references to this guy here so he can directly mess with the tables
+        $self->generate_inline_rules(
+            \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'},\$tags{'routed_postrouting_inline'},\$tags{'input_inter_inline_rules'}
+        );
+
+        # MANGLE
+        $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
+        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= $self->generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+
+        # NAT chain targets and redirections (other rules injected by generate_inline_rules)
+        $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
+        $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
+    }
+
+    #NAT Intercept Proxy
+    $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
+
+    # OAuth
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
+
+    if ($passthrough_enabled) {
+        generate_passthrough_rules(
+            $passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+        );
+    }
+
+    chomp(
+        $tags{'filter_if_src_to_chain'}, $tags{'filter_forward_inline'},
+        $tags{'mangle_if_src_to_chain'}, $tags{'mangle_prerouting_inline'},
+        $tags{'nat_if_src_to_chain'}, $tags{'nat_prerouting_inline'},
+  );
+
+    generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
+    # \TODO
+
+
+    parse_template( \%tags, "$conf_dir/iptables.conf", $destination_file );
 
     return $destination_file;
 }
@@ -149,10 +209,10 @@ Restore iptables rules from an existing configuration file
 =cut
 
 sub restore {
-    my ( $self, $restore_file ) = @_;
+    my ( $restore_file ) = @_;
     my $logger = get_logger();
 
-    $restore_file = "$var_dir/iptables_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
+    $restore_file = "$generated_conf_dir/iptables_system.bak" if ( !defined($restore_file) || $restore_file eq "" );
 
     if ( ! -e $restore_file ) {
         $logger->error("Trying to apply / restore iptables rules from an non-existing file '$restore_file'");
@@ -172,10 +232,10 @@ Save currently configured iptables rules
 =cut
 
 sub save {
-    my ( $self, $save_file ) = @_;
+    my ( $save_file ) = @_;
     my $logger = get_logger();
 
-    $save_file = "$var_dir/iptables_system.bak" if ( !defined($save_file) || $save_file eq "" );
+    $save_file = "$generated_conf_dir/iptables_system.bak" if ( !defined($save_file) || $save_file eq "" );
 
     $logger->info("Saving existing iptables rules to '$save_file'");
     pf_run("/sbin/iptables-save -t filter > $save_file");
