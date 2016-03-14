@@ -52,6 +52,7 @@ use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
 use pf::factory::firewallsso;
 
+use pf::radius::rest();
 use pf::scan();
 use pf::person();
 use pf::lookup::person();
@@ -1121,40 +1122,44 @@ sub rest_ping :Public :RestPath(/rest/ping){
     return "pong - ".$args->{message};
 }
 
+=head2 radius_rest_authorize
+
+RADIUS authorize method that uses REST
+
+=cut
+
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) { 
     my ($class, $radius_request) = @_;
     my $logger = pf::log::get_logger();
     
-    # transform the request according to what radius_authorize expects
-    my %remapped_radius_request = map {
-        $_ => $radius_request->{$_}->{value}->[0];
-    } keys %{$radius_request};
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
     my $return = $class->radius_authorize(%remapped_radius_request); 
 
-    # transform back the reply to what FreeRADIUS expects
-    #my %mapped_return = pairmap { $a => $b } @$return; 
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
 
     return $return;
-    #return \%mapped_return;
 }
+
+=head2 radius_rest_switch_authorize
+
+RADIUS switch authorize method that uses REST
+
+=cut
 
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) { 
     my ($class, $radius_request) = @_;
     my $logger = pf::log::get_logger();
     
-    # transform the request according to what radius_authorize expects
-    my %remapped_radius_request = map {
-        $_ => $radius_request->{$_}->{value}->[0];
-    } keys %{$radius_request};
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
     my $return = $class->radius_switch_access(%remapped_radius_request); 
 
-    # transform back the reply to what FreeRADIUS expects
-    shift @$return;
-    my %mapped_return = pairmap { $a => $b } @$return; 
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
 
-    return \%mapped_return;
+    return $return;
 }
 =head1 AUTHOR
 

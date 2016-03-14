@@ -108,28 +108,19 @@ sub handler {
         }
     };
     if ($@) {
-        get_logger->error($@);
-        return $self->send_response(
-            $r,
-            Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-            $self->make_error_object($@)
-        );
-    }
-    
-    # check the radius return code if it was a radius reply
-    if ( $method =~ /^\/radius/ ) { 
-        my $radius_return = shift @$object; 
-        my %mapped_object = @$object; 
-        %mapped_object = ( %{$mapped_object{"RADIUS_AUDIT"}}, %mapped_object);
-
-        delete $mapped_object{"RADIUS_AUDIT"};
-        use Data::Dumper; $logger->warn("Dumping mapped_object : ". Dumper \%mapped_object);
-        $object = \%mapped_object; 
-        
-        unless ($radius_return == 2) { 
-            return $self->send_response($r, Apache2::Const::HTTP_UNAUTHORIZED, $object);
+        if(ref($@) eq "pf::api::error"){
+            return $self->send_response($r, $@->status, $@->response);
+        }
+        else {
+            get_logger->error($@);
+            return $self->send_response(
+                $r,
+                Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
+                $self->make_error_object($@)
+            );
         }
     }
+    
     return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
     
     # Notify message defer until later
