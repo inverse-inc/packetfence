@@ -45,6 +45,10 @@ sub startService {
     # Generating and applying PacketFence sets
     pf::ipset::restore(pf::ipset::generate());
 
+    # Populate inline related sets
+    # TODO: This is go into pf::enforcement::inline or related...
+    pf::ipset::populate_inline if pf::config::is_inline_enforcement_enabled();
+
     # Since ipset is not a running service, it doesn't have a PID associated to it.
     # We use -1 as a PID for theses kind of "services"
     open (my $fh, '>>' . $self->pidFile);

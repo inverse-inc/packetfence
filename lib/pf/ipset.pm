@@ -179,6 +179,46 @@ sub save {
     return $save_file;
 }
 
+=item populate_inline
+
+Populate inline related sets
+
+TODO: This is go into pf::enforcement::inline or related...
+
+=cut
+
+sub populate_inline {
+    my $logger = get_logger();
+
+    my @entries = ();
+
+    # Build lookup table for MAC <-> IP mapping
+    my @iplog_open = pf::iplog::list_open();
+    my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
+
+    # TODO: performance gain by handling only inline nodes
+    my @registered_endpoints = nodes_registered_not_violators();
+    foreach my $endpoint ( @registered_endpoints ) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $networkAddress = NetAddr::IP->new($network, $ConfigNetworks{$network}{'netmask'});
+            my $mac = $endpoint->{'mac'};
+            my $role = $endpoint->{'category_id'};
+            my $iplog = $iplog_lookup{clean_mac($mac)};
+            if ( defined($iplog) ) {
+                my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+                push ( @entries, "add PF_$network\_ID$role $iplog" ) if $networkAddress->contains($ip);
+            }
+        }
+    }
+
+    if ( @entries ) {
+        my $cmd = "LANG=C sudo ipset restore 2>&1";
+        open (IPSET, "| $cmd") || die "$cmd failed: $!\n";
+        print IPSET join("\n", @entries);
+        close IPSET;
+    }
+}
 
 
 sub iptables_generate {
