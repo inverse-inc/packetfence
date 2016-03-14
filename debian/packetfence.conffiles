@@ -5,6 +5,7 @@
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf
+/usr/local/pf/conf/dns_filters.conf
 /usr/local/pf/conf/documentation.conf
 /usr/local/pf/conf/firewall_sso.conf
 /usr/local/pf/conf/floating_network_device.conf
