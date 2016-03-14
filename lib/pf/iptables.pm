@@ -157,26 +157,26 @@ sub generate {
     $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     # FILTER
     # per interface-type pointers to pre-defined chains
-    $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
+    $tags{'filter_if_src_to_chain'} .= generate_filter_if_src_to_chain();
 
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
-        $self->generate_inline_rules(
+        generate_inline_rules(
             \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'},\$tags{'routed_postrouting_inline'},\$tags{'input_inter_inline_rules'}
         );
 
         # MANGLE
-        $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
-        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
-        $tags{'mangle_postrouting_inline'} .= $self->generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
+        $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
 
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-        $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
-        $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
+        $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
+        $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
     }
 
     #NAT Intercept Proxy
-    $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
+    generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
 
     # OAuth
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
@@ -355,7 +355,6 @@ Creating proper source interface matches to jump to the right chains for proper 
 =cut
 
 sub generate_filter_if_src_to_chain {
-    my ($self) = @_;
     my $logger = get_logger();
     my $rules = '';
     my $rules_forward = '';
@@ -484,7 +483,7 @@ Handling both FILTER and NAT tables at the same time.
 =cut
 
 sub generate_inline_rules {
-    my ($self,$filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline, $input_filtering_ref) = @_;
+    my ($filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline, $input_filtering_ref) = @_;
     my $logger = get_logger();
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
@@ -636,7 +635,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 =cut
 
 sub generate_inline_if_src_to_chain {
-    my ($self, $table) = @_;
+    my ($table) = @_;
     my $logger = get_logger();
     my $rules = '';
 
@@ -701,7 +700,6 @@ sub generate_inline_if_src_to_chain {
 =cut
 
 sub generate_nat_redirect_rules {
-    my ($self) = @_;
     my $logger = get_logger();
     my $rules = '';
 
@@ -836,7 +834,7 @@ Creating porper source interface matches to jump to the right chains for vlan en
 =cut
 
 sub generate_interception_rules {
-    my ($self, $nat_if_src_to_chain,$nat_prerouting_vlan, $input_inter_vlan_if) = @_;
+    my ($nat_if_src_to_chain,$nat_prerouting_vlan, $input_inter_vlan_if) = @_;
     my $logger = get_logger();
 
     # internal interfaces handling
