@@ -435,7 +435,7 @@ sub locationlog_update_end_mac_switch_port {
               . " port=" . (defined $port ? $port : "undefined"));
         return (0);
     }
-    $logger->info("locationlog_update_end_mac_switch_port called with mac=$mac switch=$switch port=$port");
+    $logger->debug("locationlog_update_end_mac_switch_port called with mac=$mac switch=$switch port=$port");
     if (db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_switch_port_sql', $mac, $switch, $port)) {
         return (0);
     }
