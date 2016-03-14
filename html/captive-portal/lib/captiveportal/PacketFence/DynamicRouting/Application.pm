@@ -328,6 +328,7 @@ sub render {
         content => $inner_content,
         client_mac => $self->current_mac,
         client_ip => $self->root_module->current_ip,
+        current_module => $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id},
     };
     $args->{layout} //= $TRUE;
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
