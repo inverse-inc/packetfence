@@ -188,6 +188,7 @@ Then forwards it to the module specific actions
 sub execute {
     my ($self) = @_;
     get_logger->trace(sub{"Executing ".$self->id});
+    $self->app->current_module_id($self->id);
     if($self->parent){
         $self->parent->current_module($self->id);
     }

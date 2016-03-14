@@ -188,9 +188,35 @@ Get the current module ID
 =cut
 
 sub current_module_id {
+    my ($self, $module_id) = @_;
+    if(defined($module_id)){
+        get_logger->debug("Setting current module id : $module_id");
+        $self->session->{current_module_id} = $module_id;
+    }
+    else {
+        return $self->session->{current_module_id};
+    }
+}
+
+sub previous_module_id {
+    my ($self, $module_id) = @_;
+    if(defined($module_id)){
+        get_logger->debug("Setting previous module id : $module_id");
+        $self->session->{previous_module_id} = $module_id;
+    }
+    else {
+        return $self->session->{previous_module_id};
+    }
+}
+
+sub detect_first_action {
     my ($self) = @_;
-    $self->session->{current_module_id} //= $self->root_module->id;
-    return $self->session->{current_module_id};
+    if(defined($self->previous_module_id) && defined($self->current_module_id)
+        && $self->previous_module_id ne $self->current_module_id){
+        $self->session->{action_made} = $TRUE;     
+    }
+    $self->session->{action_made} //= $FALSE; 
+    return $self->session->{action_made};
 }
 
 =head2 preprocessing
@@ -219,8 +245,10 @@ sub execute {
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     # This will be defined after the first time the user hits the dynamic routing portal
     # Then will be true on the second time he hits the dynamic routing portal
-    $self->session->{action_made} = defined($self->session->{action_made}) ? $TRUE : $FALSE;
     $self->root_module->execute();
+    unless($self->previous_module_id eq $self->current_module_id){
+        $self->previous_module_id($self->current_module_id);
+    }
 }
 
 =head2 current_mac
@@ -336,6 +364,8 @@ sub _render {
         return $self->i18n_format(@_);  
     };
 
+    get_logger->info("previous : ".$self->previous_module_id.", current : ".$self->current_module_id);
+    $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
