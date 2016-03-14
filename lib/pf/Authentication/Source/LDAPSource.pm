@@ -182,12 +182,13 @@ sub _connect {
         $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
+    $connection = pf::LDAP->new(
+        $LDAPServer,
+        port       => $LDAPServerPort,
+        timeout    => $self->{'connection_timeout'},
+        encryption => $self->{encryption}
+    );
 
-    if ( $self->{'encryption'} eq SSL ) {
-        $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort, timeout => $self->{'connection_timeout'} );
-    } else {
-        $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort, timeout => $self->{'connection_timeout'} );
-    }
     if (! defined($connection)) {
       $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
       next TRYSERVER;
