@@ -167,8 +167,8 @@ sub generate {
 
         # MANGLE
         $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
-        $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
-        $tags{'mangle_postrouting_inline'} .= generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_prerouting_inline'} .= pf::ipset::generate_mangle_rules();                # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
+        $tags{'mangle_postrouting_inline'} .= pf::ipset::generate_mangle_postrouting_rules();   # TODO: These two should be combined... 2015.05.25 dwuelfrath@inverse.ca
 
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
