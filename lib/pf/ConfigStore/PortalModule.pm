@@ -44,13 +44,13 @@ Clean up portal modules data
 =cut
 
 sub cleanupAfterRead {
-    my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, $self->_fields_expanded);
-    $self->expand_lines($profile, $self->_fields_line_expanded);
+    my ($self, $id, $object) = @_;
+    $self->expand_list($object, $self->_fields_expanded);
+    $self->expand_lines($object, $self->_fields_line_expanded);
     
     # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
-    if($profile->{type} eq "Message" && ref($profile->{message}) eq 'ARRAY'){
-        $profile->{message} = join("\n", @{$profile->{message}});
+    if($object->{type} eq "Message" && ref($object->{message}) eq 'ARRAY'){
+        $object->{message} = join("\n", @{$object->{message}});
     }
 }
 
@@ -61,9 +61,9 @@ Clean data before update or creating
 =cut
 
 sub cleanupBeforeCommit {
-    my ($self, $id, $profile) = @_;
-    $self->flatten_list($profile, $self->_fields_expanded);
-    $self->join_lines($profile, $self->_fields_line_expanded);
+    my ($self, $id, $object) = @_;
+    $self->flatten_list($object, $self->_fields_expanded);
+    $self->join_lines($object, $self->_fields_line_expanded);
 }
 
 =head2 _fields_expanded
