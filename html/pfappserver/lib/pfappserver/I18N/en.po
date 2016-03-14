@@ -6625,6 +6625,10 @@ msgid "advanced.reevaluate_access_reasons"
 msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
+msgid "advanced.record_accounting_in_sql"
+msgstr "Record accounting in SQL tables"
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 
