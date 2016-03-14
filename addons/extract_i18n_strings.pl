@@ -376,6 +376,14 @@ sub extract_modules {
            usernameattribute => 'cn',
            authentication_source => undef,
            chained_authentication_source => undef,
+           authorization_source_id => undef,
+           idp_ca_cert_path => undef,
+           idp_cert_path => undef,
+           idp_entity_id => undef,
+           idp_metadata_path => undef,
+           sp_cert_path => undef,
+           sp_entity_id => undef,
+           sp_key_path => undef,
           });
         $attributes = $source->available_attributes();
 
@@ -418,10 +426,6 @@ sub extract_modules {
     const('pfappserver::PacketFence::Controller::Graph', 'osclassbandwidth fields', [qw/dhcp_fingerprint/]);
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
-
-    @values = pfappserver::Form::Config::ProfileCommon->options_mandatory_fields();
-    @values = map { $_->{label} } @values;
-    const('pfappserver::Form::Config::ProfileCommon', 'mandatory fields', \@values);
 
     const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
