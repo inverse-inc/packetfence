@@ -37,7 +37,6 @@ Nothing documented at this point.
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
 use Try::Tiny;
 
 use base ('pf::Switch');
@@ -183,6 +182,7 @@ sub _deauthenticateMacTelnet {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

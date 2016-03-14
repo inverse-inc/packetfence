@@ -16,7 +16,6 @@ It should work on all Matrix chassis.
 use strict;
 use warnings;
 use Net::SNMP;
-use Net::Telnet;
 use base ('pf::Switch::Enterasys');
 
 sub description { 'Enterasys Matrix N3' }

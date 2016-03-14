@@ -103,7 +103,6 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use Net::Telnet;
 
 use base ('pf::Switch::Cisco');
 
@@ -212,6 +211,7 @@ sub blacklistMac {
 
         my $session;
         eval {
+            require Net::Telnet;
             $session = Net::Telnet->new(
                 Host    => $self->{_ip},
                 Timeout => 5,

@@ -44,7 +44,6 @@ use warnings;
 use base ('pf::Switch::Cisco');
 use Carp;
 use Net::SNMP;
-use Net::Appliance::Session;
 
 sub description { 'Cisco ISR 1800 Series' }
 
@@ -139,6 +138,7 @@ sub getMacBridgePortHash {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

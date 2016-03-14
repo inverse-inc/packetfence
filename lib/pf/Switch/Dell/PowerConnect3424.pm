@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use Data::Dumper;
-use Net::Telnet;
 
 use base ('pf::Switch::Dell');
 
@@ -37,6 +36,7 @@ sub _setVlan {
     my $session;
 
     eval {
+        require Net::Telnet;
         $session = new Net::Telnet( Host => $self->{_ip}, Timeout => 20 );
 
         #$session->dump_log();

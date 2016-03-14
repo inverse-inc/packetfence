@@ -60,7 +60,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Net::Appliance::Session;
 use Net::SNMP;
 use SOAP::Lite;
 use Try::Tiny;
@@ -1440,6 +1439,7 @@ sub _setPortSecurityByIfIndexCLI {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host => $self->{_ip},
             Timeout => 5,

@@ -37,7 +37,6 @@ Requires IOS 5 or later.
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::WLC');
@@ -92,6 +91,7 @@ sub _deauthenticateMacSNMP {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

@@ -48,7 +48,6 @@ use strict;
 use warnings;
 
 use Carp;
-use Net::Appliance::Session;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco');
@@ -98,6 +97,7 @@ sub deauthenticateMacDefault {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

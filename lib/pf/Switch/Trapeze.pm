@@ -13,7 +13,6 @@ Module to manage Trapeze controllers
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
 use POSIX;
 
 use base ('pf::Switch');
@@ -128,6 +127,7 @@ sub deauthenticateMacDefault {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

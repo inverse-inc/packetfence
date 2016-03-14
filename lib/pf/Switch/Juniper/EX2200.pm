@@ -30,7 +30,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use Net::Appliance::Session;
 
 use pf::constants;
 use pf::config;
@@ -207,6 +206,7 @@ sub enableMABFloatingDevice{
     
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,
@@ -266,6 +266,7 @@ sub disableMABFloatingDevice{
     
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,

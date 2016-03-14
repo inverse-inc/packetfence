@@ -33,7 +33,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch');
-use Net::Appliance::Session;
 
 use pf::constants;
 use pf::config;
@@ -125,6 +124,7 @@ sub setAdminStatus {
     }   
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,

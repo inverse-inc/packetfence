@@ -149,11 +149,14 @@ sub _vlan_reevaluation {
                 . $connection_type_explained{$conn_type} );
 
         my $client;
+        my $cluster_deauth;
         if ($cluster_enabled && isenabled($Config{active_active}{centralized_deauth})){
             $client = pf::client::getManagementClient();
+            $cluster_deauth = 1;
         }
         else {
-            $client = pf::client::getClient();
+            $client = pf::api::queue->new(queue => 'general');
+            $cluster_deauth = 0;
         }
         my %data = (
             'switch'           => $switch_id,
@@ -163,13 +166,19 @@ sub _vlan_reevaluation {
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
             $logger->debug("Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
-            $client->notify( 'ReAssignVlan', %data );
-
+            if ($cluster_deauth) {
+                $client->notify( 'ReAssignVlan_in_queue', %data );
+            } else {
+                $client->notify( 'ReAssignVlan', %data );
+            }
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
             $logger->debug("Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
-            $client->notify( 'desAssociate', %data );
-
+            if ($cluster_deauth) {
+                $client->notify( 'desAssociate_in_queue', %data );
+            } else {
+                $client->notify( 'desAssociate', %data );
+            }
         }
         else {
             $logger->error("Connection type is neither wired nor wireless. Cannot reevaluate VLAN");
