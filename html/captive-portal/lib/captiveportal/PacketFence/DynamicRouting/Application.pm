@@ -383,6 +383,7 @@ Create a response that will redirect the user
 
 sub redirect {
     my ($self, $url, $code) = @_;
+    $self->detect_first_action();
     $self->template_output($url);
     $self->response_code($code || 302);
 }
