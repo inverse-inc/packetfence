@@ -27,10 +27,23 @@ use constant {
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
+
+=head2 new
+
+Get or create a cached ldap connection
+
+=cut
+
 sub new {
     my ($class, @args) = @_;
     return $CHI_CACHE->compute(\@args, { expire_if => sub { $class->expire_if(@_) } }, sub { $class->compute_connection(@args) });
 }
+
+=head2 expire_if
+
+Checks to see if the the LDAP connection is still alive
+
+=cut
 
 sub expire_if {
     my ($self, $object, $driver) = @_;
@@ -38,6 +51,12 @@ sub expire_if {
     my $msg = $ldap->unbind;
     return !$msg->is_error;
 }
+
+=head2 compute_connection
+
+Create the connection for connecting to LDAP
+
+=cut
 
 sub compute_connection {
     my ($class, $server, %args) = @_;
@@ -50,6 +69,12 @@ sub compute_connection {
     }
     return $connection;
 }
+
+=head2 CLONE
+
+Clear the cache in a thread environment
+
+=cut
 
 sub CLONE {
     $CHI_CACHE->clear;
