@@ -1,4 +1,4 @@
-#Webservices apache configuration file
+#[% name %] apache configuration file
 
 #Debian Specific
 <IfDefine debian>
@@ -75,9 +75,9 @@
   </IfModule>
 </IfDefine>
 
-PerlSwitches -I/usr/local/pf/lib
-PerlSwitches -I/usr/local/pf/html/pfappserver/lib
-PerlPostConfigRequire /usr/local/pf/lib/pf/web/aaa_modperl_require.pl
+PerlSwitches -I[% install_dir %]/lib
+PerlSwitches -I[% install_dir %]/html/pfappserver/lib
+PerlPostConfigRequire [% install %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI
 PerlLoadModule pf::WebAPI::InitHandler
 PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
