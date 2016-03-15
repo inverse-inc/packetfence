@@ -49,7 +49,7 @@ sub expire_if {
     my ($self, $object, $driver) = @_;
     my $ldap = $object->value;
     my $msg = $ldap->unbind;
-    return !$msg->is_error;
+    return !defined $msg || $msg->is_error;
 }
 
 =head2 compute_connection
