@@ -15,13 +15,14 @@ pfappserver::Model::Audit
 use strict;
 use warnings;
 use pf::log;
+use pf::file_paths;
 use JSON::MaybeXS;
 use Moose;
 use Moose::Util::TypeConstraints 'duck_type';
 
 extends qw(Catalyst::Model);
 
-has audit_log_path => ( is => 'ro', required => 1);
+has audit_log_path => ( is => 'ro', default => $admin_audit_log);
 
 has file_handle => ( is => 'ro', builder => '_build_file_handle', lazy => 1);
 
