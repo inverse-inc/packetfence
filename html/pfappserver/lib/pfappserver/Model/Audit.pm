@@ -18,7 +18,6 @@ use pf::log;
 use pf::file_paths;
 use JSON::MaybeXS;
 use Moose;
-use Moose::Util::TypeConstraints 'duck_type';
 
 extends qw(Catalyst::Model);
 
@@ -26,7 +25,7 @@ has audit_log_path => ( is => 'ro', default => $admin_audit_log);
 
 has file_handle => ( is => 'ro', builder => '_build_file_handle', lazy => 1);
 
-has json => ( is => 'ro', isa => JSON::MaybeXS::JSON() );
+has json => ( is => 'ro', isa => JSON::MaybeXS::JSON(),  default => sub { JSON::MaybeXS->new });
 
 
 sub _build_file_handle {
@@ -50,12 +49,13 @@ sub write_entry {
 
 sub write_json_entry {
     my ($self, $args) = @_;
-    return $self->_write_audit_entry($self->json->encode($args));
+    return $self->_write_audit_entry($self->json->encode($args) ."\n");
 }
 
 sub _write_audit_entry {
     my ($self, $line) = @_;
-    return $self->file_handle->write($line);
+    my $fh = $self->file_handle;
+    $fh->write($line);
 }
 
 sub ACCEPT_CONTEXT {
