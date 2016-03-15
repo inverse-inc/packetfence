@@ -34,7 +34,7 @@ sub format_response {
     %mapped_object = ( %{$mapped_object{"RADIUS_AUDIT"}}, %mapped_object);
 
     delete $mapped_object{"RADIUS_AUDIT"};
-    use Data::Dumper; get_logger->debug(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
+    get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object; 
     
     unless ($radius_return == 2) { 
