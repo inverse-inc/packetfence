@@ -35,6 +35,7 @@ sub sort_items : Local: Args(0) {
     my $items = $params_handler->expand_hash($c->request->params);
     my $itemsKey = $model->itemsKey;
     my ($status,$status_msg) = $model->sortItems($items->{$itemsKey});
+    $self->audit_current_action($c, status => $status);
     $c->stash(
         current_view => 'JSON',
         status_msg => $status_msg,
