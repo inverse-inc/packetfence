@@ -51,7 +51,7 @@ image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt=
 2. In the 'RADIUS Accounting Settings' window, configure the 'Message Attribute Indices' like this:
 
 [options="compact"]
-* *Device Name*: Calling-Station-Id (31) (Mac Address of the device)
+* *Device Name*: Calling-Station-Id (31) (MAC Address of the device)
 * *User Name*: User-Name (1) (Username put on the PacketFence Portal)
 * *Device Name*: Framed-IP-Address (8) (IP Address of the device in the production network)
 

@@ -135,7 +135,7 @@ On each interface:
   port-security intrusion-mode blockmac
   undo enable snmp trap updown
 
-In Mac Auth 
+In MAC Auth 
 +++++++++++
  Voice vlan : 6
  Normal vlan : 1
@@ -410,7 +410,7 @@ You will need to configure the ports you want to do authentication on.
     802.1x 1/2 supplicant policy authentication pass group-mobility block fail block
     802.1x 1/2 non-supplicant policy authentication pass group-mobility block fail block
 
-Mac Authentication
+MAC Authentication
 ++++++++++++++++++
 
 First, make sure you followed the steps above in 'Global configuration' and '802.1x'
@@ -494,7 +494,7 @@ Next, configure the switch in PacketFence. In the case of this example, the upli
     defaultRole=employee
     guestRole=guest
 
-Mac Authentication
+MAC Authentication
 ++++++++++++++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -548,12 +548,12 @@ AT8000GS
 
 PacketFence supports the AT8000GS switch using :
 
-* Mac Authentication (mac-only)
+* MAC Authentication (mac-only)
 * 802.1X
 
 VoIP support is limited using 802.1X/MAC authentication.  We do have a limitation where the phone needs to be on the same VLAN as the PC (no voice VLAN concept).
 
-Mac Authentication
+MAC Authentication
 ++++++++++++++++++
 
 First, activate 802.1X globally:
@@ -1405,7 +1405,7 @@ IOS XE Switches
 
 PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X and web authentication.
 
-Mac Authentication Bypass
+MAC Authentication Bypass
 +++++++++++++++++++++++++
 
 Global config settings:
@@ -1459,7 +1459,7 @@ Follow the same configuration as for MAC Authentication Bypass but change the `a
 
   authentication priority dot1x
 
-802.1X with Mac Authentication fallback
+802.1X with MAC Authentication fallback
 +++++++++++++++++++++++++++++++++++++++
 
 Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following:
@@ -2167,7 +2167,7 @@ AAA Configuration
   configure radius netlogin primary shared-secret 12345
   enable radius netlogin
 
-Netlogin (Mac Authentication)
+Netlogin (MAC Authentication)
 
   configure netlogin vlan temp
   enable netlogin mac
@@ -3547,7 +3547,7 @@ Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the
 
 * Give a Profile Name and an SSID Name
 * Choose Open as the Access Security 
-* Select Enable Mac Authentication
+* Select Enable MAC Authentication
 * Select your RADIUS server from the RADIUS Server dropdown list
 
 [float]
@@ -3925,7 +3925,7 @@ When done, click on the *Apply* button.
 
 Secure SSID
 +++++++++++
-Since the BE20 doesn't support Open SSID with Mac Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
+Since the BE20 doesn't support Open SSID with MAC Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
 
 Click on *Wifi-1-1 -> Access SSID Config*.  From the *Configuration for SSID* dropdown, select the 1 entry.  Modify the fields like the following:
 

@@ -1350,7 +1350,7 @@ Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame 
 
 NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
 
-Mac Authentication and 802.1X
+MAC Authentication and 802.1X
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Cisco hardware
