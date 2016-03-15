@@ -1183,6 +1183,26 @@ aaa_port=7070
 
 [maintenance]
 #
+# maintenance.iplog_rotation_window
+#
+# How long to keep iplog_history entry before rotating it to iplog_archive
+iplog_rotation_window=1W
+#
+# maintenance.iplog_rotation_interval
+#
+# At which interval to run the iplog_history rotation job
+iplog_rotation_interval=60s
+#
+# maintenance.iplog_rotation_batch
+#
+# How many iplog_history entries to rotate in one job
+iplog_rotation_batch=100
+#
+# maintenance.iplog_rotation_timeout
+#
+# How long a iplog_history rotation job can take before being killed
+iplog_rotation_timeout=10s
+#
 # maintenance.iplog_cleanup_window
 #
 # How long to keep a iplog_archive entry before deleting it
@@ -1190,17 +1210,17 @@ iplog_cleanup_window=0D
 #
 # maintenance.iplog_cleanup_interval
 #
-# iplog cleanup interval
+# At which interval to run the iplog_archive cleanup job
 iplog_cleanup_interval=60s
 #
 # maintenance.iplog_cleanup_batch
 #
-# iplog cleanup batch
+# How many iplog_archive entries to clean up in one job
 iplog_cleanup_batch=100
 #
 # maintenance.iplog_cleanup_timeout
 #
-# iplog cleanup timeout
+# How long a iplog_archive cleanup job can take before being killed
 iplog_cleanup_timeout=10s
 #
 # maintenance.locationlog_cleanup_window
@@ -1208,20 +1228,30 @@ iplog_cleanup_timeout=10s
 # How long to keep a locationlog entry before deleting it
 locationlog_cleanup_window=0D
 #
-# maintenance.node_cleanup_interval
+# maintenance.locationlog_cleanup_interval
 #
-# locationlog cleanup interval
+# At which interval to run the locationlog cleanup job
 locationlog_cleanup_interval=60s
 #
 # maintenance.locationlog_cleanup_batch
 #
-# locationlog cleanup batch
+# How many locationlog entries to clean up in one job
 locationlog_cleanup_batch=100
 #
 # maintenance.locationlog_cleanup_timeout
 #
-# locationlog cleanup timeout
+# How long a locationlog cleanup job can take before being killed
 locationlog_cleanup_timeout=10s
+#
+# maintenance.traplog_cleanup_window
+#
+# How long to keep a traplog entry before deleting it
+traplog_cleanup_window=0D
+#
+# maintenance.traplog_cleanup_interval
+#
+# At which interval to run the traplog cleanup job
+traplog_cleanup_interval=60s
 #
 # maintenance.radius_audit_log_cleanup_window
 #
@@ -1230,17 +1260,17 @@ radius_audit_log_cleanup_window=30D
 #
 # maintenance.radius_audit_log_cleanup_interval
 #
-# radius_audit_log cleanup interval
+# At which interval to run the radius_audit_log cleanup job
 radius_audit_log_cleanup_interval=60s
 #
 # maintenance.radius_audit_log_cleanup_batch
 #
-# radius_audit_log cleanup batch
+# How many radius_audit_log entries to clean up in one job
 radius_audit_log_cleanup_batch=100
 #
 # maintenance.radius_audit_log_cleanup_timeout
 #
-# radius_audit_log cleanup timeout
+# How long a radius_audit_log cleanup job can take before being killed
 radius_audit_log_cleanup_timeout=10s
 #
 # maintenance.node_cleanup_window
@@ -1272,6 +1302,11 @@ traplog_cleanup_interval=60s
 #
 # nodes maintenance interval
 nodes_maintenance_interval=60s
+#
+# maintenance.online_node_count_interval
+#
+# Interval at which PacketFence updates the online node count
+online_node_count_interval=15m
 #
 # maintenance.violation_maintenance_interval
 #
