@@ -33,6 +33,21 @@ sub create :Local :Args(0) {
     }
 }
 
+sub audit_current_action {
+    my ($self, $c, @args) = @_;
+    my $action = $c->action;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey();
+    $c->model("Audit")->write_json_entry({
+        user => $c->user->id,
+        action => $action->name,
+        context => $action->private_path,
+        happened_at => scalar localtime(),
+        (defined $c->stash->{$idKey} ? (object_id => $c->stash->{$idKey}) :()),
+        @args,
+    });
+}
+
 sub _processCreatePost {
     my ($self,$c) =@_;
     my $form = $self->getForm($c);
@@ -54,6 +69,7 @@ sub _processCreatePost {
             $idKey   => $id
         );
         ($status, $status_msg) = $model->create($id, $item);
+        $self->audit_current_action($c, status => $status);
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg;
@@ -118,6 +134,7 @@ sub update :Chained('object') :PathPart :Args(0) {
             $current_id,
             $value
         );
+        $self->audit_current_action($c, status => $status);
         if (is_success($status) && ($new_id ne $current_id)) {
             ($status, my $rename_status_msg) = $model->renameItem(
                 $current_id,
@@ -144,6 +161,7 @@ sub rename_item :Chained('object') :PathPart :Args(1) {
     my $current_id = $c->stash->{$idKey};
     if ($new_id ne $current_id) {
         ($status,$status_msg) = $model->renameItem( $current_id,$new_id);
+        $self->audit_current_action($c, status => $status);
     } else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "cannot renamed $current_id to itself";
@@ -170,6 +188,7 @@ sub remove :Chained('object') :PathPart('delete'): Args(0) {
         status_msg   => $result,
         current_view => 'JSON',
     );
+    $self->audit_current_action($c, status => $status);
     $c->response->status($status);
 }
 
