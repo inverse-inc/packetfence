@@ -41,7 +41,7 @@ Test to see of the redis connection is still alive
 sub expire_if {
     my ($object, $cache) = @_;
     my $redis = $object->value;
-    return $redis->ping;
+    return !$redis->ping;
 }
 
 =head2 CLONE
