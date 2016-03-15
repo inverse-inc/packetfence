@@ -362,53 +362,11 @@ host=localhost
 
 [expire]
 #
-# expire.node
-#
-# Time before a node is removed due to inactivity.
-# A value of 0D disables expiration.
-# example:
-# node=90D
-node=0D
-#
 # expire.person
 #
 # Users that do not own any device will be deleted.
 # Locally created users will only be deleted when their account expires.
 person=disabled
-#
-# expire.iplog
-#
-# Time which you would like to keep logs on IP/MAC information.
-# A value of 0D disables expiration.
-# example:
-# iplog=180D
-iplog=0D
-#
-# expire.traplog
-#
-# Time which you would like to keep logs on trap information.
-# A value of 0D disables expiration.
-# example:
-# traplog=180D
-traplog=0D
-#
-# expire.locationlog
-#
-# Time which you would like to keep logs on location information
-# Please note that this table should not become too big since it 
-# could degrade pfsetvlan performance.
-# A value of 0D disables expiration.
-# example:
-# locationlog=180D
-locationlog=0D
-#
-# expire.radius_audit_log
-#
-# Time which you would like to keep radius audit log entries
-# A value of 0D disables expiration.
-# example:
-# radius_audit_log=30D
-radius_audit_log=30D
 
 [services]
 #
@@ -1225,6 +1183,11 @@ aaa_port=7070
 
 [maintenance]
 #
+# maintenance.iplog_cleanup_window
+#
+# How long to keep a iplog_archive entry before deleting it
+iplog_cleanup_window=0D
+#
 # maintenance.iplog_cleanup_interval
 #
 # iplog cleanup interval
@@ -1239,6 +1202,11 @@ iplog_cleanup_batch=100
 #
 # iplog cleanup timeout
 iplog_cleanup_timeout=10s
+#
+# maintenance.locationlog_cleanup_window
+#
+# How long to keep a locationlog entry before deleting it
+locationlog_cleanup_window=0D
 #
 # maintenance.node_cleanup_interval
 #
@@ -1255,6 +1223,11 @@ locationlog_cleanup_batch=100
 # locationlog cleanup timeout
 locationlog_cleanup_timeout=10s
 #
+# maintenance.radius_audit_log_cleanup_window
+#
+# How long to keep a radius_audit_log entry before deleting it
+radius_audit_log_cleanup_window=30D
+#
 # maintenance.radius_audit_log_cleanup_interval
 #
 # radius_audit_log cleanup interval
@@ -1270,6 +1243,11 @@ radius_audit_log_cleanup_batch=100
 # radius_audit_log cleanup timeout
 radius_audit_log_cleanup_timeout=10s
 #
+# maintenance.node_cleanup_window
+#
+# How long to keep a node entry before deleting it
+node_cleanup_window=0D
+#
 # maintenance.node_cleanup_interval
 #
 # node cleanup interval
@@ -1279,6 +1257,11 @@ node_cleanup_interval=60s
 #
 # person cleanup interval
 person_cleanup_interval=60s
+#
+# maintenance.traplog_cleanup_window
+#
+# How long to keep a traplog entry before deleting it
+traplog_cleanup_window=0D
 #
 # maintenance.traplog_cleanup_interval
 #

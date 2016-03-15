@@ -29,7 +29,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 my %options = (
-    expire   => $Config{'expire'}{'iplog'},
+    expire   => $Config{'maintenance'}{'iplog_cleanup_window'},
     batch    => $Config{maintenance}{iplog_cleanup_batch},
     timeout  => $Config{maintenance}{iplog_cleanup_timeout},
     help     => undef,

@@ -92,7 +92,6 @@ table.sources {
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') | none %]
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
-              [% pf_section_entry( 'expire', 'Expiration') | none %]
               [% pf_section_entry( 'services', 'Services') | none %]
               [% pf_section_entry( 'vlan', 'SNMP') | none %]
               [% pf_section_entry( 'inline', 'Inline') | none %]

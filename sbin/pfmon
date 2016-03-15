@@ -171,21 +171,21 @@ sub registertasks  {
         'locationlog cleanup',
         'locationlog_cleanup_interval',
         sub {
-            locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} ) if ( $Config{'expire'}{'locationlog'} );
+            locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
         }
     );
     register_task(
         'radius audit log cleanup',
         'radius_audit_log_cleanup_interval',
         sub {
-            radius_audit_log_cleanup( $Config{'expire'}{'radius_audit_log'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout}) if ( $Config{'expire'}{'radius_audit_log'} );
+            radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout}) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
         }
     );
     register_task(
         'node cleanup',
         'node_cleanup_interval',
         sub {
-            node_cleanup( $Config{'expire'}{'node'} ) if ( $Config{'expire'}{'node'} );
+            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
         }
     );
     register_task(
@@ -198,7 +198,7 @@ sub registertasks  {
         'traplog cleanup',
         'traplog_cleanup_interval',
         sub {
-            traplog_cleanup( $Config{'expire'}{'traplog'} ) if ( $Config{'expire'}{'traplog'} );
+            traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
         }
     );
     register_task(
