@@ -17,8 +17,7 @@ use pf::CHI;
 use pf::util;
 use Readonly;
 
-use Net::LDAP;
-use Net::LDAPS;
+use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
 use pf::config;
