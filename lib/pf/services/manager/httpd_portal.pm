@@ -14,10 +14,21 @@ pf::services::manager::httpd_portal
 use strict;
 use warnings;
 use Moo;
+use pf::file_paths;
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.portal' } );
+
+sub _build_configFilePath {
+    my ($self) = @_;
+    return "$install_dir/conf/httpd.conf.d/" . $self->name;
+}
+
+sub generateConfig {
+    my ($self) = @_;
+    $self->generateCommonConfig();
+}
 
 =head1 AUTHOR
 

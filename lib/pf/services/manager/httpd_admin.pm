@@ -14,13 +14,13 @@ pf::services::manager::httpd_admin
 use strict;
 use warnings;
 use Moo;
+use Template;
 
 extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.admin' } );
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
-
 
 =head1 AUTHOR
 
@@ -51,4 +51,3 @@ USA.
 =cut
 
 1;
-
