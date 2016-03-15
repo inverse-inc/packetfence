@@ -42,6 +42,7 @@ sub _run {
     print "Testing authentication for \"$user\"\n\n";
     eval {
         foreach my $source (@sources) {
+            next if($source->type eq "SAML");
             print "Authenticating against " . $source->id . "\n";
             my ($result,$message) = $source->authenticate($user,$pass);
             $message = '' unless defined $message;
