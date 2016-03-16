@@ -37,7 +37,10 @@ use List::Util qw(first);
 
 use File::Spec::Functions;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'Catalyst::Controller';
+    with 'pfappserver::Role::Controller::Audit';
+}
 
 our %VALID_PARAMS =
   (

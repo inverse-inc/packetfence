@@ -76,6 +76,7 @@ our (
     $billing_tiers_config_file,
     $dhcp_filters_config_file,
     $dns_filters_config_file,
+    $admin_audit_log,
 );
 
 BEGIN {
@@ -129,6 +130,7 @@ BEGIN {
         $billing_tiers_config_file
         $dhcp_filters_config_file
         $dns_filters_config_file
+        $admin_audit_log
     );
 }
 
@@ -196,6 +198,7 @@ $radius_filters_config_file = catfile($conf_dir,"radius_filters.conf");
 $billing_tiers_config_file = catfile($conf_dir,"billing_tiers.conf");
 $dhcp_filters_config_file = catfile($conf_dir,"dhcp_filters.conf");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
+$admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -210,7 +213,7 @@ $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
   httpd.proxy.reverse.access httpd.proxy.reverse.error
   httpd.webservices.access httpd.webservices.error
   packetfence.log pfbandwidthd.log pfdetect.log pfqueue.log
-  pfdhcplistener.log pfdns.log pfmon.log pfconfig.log
+  pfdhcplistener.log pfdns.log pfmon.log pfconfig.log httpd.admin.audit.log
 );
 
 @stored_config_files = (

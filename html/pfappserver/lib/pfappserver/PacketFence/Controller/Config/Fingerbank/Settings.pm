@@ -56,6 +56,8 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             $params{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
             ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
 
+            $self->audit_current_action($c, status => $status);
+
             # Sync the config to the cluster if necessary
             pf::fingerbank::sync_configuration();
 
@@ -143,6 +145,7 @@ sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     $c->stash->{current_view} = 'JSON';
 
     my ( $status, $status_msg ) = fingerbank::Config::update_p0f_map();
+    $self->audit_current_action($c, status => $status);
 
     $c->stash->{status_msg} = $status_msg;
     $c->response->status($status);

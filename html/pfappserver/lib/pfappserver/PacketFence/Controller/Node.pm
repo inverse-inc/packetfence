@@ -201,6 +201,7 @@ sub create :Local : AdminRole('NODES_CREATE') {
         else {
             $status = $STATUS::INTERNAL_SERVER_ERROR;
         }
+        $self->audit_current_action($c, status => $status, create_type => $type);
 
         $c->response->status($status);
         $c->stash->{status} = $status;
@@ -298,6 +299,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
     }
     else {
         ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $form->value);
+        $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
     }
     if (is_error($status)) {
         $c->response->status($status);
@@ -314,6 +316,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DEL
     my ( $self, $c ) = @_;
 
     my ($status, $message) = $c->model('Node')->delete($c->stash->{mac});
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message; # TODO: localize error message
@@ -331,6 +334,7 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     my ( $self, $c ) = @_;
 
     my ($status, $message) = $c->model('Node')->reevaluate($c->stash->{mac});
+    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';
@@ -365,6 +369,7 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
     my ($status, $result) = $c->model('Config::Violations')->hasId($id);
     if (is_success($status)) {
         ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
+        $self->audit_current_action($c, status => $status, mac => $c->stash->{mac}, violation_id => $id);
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
@@ -383,6 +388,7 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
 sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
+    $self->audit_current_action($c, status => $status, mac => $id);
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
@@ -395,6 +401,7 @@ sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
 sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->runViolation($id);
+    $self->audit_current_action($c, status => $status, mac => $id);
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
@@ -412,6 +419,7 @@ sub bulk_apply_bypass_role : Local : Args(1) :AdminRole('NODES_UPDATE') {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkApplyBypassRole($role,@ids);
+        $self->audit_current_action($c, status => $status, macs => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;

@@ -29,6 +29,7 @@ sub bulk_close : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkCloseViolations(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -50,6 +51,7 @@ sub bulk_register : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkRegister(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -71,6 +73,7 @@ sub bulk_deregister : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkDeregister(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -92,6 +95,7 @@ sub bulk_apply_role : Local : Args(1) {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkApplyRole($role,@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -113,6 +117,7 @@ sub bulk_apply_violation : Local : Args(1) {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation($violation,@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -134,6 +139,7 @@ sub bulk_reevaluate_access : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkReevaluateAccess(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
