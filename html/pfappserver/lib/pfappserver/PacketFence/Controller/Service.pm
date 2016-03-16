@@ -89,6 +89,7 @@ sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf start)) );
 }
 
@@ -98,6 +99,7 @@ sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
 
 sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf stop)) );
 }
 
@@ -107,6 +109,7 @@ sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
 
 sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf restart)) );
 }
 
@@ -116,6 +119,7 @@ sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
 
 sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "restart") );
 }
 
@@ -125,12 +129,14 @@ sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICE
 
 sub httpd_admin_stop :Local : Path('httpd.admin/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "stop") );
 }
 
 
 sub _process_model_results_as_json {
     my ($self, $c, $status, $result) = @_;
+    $self->audit_current_action($c, status => $status);
     $c->stash(current_view => 'JSON');
     if (is_success($status)) {
         $c->stash(%$result);
