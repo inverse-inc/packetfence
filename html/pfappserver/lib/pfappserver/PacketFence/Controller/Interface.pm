@@ -142,6 +142,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);
             }
+            $self->audit_current_action($c, status => $status, interface => $interface);
 
         }
         $c->response->status($status);
@@ -172,6 +173,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('INTERFACE
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host);
+    $self->audit_current_action($c, status => $status, interface => $interface);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -196,6 +198,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) :AdminRole('INTERFACES_UP
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->down($interface, $c->req->uri->host);
+    $self->audit_current_action($c, status => $status, interface => $interface);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -280,6 +283,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('INTERFACE
             }
 
             ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data);
+            $self->audit_current_action($c, status => $status, interface => $c->stash->{interface});
         }
         if (is_error($status)) {
             $c->response->status($status);
@@ -306,6 +310,7 @@ sub up :Chained('object') :PathPart('up') :Args(0) :AdminRole('INTERFACES_UPDATE
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->up($interface);
+    $self->audit_current_action($c, status => $status, interface => $c->stash->{interface});
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -354,6 +359,24 @@ around create_action => sub {
     }
     return $action;
 };
+
+=item audit_current_action
+
+Create an audit log entry
+
+=cut
+
+sub audit_current_action {
+    my ($self, $c, @args) = @_;
+    my $action = $c->action;
+    $c->model("Audit")->write_json_entry({
+        user => $c->user->id,
+        action => $action->name,
+        context => $action->private_path,
+        happened_at => scalar localtime(),
+        @args,
+    });
+}
 
 =back
 
