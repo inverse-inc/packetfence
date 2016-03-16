@@ -101,6 +101,7 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
                     if (is_success($status)) {
                         ($status,$status_msg) = $model->commit();
                     }
+                    $self->audit_current_action($c, status => $status, action => 'update', section => $section);
                 }
             } else {
                 $c->response->status(HTTP_UNAUTHORIZED);
