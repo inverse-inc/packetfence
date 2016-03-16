@@ -89,7 +89,7 @@ has_field 'networks' =>
    type => 'Text',
    label => 'Networks on which to do SSO',
    tags => { after_element => \&help,
-             help => 'Comma delimited list of networks to apply the SSO on.<br/>Format : 192.168.0.0/24' },
+             help => 'Comma delimited list of networks on which the SSO applies.<br/>Format : 192.168.0.0/24' },
   );
 
 =head2 Methods
