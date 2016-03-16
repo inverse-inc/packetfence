@@ -942,21 +942,21 @@ fi
                         /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config                 /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.graphite
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
