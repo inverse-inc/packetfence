@@ -205,6 +205,7 @@ Get the current module as an object
 =cut
 
 sub current_module {
+    my ($self) = @_;
     return $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id};
 }
 
