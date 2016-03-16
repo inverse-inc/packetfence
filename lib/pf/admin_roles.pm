@@ -19,9 +19,11 @@ use base qw(Exporter);
 use pf::file_paths;
 use List::MoreUtils qw(any all uniq);
 use pfconfig::cached_hash;
+use pf::constants;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
+use DateTime::Format::Strptime;
 
-our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all);
+our @EXPORT = qw(admin_can admin_can_do_any admin_can_do_any_in_group %ADMIN_ROLES admin_allowed_options admin_allowed_options_all check_allowed_unreg_date);
 our %ADMIN_ROLES;
 tie %ADMIN_ROLES, 'pfconfig::cached_hash', 'config::AdminRoles';
 
@@ -98,6 +100,44 @@ sub admin_allowed_options {
         push @options, split /\s*,\s*/, $allowed_options;
     }
     return uniq @options;
+}
+
+=head2 check_allowed_unreg_date
+
+Check if the unreg date can be assigned by the user
+
+=cut
+
+sub check_allowed_unreg_date {
+    my ($roles, $date) = @_;
+    my $parser = DateTime::Format::Strptime->new(
+        pattern => '%F',
+        on_error => 'croak',
+    );
+    my $result = $FALSE;
+    my $unreg_date = $parser->parse_datetime($date);
+    foreach my $role (@{$roles}){
+        next unless exists $ADMIN_ROLES{$role};
+
+        my $max_unreg_date_value = $ADMIN_ROLES{$role}->{allowed_unreg_date};
+        
+        #If no option is defined then any date is allowed
+        # we got one that is unlimited so we're good
+        unless(defined($max_unreg_date_value) && $max_unreg_date_value){
+            $result = $TRUE;
+            last;
+        }
+        else {
+            my $compare = DateTime->compare($unreg_date, $parser->parse_datetime($max_unreg_date_value));
+            # it is before so we're good
+            if($compare == -1){
+                $result = $TRUE;
+                last;
+            }
+        }
+        
+    }
+    return $result;
 }
 
 
