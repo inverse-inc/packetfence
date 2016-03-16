@@ -33,20 +33,18 @@ sub create :Local :Args(0) {
     }
 }
 
-sub audit_current_action {
-    my ($self, $c, @args) = @_;
-    my $action = $c->action;
+=head2 audit_current_action
+
+Adds the object_id to the audit log
+
+=cut
+
+around audit_current_action => sub {
+    my ($orig, $self, $c, @args) = @_;
     my $model = $self->getModel($c);
     my $idKey = $model->idKey();
-    $c->model("Audit")->write_json_entry({
-        user => $c->user->id,
-        action => $action->name,
-        context => $action->private_path,
-        happened_at => scalar localtime(),
-        (defined $c->stash->{$idKey} ? (object_id => $c->stash->{$idKey}) :()),
-        @args,
-    });
-}
+    $self->$orig($c, (defined $c->stash->{$idKey} ? (object_id => $c->stash->{$idKey}) :()), @args);
+};
 
 sub _processCreatePost {
     my ($self,$c) =@_;
