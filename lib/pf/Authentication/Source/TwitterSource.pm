@@ -30,7 +30,6 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/request
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/twitter');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com/oauth/access_token');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 
 =head2 authorize
