@@ -33,76 +33,57 @@ sub description {
 
 =cut
 
+my %OPS = (
+    $Conditions::EQUALS => sub {
+        return $_[0] eq $_[1];
+    },
+    $Conditions::IS => sub {
+        return $_[0] eq $_[1];
+    },
+    $Conditions::IS_NOT => sub {
+        return $_[0] ne $_[1];
+    },
+    $Conditions::CONTAINS  => sub {
+        return index($_[1], $_[0]) >= 0;
+    },
+    $Conditions::STARTS  => sub {
+        return index($_[1], $_[0]) == 0;
+    },
+    $Conditions::ENDS => sub {
+        return $_[1] =~ m/\Q$_[0]\E$/;
+    },
+    $Conditions::MATCHES => sub {
+        return $_[1] =~ m/\Q$_[0]\E/;
+    },
+    $Conditions::IS_BEFORE => sub {
+        return $_[0] < $_[1];
+    },
+    $Conditions::IS_AFTER => sub {
+        return $_[0] > $_[1];
+    }
+);
+
 sub matches {
     my ($self, $attr, $v) = @_;
-
     if (defined $v) {
-
-        my ($time, $time_v);
-
+        my $value = $self->{value};
         if ($self->{'attribute'} eq 'current_time') {
-            my ($hour, $min) = $self->{'value'} =~ m/(\d+):(\d+)/;
-            my ($vhour, $vmin) = $v =~ m/(\d+):(\d+)/;
-            $time = int(sprintf("%d%02d", $hour, $min));
-            $time_v = int(sprintf("%d%02d", $vhour, $vmin));
+            my ($hour, $min) = $value =~ m/(\d+):(\d+)/;
+            $value = int(sprintf("%d%02d", $hour, $min));
         }
         elsif ($self->{'attribute'} eq 'current_date') {
-            my ($year, $mon, $day) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
-            my ($vyear, $vmon, $vday) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
-            $time = int(sprintf("%d%02d%02d", $year, $mon, $day));
-            $time_v = int(sprintf("%d%02d%02d", $vyear, $vmon, $vday));
+            my ($year, $mon, $day) = $value =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+            $value = int(sprintf("%d%02d%02d", $year, $mon, $day));
         }
-
-        my $logger = get_logger();
-        $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $self->{'attribute'}, $self->{'operator'}, $self->{'value'}, $v));
-
-        if ($self->{'operator'} eq $Conditions::EQUALS ||
-            $self->{'operator'} eq $Conditions::IS) {
-            if ($self->{'value'} eq $v) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::IS_NOT) {
-            if ($self->{'value'} ne $v) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::CONTAINS) {
-            if (index($v, $self->{'value'}) >= 0) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::STARTS) {
-            if (index($v, $self->{'value'}) == 0) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::ENDS) {
-            if (($v =~ m/\Q${$self}{value}\E$/)) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::MATCHES) {
-            if (($v =~ m/${$self}{value}/)) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::IS_BEFORE) {
-            if ($time_v < $time) {
-                return 1;
-            }
-        }
-        elsif ($self->{'operator'} eq $Conditions::IS_AFTER) {
-            if ($time_v > $time) {
-                return 1;
-            }
+        my $op = $self->{'operator'};
+        if(exists $OPS{$op}) {
+            return $OPS{$op}->($v, $value) ? 1 : 0;
         }
         else {
             my $logger = get_logger();
-            $logger->error("Support for operator " . $self->{operator} . " is not implemented.");
+            $logger->error("Support for operator $op is not implemented.");
         }
     }
-
     return 0;
 }
 

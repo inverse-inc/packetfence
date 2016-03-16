@@ -24,6 +24,8 @@ use pf::config;
 use List::MoreUtils qw(uniq);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use List::Util qw(any all);
+use List::MoreUtils qw(part);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -226,15 +228,201 @@ sub match {
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
     if($self->is_match_cacheable) {
-        my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
-                $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
-                my $result =   $self->SUPER::match($params);
-                return $result;
-            });
-        return $result;
+        return $self->cache->compute_with_undef([$self->id, $params], sub {
+            $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
+            return $self->match_with_object($params);
+        });
     }
-    my $result = $self->SUPER::match($params);
-    return $result;
+    return $self->match_with_object($params);
+}
+
+=head2 match_with_object
+
+=cut
+
+sub match_with_object {
+    my ($self, $params) = @_;
+    $self->preMatchProcessing();
+    my $object = $self->get_user_object($params);
+    return undef if !defined $object;
+    my $rule = $self->match_first_rule($object, $params);
+    $self->postMatchProcessing();
+    return defined $rule ? $rule->{actions} : undef;
+}
+
+=head2 get_user_object
+
+=cut
+
+sub get_user_object {
+    my ($self, $params) = @_;
+    my $filter = $self->make_ldap_filter_for_user($params);
+    if (!defined $filter) {
+        my $logger = get_logger();
+        $logger->error("$self->{id}: not enough information to look the user");
+        return undef;
+    }
+    my $cached_connection = $self->_cached_connection;
+    return undef if !defined $cached_connection;
+    my ($connection, $LDAPServer, $LDAPServerPort) = @$cached_connection;
+    my $result = $connection->search(
+        base   => $self->{'basedn'},
+        filter => $filter,
+        scope  => $self->{'scope'},
+    );
+    my $count = $result->count;
+    if ($count != 1) {
+        my $logger = get_logger();
+        $logger->error("$self->{id}: " . ($count ? "Too many results" : "could not find a user"));
+        return undef;
+    }
+    return $result->pop_entry;
+}
+
+=head2 match_first_rule
+
+Match the first rule that success
+
+=cut
+
+sub match_first_rule {
+    my ($self, $object, $params) = @_;
+    my %common_attributes_lookup = map { $_->{value} => undef } @{$self->common_attributes()};
+    foreach my $rule ( @{$self->{'rules'}} ) {
+        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
+        if ($self->match_rule($rule, $object, $params, \%common_attributes_lookup)) {
+            return $rule;
+        }
+    }
+    return undef;
+}
+
+=head2 match_rule
+
+Match the rule based parameters and user entry
+
+=cut
+
+sub match_rule {
+    my ($self, $rule, $object, $params, $lookup) = @_;
+    my $conditions = $rule->{conditions};
+    #If this is a catch all return true
+    return 1 if @$conditions == 0;
+    #Split the conditions into common, ldap and member conditions
+    my ($common_conditions, $ldap_conditions, $member_conditions) = part {
+        exists $lookup->{$_->attribute} ? 0
+        : $_->operator ne $Conditions::IS_MEMBER ? 1
+        : 2
+    } @$conditions;
+    $common_conditions //= [];
+    $ldap_conditions //= [];
+    $member_conditions //= [];
+    if ($rule->match eq $Rules::ANY) {
+        return any { $self->match_condition($_, $params) } @$common_conditions
+               || any { $self->match_ldap_condition($_, $object) } @$ldap_conditions
+               || $self->match_member_conditions($object, $member_conditions, $rule->match);
+    }
+    return (@$common_conditions == 0 || all { $self->match_condition($_, $params) } @$common_conditions)
+           && (@$ldap_conditions == 0 || all { $self->match_ldap_condition($_, $object) } @$ldap_conditions)
+           && (@$member_conditions == 0 || $self->match_member_conditions($object, $member_conditions, $rule->match));
+}
+
+=head2 match_member_conditions
+
+Match ldap group members
+
+=cut
+
+sub match_member_conditions {
+    my ($self, $object, $member_conditions, $match) = @_;
+    my $dn_search = escape_filter_value($object->dn);
+    my $cached_connection = $self->_cached_connection;
+    return undef if !defined $cached_connection;
+    (my $connection, undef, undef) = @$cached_connection;
+    if (!defined($connection)) {
+      return 0;
+    }
+    if ($match eq $Rules::ANY ) {
+        return any { $self->match_group_filter($connection, $object, $dn_search, $_) } @$member_conditions;
+    }
+    return all { $self->match_group_filter($connection, $object, $dn_search, $_) } @$member_conditions;
+}
+
+=head2 match_group_filter
+
+Match based off group filter
+
+=cut
+
+sub match_group_filter {
+    my ($self, $connection, $entry, $dn_search, $condition) = @_;
+    my $value = escape_filter_value($condition->{'value'});
+    my $attribute = escape_filter_value($entry->get_value($condition->{'attribute'}));
+    # Search for any type of group definition:
+    # - groupOfNames       => member (dn)
+    # - groupOfUniqueNames => uniqueMember (dn)
+    # - posixGroup         => memberUid (uid)
+    my $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
+    my $result = $connection->search(
+        base   => $value,
+        filter => $filter,
+        scope  => $self->{'scope'},
+        attrs  => ['dn']
+    );
+    if ($result->is_error || $result->count != 1) {
+        if ($result->is_error) {
+            my $cached_connection = $self->_cached_connection;
+            (undef, my $LDAPServer, my $LDAPServerPort) = @$cached_connection;
+            $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count");
+            $logger->error( "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition (" . $result->error . ").");
+        }
+        return 0;
+    }
+    return 1;
+}
+
+=head2 match_ldap_condition
+
+Match based off ldap conditions
+
+=cut
+
+sub match_ldap_condition {
+    my ($self, $condition, $object) = @_;
+    my $attribute = $condition->attribute;
+    return any { $condition->matches($attribute, $_) } @{$object->get_value($attribute, asref => 1) // []};
+}
+
+=head2 make_ldap_filter_for_user
+
+Make the ldap filter for the user
+
+=cut
+
+sub make_ldap_filter_for_user {
+    my ($self, $params) = @_;
+    my $username = $params->{username};
+
+    # Handling stripped_username condition
+    my $can_stripped_user_name = isenabled($self->{'stripped_user_name'});
+    if ($can_stripped_user_name && defined($params->{'stripped_user_name'}) && $params->{'stripped_user_name'} ne '')
+    {
+        $username = $params->{'stripped_user_name'};
+    }
+    elsif ($can_stripped_user_name) {
+        ($username, my $realm) = strip_username($params->{'username'});
+    }
+
+    if ($username) {
+        my $usernameattribute = $self->usernameattribute;
+        $username = escape_filter_value($username);
+        return  "($usernameattribute=$username)";
+    }
+    elsif ($params->{'email'}) {
+        my $email = escape_filter_value($params->{'email'});
+        return "(|($self->{'email_attribute'}=$email)(proxyAddresses=smtp:$email)(mailLocalAddress=$email)(mailAlternateAddress=$email))";
+    }
+    return;
 }
 
 =head2 cache
@@ -265,130 +453,6 @@ sub is_match_cacheable {
         }
     }
     return $self->cache_match;
-}
-
-
-=head2 match_in_subclass
-
-C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
-
-C<$rule> is the rule instance that defines the conditions.
-
-C<$own_conditions> are the conditions specific to an LDAP source.
-
-Conditions that match are added to C<$matching_conditions>.
-
-=cut
-
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
-
-    my $cached_connection = $self->_cached_connection;
-    unless ( $cached_connection ) {
-        return undef;
-    }
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
-
-
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
-    if (! defined($filter)) {
-        $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
-    }
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-
-    my @attributes = map { $_->{'attribute'} } @{$own_conditions};
-    my $result = do {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}.search", sample_rate => 0.1});
-        $connection->search(
-          base => $self->{'basedn'},
-          filter => $filter,
-          scope => $self->{'scope'},
-          attrs => \@attributes
-        )
-    };
-
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-        return undef;
-    }
-
-    $logger->debug("[$self->{'id'} $rule->{'id'}] Found ".$result->count." results");
-    if ($result->count == 1) {
-        my $entry = $result->pop_entry();
-        my $dn = $entry->dn;
-        my $entry_matches = 1;
-        my ($condition, $attribute, $value);
-
-        # Perform match on regexp conditions since they were not included in the LDAP filter
-        foreach $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
-            $attribute = $condition->{'attribute'};
-            $value = $condition->{'value'};
-            my @attributes = $entry->get_value($attribute);
-            if (scalar @attributes > 0 && grep /$value/i, @attributes) {
-                $entry_matches = 1;
-                $logger->debug("[$self->{'id'} $rule->{'id'}] Regexp $attribute =~ /$value/ matches ($dn)");
-                last if ($rule->match eq $Rules::ANY)
-            }
-            else {
-                $entry_matches = 0;
-                if ($rule->match eq $Rules::ALL) {
-                    last;
-                }
-            }
-        }
-
-        # Perform match on a static group condition since they require a second LDAP search
-        foreach $condition (grep { $_->{'operator'} eq $Conditions::IS_MEMBER } @{$own_conditions}) {
-            $value = escape_filter_value($condition->{'value'});
-            $attribute = $entry->get_value($condition->{'attribute'});
-            # Search for any type of group definition:
-            # - groupOfNames       => member (dn)
-            # - groupOfUniqueNames => uniqueMember (dn)
-            # - posixGroup         => memberUid (uid)
-            my $dn_search = escape_filter_value($dn);
-            $filter = "(|(member=${dn_search})(uniqueMember=${dn_search})(memberUid=${attribute}))";
-            $result = $connection->search
-              (
-               base => $value,
-               filter => $filter,
-               scope => $self->{ 'scope'},
-               attrs => ['dn']
-              );
-            if ($result->is_error || $result->count != 1) {
-                $entry_matches = 0;
-                if ( $result->is_error ) {
-                    $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-                    $logger->error(
-                        "[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition ("
-                        . $result->error . ").");
-                }
-
-                if ($rule->match eq $Rules::ALL) {
-                    last;
-                }
-            }
-            else {
-                $entry_matches = 1;
-                $logger->debug("[$self->{'id'} $rule->{'id'}] Group $value has member $attribute ($dn)");
-                last if ($rule->match eq $Rules::ANY);
-            }
-        }
-
-        if ($entry_matches) {
-            # If we found a result, we push all conditions as matched ones.
-            # That is normal, as we used them all to build our LDAP filter.
-            $logger->trace("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
-            push @{ $matching_conditions }, @{ $own_conditions };
-            return $params->{'username'} || $params->{'email'};
-        }
-    }
-
-    return undef;
 }
 
 =head2 test
@@ -448,23 +512,11 @@ sub ldap_filter_for_conditions {
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
 
-  my (@ldap_conditions, $expression);
-
-  # Handling stripped_username condition
-  if ( isenabled($self->{'stripped_user_name'}) && defined($params->{'stripped_user_name'}) && $params->{'stripped_user_name'} ne '' ) {
-      $params->{'username'} = $params->{'stripped_user_name'};
-  } elsif ( isenabled($self->{'stripped_user_name'}) ) {
-      my ($username, $realm) = strip_username($params->{'username'});
-      $params->{'username'} = $username;
-  }
-
-  if ($params->{'username'}) {
-      $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
-  } elsif ($params->{'email'}) {
-      $expression = '(|(' . $self->{'email_attribute'} . '=' . $params->{'email'} . ')(proxyAddresses=smtp:' . $params->{'email'} . ')(mailLocalAddress=' . $params->{'email'} . ')(mailAlternateAddress=' . $params->{'email'} . '))';
-  }
+  my $expression = $self->make_ldap_filter_for_user($params);
 
   if ($expression) {
+      my @ldap_conditions;
+
       my $logical_op = ($match eq $Rules::ANY) ? '|' :   '&';
       foreach my $condition (@{$conditions}) {
           my $str;
