@@ -2,15 +2,15 @@ package pfconfig::namespaces::config::VlanFiltersDefault;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::VlanFiltersDefault
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::VlanFiltersDefault
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to vlan_filters.conf.defaults
 
 =cut
 
