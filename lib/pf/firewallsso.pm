@@ -20,6 +20,8 @@ use warnings;
 use pf::client;
 use pf::config;
 use pf::log;
+use List::MoreUtils qw(any);
+use NetAddr::IP;
 
 =head1 SUBROUTINES
 
@@ -34,8 +36,28 @@ sub new {
    $logger->debug("instantiating new pf::firewallsso");
    my ( $class, %argv ) = @_;
    my $self = bless {}, $class;
+   $self->{id} = $argv{id};
    $self->{categories} = $argv{categories};
+   $self->{networks} = $argv{networks};
    return $self;
+}
+
+sub should_sso {
+    my ($self, $ip, $mac) = @_;
+    my $logger = get_logger();
+    my $ip_addr = NetAddr::IP->new($ip);
+    if(@{$self->{networks}} eq 0){
+        $logger->trace("Doing SSO on $self->{id} since it applies to any network");
+        return $TRUE;
+    }
+    elsif(any { $_->contains($ip_addr) }@{$self->{networks}}){
+        $logger->debug("Doing SSO on $self->{id} since IP belons to one of its networks");
+        return $TRUE;
+    }
+    else {
+        $logger->debug("Determined that SSO shouldn't be done on the node.");
+        return $FALSE;
+    }
 }
 
 =item do_sso

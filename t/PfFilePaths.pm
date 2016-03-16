@@ -31,6 +31,7 @@ BEGIN {
     $pf::file_paths::log_config_file = catfile($test_dir,'log.conf');
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
     $pf::file_paths::violations_config_file = catfile($test_dir,'data/violations.conf');
+    $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
 }
 
 # we need to load the proper data in pfconfig

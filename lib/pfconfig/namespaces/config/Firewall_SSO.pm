@@ -19,6 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths;
+use NetAddr::IP;
 
 use base 'pfconfig::namespaces::config';
 
@@ -33,6 +34,8 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+        my @networks = map { NetAddr::IP->new($_) } @{$tmp_cfg{$key}{networks}};
+        $tmp_cfg{$key}{networks} = \@networks;
     }
 
     return \%tmp_cfg;
@@ -41,7 +44,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(categories) );
+    $self->expand_list( $data, qw(categories networks) );
 }
 
 =back
