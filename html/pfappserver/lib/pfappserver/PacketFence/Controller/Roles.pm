@@ -59,6 +59,7 @@ sub create :Local :AdminRole('USERS_ROLES_CREATE') {
         else {
             my $data = $form->value;
             ($status, $result) = $c->model('Roles')->create($data->{name}, $data->{max_nodes_per_pid}, $data->{notes});
+            $self->audit_current_action($c, status => $status, id => $data->{name});
         }
 
         if (is_error($status)) {
@@ -137,6 +138,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_ROL
                                                             $c->stash->{role}->{name},
                                                             $data->{max_nodes_per_pid},
                                                             $data->{notes});
+            $self->audit_current_action($c, status => $status, id => $c->stash->{role}->{name});
         }
         if (is_error($status)) {
             $c->response->status($status);
@@ -158,6 +160,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_ROL
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('Roles')->delete($c->stash->{role});
+    $self->audit_current_action($c, status => $status, id => $c->stash->{role}->{name});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
