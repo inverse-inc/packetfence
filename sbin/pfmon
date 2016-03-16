@@ -51,6 +51,7 @@ use pf::factory::provisioner;
 use pf::SwitchFactory;
 use pf::radius_audit_log;
 use pf::StatsD;
+use pf::person;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -178,6 +179,12 @@ sub registertasks  {
         'node cleanup','node_cleanup_interval',sub {
             node_cleanup( $Config{'expire'}{'node'} )
               if ( $Config{'expire'}{'node'} );
+        }
+    );
+    register_task(
+        'person cleanup','person_cleanup_interval',sub {
+            person_cleanup()
+              if ( isenabled($Config{'expire'}{'person'}) );
         }
     );
     register_task(

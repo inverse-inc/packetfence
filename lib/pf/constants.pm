@@ -27,6 +27,11 @@ Readonly::Scalar our $NO => 'no';
 Readonly::Scalar our $default_pid => 'default';
 Readonly::Scalar our $admin_pid => 'admin';
 
+Readonly::Hash our %BUILTIN_USERS => (
+    $default_pid => 1, 
+    $admin_pid => 1,
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

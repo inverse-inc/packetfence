@@ -383,6 +383,12 @@ host=localhost
 # node=90D
 node=0D
 #
+# expire.person
+#
+# Users that do not own any device will be deleted.
+# Locally created users will only be deleted when their account expires.
+person=disabled
+#
 # expire.iplog
 #
 # Time which you would like to keep logs on IP/MAC information.
@@ -1271,6 +1277,11 @@ radius_audit_log_cleanup_timeout=10s
 #
 # node cleanup interval
 node_cleanup_interval=60s
+#
+# maintenance.person_cleanup_interval
+#
+# person cleanup interval
+person_cleanup_interval=60s
 #
 # maintenance.traplog_cleanup_interval
 #
