@@ -183,7 +183,7 @@ sub process_fingerbank {
 
 =head2 current_module_id
 
-Get the current module ID
+Get or set the current module ID
 
 =cut
 
@@ -197,6 +197,22 @@ sub current_module_id {
         return $self->session->{current_module_id};
     }
 }
+
+=head2 current_module
+
+Get the current module as an object
+
+=cut
+
+sub current_module {
+    return $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id};
+}
+
+=head2 previous_module_id
+
+Get or set the previous module id
+
+=cut
 
 sub previous_module_id {
     my ($self, $module_id) = @_;
@@ -328,7 +344,7 @@ sub render {
         content => $inner_content,
         client_mac => $self->current_mac,
         client_ip => $self->root_module->current_ip,
-        current_module => $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id},
+        current_module => $self->current_module,
     };
     $args->{layout} //= $TRUE;
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
