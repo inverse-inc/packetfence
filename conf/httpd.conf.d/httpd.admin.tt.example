@@ -70,7 +70,7 @@ PerlLoadModule pfappserver
 PerlLoadModule pf::WebAPI::InitHandler
 PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 PerlChildInitHandler pf::WebAPI::InitHandler::child_init
-PidFile [% install_dir %]/var/run/httpd.[% name %].pid
+PidFile [% install_dir %]/var/run/[% name %].pid
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
 User pf
 Group pf
