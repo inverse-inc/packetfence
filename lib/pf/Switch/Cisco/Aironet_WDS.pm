@@ -49,7 +49,6 @@ use strict;
 use warnings;
 
 use pf::log;
-use Net::Appliance::Session;
 use Net::SNMP;
 use Try::Tiny;
 
@@ -124,6 +123,7 @@ sub getCurrentApFromMac {
 
     my $session;
     try {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host => $self->{_ip},
             Timeout => 25, # apparently these things are very slow

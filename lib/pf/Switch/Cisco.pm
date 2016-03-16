@@ -17,7 +17,6 @@ use Data::Dumper;
 use base ('pf::Switch');
 use pf::log;
 use Net::SNMP;
-use Net::Appliance::Session;
 use Try::Tiny;
 
 use pf::constants;
@@ -1086,6 +1085,7 @@ sub getMacAddr {
     my $logger = $self->logger;
 
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

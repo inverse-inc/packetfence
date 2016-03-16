@@ -59,7 +59,6 @@ use warnings;
 use base ('pf::Switch');
 
 use POSIX;
-use Net::Telnet;
 use Try::Tiny;
 
 use pf::constants;
@@ -345,6 +344,7 @@ sub getTelnetSession {
     # FIXME: we do not honor the $self->{_cliTransport} parameter
     my $session;
     eval {
+        require Net::Telnet;
         $session = Net::Telnet->new(
             Host    => $self->{_controllerIp} || $self->{_ip},
             Timeout => 5,

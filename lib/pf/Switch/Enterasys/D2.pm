@@ -16,7 +16,6 @@ It should work on all D2 switches and maybe more.
 use strict;
 use warnings;
 use Net::SNMP;
-use Net::Telnet;
 use pf::Switch::constants;
 
 use base ('pf::Switch::Enterasys');

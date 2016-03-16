@@ -25,7 +25,6 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use Net::Telnet;
 use Try::Tiny;
 
 use base ('pf::Switch::Cisco::WLC');

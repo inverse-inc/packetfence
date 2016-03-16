@@ -27,7 +27,6 @@ sub description { 'HP ProCurve MSM Access Point' }
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use Net::Appliance::Session;
 
 =head1 SUBROUTINES
 
@@ -54,6 +53,7 @@ sub _deauthenticateMacWithSSH {
         );
     }
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,

@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use Net::Appliance::Session;
 
 use pf::config;
 sub description { 'Juniper EX Series' }

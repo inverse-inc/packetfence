@@ -323,6 +323,18 @@ sub ReAssignVlan : Public : Fork {
     }
 }
 
+=item
+
+ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to get rid of perl modules that crashed apache
+
+=cut
+
+sub ReAssignVlan_in_queue : Public : Fork {
+    my ($class, %postdata )  = @_;
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify( 'ReAssignVlan', %postdata );
+}
+
 sub desAssociate : Public : Fork {
     my ($class, %postdata )  = @_;
     my @require = qw(switch mac connection_type ifIndex);
@@ -345,6 +357,19 @@ sub desAssociate : Public : Fork {
     $logger->info("[$postdata{'mac'}] DesAssociating mac on switch (".$switch->{'_id'}.")");
     $switch->$deauthTechniques($postdata{'mac'});
 }
+
+=item
+
+desAssociate is use to localy use desAssociate function in pfqueue to get rid of perl modules that crashed apache
+
+=cut
+
+sub desAssociate_in_queue : Public : Fork {
+    my ($class, %postdata )  = @_;
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify( 'desAssociate', %postdata );
+}
+
 
 sub firewall : Public {
     my ($class, %postdata )  = @_;

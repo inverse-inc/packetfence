@@ -87,7 +87,6 @@ use warnings;
 
 use base ('pf::Switch::Cisco');
 use Carp;
-use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
@@ -222,6 +221,7 @@ sub clearMacAddressTable {
     my $logger     = $self->logger;
 
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -493,6 +493,7 @@ sub ping {
     my $logger = $self->logger;
 
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -724,6 +725,7 @@ sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,

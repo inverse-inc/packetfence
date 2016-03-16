@@ -68,8 +68,6 @@ ethernet interface.
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
-
 use base ('pf::Switch');
 
 use pf::constants;
@@ -170,6 +168,7 @@ sub deauthenticateMacDefault {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
