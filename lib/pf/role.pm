@@ -419,17 +419,6 @@ sub getRegisteredRole {
     } elsif ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
-
-
-        if (isenabled($args->{'node_info'}->{'autoreg'})) {
-            $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
-            $role = 'registration';
-            my %info = (
-                'status' => 'unreg',
-                'autoreg' => 'no',
-            );
-            node_modify($args->{'mac'},%info);
-        }
     }
 
     # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate

@@ -11,6 +11,7 @@
 /usr/local/pf/conf/floating_network_device.conf
 /usr/local/pf/conf/guest-managers.conf
 /usr/local/pf/conf/vlan_filters.conf
+/usr/local/pf/conf/vlan_filters.conf.defaults
 /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
 /usr/local/pf/conf/locale/es/LC_MESSAGES/packetfence.po

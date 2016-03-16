@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::VlanFilters;
+package pfconfig::namespaces::config::VlanFiltersDefault;
 
 =head1 NAME
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::VlanFiltersDefault
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::template
+pfconfig::namespaces::config::VlanFiltersDefault
 
-This module creates the configuration hash associated to somefile.conf
+This module creates the configuration hash associated to vlan_filters.conf.defaults
 
 =cut
 
@@ -19,31 +19,19 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths;
-use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
-    $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
-    $self->{default_config}  = $self->{cache}->get_cache('config::VlanFiltersDefault');
+    $self->{file} = $vlan_filters_config_default_file;
+    $self->{child_resources} = [ 'config::VlanFilters'];
 }
 
 sub build_child {
     my ($self) = @_;
-    my %Default_Config = %{ $self->{default_config} };
+
     my %tmp_cfg = %{ $self->{cfg} };
-
-    my @keys;
-    # then everyone else
-    push @keys, keys(%Default_Config);
-    # Only keep unique elements
-    @keys = uniq(@keys);
-
-    foreach my $section_name ( @keys ) {
-        $tmp_cfg{$section_name} = $Default_Config{$section_name};
-    }
 
     $self->cleanup_whitespaces( \%tmp_cfg );
 
