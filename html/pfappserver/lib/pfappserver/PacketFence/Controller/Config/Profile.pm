@@ -284,6 +284,11 @@ sub _makeFilePath {
     return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id}, @pathparts);
 }
 
+sub mergedPaths {
+    my ($self, $c) = @_;
+    return (catfile($captiveportal_profile_templates_path, $c->stash->{id}),$captiveportal_default_profile_templates_path, $captiveportal_templates_path);
+}
+
 sub _makeDefaultFilePath {
     my ($self, $c, @pathparts) = @_;
     return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
@@ -316,7 +321,7 @@ sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES
 
 sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c) = @_;
-    $c->stash(root => $self->_getFilesInfo($c));
+    $c->stash(root => $self->mergeFilesFromPaths($c, $self->mergedPaths($c)));
 }
 
 sub _getFilesInfo {
@@ -486,7 +491,7 @@ sub _sync_file {
 }
 
 sub mergeFilesFromPaths {
-    my ($self, @dirs) = @_;
+    my ($self, $c, @dirs) = @_;
     my %paths;
     my $root;
     my @paths;
@@ -494,17 +499,17 @@ sub mergeFilesFromPaths {
         wanted => sub {
                 my $full_path = my $path = $_;
                 #Just get the file path minus the parent directory
-                $path =~ s/^\Q$File::Find::topdir\E//;
+                $path =~ s/^\Q$File::Find::topdir\E\/?//;
                 return if exists $paths{$path};
                 my $dir = $File::Find::dir;
                 #Just get the directory path minus the parent directory
-                $dir =~ s/^\Q$File::Find::topdir\E//;
+                $dir =~ s/^\Q$File::Find::topdir\E\/?//;
                 my $data;
                 if (-d) {
                     $data = { name => $path, type => 'dir' , size => 0, entries => [] };
                     push @paths, $data;
                 } else {
-                    $data = makeFileInfo($path,$full_path);
+                    $data = $self->makeFileInfo($path,$full_path);
                 }
                 $paths{$path} = $data;
                 if($path ne '') {
@@ -515,7 +520,21 @@ sub mergeFilesFromPaths {
             },
             no_chdir => 1
         }, @dirs);
+    sortEntry($root);
     return $root;
+}
+
+sub sortEntry {
+    my ($root) = @_;
+    if ($root->{type} eq 'dir' && exists $root->{entries}) {
+        my $entries = $root->{entries};
+        foreach my $entry (@$entries) {
+            if ($entry->{type} eq 'dir') {
+                sortEntry($entry);
+            }
+        }
+        @$entries = sort { $a->{name} cmp $b->{name} } @$entries;
+    }
 }
 
 sub makeFileInfo {
@@ -527,8 +546,8 @@ sub makeFileInfo {
         size => format_bytes(-s $full_path),
         editable => $self->isEditable($full_path),
         previewable => $self->isPreviewable($full_path),
-        deleteable => $self->isDeleteable($full_path),
-        revertable => $self->isRevertable($full_path),
+        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($full_path),
+#        revertable => $self->isRevertable($full_path),
     );
     return \%data;
 }
