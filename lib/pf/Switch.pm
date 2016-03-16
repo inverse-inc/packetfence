@@ -323,7 +323,7 @@ sub new {
         '_switchMac'                => undef,
         '_VlanMap'                  => 'enabled',
         '_RoleMap'                  => 'enabled',
-        '_UrlMap'                   => 'enabled',
+        '_WebAuthMap'               => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;

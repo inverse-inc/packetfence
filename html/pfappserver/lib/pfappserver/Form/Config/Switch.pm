@@ -89,7 +89,7 @@ has_field 'AccessListMap' =>
    label => 'Role by access list',
    default => undef,
   );
-has_field 'UrlMap' =>
+has_field 'WebAuthMap' =>
   (
    type => 'Toggle',
    label => 'Role by Web Auth URL',

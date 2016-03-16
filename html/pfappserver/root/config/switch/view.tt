@@ -61,10 +61,10 @@
         [% form.block('access_lists').render | none %]
         <div class="control-group">
           <div class="controls">
-            <h6>[% l('Role mapping by Url') %]</h6>
+            <h6>[% l('Role mapping by WebAuth URL') %]</h6>
           </div>
         </div>
-        [% form.field('UrlMap').render | none %]
+        [% form.field('WebAuthMap').render | none %]
         [% form.block('urls').render | none %]
       </div><!--tab-pane-->
 
