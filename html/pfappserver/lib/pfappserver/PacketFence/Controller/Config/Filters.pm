@@ -83,8 +83,9 @@ Update a filters configuration
 sub update :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
-    
-    pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content')); 
+
+    pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content'));
+    $self->audit_current_action($c, configfile => $c->stash->{object}->configFile );
 
     my $manager = pfconfig::manager->new;
     # Try to build the engine and look for any errors during the creation
