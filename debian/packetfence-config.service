@@ -1,0 +1,12 @@
+[Unit]
+Description=PacketFence Config Service
+After=network.target packetfence-redis-cache.target
+
+[Service]
+Type=forking
+PIDFile=/usr/local/pf/var/run/pfconfig.pid
+ExecStart=/usr/local/pf/sbin/pfconfig -d
+ExecStop=/bin/systemctl kill pfconfig.service
+
+[Install]
+WantedBy=multi-user.target

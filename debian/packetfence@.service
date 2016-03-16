@@ -1,0 +1,12 @@
+[Unit]
+Description=PacketFence %i Service
+After=network.target packetfence-config.service packetfence-redis-cache.service
+
+[Service]
+Type=forking
+ExecStart=/usr/local/pf/bin/pfcmd service %i start
+ExecStop=/usr/local/pf/bin/pfcmd service %i stop
+
+
+[Install]
+WantedBy=multi-user.target
