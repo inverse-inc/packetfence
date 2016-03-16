@@ -17,8 +17,9 @@ use warnings;
 
 use pf::log;
 use Apache2::Const -compile =>
-  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
+  qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_FORBIDDEN HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use pf::api::error;
+use pf::radius::constants;
 
 =head2 format_response
 
@@ -37,7 +38,11 @@ sub format_response {
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object; 
     
-    unless ($radius_return == 2) { 
+    if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
+        die pf::api::error->new(status => Apache2::Const::HTTP_FORBIDDEN, response => $response);
+    }
+
+    unless ($radius_return == $RADIUS::RLM_MODULE_OK) { 
         die pf::api::error->new(status => Apache2::Const::HTTP_UNAUTHORIZED, response => $response);
     }
 
