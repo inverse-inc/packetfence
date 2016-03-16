@@ -7196,7 +7196,7 @@ msgid "expire.node"
 msgstr "Node"
 
 # conf/documentation.conf
-msgid "expire.person"
+msgid "maintenance.person_cleanup"
 msgstr "Person"
 
 # conf/documentation.conf

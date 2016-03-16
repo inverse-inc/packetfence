@@ -189,9 +189,10 @@ sub registertasks  {
         }
     );
     register_task(
-        'person cleanup','person_cleanup_interval',sub {
-            person_cleanup()
-              if ( isenabled($Config{'expire'}{'person'}) );
+        'person cleanup',
+        'person_cleanup_interval',
+        sub {
+            person_cleanup() if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
         }
     );
     register_task(

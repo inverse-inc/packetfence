@@ -360,14 +360,6 @@ port=3306
 # Server the mysql server is running on.
 host=localhost
 
-[expire]
-#
-# expire.person
-#
-# Users that do not own any device will be deleted.
-# Locally created users will only be deleted when their account expires.
-person=disabled
-
 [services]
 #
 # services.dhcpd
@@ -1282,6 +1274,12 @@ node_cleanup_window=0D
 #
 # node cleanup interval
 node_cleanup_interval=60s
+#
+# maintenance.person_cleanup
+#
+# Users that do not own any device will be deleted.
+# Locally created users will only be deleted when their account expires.
+person_cleanup=disabled
 #
 # maintenance.person_cleanup_interval
 #
