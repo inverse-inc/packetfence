@@ -409,7 +409,7 @@ sub person_cleanup {
     my @to_delete = map { $_->{pid} } persons_without_nodes();
     my $now = DateTime->now();
     foreach my $pid (@to_delete) {
-        if($BUILT_IN_USERS{$pid}){
+        if($pf::constants::BUILTIN_USERS{$pid}){
             get_logger->debug("User $pid is set for deletion but is a built-in user. Not deleting...");
             next;
         }
