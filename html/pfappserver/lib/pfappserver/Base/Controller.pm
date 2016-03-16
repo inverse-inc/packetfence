@@ -37,7 +37,10 @@ use List::Util qw(first);
 
 use File::Spec::Functions;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'Catalyst::Controller';
+    with 'pfappserver::Role::Controller::Audit';
+}
 
 our %VALID_PARAMS =
   (
@@ -258,24 +261,6 @@ sub getModel {
         }
     }
     return $c->model(@args);
-}
-
-=head2 audit_current_action
-
-Create an audit log entry
-
-=cut
-
-sub audit_current_action {
-    my ($self, $c, @args) = @_;
-    my $action = $c->action;
-    $c->model("Audit")->write_json_entry({
-        user => $c->user->id,
-        action => $action->name,
-        context => $action->private_path,
-        happened_at => scalar localtime(),
-        @args,
-    });
 }
 
 
