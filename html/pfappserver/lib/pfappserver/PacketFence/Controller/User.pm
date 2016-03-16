@@ -131,6 +131,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_DEL
     my ($self, $c) = @_;
 
     my ($status, $result) = $self->getModel($c)->delete($c->stash->{user}->{pid});
+    $self->audit_current_action($c, status => $status, pid => $c->stash->{user}->{pid});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
@@ -156,6 +157,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_UPD
     }
     else {
         ($status, $message) = $self->getModel($c)->update($c->stash->{user}->{pid}, $form->value, $c->user);
+        $self->audit_current_action($c, status => $status, pid => $c->stash->{user}->{pid});
     }
     if (is_error($status)) {
         $c->response->status($status);
@@ -214,6 +216,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) :AdminRole('USERS_UPDAT
         my $password = $c->request->params->{password};
         if ($password) {
             ( $status, $message ) = $c->model('DB')->resetUserPassword( $c->stash->{user}->{pid}, $password );
+            $self->audit_current_action($c, status => $status, pid => $c->stash->{user}->{pid});
             $c->session->{'users_passwords'} = [ { pid => $c->stash->{user}->{pid}, password => $password } ];
         }
     }
@@ -312,6 +315,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
         else {
             $status = $STATUS::INTERNAL_SERVER_ERROR;
         }
+        $self->audit_current_action($c, status => $status, create_type => $type);
 
         $c->response->status($status);
         $c->stash->{status} = $status;
@@ -397,6 +401,7 @@ sub print :Local :AdminRole('USERS_UPDATE') {
     my %users_passwords_by_pid = map { $_->{'pid'}, $_ } @{ $c->session->{'users_passwords'} };
 
     ( $status, $result ) = $self->getModel($c)->read( $c, \@pids );
+    $self->audit_current_action($c, status => $status, pids => \@pids);
 
     # we overwrite the password found in the database with the one in the session for the same user
     for my $user (@$result) {
@@ -429,6 +434,7 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     my @pids = split(/,/, $c->request->params->{pids});
 
     ($status, $result) = $self->getModel($c)->mail($c, \@pids);
+    $self->audit_current_action($c, status => $status, pids => \@pids);
 
     if (is_success($status)) {
         $c->stash->{status_msg} = $c->loc('An email was sent to [_1] out of [_2] users.',
