@@ -2,7 +2,7 @@ package pfappserver::Model::Audit;
 
 =head1 NAME
 
-pfappserver::Model::Audit -
+pfappserver::Model::Audit - Provides audit logging in catalyst
 
 =cut
 
@@ -28,6 +28,12 @@ has file_handle => ( is => 'ro', builder => '_build_file_handle', lazy => 1);
 has json => ( is => 'ro', isa => JSON::MaybeXS::JSON(),  default => sub { JSON::MaybeXS->new });
 
 
+=head2 _build_file_handle
+
+Build the file handle for the audit
+
+=cut
+
 sub _build_file_handle {
     my ($self) = @_;
     my $audit_log_path = $self->audit_log_path;
@@ -41,22 +47,46 @@ sub _build_file_handle {
     return $fh;
 }
 
+=head2 write_entry
+
+Write a entry to the the audit log appending a new line if needed
+
+=cut
+
 sub write_entry {
     my ($self, $entry) = @_;
     $entry .= "\n" unless $entry =~ /\n$/;
     return $self->_write_audit_entry($entry);
 }
 
+=head2 write_json_entry
+
+Writes a json object to the audit log
+
+=cut
+
 sub write_json_entry {
     my ($self, $args) = @_;
     return $self->_write_audit_entry($self->json->encode($args) ."\n");
 }
+
+=head2 _write_audit_entry
+
+Writes to the audit log
+
+=cut
 
 sub _write_audit_entry {
     my ($self, $line) = @_;
     my $fh = $self->file_handle;
     $fh->write($line);
 }
+
+=head2 ACCEPT_CONTEXT
+
+Function to allow Catalyst to initialize the Object
+
+=cut
 
 sub ACCEPT_CONTEXT {
     my ($class, $c, %args) = @_;
