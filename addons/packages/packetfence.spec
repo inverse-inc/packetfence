@@ -947,7 +947,8 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
+                        /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
