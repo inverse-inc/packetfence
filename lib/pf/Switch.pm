@@ -194,6 +194,18 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
+=item supportsUrlBasedEnforcement
+
+=cut
+
+sub supportsUrlBasedEnforcement {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+    $logger->trace("Url based enforcement is not supported on network device type " . ref($self) . ". ");
+    return $FALSE;
+}
+
+
 =item supportsRoamingAccounting
 
 =cut
@@ -308,10 +320,10 @@ sub new {
         '_deauthMethod'             => undef,
         '_switchIp'                 => undef,
         '_ip'                       => undef,
-        '_portalURL'                => undef,
         '_switchMac'                => undef,
         '_VlanMap'                  => 'enabled',
         '_RoleMap'                  => 'enabled',
+        '_WebAuthMap'               => 'enabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -768,6 +780,27 @@ sub getAccessListByName {
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
 
+}
+
+=item getUrlByName
+
+Get the switch-specific url of a given global role in switches.conf
+
+=cut
+
+sub getUrlByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+    # skip if not defined or empty
+    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+
+    # return if found
+    return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
+    return;
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -3156,6 +3189,26 @@ sub returnAuthorizeRead {
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     }
     return [$status, %$radius_reply_ref];
+}
+
+=head2 setSession
+
+Create a session id and save in in the locationlog.
+
+=cut
+
+sub setSession {
+    my($args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
 }
 
 =back

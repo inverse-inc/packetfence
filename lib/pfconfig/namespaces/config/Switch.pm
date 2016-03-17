@@ -78,16 +78,17 @@ sub build_child {
         }
 
         # transforming vlans and roles to hashes
-        my %merged = ( Vlan => {}, Role => {}, AccessList => {} );
-        foreach my $key ( grep {/(Vlan|Role|AccessList)$/} keys %{$switch} ) {
+        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} );
+        foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
             }
         }
         $switch->{roles}        = $merged{Role};
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
+        $switch->{urls}         = $merged{Url};
         $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
             ? 1
@@ -165,4 +166,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

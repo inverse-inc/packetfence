@@ -117,10 +117,8 @@ use pf::constants;
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
-use pf::accounting qw(node_accounting_current_sessionid);
-use pf::node qw(node_attributes);
-use pf::util::radius qw(perform_coa perform_disconnect);
-
+use pf::util::radius qw(perform_coa);
+use pf::web::util;
 
 sub description { 'Cisco Catalyst 2960' }
 
@@ -134,6 +132,8 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub supportsAccessListBasedEnforcement { return $TRUE }
+sub supportsUrlBasedEnforcement { return $TRUE }
+sub supportsRoleBasedEnforcement { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -363,7 +363,6 @@ sub deauthenticateMacRadius {
 
 
     # perform CoA
-    my $acctsessionid = node_accounting_current_sessionid($mac);
     $self->radiusDisconnect($mac ,{ 'Acct-Terminate-Cause' => 'Admin-Reset'});
 }
 
@@ -389,14 +388,7 @@ sub radiusDisconnect {
 
     $logger->info("deauthenticating");
 
-    # Where should we send the RADIUS CoA-Request?
-    # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
-    # but if controllerIp is set, we send there
-    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
-        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
-        $send_disconnect_to = $self->{'_controllerIp'};
-    }
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -410,15 +402,12 @@ sub radiusDisconnect {
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
-
         # Standard Attributes
+
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
@@ -426,13 +415,11 @@ sub radiusDisconnect {
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
-
-        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' }]);
-
+        $response = perform_coa($connection_info, $attributes_ref, [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=reauthenticate' },{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:reauthenticate-type=last' }]);
     } catch {
         chomp;
-        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}.") : $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.") ...") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
@@ -492,17 +479,15 @@ Overrides the default implementation to add the dynamic acls
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
-
     $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
-
-    my @av_pairs;
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne ""){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getAccessListByName($args->{'user_role'}))){
             my $access_list = $self->getAccessListByName($args->{'user_role'});
             if ($access_list) {
                 my $acl_num = 101;
@@ -517,6 +502,28 @@ sub returnRadiusAccessAccept {
             }
         }
     }
+
+    my $role = $args->{'user_role'};
+    if ( isenabled($self->{_WebAuthMap}) && $self->supportsUrlBasedEnforcement ) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
+            my $mac = $args->{'mac'};
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
+            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+            #override role if a role in role map is defined
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+        }
+    }
+
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
@@ -535,6 +542,29 @@ Returns the attribute to use when pushing an ACL using RADIUS
 sub returnAccessListAttribute {
     my ($self, $acl_num) = @_;
     return "ip:inacl#$acl_num";
+}
+
+=head2 returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role be returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
+
+=item returnRoleAttributes
+
+Return the specific role attribute of the switch.
+
+=cut
+
+sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role.".in");
 }
 
 sub disableMABByIfIndex {

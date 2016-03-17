@@ -1268,16 +1268,13 @@ Web auth
 
 The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
 
-In this example, the ACL for registration is 'redirect' and the ACL for registered devices is 'registered'
+In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
 
 Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
 
 Then add this additionnal configuration on the global level
 
-  ip dhcp snooping
   ip device tracking
-  nmsp enable
-  udld enable
   ip http server
   ip http secure-server
   snmp-server community public RO
@@ -1285,13 +1282,10 @@ Then add this additionnal configuration on the global level
 
 Add the required access lists
 
-  ip access-list extended redirect
+  ip access-list extended registration
    deny ip any host <your captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
-
-  ip access-list extended registered
-   permit ip any any
 
 Then on each controlled interface
 
@@ -1305,10 +1299,10 @@ Then on each controlled interface
 
 PacketFence switch configuration 
 
-* Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/$session_id'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 Downloadable ACLs
@@ -1321,6 +1315,19 @@ These ACLs are defined by role like the VLANs which means you can define differe
 Add the following configuration setting on the global level 
 
    ip device tracking
+
+For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+
+ ip access-list extended Auth-Default-ACL
+  permit udp any range bootps 65347 any range bootpc 65348
+  permit udp any any range bootps 65347
+  permit udp any any eq domain
+  deny   ip any any
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
 
 Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
 
@@ -1347,6 +1354,56 @@ image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt
 Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
 image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
+Web auth and Downloadable ACLs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It's possible to mix web authentication and downloadable ACLs starting from version 12.2 of the IOS, each roles can be configured to forward the device to the captive portal for an http or an https and only allow specific traffic with the ACL.
+To do that, you need to configure PacketFence with Role by Web Auth URL and with Role by access list (For each role you need).
+On the switch you need to change the Auth-Default-ACL to add the portal IP address:
+
+For IOS 12.2:
+
+  ip access-list extended Auth-Default-ACL
+   permit udp any range bootps 65347 any range bootpc 65348
+   permit udp any any range bootps 65347
+   permit ip any host ip_of_the_captiv_portal
+   permit udp any any eq domain
+   deny   ip any any
+
+ And assign this ACL on the switch port yo want to do ACL per port.
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
+For IOS 15.0:
+
+  Extended IP access list Auth-Default-ACL
+    10 permit udp any range bootps 65347 any range bootpc 65348
+    20 permit udp any any range bootps 65347
+    30 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  21 permit ip any host ip_of_the_captiv_portal
+
+For IOS 15.2:
+
+  Extended IP access list Auth-Default-ACL
+      10 permit udp any any eq domain
+      20 permit tcp any any eq domain
+      30 permit udp any eq bootps any
+      40 permit udp any any eq bootpc
+      50 permit udp any eq bootpc any
+      60 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  51 permit ip any host ip_of_the_captiv_portal
+
 
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1482,12 +1539,16 @@ Web auth requires at least MAC Authentication Bypass to be activated on the swit
   ip access-list extended registered
    permit ip any any
 
+Global config settings:
+
+ ip device tracking
+
 PacketFence switch configuration:
 
-* Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/$session_id'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.

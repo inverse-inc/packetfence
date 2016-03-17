@@ -82,8 +82,13 @@ sub external_captive_portal {
         my $mac = $locationlog->{mac};
         my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
         my $portalSession = _setup_session($req, $mac, $ip, undef, undef);
-        pf::iplog::open($ip,$mac,undef) if defined ($ip);
-        my $redirect_url = defined($r->headers_in->{'Referer'}) ? $r->headers_in->{'Referer'} : '';
+        pf::iplog::open($ip,$mac,3600) if defined ($ip);
+        my $redirect_url = '';
+        if (defined($req->param('redirect'))) {
+            $redirect_url = $req->param('redirect');
+        } elsif (defined($r->headers_in->{'Referer'})) {
+            $redirect_url = $r->headers_in->{'Referer'};
+        }
         return ($portalSession->session->id(), $redirect_url);
     }
     else {
@@ -160,7 +165,7 @@ sub handle {
 
     # Try to fetch the parameters in the session
     if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal(undef,undef,$r,$1);
+        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal(undef,$req,$r,$1);
             if ($cgi_session_id ne '0') {
                 return ($cgi_session_id, $redirect_url);
             }
