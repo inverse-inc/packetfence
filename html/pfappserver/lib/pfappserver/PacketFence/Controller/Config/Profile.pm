@@ -307,13 +307,8 @@ Preview a file
 
 sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
-    my $template_path = $self->_makeFilePath($c);
-    my $new_template = $self->_makePreviewTemplate($c, @pathparts);
-    $self->add_fake_profile_data($c, $new_template, @pathparts);
-    $c->stash(
-              additional_template_paths => [$template_path],
-              template => $new_template
-             );
+    my $template = catfile(@pathparts);
+    $self->add_fake_profile_data($c, $template, @pathparts);
     my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
     my $application = captiveportal::DynamicRouting::Application->new(
         session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
@@ -322,7 +317,7 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
         root_module_id => $profile->{_root_module},
     );
 
-    $application->render($new_template, $c->stash);
+    $application->render($template, $c->stash);
     $c->response->body($application->template_output);
     $c->detach();
 
