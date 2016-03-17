@@ -371,7 +371,7 @@ Performs a db transaction
 sub db_transaction {
     my ($sub) = @_;
     my $dbh = get_db_handle();
-    if ($dbh->{AutoCommit}) {
+    unless ($dbh->{AutoCommit}) {
         die "Transaction already in place";
     }
     $dbh->{AutoCommit} = 0;
