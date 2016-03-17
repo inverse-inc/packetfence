@@ -21,6 +21,7 @@ use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
 use pf::radius::constants;
 use Scalar::Util qw(reftype);
+use Number::Range;
 
 use base qw(pf::access_filter);
 tie our %ConfigRadiusFilters, 'pfconfig::cached_hash', 'config::RadiusFilters';
@@ -142,9 +143,50 @@ evaluate all the variables
 
 sub evalParam {
     my ($answer, $args) = @_;
+    $answer = _random($answer) if rangeValidator($answer);
     $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
     $answer =~ s/\${([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)}/&_replaceParamsDeep($1,$args)/ge;
     return $answer;
+}
+
+=head2 rangeValidator
+
+Validate the range definition
+Should be something like that 20..23 or 20..23,27..30
+
+=cut
+
+sub rangeValidator {
+    my ($range) =@_;
+    my $rangesep = qr/(?:\.\.)/;
+    my $sectsep  = qr/(?:\s|,)/;
+    my $validation = qr/(?:
+         [^0-9,. -]|
+         $rangesep$sectsep|
+         $sectsep$rangesep|
+         \d-\d|
+         ^$sectsep|
+         ^$rangesep|
+         $sectsep$|
+         $rangesep$|
+         ^\d+$
+         )/x;
+    return 0 if ($range =~ m/$validation/g);
+    return 1;
+}
+
+=head2 _random
+
+return random int in a range
+
+=cut
+
+sub _random {
+    my ($value) = @_;
+    my $range = Number::Range->new($value);
+    my $count = $range->size;
+    my @array = $range->range;
+    return $array[rand($count)];
 }
 
 =head2 _replaceParamsDeep
