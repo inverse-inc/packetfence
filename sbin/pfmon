@@ -168,6 +168,13 @@ exit(0);
 
 sub registertasks  {
     register_task(
+        'iplog rotation',
+        'iplog_rotation_interval',
+        sub {
+            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} );
+        }
+    );
+    register_task(
         'locationlog cleanup',
         'locationlog_cleanup_interval',
         sub {

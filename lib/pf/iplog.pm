@@ -169,6 +169,13 @@ sub iplog_db_prepare {
         qq [ UPDATE iplog SET end_time = NOW() WHERE ip = ? ]
     );
 
+    $iplog_statements->{'iplog_rotate_insert_sql'} = get_db_handle()->prepare(
+        qq [ INSERT INTO iplog_archive SELECT * FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+    );
+    $iplog_statements->{'iplog_rotate_delete_sql'} = get_db_handle()->prepare(
+        qq [ DELETE FROM iplog_history WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+    );
+
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
         qq [ delete from iplog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
 
@@ -639,6 +646,41 @@ sub close {
     $logger->debug("Closing existing 'iplog' table entry for IP address '$ip' as of now");
     db_query_execute(IPLOG, $iplog_statements, 'iplog_close_sql', $ip);
 
+    return (0);
+}
+
+sub rotate {
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
+    my ( $window_seconds, $batch, $time_limit ) = @_;
+    my $logger = pf::log::get_logger();
+
+    $logger->debug("Calling rotate with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
+    my $now = db_now();
+    my $start_time = time;
+    my $end_time;
+    my $rows_rotated = 0;
+
+    while (1) {
+        my $query;
+        my ( $rows_inserted, $rows_deleted );
+        pf::db::db_transaction_execute( sub{
+            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_rotate_insert_sql', $now, $window_seconds, $batch) || return (0);
+            $rows_inserted = $query->rows;
+            $query->finish;
+            $logger->debug("Inserted '$rows_inserted' entries from iplog_history to iplog_archive while rotating");
+            $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_rotate_delete_sql', $now, $window_seconds, $batch) || return (0);
+            $rows_deleted = $query->rows;
+            $query->finish;
+            $logger->debug("Deleted '$rows_deleted' entries from iplog_history while rotating");
+        } );
+        $end_time = time;
+        $logger->info("Inserted '$rows_inserted' entries and deleted '$rows_deleted' entries while rotating iplog_history") if $rows_inserted != $rows_deleted;
+        $rows_rotated += $rows_inserted if $rows_inserted > 0;
+        $logger->trace("Rotated '$rows_rotated' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
+        last if $rows_inserted == 0 || ( ( $end_time - $start_time ) > $time_limit );
+    }
+
+    $logger->info("Rotated '$rows_rotated' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
     return (0);
 }
 
