@@ -46,6 +46,7 @@ sub createVars {
         vhosts => $self->vhosts,
         install_dir => $install_dir,
         var_dir => $var_dir,
+        apache_version => $self->apache_version,
         server_admin => $self->serverAdmin,
         server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
         name => $self->name,
@@ -57,6 +58,14 @@ sub createVars {
 sub port { undef }
 
 sub vhosts { [] }
+
+sub apache_version {
+    my ($self) = @_;
+    my $cmd = $self->executable . " -v";
+    my $result = pf_run($cmd);
+    $result =~ m#Server version: Apache/(\d+\.\d+)#;
+    return $1;
+}
 
 sub additionalVars {
 
