@@ -106,7 +106,7 @@ sub pretty_class_name {
     my $name = ref($self);
     $name =~ s/::/-/g;
     $name =~ s/^captiveportal-DynamicRouting-//g;
-    return $name;
+    return lc($name);
 }
 
 =head2 pretty_id
