@@ -504,7 +504,7 @@ Check to see if a file is previewable
 
 sub isPreviewable {
     my ($self, $file_name) = @_;
-    return $file_name =~ /\.html$/;
+    return $file_name =~ /\.html$/ ? 1 : 0;
 }
 
 =head2 isDeleteOrRevertDisabled
@@ -526,10 +526,7 @@ Checks to see if a file is editable
 
 sub isEditable {
     my ($self, $file_name) = @_;
-    if ($file_name =~ /\.html$/) {
-        return 1;
-    }
-    return 0;
+    return $file_name =~ /\.html$/ ? 1 : 0;
 }
 
 =head2 revert_all
@@ -613,7 +610,7 @@ sub mergeFilesFromPaths {
                 $dir =~ s/^\Q$File::Find::topdir\E\/?//;
                 my $data;
                 if (-d) {
-                    $data = { name => $path, type => 'dir' , size => 0, entries => [] };
+                    $data = { name => $path, type => 'dir' , size => 0, entries => [], hidden => 1 };
                     push @paths, $data;
                 } else {
                     $data = $self->makeFileInfo($path,$full_path);
@@ -627,6 +624,7 @@ sub mergeFilesFromPaths {
             },
             no_chdir => 1
         }, @dirs);
+    $root->{hidden} = 0;
     sortEntry($root);
     return $root;
 }
