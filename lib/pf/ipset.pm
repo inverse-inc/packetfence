@@ -64,7 +64,7 @@ sub iptables_generate {
     $cmd = "sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
     @lines  = pf_run($cmd);
     
-    $cmd = "LANG=C sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
+    $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
     @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
