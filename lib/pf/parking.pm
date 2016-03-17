@@ -52,7 +52,7 @@ sub park {
         $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
     }
     if(isenabled($Config{parking}{show_parking_portal})){
-        my $cmd = "LANG=C sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
+        my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
         get_logger->debug("Adding device to parking ipset using $cmd");
         my $_EXIT_CODE_EXISTS = "1";
         my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
@@ -89,7 +89,7 @@ sub remove_parking_actions {
     my $omapi = pf::OMAPI->get_client();
     $omapi->delete_host($mac);
 
-    pf_run("LANG=C sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
+    pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
 
 =back
