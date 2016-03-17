@@ -28,6 +28,8 @@ use Digest::HMAC_MD5 qw(hmac_md5);
 use IO::Socket::INET;
 use Socket qw(MSG_WAITALL);
 use Time::HiRes qw(alarm);
+use pf::log;
+use pf::config;
 
 our $VERSION = '0.01';
 
@@ -106,6 +108,14 @@ The current message to be sent
 
 has msg => (is => 'rw');
 
+=head2 handle
+
+The current handle to be sent
+
+=cut
+
+has handle => (is => 'rw');
+
 =head2 obj
 
 The current obj to be sent
@@ -181,6 +191,9 @@ our %FORMATLIST = (
     'subnet'        => 'N',
     'hardware-type' => 'N',
     'result'        => 'N',
+    'create'        => 'I',
+    'exclusive'     => 'I',
+    'handle'        => 'L',
 );
 
 
@@ -290,6 +303,53 @@ sub lookup {
     return $self->send_msg($OPEN,$msg, $obj);
 }
 
+=head2 create_host
+
+Create a host entry using the OMAPI
+
+=cut
+
+sub create_host {
+    my ($self, $mac, $assignments) = @_;
+    $assignments //= {};
+    $self->connect();
+    my $previous_entry = $self->lookup({"type" => "host"}, {"hardware-address" => $mac, "hardware-type" => 1});
+    if($previous_entry->{op} == 3){
+        get_logger->info("Entry for $mac already exists. Cannot create it...");
+    }
+    else {
+        my $result = $self->send_msg($OPEN, { "type" => "host", "create" => 1, exclusive => 1 }, { "name" => "dynhost-$mac", "hardware-address" => $mac, "hardware-type" => 1, %{$assignments}});
+        if($result->{op} == 3){
+            get_logger->info("Created host entry for $mac using OMAPI");
+        }
+        else {
+            get_logger->error("Couldn't create host entry for $mac : ".$result->{msg}->{message});
+        }
+    }
+}
+
+=head2 delete_host
+
+Remove a host entry using the OMAPI
+
+=cut
+
+sub delete_host {
+    my ($self, $mac) = @_;
+    $self->connect();
+    my $previous_entry = $self->lookup({"type" => "host"}, {"hardware-address" => $mac, "hardware-type" => 1});
+    # we check that the host entry exists
+    if($previous_entry->{op} == 3){
+        my $result = $self->send_msg($DELETE, { "type" => "host" }, { }, $previous_entry->{handle});
+        if($result->{msg}->{result} == 0){
+            get_logger->info("Successfully deleted host entry for $mac");
+        }
+        else {
+            get_logger->error("Couldn't delete host entry for $mac : ".$result->{msg}->{message});
+        }
+    }
+}
+
 =head2 send_msg
 
 Sends the message to the dhcpd server
@@ -297,8 +357,9 @@ Sends the message to the dhcpd server
 =cut
 
 sub send_msg {
-    my ($self, $op, $msg, $obj) = @_;
+    my ($self, $op, $msg, $obj, $handle) = @_;
     $self->op($op);
+    $self->handle($handle // 0);
     $self->msg($msg);
     $self->obj($obj);
     $self->send();
@@ -360,7 +421,7 @@ sub _build_message {
     my ($self) = @_;
     $self->_clear_buffer;
     my $handle = 0;
-    $self->_append_ints_buffer($self->authid,$self->authlen,$self->op,0,$self->id,0);
+    $self->_append_ints_buffer($self->authid,$self->authlen,$self->op,$self->handle,$self->id,0);
     $self->_append_name_values($self->msg);
     $self->_append_name_values($self->obj);
     $self->_sign();
@@ -449,7 +510,7 @@ sub parse_stream {
     if($rest && length($rest)) {
         ($msg, $rest) = $self->parse_name_value_pairs($rest);
         ($obj, $rest) = $self->parse_name_value_pairs($rest);
-        $sig = unpack("a$authlen",$rest);
+        $sig = unpack("B$authlen",$rest);
     }
     return {
         op      => $op,
@@ -549,6 +610,17 @@ sub _sign {
     my $buffer = $self->buffer;
     my $digest = hmac_md5(substr($$buffer,4), $self->key);
     $$buffer .= $digest;
+}
+
+=head2 get_omapi_client
+
+Get the default OMAPI client based on the configuration
+
+=cut
+
+sub get_client {
+    my ($class) = @_;
+    return $class->new($Config{omapi});
 }
 
 =head1 AUTHOR

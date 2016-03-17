@@ -55,6 +55,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
     "1100010" => "Rogue DHCP detection",
     "new_dhcp_info" => "DHCP packet received",
     "hostname_change" => "Hostname changed",
+    "parking_detected" => "Parking detected",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",

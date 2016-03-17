@@ -87,6 +87,8 @@ BEGIN {
         violation_clear_errors
         violation_last_errors
         violation_run_delayed
+        violation_count_vid
+        violation_count_open_vid
     );
 }
 use pf::action;
@@ -200,6 +202,9 @@ sub violation_db_prepare {
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
 
+    $violation_statements->{'violation_count_open_vid_sql'} = get_db_handle()->prepare(
+        qq [ select count(*) from violation where mac=? and vid=? and status!="closed" ]);
+
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
 
@@ -303,6 +308,15 @@ sub violation_count_reevaluate_access {
 sub violation_count_vid {
     my ( $mac, $vid ) = @_;
     my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_vid_sql', $mac, $vid)
+        || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
+
+sub violation_count_open_vid {
+    my ( $mac, $vid ) = @_;
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_open_vid_sql', $mac, $vid)
         || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();

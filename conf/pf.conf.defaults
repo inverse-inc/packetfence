@@ -512,6 +512,16 @@ httpd_portal=enabled
 # Order in which to start this service 
 httpd_portal_order=20
 #
+# services.httpd_parking
+#
+# Should httpd.parking be started?
+httpd_parking=enabled
+#
+# services.httpd_portal_order
+#
+# Order in which to start this service 
+httpd_parking_order=20
+#
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
@@ -1388,3 +1398,27 @@ api_key=
 #
 # OPSWAT MetaScan Online Scanner URL for hash queries
 query_url_hash=https://hashlookup.metascan-online.com/v2/hash/
+
+[parking]
+#
+# parking.lease_length
+#
+# Lease length (in seconds) when a device is in parking
+lease_length=3600
+#
+# parking.lease_length
+#
+# The threshold (in seconds) after which a device will be placed in parking
+# A value of 0 deactivates the parking detection.
+# The detection works by looking at the time in seconds a device has been in the registration role and comparing it with this threshold
+threshold=0
+#
+# parking.place_in_dhcp_parking_group
+#
+# Place the device in the DHCP parking group when it is detected doing parking
+place_in_dhcp_parking_group=enabled
+#
+# parking.show_parking_portal
+#
+# Show the parking portal to the device instead of the usual portal
+show_parking_portal=enabled
