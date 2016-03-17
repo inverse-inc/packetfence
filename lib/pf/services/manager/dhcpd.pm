@@ -175,12 +175,33 @@ $network {
 EOT
     }
 
-    $tags{parking_lease_length} = $Config{parking}{lease_length};
+    $tags{'parking'} = parking_section();
 
     parse_template( \%tags, "$conf_dir/dhcpd.conf", "$generated_conf_dir/dhcpd.conf" );
     return 1;
 }
 
+
+=head2 parking_section
+
+Generate the parking section if it is defined
+
+=cut
+
+sub parking_section {
+    my $group_name = $pf::constants::parking::PARKING_DHCP_GROUP_NAME;
+    my $lease_length = $Config{'parking'}{'lease_length'};
+
+    my $section = <<EOT;
+# parking feature
+group $group_name {
+    default-lease-time $lease_length;
+    max-lease-time $lease_length;
+}
+EOT
+
+    return $section;
+}
 
 =head2 omapi_section
 
