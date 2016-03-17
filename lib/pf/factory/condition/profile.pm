@@ -34,7 +34,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'realm'               => {type => 'equals',        key  => 'realm'},
     'ssid'                => {type => 'equals',        key  => 'last_ssid'},
     'switch'              => {type => 'exists_in',     key  => 'last_switch'},
-    'switch_mac'          => {type => 'equals',        key  => 'last_switch_mac'},
+    'switch_mac'          => {type => 'exists_in',     key  => 'last_switch_mac'},
     'switch_port'         => {type => 'couple_equals', key1 => 'last_switch', key2 => 'last_port'},
     'uri'                 => {type => 'equals',        key  => 'last_uri'},
     'vlan'                => {type => 'equals',        key  => 'last_vlan'},
