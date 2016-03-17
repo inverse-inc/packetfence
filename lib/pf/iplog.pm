@@ -177,7 +177,8 @@ sub iplog_db_prepare {
     );
 
     $iplog_statements->{'iplog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ delete from iplog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
+        qq [ DELETE FROM iplog_archive WHERE end_time < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ? ]
+    );
 
     $iplog_db_prepared = 1;
 }
@@ -685,23 +686,27 @@ sub rotate {
 }
 
 sub cleanup {
-    my ($expire_seconds, $batch, $time_limit) = @_;
-    my $logger = get_logger();
-    $logger->debug("calling iplog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.2});
+    my ( $window_seconds, $batch, $time_limit ) = @_;
+    my $logger = pf::log::get_logger();
+
+    $logger->debug("Calling cleanup with window='$window_seconds' seconds, batch='$batch', timelimit='$time_limit'");
     my $now = db_now();
     my $start_time = time;
     my $end_time;
     my $rows_deleted = 0;
+
     while (1) {
-        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $now, $expire_seconds, $batch) || return (0);
+        my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_cleanup_sql', $now, $window_seconds, $batch) || return (0);
         my $rows = $query->rows;
         $query->finish;
         $end_time = time;
-        $rows_deleted+=$rows if $rows > 0;
-        $logger->trace( sub { "deleted $rows_deleted entries from iplog during iplog cleanup ($start_time $end_time) " });
-        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+        $rows_deleted += $rows if $rows > 0;
+        $logger->trace("Deleted '$rows_deleted' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
+        last if $rows == 0 || ( ( $end_time - $start_time ) > $time_limit );
     }
-    $logger->info( "deleted $rows_deleted entries from iplog during iplog cleanup ($start_time $end_time) ");
+
+    $logger->info("Deleted '$rows_deleted' entries from iplog_history to iplog_archive (start: '$start_time', end: '$end_time')");
     return (0);
 }
 

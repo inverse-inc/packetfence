@@ -175,6 +175,13 @@ sub registertasks  {
         }
     );
     register_task(
+        'iplog cleanup',
+        'iplog_cleanup_interval',
+        sub {
+            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout} ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
+        }
+    );
+    register_task(
         'locationlog cleanup',
         'locationlog_cleanup_interval',
         sub {
