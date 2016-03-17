@@ -17,6 +17,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 use File::Copy;
+use pf::constants::user;
 use HTTP::Status qw(:constants is_error is_success);
 use File::Slurp qw(read_dir read_file write_file);
 use File::Spec::Functions;
@@ -97,7 +98,7 @@ after create => sub {
     if (is_success($c->response->status) && $c->request->method eq 'POST') {
         my $model = $self->getModel($c);
         my $profile_dir = $self->_makeFilePath($c);
-        mkdir($profile_dir);
+        pf_make_dir($profile_dir);
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Config::Profile')->action_for('view'),
@@ -278,6 +279,8 @@ sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
     my $path = $self->_makeFilePath($c, @pathparts);
+    my (undef, $file_parent_dir, undef) = fileparse($path);
+    pf_make_dir($file_parent_dir);
     $c->stash->{current_view} = 'JSON';
     write_file($path, $file_content);
     # Sync file in cluster if necessary
