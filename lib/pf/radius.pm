@@ -365,44 +365,23 @@ sub update_locationlog_accounting {
 
     if ($switch->supportsRoamingAccounting()) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
-        my $connection = pf::Connection->new;
-        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
-        my $connection_type = $connection->attributesToBackwardCompatible;
-        my $connection_sub_type = $connection->subType;
-        my $ssid;
-        if (($connection_type & $WIRELESS) == $WIRELESS) {
-            $ssid = $switch->extractSsid($radius_request);
-            $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+        my $locationlog_mac = locationlog_last_entry_mac($mac);
+        if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
+            my $connection_type = str_to_connection_type($locationlog_mac->{connection_type});
+            my $connection_sub_type = $locationlog_mac->{connection_sub_type};
+            my $ssid;
+            if (($connection_type & $WIRELESS) == $WIRELESS) {
+                $ssid = $switch->extractSsid($radius_request);
+                $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+            }
+            my $vlan;
+            $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
+            $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
+            $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $locationlog_mac->{role});
+            return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
         }
-        my $vlan;
-        $vlan = $radius_request->{'Tunnel-Private-Group-ID'} if ( (defined( $radius_request->{'Tunnel-Type'}) && $radius_request->{'Tunnel-Type'} eq '13') && (defined($radius_request->{'Tunnel-Medium-Type'}) && $radius_request->{'Tunnel-Medium-Type'} eq '6') );
-        $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
-        my $node_info = node_attributes($mac);
-        my $args = {
-            ssid => $ssid,
-            node_info => $node_info,
-            switch => $switch,
-            switch_mac => $switch_mac,
-            switch_ip => $switch_ip,
-            source_ip => $source_ip,
-            stripped_user_name => $stripped_user_name,
-            realm => $realm,
-            nas_port_type => $nas_port_type,
-            eap_type => $eap_type // '',
-            mac => $mac,
-            ifIndex => $port,
-            user_name => $user_name,
-            nas_port_id => $nas_port_type // '',
-            session_id => $session_id,
-            connection_type => $connection_type,
-            connection_sub_type => $connection_sub_type,
-            radius_request => $radius_request,
-        };
-        my $role_obj = new pf::role::custom();
-        my $role = $role_obj->fetchRoleForNode($args);
-        $switch->synchronize_locationlog($port, $vlan, $mac, undef, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role->{role});
     }
-    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Did not update locationlog from the accounting") ];
 }
 
 =item * _parseRequest

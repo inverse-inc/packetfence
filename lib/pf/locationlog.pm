@@ -57,6 +57,7 @@ BEGIN {
         locationlog_set_session
         locationlog_get_session
         locationlog_online_nodes_count
+        locationlog_last_entry_mac
     );
 }
 
@@ -264,6 +265,12 @@ sub locationlog_db_prepare {
 
     $locationlog_statements->{'locationlog_online_nodes_count_sql'} = get_db_handle()->prepare(
         qq [ SELECT count(*) nb from locationlog WHERE end_time = 0]);
+
+    $locationlog_statements->{'locationlog_last_entry_mac_sql'} = get_db_handle()->prepare(qq [
+        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
+        FROM locationlog
+        WHERE mac = ?
+        ORDER BY start_time DESC LIMIT 1 ]);
 
     $locationlog_db_prepared = 1;
 }
@@ -681,6 +688,23 @@ sub locationlog_online_nodes_count {
         return undef;
     }
     return $row->[0];
+}
+
+=item locationlog_last_entry_mac
+
+Return the last locationlog entry for a mac even if it's open or close.
+
+=cut
+
+sub locationlog_last_entry_mac {
+    my ($mac) = @_;
+    $mac = clean_mac($mac);
+    my $query =  db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_last_entry_mac_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
 }
 
 =back
