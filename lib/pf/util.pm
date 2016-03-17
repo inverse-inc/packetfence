@@ -23,6 +23,7 @@ use POSIX::2008;
 use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use File::Path qw(make_path);
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
@@ -77,6 +78,7 @@ BEGIN {
         whowasi
         validate_argv
         touch_file
+        pf_make_dir
     );
 }
 
@@ -1205,6 +1207,25 @@ sub touch_file {
     else {
         get_logger->error("Can't create/open $filename\nPlease run 'pfcmd fixpermissions'");
     }
+}
+
+=item pf_make_dir
+
+Make a directory with the proper permissions
+
+=cut
+
+sub pf_make_dir {
+    my ($dir_path) = @_;
+    umask 0;
+    return make_path(
+        $dir_path,
+        {
+            user => $pf::constants::user::PF_UID,
+            group => $pf::constants::user::PF_GID,
+            mode => 02775,
+        }
+    );
 }
 
 =back
