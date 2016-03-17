@@ -257,7 +257,16 @@ sub registertasks  {
         \&update_node_online_stats
     );
     register_task(
-        'fingerbank data update', 'fingerbank_data_update_interval', \&update_fingerbank_data
+        'fingerbank data update', 
+        'fingerbank_data_update_interval', 
+        \&update_fingerbank_data
+    );
+    register_task(
+        'fingerbank update upstream database',
+        'fingerbank_update_db_interval',
+        sub {
+            fingerbank::DB::update_upstream() if ( (isenabled($Config{'maintenance'}{'fingerbank_update_db'})) && (fingerbank::Config::is_api_key_configured) );
+        }
     );
 }
 

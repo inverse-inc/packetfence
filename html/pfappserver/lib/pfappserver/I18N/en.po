@@ -7594,6 +7594,14 @@ msgstr "Violation Maintenance Interval"
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
 
+# conf/documentation.conf
+msgid "maintenance.fingerbank_update_db"
+msgstr "Fingerbank upstream DB update"
+
+# conf/documentation.conf
+msgid "maintenance.fingerbank_update_db_interval"
+msgstr "Fingerbank upstream DB update interval"
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
 msgstr ""
