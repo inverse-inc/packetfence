@@ -26,6 +26,8 @@ use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 use pf::cluster;
+use pf::Portal::ProfileFactory;
+use captiveportal::DynamicRouting::Application;
 
 Readonly our %FILTER_FILES =>
   (
@@ -245,6 +247,18 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
               additional_template_paths => [$template_path],
               template => $new_template
              );
+    my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
+    my $application = captiveportal::DynamicRouting::Application->new(
+        session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}}, 
+        profile => $profile, 
+        request => $c->request, 
+        root_module_id => $profile->{_root_module},
+    );
+
+    $application->render($new_template, $c->stash);
+    $c->response->body($application->template_output);
+    $c->detach();
+
 }
 
 sub add_fake_profile_data {
