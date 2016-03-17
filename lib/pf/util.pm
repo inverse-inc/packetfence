@@ -472,6 +472,7 @@ sub safe_file_update {
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
+    pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
     syswrite $temp, $contents;
     $temp->flush;
