@@ -434,11 +434,8 @@ Revert a file from the filesystem
 sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
-    my $file_path = $self->_makeFilePath($c,@pathparts);
-    my $default_file_path = $self->_makeDefaultFilePath($c, @pathparts);
-    copy($default_file_path, $file_path);
-    # Sync file in cluster if necessary
-    $self->_sync_file($c, $file_path);
+    my $file_path = $self->_makeFilePath($c, @pathparts);
+    unlink($file_path);
 }
 
 =head2 files
