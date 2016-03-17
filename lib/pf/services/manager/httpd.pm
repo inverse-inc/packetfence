@@ -39,6 +39,7 @@ has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
 
 sub createVars {
     my ($self) = @_;
+    (my $shortname = $self->name) =~ s/^httpd\.//;
     my %vars = (
         ports => $Config{'ports'},
         port => $self->port,
@@ -50,6 +51,7 @@ sub createVars {
         server_admin => $self->serverAdmin,
         server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
         name => $self->name,
+        shortname => $shortname,
         $self->additionalVars,
     );
     return \%vars;
