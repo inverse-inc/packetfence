@@ -1037,22 +1037,14 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/lib
 
                         /usr/local/pf/html/captive-portal/lib/*
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Access.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Aup.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Signup.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
