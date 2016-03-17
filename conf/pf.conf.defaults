@@ -1286,16 +1286,6 @@ person_cleanup=disabled
 # person cleanup interval
 person_cleanup_interval=60s
 #
-# maintenance.traplog_cleanup_window
-#
-# How long to keep a traplog entry before deleting it
-traplog_cleanup_window=0D
-#
-# maintenance.traplog_cleanup_interval
-#
-# traplog cleanup interval
-traplog_cleanup_interval=60s
-#
 # maintenance.nodes_maintenance_interval
 #
 # nodes maintenance interval
