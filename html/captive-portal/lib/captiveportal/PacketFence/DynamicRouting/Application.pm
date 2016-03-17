@@ -344,7 +344,7 @@ sub render {
         flash => $self->flash,
         content => $inner_content,
         client_mac => $self->current_mac,
-        client_ip => $self->root_module->current_ip,
+        client_ip => $self->current_ip,
         current_module => $self->current_module,
     };
     $args->{layout} //= $TRUE;
