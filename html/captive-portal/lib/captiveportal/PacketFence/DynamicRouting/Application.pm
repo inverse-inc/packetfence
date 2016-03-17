@@ -380,7 +380,7 @@ sub _render {
         return $self->i18n_format(@_);
     };
 
-    get_logger->info("previous : ". $self->previous_module_id // "undef" .", current : ". $self->current_module_id // "undef");
+    get_logger->info("previous : ". ($self->previous_module_id // "undef") . ", current : " . ($self->current_module_id // "undef"));
     $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
 
