@@ -312,7 +312,6 @@ Create a host entry using the OMAPI
 sub create_host {
     my ($self, $mac, $assignments) = @_;
     $assignments //= {};
-    use Data::Dumper;
     $self->connect();
     my $previous_entry = $self->lookup({"type" => "host"}, {"hardware-address" => $mac, "hardware-type" => 1});
     if($previous_entry->{op} == 3){
