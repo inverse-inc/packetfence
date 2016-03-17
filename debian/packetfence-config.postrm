@@ -18,22 +18,36 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)
-	#Stop packetfence-config
-	if [ -x /etc/init.d/packetfence-config ]; then
-		invoke-rc.d packetfence-config stop
-	fi
-	# removing init scripts
-	if [ -e /etc/lsb-release ]; then
-		update-rc.d -f packetfence-config remove > /dev/null 2>&1
-	else
-		update-rc.d packetfence-config remove > /dev/null 2>&1
-	fi
+
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl stop packetfence-config
+            systemctl disable packetfence-config
+        fi
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            if [ -x /etc/init.d/packetfence-config ]; then
+                invoke-rc.d packetfence-config stop
+            fi
+            if [ -e /etc/lsb-release ]; then
+                update-rc.d -f packetfence-config remove > /dev/null 2>&1
+            else
+                update-rc.d packetfence-config remove > /dev/null 2>&1
+            fi
+        fi
     ;;
     purge)
     ;;

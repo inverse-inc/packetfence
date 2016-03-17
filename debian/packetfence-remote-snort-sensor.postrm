@@ -18,6 +18,15 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -27,7 +36,12 @@ case "$1" in
     ;;
     purge)
 	export PACKETFENCE=/usr/local/pf
-	update-rc.d packetfence-remote-snort-sensor remove >/dev/null || exit 0
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d packetfence-remote-snort-sensor remove >/dev/null || exit 0
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl disable packetfence-remote-snort-sensor
+        fi
 	rm /etc/init.d/packetfence-remote-snort-sensor 
 	rm $PACKETFENCE/sbin/pfdetect_remote
 	rm $PACKETFENCE/conf/pfdetect_remote.conf	

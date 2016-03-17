@@ -124,6 +124,8 @@ Depends: ${misc:Depends}, vlan, make,
  libgraph-perl,
 # SAML
  liblasso-perl,
+# for packaging
+ dpkg-distribution,
 # Distribution specific
  ${packetfence:dist}
 Recommends:  freeradius (>= 3.0.10), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server

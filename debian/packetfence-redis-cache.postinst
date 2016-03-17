@@ -17,6 +17,15 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     configure)
@@ -25,10 +34,15 @@ case "$1" in
 	chmod 2775 -R $PACKETFENCE/var
 	chown pf:pf $PACKETFENCE/logs
 	chown pf:pf $PACKETFENCE/var
-	update-rc.d packetfence-redis-cache defaults 60 || exit 0
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d packetfence-redis-cache defaults 60 || exit 0
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl enable packetfence-redis-cache
+        fi
 	set +e
 	for service in redis-server; do
-
+            if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
 		if [ -e "/etc/init.d/"$service ] ; then
 			invoke-rc.d $service stop  > /dev/null 2>&1
 			if [ -e /etc/lsb-release ]; then
@@ -37,9 +51,18 @@ case "$1" in
 				update-rc.d $service remove > /dev/null 2>&1
 			fi
 		fi
+            fi
+            if [ ${DIST} = "jessie" ] ; then
+                systemctl disable $service
+            fi
 	done
 	set -e
-	invoke-rc.d packetfence-redis-cache restart
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            invoke-rc.d packetfence-redis-cache restart
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl start packetfence-redis-cache
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
