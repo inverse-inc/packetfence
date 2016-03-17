@@ -112,6 +112,12 @@ sub sort_profiles :Local :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 upload
+
+Handles file uploads
+
+=cut
+
 sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
@@ -129,6 +135,12 @@ sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PRO
     }
 }
 
+=head2 validatePathParts
+
+Validate all the path parts given to make sure no .. characaters are given
+
+=cut
+
 sub validatePathParts {
     my ($self, $c, @pathparts) = @_;
     if ( grep { /(\.\.)|[\/\0\?\*\+\%\$]/} @pathparts ) {
@@ -136,6 +148,12 @@ sub validatePathParts {
         $c->detach('bad_request');
     }
 }
+
+=head2 edit
+
+Edit a file from the profile
+
+=cut
 
 sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
@@ -153,6 +171,12 @@ sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     );
 }
 
+=head2 getFileContent
+
+Get the content of a file
+
+=cut
+
 sub getFileContent {
     my ($self, $c, $file_path) = @_;
     foreach my $dir ($self->mergedPaths($c)) {
@@ -162,6 +186,12 @@ sub getFileContent {
     }
     return;
 }
+
+=head2 edit_new
+
+Create a new file in edit mode
+
+=cut
 
 sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
@@ -188,6 +218,12 @@ HTML
     );
 }
 
+=head2 rename
+
+Rename a file
+
+=cut
+
 sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c,@pathparts) = @_;
     my $request = $c->request;
@@ -205,6 +241,12 @@ sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDA
     pop @pathparts;
     $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
 }
+
+=head2 new_file
+
+Create a new file
+
+=cut
 
 sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
@@ -226,6 +268,12 @@ sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
 
 }
 
+=head2 save
+
+Save the contents of a file
+
+=cut
+
 sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
@@ -236,11 +284,23 @@ sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     $self->_sync_file($c, $path);
 }
 
+=head2 show_preview
+
+Show the preview of a file
+
+=cut
+
 sub show_preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $file_name = catfile(@pathparts);
     $c->stash(file_name => $file_name);
 }
+
+=head2 preview
+
+Preview a file
+
+=cut
 
 sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
@@ -265,6 +325,12 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
 
 }
 
+=head2 add_fake_profile_data
+
+Add fake profile data for a preview
+
+=cut
+
 sub add_fake_profile_data {
     my ($self, $c, $template, @pathparts) = @_;
     $self->SUPER::add_fake_profile_data($c);
@@ -272,6 +338,12 @@ sub add_fake_profile_data {
         $c->stash( sub_template => catfile(@pathparts) );
     }
 }
+
+=head2 _makePreviewTemplate
+
+A helper function for creating the template to be viewed
+
+=cut
 
 sub _makePreviewTemplate {
     my ($self, $c, @pathparts) = @_;
@@ -289,24 +361,54 @@ sub _makePreviewTemplate {
     return $template;
 }
 
+=head2 _makeFilePath
+
+Make the file path for the current profile
+
+=cut
+
 sub _makeFilePath {
     my ($self, $c, @pathparts) = @_;
     return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id}, @pathparts);
 }
+
+=head2 mergedPaths
+
+Returns all the merge paths
+
+=cut
 
 sub mergedPaths {
     my ($self, $c) = @_;
     return (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
 }
 
+=head2 parentPaths
+
+Return the parent paths
+
+=cut
+
 sub parentPaths {
     return ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
 }
+
+=head2 _makeDefaultFilePath
+
+Create the path of the standard packetfence temnplate
+
+=cut
 
 sub _makeDefaultFilePath {
     my ($self, $c, @pathparts) = @_;
     return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
 }
+
+=head2 delete_file
+
+Delete file a from the profile
+
+=cut
 
 sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
@@ -323,6 +425,12 @@ sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTA
     unlink($file_path);
 }
 
+=head2 revert_file
+
+Revert a file from the filesystem
+
+=cut
+
 sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
@@ -333,29 +441,22 @@ sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES
     $self->_sync_file($c, $file_path);
 }
 
+=head2 files
+
+Display all the files
+
+=cut
+
 sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash(root => $self->mergeFilesFromPaths($c, $self->mergedPaths($c)));
 }
 
-sub _getFilesInfo {
-    my ($self, $c) = @_;
-    my $profile = $c->stash->{id};
-    my $root_path = $self->_makeFilePath($c);
-    my %default_files =
-        map { catfile($root_path,$_) => 1 }
-        _readDirRecursive($self->_makeDefaultFilePath($c));
-    my %root = (
-        'type'   => 'dir',
-        'name' => $profile,
-        'entries' => [
-            map {$self->_makeFileInfo( $root_path, $_, \%default_files)}
-            sort grep { !exists $FILTER_FILES{$_} && !m/^\./ } read_dir($root_path)],
-        'hidden' => 0,
-        'size'   => 0,
-    );
-    return \%root;
-}
+=head2 path_exists
+
+Checks to see if the path exists
+
+=cut
 
 sub path_exists :Private {
     my ($self, $c) = @_;
@@ -364,6 +465,12 @@ sub path_exists :Private {
         $c->detach('bad_request');
     }
 }
+
+=head2 copy_file
+
+Copy files from one path to another
+
+=cut
 
 sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
@@ -392,47 +499,33 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PR
     }
 }
 
-sub _makeFileInfo {
-    my ($self, $root_path, $file_name, $default_files) = @_;
-    my $full_path = catfile($root_path, $file_name);
-    my $i = 0;
-    my %data =
-      (
-       name => $file_name,
-       size => format_bytes(-s $full_path),
-       hidden => 1,
-      );
-    if (-d $full_path) {
-        $data{'type'} = 'dir';
-        $data{'entries'} =
-          [
-           grep { $_->{name} = catfile($file_name, $_->{name}) }
-           map { $self->_makeFileInfo($full_path, $_, $default_files) }
-           sort grep { !m/^\./ } (read_dir($full_path))
-          ];
-    }
-    else {
-        $data{'editable'} = $self->isEditable($full_path);
-        $data{'delete_or_revert'} =
-          (
-           (exists $default_files->{$full_path}) ?
-           'revert' :
-           'delete'
-          );
-        $data{'delete_or_revert_disabled'} = $self->isDeleteOrRevertDisabled($full_path);
-        $data{'previewable'} = $self->isPreviewable($full_path);
-    }
-   return \%data;
-}
+=head2 isPreviewable
+
+Check to see if a file is previewable
+
+=cut
 
 sub isPreviewable {
     my ($self, $file_name) = @_;
     return $file_name =~ /\.html$/;
 }
 
+=head2 isDeleteOrRevertDisabled
+
+Checks to see of a file show the delete or revert button
+
+=cut
+
 sub isDeleteOrRevertDisabled {
     return 0;
 }
+
+
+=head2 isEditable
+
+Checks to see if a file is editable
+
+=cut
 
 sub isEditable {
     my ($self, $file_name) = @_;
@@ -442,20 +535,11 @@ sub isEditable {
     return 0;
 }
 
-sub _readDirRecursive {
-    my ($root_path) = @_;
-    my @files;
-    foreach my $entry (read_dir($root_path)) {
-        my $full_path = catfile($root_path, $entry);
-        if (-d $full_path) {
-            push @files, map {catfile($entry, $_) } _readDirRecursive($full_path);
-        }
-        elsif ($entry !~ m/^\./) {
-            push @files, $entry;
-        }
-    }
-    return @files;
-}
+=head2 revert_all
+
+Revert all the files
+
+=cut
 
 sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c) = @_;
@@ -472,6 +556,12 @@ sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES
     my $status_msg = "Copied " . ($local_result->{entries_copied} - $local_result->{dir_copied}) . " files";
     $c->stash->{status_msg} = $status_msg;
 }
+
+=head2 copyDefaultFiles
+
+Copy the standard packetfence to the profile
+
+=cut
 
 sub copyDefaultFiles {
     my ($self, $c) = @_;
@@ -503,6 +593,12 @@ sub _sync_file {
     }
     return $TRUE;
 }
+
+=head2 mergeFilesFromPaths
+
+Create a merged directory tree of the directories given
+
+=cut
 
 sub mergeFilesFromPaths {
     my ($self, $c, @dirs) = @_;
@@ -538,6 +634,12 @@ sub mergeFilesFromPaths {
     return $root;
 }
 
+=head2 sortEntry
+
+Sorts the dir entries by name
+
+=cut
+
 sub sortEntry {
     my ($root) = @_;
     if ($root->{type} eq 'dir' && exists $root->{entries}) {
@@ -551,6 +653,14 @@ sub sortEntry {
     }
 }
 
+
+=head2 makeFileInfo
+
+Create a hash with the file information
+
+=cut
+
+
 sub makeFileInfo {
     my ($self, $short_path, $full_path) = @_;
     my %data = (
@@ -561,12 +671,19 @@ sub makeFileInfo {
         editable => $self->isEditable($full_path),
         previewable => $self->isPreviewable($full_path),
         delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($short_path),
-        delete_or_revert => $self->revertableOfDeletable($short_path),
+        delete_or_revert => $self->revertableOrDeletable($short_path),
     );
     return \%data;
 }
 
-sub revertableOfDeletable {
+
+=head2 revertableOrDeletable
+
+Checks to see if the file is deletable or revertable
+
+=cut
+
+sub revertableOrDeletable {
     my ($self, $path) = @_;
     return ( any { -f catfile($_,$path) } $self->parentPaths ) ? 'revert' : 'delete';
 }
