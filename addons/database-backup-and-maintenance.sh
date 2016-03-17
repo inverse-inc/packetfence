@@ -28,6 +28,7 @@ BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
+PERCONA_XTRABACKUP_INSTALLED=0
 
 # For replication
 ACTIVATE_REPLICATION=0
@@ -85,11 +86,24 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         done
     fi
 
-    # dump the database, gzip and remove old files
-    current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
-    mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
-        gzip $current_filename && \
-        find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+    # Check to see if Percona XtraBackup is installed
+    if hash innobackupex 2>/dev/null; then
+        echo -e "Percona XtraBackup is available. Will proceed using it for DB backup to avoid locking tables and easier recovery process. \n"
+        PERCONA_XTRABACKUP_INSTALLED=1
+    fi
+
+    if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
+        echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
+        innobackupex --password=$DB_PWD  --no-timestamp --stream=tar ./ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.tar.gz
+        tail -1 /usr/local/pf/logs/innobackup.log | grep 'innobackupex: completed OK!' && \
+          find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.tar.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+        INNOBACK_RC=$?
+    else
+        current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
+        mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
+          gzip $current_filename && \
+          find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+    fi
 
     # let's archive on the first day of the month
     if [ `/bin/date +%d` -eq '01' ]; then
@@ -112,6 +126,10 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
         exit
       fi;
       eval "rsync -auv -e ssh --delete --include '$BACKUP_DB_FILENAME*' --exclude='*' $BACKUP_DIRECTORY $REPLICATION_USER@$replicate_to:$BACKUP_DIRECTORY"
+    fi
+
+    if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
+      exit $INNOBACK_RC
     fi
 
 fi
