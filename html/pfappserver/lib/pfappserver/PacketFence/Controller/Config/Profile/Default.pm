@@ -139,6 +139,10 @@ sub end: Private {
     $c->forward('Controller::Root','end');
 }
 
+sub parentPaths {
+    return ($captiveportal_templates_path);
+}
+
 =back
 
 =head1 COPYRIGHT
@@ -165,4 +169,3 @@ USA.
 =cut
 
 1;
-
