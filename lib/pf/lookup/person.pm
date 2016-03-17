@@ -36,7 +36,7 @@ sub lookup_person {
     unless (person_exist($pid)) {
         return "Person $pid is not a registered user!\n";
     }
-    my $person = $source->search_attributes($pid);
+    my ($person, $msg) = $source->search_attributes($pid);
     if (!$person) {
        $logger->info("Cannot search attributes for user '$pid'");
        return "Cannot search attributes for user '$pid'!\n";
