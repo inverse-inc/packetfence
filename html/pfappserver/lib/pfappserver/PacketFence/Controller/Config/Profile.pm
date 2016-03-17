@@ -30,6 +30,7 @@ use captiveportal::DynamicRouting::Application;
 use pf::config;
 use pf::util;
 use pf::file_paths;
+use List::Util qw(any);
 
 Readonly our %FILTER_FILES =>
   (
@@ -140,8 +141,7 @@ sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     my ($self, $c, @pathparts) = @_;
     my $full_file_name = catfile(@pathparts);
     my ($file_name,$directory) = fileparse($full_file_name);
-    my $file_path = $self->_makeFilePath($c,$full_file_name);
-    my $file_content = read_file($file_path);
+    my $file_content = $self->getFileContent($c, $full_file_name);
     $directory = '' if $directory eq './';
     $directory = catfile($c->stash->{id}, $directory);
     $directory .= "/" unless $directory =~ /\/$/;
@@ -151,6 +151,16 @@ sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
         directory => $directory,
         full_file_name => $full_file_name,
     );
+}
+
+sub getFileContent {
+    my ($self, $c, $file_path) = @_;
+    foreach my $dir ($self->mergedPaths($c)) {
+        my $file = catfile($dir,$file_path);
+        next unless -f $file;
+        return read_file($file);
+    }
+    return;
 }
 
 sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
@@ -286,7 +296,11 @@ sub _makeFilePath {
 
 sub mergedPaths {
     my ($self, $c) = @_;
-    return (catfile($captiveportal_profile_templates_path, $c->stash->{id}),$captiveportal_default_profile_templates_path, $captiveportal_templates_path);
+    return (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
+}
+
+sub parentPaths {
+    return ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
 }
 
 sub _makeDefaultFilePath {
@@ -546,11 +560,17 @@ sub makeFileInfo {
         size => format_bytes(-s $full_path),
         editable => $self->isEditable($full_path),
         previewable => $self->isPreviewable($full_path),
-        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($full_path),
-#        revertable => $self->isRevertable($full_path),
+        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($short_path),
+        delete_or_revert => $self->revertableOfDeletable($short_path),
     );
     return \%data;
 }
+
+sub revertableOfDeletable {
+    my ($self, $path) = @_;
+    return ( any { -f catfile($_,$path) } $self->parentPaths ) ? 'revert' : 'delete';
+}
+
 
 =head1 COPYRIGHT
 
