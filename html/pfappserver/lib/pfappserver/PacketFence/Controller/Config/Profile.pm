@@ -167,10 +167,7 @@ sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
     }
     elsif($full_file_name =~ /\.html$/) {
         $file_content = <<'HTML';
-[% title = i18n("New File Title") %]
-[% INCLUDE header.html %]
-
-[% INCLUDE footer.html %]
+<!--- Your content here --->
 HTML
     }
     my ($file_name, $directory) = fileparse($full_file_name);
