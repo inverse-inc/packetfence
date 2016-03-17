@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::WirelessProfile;
 use Moose;
 use namespace::autoclean;
 use File::Slurp qw(read_file);
+use pf::constants;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 use pf::config;
@@ -51,6 +52,7 @@ sub index : Path : Args(0) {
         server_cn    => $pki_session->{server_cn},
         ca_content   => $pki_session->{ca_content},
         reverse_fqdn => $reverse_fqdn,
+        layout       => $FALSE,
     );
 }
 

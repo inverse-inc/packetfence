@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::Redirect'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::Redirect - Redirect Controller for captiveportal
 
 =head1 DESCRIPTION
 

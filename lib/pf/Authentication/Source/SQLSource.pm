@@ -22,6 +22,14 @@ has '+type' => ( default => 'SQL' );
 
 =head1 METHODS
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
+
 =head2 available_attributes
 
 =cut

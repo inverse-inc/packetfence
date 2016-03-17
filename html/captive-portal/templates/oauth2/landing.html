@@ -1,0 +1,11 @@
+<h4>[% i18n_format("You are about to authenticate against %s", source.description) %]</h4>
+
+<form action="/oauth2/go" method="POST">
+
+  [% IF with_aup %]
+  [% form.get_field('aup').render | none %]
+  [% END %]
+
+  <input type="submit" value="[% i18n("Click here to login on the external provider") %]">
+
+</form>

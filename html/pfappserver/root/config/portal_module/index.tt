@@ -1,0 +1,43 @@
+
+
+<h1>
+Portal modules
+
+  <div class="btn-group">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add Portal module') %] <span class="caret"></span></a>
+    <ul id="createPortalModule" class="dropdown-menu">
+      [% FOREACH type IN types.keys -%]
+        [% IF types.$type.size %]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l(type) %]</a>
+        <ul class="dropdown-menu" id="internal_types">
+        [% FOREACH subtype IN types.$type %]
+            <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), subtype) %]">[% l(subtype) %]</a></li>
+        [% END %]
+          </ul>
+        </li>
+        [% ELSE %]
+        <li><a href="[% c.pf_hash_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+        [% END %]
+      [% END -%]
+    </ul>
+  </div>
+</h1>
+
+
+
+<div class="tabbable">
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab">List View</a></li>
+    <li><a href="#tab2" data-toggle="tab">Tree View</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      [% INCLUDE config/portal_module/list_view.tt %]
+    </div>
+    <div class="tab-pane" id="tab2">
+      [% INCLUDE config/portal_module/tree_view.tt %]
+    </div>
+  </div>
+</div>
+

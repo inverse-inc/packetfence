@@ -25,15 +25,19 @@
         'admin/config/roles',
         'admin/config/scan-wmi',
         'admin/config/filters',
+        'admin/config/portal_modules',
         'js/interface',
         'js/bootstrapSwitch',
+        'js/tree.jquery',
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/client/fineuploader',
         'css/bootstrapSwitch',
+        'css/jqtree',
         'admin/config/switches',
+        'admin/config/portal_modules',
         'admin/config/violations',
         ] -%]
 
@@ -77,7 +81,7 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              [%- IF can_access_any("CONFIGURATION_MAIN_READ","PORTAL_PROFILES_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
+              [%- IF can_access_any("CONFIGURATION_MAIN_READ","PORTAL_PROFILES_READ","PORTAL_MODULE_READ","ADMIN_ROLES_READ", "FILTERS_READ") -%]
               <li class="nav-header">[% l('Main') %]</li>
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
@@ -99,6 +103,9 @@ table.sources {
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'active_active', 'Clustering') | none %]
+              [%- END %]
+              [%- IF can_access("PORTAL_MODULE_READ") %]
+              [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
               [%- END %]
               [%- IF can_access("PORTAL_PROFILES_READ") %]
               [% list_entry('Config::Profile', 'index', 'Portal Profiles') | none %]

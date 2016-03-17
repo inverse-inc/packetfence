@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::DeviceRegistration'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::DeviceRegistration - DeviceRegistration Controller for captiveportal
 
 =head1 DESCRIPTION
 

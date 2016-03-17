@@ -18,6 +18,14 @@ has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
 has '+unique' => (default => 1);
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth' }
+
 =head2 available_rule_classes
 
 OAuth sources only allow 'authentication' rules

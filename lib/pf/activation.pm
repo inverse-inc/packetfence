@@ -293,7 +293,7 @@ sub modify_status {
         'activation_modify_status_sql', $new_status, $code_id));
 }
 
-=head2 invalidate_code
+=head2 invalidate_codes
 
 invalidate all unverified activation codes for a given mac and contact_info
 
@@ -508,7 +508,7 @@ sub create_and_send_activation_code {
       }
     }
 
-    return ($success, $err);
+    return ($success, $err, $activation_code);
 }
 
 # returns the validated activation record hashref or undef

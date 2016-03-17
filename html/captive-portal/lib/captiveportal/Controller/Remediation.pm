@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::Remediation'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::Remediation - Remediation Controller for captiveportal
 
 =head1 DESCRIPTION
 

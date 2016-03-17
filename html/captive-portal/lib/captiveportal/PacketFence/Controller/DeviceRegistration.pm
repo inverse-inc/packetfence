@@ -41,8 +41,8 @@ sub begin : Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $logger  = $c->log();
-    my $pid     = $c->session->{"username"};
+    my $logger  = $c->log;
+    my $pid     = $c->user_session->{"username"};
     my $request = $c->request;
 
     # See if user is trying to login and if is not already authenticated
@@ -50,7 +50,7 @@ sub index : Path : Args(0) {
         # Verify if user is authenticated
         $c->forward('userNotLoggedIn');
     } elsif ( $request->param('cancel') ) {
-        $c->delete_session;
+        $c->user_session({});
         $c->detach('login');
     } elsif ( $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
@@ -69,7 +69,7 @@ sub index : Path : Args(0) {
         }
     }
     # User is authenticated so display registration page
-    $c->stash(template => 'device-registration.html');
+    $c->stash(template => 'device-registration/registration.html');
 }
 
 =head2 gaming_registration
@@ -119,12 +119,12 @@ sub login : Local : Args(0) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
-    $c->stash( template => 'device-login.html' );
+    $c->stash( template => 'device-registration/login.html' );
 }
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( template => 'device-landing.html' );
+    $c->stash( template => 'device-registration/landing.html' );
 }
 
 sub registerNode : Private {
@@ -135,7 +135,7 @@ sub registerNode : Private {
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
             $self->showError($c,"$mac is already registered or pending to be registered. Please verify MAC address if correct contact your network administrator");
         } else {
-            my $session = $c->session;
+            my $session = $c->user_session;
             my $source_id = $session->{source_id};
             my %info;
             my $params = { username => $pid };
@@ -161,7 +161,7 @@ sub registerNode : Private {
             $info{'mac'} = $mac;
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
-            $c->forward( 'CaptivePortal' => 'webNodeRegister', [ $pid, %info ] );
+            node_modify($mac, status => "reg", %info);
         }
     } else {
         $self->showError($c,"Please verify the provided MAC address.");

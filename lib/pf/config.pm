@@ -72,7 +72,6 @@ use pf::constants::config qw(
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
   $SELFREG_MODE_KICKBOX
-  $SELFREG_MODE_CHAINED
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
 );
@@ -140,6 +139,8 @@ our (
     %ConfigBillingTiers,
 #adminroles.conf
     %ConfigAdminRoles,
+#portal_modules.conf
+    %ConfigPortalModules,
 );
 
 BEGIN {
@@ -170,7 +171,7 @@ BEGIN {
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_CHAINED $SELFREG_MODE_BLACKHOLE
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
         normalize_time access_duration
@@ -192,6 +193,7 @@ BEGIN {
         %ConfigDetect
         %ConfigBillingTiers
         %ConfigAdminRoles
+        %ConfigPortalModules
     );
 }
 
@@ -261,6 +263,8 @@ tie %ConfigDetect, 'pfconfig::cached_hash', 'config::Pfdetect';
 tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
 
 tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
+
+tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 sub import {
     pf::config->export_to_level(1,@_);

@@ -12,25 +12,3 @@
               </div>
             </div>
           </div>
-          <div class="control-group">
-            <label class="control-label" for="mandatory_fields">[% l('Mandatory Fields') %]</label>
-            <div class="controls">
-              [% form.field('mandatory_fields').render | none %]
-              <div id="mandatory_fieldsEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('mandatory_fields').index > 1 %]">
-                <p>
-                  <i class="icon-keyboard icon-large"></i>
-                  [%- IF form.isa('pfappserver::Form::Config::Profile::Default') -%]
-                  [% l('No mandatory fields specified.') %]
-                  [%- ELSE -%]
-                  [% l('With no mandatory fields specified, the mandatory fields of the default profile will be used.') %]
-                  [%- END -%]<br/>
-                  <a href="#add">[% l('Add a mandatory field.') %]</a>
-                </p>
-              </div>
-              <div>
-                <p>&nbsp;</p>
-                <p>[% l('Defined Mandatory Fields will be used with the following Portal Profile based Authentication Sources') %]</p>
-                [% form.field('custom_fields_authentication_sources').render | none %]
-              </div>
-            </div>
-          </div>

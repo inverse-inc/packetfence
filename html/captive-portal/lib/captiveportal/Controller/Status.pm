@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::Status'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::Status - Status Controller for captiveportal
 
 =head1 DESCRIPTION
 

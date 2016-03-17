@@ -5,7 +5,7 @@ BEGIN { extends 'captiveportal::PacketFence::Controller::WirelessProfile'; }
 
 =head1 NAME
 
-captiveportal::Controller::Root - Root Controller for captiveportal
+captiveportal::Controller::WirelessProfile - WirelessProfile Controller for captiveportal
 
 =head1 DESCRIPTION
 

@@ -1,0 +1,109 @@
+package captiveportal::Base::I18N;
+
+=head1 NAME
+
+captiveportal::Base::I18N
+
+=head1 DESCRIPTION
+
+For the internationalization of the fields
+
+=cut
+
+use Moose;
+extends 'HTML::FormHandler::I18N';
+
+use Locale::gettext qw(gettext ngettext);
+
+=head2 handle_posted_fields
+
+Internationalize a string
+Escapes the bracket arguments to put them in %s format which is used by the portal PO files
+
+=cut
+
+sub maketext {
+    my $self = shift;
+    my @args = @_;
+    $args[0] =~ s/\[\_.+?\]/\%s/g;
+    if(@args > 1){
+        return $self->i18n_format(@args);
+    }
+    else {
+        return $self->i18n(@args);
+    }
+}
+
+=head2 i18n
+
+Internationalize a string without arguments
+
+=cut
+
+sub i18n {
+    my ( $self, $msgid ) = @_;
+
+    my $msg = gettext($msgid);
+    utf8::decode($msg);
+
+    return $msg;
+}
+
+=head2 ni18n
+
+Internationalize a string which can be plural or singular
+
+=cut
+
+sub ni18n {
+    my ( $self, $singular, $plural, $category ) = @_;
+
+    my $msg = ngettext( $singular, $plural, $category );
+    utf8::decode($msg);
+
+    return $msg;
+}
+
+=head2 i18n_format
+
+Pass message id through gettext then sprintf it.
+
+=cut
+
+sub i18n_format {
+    my ( $self, $msgid, @args ) = @_;
+    my $msg = sprintf( gettext($msgid), @args );
+    utf8::decode($msg);
+    return $msg;
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;
+
+

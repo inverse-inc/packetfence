@@ -32,6 +32,14 @@ has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 
 =head1 METHODS
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
+
 =head2 has_authentication_rules
 
 Whether or not the source should have authentication rules

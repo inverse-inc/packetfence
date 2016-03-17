@@ -20,6 +20,14 @@ has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Sponsor' }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.
@@ -72,7 +80,7 @@ List of mandatory fields for this source
 =cut
 
 sub mandatoryFields {
-    return qw(email sponsor_email);
+    return qw(email sponsor);
 }
 
 =head1 AUTHOR

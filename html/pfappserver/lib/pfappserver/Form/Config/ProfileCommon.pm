@@ -37,7 +37,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -96,6 +96,25 @@ has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
+  );
+
+=head2 root_module
+
+The root module of the portal
+
+=cut
+
+has_field 'root_module' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 1,
+   label => 'Root Portal Module',
+   options_method => \&options_root_module,
+   element_class => ['chzn-select'],
+#   element_attr => {'data-placeholder' => 'Click to add a required field'},
+   tags => { after_element => \&help,
+             help => 'The Root Portal Module to use' },
   );
 
 =head2 locale
@@ -226,35 +245,6 @@ has_field 'provisioners.contains' =>
     options_method => \&options_provisioners,
     widget_wrapper => 'DynamicTableRow',
   );
-
-has_field 'mandatory_fields' =>
-(
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
-);
-
-has_field 'mandatory_fields.contains' =>
-(
-    type => 'Select',
-    options_method => \&options_mandatory_fields,
-    widget_wrapper => 'DynamicTableRow',
-);
-
-has_field 'custom_fields_authentication_sources' => (
-    type => 'Select',
-    multiple => 1,
-    do_label => 0,
-    options_method => \&options_custom_fields_authentication_sources,
-    element_class => ['chzn-select', 'input-xxlarge'],
-    element_attr => {
-        'data-placeholder' => 'Click to add a source.'
-    },
-    tags => {
-        after_element => \&help,
-        help => "Without any sources, configured Mandatory Fields won't be displayed",
-    },
-);
 
 =head2 reuse_dot1x_credentials
 
@@ -433,30 +423,15 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
-=head2 options_mandatory_fields
+=head2 options_root_module
 
-Returns the list of sources to be displayed
-
-=cut
-
-sub options_mandatory_fields {
-    return
-      map { { value => $_, label => $_ } }
-      qw(firstname lastname organization phone mobileprovider email sponsor_email
-      anniversary birthday gender lang nickname organization cell_phone
-      work_phone title building_number apartment_number room_number
-      custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
-      custom_field_6 custom_field_7 custom_field_8 custom_field_9);
-}
-
-=head2 options_custom_fields_authentication_sources
-
-Returns the list of sources to be displayed
+Returns the list of root modules to be displayed
 
 =cut
 
-sub options_custom_fields_authentication_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAllAuthenticationSources()};
+sub options_root_module {
+    my $cs = pf::ConfigStore::PortalModule->new;
+    return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
 
 =head2 validate
@@ -484,12 +459,6 @@ sub validate {
         if ($external{$source->{'type'}} > 1) {
             $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
             last;
-        }
-    }
-    my @custom_fields_authentication_sources = @{$self->value->{'custom_fields_authentication_sources'} || []};
-    foreach my $custom_fields_authentication_source (@custom_fields_authentication_sources) {
-        unless ( exists $sources{$custom_fields_authentication_source}) {
-            $self->field('custom_fields_authentication_sources')->add_error("$custom_fields_authentication_source must also be set in sources");
         }
     }
 }

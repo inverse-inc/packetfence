@@ -24,7 +24,7 @@ use Catalyst qw/
   I18N
   Authentication
   Session
-  Session::Store::CHI
+  Session::Store::MAC_Based
   Session::State::Cookie
   StackTrace
   Unicode::Encoding
@@ -122,12 +122,51 @@ Returns the user/mac specific cache
 
 sub user_cache {
     my ($c) = @_;
-    return CHI->new(
-        driver     => 'SubNamespace',
-        chi_object => pf::CHI->new(namespace => 'httpd.portal'),
-        namespace  => $c->portalSession->clientMac
-    );
+    return $c->stash->{application}->user_cache;
 }
+
+=head2 _user_session_backend
+
+To get the backend of the session
+
+=cut
+
+sub _user_session_backend {
+    my ($c) = @_;
+    return pf::CHI->new(namespace  => 'httpd.portal');
+}
+
+=head2 user_session
+
+This needs to be called at the end of the request of whenever we want to save the session
+
+=cut
+
+sub _build_user_session {
+    my ($c) = @_;
+    return $c->_user_session_backend->get("user_session:".$c->request->cookie('CGISESSION')->value()) || {};
+}
+
+=head2 _save_user_session
+
+This needs to be called at the end of the request of whenever we want to save the session
+
+=cut
+
+sub _save_user_session {
+    my ($c) = @_;
+    if($c->request->cookie('CGISESSION')){
+        $c->_user_session_backend->set("user_session:".$c->request->cookie('CGISESSION')->value(), $c->user_session);
+    }
+}
+
+=head2 user_session
+
+A secure user session based on the session ID and not only the MAC
+
+=cut
+
+has 'user_session' => (is => 'rw', builder => '_build_user_session', lazy => 1);
 
 has portalSession => (
     is => 'rw',

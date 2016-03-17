@@ -85,16 +85,6 @@ has redirectURL => (
     is       => 'rw',
 );
 
-has _destination_url => (
-    is       => 'rw',
-);
-
-has destinationUrl => (
-    is      => 'ro',
-    builder => '_build_destinationUrl',
-    lazy => 1,
-);
-
 has dispatcherSession => (
     is      => 'rw',
     builder => '_build_dispatcherSession',
@@ -117,7 +107,6 @@ sub ACCEPT_CONTEXT {
     my $uri = $request->uri;
     my $options;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
-    my $destination_url = $request->param('destination_url');
 
     if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
@@ -140,42 +129,10 @@ sub ACCEPT_CONTEXT {
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
-        _destination_url => $destination_url,
         @args,
     );
     $c->session->{$class} = $model;
     return $model;
-}
-
-sub _build_destinationUrl {
-    my ($self) = @_;
-    my $url = $self->_destination_url;
-
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
-        return $self->profile->getRedirectURL;
-    }
-
-    my $host = eval {
-        URI::URL->new($url)->host();
-    };
-    if($@){
-        get_logger->warn("Can't decode destination URL");
-        return $self->profile->getRedirectURL;
-    }
-    else {
-        get_logger->debug("Destination URL host is : $host");
-
-        my @portal_hosts = portal_hosts();
-        # if the destination URL points to the portal, we put the default URL of the portal profile
-        if ( any { $_ eq $host } @portal_hosts) {
-            get_logger->info("Replacing destination URL since it points to the captive portal");
-            return $self->profile->getRedirectURL;
-        }
-    }
-
-    # Respect the user's initial destination URL
-    return decode_entities(uri_unescape($url));
 }
 
 sub _build_clientIp {

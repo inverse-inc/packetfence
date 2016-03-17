@@ -103,14 +103,6 @@ sub handler {
         return Apache2::Const::DECLINED;
     }
 
-    # Captive-portal resource | RELEASE
-    if ( $uri =~ /$WEB::URL_RELEASE/o ) {
-        $logger->debug("URI '$uri' (URL: $url) is a RELEASE request");
-        $r->handler('modperl');
-        $r->set_handlers( PerlResponseHandler => ['pf::web::release'] );
-        return Apache2::Const::OK;
-    }
-
     # Captive-portal resource | WISPr
     if ( $uri =~ /$WEB::URL_WISPR/o ) {
         $logger->debug("URI '$uri' (URL: $url) is a WISPr request");

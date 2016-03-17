@@ -37,6 +37,7 @@ use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
 use lib $conf_dir;
+use lib $install_dir."/html/captive-portal/lib";
 
 BEGIN {
     use Exporter ();
@@ -145,6 +146,7 @@ sub sanity_check {
     apache_filter_rules();
     db_check_version();
     valid_certs();
+    portal_modules();
 
     return @problems;
 }
@@ -1068,7 +1070,7 @@ sub portal_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
-        mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
+        nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
 
@@ -1241,6 +1243,31 @@ sub valid_certs {
     else {
         # not a problem per se, we just warn you
         print STDERR "Radius configuration is missing from raddb directory. Assuming this is a first run.\n";
+    }
+}
+
+sub portal_modules {
+    require pf::ConfigStore::PortalModule;
+    require pf::Portal::ProfileFactory;
+    require captiveportal::DynamicRouting::Application;
+    require captiveportal::DynamicRouting::Factory;
+
+    my $cs = pf::ConfigStore::PortalModule->new;
+    foreach my $module (@{$cs->readAll("id")}){
+        if(defined($module->{modules})){
+            foreach my $sub_module (@{$module->{modules}}){
+                unless($cs->hasId($sub_module)){
+                    add_problem($FATAL, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
+                }
+            }
+        }
+        if($module->{type} eq "Root"){
+            my $factory = captiveportal::DynamicRouting::Factory->new();
+            my ($result, $msg) = $factory->check_cyclic($module->{id});
+            unless($result) {
+                add_problem($FATAL, $msg);
+            }
+        }
     }
 }
 

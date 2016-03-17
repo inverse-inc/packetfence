@@ -28,6 +28,14 @@ has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'http
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::LinkedIn' }
+
 =head2 lookup_from_provider_info
 
 Lookup the person information from the authentication hash received during the OAuth process

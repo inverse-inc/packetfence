@@ -22,6 +22,7 @@ use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
 use pf::util;
+use pf::config::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
@@ -94,19 +95,6 @@ sub getGuestModes {
 }
 
 *guest_modes = \&getGuestModes;
-
-=item getChainedGuestModes
-
-Returns the available enabled modes for guest self-registration for chained sources for the current captive portal profile.
-
-=cut
-
-sub getChainedGuestModes {
-    my ($self) = @_;
-    return $self->{'_chained_guest_modes'};
-}
-
-*chained_guest_modes = \&getChainedGuestModes;
 
 =item getTemplatePath
 
@@ -244,33 +232,6 @@ sub getSources {
 
 *sources = \&getSources;
 
-
-=item getCustomFields
-
-Returns the custom fields configured on the portal profile
-
-=cut
-
-sub getCustomFields {
-    my ( $self ) = @_;
-    return $self->{'_mandatory_fields'};
-}
-
-*customFields = \&getCustomFields;
-
-=item getCustomFieldsSources
-
-Returns which authentication sources are configured to use custom fields.
-
-=cut
-
-sub getCustomFieldsSources {
-    my ( $self ) = @_;
-    return $self->{'_custom_fields_authentication_sources'};
-}
-
-*customFieldsSources = \&getCustomFieldsSources;
-
 sub getProvisioners {
     my ($self) = @_;
     return $self->{'_provisioners'};
@@ -338,17 +299,6 @@ sub getSourcesByClass {
     return grep { $_->class eq $class } $self->getSourcesAsObjects();
 }
 
-=item hasChained
-
-If the profile has a chained auth source
-
-=cut
-
-sub hasChained {
-    my ($self) = @_;
-    return defined ($self->getSourceByType('chained')) ;
-}
-
 =item hasSource
 
 If the profile has a specific source
@@ -373,17 +323,23 @@ sub getSourceByType {
     return first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
 }
 
-=item getSourceByTypeForChained
+=item getSourcesByType
 
-Returns the first source object for the requested source type for chained sources in the current captive portal profile.
+Returns ALL the sources object for the requested source type for the current captive portal profile
 
 =cut
 
-sub getSourceByTypeForChained {
+sub getSourcesByType {
     my ($self, $type) = @_;
     return unless $type;
     $type = uc($type);
-    return first {uc($_->{'type'}) eq $type} map { $_->getChainedAuthenticationSourceObject } grep { $_->type eq 'Chained' }  $self->getSourcesAsObjects;
+    return grep {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
+}
+
+sub getSourcesByObjectClass {
+    my ($self, $class) = @_;
+    return unless($class);
+    return grep {$_->isa($class)} $self->getSourcesAsObjects();
 }
 
 =item guestRegistrationOnly
@@ -426,7 +382,7 @@ Verify if the guest mode is allowed for the profile
 
 sub guestModeAllowed {
     my ($self, $mode) = @_;
-    return any { $mode eq $_} @{$self->getGuestModes}, @{$self->getChainedGuestModes} ;
+    return any { $mode eq $_} @{$self->getGuestModes};
 }
 
 =item nbregpages
@@ -591,27 +547,10 @@ sub findScan {
     return undef;
 }
 
-=item getFieldsForSources
-
-Get the combined mandatory field from the profile and the sources provided
-
-=cut
-
-sub getFieldsForSources {
-    my ($self, @sources) = @_;
-    my @fields;
-    my %custom_fields_authentication_sources = map { $_ => undef } @{$self->getCustomFieldsSources};
-    if( any { exists $custom_fields_authentication_sources{$_->id} } @sources ) {
-        @fields = @{$self->getCustomFields};
-    }
-    my @mandatoryFields = map {$_->mandatoryFields()} @sources;
-
-    # Combine the profile and the source mandatory fields
-    push @fields, @mandatoryFields;
-    # Make sure mandatory fields are unique
-    return uniq @fields;
+sub getUserSources {
+    my ($self, $username, $realm) = @_;
+    return get_user_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
 }
-
 
 =back
 

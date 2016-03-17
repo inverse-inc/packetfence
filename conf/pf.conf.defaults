@@ -193,19 +193,6 @@ device_registration_role=
 
 [guests_self_registration]
 #
-# guests_self_registration.guest_pid
-#
-# What field should we assign to the pid of the guest? Defaults to email.
-guest_pid=email
-#
-# guests_self_registration.preregistration
-# 
-# Enabling this allows guests to requests their access in advance. You
-# must take care of opening your external firewall up to PacketFence and
-# make sure your server can send emails properly (generated
-# username/password are sent by email).
-preregistration=disabled
-#
 # guests_self_registration.sponsorship_cc
 # 
 # Sponsors requesting access and access confirmation emails are CC'ed to this

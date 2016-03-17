@@ -1,13 +1,9 @@
-[% title = i18n("release: enabling network") %]
-[% INCLUDE header.html %]
+<div id="about">
+  <img src="/content/images/unlock.png" alt="Access granted" />
+  <p>[% i18n("In order to complete your connection to the secure SSID, you will need to run the agent available below.") %]</p>
+  <p>
+  <a href="/content/packetfence-windows-agent.exe">[% i18n("Click to download the agent.") %]</a>
+  </p>
+</div>
 
-        <div id="about">
-          <img src="/content/images/unlock.png" alt="Access granted" />
-          <p>[% i18n("In order to complete your connection to the secure SSID, you will need to run the agent available below.") %]</p>
-          <p>
-          <a href="/content/packetfence-windows-agent.exe">[% i18n("Click to download the agent.") %]</a>
-          </p>
-        </div>
-
-[% INCLUDE footer.html %]
-
+[% IF skipable %]<a href="/captive-portal?next=next">[% i18n("Continue") %]</a>[% END %]

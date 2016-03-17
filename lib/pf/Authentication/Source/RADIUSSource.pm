@@ -24,6 +24,14 @@ has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
+
 sub available_attributes {
   my $self = shift;
 

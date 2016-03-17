@@ -30,7 +30,7 @@ use pf::ConfigStore::Profile;
 
 sub configStoreName { "pf::ConfigStore::Profile" }
 
-sub display_fields { qw(id description logo redirecturl always_use_redirecturl mandatory_fields locale) }
+sub display_fields { qw(id description logo redirecturl always_use_redirecturl locale) }
 
 sub idKey { 'id' }
 

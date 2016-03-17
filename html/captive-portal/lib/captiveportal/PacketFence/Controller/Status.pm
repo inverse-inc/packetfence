@@ -27,12 +27,13 @@ Catalyst Controller.
 
 sub begin :Private {
     my ( $self, $c ) = @_;
+    $c->session->{release_bypass} = $TRUE;
     $c->forward('setupCurrentNodeInfo');
 }
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $pid     = $c->session->{"username"};
+    my $pid     = $c->user_session->{"username"};
     if ($pid) {
         $c->forward('userIsAuthenticated');
     } else {
@@ -46,7 +47,7 @@ sub index : Path : Args(0) {
 
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
-    my $pid   = $c->session->{"username"};
+    my $pid   = $c->user_session->{"username"};
     my @nodes = person_nodes($pid);
     foreach my $node (@nodes) {
         setExpiration($node);
@@ -103,7 +104,7 @@ sub login : Local {
 
 sub logout : Local {
     my ( $self, $c ) = @_;
-    $c->delete_session('logout');
+    $c->user_session({});
     $c->forward('index');
 }
 

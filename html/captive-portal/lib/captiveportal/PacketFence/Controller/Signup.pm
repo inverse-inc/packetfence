@@ -173,7 +173,7 @@ sub doEmailSelfRegistration : Private {
     # fetch role for this user
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
+    my $source = $profile->getSourceByType($email_type);
     my $auth_params = {
         'username'   => $pid,
         'user_email' => $email
@@ -284,7 +284,7 @@ sub doSponsorSelfRegistration : Private {
 
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
+    my $source = $profile->getSourceByType($sponsor_type);
     # fetch the connection information
     $c->forward(Authenticate => 'setupMatchParams');
     my $auth_params = $c->stash->{matchParams};
@@ -394,7 +394,7 @@ sub doSmsSelfRegistration : Private {
     $logger->info("redirecting to mobile confirmation page");
     my $sms_type =
       pf::Authentication::Source::SMSSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+    my $source = $profile->getSourceByType($sms_type);
     my $auth_params = {
         'username'    => $pid,
         'phonenumber' => $phone
@@ -438,7 +438,7 @@ sub doNullSelfRegistration : Private {
     my $profile = $c->profile;
     my %info;
     my $null_type = pf::Authentication::Source::NullSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($null_type) || $profile->getSourceByTypeForChained($null_type);
+    my $source = $profile->getSourceByType($null_type);
     my $username;
     if(isenabled($source->email_required)) {
         $username = $c->session->{email};
@@ -460,7 +460,7 @@ sub doNullSelfRegistration : Private {
 sub checkGuestModes : Private {
     my ( $self, $c ) = @_;
     my $profile = $c->profile;
-    my @modes = (@{ $profile->getGuestModes }, @{ $profile->getChainedGuestModes });
+    my @modes = @{ $profile->getGuestModes };
     if ( @modes == 0 ) {
         $c->response->redirect( "/captive-portal?destination_url="
               . uri_escape( $c->stash->{destination_url} ) );
@@ -563,7 +563,7 @@ sub validateByEmailSource : Private {
     my $request = $c->request;
     my $email_type =
       pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
+    my $source = $profile->getSourceByType($email_type);
     my $localdomain = $Config{'general'}{'domain'};
     if (   $source
         && isdisabled( $source->{allow_localdomain} )
@@ -596,21 +596,15 @@ sub validateMandatoryFields : Private {
     my $request = $c->request;
     my $profile = $c->profile;
     my $source;
-    # we use the fields of the chained source if needed
-    if($c->session->{chained_source}){
-        $source = getAuthenticationSource($c->session->{chained_source});
-    }
-    else {
-        # Which source is being used
-        # TODO: Move to a switch case with portal rework
-        # 2015.05.08 - dwuelfrath@inverse.ca
-        my $source_type;
-        $source_type = 'email' if $request->param('by_email');
-        $source_type = 'sms' if $request->param('by_sms');
-        $source_type = 'sponsoremail' if $request->param('by_sponsor');
-        $source_type = 'null' if $request->param('by_null');
-        $source = $profile->getSourceByType($source_type);
-    }
+    # Which source is being used
+    # TODO: Move to a switch case with portal rework
+    # 2015.05.08 - dwuelfrath@inverse.ca
+    my $source_type;
+    $source_type = 'email' if $request->param('by_email');
+    $source_type = 'sms' if $request->param('by_sms');
+    $source_type = 'sponsoremail' if $request->param('by_sponsor');
+    $source_type = 'null' if $request->param('by_null');
+    $source = $profile->getSourceByType($source_type);
 
     $logger->info("Validating mandatory and custom fields for '".$source->id."' based self-registration");
 
@@ -656,7 +650,7 @@ sub showSelfRegistrationPage : Private {
     my $sms_type =
       pf::Authentication::Source::SMSSource->meta->get_attribute('type')
       ->default;
-    my $source = $profile->getSourceByType($sms_type) || $profile->getSourceByTypeForChained($sms_type);
+    my $source = $profile->getSourceByType($sms_type);
 
     $c->stash(
         post_uri            => "$WEB::URL_SIGNUP?mode=guest-register",
@@ -672,16 +666,8 @@ sub showSelfRegistrationPage : Private {
         $self->allowedGuestModes($c),
     );
 
-    if($c->session->{chained_source}){
-        $c->log->info("Found a chained source. Will use it to compute mandatory fields");
-        my $source = getAuthenticationSource($c->session->{chained_source});
-        my @mandatory_fields = $profile->getFieldsForSources($source);
-        $c->stash( mandatory_fields => \@mandatory_fields );
-    }
-    else {
-        my @mandatory_fields = $profile->getFieldsForSources(@sources);
-        $c->stash( mandatory_fields => \@mandatory_fields );
-    }
+    my @mandatory_fields = $profile->getFieldsForSources(@sources);
+    $c->stash( mandatory_fields => \@mandatory_fields );
 
     $c->stash( template => 'guest.html' );
 }

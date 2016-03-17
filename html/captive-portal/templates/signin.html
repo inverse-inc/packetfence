@@ -1,0 +1,17 @@
+
+<form action="/signup" method="post">
+  [% IF sms_carriers %]
+    [% out = form.get_field("mobileprovider").options(sms_carriers) %]
+  [% END %]
+
+  [% FOREACH field IN fields.keys %]
+  <div class="field">
+    [% form.get_field(field).render | none %]
+  </div>
+  [% END %]
+
+  <div class="field">
+    <input type="submit" name="submit">
+  </div>
+
+</form>

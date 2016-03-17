@@ -1,0 +1,14 @@
+<form action="/activate/sms" method="post">
+  <div class="field">
+    <label for="pin">PIN : </label>
+    <input name="pin" type="text">
+  </div>
+  <div class="field">
+    <input type="submit" name="submit">
+  </div>
+
+  <div>
+    <a href="/captive-portal?no-pin=no-pin">[% i18n("I don't have a PIN") %]</a>
+  </div>
+
+</form>

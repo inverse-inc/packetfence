@@ -38,6 +38,14 @@ has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Billing' }
+
 =head2 has_authentication_rules
 
 Whether or not the source should have authentication rules

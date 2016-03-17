@@ -27,6 +27,23 @@ has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
 
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+  my $self = shift;
+  return $TRUE;
+}
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Null' }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.

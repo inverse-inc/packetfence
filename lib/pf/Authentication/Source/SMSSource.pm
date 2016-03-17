@@ -22,6 +22,14 @@ has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head1 METHODS
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::SMS' }
+
 =head2 around BUILDARGS
 
 Convert the comma-delimited string representing the SMS carriers to an array ref.
@@ -91,7 +99,7 @@ List of mandatory fields for this source
 =cut
 
 sub mandatoryFields {
-    return qw(email phone mobileprovider);
+    return qw(telephone mobileprovider);
 }
 
 =head1 AUTHOR

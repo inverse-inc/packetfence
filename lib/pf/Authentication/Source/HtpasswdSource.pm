@@ -26,6 +26,14 @@ has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head1 METHODS
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
+
 =head2 available_attributes
 
 =cut

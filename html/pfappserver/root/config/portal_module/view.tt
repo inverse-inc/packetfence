@@ -1,0 +1,58 @@
+
+<ul class="breadcrumb">
+  <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Portal Modules') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
+  <li class="active">[% item.id %]</li>
+</ul>
+
+[% IF c.action.name == "view"  %]
+[% SET action_url = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
+[%ELSE%]
+[% SET action_url = c.req.uri %]
+[%END%]
+<form name="formItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+  <h3>[% IF item.id.defined %]<i>[% l(item.type) %]</i> [% item.id | html %][% ELSE %][% l('New portal module') %][% END %]</h3>
+
+  <div>
+  [%- IF item.id.defined;
+    CALL form.field('id').type_attr('hidden');
+    CALL form.field('id').do_label(0);
+  END -%]
+    [% form.block('definition').render | none %]
+  </div>
+
+  [% IF form.field('modules') %]
+  <div class="control-group">
+    <label class="control-label" for="modules">[% l('Modules') %]</label>
+    <div class="controls">
+      [% form.field('modules').render | none %]
+      <div id="modulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('modules').index > 1 %]">
+        <p>
+          <i class="icon-cog icon-large"></i>
+          [% l('No modules selected') %]
+          <a href="#add">[% l('Add a module.') %]</a>
+        </p>
+      </div>
+    </div>
+  </div>
+  [% END %]
+
+  [% IF form.block('multi_source_definition') %]
+  <div class="control-group">
+    <div class="controls">
+      <a href="#expand-multi-source" class="expand" data-expand="#multi_source_fields">Show advanced source filtering</a>
+    </div>
+  </div>
+  <div id="multi_source_fields" class="expandable">
+    [% form.block('multi_source_definition').render | none %]
+  </div>
+  [% END %]
+
+  [%- IF can_access("PORTAL_MODULE_UPDATE") %]
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+    [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
+  </div>
+  [%- END %]
+
+</form>
+

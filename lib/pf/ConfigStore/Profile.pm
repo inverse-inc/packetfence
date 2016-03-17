@@ -72,7 +72,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners billing_tiers scans);
+    return qw(sources filter locale allowed_devices provisioners billing_tiers scans);
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -39,7 +39,7 @@ sub showError {
     utf8::decode($text_message);
     $c->stash(
         template    => 'error.html',
-        txt_message => $text_message,
+        message => $text_message,
     );
     $c->detach;
 }

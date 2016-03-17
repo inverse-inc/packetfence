@@ -16,6 +16,7 @@ use LWP;
 use pf::log;
 use Digest::HMAC_SHA1;
 use MIME::Base64;
+use CGI;
 
 extends 'pf::Authentication::Source::OAuthSource';
 
@@ -30,6 +31,14 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/request
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/twitter');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com/oauth/access_token');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::Twitter' }
 
 
 =head2 authorize

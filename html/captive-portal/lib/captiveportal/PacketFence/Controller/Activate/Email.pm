@@ -82,7 +82,15 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
-        $c->forward('doEmailRegistration', [$code]);
+        my $unregdate = $c->session->{"email_unregdate"};
+        get_logger->info("Extending duration to $unregdate");
+        node_modify($c->portalSession->clientMac, unregdate => $unregdate);
+        pf::activation::set_status_verified($code);
+        $c->stash(
+            template => "activation/email.html",
+            message => "Email activation code has been verified. Access granted until : $unregdate",
+        );
+        $c->detach();
     }
 
     #
@@ -117,110 +125,6 @@ sub login : Private {
     );
 }
 
-=head2 doEmailRegistration
-
-TODO: documention
-
-=cut
-
-sub doEmailRegistration : Private {
-    my ( $self, $c, $code ) = @_;
-    my $request           = $c->request;
-    my $logger            = $c->log();
-    my $activation_record = $c->stash->{activation_record};
-    my $profile           = $c->profile;
-    my $node_mac          = $c->portalSession->guestNodeMac;
-    my ( $pid, $email ) = @{$activation_record}{ 'pid', 'contact_info' };
-    my $auth_params = {
-        'username'   => $pid,
-        'user_email' => $email
-    };
-
-    my $email_type =
-      pf::Authentication::Source::EmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($email_type) || $profile->getSourceByTypeForChained($email_type);
-
-    if ($source) {
-
-        # On-site email guests self-registration
-        # if we have a MAC, guest was on-site and we need to proceed with registration
-        if ( defined($node_mac) && valid_mac($node_mac) ) {
-            my %info;
-
-            # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
-            $info{'category'} = &pf::authentication::match( $source->{id}, $auth_params, $Actions::SET_ROLE );
-
-            pf::auth_log::record_completed_guest($source->id, $c->portalSession->clientMac, $pf::auth_log::COMPLETED);
-
-            $c->session->{"username"} = $pid;
-            $c->session->{"unregdate"} = $info{'unregdate'};
-            $c->session->{source_id} = $source->{id};
-            $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info;
-            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
-
-            # change the unregdate of the node associated with the submitted code
-            # FIXME
-            node_modify(
-                $node_mac,
-                (   'unregdate' => $c->stash->{info}->{unregdate},
-                    'status'    => 'reg',
-                    'category'  => $c->stash->{info}->{category},
-                )
-            );
-
-            $c->stash(
-                template   => $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE,
-                expiration => $c->stash->{info}{unregdate}
-            );
-        }
-
-        # Pre-registration email guests self-registration
-        # if we don't have the MAC it means it's a preregister guest generate a password and send
-        # an email with an access code
-        else {
-            my %info = (
-                'pid'     => $pid,
-                'email'   => $email,
-                'subject' => utf8::decode(i18n_format(
-                    "%s: Guest access confirmed!",
-                    $Config{'general'}{'domain'}
-                )),
-                'currentdate' =>
-                  POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
-            );
-
-            # we create a password using the actions from
-            # the email authentication source;
-            my $actions = &pf::authentication::match( $source->{id}, $auth_params );
-            $info{'password'} =
-              pf::password::generate( $pid, $actions );
-
-            # send on-site guest credentials by email
-            pf::web::guest::send_template_email(
-                $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED,
-                $info{'subject'}, \%info
-            );
-
-            $c->stash(
-                template => $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE,
-                %info
-            );
-        }
-
-        # code has been consumed, deactivate
-        pf::activation::set_status_verified($code);
-        $c->detach;
-    } else {
-        $logger->warn( "No active email source for profile "
-              . $profile->getName
-              . ", redirecting to "
-              . $c->portalSession->destinationUrl );
-        $c->response->redirect( $c->portalSession->destinationUrl );
-    }
-}
-
 =head2 doSponsorRegistration
 
 TODO: documention
@@ -243,7 +147,7 @@ sub doSponsorRegistration : Private {
     my $profile = $c->profile;
     my $sponsor_type =
       pf::Authentication::Source::SponsorEmailSource->getDefaultOfType;
-    my $source = $profile->getSourceByType($sponsor_type) || $profile->getSourceByTypeForChained($sponsor_type);
+    my $source = $profile->getSourceByType($sponsor_type);
 
     if ($source) {
 
@@ -292,58 +196,11 @@ sub doSponsorRegistration : Private {
 
         my ( %info, $template );
 
-        # Guest on-site sponsor registration
-        # If MAC is defined, it's a guest already here that we need to register
-        if ( defined($node_mac) ) {
-            my $node_info = node_attributes($node_mac);
-            $pid = $node_info->{'pid'};
-            if ( !defined($node_info) || ref($node_info) ne 'HASH' ) {
-
-                $logger->warn(
-                    "Problem finding more information about a MAC address ($node_mac) to enable guest access"
-                );
-                $self->showError($c,
-                    "There was a problem trying to find the computer to register. The problem has been logged."
-                );
-            }
-            if ( $node_info->{'status'} eq $pf::node::STATUS_REGISTERED ) {
-
-                    $logger->warn(
-                        "node mac: $node_mac has already been registered.");
-                    $self->showError($c,
-                        ["The device with MAC address %s has already been authorized to your network.",
-                        $node_mac]
-                    );
-            }
-
-            # register the node
-            %info = %{$node_info};
-
-            $c->session->{'unregdate'} = $info{'unregdate'};
-
-            pf::auth_log::record_completed_guest($source->id, $node_mac, $pf::auth_log::COMPLETED);
-
-            $c->session->{"username"} = $pid;
-            $c->session->{source_id} = $source->{id};
-            $c->session->{source_match} = undef;
-            $c->stash->{info}=\%info;
-            $c->forward('Authenticate' => 'createLocalAccount', [$auth_params]) if ( isenabled($source->{create_local_account}) );
-            $c->forward('CaptivePortal' => 'webNodeRegister', [$pid, %{$c->stash->{info}}]);
-
-            # We send email to the guest confirming that network access has been enabled
-            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
-            $info{'email'} = $info{'pid'};
-            $info{'subject'} = i18n_format("%s: Guest network access enabled", $Config{'general'}{'domain'});
-            pf::web::guest::send_template_email($template, $info{'subject'}, \%info);
-        }
-
-        # Guest off-site sponsor registration
-        # If pid is set in activation record then we are activating a guest who pre-registered
-        elsif ( defined( $activation_record->{'pid'} ) ) {
+        if ( defined( $activation_record->{'pid'} ) ) {
             $pid = $activation_record->{'pid'};
 
             # populating variables used to send email
-            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
+            $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_CONFIRMED;
             $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
 
             # TO:
