@@ -148,7 +148,7 @@ sub _run_detector {
 
     my $parser = pf::factory::detect::parser->new($parser_type);
 
-    my $client = pf::client->getClient();
+    my $client = pf::api::queue->new(queue => 'pfdetect');
 
     while (<$alert_pipe_fh>) {
         last unless $running;
@@ -162,7 +162,7 @@ sub _run_detector {
         }
         next if $data eq "0";   # Getting '0' from the parser indicates "job's done" which mean, nothing more to do for that line
         while (my ($type, $value) = each %{$data->{events}}) {
-            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
+            $client->notify( 'event_add', %{$data} );
         }
 
         #Stop running if parent is no longer alive

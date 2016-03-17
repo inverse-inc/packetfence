@@ -132,7 +132,7 @@ detection_engine=snort
 #
 # Comma-delimited list of address ranges/CIDR blocks that Snort/Suricata will monitor/detect/trap on.  Gateway, network, and 
 # broadcast addresses are ignored.
-range=192.168.0.0/24
+range=
 
 #
 # trapping.wireless_ips

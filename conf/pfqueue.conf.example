@@ -12,3 +12,6 @@ delayed_queue_workers=1
 
 [queue pfdhcplistener]
 workers=8
+
+[queue pfdetect]
+workers=1
