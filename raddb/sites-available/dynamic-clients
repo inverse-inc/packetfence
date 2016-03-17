@@ -37,7 +37,7 @@ client dynamic {
 	#
 	#  You MUST specify a netmask!
 	#  IPv4 /32 or IPv6 /128 are NOT allowed!
-	ipaddr = 192.0.2.0/24
+	ipaddr = 0.0.0.0/0
 
 	#
 	#  Any other configuration normally found in a "client"
@@ -69,7 +69,7 @@ client dynamic {
 	#  If the lifetime is "0", then the dynamic client is never
 	#  deleted.  The only way to delete the client is to re-start
 	#  the server.
-	lifetime = 3600
+	lifetime = "300"
 }
 
 #
@@ -102,20 +102,26 @@ server dynamic_clients {
 		#
 		#  Example 3: Look the clients up in SQL.
 		#
-		#  This requires the SQL module to be configured, of course.
-
-
-        update control {
-            &Tmp-String-8 := "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+		#  This requires the SQL and RAW modules to be configured, of course.
+        if("%{raw:Called-Station-Id}" =~ /^%{config:policy.mac-addr-regexp}(:(.+))?$/i) {
+            update control {
+                &Tmp-String-8 := "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'}"
+            }
         }
 
-        if (! &control:Tmp-String-8) {
+        if (%{#control:Tmp-String-8} == 0) {
+            update control {
+                &Tmp-String-8 := "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+            }
+
+        }
+        if (%{#control:Tmp-String-8} == 0) {
             update control {
                 &Tmp-String-8 := "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}"
             }
                 #
         }
-        if (&control:Tmp-String-8) {
+        if (%{#control:Tmp-String-8} == 0 ) {
             update control {
                 #
                 # Echo the IP.
@@ -133,5 +139,7 @@ server dynamic_clients {
             }
             ok
         }
+
+
 	}
 }
