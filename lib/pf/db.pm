@@ -362,6 +362,31 @@ sub db_cancel_current_query {
     }
 }
 
+=item * db_transaction
+
+Performs a db transaction
+
+=cut
+
+sub db_transaction {
+    my ($sub) = @_;
+    my $dbh = get_db_handle();
+    if ($dbh->{AutoCommit}) {
+        die "Transaction already in place";
+    }
+    $dbh->{AutoCommit} = 0;
+    if ($dbh->{AutoCommit}) {
+        die "Cannot start transaction";
+    }
+    eval {
+        $sub->();
+        $dbh->commit;
+    };
+    if ($@) {
+        $dbh->rollback;
+    }
+}
+
 =back
 
 =head1 AUTHOR
