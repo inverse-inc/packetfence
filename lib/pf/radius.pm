@@ -381,7 +381,7 @@ sub update_locationlog_accounting {
             return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Update locationlog from accounting ok") ];
         }
     }
-    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Not updated locationlog from accounting ok") ];
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Did not update locationlog from the accounting") ];
 }
 
 =item * _parseRequest
