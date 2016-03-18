@@ -480,7 +480,9 @@ Checks to see of a file show the delete or revert button
 =cut
 
 sub isDeleteOrRevertDisabled {
-    return 0;
+    my ($self, $c, $short_path) = @_;
+    my $file = $self->_makeFilePath($c, $short_path);
+    return ! -e $file;
 }
 
 
@@ -596,7 +598,7 @@ sub mergeFilesFromPaths {
                     $data = { name => $path, type => 'dir' , size => 0, entries => [], hidden => 1 };
                     push @paths, $data;
                 } else {
-                    $data = $self->makeFileInfo($path,$full_path);
+                    $data = $self->makeFileInfo($c, $path, $full_path);
                 }
                 $paths{$path} = $data;
                 if($path ne '') {
@@ -640,7 +642,7 @@ Create a hash with the file information
 
 
 sub makeFileInfo {
-    my ($self, $short_path, $full_path) = @_;
+    my ($self, $c, $short_path, $full_path) = @_;
     my %data = (
         name => $short_path,
         full_path => $full_path,
@@ -648,7 +650,7 @@ sub makeFileInfo {
         size => format_bytes(-s $full_path),
         editable => $self->isEditable($full_path),
         previewable => $self->isPreviewable($full_path),
-        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($short_path),
+        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($c, $short_path),
         delete_or_revert => $self->revertableOrDeletable($short_path),
     );
     return \%data;
