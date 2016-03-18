@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 our @EXPORT = qw(
-    clean_id generate_id generate_dynamic_module_id id_parts id_is_cyclic ordered_module_types
+    clean_id generate_module_id generate_dynamic_module_id id_parts id_is_cyclic ordered_module_types
 );
 
 use Tie::IxHash;
@@ -33,13 +33,13 @@ sub clean_id {
     return $uid;
 }
 
-=head2 generate_id
+=head2 generate_module_id
 
 Generate an ID based on its ID and its parent ID
 
 =cut
 
-sub generate_id {
+sub generate_module_id {
     my ($parent_id, $id) = @_;
     return $parent_id . '+' . $id;
 }

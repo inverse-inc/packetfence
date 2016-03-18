@@ -138,7 +138,7 @@ sub instantiate {
 
     my @new_modules_ids;
     foreach my $sub_module_id (@{$args{modules}}){
-        push @new_modules_ids, generate_id($id, $sub_module_id);
+        push @new_modules_ids, generate_module_id($id, $sub_module_id);
     }
     $args{modules} = \@new_modules_ids;
 
@@ -165,7 +165,7 @@ sub add_to_graph {
     my ($self, $module_id) = @_;
     my $modules = $ConfigPortalModules{clean_id($module_id)}{modules};
     foreach my $sub_module_id (@$modules){
-        my $u_sub_module_id = generate_id($module_id, $sub_module_id);
+        my $u_sub_module_id = generate_module_id($module_id, $sub_module_id);
         if(id_is_cyclic($u_sub_module_id)){
             die "Modules are cyclic which is not allowed. Detected on ID : $u_sub_module_id";
         }
