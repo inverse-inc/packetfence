@@ -345,7 +345,7 @@ Make the file path for the current profile
 
 sub _makeFilePath {
     my ($self, $c, @pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id}, @pathparts);
+    return catfile($captiveportal_profile_templates_path,$c->stash->{id}, @pathparts);
 }
 
 =head2 mergedPaths
@@ -627,7 +627,7 @@ sub sortEntry {
                 sortEntry($entry);
             }
         }
-        @$entries = sort { $a->{name} cmp $b->{name} } @$entries;
+        @$entries = sort {  $a->{type} eq $b->{type} ? $a->{name} cmp $b->{name} : $a->{type} cmp $b->{type} } @$entries;
     }
 }
 
@@ -654,7 +654,6 @@ sub makeFileInfo {
     return \%data;
 }
 
-
 =head2 revertableOrDeletable
 
 Checks to see if the file is deletable or revertable
@@ -665,7 +664,6 @@ sub revertableOrDeletable {
     my ($self, $path) = @_;
     return ( any { -f catfile($_,$path) } $self->parentPaths ) ? 'revert' : 'delete';
 }
-
 
 =head1 COPYRIGHT
 
@@ -691,4 +689,3 @@ USA.
 =cut
 
 1;
-
