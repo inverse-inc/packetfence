@@ -220,7 +220,6 @@ endif
 	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
-	dh_gencontrol
 ifeq ($(jessie),yes)
 	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl,libfile-fcntllock-perl,libhtml-formfu-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,dpkg-distribution'
 endif
