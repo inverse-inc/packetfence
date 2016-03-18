@@ -115,6 +115,7 @@ sub generateCommonConfig {
     $WAS_GENERATED = 1;
     my $logger = get_logger();
 
+    my $vars = $self->createVars();
     # injecting Web constants first
     my %tags = pf::web::constants::to_hash();
 
@@ -181,11 +182,10 @@ sub generateCommonConfig {
     parse_template( \%tags, "$conf_dir/httpd.conf.d/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
 
     # TODO we *could* do something smarter and process all of conf/httpd.conf.d/
-    my @config_files = ( 'captive-portal-common');
-    foreach my $config_file (@config_files) {
-        my $tt = Template->new(ABSOLUTE => 1);
-        $logger->info("generating $generated_conf_dir/$config_file");
-        $tt->process("$conf_dir/httpd.conf.d/$config_file.tt", \%tags, "$generated_conf_dir/$config_file") or die $tt->error();
+    my $config_file = "captive-portal-common";
+    my $tt = Template->new(ABSOLUTE => 1);
+    $logger->info("generating $generated_conf_dir/$config_file");
+    $tt->process("$conf_dir/httpd.conf.d/$config_file.tt", \%tags, "$generated_conf_dir/$config_file") or die $tt->error();
     }
 
     return 1;

@@ -106,11 +106,11 @@ DocumentRoot [% install_dir %]/html/parking
 
 DirectoryIndex index.html
 
-ErrorLog [% install_dir %]/logs/httpd.[% name %].error
+ErrorLog [% install_dir %]/logs/[% name %].error
 
 LogLevel warn
 
-CustomLog [% install_dir %]/logs/httpd.[% name %].access combined
+CustomLog [% install_dir %]/logs/[% name %].access combined
 
 ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 
