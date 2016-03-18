@@ -206,6 +206,7 @@ td a.btn { margin-left: 5px; }
       </table>
 
         <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Config::Profile').action_for('revert_all'),[id]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
+    </div>
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
