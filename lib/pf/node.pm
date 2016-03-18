@@ -939,7 +939,7 @@ sub node_register {
     if ( !pf::person::person_exist($pid) ) {
         $logger->info("creating person $pid because it doesn't exist");
         pf::person::person_add($pid);
-        pf::lookup::person::lookup_person($pid,$info{'source'});
+        pf::lookup::person::async_lookup_person($pid,$info{'source'});
 
     } else {
         $logger->debug("person $pid already exists");

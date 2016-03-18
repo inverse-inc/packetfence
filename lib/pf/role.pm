@@ -448,6 +448,7 @@ sub getRegisteredRole {
             } else {
                 $logger->debug("person $args->{'user_name'} already exists");
             }
+            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
