@@ -23,7 +23,7 @@ use POSIX::2008;
 use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
-use File::Path qw(make_path);
+use File::Path qw(make_path remove_tree);
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
@@ -79,6 +79,7 @@ BEGIN {
         validate_argv
         touch_file
         pf_make_dir
+        empty_dir
     );
 }
 
@@ -484,6 +485,18 @@ sub safe_file_update {
     }
     $temp->unlink_on_destroy(0);
     fix_file_permissions($file);
+}
+
+=item empty_dir
+
+Empty the contents of a directory
+
+=cut
+
+sub empty_dir {
+    my ($dir) = @_;
+    remove_tree( $dir, {keep_root => 1, result => \my $list} );
+    return $list;
 }
 
 =item fix_file_permissions(@files)
