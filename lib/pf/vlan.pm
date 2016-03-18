@@ -469,7 +469,6 @@ sub getNormalVlan {
             if ( !pf::person::person_exist($user_name) ) {
                 $logger->info("creating person $user_name because it doesn't exist");
                 pf::person::person_add($user_name);
-                pf::lookup::person::lookup_person($user_name,$source);
             } else {
                 $logger->debug("person $user_name already exists");
             }
