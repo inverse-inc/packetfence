@@ -48,7 +48,8 @@ Checks to see if the the LDAP connection is still alive
 sub expire_if {
     my ($self, $object, $driver) = @_;
     my $ldap = $object->value;
-    my $msg = $ldap->unbind;
+    my $msg = $ldap->bind;
+    return 1 if !defined $msg;
     return !defined $msg || $msg->is_error;
 }
 
