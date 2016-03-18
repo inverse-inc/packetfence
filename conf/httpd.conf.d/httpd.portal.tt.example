@@ -297,7 +297,7 @@ NameVirtualHost [% vhost %]:443
      ErrorLog [% install_dir %]/logs/[% name %].error
      CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
      [% IF apache_version == "2.4" %]
-     Include [% var_dir %]/conf/captive-portal-common2-4.conf
+     Include [% var_dir %]/conf/captive-portal-common24.conf
      [% ELSE %]
      Include [% var_dir %]/conf/captive-portal-common.conf
      [% END %]
@@ -373,7 +373,7 @@ NameVirtualHost [% vhost %]:443
      ErrorLog [% install_dir %]/logs/[% name %].error
      CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
      [% IF apache_version == "2.4" %]
-     Include [% var_dir %]/conf/captive-portal-common2-4.conf
+     Include [% var_dir %]/conf/captive-portal-common24.conf
      [% ELSE %]
      Include [% var_dir %]/conf/captive-portal-common.conf
      [% END %]
