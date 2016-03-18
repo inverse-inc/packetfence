@@ -128,7 +128,6 @@ Depends: ${misc:Depends}, vlan, make,
  dpkg-distribution,
 # Distribution specific
  ${packetfence:dist}
-Recommends:  freeradius (>= 3.0.10), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
