@@ -87,10 +87,10 @@
   </IfModule>
 </IfDefine>
 
-[% IF apache_version == "2.2" %]
-AcceptMutex posixsem
-[% ELSE %]
+[% IF apache_version == "2.4" %]
 Mutex posixsem default
+[% ELSE %]
+AcceptMutex posixsem
 [% END %]
 TypesConfig /etc/mime.types
 
