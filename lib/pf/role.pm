@@ -455,7 +455,6 @@ sub getRegisteredRole {
             if ( !pf::person::person_exist($args->{'user_name'}) ) {
                 $logger->info("creating person $args->{'user_name'} because it doesn't exist");
                 pf::person::person_add($args->{'user_name'});
-                pf::lookup::person::lookup_person($args->{'user_name'},$source);
             } else {
                 $logger->debug("person $args->{'user_name'} already exists");
             }
