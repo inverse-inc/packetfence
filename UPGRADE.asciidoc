@@ -57,6 +57,37 @@ With the changes made to RADIUS in the version 5.5, you will need to remove the 
   /usr/local/pf/raddb/sites-enabled/default
 
 
+Upgrading from a version prior to 6.0.0
+---------------------------------------
+
+THIS IS A DRAFT
+^^^^^^^^^^^^^^^
+
+Devices parking
+^^^^^^^^^^^^^^^
+
+The new registration devices parking requires that you add the following violation in `/usr/local/pf/conf/violations.conf`
+
+  [1300003]
+  priority=1
+  desc=Parking violation
+  max_enable=3
+  grace=10m
+  actions=log,reevaluate_access
+  enabled=Y
+  auto_enable=Y
+  vlan=registration
+  trigger=Internal::parking_detected
+
+Chained authentication
+^^^^^^^^^^^^^^^^^^^^^^
+
+The chained source has been deprecated in favor of a fully customizable flow in the captive portal.
+
+Make sure you delete the source *BEFORE* upgrading your installation.
+
+Once you upgrade, configure a portal module for each of your sources and a chained one that contains both. Refer to the administration guide for a detailed example.
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
