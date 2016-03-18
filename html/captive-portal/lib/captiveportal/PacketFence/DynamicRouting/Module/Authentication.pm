@@ -263,6 +263,7 @@ sub prompt_fields {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
+        title => $self->app->i18n_format("%s authentication", $self->source->type),
         %{$args},
     });
 }

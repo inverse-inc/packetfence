@@ -69,6 +69,7 @@ sub landing {
         source => $self->source,
         with_aup => $self->with_aup,
         form => $self->form,
+        title => $self->app->i18n_format("OAuth authentication %s", $self->id),
     });
 }
 

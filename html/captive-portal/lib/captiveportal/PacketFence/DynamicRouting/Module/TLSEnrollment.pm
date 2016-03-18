@@ -102,6 +102,7 @@ sub prompt_info {
 
     my $args = {
         certificate_pwd     => word(4,6),    
+        title => $self->app->i18n("Certificate generation"),
     };
 
     if( $certificate_email ) {

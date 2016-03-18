@@ -76,6 +76,7 @@ sub index {
         billing_tiers => $self->app->profile->billing_tiers,
         fields => $self->merged_fields,
         form => $self->form,
+        title => $self->app->i18n("Pay for your access"),
     });
 }
 
@@ -253,6 +254,7 @@ sub confirm {
         %{$data},
         billing => $billing,
         tier => $self->session->{tier},
+        title => $self->app->i18n("Tier confirmation"),
     });
 }
 

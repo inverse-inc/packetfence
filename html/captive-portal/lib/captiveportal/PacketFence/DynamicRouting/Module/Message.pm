@@ -34,6 +34,7 @@ sub execute_child {
         $self->render($self->template, {
             message => $self->message, 
             skipable => $self->skipable,
+            title => $self->description,
         });
     }
 }

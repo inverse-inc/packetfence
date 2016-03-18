@@ -173,6 +173,7 @@ sub _release_args {
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
+        title => $self->app->i18n("release: enabling network"),
     };
 }
 

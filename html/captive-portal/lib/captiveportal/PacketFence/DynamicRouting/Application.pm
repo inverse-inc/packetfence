@@ -44,6 +44,8 @@ has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
 
+has 'title' => (is => 'rw', isa => 'Str');
+
 # to cache the cache objects
 has 'cache_cache' => (is => 'rw', default => sub {{}});
 
@@ -345,6 +347,7 @@ sub render {
         content => $inner_content,
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
+        title => $self->title,
     };
     $args->{layout} //= $TRUE;
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
@@ -362,6 +365,10 @@ Render a template using Template Toolkit.
 
 sub _render {
     my ($self, $template, $args) = @_;
+
+    if(defined($args->{title})){
+        $self->title($args->{title});
+    }
 
     our $TT_OPTIONS = {
         AUTO_FILTER => 'html',
@@ -457,7 +464,7 @@ Create the template for an error
 
 sub error {
     my ($self, $message) = @_;
-    $self->render("error.html", {message => $message});
+    $self->render("error.html", {message => $message, title => $self->i18n("An error occured")});
 }
 
 =head2 empty_flash

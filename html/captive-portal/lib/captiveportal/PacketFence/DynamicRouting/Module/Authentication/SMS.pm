@@ -98,7 +98,7 @@ Prompt for the activation PIN
 
 sub prompt_pin {
     my ($self) = @_;
-    $self->render("sms/validate.html");
+    $self->render("sms/validate.html", {title => $self->app->i18n("Confirm Mobile Phone Number")});
 }
 
 =head2 validate_info
