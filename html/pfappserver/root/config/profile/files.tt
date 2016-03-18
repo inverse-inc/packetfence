@@ -205,9 +205,7 @@ td a.btn { margin-left: 5px; }
         </tbody>
       </table>
 
-      [% IF id != 'default' %]<div class="form-actions">
         <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Config::Profile').action_for('revert_all'),[id]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
-      </div>[% END %]
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->
