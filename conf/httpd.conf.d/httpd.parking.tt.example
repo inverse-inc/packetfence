@@ -46,6 +46,9 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_cgi.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_cgi.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -93,6 +96,9 @@
   </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_cgi.c>
+    LoadModule headers_module modules/mod_cgi.so
   </IfModule>
 </IfDefine>
 
