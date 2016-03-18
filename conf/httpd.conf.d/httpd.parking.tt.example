@@ -139,5 +139,11 @@ CustomLog [% install_dir %]/logs/httpd.parking.access combined
 ScriptAlias /cgi-bin/ "/usr/local/pf/html/parking/cgi-bin/"
 
 <Directory [% install_dir%]/html/parking/cgi-bin>
+  [% IF apache_version == "2.4" %]
+  Require granted all
+  [% ELSE %]
+  Allow from all
+  [% END %]
+</Directory>
 
 ErrorDocument 404 /index.html
