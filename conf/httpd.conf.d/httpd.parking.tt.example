@@ -29,7 +29,13 @@
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
   <IfModule !mod_cgi.c>
-    LoadModule headers_module /usr/lib/apache2/modules/mod_cgi.so
+    LoadModule cgi_module /usr/lib/apache2/modules/mod_cgi.so
+  </IfModule>
+  <IfModule !mod_dir.c>
+    LoadModule dir_module /usr/lib/apache2/modules/mod_dir.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
   </IfModule>
 </IfDefine>
 
@@ -52,6 +58,9 @@
       LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
     </IfModule>
   [% END %]
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module modules/mod_authz_host.so
+  </IfModule>
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
@@ -62,7 +71,10 @@
     LoadModule mime_module modules/mod_mime.so
   </IfModule>
   <IfModule !mod_cgi.c>
-    LoadModule headers_module modules/mod_cgi.so
+    LoadModule cgi_module modules/mod_cgi.so
+  </IfModule>
+  <IfModule !mod_dir.c>
+    LoadModule dir_module modules/mod_dir.so
   </IfModule>
 </IfDefine>
 
