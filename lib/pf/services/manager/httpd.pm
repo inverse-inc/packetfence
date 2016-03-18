@@ -186,7 +186,6 @@ sub generateCommonConfig {
     my $tt = Template->new(ABSOLUTE => 1);
     $logger->info("generating $generated_conf_dir/$config_file");
     $tt->process("$conf_dir/httpd.conf.d/$config_file.tt", \%tags, "$generated_conf_dir/$config_file") or die $tt->error();
-    }
 
     return 1;
 }
