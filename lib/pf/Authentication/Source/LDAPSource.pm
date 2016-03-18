@@ -552,7 +552,6 @@ sub search_attributes_in_subclass {
                   filter => "($self->{'usernameattribute'}=$username)"
     );
     my $entry = $searchresult->entry();
-    $connection->unbind();
 
     if (!$entry) {
         $logger->warn("Unable to locate user '$username'");
@@ -583,7 +582,6 @@ sub postMatchProcessing {
     my $cached_connection = $self->_cached_connection;
     if($cached_connection) {
         my ( $connection, $LDAPServer, $LDAPServerPort ) = @$cached_connection;
-        $connection->unbind;
         $self->_cached_connection(undef);
     }
 }
