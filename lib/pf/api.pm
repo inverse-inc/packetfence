@@ -680,7 +680,7 @@ our $ALLOWED_DELETED_PATHS = qr/^\Q$captiveportal_profile_templates_path\E\/[^\.
 
 =head2 directory_empty
 
-Empty a directory of all it's files
+Empty a directory of all its files
 
 =cut
 
