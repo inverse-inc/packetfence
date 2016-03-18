@@ -3065,6 +3065,28 @@ sub setSession {
     return $session_id;
 }
 
+=item getUrlByName
+
+Get the switch-specific url of a given global role in switches.conf
+
+=cut
+
+sub getUrlByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+    # skip if not defined or empty
+    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+
+    # return if found
+    return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
+    return;
+}
+
+
 =back
 
 =head1 AUTHOR
