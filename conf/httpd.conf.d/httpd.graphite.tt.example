@@ -3,21 +3,21 @@
     LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so
   </IfModule>
   [% IF apache_version == "2.4" %]
-  <IfModule !mod_unixd.c>
-    LoadModule unixd_module /usr/lib/apache2/modules/mod_unixd.so
-  </IfModule>
-  <IfModule !mod_authz_core.c>
-    LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
-  </IfModule>
-  <IfModule !mod_authn_core.c>
-    LoadModule authn_core_module /usr/lib/apache2/modules/mod_authn_core.so
-  </IfModule>
-  <IfModule !mod_socache_shmcb.c>
-    LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so
-  </IfModule>
-  <IfModule !prefork.c>
-    LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
-  </IfModule>
+    <IfModule !mod_unixd.c>
+      LoadModule unixd_module /usr/lib/apache2/modules/mod_unixd.so
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+      LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+    </IfModule>
+    <IfModule !mod_authn_core.c>
+      LoadModule authn_core_module /usr/lib/apache2/modules/mod_authn_core.so
+    </IfModule>
+    <IfModule !mod_socache_shmcb.c>
+      LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so
+    </IfModule>
+    <IfModule !prefork.c>
+      LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
+    </IfModule>
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
@@ -48,21 +48,21 @@
     LoadModule wsgi_module modules/mod_wsgi.so
   </IfModule>
   [% IF apache_version == "2.4" %]
-  <IfModule !mod_unixd.c>
-    LoadModule unixd_module modules/mod_unixd.so
-  </IfModule>
-  <IfModule !mod_authz_core.c>
-    LoadModule authz_core_module modules/mod_authz_core.so
-  </IfModule>
-  <IfModule !mod_authn_core.c>
-    LoadModule authn_core_module modules/mod_authn_core.so
-  </IfModule>
-  <IfModule !prefork.c>
-    LoadModule mpm_prefork_module modules/mod_mpm_prefork.so
-  </IfModule>
-  <IfModule !mod_socache_shmcb.c>
-    LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
-  </IfModule>
+    <IfModule !mod_unixd.c>
+      LoadModule unixd_module modules/mod_unixd.so
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+      LoadModule authz_core_module modules/mod_authz_core.so
+    </IfModule>
+    <IfModule !mod_authn_core.c>
+      LoadModule authn_core_module modules/mod_authn_core.so
+    </IfModule>
+    <IfModule !prefork.c>
+      LoadModule mpm_prefork_module modules/mod_mpm_prefork.so
+    </IfModule>
+    <IfModule !mod_socache_shmcb.c>
+      LoadModule socache_shmcb_module modules/mod_socache_shmcb.so
+    </IfModule>
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
