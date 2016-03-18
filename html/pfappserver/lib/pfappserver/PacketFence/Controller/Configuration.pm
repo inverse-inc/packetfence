@@ -118,7 +118,6 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
                 $status_msg = $results;
             }
         }
-        $c->log->info("status $status");
         if(is_error($status)) {
             $c->stash(
                 current_view => 'JSON',

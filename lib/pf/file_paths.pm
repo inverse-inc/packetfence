@@ -79,6 +79,9 @@ our (
     $admin_audit_log,
     $portal_modules_config_file,
     $portal_modules_default_config_file,
+    $captiveportal_templates_path,
+    $captiveportal_profile_templates_path,
+    $captiveportal_default_profile_templates_path,
 );
 
 BEGIN {
@@ -135,6 +138,9 @@ BEGIN {
         $admin_audit_log
         $portal_modules_config_file
         $portal_modules_default_config_file
+        $captiveportal_templates_path
+        $captiveportal_profile_templates_path
+        $captiveportal_default_profile_templates_path
     );
 }
 
@@ -211,6 +217,10 @@ $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
 $users_cert_dir = catdir( $html_dir, "captive-portal/certs");
+
+$captiveportal_templates_path = catdir ($install_dir,"html/captive-portal/templates");
+$captiveportal_profile_templates_path = catdir ($install_dir,"html/captive-portal/profile-templates");
+$captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_templates_path,"default");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(

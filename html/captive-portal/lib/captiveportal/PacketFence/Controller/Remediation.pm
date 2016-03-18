@@ -48,7 +48,7 @@ sub index : Path : Args(0) {
         my $class = class_view($vid);
 
         # Retrieve violation template name
-        my $template = $class->{'template'}; 
+        my $template = $class->{'template'};
 
         my $node_info = node_view($mac);
         $c->stash(
@@ -58,7 +58,7 @@ sub index : Path : Args(0) {
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)
         );
-        
+
         # Find the subtemplate
         my $langs = $c->forward(Root => 'getLanguages');
         my $paths = $c->forward('getTemplateIncludePath');
@@ -119,12 +119,7 @@ sub getViolation {
 
 sub getTemplateIncludePath : Private {
     my ($self, $c) = @_;
-    my $profile = $c->profile;
-    my @paths = ($CAPTIVE_PORTAL{'TEMPLATE_DIR'});
-    if ($profile->getName ne 'default') {
-        unshift @paths,catdir($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},trim_path($profile->getTemplatePath));
-    }
-    return \@paths;
+    return $c->profile->{_template_paths};
 }
 
 =head1 AUTHOR

@@ -36,8 +36,6 @@ sub build {
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
         "NET_DETECT_PENDING_RETRY_DELAY"   => 30,
         "TEMPLATE_DIR"                     => "$install_dir/html/captive-portal/templates",
-        "PROFILE_TEMPLATE_DIR"             => "$install_dir/html/captive-portal/profile-templates",
-        "ADMIN_TEMPLATE_DIR"               => "$install_dir/html/admin/templates",
     );
 
     # process pf.conf's parameter into an IP => 1 hash
@@ -45,8 +43,6 @@ sub build {
         = map { $_ => 1 } split( /\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'} );
     return \%CAPTIVE_PORTAL;
 }
-
-=back
 
 =head1 AUTHOR
 

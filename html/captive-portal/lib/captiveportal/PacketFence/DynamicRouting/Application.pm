@@ -230,9 +230,9 @@ sub detect_first_action {
     my ($self) = @_;
     if(defined($self->previous_module_id) && defined($self->current_module_id)
         && $self->previous_module_id ne $self->current_module_id){
-        $self->session->{action_made} = $TRUE;     
+        $self->session->{action_made} = $TRUE;
     }
-    $self->session->{action_made} //= $FALSE; 
+    $self->session->{action_made} //= $FALSE;
     return $self->session->{action_made};
 }
 
@@ -243,7 +243,7 @@ Processing that needs to occur before we execute the application
 =cut
 
 sub preprocessing {
-    my ($self) = @_; 
+    my ($self) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
     $self->process_user_agent();
     $self->process_destination_url();
@@ -294,7 +294,7 @@ sub current_ip {
 
 Destination URL handling
 
-Will compute it using the following logic : 
+Will compute it using the following logic :
 - Use the Destination URL specified as a param or the one stored in the session
 - Check if the profile requires a forced destination URL, in this case use the one of the profile
 - If there is no destination URL at this point, use the one from the portal
@@ -350,7 +350,7 @@ sub render {
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
 
     $self->template_output($content);
-   
+
     $self->empty_flash();
 }
 
@@ -362,9 +362,7 @@ Render a template using Template Toolkit.
 
 sub _render {
     my ($self, $template, $args) = @_;
-    
-    # this won't be needed once #1208 is merged
-    $self->profile->{_template_paths} = ["/usr/local/pf/html/captive-portal/templates"];
+
     our $TT_OPTIONS = {
         AUTO_FILTER => 'html',
         RELATIVE => 1,
@@ -378,10 +376,10 @@ sub _render {
         return $self->i18n(@_);
     };
     $args->{ i18n_format } = sub {
-        return $self->i18n_format(@_);  
+        return $self->i18n_format(@_);
     };
 
-    get_logger->info("previous : ".$self->previous_module_id.", current : ".$self->current_module_id);
+    get_logger->info("previous : ". ($self->previous_module_id // "undef") . ", current : " . ($self->current_module_id // "undef"));
     $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
     

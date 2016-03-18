@@ -81,7 +81,7 @@ td a.btn { margin-left: 5px; }
         [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
         <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Config::Profile').action_for('copy_file'), [ id ], paths ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
         [%- IF entry.delete_or_revert == 'revert' %]
-            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Config::Profile').action_for("revert_file"), [ id ], paths ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] disabled[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Config::Profile').action_for("revert_file"), [ id ], paths ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
         [%- ELSE %]
             <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Config::Profile').action_for("delete_file"), [ id ], paths ) %]" title="[% l('Delete') %]"> <i class="icon-trash icon-border"></i></a>
         [%- END %]
@@ -205,9 +205,9 @@ td a.btn { margin-left: 5px; }
         </tbody>
       </table>
 
-      [% IF id != 'default' %]<div class="form-actions">
+    <div class="form-actions">
         <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Config::Profile').action_for('revert_all'),[id]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
-      </div>[% END %]
+    </div>
 
     </div><!-- #files pane -->
   </div><!-- .tab-content -->

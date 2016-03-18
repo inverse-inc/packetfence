@@ -219,22 +219,17 @@ Call an API method on each member of the cluster
 =cut
 
 sub api_call_each_server {
-    my ($asynchronous, $api_method, %api_args) = @_;
+    my ($asynchronous, $api_method, @api_args) = @_;
 
     require pf::api::jsonrpcclient;
     my @failed;
+    my $method = $asynchronous ? "notify" : "call";
     foreach my $server (@cluster_servers){
         next if($server->{host} eq $host_id);
         my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
         eval {
             pf::log::get_logger->info("Calling $api_method on $server->{host}");
-            my $result;
-            unless($asynchronous){
-                ($result) = $apiclient->call($api_method, %api_args );
-            }
-            else {
-                ($result) = $apiclient->notify($api_method, %api_args );
-            }
+            my ($result) = $apiclient->$method($api_method, @api_args);
         };
         if($@){
             pf::log::get_logger->error("Failed to call $api_method . $@");
@@ -265,6 +260,25 @@ sub sync_files {
     }
     return \@failed;
 }
+
+
+=head2 sync_file_deletes
+
+Sync files that were deleted
+
+=cut
+
+sub sync_file_deletes {
+    my ($files, %options) = @_;
+    unless($cluster_enabled){
+        get_logger->trace("Won't sync files because we're not in a cluster");
+        return [];
+    }
+    my @failed;
+    push @failed, @{api_call_each_server($options{async}, 'delete_files', $files)};
+    return \@failed;
+}
+
 
 =head2 send_dir_copy
 
@@ -329,6 +343,21 @@ sub is_vip_running {
         }
     }
     return $FALSE;
+}
+
+=head2 sync_directory_empty
+
+=cut
+
+sub sync_directory_empty {
+    my ($dir, %options) = @_;
+    unless($cluster_enabled){
+        get_logger->trace("Won't sync files because we're not in a cluster");
+        return [];
+    }
+    my @failed;
+    push @failed, @{api_call_each_server($options{async}, 'directory_empty', $dir)};
+    return \@failed;
 }
 
 =head1 AUTHOR

@@ -23,6 +23,7 @@ use POSIX::2008;
 use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
+use File::Path qw(make_path remove_tree);
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
@@ -77,6 +78,8 @@ BEGIN {
         whowasi
         validate_argv
         touch_file
+        pf_make_dir
+        empty_dir
     );
 }
 
@@ -470,6 +473,7 @@ sub safe_file_update {
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
+    pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
     syswrite $temp, $contents;
     $temp->flush;
@@ -481,6 +485,18 @@ sub safe_file_update {
     }
     $temp->unlink_on_destroy(0);
     fix_file_permissions($file);
+}
+
+=item empty_dir
+
+Empty the contents of a directory
+
+=cut
+
+sub empty_dir {
+    my ($dir) = @_;
+    remove_tree( $dir, {keep_root => 1, result => \my $list} );
+    return $list;
 }
 
 =item fix_file_permissions(@files)
@@ -1205,6 +1221,25 @@ sub touch_file {
     else {
         get_logger->error("Can't create/open $filename\nPlease run 'pfcmd fixpermissions'");
     }
+}
+
+=item pf_make_dir
+
+Make a directory with the proper permissions
+
+=cut
+
+sub pf_make_dir {
+    my ($dir_path) = @_;
+    umask 0;
+    return make_path(
+        $dir_path,
+        {
+            user => $pf::constants::user::PF_UID,
+            group => $pf::constants::user::PF_GID,
+            mode => 02775,
+        }
+    );
 }
 
 =back
