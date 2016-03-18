@@ -17,7 +17,6 @@ use Apache2::RequestUtil ();
 use Apache2::ServerRec;
 use Apache2::URI ();
 use Apache2::Util ();
-use Apache::SSLLookup ();
 
 use APR::Table;
 use APR::URI;

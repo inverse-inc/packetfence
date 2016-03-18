@@ -113,6 +113,7 @@ PerlSwitches -I[% install_dir %]/html/captive-portal/lib
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/captiveportal_modperl_require.pl
+PerlModule Apache::SSLLookup
 PerlLoadModule captiveportal
 PerlLoadModule pf::web::dispatcher
 PerlLoadModule pf::WebAPI::InitHandler
