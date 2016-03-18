@@ -947,8 +947,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/haproxy.conf
                         /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
-%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common24.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
+%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
