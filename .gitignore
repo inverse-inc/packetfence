@@ -111,6 +111,8 @@ conf/httpd.conf.d/httpd.admin.tt
 conf/httpd.conf.d/httpd.graphite.tt
 conf/httpd.conf.d/httpd.proxy.tt
 conf/httpd.conf.d/httpd.webservices.tt
+conf/httpd.conf.d/httpd.portal.tt
+conf/httpd.conf.d/httpd.parking.tt
 conf/templates/emails-billing_confirmation.txt.tt
 conf/templates/emails-guest_admin_pregistration.txt.tt
 conf/templates/emails-guest_email_activation.txt.tt
