@@ -77,7 +77,7 @@
 
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
-PerlPostConfigRequire [% install %]/lib/pf/web/[% name %]_modperl_require.pl
+PerlPostConfigRequire [% install_dir %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI
 PerlLoadModule pf::WebAPI::InitHandler
 PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
