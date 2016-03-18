@@ -954,6 +954,7 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt.example
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.parking
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
@@ -1056,10 +1057,15 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/t
                         /usr/local/pf/html/captive-portal/t/*
                         /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
+                        /usr/local/pf/html/captive-portal/content/new-styles.css
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
+                        /usr/local/pf/html/parking/back-on-network.html
+                        /usr/local/pf/html/parking/cgi-bin/release.pl
+                        /usr/local/pf/html/parking/index.html
+                        /usr/local/pf/html/parking/max-attempts.html
                         /usr/local/pf/html/pfappserver/
 %config(noreplace)      /usr/local/pf/html/pfappserver/pfappserver.conf
 %config(noreplace)      /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Admin.pm
