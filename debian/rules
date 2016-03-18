@@ -221,7 +221,7 @@ endif
 	dh_installdeb
 	dh_shlibdeps
 ifeq ($(jessie),yes)
-	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl,libfile-fcntllock-perl,libhtml-formfu-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,dpkg-distribution'
+	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl,libfile-fcntllock-perl,libhtml-formhandler-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python-twisted-bin,python-twisted-core,libconfig-inifiles-perl,dpkg-distribution'
 endif
 ifneq (,$(filter yes,$(wheezy) $(precise)))
 	dh_gencontrol -- '-Vpacketfence:dist=libscalar-list-utils-perl (>= 1.42),apache2.2-common,libhtml-formhandler-perl (=0.40013-2),libjson-xs-perl (>= 3),libmoo-perl (=1.004002-1),libnet-dns-perl (=0.66-3),freeradius-utils (>=3.0),python-twisted-bin (<=13.0), python-twisted-core (<=13.0),libconfig-inifiles-perl (>= 2.88),dpkg-distribution'
