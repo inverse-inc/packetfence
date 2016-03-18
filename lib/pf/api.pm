@@ -357,7 +357,7 @@ sub ReAssignVlan : Public : Fork {
     }
 }
 
-=item
+=head2 ReAssignVlan_in_queue
 
 ReAssignVlan_in_queue is use to localy use ReAssignVlan function in pfqueue to get rid of perl modules that crashed apache
 
@@ -392,7 +392,7 @@ sub desAssociate : Public : Fork {
     $switch->$deauthTechniques($postdata{'mac'});
 }
 
-=item
+=head2 desAssociate_in_queue
 
 desAssociate is use to localy use desAssociate function in pfqueue to get rid of perl modules that crashed apache
 
@@ -674,6 +674,38 @@ sub distant_download_configfile : Public {
     return 1;
 }
 
+our $ALLOWED_PATHS_TO_BE_EMPTIED = qr/^\Q$captiveportal_profile_templates_path\E\/[^\.]/;
+
+our $ALLOWED_DELETED_PATHS = qr/^\Q$captiveportal_profile_templates_path\E\/[^\.]/;
+
+=head2 directory_empty
+
+Empty a directory of all it's files
+
+=cut
+
+sub directory_empty : Public {
+    my ($class, $dir) = @_;
+    die "$dir has invalid characters " if $dir =~ /(\.\.)/;
+    die "$dir is not allowed to be empty" unless $dir =~ $ALLOWED_PATHS_TO_BE_EMPTIED;
+    pf::util::empty_dir($dir);
+}
+
+=head2 delete_files
+
+Delete files
+
+=cut
+
+sub delete_files : Public {
+    my ($class, $files) = @_;
+    foreach my $file (@$files) {
+        die "$file has invalid characters " if $file =~ /(\.\.)/;
+        die "$file is not allowed to be deleted" unless $file =~ $ALLOWED_DELETED_PATHS;
+    }
+    unlink(@$files);
+}
+
 sub expire_cluster : Public {
     my ($class, %postdata) = @_;
     my @require = qw(namespace conf_file);
@@ -946,7 +978,7 @@ sub dynamic_register_node : Public {
     my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
-    my @sources = $profile->getUserSources($postdata{'username'}, $postdata{'realm'}); 
+    my @sources = $profile->getUserSources($postdata{'username'}, $postdata{'realm'});
     my $stripped_user = '';
 
     my $params = {
@@ -1083,7 +1115,7 @@ sub process_dhcp : Public {
     my @require = qw(src_mac src_ip dest_mac dest_ip is_inline_vlan interface interface_ip interface_vlan net_type udp_payload_b64);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
-    
+
     $postdata{udp_payload} = MIME::Base64::decode($postdata{udp_payload_b64});
     pf::dhcp::processor->new(%postdata)->process_packet();
 
@@ -1172,7 +1204,7 @@ sub metascan_process : Public {
     return if !defined($metascan_scan_result_id);
 
     my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
-    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );    
+    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );
 }
 
 sub rest_ping :Public :RestPath(/rest/ping){
@@ -1186,13 +1218,13 @@ RADIUS authorize method that uses REST
 
 =cut
 
-sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) { 
+sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     my ($class, $radius_request) = @_;
     my $logger = pf::log::get_logger();
-    
+
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
-    my $return = $class->radius_authorize(%remapped_radius_request); 
+    my $return = $class->radius_authorize(%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
@@ -1206,13 +1238,13 @@ RADIUS switch authorize method that uses REST
 
 =cut
 
-sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) { 
+sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
     my ($class, $radius_request) = @_;
     my $logger = pf::log::get_logger();
-    
+
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
 
-    my $return = $class->radius_switch_access(%remapped_radius_request); 
+    my $return = $class->radius_switch_access(%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);

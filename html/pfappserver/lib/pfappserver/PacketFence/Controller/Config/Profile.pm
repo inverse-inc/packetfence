@@ -337,28 +337,6 @@ sub add_fake_profile_data {
     }
 }
 
-=head2 _makePreviewTemplate
-
-A helper function for creating the template to be viewed
-
-=cut
-
-sub _makePreviewTemplate {
-    my ($self, $c, @pathparts) = @_;
-    my $template;
-    if ($pathparts[0] eq 'violations') {
-        $template = 'remediation.html';
-    } else {
-        my $file_content = read_file($self->_makeFilePath($c,@pathparts));
-        $file_content =~ s/
-            \[%\s*INCLUDE\s+\$[a-zA-Z_][a-zA-Z0-9_]+\s*%\]/
-         <div>Your included template here<\/div>
-        /x;
-        $template = \$file_content;
-    }
-    return $template;
-}
-
 =head2 _makeFilePath
 
 Make the file path for the current profile
@@ -389,17 +367,6 @@ Return the parent paths
 
 sub parentPaths {
     return ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
-}
-
-=head2 _makeDefaultFilePath
-
-Create the path of the standard packetfence temnplate
-
-=cut
-
-sub _makeDefaultFilePath {
-    my ($self, $c, @pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
 }
 
 =head2 delete_file
@@ -434,6 +401,7 @@ sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c, @pathparts);
     unlink($file_path);
+    $self->_sync_revert_file($file_path);
 }
 
 =head2 files
@@ -537,33 +505,12 @@ sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES
     my ($self,$c) = @_;
 
     $c->stash->{current_view} = 'JSON';
-    if($cluster_enabled){
-        $c->response->status(HTTP_NOT_IMPLEMENTED);
-        $c->stash->{status_msg} = "Cannot revert all files in cluster mode. Please use the command line to copy the files from the default profile or revert files individually.";
-        $c->detach;
-    }
+    my $dir = $self->_makeFilePath($c);
+    my $list = empty_dir($dir);
+    $self->_sync_revert_all($dir);
 
-    my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
-
-    my $status_msg = "Copied " . ($local_result->{entries_copied} - $local_result->{dir_copied}) . " files";
+    my $status_msg = "Reverted " . scalar @$list  . " files";
     $c->stash->{status_msg} = $status_msg;
-}
-
-=head2 copyDefaultFiles
-
-Copy the standard packetfence to the profile
-
-=cut
-
-sub copyDefaultFiles {
-    my ($self, $c) = @_;
-    my $to_dir = $self->_makeFilePath($c);
-    my $from_dir = $self->_makeDefaultFilePath($c);
-    my $local_result = {};
-    ($local_result->{entries_copied}, $local_result->{dir_copied}, undef) = dircopy($from_dir, $to_dir);
-    my $failed_syncs = pf::cluster::send_dir_copy($from_dir, $to_dir);
-
-    return ($local_result, $failed_syncs);
 }
 
 =head2 _sync_file
@@ -580,6 +527,44 @@ sub _sync_file {
         if(@$failed){
             $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
             $c->stash->{status_msg} = "Failed to sync file on ".join(', ', @$failed);
+            return $FALSE;
+        }
+    }
+    return $TRUE;
+}
+
+=head2 _sync_revert_all
+
+=cut
+
+sub _sync_revert_all {
+    my ($self, $c, $dir) = @_;
+    if ($cluster_enabled) {
+        my $id = $c->stash->{id};
+        $c->log->info("Synching revert of profile '$id' in cluster");
+        my $failed = pf::cluster::sync_directory_empty($dir);
+        if (@$failed) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to revert profile $id on " . join(', ', @$failed);
+            return $FALSE;
+        }
+    }
+    return $TRUE;
+}
+
+=head2 _sync_revert_file
+
+=cut
+
+sub _sync_revert_file {
+    my ($self, $c, $file) = @_;
+    if ($cluster_enabled) {
+        my $id = $c->stash->{id};
+        $c->log->info("Synching revert of file '$file' profile '$id' in cluster");
+        my $failed = pf::cluster::sync_file_deletes([$file]);
+        if (@$failed) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to revert profile $id on " . join(', ', @$failed);
             return $FALSE;
         }
     }
