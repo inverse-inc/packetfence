@@ -136,7 +136,7 @@ LogLevel warn
 
 CustomLog [% install_dir %]/logs/httpd.parking.access combined
 
-ScriptAlias /cgi-bin/ "/usr/local/pf/html/parking/cgi-bin/"
+ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 
 <Directory [% install_dir%]/html/parking/cgi-bin>
   [% IF apache_version == "2.4" %]
