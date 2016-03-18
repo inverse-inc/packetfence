@@ -345,7 +345,6 @@ sub render {
         content => $inner_content,
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
-        current_module => $self->current_module,
     };
     $args->{layout} //= $TRUE;
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
@@ -385,6 +384,9 @@ sub _render {
     get_logger->info("previous : ".$self->previous_module_id.", current : ".$self->current_module_id);
     $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
+    
+    # Expose current module in all templates
+    $args->{current_module} = $self->current_module;
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';

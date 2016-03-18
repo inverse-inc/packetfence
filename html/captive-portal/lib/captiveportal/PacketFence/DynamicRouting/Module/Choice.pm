@@ -64,7 +64,7 @@ Render the template surrounded by choices to switch between the different availa
 
 sub render_choice {
     my ($self, $inner_content) = @_;
-    $self->SUPER::render($self->template, {content => $inner_content, modules => [grep {$_->display} $self->all_modules], current_module => $self->current_module});
+    $self->SUPER::render($self->template, {content => $inner_content, modules => [grep {$_->display} $self->all_modules], mod_manager_current_module => $self->current_module});
 }
 
 =head2 default_behavior
