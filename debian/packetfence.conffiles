@@ -122,7 +122,6 @@
 /usr/local/pf/html/captive-portal/templates/billing/confirm_Stripe.html
 /usr/local/pf/html/captive-portal/templates/billing/confirm_Mirapay.html
 /usr/local/pf/html/captive-portal/templates/billing/tier.html
-/usr/local/pf/html/captive-portal/templates/billing/billing.html
 /usr/local/pf/html/captive-portal/templates/signin.html
 /usr/local/pf/html/captive-portal/templates/message.html
 /usr/local/pf/html/captive-portal/templates/content-with-choice.html
