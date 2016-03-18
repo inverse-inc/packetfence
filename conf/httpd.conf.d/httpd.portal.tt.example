@@ -246,16 +246,12 @@ NameVirtualHost [% vhost %]:443
      PerlModule  captiveportal
      PerlTransHandler pf::web::dispatcher::custom
      <Location / >
-         Order deny,allow
-         Deny from all
-         Allow from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
+         Allow from all 
          SetHandler modperl
          PerlResponseHandler captiveportal
      </Location>
      <Location /static >
-         Order deny,allow
-         Deny from all
-         Allow from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
+         Allow from all 
          SetHandler default-handler
      </Location>
      <Location /common >
@@ -272,8 +268,6 @@ NameVirtualHost [% vhost %]:443
      </Location>
      [% IF captiveportal.status_only_on_production %]
      <Location /status >
-        Order allow,deny
-        Deny from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
         Allow from all
         SetHandler modperl
         PerlResponseHandler captiveportal
@@ -300,16 +294,12 @@ NameVirtualHost [% vhost %]:443
      PerlModule  captiveportal
      PerlTransHandler pf::web::dispatcher::custom
      <Location / >
-         Order deny,allow
-         Deny from all
-         Allow from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
+         Allow from all
          SetHandler modperl
          PerlResponseHandler captiveportal
      </Location>
      <Location /static >
-         Order deny,allow
-         Deny from all
-         Allow from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
+         Allow from all
          SetHandler default-handler
      </Location>
      <Location /common >
@@ -326,8 +316,6 @@ NameVirtualHost [% vhost %]:443
      </Location>
      [% IF status_only_on_production %]
      <Location /status >
-        Order allow,deny
-        Deny from [% routedNets %] [% loadbalancersIp %] 127.0.0.1 
         Allow from all
         SetHandler modperl
         PerlResponseHandler captiveportal
