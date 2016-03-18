@@ -90,7 +90,7 @@ sub supportsExternalPortal { return $TRUE; }
 sub supportsMABFloatingDevices { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsUrlBasedEnfoecement { return $TRUE }
+sub supportsUrlBasedEnforcement { return $TRUE }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
