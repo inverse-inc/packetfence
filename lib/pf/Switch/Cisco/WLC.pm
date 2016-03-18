@@ -103,6 +103,7 @@ use strict;
 use warnings;
 
 use Net::SNMP;
+use Try::Tiny;
 
 use base ('pf::Switch::Cisco');
 
