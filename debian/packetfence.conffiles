@@ -41,13 +41,15 @@
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy.conf
-/usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+/usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
 /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
 /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
+/usr/local/pf/conf/httpd.conf.d/httpd.parking.tt
+/usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.admin.tt
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/iptables.conf

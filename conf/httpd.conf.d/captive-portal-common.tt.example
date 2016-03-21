@@ -2,14 +2,16 @@
 # This file is manipulated on PacketFence's startup before being given to Apache
 
 # Aliases
-%%aliases%%
+[% aliases %]
 
 # Access control
 # Restrict everything except networks defined in pf's configuration (except other Location exception below)
-<DirectoryMatch "%%install_dir%%/html/captive-portal">
-  Order deny,allow
-  Deny from all
-  allow from %%routed-nets%% %%load_balancers%% 127.0.0.1
+<DirectoryMatch [% install_dir %]/html/captive-portal>
+  [% IF apache_version == "2.4" %]
+  Require all granted
+  [% ELSE %]
+  Allow from all
+  [% END %]
 </DirectoryMatch>
 
 # Allowed from everywhere
@@ -17,12 +19,16 @@
 # with a | first but not after). It is built depending on the features activated.
 # /signup and /preregister open only if pre-registration
 # /activate/email on sponsor and email guest modes 
-<Location ~ "/content/%%allowed_from_all_urls%%">
+<Location ~ /content/[% allowed_from_all_urls %]>
+  [% IF apache_version == "2.4" %]
+  Require all granted
+  [% ELSE %]
   Allow from all
+  [% END %]
 </Location>
 
 # Perl config
-PerlPostConfigRequire %%install_dir%%/lib/pf/web/captiveportal_modperl_require.pl
+PerlPostConfigRequire [% install_dir %]/lib/pf/web/captiveportal_modperl_require.pl
 
 # mod_perl handlers are virtually assigned to /perl/
 PerlModule pf::web::dispatcher
@@ -39,4 +45,3 @@ PerlTransHandler pf::web::dispatcher::custom
 RewriteEngine On
 #RewriteLogLevel 3
 #RewriteLog %%install_dir%%/logs/rewrite_log
-
