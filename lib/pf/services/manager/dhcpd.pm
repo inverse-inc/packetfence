@@ -177,7 +177,7 @@ Generate the omapi section if it is defined
 
 sub omapi_section {
     my $omapi_section = $Config{omapi};
-    return '"# OMAPI is not enabled on this server' unless pf::config::is_omapi_enabled;
+    return '# OMAPI is not enabled on this server' unless pf::config::is_omapi_enabled;
     my $section = "omapi-port $omapi_section->{port};\n";
     my $keyname = $omapi_section->{key_name};
     my $key_base64 = $omapi_section->{key_base64};
