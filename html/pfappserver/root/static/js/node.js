@@ -100,7 +100,6 @@ var NodeView = function(options) {
         /* Disable checked columns from import tab since they are required */
         $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
     });
-
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
 
     this.proxyFor(body, 'saved_search.loaded', 'form[name="advancedNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
@@ -108,7 +107,6 @@ var NodeView = function(options) {
     this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".name"]', this.changeSearchFieldKeep);
 
     this.proxyFor(body, 'saved_search.loaded', 'form[name="simpleNodeSearch"] [name$=".op"]', this.changeOpFieldKeep);
-
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -583,7 +581,7 @@ NodeView.prototype.handleChangeSearchField = function(e, keep) {
         op_input_template = $('#default_op');
     }
     if (op_input_template.length) {
-        changeInputFromTemplate(op_input, op_input_template);
+        changeInputFromTemplate(op_input, op_input_template, keep);
     }
     var value_template_id = '#' + search_type + "_value";
     var value_template = $(value_template_id);
