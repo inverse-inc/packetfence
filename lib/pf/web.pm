@@ -59,6 +59,7 @@ use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;
+use utf8;
 
 =head1 SUBROUTINES
 
@@ -71,7 +72,15 @@ Warning: The list of subroutine is incomplete
 sub i18n {
     my $msgid = shift;
 
-    return gettext($msgid);
+    if(ref($msgid) eq "ARRAY"){
+        my @infos = @$msgid;
+        my $id = shift @infos;
+        return i18n_format($id, @infos);
+    }
+
+    my $result = gettext($msgid);
+    utf8::decode($result);
+    return $result;
 }
 
 sub ni18n {
@@ -79,7 +88,9 @@ sub ni18n {
     my $plural = shift;
     my $category = shift;
 
-    return ngettext($singular, $plural, $category);
+    my $result = ngettext($singular, $plural, $category);
+    utf8::decode($result);
+    return $result;
 }
 
 =item i18n_format
@@ -93,7 +104,9 @@ Meant to be called from the TT templates.
 sub i18n_format {
     my ($msgid, @args) = @_;
 
-    return sprintf(gettext($msgid), @args);
+    my $result = sprintf(gettext($msgid), @args);
+    utf8::decode($result);
+    return $result;
 }
 
 =item render_template

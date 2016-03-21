@@ -41,7 +41,7 @@ sub index : Path : Args(0) {
         $c->forward('userIsNotAuthenticated');
     }
     $c->stash(
-        title => i18n("State - Network Access"),
+        title => "State - Network Access",
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
     );

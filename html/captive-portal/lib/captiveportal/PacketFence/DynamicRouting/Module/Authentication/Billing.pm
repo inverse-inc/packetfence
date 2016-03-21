@@ -76,7 +76,7 @@ sub index {
         billing_tiers => $self->app->profile->billing_tiers,
         fields => $self->merged_fields,
         form => $self->form,
-        title => $self->app->i18n("Pay for your access"),
+        title => "Pay for your access",
     });
 }
 
@@ -96,7 +96,7 @@ sub cancel {
     if ($@) {
         get_logger->error($@);
     }
-    $self->app->flash->{notice} = $self->app->i18n('Order was canceled');
+    $self->app->flash->{notice} = 'Order was canceled';
     $self->index();
 }
 
@@ -121,7 +121,7 @@ sub verify {
     };
     if ($@) {
         get_logger->error($@);
-        $self->app->flash->{billing_error} = $self->app->i18n("Unable to process payment");
+        $self->app->flash->{billing_error} = "Unable to process payment";
         $self->index();
         return 0;
     }
@@ -210,7 +210,7 @@ sub find_source {
     my $billing;
     $billing = first {$_->id eq $source_id} @{$self->sources};
     unless ($billing) {
-        $self->app->flash->{error} = $self->app->i18n("Your session has expired cannot access billing try again");
+        $self->app->flash->{error} = "Your session has expired cannot access billing try again";
         return 0;
     }
     $self->source($billing);
@@ -243,7 +243,7 @@ sub confirm {
     };
     if ($@) {
         get_logger->error($@);
-        $self->app->flash->{error} = $self->app->i18n("An error occured while preparing the request to the external provider");
+        $self->app->flash->{error} = "An error occured while preparing the request to the external provider";
         $self->index();
         return;
     }
@@ -254,7 +254,7 @@ sub confirm {
         %{$data},
         billing => $billing,
         tier => $self->session->{tier},
-        title => $self->app->i18n("Tier confirmation"),
+        title => "Tier confirmation",
     });
 }
 
@@ -272,7 +272,7 @@ sub validate {
     if($source_param =~ /^billing_source_(.*)/) {
         return $self->index() unless($self->find_source($1));
     } else {
-        $self->app->flash->{error} = $self->app->i18n("Invalid billing source for profile");
+        $self->app->flash->{error} = "Invalid billing source for profile";
         $self->index();
         return 0;
     }
@@ -281,7 +281,7 @@ sub validate {
     my $selected_tier = $request->param('tier');
     unless ($selected_tier) {
         get_logger->error("No Tier selected");
-        $self->app->flash->{error} = $self->app->i18n("No Tier selected");
+        $self->app->flash->{error} = "No Tier selected";
         $self->index();
         return 0;
     }
@@ -289,7 +289,7 @@ sub validate {
     my $tier = $self->app->profile->getBillingTier($selected_tier);
     unless ($tier) {
         get_logger->error("Selected Tier is invalid");
-        $self->app->flash->{error} = $self->app->i18n("Selected Tier is invalid");
+        $self->app->flash->{error} = "Selected Tier is invalid";
         $self->index();
         return 0;
     }

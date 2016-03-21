@@ -121,7 +121,7 @@ sub execute_actions {
 
     unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
         get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
-        $self->app->flash->{error} = $self->app->i18n("You do not have permission to register a device with this username");
+        $self->app->flash->{error} = "You do not have permission to register a device with this username";
         return $FALSE;        
     }
 
@@ -263,7 +263,7 @@ sub prompt_fields {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
-        title => $self->app->i18n_format("%s authentication", $self->source->type),
+        title => defined($self->source) ? [ "%s authentication", $self->source->type ] : "Authentication",
         %{$args},
     });
 }

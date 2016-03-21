@@ -48,7 +48,7 @@ SAML index
 
 sub index {
     my ($self) = @_;
-    $self->render("saml.html", {source => $self->source, title => $self->app->i18n("SAML authentication")});
+    $self->render("saml.html", {source => $self->source, title => "SAML authentication"});
 }
 
 =head2 redirect

@@ -14,6 +14,7 @@ use Moose;
 extends 'HTML::FormHandler::I18N';
 
 use Locale::gettext qw(gettext ngettext);
+use pf::web ();
 
 =head2 handle_posted_fields
 
@@ -27,54 +28,11 @@ sub maketext {
     my @args = @_;
     $args[0] =~ s/\[\_.+?\]/\%s/g;
     if(@args > 1){
-        return $self->i18n_format(@args);
+        return pf::web::i18n_format(@args);
     }
     else {
-        return $self->i18n(@args);
+        return pf::web::i18n(@args);
     }
-}
-
-=head2 i18n
-
-Internationalize a string without arguments
-
-=cut
-
-sub i18n {
-    my ( $self, $msgid ) = @_;
-
-    my $msg = gettext($msgid);
-    utf8::decode($msg);
-
-    return $msg;
-}
-
-=head2 ni18n
-
-Internationalize a string which can be plural or singular
-
-=cut
-
-sub ni18n {
-    my ( $self, $singular, $plural, $category ) = @_;
-
-    my $msg = ngettext( $singular, $plural, $category );
-    utf8::decode($msg);
-
-    return $msg;
-}
-
-=head2 i18n_format
-
-Pass message id through gettext then sprintf it.
-
-=cut
-
-sub i18n_format {
-    my ( $self, $msgid, @args ) = @_;
-    my $msg = sprintf( gettext($msgid), @args );
-    utf8::decode($msg);
-    return $msg;
 }
 
 =head1 AUTHOR

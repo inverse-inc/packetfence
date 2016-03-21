@@ -83,7 +83,7 @@ sub index : Path : Args(0) {
         $logger->info("Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
-            'title'        => i18n('violation: quarantine established'),
+            'title'        => 'violation: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
             map { $_ => $node_info->{$_} }

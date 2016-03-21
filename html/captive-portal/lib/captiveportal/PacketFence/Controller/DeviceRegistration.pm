@@ -61,15 +61,15 @@ sub index : Path : Args(0) {
             # Register device
             $c->forward('registerNode', [ $pid, $device_mac, $device_type ]);
             unless ($c->has_errors) {
-                $c->stash(status_msg  => i18n_format("The MAC address %s has been successfully registered.", $device_mac));
+                $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
                 $c->detach('landing');
             }
         } else {
-            $c->stash(txt_auth_error => i18n_format("Please verify the provided MAC address."));
+            $c->stash(txt_auth_error => "Please verify the provided MAC address.");
         }
     }
     # User is authenticated so display registration page
-    $c->stash(title => i18n("Registration"), template => 'device-registration/registration.html');
+    $c->stash(title => "Registration", template => 'device-registration/registration.html');
 }
 
 =head2 gaming_registration
@@ -119,12 +119,12 @@ sub login : Local : Args(0) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
     }
-    $c->stash( title => i18n("Login"), template => 'device-registration/login.html' );
+    $c->stash( title => "Login", template => 'device-registration/login.html' );
 }
 
 sub landing : Local : Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash( title => i18n("Device registration landing"), template => 'device-registration/landing.html' );
+    $c->stash( title => "Device registration landing", template => 'device-registration/landing.html' );
 }
 
 sub registerNode : Private {

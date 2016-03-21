@@ -84,7 +84,7 @@ sub show_provisioning {
     my $args = {
         provisioner => $self->get_provisioner, 
         skipable => isenabled($self->skipable), 
-        title => $self->i18n_format("Provisioning : %s",$self->get_provisioner->id),
+        title => ["Provisioning : %s",$self->get_provisioner->id],
     };
     $self->render($self->get_provisioner->template, $args);
 }

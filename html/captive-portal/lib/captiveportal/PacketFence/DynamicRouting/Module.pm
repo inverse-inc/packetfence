@@ -173,7 +173,7 @@ sub _release_args {
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
-        title => $self->app->i18n("release: enabling network"),
+        title => "release: enabling network",
     };
 }
 
@@ -260,7 +260,7 @@ sub done {
     unless($self->execute_actions()){
         get_logger->warn("Execute actions of module ".$self->id." did not succeed.");
         # we give a generic message if there is none in the flash error
-        $self->app->flash->{error} = $self->app->i18n("Could not execute actions.") unless($self->app->flash->{error});
+        $self->app->flash->{error} = "Could not execute actions." unless($self->app->flash->{error});
         $self->app->redirect("/captive-portal");
         return;
     }

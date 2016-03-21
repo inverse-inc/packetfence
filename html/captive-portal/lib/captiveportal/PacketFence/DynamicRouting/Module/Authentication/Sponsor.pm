@@ -110,7 +110,7 @@ sub do_sponsor_registration {
     foreach my $key (qw(firstname lastname telephone company sponsor)) {
         $info{$key} = $self->request_fields->{$key};
     }
-    $info{'subject'} = $self->app->i18n_format( "%s: Guest access request", $Config{'general'}{'domain'} );
+    $info{'subject'} = [ "%s: Guest access request", $Config{'general'}{'domain'} ];
     utf8::decode($info{'subject'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
@@ -158,7 +158,7 @@ sub _validate_sponsor {
     my $value = &pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN }, $Actions::MARK_AS_SPONSOR );
 
     if (!defined $value) {
-        $self->app->flash->{error} = $self->app->i18n_format($GUEST::ERRORS{$GUEST::ERROR_SPONSOR_NOT_ALLOWED}, $sponsor_email);
+        $self->app->flash->{error} = [ $GUEST::ERRORS{$GUEST::ERROR_SPONSOR_NOT_ALLOWED}, $sponsor_email ];
         $self->prompt_fields();
         return 0;
     }

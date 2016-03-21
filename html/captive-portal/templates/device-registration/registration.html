@@ -1,4 +1,4 @@
-[% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+[% IF txt_auth_error.defined %]<div class="error"><p>[% i18n(txt_auth_error) %]</p></div>[% END %]
 
 <form name="registration" method="post" action="[%URL_DEVICE_REGISTRATION%]">
   <div class="input">

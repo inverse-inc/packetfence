@@ -27,6 +27,7 @@ use List::MoreUtils qw(any);
 use URI::Escape::XS qw(uri_unescape);
 use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
+use pf::web ();
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -44,7 +45,7 @@ has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
 
-has 'title' => (is => 'rw', isa => 'Str');
+has 'title' => (is => 'rw', isa => 'Str|ArrayRef');
 
 # to cache the cache objects
 has 'cache_cache' => (is => 'rw', default => sub {{}});
@@ -374,6 +375,7 @@ sub _render {
         AUTO_FILTER => 'html',
         RELATIVE => 1,
         INCLUDE_PATH => $self->profile->{_template_paths},
+        ENCODING => 'utf8',
     };
 
     use Template::Stash;
@@ -395,7 +397,7 @@ sub _render {
 
     our $processor = Template::AutoFilter->new($TT_OPTIONS);;
     my $output = '';
-    $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
+    $processor->process($template, $args, \$output, {binmode => ':utf8'}) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
     return $output;
 }
@@ -422,10 +424,7 @@ Internationalize a string
 sub i18n {
     my ( $self, $msgid ) = @_;
 
-    my $msg = gettext($msgid);
-    utf8::decode($msg);
-
-    return $msg;
+    return pf::web::i18n($msgid);
 }
 
 =head2 ni18n
@@ -437,10 +436,7 @@ Internationalize a string that can be singular/plural
 sub ni18n {
     my ( $self, $singular, $plural, $category ) = @_;
 
-    my $msg = ngettext( $singular, $plural, $category );
-    utf8::decode($msg);
-
-    return $msg;
+    return pf::web::n18n($singular, $plural, $category);
 }
 
 =head2 i18n_format
@@ -451,9 +447,7 @@ Pass message id through gettext then sprintf it.
 
 sub i18n_format {
     my ( $self, $msgid, @args ) = @_;
-    my $msg = sprintf( gettext($msgid), @args );
-    utf8::decode($msg);
-    return $msg;
+    return pf::web::i18n_format($msgid, @args);
 }
 
 =head2 error
@@ -464,7 +458,7 @@ Create the template for an error
 
 sub error {
     my ($self, $message) = @_;
-    $self->render("error.html", {message => $message, title => $self->i18n("An error occured")});
+    $self->render("error.html", {message => $message, title => "An error occured"});
 }
 
 =head2 empty_flash

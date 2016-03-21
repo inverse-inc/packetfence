@@ -171,19 +171,6 @@ sub _clean_username {
     return $username;
 }
 
-sub validationError {
-    my ( $self, $c, $error_code, @error_args ) = @_;
-    $self->createValidationErrorMessage( $c, $error_code, @error_args );
-    $c->detach('showLogin');
-}
-
-sub createValidationErrorMessage {
-    my ( $self, $c, $error_code, @error_args ) = @_;
-    $c->stash->{'txt_validation_error'} =
-      i18n_format( $GUEST::ERRORS{$error_code}, @error_args );
-    utf8::decode($c->stash->{'txt_validation_error'});
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
