@@ -146,6 +146,8 @@ Listen [% vhost %]:[% port %]
 
 [% END %]
 
+Listen 127.0.0.1:[% port %]
+
 <VirtualHost 127.0.0.1:[% port %] >
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
