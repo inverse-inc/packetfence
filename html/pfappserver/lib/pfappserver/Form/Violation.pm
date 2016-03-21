@@ -176,12 +176,12 @@ has_field 'button_text' =>
 has_field 'vlan' =>
   (
    type => 'Select',
-   label => 'VLAN',
+   label => 'Role',
    options_method => \&options_roles,
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Select a VLAN'},
+   element_attr => {'data-placeholder' => 'Select a Role'},
    tags => { after_element => \&help,
-             help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
+             help => 'Destination Role where PacketFence should put the client when a violation of this type is open.' }
   );
 has_field 'redirect_url' =>
   (
