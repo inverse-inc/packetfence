@@ -71,7 +71,7 @@ sub generate_dashboard_settings {
 }
 
 sub get_cluster_destinations {
-    return @cluster_hosts
+    defined @cluster_hosts
       ? join( ', ', map { $_ . ":9000" } @cluster_hosts )
       : undef;
 }
