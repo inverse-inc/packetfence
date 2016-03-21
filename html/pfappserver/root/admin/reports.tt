@@ -20,6 +20,7 @@
      cssFiles = [
         'app/bootstrap-timepicker',
         'admin/reports'
+        'css/bootstrap'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]
               <li[% IF section == action %] class="active"[% END %]>
@@ -45,9 +46,31 @@
               <li class="nav-header">[% l('RADIUS') %]</li>
               [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
               <li class="nav-header">[% l('MANAGEMENT') %]</li>
-              <li class="nav-pills">
               [% list_entry('configuration/roles', 'Categories') | none %]
-              </li>
+              <li class="nav-header">[% l('SWITCHES') %]</li>
+              <div class="accordion" id="accordion2">
+                <div class="accordion-group">
+                  <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                    SwitchGroups
+                    </a>
+                  </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                  <div class="accordion-inner"> 
+                    [% FOREACH switch_group IN switch_groups %]
+                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapseTwo">[% switch_group %]</a></li>
+                      <div id="collapseTwo" class="accordion-body collapse">
+                        <div class="accordion-inner">
+                        [% FOREACH switchs in switch_group %]
+                          <li><a href="[% switchs %]">[% switchs %]</a></li>
+                        [% END %]
+                        </div>
+                      </div>
+                    [% END %]
+                  </div>
+                </div>
+                </div>
+              </div>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

@@ -492,6 +492,9 @@ sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
+    my $groupsModel = $c->model("Config::SwitchGroup");
+    $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
+    $c->stash->{switchs} = $Config{'Switch'};
 
 }
 
