@@ -109,16 +109,10 @@ sub authenticate {
   if (!defined($connection)) {
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
-  my $result = $self->bind_with_credentials($connection);
-
-  if ($result->is_error) {
-    $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, $COMMUNICATION_ERROR_MSG);
-  }
 
   my $filter = "($self->{'usernameattribute'}=$username)";
 
-  $result = do {
+  my $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search"});
     $connection->search(
       base => $self->{'basedn'},
@@ -181,6 +175,10 @@ sub _connect {
   # uncomment the next line if you want the servers to be tried in random order
   # to spread out the connections amongst a set of servers
   #@LDAPServers = List::Util::shuffle @LDAPServers;
+  my @credentials;
+  if ($self->{'binddn'} && $self->{'password'}) {
+    @credentials = ($self->{'binddn'}, password => $self->{'password'})
+  }
 
   TRYSERVER:
   foreach my $LDAPServer ( @LDAPServers ) {
@@ -194,7 +192,8 @@ sub _connect {
         $LDAPServer,
         port       => $LDAPServerPort,
         timeout    => $self->{'connection_timeout'},
-        encryption => $self->{encryption}
+        encryption => $self->{encryption},
+        credentials => \@credentials,
     );
 
     if (! defined($connection)) {
@@ -414,19 +413,12 @@ sub test {
 
   if (! defined($connection)) {
     $logger->warn("[$self->{'id'}] Unable to connect to any LDAP server");
-    return ($FALSE, "Can't connect to server");
-  }
-
-  # Bind
-  my $result = $self->bind_with_credentials($connection);
-  if ($result->is_error) {
-    $logger->warn("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, ["Unable to bind to [_1] with these settings", $LDAPServer]);
+    return ($FALSE, "Can't connect to server or bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
   }
 
   # Search
   my $filter = "($self->{'usernameattribute'}=packetfence)";
-  $result = $connection->search(
+  my $result = $connection->search(
     base => $self->{'basedn'},
     filter => $filter,
     scope => $self->{'scope'},
@@ -509,26 +501,6 @@ sub ldap_filter_for_conditions {
   return $expression;
 }
 
-=head2 bind_with_credentials
-
-=cut
-
-sub bind_with_credentials {
-    my ($self,$connection) = @_;
-    my $result;
-    my $timer_stat_prefix = called() . "." .  $self->{'id'};
-    my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}", sample_rate => 0.1});
-    if ($self->{'binddn'} && $self->{'password'}) {
-        $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-    } else {
-        $result = $connection->bind;
-    }
-    if ($result->is_error) {
-        $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".error.count" );
-    }
-    return $result;
-}
-
 =head2 search based on a attribute
 
 =cut
@@ -541,12 +513,7 @@ sub search_attributes_in_subclass {
     if (!defined($connection)) {
       return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
-    my $result = $self->bind_with_credentials($connection);
 
-    if ($result->is_error) {
-      $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-      return ($FALSE, $COMMUNICATION_ERROR_MSG);
-    }
     my $searchresult = $connection->search(
                   base => $self->{'basedn'},
                   filter => "($self->{'usernameattribute'}=$username)"
@@ -599,12 +566,6 @@ sub preMatchProcessing {
         return undef;
     }
 
-    my $result = $self->bind_with_credentials($connection);
-
-    if ($result->is_error) {
-        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-        return undef;
-    }
     $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
 }
 
