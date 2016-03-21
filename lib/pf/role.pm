@@ -441,6 +441,7 @@ sub getRegisteredRole {
                 radius_request => $args->{radius_request},
             };
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+            my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
             # create a person entry for pid if it doesn't exist
             if ( !pf::person::person_exist($args->{'user_name'}) ) {
                 $logger->info("creating person $args->{'user_name'} because it doesn't exist");
@@ -458,6 +459,9 @@ sub getRegisteredRole {
                 'autoreg' => 'no',
                 'pid' => $args->{'user_name'},
             );
+            if (defined $value) {
+                %info = (%info, (unregdate => $value));
+            }
             if (defined $role) {
                 %info = (%info, (category => $role));
             }
