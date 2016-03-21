@@ -6,7 +6,7 @@
 
 # Access control
 # Restrict everything except networks defined in pf's configuration (except other Location exception below)
-<DirectoryMatch "%%install_dir%%/html/captive-portal">
+<DirectoryMatch [% install_dir %]/html/captive-portal>
   [% IF apache_version == "2.4" %]
   Require all granted
   [% ELSE %]
@@ -19,7 +19,7 @@
 # with a | first but not after). It is built depending on the features activated.
 # /signup and /preregister open only if pre-registration
 # /activate/email on sponsor and email guest modes 
-<Location ~ "/content/%%allowed_from_all_urls%%">
+<Location ~ /content/[% allowed_from_all_urls %]>
   [% IF apache_version == "2.4" %]
   Require all granted
   [% ELSE %]
