@@ -60,9 +60,6 @@ case "$1" in
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             invoke-rc.d packetfence-redis-cache restart
         fi
-        if [ ${DIST} = "jessie" ] ; then
-            systemctl start packetfence-redis-cache
-        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
