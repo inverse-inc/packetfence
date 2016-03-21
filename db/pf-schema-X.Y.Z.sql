@@ -122,6 +122,12 @@ INSERT INTO `node_category` (category_id,name,notes) VALUES ("2","guest","Guests
 INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gaming devices");
 
 --
+-- Insert 'voice' category
+--
+
+INSERT INTO `node_category` (category_id,name,notes) VALUES ("4","voice","VoIP devices");
+
+--
 -- Table structure for table `node`
 --
 

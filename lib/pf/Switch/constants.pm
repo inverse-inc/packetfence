@@ -36,7 +36,6 @@ Readonly::Array our @ROLES =>
         isolation
         macDetection
         inline
-        voice
     /;
 
 
