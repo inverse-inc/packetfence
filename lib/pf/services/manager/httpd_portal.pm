@@ -40,7 +40,7 @@ sub additionalVars {
         max_clients => $self->get_max_clients,
         routedNets => $self->routedNets,
         loadbalancersIp => $self->loadbalancersIp($captive_portal),
-        allowed_from_all_urls => $self->allowed_from_all_urls($captive_portal),
+        #allowed_from_all_urls => $self->allowed_from_all_urls($captive_portal),
         vhost_management_network => $self->vhost_management_network,
         dos_system_cmd => $self->dos_system_cmd($captive_portal),
         vhosts => $self->vhosts,
@@ -135,35 +135,35 @@ sub loadbalancersIp {
     return join(" ", keys %{$captive_portal->{'loadbalancers_ip'}});
 }
 
-=head2 allowed_from_all_urls
-
-Get all the urls that are allowed from
-
-=cut
-
-sub allowed_from_all_urls {
-    my ($self, $captive_portal) = @_;
-    my $allowed_from_all_urls = '';
-    if (!$captive_portal->{status_only_on_production}) {
-        $allowed_from_all_urls = "|$WEB::URL_STATUS";
-    }
-    my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
-    if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
-
-        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::URL_PREREGISTER";
-    }
-
-    # /activate/email allowed if sponsor or email mode enabled
-    my $email_enabled   = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_EMAIL};
-    my $sponsor_enabled = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_SPONSOR};
-    if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
-
-        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
-        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
-    }
-    return $allowed_from_all_urls;
-}
+#=head2 allowed_from_all_urls
+#
+#Get all the urls that are allowed from
+#
+#=cut
+#
+#sub allowed_from_all_urls {
+#    my ($self, $captive_portal) = @_;
+#    my $allowed_from_all_urls = '';
+#    if (!$captive_portal->{status_only_on_production}) {
+#        $allowed_from_all_urls = "|$WEB::URL_STATUS";
+#    }
+#    my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
+#    if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
+#
+#        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+#        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::URL_PREREGISTER";
+#    }
+#
+#    # /activate/email allowed if sponsor or email mode enabled
+#    my $email_enabled   = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_EMAIL};
+#    my $sponsor_enabled = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_SPONSOR};
+#    if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+#
+#        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+#        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
+#    }
+#    return $allowed_from_all_urls;
+#}
 
 =head1 AUTHOR
 
