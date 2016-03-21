@@ -116,7 +116,7 @@ ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 
 <Directory [% install_dir%]/html/parking/cgi-bin>
   [% IF apache_version == "2.4" %]
-  Require granted all
+  Require all granted
   [% ELSE %]
   Allow from all
   [% END %]
