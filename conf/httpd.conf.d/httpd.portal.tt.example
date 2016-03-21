@@ -162,23 +162,23 @@ PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
 # portal if the URL is not otherwised allowed by passthrough or part of the
 # portal itself.
 
-[% IF apache_version == "2.2" %]
-AcceptMutex posixsem
-SSLMutex posixsem
-[% ELSE %]
+[% IF apache_version == "2.4" %]
 Mutex posixsem default
 Mutex posixsem ssl-cache
+[% ELSE %]
+AcceptMutex posixsem
+SSLMutex posixsem
 [% END %]
 ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
 
 <Proxy *>
-  [% IF apache_version == "2.2" %]
+  [% IF apache_version == "2.4" %]
+  Require all granted 
+  [% ELSE %]
   Order deny,allow
   Allow from all
-  [% ELSE %]
-  Require all granted 
   [% END %]
 </Proxy>
 
@@ -270,16 +270,16 @@ SSLRandomSeed startup file:/dev/urandom 1024
 SSLRandomSeed connect builtin
 SSLRandomSeed connect file:/dev/urandom 1024
 
-[% IF apache_version == "2.2" %]
-SSLSessionCache  shm:[% install_dir %]/var/ssl_acache(512000)
-SSLMutex  file:[% install_dir %]/var/ssl_mutex
-SSLProtocol All -SSLv2 -SSLv3
-SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
-[% ELSE %]
+[% IF apache_version == "2.4" %]
 SSLSessionCache shmcb:[% install_dir %]/var/ssl_acache(512000)
 Mutex file:[% install_dir %]/var/ssl_mutex ssl-cache
 SSLProtocol All -SSLv2 -SSLv3
 SSLCipherSuite EECDH+AES:EDH+AES:-SHA1:EECDH+RC4:EDH+RC4:RC4-SHA:EECDH+AES256:EDH+AES256:AES256-SHA:!aNULL:!eNULL:!EXP:!LOW:!MD5
+[% ELSE %]
+SSLSessionCache  shm:[% install_dir %]/var/ssl_acache(512000)
+SSLMutex  file:[% install_dir %]/var/ssl_mutex
+SSLProtocol All -SSLv2 -SSLv3
+SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
 [% END %]
 
 SSLHonorCipherOrder on
