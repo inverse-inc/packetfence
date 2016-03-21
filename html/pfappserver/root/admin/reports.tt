@@ -44,6 +44,10 @@
               [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
               <li class="nav-header">[% l('RADIUS') %]</li>
               [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
+              <li class="nav-header">[% l('MANAGEMENT') %]</li>
+              <li class="nav-pills">
+              [% list_entry('configuration/roles', 'Categories') | none %]
+              </li>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
