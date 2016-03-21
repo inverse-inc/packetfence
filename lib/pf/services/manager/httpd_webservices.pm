@@ -17,6 +17,7 @@ use Moo;
 
 use pf::config;
 use pf::cluster;
+use List::MoreUtils qw(uniq);
 
 extends 'pf::services::manager::httpd';
 
@@ -32,7 +33,7 @@ sub vhosts {
         }
         push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'} if ($cluster_enabled);
     }
-    return \@vhosts;
+    return [uniq @vhosts];
 }
 
 sub port {
