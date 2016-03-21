@@ -18,6 +18,15 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -25,8 +34,13 @@ case "$1" in
 
     remove)
         #remove user and group pf
-        if [ -x /etc/init.d/packetfence ]; then
-            invoke-rc.d packetfence stop
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            if [ -x /etc/init.d/packetfence ]; then
+                invoke-rc.d packetfence stop
+            fi
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl stop packetfence
         fi
         set +e
         userdel pf
@@ -40,13 +54,17 @@ case "$1" in
             fi
         fi
         set -e
-        # removing init scripts
-        if [ -e /etc/lsb-release ]; then
-            update-rc.d -f packetfence remove > /dev/null 2>&1
-        else
-            update-rc.d packetfence remove > /dev/null 2>&1
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            # removing init scripts
+            if [ -e /etc/lsb-release ]; then
+                update-rc.d -f packetfence remove > /dev/null 2>&1
+            else
+                update-rc.d packetfence remove > /dev/null 2>&1
+            fi
         fi
-        # removing init scripts
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl disable packetfence
+        fi
     ;;
     purge)
         # purging all files

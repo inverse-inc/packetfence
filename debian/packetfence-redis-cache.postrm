@@ -18,22 +18,37 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)
-	#Stop packetfence-redis-cache
-	if [ -x /etc/init.d/packetfence-redis-cache ]; then
-		invoke-rc.d packetfence-redis-cache stop
-	fi
-	# removing init scripts
-	if [ -e /etc/lsb-release ]; then
-		update-rc.d -f packetfence-redis-cache remove > /dev/null 2>&1
-	else
-		update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
-	fi
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        #Stop packetfence-redis-cache
+            if [ -x /etc/init.d/packetfence-redis-cache ]; then
+                invoke-rc.d packetfence-redis-cache stop
+	    fi
+        # removing init scripts
+            if [ -e /etc/lsb-release ]; then
+                update-rc.d -f packetfence-redis-cache remove > /dev/null 2>&1
+            else
+                update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
+            fi
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl stop packetfence-redis-cache
+            systemctl disable packetfence-redis-cache
+        fi
     ;;
     purge)
     ;;

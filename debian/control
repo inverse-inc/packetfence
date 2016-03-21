@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl
 Standards-Version: 3.8.4
 Vcs-Git: git://github.com/inverse-inc/packetfence.git
 Vcs-browser: https://github.com/inverse-inc/packetfence/
@@ -12,20 +12,18 @@ Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, freeradius (>= 3.0.10), freeradius-ldap, 
- freeradius-mysql,  freeradius-utils, freeradius-rest, freeradius-redis,  dhcp3-server, ca-certificates, winbind,
- packetfence-pfcmd-suid (>= ${Source-Version}), packetfence-config (>= ${Source-Version}), packetfence-ntlm-wrapper (>= ${Source-Version}),
- fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${Source-Version}),
+ freeradius-mysql,  freeradius-utils, freeradius-rest, freeradius-redis,  dhcp3-server | isc-dhcp-server, ca-certificates, winbind,
+ packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}),
+ fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
-# SAML
- liblasso-perl
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server|mariadb-server|mariadb-galera-server,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
 # apache related
- apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
+ apache2, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-qos,
@@ -43,7 +41,6 @@ Depends: ${misc:Depends}, vlan, make,
  procps,
 # perl basic components
  liblist-moreutils-perl, libwww-perl, libtry-tiny-perl,
- libscalar-list-utils-perl (>= 1.42),
 # perl uncategorized modules
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
@@ -64,14 +61,14 @@ Depends: ${misc:Depends}, vlan, make,
  libuniversal-require-perl, libthread-serialize-perl,
  libnet-ldap-perl, libcrypt-generatepassword-perl, libbytes-random-secure-perl, libcrypt-eksblowfish-perl, perl-doc,
  librrds-perl, libnetpacket-perl (>= 1.3), libcache-cache-perl, libcarp-perl,
- libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl, libmime-lite-perl,
- libconfig-general-perl, libproc-processtable-perl, libfile-flock-perl, libperl-version-perl,
+ libload-perl, libmime-lite-tt-perl, libmime-lite-perl,
+ libconfig-general-perl, libproc-processtable-perl, libperl-version-perl,
  perl-modules,libdata-swap-perl,libdata-structure-util-perl,
  liblinux-fd-perl, liblinux-inotify2-perl, libfile-touch-perl, libhash-merge-perl,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl, libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- liburi-escape-xs-perl, libsql-abstract-more-perl, libio-socket-timeout-perl,
+ liburi-escape-xs-perl, libsql-abstract-more-perl, libio-socket-timeout-perl, liblinux-distribution-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -93,12 +90,12 @@ Depends: ${misc:Depends}, vlan, make,
  libcatalyst-perl (>= 5.90011), libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl, libcatalyst-plugin-unicode-encoding-perl,
- libcatalyst-view-tt-perl (>= 0.37), libhtml-formfu-perl, libjson-perl, libjson-maybexs-perl,libjson-xs-perl (>= 3),
- libsort-naturally-perl, libhtml-formhandler-perl (=0.40013-2), libchi-perl (>=0.59),
+ libcatalyst-view-tt-perl (>= 0.37), libhtml-formfu-perl, libjson-perl, libjson-maybexs-perl,
+ libsort-naturally-perl, libchi-perl (>=0.59),
  libdata-serializer-perl,
  libchi-driver-redis-perl,
  libredis-fast-perl,
- libcache-fastmmap-perl, libmoo-perl (=1.004002-1), libterm-size-any-perl,
+ libcache-fastmmap-perl, libterm-size-any-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
@@ -110,8 +107,6 @@ Depends: ${misc:Depends}, vlan, make,
  liblog-any-adapter-log4perl-perl,
 # oauth2
  libnet-oauth2-perl (>=0.57),
-# pfdns
- libnet-dns-perl (=0.66-3),
 # used by Captive Portal authentication modules
  libauthen-radius-perl, libauthen-krb5-simple-perl,
 # used by bin/pftest
@@ -121,13 +116,18 @@ Depends: ${misc:Depends}, vlan, make,
 # monitoring
  collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
- nodejs, freeradius-utils (>=3.0), libapache2-mod-wsgi,
- python-twisted-bin (<=13.0), python-twisted-core (<=13.0), graphite-web,
+ nodejs, libapache2-mod-wsgi,
+ graphite-web,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing
- libgraph-perl
-Recommends:  freeradius (>= 3.0.10), freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, isc-dhcp-server | dhcp3-server
+ libgraph-perl,
+# SAML
+ liblasso-perl,
+# for packaging
+ dpkg-distribution,
+# Distribution specific
+ ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
@@ -192,7 +192,7 @@ Description: Files needed for sending MAC and IP from ARP requeststo
 
 Package: packetfence-config
 Architecture: all
-Depends: ${misc:Depends}, libcache-bdb-perl, liblog-fast-perl
+Depends: ${misc:Depends}, libcache-bdb-perl, liblog-fast-perl, libfile-flock-perl
 Description: Service use to manage PacketFence configuration.
 
 Package: packetfence-redis-cache

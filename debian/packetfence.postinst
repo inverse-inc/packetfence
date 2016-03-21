@@ -21,6 +21,15 @@ set -e
 LC_CTYPE=C
 export LC_CTYPE
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     configure)
@@ -62,7 +71,7 @@ case "$1" in
         ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
     
         #Check if log files exist and create them with the correct owner
-        for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
+        for fic_log in packetfence.log
         do
         if [ ! -e /usr/local/pf/logs/$fic_log ]; then
             touch /usr/local/pf/logs/$fic_log
@@ -72,7 +81,7 @@ case "$1" in
 
         #Make ssl certificate
         if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-            openssl req -x509 -new -nodes -days 365 -batch\
+            openssl req -x509 -new -nodes -days 3650 -batch\
             -out /usr/local/pf/conf/ssl/server.crt\
             -keyout /usr/local/pf/conf/ssl/server.key\
             -nodes -config /usr/local/pf/conf/openssl.cnf
@@ -102,7 +111,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived; do
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd; do
             
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -112,21 +121,33 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
+            if [ -e "/lib/systemd/system/"$service".service" ] ; then
+                systemctl stop $service
+                systemctl disable $service
+            fi
+
         done
         set -e
 
-        update-rc.d mysql defaults
 
         /sbin/ldconfig
-        update-rc.d packetfence defaults 60 || exit 0
         #Starting PacketFence.
         echo "Starting PacketFence Administration GUI..."
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
-        invoke-rc.d packetfence-config restart
-        # We probably need to have: invoke-rc.d packetfence reload config
-        #/usr/local/pf/bin/pfcmd configreload
-        invoke-rc.d packetfence start httpd.admin
+        # Start packetfence web administration
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d mysql defaults
+            update-rc.d packetfence defaults 60 || exit 0
+            invoke-rc.d packetfence-config restart
+            invoke-rc.d packetfence start httpd.admin
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl enable mysql
+            systemctl enable packetfence
+            systemctl restart packetfence-config
+            systemctl start packetfence@httpd.admin
+        fi
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
