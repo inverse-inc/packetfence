@@ -49,7 +49,7 @@ sub createVars {
         install_dir => $install_dir,
         var_dir => $var_dir,
         apache_version => $self->apache_version,
-        aliases => _generate_aliases(),
+        aliases => $self->_generate_aliases(),
         allowed_from_all_urls => $self->allowed_from_all_urls($captive_portal),
         server_admin => $self->serverAdmin,
         server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
