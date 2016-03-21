@@ -87,6 +87,7 @@ sub code : Path : Args(1) {
         node_modify($c->portalSession->clientMac, unregdate => $unregdate);
         pf::activation::set_status_verified($code);
         $c->stash(
+            title => i18n("Access granted"),
             template => "activation/email.html",
             message => "Email activation code has been verified. Access granted until : $unregdate",
         );
@@ -120,6 +121,7 @@ sub login : Private {
         $c->clear_errors;
     }
     $c->stash(
+        title => i18n("Guest Sponsor Login"),
         template => $pf::web::guest::SPONSOR_LOGIN_TEMPLATE,
         username => $c->request->param_encoded("username"),
     );
@@ -226,6 +228,7 @@ sub doSponsorRegistration : Private {
 
         # send to a success page
         $c->stash(
+            title => i18n("Sponsor request accepted"),
             template => $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE );
         $c->delete_session();
         $c->detach;

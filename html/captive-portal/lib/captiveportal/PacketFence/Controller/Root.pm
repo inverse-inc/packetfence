@@ -309,6 +309,7 @@ sub end : ActionClass('RenderView') {
         my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
         if($c->stash->{application}){
             $c->stash(
+                title => i18n("An error occured"),
                 template => 'error.html',
                 message => $txt_message,
             );

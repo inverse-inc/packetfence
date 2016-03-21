@@ -6,7 +6,7 @@ use pf::constants;
 use pf::config;
 use pf::node;
 use pf::person;
-use pf::web qw(i18n);
+use pf::web;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 

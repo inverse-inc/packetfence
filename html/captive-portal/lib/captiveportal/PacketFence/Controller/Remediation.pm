@@ -52,6 +52,7 @@ sub index : Path : Args(0) {
 
         my $node_info = node_view($mac);
         $c->stash(
+            'title'        => i18n("violation: quarantine established"),
             'template'     => 'remediation.html',
             'notes'        => $violation->{'notes'},
             map { $_ => $node_info->{$_} }
@@ -91,6 +92,7 @@ sub scan_status : Private {
     my $refresh_timer = 10;    # page will refresh each 10 seconds
 
     $c->stash(
+        title => i18n("scan: scan in progress"),
         template    => 'scan-in-progress.html',
         timer         => $Config{'trapping'}{'redirtimer'},
         txt_message => i18n_format(
