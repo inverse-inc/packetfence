@@ -1,0 +1,20 @@
+<h2>[% i18n_format("Created account %s", account.pid) %]</h2>
+
+<h4>Details : </h4>
+<ul>
+  <li>[% i18n("Username") %] : [% account.pid %]</li>
+  <li>[% i18n("Password") %] : [% account.password %]</li>
+  <li>[% i18n("Email") %] : [% account.email %]</li>
+  [% FOREACH action IN account.actions %]
+    <li>[% i18n(action.type) %] : [% action.value %]</li>
+  [% END %]
+  [% IF account.local_user.login_remaining.defined %]
+    [% IF account.local_user.login_remaining != 1 %]
+    <li>Allowed amount of logins : [% account.local_user.login_remaining %]</li>
+    [% ELSE %]
+    <li>This account can only be used once.</li>
+    [% END %]
+  [% END %]
+</ul>
+
+<p>[% i18n("An e-mail with the login informations will follow in the next minutes") %]</p>
