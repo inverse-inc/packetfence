@@ -152,6 +152,10 @@ sub password_db_prepare {
         UPDATE password SET password = ? WHERE pid = ?
     ]);
 
+    $password_statements->{'password_consume_login_sql'} = get_db_handle()->prepare(qq[
+        UPDATE password SET login_remaining = login_remaining - 1 WHERE pid = ? and login_remaining > 0
+    ]);
+
     $password_db_prepared = 1;
 }
 
@@ -567,6 +571,33 @@ sub reset_password {
     db_query_execute(
         PASSWORD, $password_statements, 'password_reset_password_sql', $password, $pid
     ) || return undef;
+}
+
+=head2 consume_login
+
+Consume a login for the password entry
+
+Returns true if the password entry can still be used for login
+
+=cut
+
+sub consume_login {
+    my ($pid) = @_;
+    my $user = view($pid);
+    if(defined($user->{login_remaining})){
+        if($user->{login_remaining} > 0){
+            db_query_execute(
+                PASSWORD, $password_statements, 'password_consume_login_sql', $pid
+            ) || return $FALSE;
+            return $TRUE;
+        }
+        else {
+            return $FALSE;
+        }
+    }
+    else {
+        return $TRUE;
+    }
 }
 
 =back
