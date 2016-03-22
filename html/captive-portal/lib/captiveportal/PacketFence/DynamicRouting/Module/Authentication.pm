@@ -206,11 +206,15 @@ Create a local account using the email in the session
 =cut
 
 sub create_local_account {
-    my ( $self, $password ) = @_;
+    my ( $self, %options ) = @_;
+
+    my $password = $options{password};
+    my $actions = $options{actions};
 
     my $auth_params = $self->auth_source_params();
 
-    unless($self->session->{fields}->{email}){
+    my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+    unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
         return;
     }
@@ -219,7 +223,7 @@ sub create_local_account {
 
     # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
-    my $actions = &pf::authentication::match( $self->source->id, $auth_params );
+    $actions = $actions // &pf::authentication::match( $self->source->id, $auth_params );
 
     my $login_amount = ($self->source->local_account_logins eq "0") ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
@@ -228,12 +232,13 @@ sub create_local_account {
     my %info = (
         'pid'       => $self->app->session->{username},
         'password'  => $password,
-        'email'     => $self->session->{fields}->{email},
+        'email'     => $email,
         'subject'   => $self->app->i18n_format(
             "%s: Guest account creation information", $Config{'general'}{'domain'}
         ),
     );
     $self->app->session->{local_account_info} = {
+        local_user => pf::password::view($info{pid}),
         actions => $actions,
         pid => $info{pid},
         email => $info{email},

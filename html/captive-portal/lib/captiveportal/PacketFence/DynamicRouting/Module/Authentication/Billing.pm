@@ -158,33 +158,52 @@ sub process_transaction {
     $info->{'unregdate'} =
       POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
 
-    if (isenabled($tier->{'use_time_balance'})) {
-        $info->{'time_balance'} =
-          normalize_time($tier->{'access_duration'});
+    unless($self->app->preregistration){
+        if (isenabled($tier->{'use_time_balance'})) {
+            $info->{'time_balance'} =
+              normalize_time($tier->{'access_duration'});
 
-        # Check if node has some access time left; if so, add it to the new duration
-        my $node = node_view($mac);
-        if ($node && $node->{'time_balance'} > 0) {
-            if ($node->{'last_start_timestamp'} > 0) {
-                # Node is active; compute the actual access time left
-                my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
-                my $now        = time;
-                if ($expiration > $now) {
-                    $info->{'time_balance'} += ($expiration - $now);
+            # Check if node has some access time left; if so, add it to the new duration
+            my $node = node_view($mac);
+            if ($node && $node->{'time_balance'} > 0) {
+                if ($node->{'last_start_timestamp'} > 0) {
+                    # Node is active; compute the actual access time left
+                    my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
+                    my $now        = time;
+                    if ($expiration > $now) {
+                        $info->{'time_balance'} += ($expiration - $now);
+                    }
+                }
+                else {
+                    # Node is inactive; add the remaining access time to the purchased access time
+                    $info->{'time_balance'} += $node->{'time_balance'};
                 }
             }
-            else {
-                # Node is inactive; add the remaining access time to the purchased access time
-                $info->{'time_balance'} += $node->{'time_balance'};
-            }
+            $logger->info("Usage duration for $mac is now " . $info->{'time_balance'});
         }
-        $logger->info("Usage duration for $mac is now " . $info->{'time_balance'});
+
+        # Close violations that use the 'Accounting::BandwidthExpired' trigger
+        foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
+            # Close any existing violation
+            violation_force_close($mac, $vid);
+        }
     }
 
-    # Close violations that use the 'Accounting::BandwidthExpired' trigger
-    foreach my $vid (@BANDWIDTH_EXPIRED_VIOLATIONS){
-        # Close any existing violation
-        violation_force_close($mac, $vid);
+    use Data::Dumper; get_logger->info(Dumper($self->source));
+    if(isenabled($self->source->{create_local_account})){
+        my $actions = [
+            pf::Authentication::Action->new({
+                type    => $Actions::SET_ACCESS_DURATION, 
+                value   => $tier->{'access_duration'},
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ACCESS_DURATION),
+            }),
+            pf::Authentication::Action->new({
+                type    => $Actions::SET_ROLE, 
+                value   => $info->{category},
+                class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+            }),
+        ];
+        $self->create_local_account(actions => $actions);
     }
 
     $self->done();

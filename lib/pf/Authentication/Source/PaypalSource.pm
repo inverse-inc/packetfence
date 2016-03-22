@@ -30,6 +30,7 @@ our $PAYPAL_SANDBOX_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 our $PAYPAL_URL = 'https://www.paypal.com/cgi-bin/webscr';
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
