@@ -500,6 +500,15 @@ sub reset_session {
     }
 }
 
+=head2 preregistration
+
+Whether or not we are currently doing pre-registration
+
+=cut
+
+sub preregistration {
+    return isenabled($self->profile->{_preregistration});
+}
 
 =head1 AUTHOR
 
