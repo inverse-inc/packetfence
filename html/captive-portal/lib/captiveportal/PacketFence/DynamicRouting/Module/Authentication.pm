@@ -221,7 +221,8 @@ sub create_local_account {
     # with different parameters coming from the authentication source (ie.: expiration date)
     my $actions = &pf::authentication::match( $self->source->id, $auth_params );
 
-    $password = pf::password::generate($self->app->session->{username}, $actions, $password);
+    my $login_amount = ($self->source->local_account_logins eq "0") ? undef : $self->source->local_account_logins;
+    $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
 
     # We send the guest and email with the info of the local account
     my %info = (

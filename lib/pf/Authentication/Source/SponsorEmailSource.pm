@@ -12,12 +12,12 @@ use pf::Authentication::constants;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 
 =head2 dynamic_routing_module

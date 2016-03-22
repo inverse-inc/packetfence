@@ -19,6 +19,7 @@ use pf::Authentication::constants;
 use pf::util;
 
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
@@ -33,8 +34,6 @@ has '+type' => (default => 'Billing');
 has '+unique' => (default => 1);
 
 has 'currency' => (is => 'rw', default => 'USD');
-
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');
 
