@@ -25,7 +25,7 @@
             <th>[% l('Id') %]</th>
             <th>[% l('Description') %]</th>
             <th class="hidden-phone">[% l('Actions') %]</th>
-            <th class="hidden-phone">[% l('Target VLAN') %]</th>
+            <th class="hidden-phone">[% l('Target Role') %]</th>
             <th>[% l('Action') %]</th><th></th>
           </tr>
         </thead>
