@@ -379,14 +379,18 @@ sub _render {
         return $self->i18n_format(@_);
     };
 
-    get_logger->info("previous : ". ($self->previous_module_id // "undef") . ", current : " . ($self->current_module_id // "undef"));
+    get_logger->debug(sub { "Previous : ". ($self->previous_module_id // "undef") . ", Current module : " . ($self->current_module_id // "undef") });
     $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
     
     # Expose current module in all templates
     $args->{current_module} = $self->current_module;
 
+    # Expose the preregistration flag in all templates
+    $args->{preregistration} = $self->preregistration;
+
     our $processor = Template::AutoFilter->new($self->_template_toolkit_options);
+
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
@@ -507,6 +511,7 @@ Whether or not we are currently doing pre-registration
 =cut
 
 sub preregistration {
+    my ($self) = @_;
     return isenabled($self->profile->{_preregistration});
 }
 

@@ -7,6 +7,7 @@ use MRO::Compat;
 use namespace::clean -except => 'meta';
 use CHI;
 use pf::log;
+use pf::util;
 
 extends 'Catalyst::Plugin::Session::Store::CHI';
 
@@ -29,6 +30,22 @@ L<Catalyst::Plugin::Session::Store>.
 
 =cut
 
+=head2 get_sid
+
+Get the identifier of the session
+
+=cut
+
+sub get_sid {
+    my ($c, $sid) = @_;
+    if(valid_mac($c->portalSession->clientMac)){
+        return extract_prefix($sid).$c->portalSession->clientMac;
+    }
+    else{
+        return $sid;
+    }
+}
+
 =head2 get_session_data
 
 get session data from chi
@@ -38,7 +55,7 @@ get session data from chi
 sub get_session_data {
     my ($c, $sid) = @_;
     get_logger->info("Using SID $sid");
-    $c->_chi->get(extract_prefix($sid).$c->portalSession->clientMac);
+    $c->_chi->get(get_sid($c, $sid));
 }
 
 =head2 store_session_data
@@ -50,7 +67,7 @@ store session data into chi
 sub store_session_data {
     my ($c, $sid, $data) = @_;
     get_logger->info("Using SID $sid");
-    $c->_chi->set(extract_prefix($sid).$c->portalSession->clientMac, $data);
+    $c->_chi->set(get_sid($c, $sid), $data);
 }
 
 =head2 delete_session_data
@@ -60,7 +77,7 @@ sub store_session_data {
 sub delete_session_data {
     my ($c, $sid) = @_;
     get_logger->info("Using SID $sid");
-    $c->_chi->remove(extract_prefix($sid).$c->portalSession->clientMac);
+    $c->_chi->remove(get_sid($c, $sid));
 }
 
 =head2 delete_expired_sessions
@@ -83,7 +100,7 @@ L<Catalyst::Plugin::Session::AtomicWrite>.
 sub get_and_set_session_data {
     my ($c, $sid, $sub) = @_;
     get_logger->info("Using SID $sid");
-    $c->_chi->compute(extract_prefix($sid).$c->portalSession->clientMac,undef, $sub);
+    $c->_chi->compute(get_sid($c, $sid),undef, $sub);
 }
 
 sub extract_prefix {
