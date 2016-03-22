@@ -7594,6 +7594,10 @@ msgstr "Violation Maintenance Interval"
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
 
+# conf/documentation.conf
+msgid "maintenance.fingerbank_data_update_interval"
+msgstr "Fingerbank Data Update Interval"
+
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
 msgstr ""
