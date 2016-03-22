@@ -22,6 +22,7 @@ use fingerbank::Model::User_Agent;
 use fingerbank::Query;
 use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
+use fingerbank::Util;
 use pf::cluster;
 use pf::constants;
 
@@ -219,6 +220,29 @@ sub mac_vendor_from_mac {
     ( $status, $result ) = "fingerbank::Model::MAC_Vendor"->read($result->id);
     return $result;
 }
+
+=head2 _update_fingerbank_component
+
+Update a Fingerbank component and validate that it succeeds
+
+=cut
+
+sub _update_fingerbank_component {
+    my ($name, $sub) = @_;
+    my $logger = get_logger;
+
+    my ($status, $status_msg) = $sub->();
+
+    if(fingerbank::Util::is_success($status)){
+        $logger->info("Successfully updated $name");
+    }
+    else {
+        my $msg = "Couldn't update $name, code : $status";
+        $msg .= ", msg : $status_msg" if(defined($status_msg));
+        $logger->error($msg);
+    }
+}
+
 
 =head1 AUTHOR
 
