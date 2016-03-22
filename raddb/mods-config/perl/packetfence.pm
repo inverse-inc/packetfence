@@ -338,8 +338,8 @@ sub accounting {
         }
 
         my $config = _get_rpc_config();
-        my $data;
-        $data = send_msgpack_notification($config, "handle_accounting_metadata", \%RAD_REQUEST);
+        my $data = [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ];
+        send_msgpack_notification($config, "handle_accounting_metadata", \%RAD_REQUEST);
         if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
             $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
         } 
