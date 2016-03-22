@@ -62,6 +62,7 @@ sub _curlSetup {
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
+    $curl->setopt(CURLOPT_TIMEOUT, 60);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/x-msgpack',"Request: $function"]);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
