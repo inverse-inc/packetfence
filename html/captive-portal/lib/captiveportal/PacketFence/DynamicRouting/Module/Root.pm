@@ -47,8 +47,13 @@ Once this is done, we release the user on the network
 
 around 'done' => sub {
     my ($orig, $self) = @_;
-    $self->execute_actions();
-    $self->release();
+    if($self->app->preregistration){
+        $self->create_account();
+    }
+    else {
+        $self->execute_actions();
+        $self->release();
+    }
 };
 
 =head2 logout
@@ -120,9 +125,14 @@ When the user shouldn't on the portal, but he is
 
 sub unknown_state {
     my ($self) = @_;
-    unless($self->handle_web_form_release){
-        reevaluate_access( $self->current_mac, 'manage_register' );
-        return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
+    if($self->app->preregistration){
+        $self->show_account();
+    }
+    else {
+        unless($self->handle_web_form_release){
+            reevaluate_access( $self->current_mac, 'manage_register' );
+            return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
+        }
     }
 }
 
