@@ -48,7 +48,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl preregistration nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
   );
 
 =head1 Fields
@@ -165,6 +165,22 @@ has_field 'always_use_redirecturl' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
+  );
+
+=head2 preregistration
+
+Controls whether or not this portal profile is used for preregistration
+
+=cut
+
+has_field 'preregistration' =>
+  (
+   type => 'Toggle',
+   label => 'Activate preregistration',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have "Create local account" enabled.' },
   );
 
 =head2 sources
