@@ -371,15 +371,6 @@ sub _render {
         $self->title($args->{title});
     }
 
-    our $TT_OPTIONS = {
-        AUTO_FILTER => 'html',
-        RELATIVE => 1,
-        INCLUDE_PATH => $self->profile->{_template_paths},
-        ENCODING => 'utf8',
-    };
-
-    use Template::Stash;
-
     # define list method to return new list of odd numbers only
     $args->{ i18n } = sub {
         return $self->i18n(@_);
@@ -395,11 +386,21 @@ sub _render {
     # Expose current module in all templates
     $args->{current_module} = $self->current_module;
 
-    our $processor = Template::AutoFilter->new($TT_OPTIONS);;
+    our $processor = Template::AutoFilter->new($self->_template_toolkit_options);
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
     return $output;
+}
+
+sub _template_toolkit_options {
+    my ($self) = @_;
+    return {
+        AUTO_FILTER => 'html',
+        RELATIVE => 1,
+        INCLUDE_PATH => $self->profile->{_template_paths},
+        ENCODING => 'utf8',
+    }
 }
 
 =head2 redirect
