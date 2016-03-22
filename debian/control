@@ -14,7 +14,7 @@ Architecture: all
 Pre-Depends:  ca-certificates, freeradius (>= 3.0.10), freeradius-ldap, 
  freeradius-mysql,  freeradius-utils, freeradius-rest, freeradius-redis,  dhcp3-server | isc-dhcp-server, ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}),
- fingerbank (>= 2.1.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${source:Version}),
+ fingerbank (>= 2.2.0), fingerbank (<< 3.0.0), packetfence-redis-cache (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
 Breaks: libdata-alias-perl
