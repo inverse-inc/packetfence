@@ -106,7 +106,7 @@ sub password_db_prepare {
     $logger->debug("Preparing pf::password database queries");
 
     $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.login_remaining,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM password t
         LEFT JOIN person p ON t.pid = p.pid
@@ -115,7 +115,7 @@ sub password_db_prepare {
     ]);
 
     $password_statements->{'password_view_email_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate, t.login_remaining,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM person p, password t
         LEFT JOIN node_category c ON t.category = c.category_id
@@ -124,8 +124,8 @@ sub password_db_prepare {
 
     $password_statements->{'password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO password
-            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate, login_remaining)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $password_statements->{'password_delete_sql'} = get_db_handle()->prepare(
@@ -217,7 +217,7 @@ sub create {
 
     return(db_data(PASSWORD, $password_statements,
         'password_add_sql',
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}, $data{'login_remaining'}
     ));
 }
 
@@ -270,7 +270,7 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ( $pid, $actions, $password ) = @_;
+    my ( $pid, $actions, $password, $login_amount ) = @_;
     my $logger = get_logger();
 
     my %data;
@@ -279,6 +279,8 @@ sub generate {
 
     # hash password
     $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
+
+    $data{'login_remaining'} = $login_amount;
 
     _update_from_actions( \%data, $actions );
 
