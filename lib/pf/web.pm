@@ -73,9 +73,7 @@ sub i18n {
     my $msgid = shift;
 
     if(ref($msgid) eq "ARRAY"){
-        my @infos = @$msgid;
-        my $id = shift @infos;
-        return i18n_format($id, @infos);
+        return i18n_format(@$msgid);
     }
 
     my $result = gettext($msgid);
