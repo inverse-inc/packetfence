@@ -110,8 +110,7 @@ sub do_sponsor_registration {
     foreach my $key (qw(firstname lastname telephone company sponsor)) {
         $info{$key} = $self->request_fields->{$key};
     }
-    $info{'subject'} = [ "%s: Guest access request", $Config{'general'}{'domain'} ];
-    utf8::decode($info{'subject'});
+    $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
     my ( $auth_return, $err, $activation_code ) =
