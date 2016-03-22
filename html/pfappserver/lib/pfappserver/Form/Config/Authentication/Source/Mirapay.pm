@@ -34,7 +34,7 @@ has_field merchant_id => (
 );
 
 has_block definition => (
-    render_list => [qw(base_url shared_secret merchant_id currency test_mode)]
+    render_list => [qw(base_url shared_secret merchant_id currency test_mode create_local_account local_account_logins)]
 );
 
 

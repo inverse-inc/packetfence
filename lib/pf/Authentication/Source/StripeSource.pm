@@ -26,6 +26,7 @@ use pf::util;
 use pf::log;
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 our $logger = get_logger;
 
 =head2 Attributes
