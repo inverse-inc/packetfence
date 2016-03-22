@@ -48,7 +48,7 @@ Once this is done, we release the user on the network
 around 'done' => sub {
     my ($orig, $self) = @_;
     if($self->app->preregistration){
-        $self->create_account();
+        $self->show_preregistration_account();
     }
     else {
         $self->execute_actions();
@@ -126,7 +126,7 @@ When the user shouldn't on the portal, but he is
 sub unknown_state {
     my ($self) = @_;
     if($self->app->preregistration){
-        $self->show_account();
+        $self->show_preregistration_account();
     }
     else {
         unless($self->handle_web_form_release){
@@ -164,7 +164,7 @@ Validate that we have a valid MAC address
 
 sub validate_mac {
     my ($self) = @_;
-    unless(valid_mac($self->current_mac)){
+    if(!valid_mac($self->current_mac) && !$self->app->preregistration){
         $self->app->error("error: not found in the database");
         return $FALSE;
     }
@@ -189,7 +189,7 @@ sub execute_child {
     # HACK alert : E-mail registration has the user registered but still going in the portal
     # release_bypass is there for that. If it is set, it will keep the user in the portal
     my $node = node_view($self->current_mac);
-    if($node->{status} eq "reg" && !$self->app->session->{release_bypass}){
+    if(defined($node->{status}) && $node->{status} eq "reg" && !$self->app->session->{release_bypass}){
         return $self->unknown_state();
     }
     $self->SUPER::execute_child();
@@ -259,6 +259,22 @@ sub check_billing_bypass {
         $self->direct_route_billing();
     }
     $self->SUPER::execute_child();
+}
+
+=head2 show_preregistration_account
+
+Show the account details created in the pre-registration
+
+=cut
+
+sub show_preregistration_account {
+    my ($self) = @_;
+    if(my $account = $self->app->session->{local_account_info}){
+        $self->render("account.html", {account => $account, title => "Account created"});
+    }
+    else {
+        $self->app->error("Cannot find any created account.");
+    }
 }
 
 =head1 AUTHOR

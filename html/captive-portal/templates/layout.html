@@ -12,10 +12,12 @@
   [% END %]
   [% content | none %]
 
+  [% UNLESS preregistration %]
   <div>
     <p>IP : [% client_ip %]</p>
     <p>MAC address : [% client_mac %]</p>
   </div>
+  [% END %]
 
   [% IF show_restart %]
   <div>
