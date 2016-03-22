@@ -1335,16 +1335,6 @@ online_node_count_interval=15m
 #
 # Interval at which PacketFence updates the local Fingerbank data from the cloud API
 fingerbank_data_update_interval=6h
-#
-# maintenance.fingerbank_update_db
-#
-# Update Fingerbank upstream database (requires a valid API key to be configured)
-fingerbank_update_db=enabled
-#
-# maintenance.fingerbank_update_db_interval
-#
-# Interval at which PacketFence will update Fingerbank upstream database
-fingerbank_update_db_interval=1D
 
 [active_active]
 #
