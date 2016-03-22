@@ -25,6 +25,7 @@ use pf::config qw(
     %Config
 );
 use pf::cluster;
+use pf::ConfigStore;
 use Sys::Hostname;
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
@@ -489,13 +490,24 @@ sub dashboard :Local :AdminRole('REPORTS') {
 =cut
 
 sub reports :Local :AdminRole('REPORTS') {
-    my ($self, $c, $start, $end) = @_;
+    my ($self, $c, $start, $end, $id) = @_;
 
-    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_saveRange($c, $REPORTS, $start, $end); 
+    my $sg = pf::ConfigStore::SwitchGroup->new;
+
+    my $switch_groups = [
+    map {
+        local $_ = $_;
+            my $id = $_;
+            {id => $id, members => [$sg->members($id, 'id')]}
+         } @{$sg->readAllIds}];
+
     my $groupsModel = $c->model("Config::SwitchGroup");
-    $c->stash->{switch_groups} = [ sort @{$groupsModel->readAllIds} ];
-    $c->stash->{switchs} = $Config{'Switch'};
-
+    my $listRole = $c->model('Roles')->read($id);
+    $c->stash({
+            'switch_groups' => $switch_groups,
+            'roles' => $listRole,
+            });
 }
 
 =head2 _rangeForHeader

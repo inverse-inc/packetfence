@@ -46,7 +46,22 @@
               <li class="nav-header">[% l('RADIUS') %]</li>
               [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
               <li class="nav-header">[% l('MANAGEMENT') %]</li>
-              [% list_entry('configuration/roles', 'Categories') | none %]
+              <div class="accordion" id="accordion3">
+                <div class="accordion-group">
+                  <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion3" href="#collapseOnes>
+                    Roles
+                    </a>
+                  </div>
+                <div id="collapseOnes" class="accordion-body collapse">
+                  <div class="accordion-inner"> 
+                    [% FOREACH role IN roles %]
+                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOnes" href="[% roles %]">[% role %]</a></li>
+                    [% END %]
+                  </div>
+                </div>
+                </div>
+              </div>
               <li class="nav-header">[% l('SWITCHES') %]</li>
               <div class="accordion" id="accordion2">
                 <div class="accordion-group">
@@ -57,16 +72,20 @@
                   </div>
                 <div id="collapseOne" class="accordion-body collapse">
                   <div class="accordion-inner"> 
+                    <div class="accordion-group">
                     [% FOREACH switch_group IN switch_groups %]
-                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapseTwo">[% switch_group %]</a></li>
+                    <div class="accordion-heading">
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapseTwo">[% switch_group.id %]</a>
+                    </div>
                       <div id="collapseTwo" class="accordion-body collapse">
                         <div class="accordion-inner">
-                        [% FOREACH switchs in switch_group %]
-                          <li><a href="[% switchs %]">[% switchs %]</a></li>
+                        [% FOREACH member IN switch_group.members %]
+                          <li><a href="[% member.id %]">[% member.id %]</a></li>
                         [% END %]
                         </div>
                       </div>
                     [% END %]
+                    </div>
                   </div>
                 </div>
                 </div>
