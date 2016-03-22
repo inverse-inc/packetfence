@@ -28,6 +28,7 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::node;
 use pf::config;
+use pf::util;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::inline;
@@ -145,6 +146,21 @@ sub handle_violations {
     return 0;
 }
 
+=head2 validate_mac
+
+Validate that we have a valid MAC address
+
+=cut
+
+sub validate_mac {
+    my ($self) = @_;
+    unless(valid_mac($self->current_mac)){
+        $self->app->error("error: not found in the database");
+        return $FALSE;
+    }
+    return $TRUE;
+}
+
 =head2 execute_actions
 
 Execute the flow for this module
@@ -153,6 +169,8 @@ Execute the flow for this module
 
 sub execute_child {
     my ($self) = @_;
+
+    return unless($self->validate_mac);
 
     # Make sure there are no outstanding violations
     return unless($self->handle_violations());
