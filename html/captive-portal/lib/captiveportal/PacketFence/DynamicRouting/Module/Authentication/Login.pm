@@ -114,10 +114,19 @@ sub authenticate {
         my ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
         if ( defined($return) && $return == 1 ) {
+            $self->source(pf::authentication::getAuthenticationSource($source_id));
+
+            if($self->source->type eq "SQL"){
+                unless(pf::password::consume_login($username)){
+                    $self->app->flash->{error} = "Account has used all of its available logins";
+                    $self->prompt_fields();
+                    return;
+                }
+            }
+
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
-            $self->source(pf::authentication::getAuthenticationSource($source_id));
         } else {
             pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
             $self->app->flash->{error} = $message;
@@ -125,7 +134,6 @@ sub authenticate {
             return;
         }
     }
-
     
     $self->update_person_from_fields();
     $self->username($username);
