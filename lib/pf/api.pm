@@ -205,13 +205,6 @@ sub update_iplog : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    if(defined($postdata{source}) && $postdata{source} eq "accounting"){
-        unless(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
-            pf::log::get_logger->debug("Not handling packet because we're not configured to update the iplog on accounting packets.");
-            return 0;
-        }
-    }
-
     my $logger = pf::log::get_logger();
 
     $postdata{'oldip'}  = pf::iplog::mac2ip($postdata{'mac'}) if (!defined($postdata{'oldip'}));
@@ -1251,6 +1244,35 @@ sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize
 
     return $return;
 }
+
+sub handle_accounting_metadata : Public {
+    my ($class, %RAD_REQUEST) = @_;
+    my $logger = pf::log::get_logger();
+    $logger->debug("Entering handling of accounting metadata");
+    my $client = pf::client::getClient();
+    
+    my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+    if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
+        #
+        # Updating location log in on initial ('Start') accounting run.
+        #
+        $logger->info("Updating locationlog from accounting request");
+        $client->notify("radius_update_locationlog", %RAD_REQUEST);
+    }
+
+    if ($RAD_REQUEST{'Acct-Status-Type'} ne 'Stop'){
+        # Tracking IP address.
+        if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
+            $logger->info("Updating iplog from accounting request");
+            $client->notify("update_iplog", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+        }
+        else {
+            pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
+        }
+    }
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
