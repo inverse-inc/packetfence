@@ -1325,11 +1325,9 @@ In order to prompt fields without authentication, you can use the Null source wi
 
 PacketFence already comes with a Null source preconfigured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'
+Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
-Configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
-
-### screenshot prompt_fields module
+image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
 Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
 
@@ -1363,11 +1361,11 @@ Go in 'Configuration -> Portal Modules' then click 'Add Portal Module' and selec
 
 Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
 
-### screenshot sms module
+image::docs/images/portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
 
 Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the 'Modules' fields
 
-### screenshot chained_oauth_sms
+image::docs/images/portal-modules/chianed_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
 
 Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 
@@ -1384,9 +1382,9 @@ Also in the portal profile add your LDAP source to the available sources so its 
 
 Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skipable' so the user is forced to board the SSID should it choose this option.
 
-### screenshot secure_boarding
-
 Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
+
+image::docs/images/portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
 
 Next, add the `login_or_boarding` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you will have the choice between login to the LDAP source and gain access to the network or directly use provisioning in order to configure your device for a Secure SSID.
 
@@ -1402,11 +1400,11 @@ Then put the following in the 'Message' field
   Hello World !
   <a href="www.packetfence.org">Click here to access the PacketFence website!</a>
 
-### screenshot hello world
+image::docs/images/portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
 Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and you will then see the hello world message.
 
-### screenshot hello world in my first root module
+image::docs/images/portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
 
 Authentication Choice module (advanced)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
