@@ -26,9 +26,21 @@ use pf::web::guest;
 
 has '+pid_field' => (default => sub { "username" });
 
-has '+sources' => (isa => 'ArrayRef[pf::Authentication::Source::SQLSource|pf::Authentication::Source::LDAPSource|pf::Authentication::Source::HtpasswdSource|pf::Authentication::Source::KerberosSource]');
+has '+sources' => (isa => 'ArrayRef['.join('|', @{sources_classes()}).']');
 
-has '+multi_source_auth_classes' => (default => sub{["internal"]});
+has '+multi_source_object_classes' => (default => sub{sources_classes()});
+
+sub sources_classes {
+    return [ 
+        "pf::Authentication::Source::SQLSource",
+        "pf::Authentication::Source::LDAPSource",
+        "pf::Authentication::Source::HtpasswdSource",
+        "pf::Authentication::Source::KerberosSource",
+        "pf::Authentication::Source::EAPTLSSource",
+        "pf::Authentication::Source::HTTPSource",
+        "pf::Authentication::Source::RADIUSSource",
+    ];
+}
 
 =head2 required_fields_child
 
