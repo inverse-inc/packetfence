@@ -121,7 +121,7 @@ sub verify {
     };
     if ($@) {
         get_logger->error($@);
-        $self->app->flash->{billing_error} = "Unable to process payment";
+        $self->app->flash->{error} = "Unable to process payment";
         $self->index();
         return 0;
     }
