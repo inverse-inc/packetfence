@@ -192,6 +192,17 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
+    my $sg = pf::ConfigStore::SwitchGroup->new;
+
+    my $switch_groups = [
+    map {
+        local $_ = $_;
+            my $id = $_;
+            {id => $id, members => [$sg->members($id, 'id')]}
+         } @{$sg->readAllIds}];
+
+    my $groupsModel = $c->model("Config::SwitchGroup");
+
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Roles')->list();
@@ -199,6 +210,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
         roles => $roles,
+        switch_groups => $switch_groups,
     );
 }
 

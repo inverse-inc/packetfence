@@ -56,7 +56,7 @@
                 <div id="collapseOnes" class="accordion-body collapse">
                   <div class="accordion-inner"> 
                     [% FOREACH role IN roles %]
-                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOnes" href="[% roles %]">[% role %]</a></li>
+                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOnes" href="[% role %]">[% role %]</a></li>
                     [% END %]
                   </div>
                 </div>
@@ -75,9 +75,9 @@
                     <div class="accordion-group">
                     [% FOREACH switch_group IN switch_groups %]
                     <div class="accordion-heading">
-                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapseTwo">[% switch_group.id %]</a>
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapse[% switch_group.id %]">[% switch_group.id %]</a>
                     </div>
-                      <div id="collapseTwo" class="accordion-body collapse">
+                      <div id="collapse[% switch_group.id %]" class="accordion-body collapse">
                         <div class="accordion-inner">
                         [% FOREACH member IN switch_group.members %]
                           <li><a href="[% member.id %]">[% member.id %]</a></li>

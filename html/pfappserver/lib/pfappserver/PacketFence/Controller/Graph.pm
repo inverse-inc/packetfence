@@ -490,7 +490,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
 =cut
 
 sub reports :Local :AdminRole('REPORTS') {
-    my ($self, $c, $start, $end, $id) = @_;
+    my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end); 
     my $sg = pf::ConfigStore::SwitchGroup->new;
@@ -503,10 +503,8 @@ sub reports :Local :AdminRole('REPORTS') {
          } @{$sg->readAllIds}];
 
     my $groupsModel = $c->model("Config::SwitchGroup");
-    my $listRole = $c->model('Roles')->read($id);
     $c->stash({
             'switch_groups' => $switch_groups,
-            'roles' => $listRole,
             });
 }
 

@@ -188,10 +188,69 @@ form {
                     <input type="hidden" name="searches.0.value" value="on"/>
                 </form>
               </li>
+
+              <li class="nav-header">[% l('Custom Predefined Search') %]</li>
+              <div class="accordion" id="accordion1">
+                <div class="accordion-group">
+                  <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne">
+                    SwitchGroups
+                    </a>
+                  </div>
+                <div id="collapseOne" class="accordion-body collapse">
+                  <div class="accordion-inner"> 
+                    <div class="accordion-group">
+                    [% FOREACH switch_group IN switch_groups %]
+                    <div class="accordion-heading">
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapse[% switch_group.id %]">[% switch_group.id %]</a>
+                    </div>
+                      <div id="collapse[% switch_group.id %]" class="accordion-body collapse">
+                        <div class="accordion-inner">
+                        [% FOREACH member IN switch_group.members %]
+                            <a href="#" data-toggle="pf-search-form" data-target="advanced">[% member.id %]</a>
+                              <form>
+                                <input type="hidden" name="searches.0.name" value="switch_id"/>
+                                <input type="hidden" name="searches.0.op" value="is"/>
+                                <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
+                              </form>
+                        [% END %]
+                        </div>
+                      </div>
+                    [% END %]
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+
+              <div class="accordion" id="accordion2">
+                <div class="accordion-group">
+                  <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
+                    Roles
+                    </a>
+                  </div>
+                <div id="collapseThree" class="accordion-body collapse">
+                  <div class="accordion-inner"> 
+                    [% FOREACH role IN roles %]
+                    <li>
+                      <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseThree">[% role.name %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="category"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="[% role.name %]"/>
+                        </form>
+                    </li>
+                    [% END %]
+                  </div>
+                </div>
+                </div>
+              </div>
+
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
-                [% 
+                [%
                 IF ss.path == 'node/advanced_search';
                     tab = 'advanced';
                     formTarget = '';
