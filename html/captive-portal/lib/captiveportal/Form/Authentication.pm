@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 
 has 'app' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application', required => 1);
+has 'module' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Module', required => 1);
 
 has '+field_name_space' => ( default => 'captiveportal::Form::Field' );
 has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
@@ -52,10 +53,12 @@ Check that the AUP has been properly accepted
 
 sub check_aup {
     my ($self) = @_;
-    get_logger->info("AUP value is : ".$self->value);
-    unless($self->value){
-        $self->add_error("You must accept the terms and conditions");
-        $self->form->app->flash->{error} = "You must accept the terms and conditions";
+    if($self->form->module->with_aup){
+        get_logger->debug("AUP is required and it's value is : ".$self->value);
+        unless($self->value){
+            $self->add_error("You must accept the terms and conditions");
+            $self->form->app->flash->{error} = "You must accept the terms and conditions";
+        }
     }
 }
 
