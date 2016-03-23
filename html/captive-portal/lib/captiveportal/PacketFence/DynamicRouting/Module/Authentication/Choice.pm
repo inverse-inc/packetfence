@@ -15,6 +15,8 @@ extends 'captiveportal::DynamicRouting::Module::Choice';
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source');
 
+has 'custom_fields' => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]});
+
 with 'captiveportal::Role::MultiSource';
 
 use pf::log;
@@ -42,6 +44,7 @@ sub BUILD {
             app => $self->app,
             parent => $self,
             source_id => $source->id,
+            custom_fields => $self->custom_fields,
         ));
     }
 }

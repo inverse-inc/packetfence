@@ -1,35 +1,40 @@
-package pfappserver::Form::Config::PortalModule::Authentication::Choice;
+package pfappserver::Base::Form::Role::WithCustomFields;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::Authentcation::Choice
+pfappserver::Base::Form::Role::WithCustomFields
 
 =head1 DESCRIPTION
 
-Form definition to create or update an authentication portal module.
+Role for portal modules with custom fields
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::PortalModule::Choice';
+use HTML::FormHandler::Moose::Role;
 with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::MultiSource';
-with 'pfappserver::Base::Form::Role::WithSource';
-with 'pfappserver::Base::Form::Role::WithCustomFields';
 
-use captiveportal::DynamicRouting::Module::Authentication::Choice;
-sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Choice'}
+use pf::person;
 
 ## Definition
+has_field 'custom_fields' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Mandatory fields',
+   options_method => \&options_custom_fields,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a required field'},
+   tags => { after_element => \&help,
+             help => 'The additionnal fields that should be required for registration' },
+  );
 
-sub child_definition {
-    my ($self) = @_;
-    return qw(source_id custom_fields);
+sub options_custom_fields {
+    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
 }
 
-=over
+=head1 AUTHOR
 
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -54,5 +59,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
 1;
+
+

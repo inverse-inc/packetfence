@@ -14,23 +14,11 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::WithSource';
+with 'pfappserver::Base::Form::Role::WithCustomFields';
 
 use pf::log; 
 use captiveportal::DynamicRouting::Module::Authentication;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication'}
-
-## Definition
-has_field 'custom_fields' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Mandatory fields',
-   options_method => \&options_custom_fields,
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a required field'},
-   tags => { after_element => \&help,
-             help => 'The additionnal fields that should be required for registration' },
-  );
 
 has_field 'pid_field' =>
   (
@@ -71,10 +59,6 @@ sub child_definition {
 # To override in the child modules
 sub auth_module_definition {
     return ();
-}
-
-sub options_custom_fields {
-    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;
 }
 
 sub options_pid_field {
