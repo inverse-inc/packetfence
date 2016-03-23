@@ -1308,12 +1308,51 @@ This section will contain the following examples :
 * Customized template for a specific source.
 * Mixing login and Secure SSID on-boarding on the portal.
 
+Creating a custom root module
++++++++++++++++++++++++++++++
+
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+
+Next, head to 'Configuration -> Portal Profiles', select the portal profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
+
+You could add some of the preconfigured modules to the new Root module you created and that would make the error disapear.
+
+Prompting for fields without authentication
++++++++++++++++++++++++++++++++++++++++++++
+
+In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
+
+PacketFence already comes with a Null source preconfigured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
+
+Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'
+
+Configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+
+Next, add the `prompt_fields` module in `my_first_root_module` and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
+
+Prompting additionnal fields during the authentication
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If you want to prompt additionnal fields during the authentication process for a module, you can define a Module based on that source that will specify the additionnal mandatory fields for this source.
+
+You can also add additionnal mandatory fields to the default policies that are already configured.
+
+This example will make the `default_guest_policy` require the user to enter a firstname, lastname and address so that guests have to enter these three informations before registering.
+
+Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
+
+Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex : phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
+
+NOTE: Not all sources support additionnal mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
+
 Authentication Choice module (advanced)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Authentication Choice module allows to define a choice between multiple sources using advanced filtering rules, manual selection of the sources and selection of Portal Modules.
 
 All the sources that are defined in the 'Sources' field will be available for usage by the user. Same goes for the modules defined in 'Modules'.
+
+You can also define which mandatory fields you want to prompt for these authentication choices. Although you can still configure them on any 'Authentication Choice' module, they will only be shown if they are applicable to the source. 
 
 In addition to the manual selection above you can dynamically select sources part of the Portal Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
 
