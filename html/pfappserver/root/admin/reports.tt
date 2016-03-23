@@ -45,51 +45,6 @@
               [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
               <li class="nav-header">[% l('RADIUS') %]</li>
               [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
-              <li class="nav-header">[% l('MANAGEMENT') %]</li>
-              <div class="accordion" id="accordion3">
-                <div class="accordion-group">
-                  <div class="accordion-heading">
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion3" href="#collapseOnes>
-                    Roles
-                    </a>
-                  </div>
-                <div id="collapseOnes" class="accordion-body collapse">
-                  <div class="accordion-inner"> 
-                    [% FOREACH role IN roles %]
-                    <li><a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOnes" href="[% role %]">[% role %]</a></li>
-                    [% END %]
-                  </div>
-                </div>
-                </div>
-              </div>
-              <li class="nav-header">[% l('SWITCHES') %]</li>
-              <div class="accordion" id="accordion2">
-                <div class="accordion-group">
-                  <div class="accordion-heading">
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
-                    SwitchGroups
-                    </a>
-                  </div>
-                <div id="collapseOne" class="accordion-body collapse">
-                  <div class="accordion-inner"> 
-                    <div class="accordion-group">
-                    [% FOREACH switch_group IN switch_groups %]
-                    <div class="accordion-heading">
-                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapse[% switch_group.id %]">[% switch_group.id %]</a>
-                    </div>
-                      <div id="collapse[% switch_group.id %]" class="accordion-body collapse">
-                        <div class="accordion-inner">
-                        [% FOREACH member IN switch_group.members %]
-                          <li><a href="[% member.id %]">[% member.id %]</a></li>
-                        [% END %]
-                        </div>
-                      </div>
-                    [% END %]
-                    </div>
-                  </div>
-                </div>
-                </div>
-              </div>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
