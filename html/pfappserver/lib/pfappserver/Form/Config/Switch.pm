@@ -19,6 +19,7 @@ use File::Spec::Functions;
 
 use pf::config;
 use pf::Switch::constants;
+use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
@@ -494,7 +495,7 @@ sub field_list {
     my $list = [];
 
     # Add VLAN & role mapping for default roles
-    foreach my $role (@SNMP::ROLES) {
+    foreach my $role (@ROLES) {
         my $field =
           {
            type => 'Text',
@@ -566,7 +567,7 @@ sub update_fields {
     my $placeholders = $cs->fullConfig($inherit_from);
 
     if (defined $id && $id eq 'default') {
-        foreach my $role (@SNMP::ROLES) {
+        foreach my $role (@ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
     } elsif ($placeholders) {
@@ -607,10 +608,10 @@ sub build_block_list {
 
     my (@vlans, @roles, @access_lists, @urls);
     if ($self->form->roles) {
-        @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @access_lists = map { $_.'AccessList' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @urls = map { $_.'Url' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
+        @vlans = map { $_.'Vlan' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @roles = map { $_.'Role' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @access_lists = map { $_.'AccessList' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @urls = map { $_.'Url' } @ROLES, map { $_->{name} } @{$self->form->roles};
     }
 
     return
