@@ -269,6 +269,32 @@ function updateExtendedDurationExample(group) {
     }
 }
 
+function searchSwitchesGenerator(errorSibling) {
+    return function(query, process) {
+        $.ajax({
+                url : '/config/switch/search',
+                type : 'POST',
+                data: {
+                    'json': 1,
+                    'all_or_any': 'any',
+                    'searches.0.name': 'id',
+                    'searches.0.op': 'like',
+                    'searches.0.value': query,
+                },
+            })
+            .done( function(data) {
+                var results = $.map(data.items, function(i) {
+                    return i.id;
+                });
+                process(results);
+            })
+            .fail(function(jqXHR) {
+                var status_msg = getStatusMsg(jqXHR);
+                showError(errorSibling, status_msg);
+            });
+    };
+}
+
 $(function () { // DOM ready
 
     /* redirect to URL specified in the location header */

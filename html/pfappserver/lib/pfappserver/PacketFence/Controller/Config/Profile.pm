@@ -32,6 +32,7 @@ use pf::config;
 use pf::util;
 use pf::file_paths;
 use List::Util qw(any);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 Readonly our %FILTER_FILES =>
   (
@@ -106,6 +107,22 @@ after create => sub {
             )
         );
     }
+};
+
+=head2 after view
+
+Append additional data after the view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    my ($status, $roles) = $c->model('Roles')->list;
+    $c->stash({
+        connection_types => [ keys %connection_type ],
+        connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
+        node_roles => $roles,
+    });
 };
 
 sub sort_profiles :Local :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
@@ -356,7 +373,7 @@ Returns all the merge paths
 
 sub mergedPaths {
     my ($self, $c) = @_;
-    return (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
+    return grep { -d } (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
 }
 
 =head2 parentPaths

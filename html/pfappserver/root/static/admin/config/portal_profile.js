@@ -250,6 +250,10 @@ function initReadPage(element) {
             tr.find('[href="#add"]').removeClass('hidden');
         }
     });
+    $('#filter').on('change', 'select[name$=".type"]', function(event) {
+        var type_input = $(event.currentTarget);
+        updateFilterMatchInput(type_input,false);
+    });
     $('[id$="Empty"]').on('click', '[href="#add"]', function(event) {
         var match = /(.+)Empty/.exec(event.delegateTarget.id);
         var id = match[1];
@@ -258,6 +262,30 @@ function initReadPage(element) {
         $('#'+emptyId).addClass('hidden');
         return false;
     });
+    $('select[name$=".type"]:not(:disabled)').each(function(i,e){
+        updateFilterMatchInput($(e),true);
+    });
+}
+
+function updateFilterMatchInput(type_input, keep) {
+    var match_input = type_input.next();
+    var type_value = type_input.val();
+    var match_input_template_id = '#' + type_value + "_filter_match";
+    var match_input_template = $(match_input_template_id);
+    if ( match_input_template.length == 0 ) {
+        match_input_template = $('#default_filter_match');
+    }
+    if ( match_input_template.length ) {
+        changeInputFromTemplate(match_input, match_input_template, keep);
+        if (type_value == "switch") {
+            type_input.next().typeahead({
+                source: searchSwitchesGenerator($('#section h2')),
+                minLength: 2,
+                items: 11,
+                matcher: function(item) { return true; }
+            });
+        }
+    }
 }
 
 function initTemplatesPage(element) {

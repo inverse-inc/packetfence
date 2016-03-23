@@ -25,7 +25,7 @@ our @EXPORT_OK = qw(
     $DYNAMID $ROB_EAP $SECURID_EAP $MS_AUTHENTICATION_TLV $SENTRINET $EAP_AACTIONEC_WIRELESS
     $COGENT_BIOMETRIC_EAP $AIRFORTRESS_EAP $EAP_HTTP_DIGEST $SECURISUITE_EAP
     $DEVICECONNECT_EAP $EAP_SPEKE $EAP_MOBAC $EAP_FAST $ZONELABS $EAP_LINK $EAP_PAX $EAP_PSK
-    $EAP_SAKE $EAP_IKEV2 $EAP_AKA2 $EAP_GPSK $EAP_PWD $EAP_EVEV1
+    $EAP_SAKE $EAP_IKEV2 $EAP_AKA2 $EAP_GPSK $EAP_PWD $EAP_EVEV1 %RADIUS_EAP_TYPE_2_VALUES
 );
 
 # Eap_type types
@@ -84,6 +84,67 @@ Readonly::Scalar our $EAP_AKA2 => 50;
 Readonly::Scalar our $EAP_GPSK => 51;
 Readonly::Scalar our $EAP_PWD => 52;
 Readonly::Scalar our $EAP_EVEV1 => 53;
+
+
+#This was auto generated from the following command
+# egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep EAP-Type- | awk 'BEGIN{print "our \%RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 ", " } END { print ");" }' | perl -p -e's/EAP-Type-//'
+
+our %RADIUS_EAP_TYPE_2_VALUES = (
+    "Identity" => 1,
+    "Notification" => 2,
+    "NAK" => 3,
+    "MD5-Challenge" => 4,
+    "One-Time-Password" => 5,
+    "Generic-Token-Card" => 6,
+    "RSA-Public-Key" => 9,
+    "DSS-Unilateral" => 10,
+    "KEA" => 11,
+    "KEA-Validate" => 12,
+    "EAP-TLS" => 13,
+    "Defender-Token" => 14,
+    "RSA-SecurID-EAP" => 15,
+    "Arcot-Systems-EAP" => 16,
+    "Cisco-LEAP" => 17,
+    "Nokia-IP-Smart-Card" => 18,
+    "SIM" => 18,
+    "SRP-SHA1" => 19,
+    "EAP-TTLS" => 21,
+    "Remote-Access-Service" => 22,
+    "AKA" => 23,
+    "EAP-3Com-Wireless" => 24,
+    "PEAP" => 25,
+    "MS-EAP-Authentication" => 26,
+    "MAKE" => 27,
+    "CRYPTOCard" => 28,
+    "EAP-MSCHAP-V2" => 29,
+    "DynamID" => 30,
+    "Rob-EAP" => 31,
+    "SecurID-EAP" => 32,
+    "MS-Authentication-TLV" => 33,
+    "SentriNET" => 34,
+    "EAP-Actiontec-Wireless" => 35,
+    "Cogent-Biomentric-EAP" => 36,
+    "AirFortress-EAP" => 37,
+    "EAP-HTTP-Digest" => 38,
+    "SecuriSuite-EAP" => 39,
+    "DeviceConnect-EAP" => 40,
+    "EAP-SPEKE" => 41,
+    "EAP-MOBAC" => 42,
+    "EAP-FAST" => 43,
+    "Zonelabs" => 44,
+    "EAP-Link" => 45,
+    "EAP-PAX" => 46,
+    "EAP-PSK" => 47,
+    "EAP-SAKE" => 48,
+    "EAP-IKEv2" => 49,
+    "EAP-AKA2" => 50,
+    "EAP-GPSK" => 51,
+    "EAP-PWD" => 52,
+    "EAP-EVEv1" => 53,
+    "Microsoft-MS-CHAPv2" => 26,
+    "Cisco-MS-CHAPv2" => 29,
+    "MS-CHAP-V2" => 26,
+);
 
 =head1 AUTHOR
 
