@@ -1,9 +1,28 @@
-<h4>Select an option : </h4>
-
-<ul>
-[% FOREACH module IN modules %]
-<li class="[% module.pretty_class_name %]" id="[% module.pretty_id %]"><a [% IF mod_manager_current_module == module.id %]class="selected"[% END %]href="/switchto/[% module.id %]">[% module.description || module.id %]</a></li>
-[% END %]
-</ul>
-
+[% IF content %]
+<!--   content-with-choice: [% current_module.pretty_class_name %] -->
 [% content | none %]
+[% ELSE %]
+<!-- content-with-choice.html -->
+<div class="layout--center">
+  <h5>[% i18n('Select an authentication method') %]</h5>
+</div>
+<div class="layout layout--center">
+
+  <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+    <ul class="list-ui list-ui--tiny list-ui--btns">
+      [% FOREACH module IN modules %]
+      <li class="[% module.pretty_class_name.lower %]">
+        <a href="/switchto/[% module.id %]"
+           class="btn btn--full [% IF mod_manager_current_module == module.id %]selected[% END %]">
+          <div class="flag">
+            <div class="flag__img">[% moduleIcon(module=module.pretty_class_name,size='small') %]</div>
+            <p class="flag__body">[% module.description || module.id %]</p>
+          </div>
+        </a>
+      </li>
+      [% END %]
+    </ul>
+  </div>
+
+</div>
+[% END %]

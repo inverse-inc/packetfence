@@ -402,6 +402,7 @@ sub _template_toolkit_options {
     return {
         AUTO_FILTER => 'html',
         RELATIVE => 1,
+        PRE_PROCESS => 'macros.inc',
         INCLUDE_PATH => $self->profile->{_template_paths},
         ENCODING => 'utf8',
     }

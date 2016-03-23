@@ -1,20 +1,23 @@
-        <div id="about">
-          <img src="/content/images/quarantine.png" alt="[% i18n('Quarantine') %]" />
-          <h1>[% i18n("Quarantine Established!") %]</h1>
-          <p>
-            <strong>Exemple</strong>: Quelques lignes de description.
-          </p>
-        </div>
-        <div class="input">
-          <div>Variables modèles disponibles</div>
-          <div class="note">
-            <p>username: [% username %]</p>
-            <p>user_agent: [% user_agent %]</p>
-            <p>dhcp_fingerprint: [% dhcp_fingerprint %]</p>
-            <p>last_switch: [% last_switch %]</p>
-            <p>last_port: [% last_port %]</p>
-            <p>last_vlan: [% last_vlan %]</p>
-            <p>last_connection_type: [% last_connection_type %]</p>
-            <p>last_ssid: [% last_ssid %]</p>
-          </div>
-        </div>
+<div class="layout--center">
+  <h5>Exemple</h5>
+</div>
+
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">Quelques lignes de description.</p>
+</div>
+
+
+<div class="box box--acent">
+  <h5>Variables modèles disponibles</h5>
+  <ul>
+    <li>username: [% username %]</li>
+    <li>user_agent: [% user_agent %]</li>
+    <li>dhcp_fingerprint: [% dhcp_fingerprint %]</li>
+    <li>last_switch: [% last_switch %]</li>
+    <li>last_port: [% last_port %]</li>
+    <li>last_vlan: [% last_vlan %]</li>
+    <li>last_connection_type: [% last_connection_type %]</li>
+    <li>last_ssid: [% last_ssid %]</li>
+  </ul>
+</div>

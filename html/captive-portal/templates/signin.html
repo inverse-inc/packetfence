@@ -1,17 +1,31 @@
+<div class="layout--center">
+  <h4>[% current_module.description %]</h4>
+</div>
 
 <form action="/signup" method="post">
   [% IF sms_carriers %]
-    [% out = form.get_field("mobileprovider").options(sms_carriers) %]
+  [% out = form.get_field("mobileprovider").options(sms_carriers) %]
   [% END %]
 
-  [% FOREACH field IN fields.keys %]
-  <div class="field">
-    [% form.get_field(field).render | none %]
-  </div>
+  [% IF fields.exists('aup') %]
+  [% form.get_field('aup').render | none %]
   [% END %]
 
-  <div class="field">
-    <input type="submit" name="submit">
-  </div>
+  <div class="layout layout--center">
+    <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+      [% FOREACH field IN fields.keys %]
+      [% NEXT IF field == 'aup' %]
+      <div class="input-container">
+        [% form.get_field(field).render | none %]
+      </div>
+      [% END %]
 
+      <button type="submit" name="submit" class="btn btn--full u-mt">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Submit") %]</p>
+        </div>
+      </button>
+    </div>
+  </div>
 </form>

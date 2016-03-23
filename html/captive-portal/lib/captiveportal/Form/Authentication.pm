@@ -30,7 +30,7 @@ my %skip = (
 );
 foreach my $field (@pf::person::FIELDS){
     next if(exists($skip{$field}));
-    has_field "fields[$field]" => (type => 'Text');
+    has_field "fields[$field]" => (type => 'Text', label => ucfirst($field));
 }
 
 has_field 'fields[username]' => (type => 'Text', label => 'Username');
@@ -43,7 +43,7 @@ has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
 has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers);
 
-has_field 'fields[aup]' => (type => 'AUP', validate_method => \&check_aup);
+has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
 =head2 check_aup
 

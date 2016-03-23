@@ -1,41 +1,58 @@
-
+<div class="layout--center">
+  <h4>[% current_module.description %]</h4>
+</div>
 
 <form id="billing_form" name="billing" method="post" action="/billing/confirm">
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
-  
-  [% FOREACH field IN fields.keys %]
-  <div class="field">
-    [% form.get_field(field).render | none %]
-  </div>
+
+  [% IF fields.exists('aup') %]
+    [% form.get_field('aup').render | none %]
   [% END %]
 
-  [% IF billing_tiers.size %]
-  [%# TIERS CHOICE %]
-  <h4>[% i18n("Internet Access Package") %]</h4>
-  <div>
-    [% FOREACH tier IN billing_tiers %]
-    <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
-              value="[% i18n(tier.id) | html %]"/>
-    <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>
-    <em>[% i18n(tier.description) | html %]</em><br/>
-    [% END %]
-  </div>
-  [% END %]
-
-  [% IF billing_sources.size %]
-    [% add_separator = 0 %]
-    [% FOREACH billing IN billing_sources %]
-    <div class="input">
-      [% IF add_separator %]
-        <div class="separator"><div class="or_separator">or</div></div>
-      [% ELSE %]
-        [% add_separator = 1 %]
+  <div class="layout layout--center">
+    <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+      [% FOREACH field IN fields.keys %]
+      [% NEXT IF field == 'aup' %]
+      <div class="input-container">
+        [% form.get_field(field).render | none %]
+      </div>
       [% END %]
-      
-      <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn">
+
+      [% IF billing_tiers.size %]
+      <p class="u-mt u-mb--">[% i18n("Internet Access Package") %]</p>
+      <ul class="list-ui list-ui--tiny list-ui--btns">
+        [% FOREACH tier IN billing_tiers %]
+        <li class="input-checkbox-container u-pl">
+          <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
+                 id="[% tier.id %]"
+                 value="[% i18n(tier.id) | html %]"/>
+          <label for="[% tier.id %]">
+            <p>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</p>
+            <p class="caption">[% i18n(tier.description) | html %]</p>
+          </label>
+        </li>
+        [% END %]
+      </ul>
+      [% END %]
+
+      [% IF billing_sources.size %]
+      <ul class="list-ui list-ui--tiny list-ui--btns u-mt">
+        [% FOREACH billing IN billing_sources %]
+        <li>
+          <button id="billing_source_[% billing.id | html %]"
+                  name="billing_source_[% billing.id | html %]"
+                  type="submit" class="btn btn--full">
+            <div class="flag">
+              <div class="flag__img">[% billingIcon(billing=billing.id,size='small') %]</div>
+              <p class="flag__body">[% i18n("Pay with ${billing.type}") %]</p>
+            </div>
+          </button>
+        </li>
+        [% END %]
+      </ul>
+      [% END %]
     </div>
-    [% END %]
-  [% END %]
+  </div>
 
 </form>
 

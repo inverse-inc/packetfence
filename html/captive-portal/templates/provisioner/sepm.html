@@ -1,27 +1,43 @@
-<h3>[% i18n("To complete your network activation you need to install the Symantec Endpoint Manager") %]</h3>
-<p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
-<a id="primary_download" href="[% provisioner.agent_download_uri %]">[% i18n("Click here to download") %]</a>
+<div class="layout--center">
+  <h5 class="u-mb--">[% i18n("To complete your network activation you need to install the Symantec Endpoint Manager") %]</h5>
+  <p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
 
-[% IF provisioner.alt_agent_download_uri %]
-<h5>If you find the program above not working you can try this one : </h5>
-<a id="alternate_download" href="[% provisioner.alt_agent_download_uri %]">[% i18n("Alternate installer") %]</a>
+  <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+    <a id="primary_download" href="[% provisioner.agent_download_uri %]" class="btn btn--full" target="_blank">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_cloud_download_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Download") %]</p>
+      </div>
+    </a>
 
-<!-- MOVE THIS SOMEWHERE ELSE ??? -->
-<script> 
-    // check if windows 64 bits
-    // swap the primary and alternate
-    if (navigator.userAgent.indexOf("WOW64") != -1 || 
-        navigator.userAgent.indexOf("Win64") != -1 ){
+    [% IF provisioner.alt_agent_download_uri %]
+    <p class="u-mt u-mb--">[% i18n("If you find the program above not working you can try this one:") %] </p>
+    <a id="alternate_download" href="[% provisioner.alt_agent_download_uri %]" class="btn btn--full">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_cloud_download_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Alternate installer") %]</p>
+      </div>
+    </a>
+
+    <script type="text/javascript">
+      // check if windows 64 bits
+      // swap the primary and alternate
+      if (navigator.userAgent.indexOf("WOW64") != -1 ||
+          navigator.userAgent.indexOf("Win64") != -1 ) {
         var new_primary = $('alternate_download').getAttribute("href");
-        if(new_primary != ""){
-            $('alternate_download').setAttribute('href', $('primary_download').getAttribute('href'));
-            $('primary_download').setAttribute('href', new_primary);
+        if (new_primary != "") {
+          $('alternate_download').setAttribute('href', $('primary_download').getAttribute('href'));
+          $('primary_download').setAttribute('href', new_primary);
         }
-    }
-</script>
+      }
+    </script>
+    [% END %]
 
-[% END %]
-
-<br/>
-<a href="/captive-portal">[% i18n("Continue") %]</a>
-
+    <a href="/captive-portal" class="btn btn--full btn--light u-mt">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Continue") %]</p>
+      </div>
+    </a>
+  </div>
+</div>

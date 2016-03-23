@@ -1,4 +1,7 @@
-<h4>[% i18n_format("You are about to authenticate against %s", source.description) %]</h4>
+<!-- [% source.type %] -->
+<div class="layout--center">
+  <h4>[% i18n_format("You are about to authenticate against %s", source.description) %]</h4>
+</div>
 
 <form action="/oauth2/go" method="POST">
 
@@ -6,6 +9,17 @@
   [% form.get_field('aup').render | none %]
   [% END %]
 
-  <input type="submit" value="[% i18n("Click here to login on the external provider") %]">
+  <div class="layout layout--center">
+    <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+      <div class="u-mt">
+        <button type="submit" name="submit" class="btn btn--full">
+          <div class="flag">
+            <div class="flag__img">[% moduleIcon(module=source.type,size='small') %]</div>
+            <p class="flag__body">[% i18n('Login') %]</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
 
 </form>
