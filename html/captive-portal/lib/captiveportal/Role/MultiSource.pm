@@ -74,18 +74,17 @@ Otherwise, the sources defined in source_id will be used even if they are not pa
 sub _build_sources {
     my ($self, $source_id, $previous) = @_; 
     my @sources;
-    # no source id was specified (default context) or the source_id attribute is empty
-    if(!defined($source_id) || !$source_id){
-        my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
-        my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
-        my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
-        push @sources, (@sources_by_type, @sources_by_auth_class, @sources_by_object_class);
-        @sources = uniq(@sources);
-    }
-    else {
-        my @source_ids = split(/\s*,\s*/, $source_id);
-        @sources = map { pf::authentication::getAuthenticationSource($_) } @source_ids;
-    }
+    
+    # First sources of the array are the ones we defined manually
+    my @source_ids = split(/\s*,\s*/, $source_id);
+    push @sources, map { pf::authentication::getAuthenticationSource($_) } @source_ids;
+    
+    my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
+    my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
+    my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
+    push @sources, (@sources_by_type, @sources_by_auth_class, @sources_by_object_class);
+    
+    @sources = uniq(@sources);
     
     get_logger->debug(sub { "Module ".$self->id." is using sources : ".join(',', (map {$_->id} @sources)) });
     $self->sources(\@sources);
