@@ -373,7 +373,7 @@ Returns all the merge paths
 
 sub mergedPaths {
     my ($self, $c) = @_;
-    return (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
+    return grep { -d } (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
 }
 
 =head2 parentPaths
