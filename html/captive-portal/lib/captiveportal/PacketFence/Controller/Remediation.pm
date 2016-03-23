@@ -99,8 +99,6 @@ sub scan_status : Private {
             'scan in progress contact support if too long',
             $scan_start_time
         ],
-        txt_auto_refresh =>
-          [ 'automatically refresh', $refresh_timer ],
         refresh_timer => $refresh_timer,
     );
 }
