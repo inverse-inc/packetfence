@@ -201,8 +201,6 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
             {id => $id, members => [$sg->members($id, 'id')]}
          } @{$sg->readAllIds}];
 
-    my $groupsModel = $c->model("Config::SwitchGroup");
-
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Roles')->list();
