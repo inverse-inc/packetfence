@@ -1307,6 +1307,7 @@ This section will contain the following examples :
 * Chained authentication.
 * Customized template for a specific source.
 * Mixing login and Secure SSID on-boarding on the portal.
+* Displaying a message to the user.
 
 Creating a custom root module
 +++++++++++++++++++++++++++++
@@ -1328,7 +1329,9 @@ Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and s
 
 Configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
-Next, add the `prompt_fields` module in `my_first_root_module` and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
+### screenshot prompt_fields module
+
+Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
 
 Prompting additionnal fields during the authentication
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1344,6 +1347,29 @@ Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Ad
 Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex : phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
 NOTE: Not all sources support additionnal mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
+
+Chained authentication
+++++++++++++++++++++++
+
+The portal modules allow you to chain two or more modules together in order to make the user accomplish all of the actions in the module in the desired sequence.
+
+This example will allow you to configure a 'Chained' module that will require the user to login via any configured OAuth source (Github, Google+, ...)  and then validate his phone number using SMS registration.
+
+For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Portal Profile.
+
+Then, we will create a module that will contain the definition of our SMS registration.
+
+Go in 'Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
+
+Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
+
+### screenshot sms module
+
+Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the 'Modules' fields
+
+### screenshot chained_oauth_sms
+
+Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 
 Authentication Choice module (advanced)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
