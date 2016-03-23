@@ -48,17 +48,18 @@ sub build_child {
         SNMPCommunityTrap => 'public'
     };
 
-    my @management_ips;
-    push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
-    push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
-    foreach my $management_ip (@management_ips){
-        $tmp_cfg{$management_ip} = {
-            type => 'PacketFence', 
-            mode => 'production', 
-            radiusSecret => 'testing1234', 
-        };
+    if($self->{management_network}){
+        my @management_ips;
+        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
+        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+        foreach my $management_ip (@management_ips){
+            $tmp_cfg{$management_ip} = {
+                type => 'PacketFence', 
+                mode => 'production', 
+                radiusSecret => 'testing1234', 
+            };
+        }
     }
-
 
     my @keys;
     # default is always first
