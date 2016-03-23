@@ -100,7 +100,7 @@ Get the subtemplate in the right portal profile
 
 =cut
 
-sub getSubTemplate {
+sub getSubTemplate :Private {
     my ( $self, $c, $template ) = @_;
     my $portalSession = $c->portalSession;
     return "violations/$template.html";
