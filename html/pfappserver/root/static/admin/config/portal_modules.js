@@ -27,6 +27,7 @@ $('#section').on('submit', 'form[name="formItem"]', function(e) {
         btn.button('reset');
     }).done(function(data, textStatus, jqXHR) {
         showSuccess(form, "Saved");
+        window.location.hash = "#config/portal_module/"+form.find('input[name="id"]').val()+"/read"
     }).fail(function(jqXHR) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var status_msg = getStatusMsg(jqXHR);
