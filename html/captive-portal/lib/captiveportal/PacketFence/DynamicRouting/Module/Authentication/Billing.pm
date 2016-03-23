@@ -189,7 +189,6 @@ sub process_transaction {
         }
     }
 
-    use Data::Dumper; get_logger->info(Dumper($self->source));
     if(isenabled($self->source->{create_local_account})){
         my $actions = [
             pf::Authentication::Action->new({
