@@ -25,6 +25,7 @@ use POSIX;
 use base ('pf::Switch');
 
 use pf::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::config;
 use pf::radius::constants;
 use pf::Switch::constants;
@@ -154,7 +155,7 @@ sub getVoipVsa {
     return (
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => $self->getVlanByName('voice'),
+        'Tunnel-Private-Group-ID'   => $self->getVlanByName($VOICE_ROLE),
     );
 }
 
@@ -180,7 +181,7 @@ sub NasPortToIfIndex {
     my ($self, $nas_port) = @_;
     my $logger = $self->logger;
 
-    # 4096 NAS-Port slots are reserved per physical ports, 
+    # 4096 NAS-Port slots are reserved per physical ports,
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
     # Also there's a large offset (16781312), couldn't find where it is coming from...
     my $port = ceil(($nas_port - $THREECOM::NAS_PORT_OFFSET) / $THREECOM::NAS_PORTS_PER_PORT_RANGE);

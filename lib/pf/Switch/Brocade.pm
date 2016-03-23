@@ -73,6 +73,7 @@ use pf::Switch::constants;
 use pf::util;
 use pf::constants;
 use pf::config;
+use pf::constants::role qw($VOICE_ROLE);
 
 =head1 SUBROUTINES
 
@@ -185,7 +186,7 @@ sub getVoipVsa {
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => "T:".$self->getVlanByName('voice'),
+        'Tunnel-Private-Group-ID'   => "T:".$self->getVlanByName($VOICE_ROLE),
     );
 }
 

@@ -22,6 +22,7 @@ use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER)
 use pf::config;
 use pf::node qw(node_exist node_modify);
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::floatingdevice::custom;
@@ -571,7 +572,7 @@ sub getNodeInfoForAutoReg {
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($args->{'isPhone'}) {
         $node_info{'voip'} = $VOIP;
-        $node_info{'category'} = 'voice';
+        $node_info{'category'} = $VOICE_ROLE;
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
