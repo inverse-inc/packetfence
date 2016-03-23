@@ -263,7 +263,7 @@ function initReadPage(element) {
             changeInputFromTemplate(match_input, match_input_template, false);
             if (type_value == "switch") {
                 type_input.next().typeahead({
-                    source: profileSearchSwitches,
+                    source: searchSwitchesGenerator($('#section h2')),
                     minLength: 2,
                     items: 11,
                     matcher: function(item) { return true; }
@@ -279,30 +279,6 @@ function initReadPage(element) {
         $('#'+emptyId).addClass('hidden');
         return false;
     });
-}
-
-function profileSearchSwitches(query, process) {
-    $.ajax({
-            url : '/config/switch/search',
-            type : 'POST',
-            data: {
-                'json': 1,
-                'all_or_any': 'any',
-                'searches.0.name': 'id',
-                'searches.0.op': 'like',
-                'searches.0.value': query,
-            },
-        })
-        .done( function(data) {
-            var results = $.map(data.items, function(i) {
-                return i.id;
-            });
-            process(results);
-        })
-        .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
-        });
 }
 
 function initTemplatesPage(element) {
