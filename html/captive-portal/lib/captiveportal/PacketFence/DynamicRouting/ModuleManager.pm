@@ -163,7 +163,12 @@ What to do by default. In this case we execute the default module
 
 sub default_behavior {
     my ($self) = @_;
-    $self->default_module->execute();
+    if($self->default_module){
+        $self->default_module->execute();
+    }
+    else {
+        $self->app->error("Cannot find any authentication mechanism to apply. Please contact your local support.");
+    }
 }
 
 =head2 default_module
