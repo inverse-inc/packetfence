@@ -232,6 +232,14 @@ sub add_fake_profile_data {
         message     => 'Test message',
         dhcp_fingerprint      => '1,28,2,3,15,6,119,12,44,47,26,121,42',
         last_connection_type  => 'Wireless-802.11-EAP',
+        nodes       => [{ status           => 'reg',
+                          mac              => '00:11:22:33:44:55',
+                          dhcp_fingerprint => 'Ubuntu',
+                          regdate          => '2016-01-02 03:04:05' },
+                       { status           => 'reg',
+                          mac              => '11:22:33:44:55:66',
+                          dhcp_fingerprint => 'Android',
+                          regdate          => '2016-02-03 04:05:06' }]
     );
 
 }
