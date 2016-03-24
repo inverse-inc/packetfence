@@ -76,8 +76,10 @@ sub _build_sources {
     my @sources;
     
     # First sources of the array are the ones we defined manually
-    my @source_ids = split(/\s*,\s*/, $source_id);
-    push @sources, map { pf::authentication::getAuthenticationSource($_) } @source_ids;
+    if(defined($source_id)){
+        my @source_ids = split(/\s*,\s*/, $source_id);
+        push @sources, map { pf::authentication::getAuthenticationSource($_) } @source_ids;
+    }
     
     my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
     my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
