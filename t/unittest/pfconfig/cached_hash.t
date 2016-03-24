@@ -23,6 +23,7 @@ use Test::NoWarnings;
 
 my %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
+tie my $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
 
 ##
 # Test FETCH
@@ -52,7 +53,11 @@ ok(!exists($SwitchConfig{zammit}), "zammit switch doesn't exists");
 ##
 # Test keys and KEYS
 
+
 my $SWITCH_COUNT = 25;
+
+$SWITCH_COUNT++ if $management_network->tag('vip');
+$SWITCH_COUNT++ if $management_network->tag('ip');
 
 my @keys = tied(%SwitchConfig)->keys();
 
@@ -83,7 +88,7 @@ is(ref(\@values), 'ARRAY',
 ##
 # Test search
 my @search = tied(%SwitchConfig)->search("type", "Aruba");
-is(@search, 4, 
+is(@search, 4,
     "Search yielded the right amount of data");
 foreach my $element (@search){
     is($element->{type}, "Aruba",
