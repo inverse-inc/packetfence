@@ -59,8 +59,6 @@ my %args = (
 
 getopts( 'dhs:n:p:c:', \%args );
 
-$args{p} //= $args{n};
-
 our $PROGRAM_NAME = $0 = $args{n};
 
 if(defined($args{c})){
