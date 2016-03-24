@@ -61,11 +61,14 @@ Set the username in the session and in the new_node_info after setting it
 
 after 'username' => sub {
     my ($self) = @_;
-    get_logger->info("User ".$self->{username}." has authenticated on the portal.");
-    $self->new_node_info->{pid} = $self->{username};
-    $self->app->session->{username} = $self->{username};
-    if(!person_exist($self->{username})){
-        person_add($self->{username});
+
+    if(defined($self->{username})){
+        get_logger->info("User ".$self->{username}." has authenticated on the portal.");
+        $self->new_node_info->{pid} = $self->{username};
+        $self->app->session->{username} = $self->{username};
+        if(!person_exist($self->{username})){
+            person_add($self->{username});
+        }
     }
 };
 
