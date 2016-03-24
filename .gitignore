@@ -155,3 +155,4 @@ lib/fingerbank
 logs/
 var/
 raddb/sites-enabled/
+html/captive-portal/content/node_modules/

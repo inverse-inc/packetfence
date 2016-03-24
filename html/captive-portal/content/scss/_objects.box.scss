@@ -1,0 +1,39 @@
+/// _objecs.box.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+$pf-box-hero-width: $inuit-base-line-height * 6;
+$pf-box-hero-width--small: $inuit-base-line-height * 4;
+
+.#{$inuit-box-namespace}box--large-height {
+  max-height: $inuit-base-line-height * 18;
+  overflow: auto;
+
+  @include media-query(palm) {
+    max-height: $inuit-base-line-height * 12;
+    padding: quarter($spacing-unit);
+  }
+}
+
+.#{$inuit-box-namespace}box--tint {
+  @include font-size($inuit-base-font-size * 0.8, 1.5);
+  background-color: $pf-box-tint-background;
+  color: $pf-box-tint-color;
+}
+
+.#{$inuit-box-namespace}box--accent {
+  background-color: $pf-base-accent-color;
+}
+
+.#{$inuit-box-namespace}box--hero {
+  display: inline-block;
+  background-color: $pf-base-accent-color;
+  border-radius: 50%;
+  height: $pf-box-hero-width;
+  padding: $pf-box-hero-width/2/2;
+  width: $pf-box-hero-width;
+
+  @include media-query(palm) {
+    height: $pf-box-hero-width--small;
+    padding: $pf-box-hero-width--small/2/2;
+    width: $pf-box-hero-width--small;
+  }
+}

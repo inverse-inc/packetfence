@@ -48,7 +48,7 @@ as possible. Always look at the `POD` doc
 footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
 To do so, the prefered way is using the `perldoc` command as follows:
 
-  perldoc conf/authentication/ldap.pm
+  perldoc lib/pfconfig/cached.pm
 
 
 Code conventions
@@ -65,7 +65,7 @@ history and makes maintainer's job more complicated than it should be. Every
 new change uses the new guidelines so over time the old code style will
 slowly disappear.
 
-* Lines of 120 character width maximum (lower encouraged)
+* Lines of 120 character width maximum
 
 * No tab characters
 
@@ -78,7 +78,7 @@ slowly disappear.
 * in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase]
   notation (ex: `$radiusRequest->getVoIpAttributes();`)
 
-* in procedural modules we use perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
+* in procedural modules we use Perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
 
 * regular expressions should be documented (with the `/x` modifier)
 
@@ -120,25 +120,30 @@ XHTML Templates
 +++++++++++++++
 
 Captive portal content use http://template-toolkit.org/[Template Toolkit]
-templates. All the template files are located in `/usr/local/pf/html/captive-portal/templates`.
-You can freely edit the `HTML` code in these files. However, if you want to
-customize the pages beyond the `HTML` template (for example by adding new
-variables to it), you'll need to look into the `/usr/local/pf/lib/pf/web/custom.pm`
-Perl module. This module allows you to overload the behavior of the default
-`/usr/local/pf/lib/pf/web.pm` module.
+templates. The default template files are located in `/usr/local/pf/html/captive-portal/templates`.
+You can freely edit the `HTML` code in these files.
 
-Each template relies on `header.html` and `footer.html` for the common top
-and bottom portion of each file.
+Each template relies on `layout.html` for the common top and bottom portions of the page.
 
 CSS
 +++
 
-Most of the branding should be possible by only changing the `CSS`. Here are
-the various `CSS` files used by PacketFence:
+The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/getting-started[inuitcss] architectural foundation.
 
-Usual one:: `/usr/local/pf/html/captive-portal/content/styles.css`
-Mobile:: `/usr/local/pf/html/captive-portal/content/responsive.css`
-Print:: `/usr/local/pf/html/captive-portal/content/print.css`
+* `/usr/local/pf/html/captive-portal/content/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/captive-portal/content/package.js` -- the npm dependencies required to process the Sass files
+* `/usr/local/pf/html/captive-portal/content/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/captive-portal/content/styles.css` -- the generated stylesheet
+
+In order to prepare your environment to process the Sass files, you need to install http://gruntjs.com/[grunt] (the task runner) and additional https://nodejs.org[nodejs] modules, including the various inuitcss components:
+
+  sudo npm install -g grunt
+  cd /usr/local/pf/html/captive-portal/content
+  npm install
+
+Once all modules are downloaded, you can customize the Sass files and generate a new stylesheet:
+
+  grunt dist
 
 Workflow
 ++++++++

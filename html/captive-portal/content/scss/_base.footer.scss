@@ -1,0 +1,15 @@
+/// _base.footer.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+body,
+footer {
+  background-color: $pf-footer-background-color;
+}
+
+footer {
+  @include font-size($inuit-base-font-size * 0.8, 1.5);
+  color: $pf-footer-text-color;
+  b {
+    color: lighten($pf-footer-text-color, 20%);
+    font-weight: normal;
+  }
+}
