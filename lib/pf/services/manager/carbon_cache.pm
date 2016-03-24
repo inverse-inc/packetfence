@@ -67,7 +67,7 @@ sub generate_carbon_config {
 }
 
 sub get_cluster_destinations {
-    defined @cluster_hosts
+    @cluster_hosts
       ? join( ', ', map { $_->{management_ip} . ":2004" } @cluster_servers )
       : undef;
 }
