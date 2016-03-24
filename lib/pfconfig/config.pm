@@ -19,12 +19,24 @@ use UNIVERSAL::require;
 use Config::IniFiles;
 use pf::util;
 
+=head2 new
+
+Create a new pfconfig configuration object
+
+=cut
+
 sub new {
     my ($class) = @_;
     my $self = bless {}, $class;
     $self->init();
     return $self;
 }
+
+=head2 init
+
+Init the pfconfig configuration object
+
+=cut
 
 sub init {
     my ($self) = @_;
@@ -36,10 +48,22 @@ sub init {
     $self->{cfg} = \%cfg;
 }
 
+=head2 section
+
+Get a configuration section
+
+=cut
+
 sub section {
     my ( $self, $name ) = @_;
     return $self->{cfg}{$name};
 }
+
+=head2 get_backend
+
+Get the backend object defined in the configuration or the default one
+
+=cut
 
 sub get_backend {
     my ( $self ) = @_;
