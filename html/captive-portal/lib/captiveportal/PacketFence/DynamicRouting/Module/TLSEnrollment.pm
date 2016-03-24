@@ -102,7 +102,7 @@ sub prompt_info {
 
     my $args = {
         certificate_pwd     => word(4,6),    
-        title => "Certificate generation",
+        title => "Certificate generation for EAP TLS connection",
     };
 
     if( $certificate_email ) {
