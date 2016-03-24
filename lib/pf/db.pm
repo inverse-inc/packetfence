@@ -332,13 +332,13 @@ sub db_query_execute {
 
 =item db_transaction_execute
 
-Intended to run db_query_execute commands in a transactionnal mode
+Intended to run db_query_execute commands in a transactional mode
 
 =cut
 
 sub db_transaction_execute {
     my ( $sub ) = @_;
-    my $logger = get_logger();    
+    my $logger = get_logger();
 
     my $dbh = get_db_handle();
     unless ( $dbh->{AutoCommit} ) {
@@ -351,7 +351,7 @@ sub db_transaction_execute {
         return;
     }
 
-    eval {
+    my $rc = eval {
         $sub->();
         $dbh->commit;
     };
@@ -360,6 +360,7 @@ sub db_transaction_execute {
     }
 
     $dbh->{AutoCommit} = 1;
+    return $rc;
 }
 
 our $PREPARED_NOW_STMT;
