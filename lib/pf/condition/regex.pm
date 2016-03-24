@@ -28,8 +28,6 @@ The value to match against
 has value => (
     is => 'ro',
     required => 1,
-    isa  => 'RegexpRefStr',
-    coerce => 1,
 );
 
 =head2 match
@@ -42,7 +40,7 @@ sub match {
     my ($self,$arg) = @_;
     my $match = $self->value;
     return 0 if(!defined($arg));
-    return $arg =~ $match;
+    return $arg =~ /$match/;
 }
 
 =head1 AUTHOR
