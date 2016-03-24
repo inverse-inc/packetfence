@@ -48,3 +48,6 @@ guest ok = no
 
 #interfaces = 169.254.0.1
 #bind interfaces only = yes
+
+# prevent winbind from periodically changing the password
+machine password timeout = 0
