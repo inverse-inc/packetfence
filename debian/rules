@@ -181,7 +181,7 @@ endif
 ifneq (,$(filter yes,$(wheezy) $(precise)))
 	dh_installinit
 endif
-#	dh_installcron
+	dh_installcron
 #	dh_installinfo
 	dh_installman
 	dh_link \
