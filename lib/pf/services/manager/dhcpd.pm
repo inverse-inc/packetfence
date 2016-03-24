@@ -47,7 +47,8 @@ sub generateConfig {
     $tags{'networks'} = '';
     $tags{'active'} = '';
 
-    my $captive_portal_url = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    my $captive_portal_uri = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    $captive_portal_uri .= "://" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
 
     my $failover_activated = 0;
 
@@ -136,7 +137,7 @@ subnet $network netmask $net{'netmask'} {
   option subnet-mask $net{'netmask'};
   option domain-name "$net{'domain-name'}";
   option domain-name-servers $dns;
-  option captive-portal-rfc7710 "$captive_portal_url";
+  option captive-portal-rfc7710 "$captive_portal_uri";
   pool {
 EOT
 
@@ -159,7 +160,7 @@ subnet $network netmask $net{'netmask'} {
   option subnet-mask $net{'netmask'};
   option domain-name "$net{'domain-name'}";
   option domain-name-servers $net{'dns'};
-  option captive-portal-rfc7710 "$captive_portal_url";
+  option captive-portal-rfc7710 "$captive_portal_uri";
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
   max-lease-time $net{'dhcp_max_lease_time'};
