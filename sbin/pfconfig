@@ -15,7 +15,8 @@ pfconfig [options]
    -h                 Help
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
    -n NAME            The name of process as reported in ps - default pfconfig
-   -p NAME            The prefix of pidfile - defaults to the name
+   -p PID_PATH        The path to the PID file (optional)
+   -c CONFIG_PATH     The path to the configuration file (optional) 
 
 =cut
 
