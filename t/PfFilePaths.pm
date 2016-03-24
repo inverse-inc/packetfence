@@ -15,11 +15,11 @@ Overrides the the location of config files to help with testing
 use strict;
 use warnings;
 
-use File::Slurp qw(read_file);
 
 our $PFCONFIG_TEST_PID_FILE;
 
 BEGIN {
+    use File::Slurp qw(read_file);
     use File::Path qw(remove_tree);
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
