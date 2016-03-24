@@ -266,7 +266,7 @@ sub execute {
     # This will be defined after the first time the user hits the dynamic routing portal
     # Then will be true on the second time he hits the dynamic routing portal
     $self->root_module->execute();
-    unless($self->previous_module_id eq $self->current_module_id){
+    unless(defined($self->previous_module_id) && $self->previous_module_id eq $self->current_module_id){
         $self->previous_module_id($self->current_module_id);
     }
 }
