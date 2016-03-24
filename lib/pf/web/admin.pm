@@ -90,8 +90,7 @@ sub rewrite {
         unless ($f->ctx) {
             $f->r->headers_out->unset('Content-Length');
             my @valhead = $r->headers_out->get('Location');
-            my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-            my $value = $proto.'://'.$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+            my $value = pf::util::get_captive_portal_uri();
             my $replacementheader = 'https://'.$r->hostname.":".$r->get_server_port."/portal_preview";
             my $headval;
             foreach $headval (@valhead) {

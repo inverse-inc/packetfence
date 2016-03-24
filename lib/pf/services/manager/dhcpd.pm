@@ -47,8 +47,7 @@ sub generateConfig {
     $tags{'networks'} = '';
     $tags{'active'} = '';
 
-    my $captive_portal_uri = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    $captive_portal_uri .= "://" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    my $captive_portal_uri = pf::util::get_captive_portal_uri();
 
     my $failover_activated = 0;
 
