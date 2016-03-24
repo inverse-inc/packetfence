@@ -1,6 +1,7 @@
 --
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
+
 --
 -- Setting the major/minor/sub-minor version of the DB
 --
@@ -292,8 +293,16 @@ INSERT INTO radacct
     FROM radacct_fr2;
 
 --
+-- Insert new sms carrier
+--
+
+INSERT INTO sms_carrier
+    (id, name, email_pattern, created)
+VALUES
+    (100122, 'Google Project Fi', '%s@msg.fi.google.com', now());
+
+--
 -- Updating to current version
 --
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
