@@ -1050,6 +1050,7 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
   log level = 1 winbind:5 auth:3
   winbind max clients = 750
   winbind max domain connections = 15
+  machine password timeout = 0
 ----
 
 For Debian and Ubuntu:
@@ -1078,6 +1079,7 @@ For Debian and Ubuntu:
   restrict anonymous = 2
   log file = /var/log/samba/log.%m
   max log size = 50
+  machine password timeout = 0
 ----
 
 Issue a `kinit` and `klist` in order to get and verify the Kerberos token:
