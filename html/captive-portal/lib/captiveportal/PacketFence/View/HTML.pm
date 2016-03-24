@@ -20,49 +20,6 @@ sub process {
     $c->response->body($c->stash->{application}->template_output);
 }
 
-=head2 i18n
-
-Internationalize a string
-
-=cut
-
-sub i18n {
-    my ( $self, $c, $msgid ) = @_;
-
-    my $msg = gettext($msgid);
-    utf8::decode($msg);
-
-    return $msg;
-}
-
-=head2 ni18n
-
-Internationalize a string that can be plural or singular
-
-=cut
-
-sub ni18n {
-    my ( $self, $c, $singular, $plural, $category ) = @_;
-
-    my $msg = ngettext( $singular, $plural, $category );
-    utf8::decode($msg);
-
-    return $msg;
-}
-
-=head2 i18n_format
-
-Pass message id through gettext then sprintf it.
-
-=cut
-
-sub i18n_format {
-    my ( $self, $c, $msgid, @args ) = @_;
-    my $msg = sprintf( gettext($msgid), @args );
-    utf8::decode($msg);
-    return $msg;
-}
-
 =head1 NAME
 
 captiveportal::View::HTML - TT View for captiveportal

@@ -69,7 +69,7 @@ sub authenticate {
         }
         else {
             pf::auth_log::record_auth($self->source, $self->current_mac, $pid, $pf::auth_log::FAILED);
-            $self->app->flash->{error} = $self->app->i18n($message);
+            $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
         }

@@ -98,7 +98,7 @@ Prompt for the activation PIN
 
 sub prompt_pin {
     my ($self) = @_;
-    $self->render("sms/validate.html");
+    $self->render("sms/validate.html", {title => "Confirm Mobile Phone Number"});
 }
 
 =head2 validate_info
@@ -115,7 +115,7 @@ sub validate_info {
     my $mobileprovider = $self->request_fields->{mobileprovider};
     
     if ($self->app->reached_retry_limit('sms_request_limit', $self->app->profile->{_sms_request_limit})) {
-        $self->app->flash->{error} = $self->app->i18n($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES});
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
         $self->prompt_fields();
         return 0;
     }
@@ -161,14 +161,14 @@ sub validation {
     my ($self) = @_;
         
     if ($self->app->reached_retry_limit('sms_retries', $self->app->profile->{_sms_pin_retry_limit})) {
-        $self->app->flash->{error} = $self->app->i18n($GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES});
+        $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
         $self->prompt_pin();
         return;
     }
 
     my $pin = $self->app->hashed_params->{'pin'};
     unless($pin){
-        $self->app->flash->{error} = $self->app->i18n("No PIN provided.");
+        $self->app->flash->{error} = "No PIN provided";
         $self->prompt_pin;
         return;
     }
@@ -180,7 +180,7 @@ sub validation {
         $self->done();
     }
     else {
-        $self->app->flash->{error} = $self->app->i18n($GUEST::ERRORS{$reason});
+        $self->app->flash->{error} = $GUEST::ERRORS{$reason};
         $self->prompt_pin();
     }
 }

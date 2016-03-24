@@ -69,6 +69,7 @@ sub landing {
         source => $self->source,
         with_aup => $self->with_aup,
         form => $self->form,
+        title => [ "OAuth authentication %s", $self->id ],
     });
 }
 
@@ -89,7 +90,7 @@ sub execute_child {
             $self->app->redirect($self->get_client->authorize);
         }
         else {
-            $self->app->flash->{error} = $self->app->i18n("You must accept the terms and conditions");
+            $self->app->flash->{error} = "You must accept the terms and conditions";
             $self->landing();
         }
     }
@@ -116,7 +117,7 @@ sub get_token {
     if ($@) {
         get_logger->warn("OAuth2: failed to receive the token from the provider: $@");
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
-        $self->app->flash->{error} = $self->app->i18n("OAuth2 Error: Failed to get the token");
+        $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
         $self->landing();
         return;
     }
@@ -156,7 +157,7 @@ sub handle_callback {
         get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
         get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($response) });
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
-        $self->app->flash->{error} = $self->app->i18n("OAuth2 Error: Failed to validate the token, please retry");
+        $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
         $self->landing();
         return;
     }

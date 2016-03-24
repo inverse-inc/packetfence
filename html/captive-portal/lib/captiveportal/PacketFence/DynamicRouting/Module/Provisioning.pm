@@ -81,7 +81,11 @@ Show the provisioner template
 
 sub show_provisioning {
     my ($self) = @_;
-    my $args = {provisioner => $self->get_provisioner, skipable => isenabled($self->skipable)};
+    my $args = {
+        provisioner => $self->get_provisioner, 
+        skipable => isenabled($self->skipable), 
+        title => ["Provisioning : %s",$self->get_provisioner->id],
+    };
     $self->render($self->get_provisioner->template, $args);
 }
 

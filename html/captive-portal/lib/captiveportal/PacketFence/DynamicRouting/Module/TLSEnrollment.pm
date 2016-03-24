@@ -102,6 +102,7 @@ sub prompt_info {
 
     my $args = {
         certificate_pwd     => word(4,6),    
+        title => "Certificate generation for EAP TLS connection",
     };
 
     if( $certificate_email ) {
@@ -147,7 +148,7 @@ sub process_form  {
     my $pki_provider = $self->pki_provider;
 
     if(!defined $passwd || $passwd eq '') {
-        $self->app->flash->{error} = $self->app->i18n("No Password given");
+        $self->app->flash->{error} = "No Password given";
         return $FALSE;
     }
 
@@ -159,7 +160,7 @@ sub process_form  {
         $certificate_email = $self->app->request->param('certificate_email');
     }
     else {
-        $self->app->flash->{error} = $self->app->i18n("No e-mail given");
+        $self->app->flash->{error} = "No e-mail given";
         return $FALSE;
     }
 

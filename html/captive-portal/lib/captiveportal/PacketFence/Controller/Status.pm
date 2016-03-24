@@ -6,6 +6,7 @@ use pf::constants;
 use pf::config;
 use pf::node;
 use pf::person;
+use pf::web;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -40,6 +41,7 @@ sub index : Path : Args(0) {
         $c->forward('userIsNotAuthenticated');
     }
     $c->stash(
+        title => "State - Network Access",
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
     );

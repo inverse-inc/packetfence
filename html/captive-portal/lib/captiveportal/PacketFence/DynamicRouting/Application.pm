@@ -27,6 +27,7 @@ use List::MoreUtils qw(any);
 use URI::Escape::XS qw(uri_unescape);
 use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
+use pf::web ();
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -43,6 +44,8 @@ has 'profile' => (is => 'rw', required => 1, isa => "pf::Portal::Profile");
 has 'template_output' => (is => 'rw');
 
 has 'response_code' => (is => 'rw', isa => 'Int', default => sub{200});
+
+has 'title' => (is => 'rw', isa => 'Str|ArrayRef');
 
 # to cache the cache objects
 has 'cache_cache' => (is => 'rw', default => sub {{}});
@@ -345,6 +348,7 @@ sub render {
         content => $inner_content,
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
+        title => $self->title,
     };
     $args->{layout} //= $TRUE;
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
@@ -363,13 +367,9 @@ Render a template using Template Toolkit.
 sub _render {
     my ($self, $template, $args) = @_;
 
-    our $TT_OPTIONS = {
-        AUTO_FILTER => 'html',
-        RELATIVE => 1,
-        INCLUDE_PATH => $self->profile->{_template_paths},
-    };
-
-    use Template::Stash;
+    if(defined($args->{title})){
+        $self->title($args->{title});
+    }
 
     # define list method to return new list of odd numbers only
     $args->{ i18n } = sub {
@@ -386,11 +386,21 @@ sub _render {
     # Expose current module in all templates
     $args->{current_module} = $self->current_module;
 
-    our $processor = Template::AutoFilter->new($TT_OPTIONS);;
+    our $processor = Template::AutoFilter->new($self->_template_toolkit_options);
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
     return $output;
+}
+
+sub _template_toolkit_options {
+    my ($self) = @_;
+    return {
+        AUTO_FILTER => 'html',
+        RELATIVE => 1,
+        INCLUDE_PATH => $self->profile->{_template_paths},
+        ENCODING => 'utf8',
+    }
 }
 
 =head2 redirect
@@ -415,10 +425,7 @@ Internationalize a string
 sub i18n {
     my ( $self, $msgid ) = @_;
 
-    my $msg = gettext($msgid);
-    utf8::decode($msg);
-
-    return $msg;
+    return pf::web::i18n($msgid);
 }
 
 =head2 ni18n
@@ -430,10 +437,7 @@ Internationalize a string that can be singular/plural
 sub ni18n {
     my ( $self, $singular, $plural, $category ) = @_;
 
-    my $msg = ngettext( $singular, $plural, $category );
-    utf8::decode($msg);
-
-    return $msg;
+    return pf::web::n18n($singular, $plural, $category);
 }
 
 =head2 i18n_format
@@ -444,9 +448,7 @@ Pass message id through gettext then sprintf it.
 
 sub i18n_format {
     my ( $self, $msgid, @args ) = @_;
-    my $msg = sprintf( gettext($msgid), @args );
-    utf8::decode($msg);
-    return $msg;
+    return pf::web::i18n_format($msgid, @args);
 }
 
 =head2 error
@@ -457,7 +459,7 @@ Create the template for an error
 
 sub error {
     my ($self, $message) = @_;
-    $self->render("error.html", {message => $message});
+    $self->render("error.html", {message => $message, title => "An error occured"});
 }
 
 =head2 empty_flash

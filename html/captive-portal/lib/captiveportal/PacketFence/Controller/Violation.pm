@@ -5,6 +5,7 @@ use pf::violation;
 use pf::class;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::log;
+use pf::web;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -82,6 +83,7 @@ sub index : Path : Args(0) {
         $logger->info("Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
+            'title'        => 'violation: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
             map { $_ => $node_info->{$_} }
@@ -91,6 +93,29 @@ sub index : Path : Args(0) {
         $c->detach;
     }
 }
+
+=head2 getSubTemplate
+
+Get the subtemplate in the right portal profile
+
+=cut
+
+sub getSubTemplate :Private {
+    my ( $self, $c, $template ) = @_;
+    my $portalSession = $c->portalSession;
+    return "violations/$template.html";
+#    my $langs         = $portalSession->getRequestLanguages();
+    my $langs         = [];
+    my $paths         = $portalSession->templateIncludePath();
+    my @subTemplates =
+      map { "violations/$template" . ( $_ ? ".$_" : "" ) . ".html" } @$langs,
+      '';
+    return first { -f $_ } map {
+        my $path = $_;
+        map {"$path/$_"} @subTemplates
+    } @$paths;
+}
+
 
 sub release :Local {
     my ($self, $c) = @_;
