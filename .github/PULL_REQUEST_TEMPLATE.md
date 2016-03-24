@@ -40,3 +40,6 @@ YES | NO
 If an issue exists on Github, please refer to it (name) along with it's number...
 * Issue with Zammitbug in sandwich context (#42)
 * Issue with Zammitbug in dinde context (#43)
+
+# UPGRADE file entries
+(OPTIONAL, but may be required...)
