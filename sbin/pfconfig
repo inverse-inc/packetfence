@@ -56,12 +56,16 @@ my %args = (
     n => "pfconfig",
 );
 
-getopts( 'dhs:n:p:', \%args );
+getopts( 'dhs:n:p:c:', \%args );
 
 $args{p} //= $args{n};
 
 our $PROGRAM_NAME = $0 = $args{n};
 
+if(defined($args{c})){
+    $pfconfig::constants::CONFIG_FILE_PATH = $args{c};
+    print $pfconfig::constants::CONFIG_FILE_PATH;
+}
 
 my $socket_path = $args{s};
 unlink($socket_path);
@@ -114,7 +118,7 @@ unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
 my $daemonize = $args{d};
 
 # standard signals and daemonize
-daemonize($PROGRAM_NAME) if ($daemonize);
+daemonize($PROGRAM_NAME, $args{p}) if ($daemonize);
 
 our %DISPATCH = (
     'expire'             => \&expire,
