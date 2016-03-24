@@ -796,7 +796,7 @@ msgstr "If you believe that you must be allowed to connect then contact your loc
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/windows.html
-# tml/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
 msgstr "Enabling network access"
 
