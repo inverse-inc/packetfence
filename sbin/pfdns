@@ -479,7 +479,7 @@ sub populate_ipset_cache {
     my ($session) = @_;
     my $in_header = 1;
     my @lines =
-      pf_run("/usr/sbin/ipset list $session 2>/dev/null",
+      pf_run("sudo ipset list $session 2>/dev/null",
         accepted_exit_status => [1]);
 
     while (my $line = shift @lines) {
