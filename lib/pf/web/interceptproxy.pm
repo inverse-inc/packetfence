@@ -41,7 +41,7 @@ sub translate {
     my $logger = get_logger();
     $logger->warn("hitting interceptor with URL: " . $r->uri);
     #Fetch the captive portal URL
-    my $url = pf::util::get_captive_portal_uri();
+    my $url = pf::config::util::get_captive_portal_uri();
 
     my $parsed_portal = APR::URI->parse($r->pool, $url);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
@@ -197,7 +197,7 @@ sub reverse {
     my $logger = get_logger();
     $logger->trace("Reverse proxy :".$r->uri);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
-    my $url = pf::util::get_captive_portal_uri();
+    my $url = pf::config::util::get_captive_portal_uri();
     my $parsed_portal = APR::URI->parse($r->pool, $url);
     $parsed_portal->scheme(undef);
     $parsed_portal->scheme('http');

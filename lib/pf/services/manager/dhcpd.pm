@@ -47,7 +47,7 @@ sub generateConfig {
     $tags{'networks'} = '';
     $tags{'active'} = '';
 
-    my $captive_portal_uri = pf::util::get_captive_portal_uri();
+    my $captive_portal_uri = pf::config::util::get_captive_portal_uri();
 
     my $failover_activated = 0;
 

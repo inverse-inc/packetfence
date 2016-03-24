@@ -80,7 +80,6 @@ BEGIN {
         touch_file
         pf_make_dir
         empty_dir
-        get_captive_portal_uri
     );
 }
 
@@ -1241,19 +1240,6 @@ sub pf_make_dir {
             mode => 02775,
         }
     );
-}
-
-=item get_captive_portal_uri
-
-Returns the complete captive-portal URI
-
-=cut
-
-sub get_captive_portal_uri {
-    my $captive_portal_uri = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    $captive_portal_uri .= "://" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-
-    return $captive_portal_uri;
 }
 
 =back
