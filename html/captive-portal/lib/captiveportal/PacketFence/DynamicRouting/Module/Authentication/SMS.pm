@@ -168,7 +168,7 @@ sub validation {
 
     my $pin = $self->app->hashed_params->{'pin'};
     unless($pin){
-        $self->app->flash->{error} = "No PIN provided.";
+        $self->app->flash->{error} = "No PIN provided";
         $self->prompt_pin;
         return;
     }
