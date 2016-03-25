@@ -51,7 +51,6 @@ BEGIN {
         $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
         $management_network->tag('ip', $Config{$section_name}{ip});
         $management_network->tag('vip', $Config{$section_name}{vip});
-        use Data::Dumper; print Dumper($Config{$section_name});
     }
 }
  
