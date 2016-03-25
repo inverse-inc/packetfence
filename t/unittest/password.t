@@ -7,6 +7,7 @@ my $FALSE = 0;
 my $TRUE = 1;
 
 BEGIN {
+    use setup_test_config;
     use_ok('pf::password') or die;
     use pf::password 'bcrypt';
 }
