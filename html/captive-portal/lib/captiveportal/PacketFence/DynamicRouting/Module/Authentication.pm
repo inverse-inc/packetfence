@@ -41,7 +41,7 @@ has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{"role_from_so
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
 use pf::authentication;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
 use captiveportal::Base::Actions;
 
 =head2 allowed_urls
@@ -225,7 +225,7 @@ sub create_local_account {
     # with different parameters coming from the authentication source (ie.: expiration date)
     $actions = $actions // &pf::authentication::match( $self->source->id, $auth_params );
 
-    my $login_amount = ($self->source->local_account_logins eq "0") ? undef : $self->source->local_account_logins;
+    my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
     $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
 
     # We send the guest and email with the info of the local account

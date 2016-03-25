@@ -16,6 +16,11 @@ use warnings;
 
 use Readonly;
 
+use base qw(Exporter);
+our @EXPORT_OK = qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
+
+Readonly our $LOCAL_ACCOUNT_UNLIMITED_LOGINS => "0";
+
 =head1 Rules
 
 General constants related to rules.
