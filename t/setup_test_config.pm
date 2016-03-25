@@ -29,7 +29,7 @@ BEGIN {
     remove_tree('/tmp/chi');
 
     $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
-    `/usr/local/pf/sbin/pfconfig -s $pfconfig::constants::SOCKET_PATH -p $PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
+    `/usr/local/pf/sbin/pfconfig -n pfconfig-test -s $pfconfig::constants::SOCKET_PATH -p $PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
 
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
