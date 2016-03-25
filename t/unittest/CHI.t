@@ -23,16 +23,16 @@ BEGIN {
 
     #Module for overriding configuration paths
     use setup_test_config;
-
 }
 
-use pf::CHI;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Exception;
 
 #This test will running last
 use Test::NoWarnings;
+
+use_ok("pf::CHI");
 
 my $cache_miss = 0;
 
