@@ -19,7 +19,7 @@ use Test::Harness;
 use File::Spec::Functions;
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 runtests(

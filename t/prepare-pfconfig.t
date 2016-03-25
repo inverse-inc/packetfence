@@ -20,7 +20,7 @@ BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
     use lib INSTALL_DIR . "/t";
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use pfconfig::manager;

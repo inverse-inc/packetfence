@@ -17,7 +17,7 @@ use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 
@@ -30,6 +30,8 @@ my @binaries = (
 plan tests => scalar @binaries * 1 + 1;
 
 foreach my $current_binary (@binaries) {
+    my $flags = '-I/usr/local/pf/t -Mtest_paths';
+
     is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
 }
 

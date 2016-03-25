@@ -22,17 +22,17 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
 
     #Module for overriding configuration paths
-    use PfFilePaths;
-
+    use setup_test_config;
 }
 
-use pf::CHI;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Test::Exception;
 
 #This test will running last
 use Test::NoWarnings;
+
+use_ok("pf::CHI");
 
 my $cache_miss = 0;
 

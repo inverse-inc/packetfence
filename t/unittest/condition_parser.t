@@ -22,7 +22,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
 
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 
     @VALID_STRING_TESTS = (
         ['a && b',      ['AND', 'a', 'b']],

@@ -26,7 +26,7 @@ our (%DATA,%DATA1,%DATA2,%DATA3,$filename);
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use pf::log;
 

@@ -18,7 +18,7 @@ use Test::More tests => 1;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 BEGIN { use_ok('pf::person') }
 

@@ -15,7 +15,8 @@ pfconfig [options]
    -h                 Help
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
    -n NAME            The name of process as reported in ps - default pfconfig
-   -p NAME            The prefix of pidfile - defaults to the name
+   -p PID_PATH        The path to the PID file (optional)
+   -c CONFIG_PATH     The path to the configuration file (optional) 
 
 =cut
 
@@ -56,12 +57,11 @@ my %args = (
     n => "pfconfig",
 );
 
-getopts( 'dhs:n:p:', \%args );
-
-$args{p} //= $args{n};
+getopts( 'dhs:n:p:c:', \%args );
 
 our $PROGRAM_NAME = $0 = $args{n};
 
+$pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 
 my $socket_path = $args{s};
 unlink($socket_path);
@@ -114,7 +114,7 @@ unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
 my $daemonize = $args{d};
 
 # standard signals and daemonize
-daemonize($PROGRAM_NAME) if ($daemonize);
+daemonize($PROGRAM_NAME, $args{p}) if ($daemonize);
 
 our %DISPATCH = (
     'expire'             => \&expire,

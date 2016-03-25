@@ -14,7 +14,7 @@ use lib qw(
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 BEGIN {

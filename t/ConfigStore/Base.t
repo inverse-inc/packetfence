@@ -21,7 +21,7 @@ use Test::Harness;
 use File::Spec::Functions;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 plan tests => 20;

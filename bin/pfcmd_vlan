@@ -74,7 +74,7 @@ This script allows to execute the following commands related to switches and VLA
 use strict;
 use warnings;
 
-use autouse 'Net::MAC::Vendor' => qw(lookup);
+use Net::MAC::Vendor;
 use Data::Dumper;
 use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
@@ -420,7 +420,7 @@ if ($reevaluateAccess) {
             foreach my $mac ( sort @{ $hubPorts->{$port} } ) {
                 print "- $mac";
                 if ($showMacVendor) {
-                    my $oui_info = lookup($mac);
+                    my $oui_info = Net::MAC::Vendor::lookup($mac);
                     print ", " . ( $$oui_info[0] || 'unknown' );
                 }
                 if ($showPF) {
@@ -517,7 +517,7 @@ if ($reevaluateAccess) {
             foreach my $currentMac ( $switch->getMacAtIfIndex($ifIndex) ) {
                 print "$currentMac";
                 if ($showMacVendor) {
-                    my $oui_info = lookup($currentMac);
+                    my $oui_info = Net::MAC::Vendor::lookup($currentMac);
                     print ", " . ( $$oui_info[0] || 'unknown' );
                 }
                 if ($showPF) {
@@ -680,7 +680,7 @@ if ($reevaluateAccess) {
         }
     }
     if ($showMacVendor) {
-        my $oui_info = lookup($mac);
+        my $oui_info = Net::MAC::Vendor::lookup($mac);
         $mac = "$mac (" . ( $$oui_info[0] || 'unknown' ) . ")";
     }
     if ($found) {

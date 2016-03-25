@@ -14,7 +14,7 @@ use Test::More tests => 6;
 
 use lib '/usr/local/pf/lib';
 BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use PfFilePaths; }
+BEGIN { use setup_test_config; }
 use pf::config;
 use pf::SwitchFactory;
 

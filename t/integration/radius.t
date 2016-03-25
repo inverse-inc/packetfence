@@ -24,7 +24,7 @@ Log::Log4perl::MDC->put( 'proc', "integration/radius.t" );
 Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use pf::config;

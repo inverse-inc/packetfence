@@ -16,7 +16,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 2;
@@ -27,7 +27,7 @@ use File::Basename qw(basename);
 use Log::Log4perl;
 
 # required to avoid warnings in admin guide asciidoc build
-`/usr/local/pf/bin/pfcmd_vlan -help`;
+`perl -I/usr/local/pf/t -Mtest_paths /usr/local/pf/bin/pfcmd_vlan -help`;
 is($CHILD_ERROR, 0, "pfcmd_vlan -help exits with status 0"); 
 
 =head1 AUTHOR

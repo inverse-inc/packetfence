@@ -15,7 +15,15 @@ Configuration access to pfconfig.conf
 =cut
 
 use pfconfig::constants;
+use UNIVERSAL::require;
 use Config::IniFiles;
+use pf::util;
+
+=head2 new
+
+Create a new pfconfig configuration object
+
+=cut
 
 sub new {
     my ($class) = @_;
@@ -23,6 +31,12 @@ sub new {
     $self->init();
     return $self;
 }
+
+=head2 init
+
+Init the pfconfig configuration object
+
+=cut
 
 sub init {
     my ($self) = @_;
@@ -34,9 +48,39 @@ sub init {
     $self->{cfg} = \%cfg;
 }
 
+=head2 section
+
+Get a configuration section
+
+=cut
+
 sub section {
     my ( $self, $name ) = @_;
     return $self->{cfg}{$name};
+}
+
+=head2 get_backend
+
+Get the backend object defined in the configuration or the default one
+
+=cut
+
+sub get_backend {
+    my ( $self ) = @_;
+    my $cfg    = $self->section('general');
+
+    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
+
+    my $type   = "pfconfig::backend::$name";
+
+    $type = untaint_chain($type);
+
+    # load the module to instantiate
+    if ( !( eval "$type->require()" ) ) {
+        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
+    }
+
+    $self->{cache} = $type->new();
 }
 
 =back

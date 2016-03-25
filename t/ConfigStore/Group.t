@@ -19,7 +19,7 @@ use Test::More tests => 17;
 use Test::NoWarnings;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use_ok("pf::ConfigStore");

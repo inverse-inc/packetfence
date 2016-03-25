@@ -15,7 +15,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use NetAddr::IP;
 
