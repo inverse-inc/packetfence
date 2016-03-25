@@ -1,0 +1,12 @@
+pfconfig.service and packetfence.service must go to /usr/lib/systemd/system/
+
+When manipulating service on cent os 7 we need to exclusively use systemctl start/stop/status/restart your-service to avoid issues
+If you use the old centos6 way, your services might not start and stop properly
+
+Also to replace the chkconfig on centos7 you need to use
+systemctl enable your-service
+
+Inside the unit pfconfig.service or packetfence.service it going in 3 blocks:
+Unit (Description, Start After or Before)
+Service (Type of process, what to exec in Start, Stop or Post/Pre Start/Stop, setup auto restart, and multiple others options)
+Install(This section is for the enable/disable command, where will it be install)

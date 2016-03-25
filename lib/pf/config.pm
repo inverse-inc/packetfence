@@ -40,6 +40,7 @@ use File::Which;
 use Socket;
 use List::MoreUtils qw(any);
 use Time::Local;
+use Linux::Distribution;
 use DateTime;
 use pf::constants::Portal::Profile;
 use pf::cluster;
@@ -182,6 +183,7 @@ BEGIN {
         @Profile_Filters %Profiles_Config
         %ConfigFirewallSSO
         $OS
+        $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
@@ -286,6 +288,11 @@ Readonly our $WIPS_VID => '1100020';
 
 # OS Specific
 Readonly::Scalar our $OS => os_detection();
+
+# OS Version Specific
+Readonly::Scalar our $LINUX => Linux::Distribution->new;
+Readonly::Scalar our $DISTRIB => $LINUX->distribution_name();
+Readonly::Scalar our $DIST_VERSION => $LINUX->distribution_version();
 
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';
