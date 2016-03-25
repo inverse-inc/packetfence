@@ -584,6 +584,9 @@ Returns true if the password entry can still be used for login
 sub consume_login {
     my ($pid) = @_;
     my $user = view($pid);
+    # if the remaining login amount is undef, this means that the user is allowed unlimited logins
+    # Otherwise, the user can use the amount of login in the column
+    # When the amount remaining is at 0, this returns false
     if(defined($user->{login_remaining})){
         if($user->{login_remaining} > 0){
             db_query_execute(
