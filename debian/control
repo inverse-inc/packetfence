@@ -44,7 +44,7 @@ Depends: ${misc:Depends}, vlan, make,
 # perl uncategorized modules
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, libtext-csv-xs-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
- libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
+ libdbd-mysql-perl, libdbd-mock-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0),
  liblwp-useragent-determined-perl, 
  libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl,

@@ -99,6 +99,7 @@ Requires: sscep
 Requires: p0f
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
+Requires: perl(DBD::Mock)
 Requires: perl >= %{perl_version}
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
