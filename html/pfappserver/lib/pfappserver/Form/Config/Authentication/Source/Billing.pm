@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Authentication::Source';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field currency => (
     type => 'Select',
@@ -32,6 +33,16 @@ has_field 'create_local_account' => (
     tags => {
         after_element => \&help,
         help => 'Create a local account on the PacketFence system based on the account email address provided.',
+    },
+);
+
+has_field 'local_account_logins' => (
+    type => 'PosInteger',
+    label => 'Amount of logins for the local account',
+    default => pf::Authentication::Source::BillingSource->meta->get_attribute('local_account_logins')->default,
+    tags => {
+        after_element => \&help_list,
+        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
     },
 );
 

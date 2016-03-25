@@ -50,6 +50,16 @@ has_field 'create_local_account' => (
     },
 );
 
+has_field 'local_account_logins' => (
+    type => 'PosInteger',
+    label => 'Amount of logins for the local account',
+    default => pf::Authentication::Source::EmailSource->meta->get_attribute('local_account_logins')->default,
+    tags => {
+        after_element => \&help_list,
+        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+    },
+);
+
 has_field 'activation_domain' =>
   (
    type => 'Text',

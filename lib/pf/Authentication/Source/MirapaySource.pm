@@ -24,6 +24,7 @@ use List::Util qw(pairmap);
 use Readonly;
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 Readonly::Scalar our $MIRAPAY_ACTION_CODE_APPROVED => 'A';
 Readonly::Scalar our $MIRAPAY_ACTION_CODE_DECLINED => 'D';

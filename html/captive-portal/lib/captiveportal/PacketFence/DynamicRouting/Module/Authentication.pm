@@ -41,7 +41,7 @@ has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{"role_from_so
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
 use pf::authentication;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
 use captiveportal::Base::Actions;
 
 =head2 allowed_urls
@@ -206,11 +206,15 @@ Create a local account using the email in the session
 =cut
 
 sub create_local_account {
-    my ( $self, $password ) = @_;
+    my ( $self, %options ) = @_;
+
+    my $password = $options{password};
+    my $actions = $options{actions};
 
     my $auth_params = $self->auth_source_params();
 
-    unless($self->session->{fields}->{email}){
+    my $email = $self->session->{fields}->{email} // $self->session->{email} // $self->app->session->{email};
+    unless($email){
         get_logger->error("Can't create account since there is no user e-mail in the session.");
         return;
     }
@@ -219,30 +223,27 @@ sub create_local_account {
 
     # We create a "password" (also known as a user account) using the pid
     # with different parameters coming from the authentication source (ie.: expiration date)
-    my $actions = &pf::authentication::match( $self->source->id, $auth_params );
+    $actions = $actions // &pf::authentication::match( $self->source->id, $auth_params );
 
-    # We push an unregistration date that was previously calculated (setUnRegDate) that handle dynamic unregistration date and access duration
-    my $action = pf::Authentication::Action->new({
-        type    => $Actions::SET_UNREG_DATE, 
-        value   => $self->new_node_info->{'unregdate'},
-        class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_UNREG_DATE),
-    });
-    # Hack alert: We may already have a "SET_UNREG_DATE" action in the array and since the way the authentication framework is working is by going
-    # through the actions on a first hit match, we want to make sure the unregistration date we computed (because we are taking care of the access duration,
-    # dynamic date, ...) will be the first in the actions array.
-    unshift (@$actions, $action);
-
-    $password = pf::password::generate($self->app->session->{username}, $actions, $password);
+    my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
+    $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
 
     # We send the guest and email with the info of the local account
     my %info = (
         'pid'       => $self->app->session->{username},
         'password'  => $password,
-        'email'     => $self->session->{fields}->{email},
+        'email'     => $email,
         'subject'   => $self->app->i18n_format(
             "%s: Guest account creation information", $Config{'general'}{'domain'}
         ),
     );
+    $self->app->session->{local_account_info} = {
+        local_user => pf::password::view($info{pid}),
+        actions => $actions,
+        pid => $info{pid},
+        email => $info{email},
+        password => $password,
+    };
     pf::web::guest::send_template_email(
             $pf::web::guest::TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION, $info{'subject'}, \%info
     );

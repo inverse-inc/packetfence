@@ -50,7 +50,7 @@ has_field 'domains' =>
   );
 
 has_block definition => (
-    render_list => [qw(secret_key publishable_key style currency domains test_mode)]
+    render_list => [qw(secret_key publishable_key style currency domains test_mode create_local_account local_account_logins)]
 );
 
 =head1 AUTHOR

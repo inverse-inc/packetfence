@@ -28,6 +28,7 @@ use Digest::MD5 qw(md5_hex);
 use Time::Local;
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
