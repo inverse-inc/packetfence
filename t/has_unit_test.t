@@ -3,7 +3,7 @@
 package pf;
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf', except =>[qw(pf::WebAPI pf::pfcmd::pfcmd_pregrammar)], sub_name => 'modules';
+use Module::Pluggable search_path => 'pf', except =>[qw(pf::WebAPI)], sub_name => 'modules';
 
 =head1 NAME
 

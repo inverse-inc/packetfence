@@ -101,10 +101,6 @@ permissions:
 raddb/certs/dh:
 	cd raddb/certs; make dh
 
-lib/pf/pfcmd/pfcmd_pregrammar.pm:
-	/usr/bin/perl -Ilib -MParse::RecDescent -Mpf::pfcmd::pfcmd -w -e 'Parse::RecDescent->Precompile($$grammar, "pfcmd_pregrammar");'
-	mv pfcmd_pregrammar.pm lib/pf/pfcmd/
-
 .PHONY: raddb-sites-enabled
 
 raddb/sites-enabled:
@@ -138,4 +134,4 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper

@@ -99,13 +99,6 @@ sub sanity_check {
         );
     }
 
-    if (!-f $lib_dir . '/pf/pfcmd/pfcmd_pregrammar.pm') {
-        add_problem( $FATAL,
-            "You are missing a critical file for PacketFence's proper operation. " .
-            "See instructions to re-create the file in: perldoc $lib_dir/pf/pfcmd/pfcmd.pm"
-        );
-    }
-
     service_exists(@services);
     interfaces_defined();
     interfaces();
@@ -845,7 +838,7 @@ sub violations {
                 add_problem($FATAL, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
             }
         }
-        
+
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){

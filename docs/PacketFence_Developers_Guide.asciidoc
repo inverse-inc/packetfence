@@ -239,19 +239,6 @@ Start by creating the read-only field as described above.
 Then, modify the `SQL UPDATE` and `INSERT` queries in the database tables'
 Perl module, as well as the associated functions.
 
-The last step is to make PacketFence's grammar aware of the new field. Modify
-`/usr/local/pf/lib/pf/pfcmd/pfcmd.pm` and then re-generate the precompiled grammar (which
-is used by the `pfcmd` CLI) with:
-
-  cd /usr/local/pf
-  /usr/bin/perl -w -e '
-    use strict; use warnings;
-    use Parse::RecDescent; use lib "/usr/local/pf/lib";
-    use pf::pfcmd::pfcmd;
-    Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");
-  '
-  mv pfcmd_pregrammar.pm /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
-
 VLAN assignment
 ~~~~~~~~~~~~~~~
 
@@ -659,24 +646,6 @@ Check our http://www.packetfence.org/download/snapshots.html[snapshots download 
 instructions.
 
 Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
-
-Debugging PacketFence grammar
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence uses a parser to validate user input. This parser is referred to as the grammar. When you see
-errors like
-
-  Command not understood. (pfcmd grammar test failed at line 217.)
-
-it means that you faced a problem in the command you are trying to send or in the grammar itself.
-
-The parsing of a command is a tricky process. First the command is interpreted in the
-`pf::pfcmd` module using traditional regular expressions. Then some of the commands will
-trigger the parser `pf::pfcmd::pfcmd_pregrammar` which is a precompiled module that is
-generated from `pf::pfcmd::pfcmd` when packetfence is built.
-
-To help troubleshoot a failing command, you can enable tracing on the parser by removing the comment from
-the following line in `pfcmd`: `#our $RD_TRACE = 1;`
 
 New Exception handling techniques under testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

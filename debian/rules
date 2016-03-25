@@ -76,9 +76,6 @@ install: build
 		/usr/bin/msgfmt $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.po \
 		--output-file $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/locale/$$TRANSLATION/LC_MESSAGES/packetfence.mo; \
 	done
-	# precompile grammar
-	perl -w -e 'use strict; use warnings; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($$grammar, "pfcmd_pregrammar");'
-	mv pfcmd_pregrammar.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/lib/pf/pfcmd/
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl

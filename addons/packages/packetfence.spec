@@ -382,9 +382,6 @@ The %{real_name}-config is a daemon that manage PacketFence configuration.
 %setup -q -n %{real_name}-%{version}
 
 %build
-# generate pfcmd_pregrammar
-/usr/bin/perl -w -e 'use strict; use warnings; use diagnostics; use Parse::RecDescent; use lib "./lib"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");'
-mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step

@@ -127,7 +127,7 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && 
+            push(@list, $File::Find::name) if ((-f $File::Find::name) &&
                 not exists $exclusions{ $File::Find::name } );
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
@@ -164,9 +164,6 @@ Return all the files ending with .pm under
 
   /usr/local/pf/addons
   /usr/local/pf/conf/authentication
-  /usr/local/pf/lib/pf
-
-One exception: pfcmd_pregrammar.pm because it's generated
 
 =cut
 
@@ -175,11 +172,10 @@ sub get_all_perl_modules {
     my @list;
 
     # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pm"
-    # Except that I'm explictly throwing out pfcmd_pregrammar.pm and anything in addons/legacy/
+    # Except that I'm explictly throwing out anything in addons/legacy/
     File::Find::find({
         wanted => sub {
             /^.*\.pm\z/s
-            && ! /^.*pfcmd_pregrammar\.pm\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
