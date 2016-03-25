@@ -25,6 +25,9 @@ our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $html_dir, $users_cert_dir, $log_dir, $generated_conf_dir, $var_dir,
     $tt_compile_cache_dir, $pfconfig_cache_dir, $domains_chroot_dir,
 
+    # Error pages
+    $server_error_template,
+
     #Config files
     #pf.conf.default
     $default_config_file, $pf_default_file,
@@ -95,6 +98,7 @@ BEGIN {
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $html_dir $users_cert_dir $log_dir $generated_conf_dir $var_dir
         $tt_compile_cache_dir $pfconfig_cache_dir $domains_chroot_dir
+        $server_error_template
         $default_config_file $pf_default_file
         $config_file $pf_config_file
         $network_config_file
@@ -161,6 +165,8 @@ $pfconfig_cache_dir = catdir( $var_dir,"cache/pfconfig");
 $domains_chroot_dir = catdir( "/chroots");
 
 $pfcmd_binary   = catfile($bin_dir, "pfcmd");
+
+$server_error_template = catfile($html_dir, "captive-portal/templates/server_error.html");
 
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
