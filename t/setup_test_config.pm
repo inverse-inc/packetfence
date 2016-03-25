@@ -33,6 +33,26 @@ BEGIN {
 
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+    
+    use pf::db;
+    # Setup database connection infos based on ENV variables if they are defined
+    $pf::db::DB_Config->{host} = $ENV{PF_TEST_DB_HOST} // $pf::db::DB_Config->{host};
+    $pf::db::DB_Config->{user} = $ENV{PF_TEST_DB_USER} // $pf::db::DB_Config->{user};
+    $pf::db::DB_Config->{pass} = $ENV{PF_TEST_DB_PASS} // $pf::db::DB_Config->{pass};
+    $pf::db::DB_Config->{db}   = $ENV{PF_TEST_DB_NAME} // $pf::db::DB_Config->{db};
+    $pf::db::DB_Config->{port} = $ENV{PF_TEST_DB_PORT} // $pf::db::DB_Config->{port};
+
+    use pf::config;
+    # Setup IP and VIP of management network
+    if(defined($ENV{PF_TEST_MGMT_INT})){
+        my $section_name = "interface ".$ENV{PF_TEST_MGMT_INT};
+        $Config{$section_name}{ip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{ip};
+        $Config{$section_name}{vip} = $ENV{PF_TEST_MGMT_IP} // $pf::config::Config{$section_name}{vip};
+        $Config{$section_name}{mask} = $ENV{PF_TEST_MGMT_MASK} // $pf::config::Config{$section_name}{mask};
+        $management_network->tag('ip', $Config{$section_name}{ip});
+        $management_network->tag('vip', $Config{$section_name}{vip});
+        use Data::Dumper; print Dumper($Config{$section_name});
+    }
 }
  
 END {
