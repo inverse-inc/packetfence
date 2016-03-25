@@ -30,7 +30,10 @@ my @binaries = (
 plan tests => scalar @binaries * 1 + 1;
 
 foreach my $current_binary (@binaries) {
-    my $flags .= '-I/usr/local/pf/t -Mtest_paths';
+    # hack: we add Taint mode to the pfcmd-old.pl check.
+    # See 'Switches On the "#!" Line' in perlsec
+    my $flags = ($current_binary =~ m#/usr/local/pf/bin/pfcmd-old.pl#) ? '-T' : '';
+    $flags .= ' -I/usr/local/pf/t -Mtest_paths';
 
     is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
 }
