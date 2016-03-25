@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 30;
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use_ok('pf::MAC') or die;

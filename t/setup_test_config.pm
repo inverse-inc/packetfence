@@ -1,37 +1,48 @@
-#!/usr/bin/perl
-
+package setup_test_config;
 =head1 NAME
 
-linux.t
+setup_test_config
+
+=cut
 
 =head1 DESCRIPTION
 
-Linux tests
+setup_test_config
+Setups the configuration for the testing environment
 
 =cut
 
 use strict;
 use warnings;
-use diagnostics;
 
-use lib '/usr/local/pf/lib';
+
+our $PFCONFIG_TEST_PID_FILE;
+
 BEGIN {
-    use lib qw(/usr/local/pf/t);
-    use setup_test_config;
+    use test_paths;
+    use pfconfig::manager;
+    use pfconfig::constants;
+    use File::Spec::Functions qw(catfile);
+    use File::Slurp qw(read_file);
+
+    use File::Path qw(remove_tree);
+    remove_tree('/tmp/chi');
+
+    $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
+    `/usr/local/pf/sbin/pfconfig -s $pfconfig::constants::SOCKET_PATH -p $PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
+
+    my $manager = pfconfig::manager->new;
+    $manager->expire_all;
 }
-use Test::More tests => 2;
-use Test::NoWarnings;
-
-use pf::util;
-
-Log::Log4perl->init("log.conf");
-my $logger = Log::Log4perl->get_logger('linux.t');
-
-ok(defined(get_total_system_memory()), "fetch total system memory");
-
+ 
+END {
+    my $pid = read_file($PFCONFIG_TEST_PID_FILE);
+    `kill $pid`
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
+
 
 =head1 COPYRIGHT
 
@@ -52,7 +63,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
+
+1;
 

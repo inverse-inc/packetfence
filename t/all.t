@@ -19,7 +19,7 @@ use Test::Harness;
 use lib qw(/usr/local/pf/t);
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use TestUtils;
 

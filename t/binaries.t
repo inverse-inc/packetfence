@@ -17,7 +17,7 @@ use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 

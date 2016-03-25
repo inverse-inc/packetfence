@@ -24,7 +24,7 @@ Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use PfFilePaths; }
+BEGIN { use setup_test_config; }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::manager::httpd') }
 BEGIN { use_ok('pf::services::manager::dhcpd') }

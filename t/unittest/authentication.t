@@ -21,7 +21,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib '/usr/local/pf/t';
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 

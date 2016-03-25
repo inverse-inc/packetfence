@@ -148,7 +148,7 @@ sleep(1);
 BEGIN {
     use lib qw(/usr/local/pf/lib);
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 6;    # last test to print

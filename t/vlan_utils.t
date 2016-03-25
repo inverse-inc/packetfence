@@ -22,7 +22,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t /root/code/packetfence/t);
 
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 6;

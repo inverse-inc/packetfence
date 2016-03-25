@@ -21,7 +21,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use Test::More tests => 10;
 

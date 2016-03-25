@@ -19,7 +19,7 @@ use Test::More tests => 10;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use English qw( -no_match_vars );
 use File::Basename qw(basename);

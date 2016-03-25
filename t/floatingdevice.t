@@ -17,7 +17,7 @@ use Test::MockObject::Extends;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
     use pf::Switch;
     use_ok('pf::floatingdevice');
     use_ok('pf::floatingdevice::custom');

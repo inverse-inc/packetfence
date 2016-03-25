@@ -1,13 +1,13 @@
-package PfFilePaths;
+package test_paths;
 =head1 NAME
 
-PfFilePaths
+test_paths
 
 =cut
 
 =head1 DESCRIPTION
 
-PfFilePaths
+test_paths
 Overrides the the location of config files to help with testing
 
 =cut
@@ -17,17 +17,15 @@ use warnings;
 
 
 our $PFCONFIG_TEST_PID_FILE;
+our $test_dir;
 
 BEGIN {
-    use File::Slurp qw(read_file);
-    use File::Path qw(remove_tree);
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
     use pf::file_paths;
     use pfconfig::constants;
-    use pfconfig::manager;
-    remove_tree('/tmp/chi');
-    my $test_dir = rel2abs(dirname($INC{'PfFilePaths.pm'})) if exists $INC{'PfFilePaths.pm'};
+
+    $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
     $test_dir ||= catdir($install_dir,'t');
     $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
@@ -40,21 +38,13 @@ BEGIN {
     $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
-
-    $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_dir, 'data/pfconfig.conf');
+    
+    $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
 
-    $PFCONFIG_TEST_PID_FILE = "/usr/local/pf/var/run/pfconfig-test.pid";
-    `/usr/local/pf/sbin/pfconfig -s $pfconfig::constants::SOCKET_PATH -p $PFCONFIG_TEST_PID_FILE -c $pfconfig::constants::CONFIG_FILE_PATH -d`;
 
-    my $manager = pfconfig::manager->new;
-    $manager->expire_all;
- }
- 
-END {
-    my $pid = read_file($PFCONFIG_TEST_PID_FILE);
-    `kill $pid`
 }
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -84,4 +74,5 @@ USA.
 =cut
 
 1;
+
 

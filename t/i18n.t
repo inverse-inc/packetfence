@@ -17,7 +17,7 @@ use File::Find;
 use Test::More;
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 my @translations;

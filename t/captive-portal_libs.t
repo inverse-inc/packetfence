@@ -9,7 +9,7 @@ use diagnostics;
 use lib qw(/usr/local/pf/lib /usr/local/pf/html/captive-portal/lib);
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 BEGIN {
