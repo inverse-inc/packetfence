@@ -15,6 +15,7 @@ Overrides the the location of config files to help with testing
 use strict;
 use warnings;
 
+use lib "/usr/local/pf/lib";
 
 our $PFCONFIG_TEST_PID_FILE;
 our $test_dir;
