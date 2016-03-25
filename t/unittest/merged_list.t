@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
     my $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
     $test_dir ||= catdir($pf::file_paths::install_dir,'t');
-    $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
+    $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf.tmp');
 }
 use Test::More tests => 6;
 
