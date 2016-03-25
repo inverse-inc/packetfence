@@ -69,7 +69,7 @@ sub landing {
         source => $self->source,
         with_aup => $self->with_aup,
         form => $self->form,
-        title => [ "OAuth authentication %s", $self->id ],
+        title => [ "%s OAuth authentication", $self->source->type ],
     });
 }
 

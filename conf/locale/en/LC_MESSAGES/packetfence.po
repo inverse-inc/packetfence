@@ -847,7 +847,7 @@ msgid "Tier confirmation"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
-msgid "OAuth authentication %s"
+msgid "%s OAuth authentication"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
