@@ -25,7 +25,6 @@ BEGIN {
     use File::Basename qw(dirname);
     use pf::file_paths;
     use pfconfig::constants;
-    use pf::db;
 
     $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
     $test_dir ||= catdir($install_dir,'t');
@@ -44,7 +43,7 @@ BEGIN {
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
 
-    $pf::db::DRIVER = "DBI:Mock";
+
 }
  
 =head1 AUTHOR

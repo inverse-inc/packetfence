@@ -37,8 +37,6 @@ use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _p
 
 our ( $DBH, $LAST_CONNECT, $DB_Config, $NO_DIE_ON_DBH_ERROR );
 
-our $DRIVER = "dbi:mysql";
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -94,13 +92,16 @@ sub db_connect {
     }
 
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
-        
+
+    my $host = $DB_Config->{'host'};
+    my $port = $DB_Config->{'port'};
     my $user = $DB_Config->{'user'};
     my $pass = $DB_Config->{'pass'};
+    my $db   = $DB_Config->{'db'};
 
     # TODO database prepared statements are disabled by default in dbd::mysql
     # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
-    $mydbh = DBI->connect( "$DRIVER:".dbi_params(),
+    $mydbh = DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
         $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
 
     # make sure we have a database handle
@@ -116,18 +117,6 @@ sub db_connect {
         $logger->error("unable to connect to database: " . $DBI::errstr);
         $pf::StatsD::statsd->increment(called() . ".error.count" );
         return ();
-    }
-}
-
-sub dbi_params {
-    if($DRIVER eq "dbi:mysql"){
-        my $host = $DB_Config->{'host'};
-        my $port = $DB_Config->{'port'};
-        my $db   = $DB_Config->{'db'};
-        return "dbname=$db;host=$host;port=$port"
-    }
-    else {
-        return '';
     }
 }
 
