@@ -64,9 +64,20 @@ Render the template surrounded by choices to switch between the different availa
 
 sub render_choice {
     my ($self, $inner_content) = @_;
-    my $args = {content => $inner_content, modules => [grep {$_->display} $self->all_modules], mod_manager_current_module => $self->current_module};
+    my $args = {content => $inner_content, modules => [$self->available_choices], mod_manager_current_module => $self->current_module};
 
     $self->SUPER::render($self->template, $args);
+}
+
+=head2 available_choices
+
+The choices that should be given to the user depending on whether or not the child module wants to be displayed
+
+=cut
+
+sub available_choices {
+    my ($self) = @_;
+    return grep {$_->display} $self->all_modules;
 }
 
 =head2 default_behavior
@@ -82,10 +93,25 @@ sub default_behavior {
         get_logger->debug("Default behavior is to show the first module");
         $self->default_module->execute();
     }
+    elsif($self->available_choices == 1){
+        get_logger->debug("The choice is between one module. Selecting it automatically");
+        $self->default_module->execute();
+    }
     else {
         get_logger->debug("Default behavior is to show only the choice");
         $self->render_choice(); 
     }
+}
+
+=head2 default_module
+
+The default module
+
+=cut
+
+sub default_module {
+    my ($self) = @_;
+    return [$self->available_choices]->[0];
 }
 
 =head1 AUTHOR
