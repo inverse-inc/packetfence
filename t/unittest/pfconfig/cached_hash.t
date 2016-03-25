@@ -20,6 +20,7 @@ BEGIN {
 use Test::More tests => 21;                      # last test to print
 
 use Test::NoWarnings;
+use List::MoreUtils qw(uniq);
 
 my %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
@@ -56,8 +57,14 @@ ok(!exists($SwitchConfig{zammit}), "zammit switch doesn't exists");
 
 my $SWITCH_COUNT = 25;
 
-$SWITCH_COUNT++ if $management_network->tag('vip');
-$SWITCH_COUNT++ if $management_network->tag('ip');
+my @extra_switches;
+
+push @extra_switches, $management_network->tag('vip') if $management_network->tag('vip');
+push @extra_switches, $management_network->tag('ip')  if $management_network->tag('ip');
+
+@extra_switches = uniq @extra_switches;
+
+$SWITCH_COUNT += @extra_switches;
 
 my @keys = tied(%SwitchConfig)->keys();
 
