@@ -467,6 +467,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
 %{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
+%{__install} -d $RPM_BUILD_ROOT/etc/cron.d
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
@@ -494,6 +495,7 @@ mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
 mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
+mv packetfence.cron.d $RPM_BUILD_ROOT/etc/cron.d/packetfence
 rmdir addons/pfdetect_remote/sbin
 %if 0%{?el7}
 rm addons/pfdetect_remote/initrd/pfdetectd
@@ -874,10 +876,12 @@ fi
 %endif
 %if 0%{?el6}
 %dir                    %{_sysconfdir}/logrotate.d
+%dir %attr(0750,root,root) %{_sysconfdir}/cron.d
 %endif
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
+%config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
 
 %dir                    /usr/local/pf
                         /usr/local/pf/Makefile
