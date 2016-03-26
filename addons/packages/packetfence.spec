@@ -796,7 +796,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd-old.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
