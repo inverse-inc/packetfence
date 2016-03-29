@@ -369,6 +369,7 @@ CREATE TABLE `password` (
   `category` int DEFAULT NULL,
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
+  `login_remaining` int DEFAULT NULL,
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
 
