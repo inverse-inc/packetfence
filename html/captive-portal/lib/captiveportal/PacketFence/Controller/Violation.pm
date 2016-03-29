@@ -6,6 +6,7 @@ use pf::class;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::log;
 use pf::web;
+use pf::node;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -53,36 +54,14 @@ sub index : Path : Args(0) {
             $c->detach( 'Remediation', 'scan_status', [$1] );
         }
         my $class    = class_view($vid);
-        my $template = $class->{'template'};
-        $logger->info(
-            "captive portal redirect on violation vid: $vid, redirect template: $template"
-        );
-
-        # The little redirect dance here is controlled by frames which are inherently alterable by the user
-        # TODO: We need to validate that a user cannot request a frame with the enable button activated
-
-        # enable button
-        if ( $request->param("enable_menu") ) {
-            $logger->debug(
-                "violation redirect: generating enable button frame (enable_menu = 1)"
-            );
-            $c->detach( 'Enabler', 'index' );
-        } elsif ( $class->{'auto_enable'} eq 'Y' ) {
-            $logger->debug(
-                "violation redirect: showing violation remediation page inside a frame"
-            );
-            $c->detach( 'Redirect', 'index' );
-        }
-        $logger->debug(
-            "violation redirect: showing violation remediation page directly since there is no enable button"
-        );
 
         # Retrieve violation template name
-
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
         $logger->info("Showing the $subTemplate  remediation page.");
         my $node_info = node_view($mac);
         $c->stash(
+            'auto_enable'  => ($class->{'auto_enable'} eq 'Y'),
+            'enable_text'  => $class->{button_text},
             'title'        => 'violation: quarantine established',
             'template'     => 'remediation.html',
             'sub_template' => $subTemplate,
@@ -91,6 +70,9 @@ sub index : Path : Args(0) {
               last_vlan last_connection_type last_ssid username)
         );
         $c->detach;
+    }
+    else {
+        $c->response->redirect("/captive-portal");
     }
 }
 
