@@ -736,18 +736,18 @@ echo "Adding PacketFence config startup script"
 
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
-    %if 0%{?el6}
-        /sbin/service packetfence stop &>/dev/null || :
-        /sbin/service packetfence-redis-cache stop &>/dev/null || :
-        /sbin/chkconfig --del packetfence
-        /sbin/chkconfig --del packetfence-redis-cache
-    %endif
-    %if 0%{?el7}
-        /bin/systemctl stop packetfence  stop &>/dev/null || :
-        /bin/systemctl stop packetfence-redis-cache  stop &>/dev/null || :
-        /bin/systemctl disable packetfence
-        /bin/systemctl disable packetfence-redis-cache
-    %endif
+%if 0%{?el6}
+/sbin/service packetfence stop
+/sbin/service packetfence-redis-cache stop
+/sbin/chkconfig --del packetfence
+/sbin/chkconfig --del packetfence-redis-cache
+%endif
+%if 0%{?el7}
+/bin/systemctl stop packetfence
+/bin/systemctl stop packetfence-redis-cache
+/bin/systemctl disable packetfence
+/bin/systemctl disable packetfence-redis-cache
+%endif
 fi
 
 %preun -n %{real_name}-remote-snort-sensor
@@ -764,14 +764,14 @@ fi
 
 %preun -n %{real_name}-config
 if [ $1 -eq 0 ] ; then
-    %if 0%{?el6}
-        /sbin/service packetfence-config stop &>/dev/null || :
-        /sbin/chkconfig --del packetfence-config
-    %endif
-    %if 0%{?el7}
-        /bin/systemctl stop packetfence-config  stop &>/dev/null || :
-        /bin/systemctl disable packetfence-config
-    %endif
+%if 0%{?el6}
+/sbin/service packetfence-config stop
+ /sbin/chkconfig --del packetfence-config
+%endif
+%if 0%{?el7}
+/bin/systemctl stop packetfence-config
+/bin/systemctl disable packetfence-config
+%endif
 fi
 
 %postun -n %{real_name}
