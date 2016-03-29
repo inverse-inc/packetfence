@@ -76,6 +76,9 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
+    # One last check for the violations
+    return unless($self->handle_violations());
+
     return $self->app->redirect("/access") unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
@@ -203,7 +206,6 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
-    $self->new_node_info->{status} = "reg";
     $self->apply_new_node_info();
     return $TRUE;
 }
@@ -218,7 +220,7 @@ sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
     $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
-    node_modify($self->current_mac, %{$self->new_node_info()});
+    node_register($self->current_mac, $self->username, %{$self->new_node_info()});
 }
 
 =head2 direct_route_billing
