@@ -891,9 +891,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.mo
 %dir                    /usr/local/pf/conf/locale/en
 %dir                    /usr/local/pf/conf/locale/en/LC_MESSAGES
-%if 0%{?el7}
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence-config.service
-%endif
 %config(noreplace)      /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/en/LC_MESSAGES/packetfence.mo
 %dir                    /usr/local/pf/conf/locale/es
