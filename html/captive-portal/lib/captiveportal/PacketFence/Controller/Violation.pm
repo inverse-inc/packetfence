@@ -7,6 +7,8 @@ use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::log;
 use pf::web;
 use pf::node;
+use pf::file_paths;
+use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -46,12 +48,21 @@ sub index : Path : Args(0) {
         }
 
         # detect if a system scan is in progress, if so redirect to scan in progress page
-        if (   ( $vid == $SCAN_VID || $vid == $PRE_SCAN_VID)
-            && $violation->{'ticket_ref'}
-            =~ /^Scan in progress, started at: (.*)$/ ) {
-            $logger->info(
-                "captive portal redirect to the scan in progress page");
-            $c->detach( 'Remediation', 'scan_status', [$1] );
+        if ($vid == $SCAN_VID || $vid == $PRE_SCAN_VID) {
+            if($violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/ ){
+                $logger->info("captive portal redirect to the scan in progress page");
+                $c->detach( 'Remediation', 'scan_status', [$1] );
+            }
+            else {
+                my $client = pf::client::getClient();
+                $client->notify('start_scan', ip => $portalSession->clientIp, mac => $portalSession->clientMac);
+                $c->stash(
+                    template => "scan.html",
+                    txt_message => "system scan in progress",
+                    title => "scan: scan in progress",
+                );
+                $c->detach();
+            }
         }
         my $class    = class_view($vid);
 
@@ -72,7 +83,7 @@ sub index : Path : Args(0) {
         $c->detach;
     }
     else {
-        $c->response->redirect("/captive-portal");
+        $c->response->redirect("/access");
     }
 }
 

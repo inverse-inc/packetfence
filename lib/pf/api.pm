@@ -934,6 +934,21 @@ sub trigger_scan : Public : Fork {
     return;
 }
 
+=head2 start_scan
+
+Start a scan for a device
+
+=cut
+
+sub start_scan : Public {
+    my ($self, %postdata) = @_;
+    my @require = qw(ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'});
+}
+
 =head2 close_violation
 
 Close a violation
