@@ -127,6 +127,7 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsUrlBasedEnforcement { return $TRUE; }
 
 # disabling special features supported by generic Cisco's but not on WLCs
 sub supportsSaveConfig { return $FALSE; }
@@ -425,7 +426,7 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_WebAuthMap}) && $self->supportsUrlBasedEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
+            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
             $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
