@@ -106,6 +106,7 @@ conf/cluster.conf
 conf/domain.conf
 conf/haproxy.conf
 conf/keepalived.conf
+conf/httpd.conf.d/captive-portal-common.tt
 conf/httpd.conf.d/httpd.aaa.tt
 conf/httpd.conf.d/httpd.admin.tt
 conf/httpd.conf.d/httpd.graphite.tt
