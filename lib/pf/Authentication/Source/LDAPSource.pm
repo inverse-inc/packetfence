@@ -353,7 +353,8 @@ sub match_in_subclass {
         # Perform match on a static group condition since they require a second LDAP search
         foreach $condition (grep { $_->{'operator'} eq $Conditions::IS_MEMBER } @{$own_conditions}) {
             $value = escape_filter_value($condition->{'value'});
-            $attribute = $entry->get_value($condition->{'attribute'});
+            $attribute = $entry->get_value($condition->{'attribute'}) // '';
+            $attribute = escape_filter_value($attribute);
             # Search for any type of group definition:
             # - groupOfNames       => member (dn)
             # - groupOfUniqueNames => uniqueMember (dn)
