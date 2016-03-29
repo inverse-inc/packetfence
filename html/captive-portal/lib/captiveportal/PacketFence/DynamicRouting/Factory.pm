@@ -26,6 +26,7 @@ use Graph;
 use List::MoreUtils qw(any);
 use captiveportal::util;
 use pf::config;
+use pf::log;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');
 
@@ -44,11 +45,18 @@ Build the application and all its modules
 
 sub build_application {
     my ($self, $application) = @_;
-    $self->application($application);
-    $self->add_to_graph($self->application->root_module_id);
+    eval {
+        $self->application($application);
+        $self->add_to_graph($self->application->root_module_id);
 
-    $self->instantiate_all();
-    $self->create_modules_hierarchy();
+        $self->instantiate_all();
+        $self->create_modules_hierarchy();
+    };
+    if($@){
+        get_logger->error("Can't build application from configuration : $@");
+        return $FALSE;
+    }
+    return $TRUE;
 }
 
 =head2 instantiate_all

@@ -79,7 +79,6 @@ sub _from_profile {
     }
     $profile{guest_modes} = _guest_modes_from_sources($sources);
     $profile{name} = $profile_name;
-    $profile{template_path} = $profile_name;
     my $instance =  pf::Portal::Profile->new( \%profile );
     return $instance;
 }

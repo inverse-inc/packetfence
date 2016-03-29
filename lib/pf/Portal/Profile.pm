@@ -98,18 +98,18 @@ sub getGuestModes {
 
 =item getTemplatePath
 
-Returns the path for custom templates for the current captive portal profile.
-
-Relative to html/captive-portal/templates/
+Get the path of a template from the available template paths
 
 =cut
 
 sub getTemplatePath {
-    my ($self) = @_;
-    return $self->{'_template_path'};
+    my ($self, $name) = @_;
+    foreach my $path (@{$self->{'_template_paths'}}){
+        if(-f "$path/$name"){
+            return "$path/$name";
+        }
+    }
 }
-
-*template_path = \&getTemplatePath;
 
 =item getBillingTiers
 
