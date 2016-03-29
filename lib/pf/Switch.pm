@@ -25,7 +25,7 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE);
+use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE);
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -607,7 +607,7 @@ sub setVlan {
     }
 
     my $vlan = $self->getVlan($ifIndex);
-    my $macDetectionVlan = $self->getVlanByName('macDetection');
+    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
 
     if ( !defined($presentPCMac) && ( $newVlan ne $macDetectionVlan ) ) {
         my @macArray = $self->_getMacAtIfIndex( $ifIndex, $vlan );
@@ -854,7 +854,7 @@ sub setMacDetectionVlan {
     my ( $self, $ifIndex, $switch_locker_ref,
         $closeAllOpenLocationlogEntries )
         = @_;
-    return $self->setVlan( $ifIndex, $self->getVlanByName('macDetection'),
+    return $self->setVlan( $ifIndex, $self->getVlanByName($MAC_DETECTION_ROLE),
         $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
 }
 

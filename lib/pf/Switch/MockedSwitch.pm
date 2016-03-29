@@ -43,7 +43,7 @@ use Time::HiRes qw( usleep );
 
 use base ('pf::Switch');
 
-use pf::constants;
+use pf::constants::role qw($MAC_DETECTION_ROLE);
 use pf::config;
 # importing switch constants
 use pf::Switch::constants;
@@ -899,7 +899,7 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
-        my $macDetectionVlan = $self->getVlanByName('macDetection');
+        my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
         push @vlansToTest, $trapHashRef->{'trapVlan'};
         push @vlansToTest, $macDetectionVlan;
         foreach my $currentVlan ( values %{ $self->{_vlans} } ) {
@@ -3045,7 +3045,7 @@ sub returnAuthorizeRead {
     return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "PacketFence does not support this switch for enable access login" ) ];
 }
 
-=head2 setSession
+=item setSession
 
 Create a session id and save in in the locationlog.
 

@@ -20,6 +20,7 @@ use Net::SNMP;
 use Try::Tiny;
 
 use pf::constants;
+use pf::constants::role qw($MAC_DETECTION_ROLE);
 use pf::config;
 # importing switch constants
 use pf::Switch::constants;
@@ -180,7 +181,7 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
-        my $macDetectionVlan = $self->getVlanByName('macDetection');
+        my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
         push @vlansToTest, $trapHashRef->{'trapVlan'};
         push @vlansToTest, $macDetectionVlan;
         foreach my $currentVlan ( values %{ $self->{_vlans} } ) {
