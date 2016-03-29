@@ -508,7 +508,7 @@ sub returnRadiusAccessAccept {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "cep".setSession($args) if ($redirect_url =~ /\$session_id/);
+            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
             $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
             #override role if a role in role map is defined
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
