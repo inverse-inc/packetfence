@@ -74,6 +74,8 @@ sub setupDynamicRouting : Private {
     $application->session->{client_ip} = $c->portalSession->clientIp;
     my $factory = captiveportal::DynamicRouting::Factory->new();
     unless($factory->build_application($application)){
+        my $server_error_template = $profile->getTemplatePath("server_error.html");
+        $c->log->debug("Using error template : $server_error_template");
         my $content = read_file($server_error_template);
         $c->response->body($content);
         $c->response->status($STATUS::INTERNAL_SERVER_ERROR);
@@ -294,8 +296,6 @@ sub getRequestLanguages : Private{
 
     return \@l;
 }
-
-
 
 =head2 end
 
