@@ -918,17 +918,18 @@ sub trigger_scan : Public : Fork {
         sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
-    # pre_registration
     else {
         my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
+        # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'pre_registration'})) {
             pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
-            my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-            my $vid = $top_violation->{'vid'};
-            sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
-            pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID);
         }
+        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
+        my $vid = $top_violation->{'vid'};
+        return if not defined $vid;
+        sleep $pf::config::Config{'trapping'}{'wait_for_redirect'};
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID || $vid eq $pf::constants::scan::SCAN_VID);
     }
     return;
 }
