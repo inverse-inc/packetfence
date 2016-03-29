@@ -41,6 +41,12 @@ sub child_definition {
     return qw(show_first_module_on_default template);
 }
 
+sub BUILD {
+    my ($self) = @_;
+    $self->field('template')->default($self->for_module->meta->find_attribute_by_name('template')->default->());
+    $self->field('show_first_module_on_default')->default($self->for_module->meta->find_attribute_by_name('show_first_module_on_default')->default->());
+}
+
 =over
 
 =back

@@ -24,10 +24,14 @@ has_field 'skipable' =>
    label => 'Skipable',
    unchecked_value => 'disabled',
    checkbox_value => 'enabled',
-   default => for_module->meta->get_attribute('skipable')->default->(),
    tags => { after_element => \&help,
              help => 'Whether or not, the provisioning can be skipped' },
   );
+
+sub BUILD {
+    my ($self) = @_;
+    $self->field('skipable')->default($self->for_module->meta->find_attribute_by_name('skipable')->default->());
+}
 
 sub child_definition {
     return qw(skipable);

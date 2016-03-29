@@ -24,7 +24,6 @@ has_field 'skipable' =>
    label => 'Skipable',
    unchecked_value => '0',
    checkbox_value => '1',
-   default => for_module->meta->get_attribute('skipable')->default->(),
    tags => { after_element => \&help,
              help => 'Whether or not, this message can be skipped' },
   );
@@ -43,13 +42,18 @@ has_field 'template' =>
   (
    type => 'Text',
    label => 'Template',
-   default => for_module->meta->get_attribute('template')->default->(),
    tags => { after_element => \&help,
              help => 'The template to use to display the message' },
   );
 
 sub child_definition {
     return qw(message template skipable);
+}
+
+sub BUILD {
+    my ($self) = @_;
+    $self->field('template')->default($self->for_module->meta->find_attribute_by_name('template')->default->());
+    $self->field('skipable')->default($self->for_module->meta->find_attribute_by_name('skipable')->default->());
 }
 
 =over

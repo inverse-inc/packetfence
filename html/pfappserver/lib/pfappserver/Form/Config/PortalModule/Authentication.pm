@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::WithSource';
 with 'pfappserver::Base::Form::Role::WithCustomFields';
 
 use pf::log; 
+use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Module::Authentication;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication'}
 
@@ -26,7 +27,6 @@ has_field 'pid_field' =>
    label => 'PID field',
    options_method => \&options_pid_field,
    element_class => ['chzn-select'],
-   default => for_module->meta->get_attribute('pid_field')->default->(),
    tags => { after_element => \&help,
              help => 'Which field should be used as the PID.' },
   );
@@ -36,7 +36,6 @@ has_field 'with_aup' =>
    type => 'Checkbox',
    label => 'Require AUP',
    checkbox_value => '1',
-   default => for_module->meta->get_attribute('with_aup')->default->(),
    tags => { after_element => \&help,
              help => 'Require the user to accept the AUP' },
   );
@@ -46,7 +45,6 @@ has_field 'signup_template' =>
    type => 'Text',
    label => 'Signup template',
    required => 1,
-   default => for_module->meta->get_attribute('signup_template')->default->(),
    tags => { after_element => \&help,
              help => 'The template to use for the signup' },
   );
@@ -56,13 +54,21 @@ sub child_definition {
     return (qw(source_id pid_field custom_fields with_aup signup_template), $self->auth_module_definition());
 }
 
+sub BUILD {
+    my ($self) = @_;
+    $self->field('pid_field')->default($self->for_module->meta->find_attribute_by_name('pid_field')->default->());
+    $self->field('with_aup')->default($self->for_module->meta->find_attribute_by_name('with_aup')->default->());
+    $self->field('signup_template')->default($self->for_module->meta->find_attribute_by_name('signup_template')->default->());
+}
+
 # To override in the child modules
 sub auth_module_definition {
     return ();
 }
 
 sub options_pid_field {
-    return map {$_ => $_} @pf::person::PROMPTABLE_FIELDS;    
+    my ($self) = @_;
+    return map {$_ => $_} uniq($self->form->for_module->meta->find_attribute_by_name('pid_field')->default->(), @pf::person::PROMPTABLE_FIELDS);
 }
 
 
