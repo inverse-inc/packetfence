@@ -1281,6 +1281,153 @@ Sending Access-Request of id 74 to 127.0.0.1 port 18120
 rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 ----
 
+Portal Modules
+~~~~~~~~~~~~~~
+
+The PacketFence captive portal flow is highly customizable. This section will cover the 'Portal Modules' which are used to define the behavior of the captive portal.
+
+NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Portal Profile sources are used for authentication, then the available provisioners will be used.
+
+First, a brief description of the available Portal Modules: 
+
+* Root: This is where it all starts, this module is a simple container that defines all the modules that need to be applied in a chained way to the user. Once the user has completed all modules contained in the Root, he is released on the network.
+* Choice: This allows to give a choice between multiple modules to the user. The 'default_registration_policy' is a good example of a choice that is offered to the user.
+* Chained: This allows you to define a list of modules that a user needs to go through in the order that they are defined - ex: you want your users to register via Google+ and pay for their access using PayPal.
+* Message: This allows you to display a message to the user. An example is available below in _Displaying a message to the user after the registration_
+* Authentication: The authentication modules can be of a lot of types. You would want to define one of these modules, in order to override the required fields, the source to use, the template or any other module attribute.
+** Billing: Allows to define a module based on one or more billing sources
+** Choice: Allows to define a module based on multiple sources and modules with advanced filtering options. See the section _Authentication Choice module_ below for a detailed explanation.
+** Login: Allows you to define a username/password based module with multiple internal sources (Active Directory, LDAP, ...)
+** Other modules: The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
+
+Examples 
+^^^^^^^^
+
+This section will contain the following examples: 
+
+* Prompting for fields without authentication.
+* Prompting additionnal fields during the authentication.
+* Chained authentication.
+* Mixing login and Secure SSID on-boarding on the portal.
+* Displaying a message to the user after the registration.
+
+Creating a custom root module
++++++++++++++++++++++++++++++
+
+First, create a custom root module for our examples in order to not affect the default policy. In order to do so, go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select the type 'Root'. Give it the identifier `my_first_root_module` and the description `My first root module`, then hit save.
+
+Next, head to 'Configuration -> Portal Profiles', select the portal profile you use (most probably `default`) and then under 'Root Portal Module', assign `My first root module` then save your profile. If you were to access the captive portal now, an error would display since the Root module we configured doesn't contain anything.
+
+You could add some of the preconfigured modules to the new Root module you created and that would make the error disapear.
+
+Prompting for fields without authentication
++++++++++++++++++++++++++++++++++++++++++++
+
+In order to prompt fields without authentication, you can use the Null source with the Null Portal Module.
+
+PacketFence already comes with a Null source preconfigured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
+
+Then go in 'Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+
+image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
+
+Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these informations will assign you the role and access duration that you defined in the `null` source.
+
+Prompting additionnal fields during the authentication
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+If you want to prompt additionnal fields during the authentication process for a module, you can define a Module based on that source that will specify the additionnal mandatory fields for this source.
+
+You can also add additionnal mandatory fields to the default policies that are already configured.
+
+This example will make the `default_guest_policy` require the user to enter a firstname, lastname and address so that guests have to enter these three informations before registering.
+
+Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
+
+Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
+
+NOTE: Not all sources support additionnal mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
+
+Chained authentication
+++++++++++++++++++++++
+
+The portal modules allow you to chain two or more modules together in order to make the user accomplish all of the actions in the module in the desired sequence.
+
+This example will allow you to configure a 'Chained' module that will require the user to login via any configured OAuth source (Github, Google+, ...)  and then validate his phone number using SMS registration.
+
+For the OAuth login we will use the `default_oauth_policy`, so just make sure you have an OAuth source configured correctly and available in your Portal Profile.
+
+Then, we will create a module that will contain the definition of our SMS registration.
+
+Go in 'Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
+
+Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
+
+image::docs/images/portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
+
+Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the 'Modules' fields
+
+image::docs/images/portal-modules/chianed_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
+
+Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
+
+Mixing login and Secure SSID on-boarding on the portal
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This example will guide you through configuring a portal flow that will allow for devices to access an open SSID using an LDAP username/password but also give the choice to configure the Secure SSID directly from the portal.
+
+First, we need to configure the provisioners for the Secure SSID onboarding. Refer to section _Apple and Android Wireless Provisioning_ of this guide to configure your provisioners and add them to the portal profile.
+
+Create a provisioner of the type `Deny` and add it with your other provisioners (putting any other provisioner before it). This will make sure that if there is no match on the other provisioners, it will not allow the device through.
+
+Also in the portal profile add your LDAP source to the available sources so its the only one available.
+
+Next, create a 'Provisioning' portal module by going in 'Configuration -> Portal Modules'. Set the 'Identifier' to `secure_boarding` and the description to `Board Secure SSID`. Also uncheck 'Skipable' so the user is forced to board the SSID should it choose this option.
+
+Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
+
+image::docs/images/portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
+
+Next, add the `login_or_boarding` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you will have the choice between login to the LDAP source and gain access to the network or directly use provisioning in order to configure your device for a Secure SSID.
+
+Displaying a message to the user after the registration
++++++++++++++++++++++++++++++++++++++++++++++++++=+++++
+
+Using the 'Message' module you can display a custom message to the user. You can also customize the template to display in order to display a fully custom page.
+
+Go in 'Configuration -> Portal Modules', then click 'Add Portal Module' and select 'Message'. Set the 'Identifier' to `hello_world` and the description to `Hello World`.
+
+Then put the following in the 'Message' field
+
+  Hello World !
+  <a href="www.packetfence.org">Click here to access the PacketFence website!</a>
+
+image::docs/images/portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
+
+Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your portal profile and you will then see the hello world message.
+
+image::docs/images/portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
+
+Authentication Choice module (advanced)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Authentication Choice module allows to define a choice between multiple sources using advanced filtering rules, manual selection of the sources and selection of Portal Modules.
+
+All the sources that are defined in the 'Sources' field will be available for usage by the user. Same goes for the modules defined in 'Modules'.
+
+You can also define which mandatory fields you want to prompt for these authentication choices. Although you can still configure them on any 'Authentication Choice' module, they will only be shown if they are applicable to the source. 
+
+In addition to the manual selection above you can dynamically select sources part of the Portal Profile based on their object attribute (Object Class, Authentication type, Authentication Class).
+
+NOTE: You can find all the authentication objects in `lib/pf/Authentication/Source`
+
+* Sources by class: Allows you to specify the perl class name of the sources you want available 
+** ex: `pf::Authentication::Source::SMSSource` will select all the SMS sources. `pf::Authentication::Source::BillingSource` will select all the billing sources (Paypal, Stripe, ...)
+* Sources by type: Allows you to filter out sources using the `type` attribute of the Authentication object
+* Sources by Auth Class: Allows you to filter our sources using the `class` attribute of the Authentication object.
+
+You can see the 'default_guest_policy' and 'default_oauth_policy' for examples of this module.
+
 Debugging
 ---------
 
