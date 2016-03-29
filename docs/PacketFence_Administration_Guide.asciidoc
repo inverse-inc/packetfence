@@ -1284,24 +1284,24 @@ Portal Modules
 
 The PacketFence captive portal flow is highly customizable. This section will cover the 'Portal Modules' which are used to define the behavior of the captive portal.
 
-NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and that offer the same behavior as previous PacketFence version. Meaning, all the available Portal Profile sources are used for authentication, then the available provisioners will be used.
+NOTE: When upgrading from a version that doesn't have the portal modules, the PacketFence Portal Modules configuration already comes with defaults that will fit most cases and offers the same behavior as previous versions of PacketFence. Meaning, all the available Portal Profile sources are used for authentication, then the available provisioners will be used.
 
-First, a brief description of the available Portal Modules : 
+First, a brief description of the available Portal Modules: 
 
-* Root : This is where it all starts, this module is a simple container that defines all the modules that need to be applied in a chained way to the user. Once the user has completed all modules contained in the Root, he is released on the network.
-* Choice : This allows to give a choice between multiple modules to the user. The 'default_registration_policy' is a good example of a choice that is offered to the user.
-* Chained : This allows you to define a list of modules that a user needs to go through in the order that they are defined - ex : you want your users to register via Google+ and pay for their access using PayPal.
-* Message : This allows you to display a message to the user. An example is available below in _Displaying a message to the user after the registration_
-* Authentication : The authentication modules can be of a lot of types. You would want to define one of these modules, in order to override the required fields, the source to use, the template or any other module attribute.
-** Billing : Allows to define a module based on one or more billing sources
-** Choice : Allows to define a module based on multiple sources and modules with advanced filtering options. See the section _Authentication Choice module_ below for a detailed explanation.
-** Login : Allows you to define a username/password based module with multiple internal sources (Active Directory, LDAP, ...)
-** Other modules : The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
+* Root: This is where it all starts, this module is a simple container that defines all the modules that need to be applied in a chained way to the user. Once the user has completed all modules contained in the Root, he is released on the network.
+* Choice: This allows to give a choice between multiple modules to the user. The 'default_registration_policy' is a good example of a choice that is offered to the user.
+* Chained: This allows you to define a list of modules that a user needs to go through in the order that they are defined - ex: you want your users to register via Google+ and pay for their access using PayPal.
+* Message: This allows you to display a message to the user. An example is available below in _Displaying a message to the user after the registration_
+* Authentication: The authentication modules can be of a lot of types. You would want to define one of these modules, in order to override the required fields, the source to use, the template or any other module attribute.
+** Billing: Allows to define a module based on one or more billing sources
+** Choice: Allows to define a module based on multiple sources and modules with advanced filtering options. See the section _Authentication Choice module_ below for a detailed explanation.
+** Login: Allows you to define a username/password based module with multiple internal sources (Active Directory, LDAP, ...)
+** Other modules: The other modules are all based on the source type they are assigned to, they allow to select the source, the AUP acceptance, and mandatory fields if applicable.
 
 Examples 
 ^^^^^^^^
 
-This section will contain the following examples : 
+This section will contain the following examples: 
 
 * Prompting for fields without authentication.
 * Prompting additionnal fields during the authentication.
@@ -1342,7 +1342,7 @@ This example will make the `default_guest_policy` require the user to enter a fi
 
 Go in 'Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
 
-Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex : phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
+Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
 NOTE: Not all sources support additionnal mandatory fields (ex: OAuth sources like Google, Facebook, ...). 
 
@@ -1419,10 +1419,10 @@ In addition to the manual selection above you can dynamically select sources par
 
 NOTE: You can find all the authentication objects in `lib/pf/Authentication/Source`
 
-* Sources by class : Allows you to specify the perl class name of the sources you want available 
-** ex : `pf::Authentication::Source::SMSSource` will select all the SMS sources. `pf::Authentication::Source::BillingSource` will select all the billing sources (Paypal, Stripe, ...)
-* Sources by type : Allows you to filter out sources using the `type` attribute of the Authentication object
-* Sources by Auth Class : Allows you to filter our sources using the `class` attribute of the Authentication object.
+* Sources by class: Allows you to specify the perl class name of the sources you want available 
+** ex: `pf::Authentication::Source::SMSSource` will select all the SMS sources. `pf::Authentication::Source::BillingSource` will select all the billing sources (Paypal, Stripe, ...)
+* Sources by type: Allows you to filter out sources using the `type` attribute of the Authentication object
+* Sources by Auth Class: Allows you to filter our sources using the `class` attribute of the Authentication object.
 
 You can see the 'default_guest_policy' and 'default_oauth_policy' for examples of this module.
 
