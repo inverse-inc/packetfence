@@ -47,6 +47,8 @@ sub generateConfig {
     $tags{'networks'} = '';
     $tags{'active'} = '';
 
+    my $captive_portal_uri = pf::config::util::get_captive_portal_uri();
+
     my $failover_activated = 0;
 
     foreach my $interface ( @listen_ints ) {
@@ -134,6 +136,7 @@ subnet $network netmask $net{'netmask'} {
   option subnet-mask $net{'netmask'};
   option domain-name "$net{'domain-name'}";
   option domain-name-servers $dns;
+  option captive-portal-rfc7710 "$captive_portal_uri";
   pool {
 EOT
 
@@ -156,6 +159,7 @@ subnet $network netmask $net{'netmask'} {
   option subnet-mask $net{'netmask'};
   option domain-name "$net{'domain-name'}";
   option domain-name-servers $net{'dns'};
+  option captive-portal-rfc7710 "$captive_portal_uri";
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
   max-lease-time $net{'dhcp_max_lease_time'};
