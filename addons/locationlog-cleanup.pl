@@ -29,7 +29,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 my %options = (
-    expire   => $Config{'expire'}{'locationlog'},
+    expire   => $Config{'maintenance'}{'locationlog_cleanup_window'},
     batch    => $Config{maintenance}{locationlog_cleanup_batch},
     timeout  => $Config{maintenance}{locationlog_cleanup_timeout},
     help     => undef,

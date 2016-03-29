@@ -168,67 +168,98 @@ exit(0);
 
 sub registertasks  {
     register_task(
-        'locationlog cleanup','locationlog_cleanup_interval',sub {
-            locationlog_cleanup( $Config{'expire'}{'locationlog'}, $Config{maintenance}{locationlog_cleanup_batch},$Config{maintenance}{locationlog_cleanup_timeout})
-              if ( $Config{'expire'}{'locationlog'} );
+        'iplog rotation',
+        'iplog_rotation_interval',
+        sub {
+            pf::iplog::rotate( $Config{'maintenance'}{'iplog_rotation_window'}, $Config{maintenance}{iplog_rotation_batch}, $Config{maintenance}{iplog_rotation_timeout} ) if ( $Config{'maintenance'}{'iplog_rotation_window'} );
         }
     );
     register_task(
-        'radius audit log cleanup','radius_audit_log_cleanup_interval',sub {
-            radius_audit_log_cleanup( $Config{'expire'}{'radius_audit_log'}, $Config{maintenance}{radius_audit_log_cleanup_batch},$Config{maintenance}{radius_audit_log_cleanup_timeout})
-              if ( $Config{'expire'}{'radius_audit_log'} );
+        'iplog cleanup',
+        'iplog_cleanup_interval',
+        sub {
+            pf::iplog::cleanup( $Config{'maintenance'}{'iplog_cleanup_window'}, $Config{maintenance}{iplog_cleanup_batch}, $Config{maintenance}{iplog_cleanup_timeout} ) if ( $Config{'maintenance'}{'iplog_cleanup_window'} );
         }
     );
     register_task(
-        'node cleanup','node_cleanup_interval',sub {
-            node_cleanup( $Config{'expire'}{'node'} )
-              if ( $Config{'expire'}{'node'} );
+        'locationlog cleanup',
+        'locationlog_cleanup_interval',
+        sub {
+            locationlog_cleanup( $Config{'maintenance'}{'locationlog_cleanup_window'}, $Config{maintenance}{locationlog_cleanup_batch}, $Config{maintenance}{locationlog_cleanup_timeout} ) if ( $Config{'maintenance'}{'locationlog_cleanup_window'} );
         }
     );
     register_task(
-        'person cleanup','person_cleanup_interval',sub {
-            person_cleanup()
-              if ( isenabled($Config{'expire'}{'person'}) );
+        'radius audit log cleanup',
+        'radius_audit_log_cleanup_interval',
+        sub {
+            radius_audit_log_cleanup( $Config{'maintenance'}{'radius_audit_log_cleanup_window'}, $Config{maintenance}{radius_audit_log_cleanup_batch}, $Config{maintenance}{radius_audit_log_cleanup_timeout}) if ( $Config{'maintenance'}{'radius_audit_log_cleanup_window'} );
         }
     );
     register_task(
-        'traplog cleanup','traplog_cleanup_interval',sub {
-            traplog_cleanup( $Config{'expire'}{'traplog'} )
-              if ( $Config{'expire'}{'traplog'} );
+        'node cleanup',
+        'node_cleanup_interval',
+        sub {
+            node_cleanup( $Config{'maintenance'}{'node_cleanup_window'} ) if ( $Config{'maintenance'}{'node_cleanup_window'} );
         }
     );
     register_task(
-        'checking registered nodes for expiration','nodes_maintenance_interval',sub {
+        'person cleanup',
+        'person_cleanup_interval',
+        sub {
+            person_cleanup() if ( isenabled($Config{'maintenance'}{'person_cleanup'}) );
+        }
+    );
+    register_task(
+        'traplog cleanup',
+        'traplog_cleanup_interval',
+        sub {
+            traplog_cleanup( $Config{'maintenance'}{'traplog_cleanup_window'} ) if ( $Config{'maintenance'}{'traplog_cleanup_window'} );
+        }
+    );
+    register_task(
+        'checking registered nodes for expiration',
+        'nodes_maintenance_interval',
+        sub {
             nodes_maintenance();
         }
     );
     register_task(
-        'checking violations for expiration','violation_maintenance_interval',sub {
-            violation_maintenance($Config{maintenance}{violation_maintenance_batch},$Config{maintenance}{violation_maintenance_timeout});
+        'checking violations for expiration',
+        'violation_maintenance_interval',
+        sub {
+            violation_maintenance( $Config{maintenance}{violation_maintenance_batch}, $Config{maintenance}{violation_maintenance_timeout} );
         }
     );
     register_task(
-        'checking accounting data for potential bandwidth abuse','inline_accounting_maintenance_interval',sub {
-            if (isenabled($Config{'inline'}{'accounting'})) {
-                inline_accounting_maintenance($Config{'inline'}{'layer3_accounting_session_timeout'});
-            }
+        'checking accounting data for potential bandwidth abuse',
+        'inline_accounting_maintenance_interval',
+        sub {
+            inline_accounting_maintenance( $Config{'inline'}{'layer3_accounting_session_timeout'} ) if isenabled($Config{'inline'}{'accounting'});
         }
     );
     register_task(
-        'provisioner polling enforcement','provisioning_compliance_poll_interval',sub {
+        'provisioner polling enforcement',
+        'provisioning_compliance_poll_interval',
+        sub {
             provisioner_compliance_poll();
         }
     );
     register_task(
-        'account maintenance','acct_maintenance_interval',sub {
+        'account maintenance',
+        'acct_maintenance_interval',
+        sub {
             acct_maintenance();
         }
     );
     register_task(
-        'update node online stats', 'online_node_count_interval', \&update_node_online_stats
+        'update node online stats', 
+        'online_node_count_interval', 
+        \&update_node_online_stats
     );
     register_task(
-        'fingerbank data update', 'fingerbank_data_update_interval', \&update_fingerbank_data
+        'fingerbank data update', 
+        'fingerbank_data_update_interval', 
+        \&update_fingerbank_data
     );
 }
 

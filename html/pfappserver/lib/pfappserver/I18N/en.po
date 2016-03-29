@@ -7179,34 +7179,6 @@ msgstr ""
 msgid "event_type"
 msgstr "Event Type"
 
-# conf/documentation.conf
-msgid "expire"
-msgstr "Expiration"
-
-# conf/documentation.conf
-msgid "expire.iplog"
-msgstr "IP/MAC logs"
-
-# conf/documentation.conf
-msgid "expire.locationlog"
-msgstr "Location logs"
-
-# conf/documentation.conf
-msgid "expire.node"
-msgstr "Node"
-
-# conf/documentation.conf
-msgid "expire.person"
-msgstr "Person"
-
-# conf/documentation.conf
-msgid "expire.radius_audit_log"
-msgstr "RADIUS Audit Log"
-
-# conf/documentation.conf
-msgid "expire.traplog"
-msgstr "Trap logs"
-
 # pf::action (VIOLATION_ACTIONS)
 msgid "external_action"
 msgstr ""
@@ -7511,6 +7483,10 @@ msgid "maintenance.inline_accounting_maintenance_interval"
 msgstr "Inline Accounting Maintenance Interval"
 
 # conf/documentation.conf
+msgid "maintenance.iplog_cleanup_window"
+msgstr "Iplog Cleanup Window"
+
+# conf/documentation.conf
 msgid "maintenance.iplog_cleanup_batch"
 msgstr "Iplog Cleanup Batch"
 
@@ -7523,8 +7499,28 @@ msgid "maintenance.iplog_cleanup_timeout"
 msgstr "Iplog Cleanup Timeout"
 
 # conf/documentation.conf
+msgid "maintenance.iplog_rotation_window"
+msgstr "Iplog Rotation Window"
+
+# conf/documentation.conf
+msgid "maintenance.iplog_rotation_batch"
+msgstr "Iplog Rotation Batch"
+
+# conf/documentation.conf
+msgid "maintenance.iplog_rotation_interval"
+msgstr "Iplog Rotation Interval"
+
+# conf/documentation.conf
+msgid "maintenance.iplog_rotation_timeout"
+msgstr "Iplog Rotation Timeout"
+
+# conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_batch"
 msgstr "Locationlog Cleanup Batch"
+
+# conf/documentation.conf
+msgid "maintenance.locationlog_cleanup_window"
+msgstr "Locationlog Cleanup Window"
 
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_interval"
@@ -7535,8 +7531,16 @@ msgid "maintenance.locationlog_cleanup_timeout"
 msgstr "Locationlog Cleanup Timeout"
 
 # conf/documentation.conf
+msgid "maintenance.node_cleanup_window"
+msgstr "Node Cleanup Window"
+
+# conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
 msgstr "Node Cleanup Interval"
+
+# conf/documentation.conf
+msgid "maintenance.person_cleanup"
+msgstr "Users Cleanup"
 
 # conf/documentation.conf
 msgid "maintenance.person_cleanup_interval"
@@ -7555,6 +7559,10 @@ msgid "maintenance.provisioning_compliance_poll_interval"
 msgstr "Provisioning Compliance Poll Interval"
 
 # conf/documentation.conf
+msgid "maintenance.radius_audit_log_cleanup_window"
+msgstr "RADIUS Audit Log Cleanup Window"
+
+# conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_batch"
 msgstr "RADIUS Audit Log Cleanup Batch"
 
@@ -7565,6 +7573,10 @@ msgstr "RADIUS Audit Log Cleanup Interval"
 # conf/documentation.conf
 msgid "maintenance.radius_audit_log_cleanup_timeout"
 msgstr "RADIUS Audit Log Cleanup Timeout"
+
+# conf/documentation.conf
+msgid "maintenance.traplog_cleanup_window"
+msgstr "Traplog Cleanup Window"
 
 # conf/documentation.conf
 msgid "maintenance.traplog_cleanup_interval"
@@ -7581,6 +7593,10 @@ msgstr "Violation Maintenance Interval"
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
+
+# conf/documentation.conf
+msgid "maintenance.fingerbank_data_update_interval"
+msgstr "Fingerbank Data Update Interval"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
