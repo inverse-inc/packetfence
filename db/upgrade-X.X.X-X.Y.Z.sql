@@ -5,9 +5,9 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 7;
-SET @SUBMINOR_VERSION = 9;
+SET @MAJOR_VERSION = 6;
+SET @MINOR_VERSION = 0;
+SET @SUBMINOR_VERSION = 0;
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
@@ -15,11 +15,10 @@ SET @SUBMINOR_VERSION = 9;
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
--- Updating to current version
+-- Adding login remaining count to password table
 --
 
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
-
+ALTER TABLE password ADD `login_remaining` int(11) DEFAULT NULL;
 
 -- Upgrade script from FR 2 to 3
 
@@ -292,4 +291,9 @@ INSERT INTO radacct
     framedipaddress
     FROM radacct_fr2;
 
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
