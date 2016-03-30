@@ -76,6 +76,7 @@ sub external_captive_portal {
         }
     }
     elsif (defined($session)) {
+        get_logger->info("Restoring from external portal session $session");
         my $locationlog = locationlog_get_session($session);
         my $switch = $locationlog->{switch};
         $switch = pf::SwitchFactory->instantiate($switch);
@@ -109,7 +110,8 @@ sub _setup_session {
     $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
     $portalSession->session->param('is_external_portal', $TRUE);
     if(defined($req)){
-        foreach my $key (keys %{$req->param}) {
+        my $params = $req->param // {};
+        foreach my $key (keys %$params) {
             $logger->debug("Adding additionnal session parameter for url detected : $key : ".$req->param($key));
             $portalSession->session->param("ecwp-original-param-$key", $req->param($key));
         }
