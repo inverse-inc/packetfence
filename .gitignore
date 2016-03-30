@@ -29,6 +29,7 @@ conf/snort/emerging*.rules
 conf/user.conf
 conf/users/
 db/pf-schema.sql
+db/pf_graphite-schema.sql
 raddb/eap.conf
 raddb/radiusd.conf
 raddb/auth.conf

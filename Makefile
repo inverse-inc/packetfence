@@ -122,6 +122,7 @@ translation:
 
 mysql-schema:
 	ln -f -s /usr/local/pf/db/pf-schema-X.Y.Z.sql /usr/local/pf/db/pf-schema.sql;
+	ln -s /usr/local/pf/db/pf_graphite-schema-5.1.0.sql /usr/local/pf/db/pf_graphite-schema.sql
 
 .PHONY: chown_pf
 
