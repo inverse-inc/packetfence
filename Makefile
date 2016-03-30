@@ -106,7 +106,7 @@ raddb/certs:
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in control-socket default inner-tunnel packetfence packetfence-soh packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-soh packetfence-tunnel dynamic-clients;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
