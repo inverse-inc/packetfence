@@ -107,25 +107,25 @@ CREATE TABLE `node_category` (
 -- Insert 'default' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder role/category, feel free to edit");
+INSERT INTO `node_category` (name,notes) VALUES ("default","Placeholder role/category, feel free to edit");
 
 --
 -- Insert 'guest' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("2","guest","Guests");
+INSERT INTO `node_category` (name,notes) VALUES ("guest","Guests");
 
 --
 -- Insert 'gaming' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gaming devices");
+INSERT INTO `node_category` (name,notes) VALUES ("gaming","Gaming devices");
 
 --
 -- Insert 'voice' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("4","voice","VoIP devices");
+INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 
 --
 -- Table structure for table `node`
