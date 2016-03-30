@@ -3198,7 +3198,7 @@ Create a session id and save in in the locationlog.
 =cut
 
 sub setSession {
-    my($args) = @_;
+    my($self, $args) = @_;
     my $mac = $args->{'mac'};
     my $session_id = generate_session_id(6);
     my $chi = pf::CHI->new(namespace => 'httpd.portal');
