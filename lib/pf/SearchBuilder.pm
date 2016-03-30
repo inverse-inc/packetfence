@@ -297,7 +297,7 @@ sub _in {
     if( @rhs ) {
         #if rhs side value is undefined
         my $formatted_lhs = $self->format_column($lhs);
-        push @clauses,$formatted_lhs, $op,'in','(',join(", ",$self->_format_values(@rhs)),')';
+        push @clauses,$formatted_lhs, $op,'(',join(", ",$self->_format_values(@rhs)),')';
 
     } else {
         die "invalid amount operands provided";
@@ -314,7 +314,9 @@ sub _format_identifier {
 sub _format_values {
     my ($self,@values) = @_;
     my $dbh = get_db_handle();
-    return map { $dbh->quote($_) } @values;
+    return map {
+       ref $_ eq 'SCALAR' ? $$_ : $dbh->quote($_)
+    } @values;
 
 }
 
