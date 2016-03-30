@@ -98,8 +98,8 @@ sudo:/etc/sudoers.d/packetfence.sudoers
 permissions:
 	./bin/pfcmd fixpermissions
 
-raddb/certs/dh:
-	cd raddb/certs; make dh
+raddb/certs:
+	cd raddb/certs; make
 
 .PHONY: raddb-sites-enabled
 
@@ -134,4 +134,4 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
+devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
