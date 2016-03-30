@@ -131,7 +131,7 @@ sub delete {
 
     my $logger = get_logger();
     if (exists $STANDARD_ROLES{$role_ref->{name}}) {
-        return ($STATUS::FORBIDDEN, "The role $role_ref->{name} a standard role cannot be remove");
+        return ($STATUS::FORBIDDEN, "The role '$role_ref->{name}' is a standard role and cannot be removed");
     }
     my ($status, $status_msg) = ($STATUS::OK);
 
