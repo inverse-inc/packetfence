@@ -20,11 +20,15 @@ use Exporter qw(import);
 
 our @EXPORT_OK = qw(
     @ROLES
+    %STANDARD_ROLES
     $REGISTRATION_ROLE
     $ISOLATION_ROLE
     $MAC_DETECTION_ROLE
     $INLINE_ROLE
     $VOICE_ROLE
+    $DEFAULT_ROLE
+    $GUEST_ROLE
+    $GAMING_ROLE
 );
 
 =head2 ROLES
@@ -33,11 +37,14 @@ Required roles for every switch. Those are reserved words for any additional cus
 
 =cut
 
-Readonly::Scalar our $VOICE_ROLE => 'voice';
-Readonly::Scalar our $REGISTRATION_ROLE => 'registration';
-Readonly::Scalar our $ISOLATION_ROLE => 'isolation';
+Readonly::Scalar our $REGISTRATION_ROLE  => 'registration';
+Readonly::Scalar our $ISOLATION_ROLE     => 'isolation';
 Readonly::Scalar our $MAC_DETECTION_ROLE => 'macDetection';
-Readonly::Scalar our $INLINE_ROLE => 'inline';
+Readonly::Scalar our $INLINE_ROLE        => 'inline';
+Readonly::Scalar our $VOICE_ROLE         => 'voice';
+Readonly::Scalar our $DEFAULT_ROLE       => 'default';
+Readonly::Scalar our $GUEST_ROLE         => 'guest';
+Readonly::Scalar our $GAMING_ROLE        => 'gaming';
 
 Readonly::Array our @ROLES => (
     $REGISTRATION_ROLE,
@@ -46,7 +53,12 @@ Readonly::Array our @ROLES => (
     $INLINE_ROLE,
 );
 
-
+Readonly::Hash our %STANDARD_ROLES => (
+    $VOICE_ROLE   => 1,
+    $DEFAULT_ROLE => 1,
+    $GUEST_ROLE   => 1,
+    $GAMING_ROLE  => 1,
+);
 
 =head1 AUTHOR
 
