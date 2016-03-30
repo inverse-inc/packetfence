@@ -32,6 +32,7 @@ use base ('pf::Switch');
 use Net::SNMP;
 
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 
 =head1 METHODS
@@ -77,7 +78,7 @@ sub parseTrap {
 
     #-- secureMacAddrViolation SNMP v3
     } elsif ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {   
+        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
 
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
@@ -491,7 +492,7 @@ sub getVoiceVlan {
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    my $voiceVlan = $self->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }

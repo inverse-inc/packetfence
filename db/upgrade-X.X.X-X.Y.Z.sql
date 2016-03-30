@@ -9,12 +9,18 @@
 SET @MAJOR_VERSION = 6;
 SET @MINOR_VERSION = 0;
 SET @SUBMINOR_VERSION = 0;
+
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
+--
+-- Insert 'VoIP' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 --
 -- Adding login remaining count to password table
 --

@@ -2,7 +2,7 @@ package pf::Switch::Foundry;
 
 =head1 NAME
 
-pf::Switch::Foundry - Object oriented module to access SNMP enabled 
+pf::Switch::Foundry - Object oriented module to access SNMP enabled
 Foundry switches
 
 =head1 SYNOPSIS
@@ -19,7 +19,7 @@ Supports IP Telephony
 Developed and tested on FastIron 4802 running on image version 04.0.00
 
 =head1 BUGS AND LIMITATIONS
-    
+
 Port security works with an OS version of 4 or greater.
 
 FastIron with a JetCore chipset cannot work in port-security mode (check show version)
@@ -27,7 +27,7 @@ FastIron with a JetCore chipset cannot work in port-security mode (check show ve
 You cannot run a network with VLAN 1 as your normal VLAN with these switches.
 
 SNMPv3 support was not tested.
-    
+
 Not so sure how often the security violation traps are sent.
 If PacketFence misses the trap you might be out of luck.
 We should check with the documentation but I can't find detailed SNMP options right now.
@@ -53,6 +53,7 @@ use POSIX;
 use Net::SNMP;
 
 use pf::util;
+use pf::constants::role qw($VOICE_ROLE);
 
 # snPortMacSecurityIntfMacRowStatus value constants
 use constant DELETE => 3;
@@ -241,7 +242,7 @@ sub isPortSecurityEnabled {
     }
 
     # from FOUNDRY-SN-SWITCH-GROUP-MIB
-    my $oid_snPortMacSecurityIntfContentSecurity = "1.3.6.1.4.1.1991.1.1.3.24.1.1.3.1.2"; 
+    my $oid_snPortMacSecurityIntfContentSecurity = "1.3.6.1.4.1.1991.1.1.3.24.1.1.3.1.2";
 
     #determine if port security is enabled
     $logger->trace("SNMP get_request for snPortMacSecurityIntfContentSecurity: "
@@ -252,7 +253,7 @@ sub isPortSecurityEnabled {
         -varbindlist => [ "$oid_snPortMacSecurityIntfContentSecurity.$ifIndex" ] );
 
     # validating answer
-    my $valid_answer = (defined($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"}) 
+    my $valid_answer = (defined($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"})
         && ($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"} ne 'noSuchInstance')
         && ($result->{"$oid_snPortMacSecurityIntfContentSecurity.$ifIndex"} ne 'noSuchObject'));
 
@@ -444,7 +445,7 @@ sub isVoIPEnabled {
 
 =item _setDualModeVlan - set the dual-mode of the specified ifIndex to the given VLAN
 
-dual-mode is required when there is IP Telephony on the switch. 
+dual-mode is required when there is IP Telephony on the switch.
 Dual-mode allows an ifIndex to support an untagged vlan along with a tagged one (ie: voice vlan).
 
 =cut
@@ -491,7 +492,7 @@ sub getVoiceVlan {
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    my $voiceVlan = $self->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }

@@ -19,6 +19,7 @@ use namespace::autoclean;
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::nodecategory;
+use pf::constants::role qw(%STANDARD_ROLES);
 
 =head1 METHODS
 
@@ -129,6 +130,9 @@ sub delete {
     my ($self, $role_ref) = @_;
 
     my $logger = get_logger();
+    if (exists $STANDARD_ROLES{$role_ref->{name}}) {
+        return ($STATUS::FORBIDDEN, "The role '$role_ref->{name}' is a standard role and cannot be removed");
+    }
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {

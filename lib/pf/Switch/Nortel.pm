@@ -39,6 +39,7 @@ use Net::SNMP;
 use base ('pf::Switch');
 
 use pf::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::config;
 use pf::Switch::constants;
 use pf::util;
@@ -247,7 +248,7 @@ sub getVoiceVlan {
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    my $voiceVlan = $self->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }
@@ -419,7 +420,7 @@ Should return either 0 or 1
 sub getFirstBoardIndex {
     my ($self) = @_;
     my $logger = $self->logger;
-  
+
     if ( !$self->connectRead() ) {
         return 1;
     }
@@ -829,7 +830,7 @@ sub setTagVlansByIfIndex {
             my $updated_port_member_list = $self->modifyBitmask(
                 $result->{"$OID_rcVlanPortMembers.$vlan"}, $ifIndex, $setTo
             );
-            
+
             push @$set_vlan_port_list_ref,
                 "$OID_rcVlanPortMembers.$vlan", Net::SNMP::OCTET_STRING, $updated_port_member_list;
         }

@@ -25,6 +25,7 @@ use pf::authentication;
 use pf::Connection;
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
+use pf::constants::role qw($VOICE_ROLE);
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -284,7 +285,7 @@ sub accounting {
         $pf::StatsD::statsd->increment(called() . ".error" );
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
-        
+
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
 
     my $isStart   = $radius_request->{'Acct-Status-Type'} eq 'Start';
@@ -454,7 +455,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName('voice'), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'});
+    $args->{'switch'}->synchronize_locationlog($args->{'ifIndex'}, $args->{'switch'}->getVlanByName($VOICE_ROLE), $args->{'mac'}, $VOIP, $args->{'connection_type'}, $args->{'connection_sub_type'}, $args->{'user_name'}, $args->{'ssid'}, undef, undef, $VOICE_ROLE);
 
     my %RAD_REPLY = $args->{'switch'}->getVoipVsa();
     $args->{'switch'}->disconnectRead();

@@ -24,22 +24,6 @@ Defined by standards
 
 package SNMP;
 
-=head2 ROLES
-
-Required roles for every switch. Those are reserved words for any additional custom role.
-
-=cut
-
-Readonly::Array our @ROLES =>
-  qw/
-        registration
-        isolation
-        macDetection
-        inline
-        voice
-    /;
-
-
 =head2 VERSIONS
 
 Supported SNMP versions by PacketFence
@@ -67,10 +51,10 @@ We need to handle both cases thus this precompiled regexp.
 
 Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
     (
-        Hex-STRING:\ 
+        Hex-STRING:\
         [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2} # MAC Address
     |
-        STRING:\ 
+        STRING:\
         ".+"
     )
 /sx; # which may contain newline characters to mean hex 0a (thus the s)
@@ -148,7 +132,7 @@ Readonly::Scalar our $LOWER_LAYER_DOWN => 7;
 
 =head2 ifType - defined by RFC 2863 (Interfaces Group) aka IF-MIB
 
-There are a lot of ifTypes, only a few of interest to PacketFence were copied here. 
+There are a lot of ifTypes, only a few of interest to PacketFence were copied here.
 Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
 
  ...
@@ -272,7 +256,7 @@ Readonly::Scalar our $DROP => 3;
 
 =head2 ConfigFileType
 
-Various configuration-related source files or target files. 
+Various configuration-related source files or target files.
 Used by ccCopySourceFileType and ccCopyDestFileType.
 From CISCO-CONFIG-COPY MIB.
 
@@ -310,7 +294,7 @@ Readonly::Scalar our $DEFAULT_LLDP_REMTIMEMARK => 0;
 
 =head2 Trunk encapsulation constants
 
-Used to set the encapsulation of a trunk 
+Used to set the encapsulation of a trunk
 
 =cut
 
@@ -325,7 +309,7 @@ Extreme Networks constants
 
 package EXTREME;
 
-=head2 PORT_SECURITY_DETECT_VLAN 
+=head2 PORT_SECURITY_DETECT_VLAN
 
 Special VLAN used to detect if locked-learning is activated or not. Used for isPortSecurityEnabled()
 
@@ -518,8 +502,8 @@ ahClientMACProtocol,    -- The radio mode the client uses to communicate with th
 ahClientVLAN,                   -- The VLAN used by client to communicate with the HiveAP
 ahClientUserProfId,     -- The user profile id used by client to communicate with the HiveAP
 ahClientChannel,                -- The radio channel used by client to communicate with the HiveAP
-ahClientCWPUsed,                -- The boolean indicating whether Captive Web Portal is used 
-ahBSSID,                                -- Basic Service Set Identifier of the client is using if remoteid is a client. 
+ahClientCWPUsed,                -- The boolean indicating whether Captive Web Portal is used
+ahBSSID,                                -- Basic Service Set Identifier of the client is using if remoteid is a client.
 ahAssociationTime,      -- The association time(s) of client connect or disconnect to AP.
 ahIfName,               -- The interface name of client connect or disconnect to AP.
 ahCode,

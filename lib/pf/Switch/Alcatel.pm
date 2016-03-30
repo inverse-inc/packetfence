@@ -38,6 +38,7 @@ sub description { 'Alcatel switch' }
 
 # importing switch constants
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::constants;
 use pf::config;
@@ -67,16 +68,16 @@ For now it returns the voiceRole untagged since Alcatel supports multiple untagg
 =cut
 
 sub getVoipVsa{
-    my ($self) = @_; 
-    my $logger = $self->logger; 
-    my $voiceRole = $self->getRoleByName('voice');
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $voiceRole = $self->getRoleByName($VOICE_ROLE);
     $logger->info("Accepting phone with untagged Access-Accept on role $voiceRole");
-    
+
     # Return the normal response except we force the voiceVlan to be sent
     return (
       'Filter-Id' => $voiceRole,
     );
- 
+
 }
 
 =head2 deauthenticateMacRadius
@@ -112,7 +113,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub wiredeauthTechniques { 
+sub wiredeauthTechniques {
    my ($self, $method, $connection_type) = @_;
    my $logger = $self->logger;
 
@@ -131,7 +132,7 @@ sub wiredeauthTechniques {
         my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::RADIUS => 'deauthenticateMacRadius',
-        ); 
+        );
         if (!defined($method) || !defined($tech{$method})) {
             $method = $default;
         }

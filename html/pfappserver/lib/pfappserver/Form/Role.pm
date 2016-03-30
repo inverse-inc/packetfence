@@ -17,6 +17,7 @@ with 'pfappserver::Base::Form::Role::Help';
 use HTTP::Status qw(:constants is_success);
 
 use pf::config;
+use pf::constants::role qw(@ROLES);
 
 has 'id' => ( is => 'ro' );
 
@@ -53,7 +54,7 @@ Make sure the role name is unique.
 sub validate {
     my $self = shift;
 
-    if (grep { $_ eq $self->value->{name} } @SNMP::ROLES) {
+    if (grep { $_ eq $self->value->{name} } @ROLES) {
         $self->field('name')->add_error('This is a reserved name.');
     }
     elsif ($self->{id} && $self->{id} ne $self->value->{name}) {

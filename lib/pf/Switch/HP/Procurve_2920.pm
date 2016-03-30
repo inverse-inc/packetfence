@@ -24,6 +24,7 @@ sub description {'HP ProCurve 2920 Series'}
 
 # importing switch constants
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::config;
 use pf::constants;
@@ -47,7 +48,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 sub getVoipVsa {
     my ($self) = @_;
     my $logger = $self->logger;
-    my $vlanid = sprintf( "%03x\n", $self->getVlanByName('voice') );
+    my $vlanid = sprintf( "%03x\n", $self->getVlanByName($VOICE_ROLE) );
     my $hexvlan = hex( "31000" . $vlanid );
     return ( 'Egress-VLANID' => $hexvlan, );
 }

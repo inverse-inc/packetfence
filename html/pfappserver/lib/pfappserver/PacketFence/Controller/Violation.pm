@@ -21,6 +21,7 @@ use JSON::MaybeXS;
 
 use pf::log;
 use pf::config;
+use pf::constants::role qw(@ROLES);
 use pf::Switch::constants;
 use pf::constants::trigger qw($TRIGGER_MAP);
 use pfappserver::Form::Violation;
@@ -72,7 +73,7 @@ sub begin :Private {
     if (is_success($status)) {
         $violations = $result;
     }
-    my @roles = map {{ name => $_ }} @SNMP::ROLES;
+    my @roles = map {{ name => $_ }} @ROLES;
     ($status, $result) = $c->model('Roles')->list();
     if (is_success($status)) {
         push(@roles, @$result);
