@@ -377,25 +377,7 @@ sub add_joins {
         my $online_date = $params->{online_date};
         my $start = $online_date->{start};
         my $end = $online_date->{end};
-        $builder->from({
-            'table' => \"(SELECT DISTINCT locationlog.mac FROM locationlog WHERE start_time >= \"$start 00:00:00\" and end_time <= \"$end 23:59\")",
-            'as'    => 'online_date',
-            'join'  => 'LEFT',
-            'on' => [
-                [
-                    {
-                        'table' => 'online_date',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        });
-        $builder->where({table => 'online_date', name => 'mac'}, '!=', undef);
+        $builder->where(\"UPPER(REPLACE(node.mac,':',''))", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
     }
 }
 
@@ -442,4 +424,3 @@ USA.
 =cut
 
 1;
-
