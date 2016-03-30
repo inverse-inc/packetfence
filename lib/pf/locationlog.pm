@@ -56,7 +56,6 @@ BEGIN {
 
         locationlog_set_session
         locationlog_get_session
-        locationlog_online_nodes_count
         locationlog_last_entry_mac
     );
 }
@@ -262,9 +261,6 @@ sub locationlog_db_prepare {
 
     $locationlog_statements->{'locationlog_get_session_sql'} = get_db_handle()->prepare(
         qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE session_id = ? AND end_time = 0 order by start_time desc]);
-
-    $locationlog_statements->{'locationlog_online_nodes_count_sql'} = get_db_handle()->prepare(
-        qq [ SELECT count(*) nb from locationlog WHERE end_time = 0]);
 
     $locationlog_statements->{'locationlog_last_entry_mac_sql'} = get_db_handle()->prepare(qq [
         SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
@@ -666,28 +662,6 @@ sub locationlog_get_session {
 sub locationlog_set_session {
     my ( $mac, $session_id ) = @_;
     return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_set_session_sql', $session_id, $mac );
-}
-
-=item locationlog_online_nodes_count
-
-Get of the count of the current online nodes
-
-=cut
-
-sub locationlog_online_nodes_count {
-    my $sth = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_online_nodes_count_sql');
-    my $logger = get_logger();
-    unless ($sth) {
-        $logger->error("Problem with locationlog_online_nodes_count");
-        return undef;
-    }
-    my $row = $sth->fetch;
-    $sth->finish;
-    unless ($row) {
-        $logger->error("Problem with locationlog_online_nodes_count");
-        return undef;
-    }
-    return $row->[0];
 }
 
 =item locationlog_last_entry_mac
