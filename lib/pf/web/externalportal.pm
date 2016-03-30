@@ -99,8 +99,8 @@ sub external_captive_portal {
 
 sub _setup_session {
     my ($req, $client_mac, $client_ip, $redirect_url, $grant_url) = @_;
-    get_logger()->debug(sub { use Data::Dumper ; "_setup_session :".Dumper(\@_) });
     my $logger = get_logger();
+    $logger->trace(sub { use Data::Dumper ; "_setup_session params :".Dumper(\@_) });
     my %info = (
         'client_mac' => $client_mac,
     );
