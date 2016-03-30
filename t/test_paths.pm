@@ -26,7 +26,7 @@ BEGIN {
     use pf::file_paths;
     use pfconfig::constants;
 
-    $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
+    $test_dir = rel2abs(dirname($INC{'test_paths.pm'})) if exists $INC{'test_paths.pm'};
     $test_dir ||= catdir($install_dir,'t');
     $pf::file_paths::switches_config_file = catfile($test_dir,'data/switches.conf');
     $pf::file_paths::admin_roles_config_file = catfile($test_dir,'data/admin_roles.conf');
@@ -39,13 +39,13 @@ BEGIN {
     $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
-    
+
     $pfconfig::constants::CONFIG_FILE_PATH = catfile($test_paths::test_dir, 'data/pfconfig.conf');
     $pfconfig::constants::SOCKET_PATH = "/usr/local/pf/var/run/pfconfig-test.sock";
 
 
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
