@@ -3,6 +3,11 @@ description=Default portal policy
 type=Root
 modules=default_registration_policy,default_provisioning_policy
 
+[default_pending_policy]
+modules=default_provisioning_policy
+type=Root
+description=Default pending policy
+
 [default_registration_policy]
 description=Default registration policy
 type=Choice

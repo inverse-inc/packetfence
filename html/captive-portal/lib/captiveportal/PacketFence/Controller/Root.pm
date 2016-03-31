@@ -62,13 +62,15 @@ sub setupDynamicRouting : Private {
     my ($self, $c) = @_;
     my $timer = pf::StatsD::Timer->new({sample_rate => 1});
 
+    my $node = node_attributes($c->portalSession->clientMac);
+
     my $request = $c->request;
     my $profile = $c->portalSession->profile;
     my $application = captiveportal::DynamicRouting::Application->new(
         session => $c->session, 
         profile => $profile, 
         request => $request, 
-        root_module_id => $profile->{_root_module},
+        root_module_id => $node->{status} eq $pf::node::STATUS_PENDING ? "default_pending_policy" : $profile->{_root_module},
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIp;
