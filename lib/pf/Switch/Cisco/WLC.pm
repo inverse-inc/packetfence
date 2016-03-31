@@ -113,6 +113,7 @@ use pf::web::util;
 use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::violation qw(violation_count_reevaluate_access);
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
