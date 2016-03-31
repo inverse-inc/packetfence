@@ -82,16 +82,35 @@ URI to download the Mac OSX agent
 
 has mac_osx_agent_download_uri => (is => 'rw');
 
+=head1 Methods
+
+=head2 _token_cache_key
+
+The cache key for the token
+
+=cut
 sub _token_cache_key {
     my ($self) = @_;
     return $self->id."-token";
 }
+
+=head2 token
+
+Get the authentication token from the cache or fetch it using the API
+
+=cut
 
 sub token {
     my ($self) = @_;
     my $logger = get_logger();
     return $self->cache->compute($self->_token_cache_key, sub { $self->fetch_token() }, { expires_in => $SENTINEL_ONE_TOKEN_EXPIRY });
 }
+
+=head2 fetch_token
+
+Fetch the authentication token on the SentinelOne API
+
+=cut
 
 sub fetch_token {
     my ($self) = @_;
@@ -114,6 +133,12 @@ sub fetch_token {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
 }
+
+=head2 fetch_agent_info
+
+Fetch the agent information for a MAC address
+
+=cut
 
 sub fetch_agent_info {
     my ($self, $mac) = @_;
@@ -142,6 +167,12 @@ sub fetch_agent_info {
     }
 }
 
+=head2 execute_request
+
+Execute a request, retrying it one if the request is unauthenticated (in case the cached token was invalidated)
+
+=cut
+
 sub execute_request {
     my ($self, $req) = @_;
     my $res = $self->_execute_request($req);
@@ -165,12 +196,26 @@ sub execute_request {
     return $res;
 }
 
+=head2 _execute_request
+
+Execute a request on the SentinelOne API
+
+=cut
+
 sub _execute_request {
     my ($self, $req) = @_;
     $req->header("Authorization", "Token ".$self->token());
     my $ua = LWP::UserAgent->new();
     return $ua->request($req);
 }
+
+=head2 authorize
+
+Check whether the device exists or not in the SentinelOne API
+
+MISSING : compliance check
+
+=cut
 
 sub authorize {
     my ($self,$mac) = @_;
@@ -188,6 +233,12 @@ sub authorize {
         return $info->{is_active};
     }
 }
+
+=head2 _build_uri
+
+Build the API URI based on the configuration
+
+=cut
 
 sub _build_uri {
     my ($self, $path) = @_;
