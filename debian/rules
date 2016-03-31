@@ -182,7 +182,6 @@ endif
 #	dh_installinfo
 	dh_installman
 	dh_link \
-			/usr/local/pf/raddb/sites-available/packetfence-soh /usr/local/pf/raddb/sites-enabled/packetfence-soh \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 	dh_strip

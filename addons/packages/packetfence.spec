@@ -537,7 +537,6 @@ cd $RPM_BUILD_ROOT/usr/local/pf/conf
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
-ln -s ../sites-available/packetfence-soh packetfence-soh
 ln -s ../sites-available/dynamic-clients dynamic-clients
 
 # Fingerbank symlinks
