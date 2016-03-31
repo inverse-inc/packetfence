@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Moose;
 
-use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1;
+use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => '_modules' , require => 1;
 use pfconfig::cached_hash;
 use pf::constants;
 use pf::util;
@@ -32,7 +32,7 @@ has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Applica
 
 has 'graph' => (is => 'rw', isa => 'Graph', default => sub {Graph->new});
 
-our @MODULES = map {untaint_chain($_)} __PACKAGE__->modules;
+our $MODULES;
 our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
@@ -196,7 +196,7 @@ sub getModuleName {
     my $type = $data{type};
     my $subclass = "${mainClass}::${type}";
     die "type is not defined for $name" unless defined $type;
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @MODULES;
+    die "$type is not a valid type" unless any { $_ eq $subclass  } @{$class->modules};
     $subclass;
 }
 
@@ -216,6 +216,17 @@ sub check_cyclic {
         return ($FALSE, $@);
     }
     return ($TRUE);
+}
+
+sub modules {
+    my ($class) = @_;
+    if(defined($MODULES)){
+        return $MODULES;
+    }
+    else {
+        $MODULES = $class->_modules;
+        return $MODULES;
+    }
 }
 
 =head1 AUTHOR
