@@ -59,7 +59,7 @@ sub authenticate {
 
     if (! -r $password_file) {
         $logger->error("unable to read password file '$password_file'");
-        return ($FALSE, $COMMUNICATION_ERROR_MSG);
+        return ($FALSE);
     }
 
     my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
