@@ -31,7 +31,10 @@ sub import {
             Log::Log4perl::MDC->put( 'proc', $service );
         } else {
             Log::Log4perl->init($log_config_file);
-            Log::Log4perl::MDC->put( 'proc', basename($0) );
+            my $proc = basename($0);
+            $proc =~ /^(.*)$/;
+            $proc = $1;
+            Log::Log4perl::MDC->put( 'proc', $proc);
         }
         #Install logging in the die handler
         $SIG{__DIE__} = sub {
