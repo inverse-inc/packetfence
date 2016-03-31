@@ -1,4 +1,4 @@
-    # PacketFence RPM SPEC
+# PacketFence RPM SPEC
 #
 # NEW (since git migration):
 #
@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge
+BuildRequires: gettext, httpd
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -98,13 +98,16 @@ Requires: net-tools
 Requires: sscep
 Requires: p0f
 Requires: net-snmp >= 5.3.2.2
-Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= %{perl_version}
+%{?el6:Requires: mysql, mysql-server}
+%{?el7:Requires: mariadb, mariadb-server}
+Requires: perl(DBD::mysql)
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires(pre): %{real_name}-pfcmd-suid
 Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
+%{?el7:Requires: perl-Switch, perl-Locale-Codes}
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Class::Accessor)
@@ -161,8 +164,9 @@ Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
-Requires: perl(Net::DNS) = 0.65
-Requires: perl(Net::DNS::Nameserver) = 749
+Requires: perl(Net::DNS), perl(Net::DNS::Nameserver), perl(Module::Metadata)
+#%{?el6:Requires: perl(Net::DNS) = 0.65, perl(Net::DNS::Nameserver)  = 749}
+#%{?el7:Requires: perl(Net::DNS), perl(Net::DNS::Nameserver), perl(Module::Metadata)}
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware
@@ -244,7 +248,7 @@ Requires: perl(CHI) >= 0.59
 Requires: perl(Data::Serializer)
 Requires: perl(Data::Structure::Util)
 Requires: perl(Data::Swap)
-Requires: perl(HTML::FormHandler) = 0.40013
+Requires: perl(HTML::FormHandler)
 Requires: perl(Redis::Fast)
 Requires: perl(CHI::Driver::Redis)
 Requires: perl(File::Flock)
@@ -264,7 +268,8 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 Requires: perl(Time::Piece)
 Requires: perl(Number::Range)
-Requires: iproute >= 3.0.0, samba < 4, krb5-workstation
+Requires: iproute >= 3.0.0, samba, krb5-workstation
+Requires: perl(Linux::Distribution)
 # configuration-wizard
 Requires: iproute, vconfig
 # wmi
@@ -279,9 +284,11 @@ Requires: python-django, python-django-tagging, pyparsing
 Requires: MySQL-python
 Requires: python-carbon, python-whisper
 Requires: graphite-web >= 0.9.12-25
-Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache
+%{?el7:Requires: samba-winbind, collectd >= 5.5, collectd-mysql, collectd-apache, collectd-drbd, collectd-dns, collectd-iptables, collectd-openldap, collectd-redis}
+%{?el6:Requires: collectd >= 5.0, collectd-mysql, libcollectdclient, collectd-apache}
 Requires: freeradius-radsniff >= 3.0.10
-Requires: node
+%{?el6:Requires: node}
+%{?el7:Requires: nodejs}
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -299,8 +306,8 @@ Requires: perl(Test::NoWarnings)
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
 Requires: mod_qos
-Requires: %{real_name}-config = %{ver}
-Requires: %{real_name}-pfcmd-suid = %{ver}
+Requires: %{real_name}-config = %{version}
+Requires: %{real_name}-pfcmd-suid = %{version}
 Requires: haproxy >= 1.5, keepalived >= 1.2
 Requires: fingerbank >= 2.2.0, fingerbank < 3.0.0
 Requires: perl(File::Tempdir)
@@ -421,8 +428,14 @@ done
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
+%if 0%{?el6}
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
+%endif
+%if 0%{?el7}
+%{__install} -D -m0755 addons/systemd/packetfence.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence.service
+%{__install} -D -m0755 addons/systemd/packetfence@.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence@.service
+%{__install} -D -m0755 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
+%endif
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -435,6 +448,7 @@ done
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
@@ -460,25 +474,35 @@ cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
+%{__install} -D -m0755 addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
+%if 0%{?el6}
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
+%endif
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
 mv packetfence.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/packetfence
 rmdir addons/pfdetect_remote/sbin
+%if 0%{?el7}
+rm addons/pfdetect_remote/initrd/pfdetectd
+%endif
 rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
 #pfarp_remote
+%if 0%{?el6}
 mv addons/pfarp_remote/initrd/pfarp $RPM_BUILD_ROOT%{_initrddir}/
+%endif
 mv addons/pfarp_remote/sbin/pfarp_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfarp_remote/conf/pfarp_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
 rmdir addons/pfarp_remote/sbin
+%if 0%{?el7}
+rm addons/pfarp_remote/initrd/pfarp
+%endif
 rmdir addons/pfarp_remote/initrd
 rmdir addons/pfarp_remote/conf
 rmdir addons/pfarp_remote
@@ -499,15 +523,20 @@ cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
-#pfconfig
+#pfconfig rhel6
+%if 0%{?el6}
 %{__install} -D -m0755 addons/pfconfig/pfconfig.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-config
 %{__install} -D -m0755 packetfence-redis-cache.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-redis-cache
+%endif
+%if 0%{?el7}
+%{__install} -D -m0755 addons/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0755 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
+%endif
 #end pfconfig
 # logfiles
 for LOG in %logfiles; do
     touch $RPM_BUILD_ROOT%logdir/$LOG
 done
-
 #start create symlinks
 curdir=`pwd`
 
@@ -522,17 +551,6 @@ if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
     VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
 fi
-
-#httpd.conf symlink
-#We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
-cd $RPM_BUILD_ROOT/usr/local/pf/conf
-#ln -s httpd.conf.apache22 ./httpd.conf
-#if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
-#then
-#  ln -s httpd.conf.apache22 ./httpd.conf
-#else
-#  ln -s httpd.conf.pre_apache22 ./httpd.conf
-#fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
@@ -586,8 +604,16 @@ fi
 
 
 %post -n %{real_name}
+echo "Adding PacketFence startup script"
+%if 0%{?el6}
 /sbin/chkconfig --add packetfence
 /sbin/chkconfig --add packetfence-redis-cache
+%endif
+%if 0%{?el7}
+/bin/systemctl enable mariadb
+/bin/systemctl enable packetfence
+/bin/systemctl enable packetfence-redis-cache
+%endif
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log redis_cache.log
@@ -652,7 +678,12 @@ else
 fi
 
 # dashboard symlinks and permissions
+%if 0%{?el6}
 ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.6/site-packages/graphite/local_settings.py
+%endif
+%if 0%{?el7}
+ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.7/site-packages/graphite/local_settings.py
+%endif
 chmod g+w /var/lib/carbon
 chmod g+w /var/lib/graphite-web
 
@@ -666,10 +697,19 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 echo "Starting PacketFence Administration GUI..."
 #removing old cache
 rm -rf /usr/local/pf/var/cache/
+%if 0%{?el6}
 /sbin/service packetfence-redis-cache restart
-/sbin/service packetfence-config restart 
-/usr/local/pf/bin/pfcmd configreload
+/sbin/service packetfence-config restart
 /sbin/service packetfence start httpd.admin
+%endif
+%if 0%{?el7}
+/bin/systemctl start packetfence-redis-cache
+/bin/systemctl start packetfence-config
+/bin/systemctl start packetfence@httpd.admin
+/usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
+/bin/systemctl disable firewalld
+%endif
+/usr/local/pf/bin/pfcmd configreload
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
@@ -686,14 +726,27 @@ echo "Adding PacketFence remote ARP Sensor startup script"
 %post -n %{real_name}-config
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
+%if 0%{?el6}
 /sbin/chkconfig --add packetfence-config
+%endif
+%if 0%{?el7}
+/bin/systemctl enable packetfence-config
+%endif
 
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
-        /sbin/service packetfence stop &>/dev/null || :
-        /sbin/service packetfence-redis-cache stop &>/dev/null || :
-        /sbin/chkconfig --del packetfence
-        /sbin/chkconfig --del packetfence-redis-cache
+%if 0%{?el6}
+/sbin/service packetfence stop
+/sbin/service packetfence-redis-cache stop
+/sbin/chkconfig --del packetfence
+/sbin/chkconfig --del packetfence-redis-cache
+%endif
+%if 0%{?el7}
+/bin/systemctl stop packetfence
+/bin/systemctl stop packetfence-redis-cache
+/bin/systemctl disable packetfence
+/bin/systemctl disable packetfence-redis-cache
+%endif
 fi
 
 %preun -n %{real_name}-remote-snort-sensor
@@ -710,8 +763,14 @@ fi
 
 %preun -n %{real_name}-config
 if [ $1 -eq 0 ] ; then
-        /sbin/service packetfence-config stop &>/dev/null || :
-        /sbin/chkconfig --del packetfence-config
+%if 0%{?el6}
+/sbin/service packetfence-config stop
+ /sbin/chkconfig --del packetfence-config
+%endif
+%if 0%{?el7}
+/bin/systemctl stop packetfence-config
+/bin/systemctl disable packetfence-config
+%endif
 fi
 
 %postun -n %{real_name}
@@ -754,9 +813,18 @@ fi
 %files -n %{real_name}
 
 %defattr(-, pf, pf)
+%if 0%{?el6}
 %attr(0755, root, root) %{_initrddir}/packetfence
 %attr(0755, root, root) %{_initrddir}/packetfence-redis-cache
+%endif
+%if 0%{?el7}
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence@.service
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
+%endif
+%if 0%{?el6}
 %dir                    %{_sysconfdir}/logrotate.d
+%endif
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config                 %{_sysconfdir}/logrotate.d/packetfence
@@ -1178,12 +1246,15 @@ fi
 %dir                    /usr/local/pf/var/control
 %dir                    /usr/local/pf/var/redis_cache
 %dir                    /usr/local/pf/var/redis_queue
+%dir                    /usr/local/pf/var/ssl_mutex
 %config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote snort sensor file list
 %files -n %{real_name}-remote-snort-sensor
 %defattr(-, pf, pf)
+%if 0%{?el6}
 %attr(0755, root, root) %{_initrddir}/pfdetectd
+%endif
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfdetect_remote.conf
@@ -1195,7 +1266,9 @@ fi
 # Remote arp sensor file list
 %files -n %{real_name}-remote-arp-sensor
 %defattr(-, pf, pf)
+%if 0%{?el6}
 %attr(0755, root, root) %{_initrddir}/pfarp
+%endif
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
@@ -1212,7 +1285,12 @@ fi
 
 %files -n %{real_name}-config
 %defattr(-, pf, pf)
+%if 0%{?el6}
 %attr(0755, root, root) %{_initrddir}/packetfence-config
+%endif
+%if 0%{?el7}
+%attr(0755, root, root) /usr/lib/systemd/system/packetfence-config.service
+%endif
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
