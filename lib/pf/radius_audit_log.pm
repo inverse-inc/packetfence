@@ -81,6 +81,7 @@ our @FIELDS = qw(
     uuid
     radius_request
     radius_reply
+    request_time
 );
 
 our @NODE_FIELDS = qw(
@@ -106,7 +107,7 @@ our @NODE_FIELDS = qw(
     uuid
 );
 
-our @RADIUS_FIELDS = qw(radius_request radius_reply);
+our @RADIUS_FIELDS = qw(request_time radius_request radius_reply);
 
 our %RADIUS_FIELDS = map { $_ => 1 } @RADIUS_FIELDS;
 

@@ -312,3 +312,9 @@ VALUES
 --
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
+
+--
+-- Adding request_time to radius_audit_log table
+--
+
+ALTER TABLE radius_audit_log ADD `request_time` INT DEFAULT NULL;

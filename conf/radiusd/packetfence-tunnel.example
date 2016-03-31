@@ -57,7 +57,7 @@ authorize {
 	suffix
 	ntdomain
 
-    %%multi_domain%%
+	%%multi_domain%%
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
@@ -90,18 +90,18 @@ authorize {
 	#  Read the 'users' file
 	files
 
-    # Check if PacketFence local (SQL) authentication is enabled.
-    # Run the packetfence-local-auth policy if it is.
-    rewrite_called_station_id
-    if ("%{redis:get FR:CONFIG:LOCAL_AUTH}" == "1") { 
-        packetfence-local-auth
-    }
+	# Check if PacketFence local (SQL) authentication is enabled.
+	# Run the packetfence-local-auth policy if it is.
+	rewrite_called_station_id
+	if ("%{redis:get FR:CONFIG:LOCAL_AUTH}" == "1") {
+		packetfence-local-auth
+	}
 
 
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-#	-ldap
+	#-ldap
 
 
 
@@ -158,15 +158,15 @@ authenticate {
 	}
 
 	#
-	#  MSCHAP authentication.
+	#  MSCHAP authentication
 	Auth-Type MS-CHAP {
-        packetfence     # increment the StatsD counter
-        if(PacketFence-Domain){
-            chrooted_mschap
-        }
-        else{
-            mschap
-        }
+		packetfence     # increment the StatsD counter
+		if(PacketFence-Domain) {
+			chrooted_mschap
+		}
+		else {
+			mschap
+		}
 	}
 
 
@@ -225,9 +225,10 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	#
-    #packetfence
-    rest
-        
+	rest
+	update {
+		&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
+	}
 	#  After authenticating the user, do another SQL query.
 	#
 	#  See "Authentication Logging Queries" in sql.conf
@@ -238,7 +239,7 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module sub-section of
 	#  the 'modules' section.
 	#
-#	ldap
+	#ldap
 
 
 
@@ -268,6 +269,9 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		update {
+			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
+		}
 		# log failed authentications in SQL, too.
 		-sql
 		attr_filter.access_reject
