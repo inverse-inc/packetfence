@@ -591,7 +591,7 @@ BEGIN
   DECLARE Previous_Input_Octets bigint(20);
   DECLARE Previous_Output_Octets bigint(20);
   DECLARE Previous_Session_Time int(12);
-  DECLARE Previous_AcctUpdate_Time int(12);
+  DECLARE Previous_AcctUpdate_Time datetime;
 
   # Collect traffic previous values in the update table
   SELECT acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
@@ -615,7 +615,7 @@ BEGIN
     acctinputoctets = p_acctinputoctets,
     acctoutputoctets = p_acctoutputoctets,
     acctupdatetime = p_timestamp,
-    acctinterval = ( p_timestamp - Previous_AcctUpdate_Time )
+    acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
 
