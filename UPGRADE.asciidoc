@@ -88,6 +88,13 @@ Make sure you delete the source *BEFORE* upgrading your installation.
 
 Once you upgrade, configure a portal module for each of your sources and a chained one that contains both. Refer to the administration guide for a detailed example.
 
+Redesigned captive portal
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameter `mandatory_fields` of the Portal Profiles has been deprecated. Remove it from all the profiles in `profiles.conf`
+
+To configure mandatatory fields in the portal, refer to the 'Portal Modules' section of the Administration guide
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
