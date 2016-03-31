@@ -259,7 +259,7 @@ CLEANUP:
     $switch->disconnectWrite();
 
 AUDIT:
-
+    $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
 }
@@ -694,6 +694,7 @@ our %ARGS_TO_RADIUS_ATTRIBUTES = (
     eap_type => 'PacketFence-Eap-Type',
     connection_type => 'PacketFence-Connection-Type',
     user_role => 'PacketFence-Role',
+    time => 'PacketFence-Request-Time',
 );
 
 our %NODE_ATTRIBUTES_TO_RADIUS_ATTRIBUTES = (

@@ -226,9 +226,7 @@ session {
 post-auth {
 	#
 	rest
-	update {
-		&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
-	}
+	request-timing
 	#  After authenticating the user, do another SQL query.
 	#
 	#  See "Authentication Logging Queries" in sql.conf
@@ -269,9 +267,7 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
-		update {
-			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
-		}
+		request-timing
 		# log failed authentications in SQL, too.
 		-sql
 		attr_filter.access_reject

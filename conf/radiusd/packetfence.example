@@ -22,6 +22,7 @@ authorize {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
+		&control:PacketFence-Request-Time := 0
 	}
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
@@ -325,9 +326,7 @@ post-auth {
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		packetfence
-		update {
-			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
-		}
+		request-timing
 		-sql
 	}
 
@@ -344,9 +343,7 @@ post-auth {
 	#
 	Post-Auth-Type REJECT {
         if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		update {
-			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
-		}
+		request-timing
 		# log failed authentications in SQL, too.
 		-sql
 	}
