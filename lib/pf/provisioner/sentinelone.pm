@@ -136,6 +136,7 @@ sub fetch_agent_info {
             return $FALSE;
         }
         elsif(scalar(@$devices) == 1){
+            $logger->info("$mac was found on SentinelOne server");
             my $device = $devices->[0];
             return $device;
         }
