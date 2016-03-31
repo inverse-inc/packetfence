@@ -1,13 +1,16 @@
+<!-- START signin.html -->
 <form action="/signup" method="post">
   [% IF sms_carriers %]
   [% out = form.get_field("mobileprovider").options(sms_carriers) %]
   [% END %]
 
   [% IF fields.exists('aup') %]
-  [% form.get_field('aup').render | none %]
+  <section class="card">
+    [% form.get_field('aup').render | none %]
+  </section>
   [% END %]
 
-  <div class="layout layout--center">
+  <div class="card card--hidden card--disabled layout layout--center">
     <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
       [% FOREACH field IN fields.keys %]
       [% NEXT IF field == 'aup' %]
@@ -25,3 +28,4 @@
     </div>
   </div>
 </form>
+<!-- END signin.html -->
