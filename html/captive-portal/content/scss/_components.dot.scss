@@ -1,0 +1,32 @@
+/// _components.dot.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+.#{$pf-namespace}dot {
+  cursor: pointer;
+  display: inline-block;
+  user-select: none;
+
+  span {
+    width: 10px;
+    height: 10px;
+    margin: 5px 7px;
+    border: 2px solid $pf-base-accent-color;
+    display: block;
+    transition: opacity 200ms ease;
+    border-radius: 30px;
+  }
+}
+
+.#{$pf-namespace}dot--active span,
+.#{$pf-namespace}dot:not(.#{$pf-namespace}dot--disabled):hover span {
+  background-color: $pf-base-accent-color;
+}
+
+.#{$pf-namespace}dot--disabled {
+  cursor: not-allowed;
+
+  span {
+    border-style: dotted;
+    border-width: 1px;
+    cursor: not-allowed;
+  }
+}
