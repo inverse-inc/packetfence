@@ -32,7 +32,7 @@ has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Applica
 
 has 'graph' => (is => 'rw', isa => 'Graph', default => sub {Graph->new});
 
-our $MODULES;
+our @MODULES;
 our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
@@ -79,7 +79,7 @@ Instantiate a module and all of its child modules
 
 sub instantiate_child {
     my ($self, $module_id, $parent_id) = @_;
-    
+
     my %args = %{$ConfigPortalModules{clean_id($module_id)}};
     if($parent_id){
         $args{parent} = $INSTANTIATED_MODULES{$parent_id};
@@ -109,7 +109,7 @@ sub create_modules_hierarchy {
         $self->add_modules_hierarchy($module_id);
     }
     $self->application->root_module($INSTANTIATED_MODULES{$self->application->root_module_id});
-    
+
 }
 
 =head2 add_modules_hierarchy
@@ -220,13 +220,10 @@ sub check_cyclic {
 
 sub modules {
     my ($class) = @_;
-    if(defined($MODULES)){
-        return $MODULES;
+    unless (@MODULES) {
+        @MODULES = $class->_modules;
     }
-    else {
-        $MODULES = $class->_modules;
-        return $MODULES;
-    }
+    return @MODULES;
 }
 
 =head1 AUTHOR
