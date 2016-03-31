@@ -3,10 +3,9 @@
 .#{$inuit-btn-namespace}btn {
   transition: background-color 0.15s linear, transform 0.15s ease-in;
 
-  /* input[type="checkbox"] {
-    visibility: hidden;
-    width: 0;
-  } */
+  input[type="checkbox"] {
+    margin-right: halve($inuit-base-spacing-unit);
+  }
 
   label {
     cursor: pointer;
@@ -25,7 +24,6 @@ button.#{$inuit-btn-namespace}btn {
     background-color: darken($inuit-btn-background, 5%);
   }
 }
-
 
 .#{$inuit-btn-namespace}btn--icon {
   background-color: transparent;

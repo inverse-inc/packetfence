@@ -43,3 +43,7 @@
     font-weight: bold;
   }
 }
+
+.#{$inuit-list-ui-namespace}list-ui__item--selected {
+  background-color: lighten($pf-color-light-gray, 20%);
+}

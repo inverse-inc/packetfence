@@ -39,6 +39,7 @@
     &:focus {
       outline: none;
       background-color: lighten($pf-input-caption, 30%);
+      border-color: darken($pf-list-icon-color, 20%);
     }
   }
   
