@@ -3,7 +3,6 @@ description=Default Profile
 logo=/common/packetfence-cp.png
 redirecturl=http://www.packetfence.org/
 always_use_redirecturl=disabled
-mandatory_fields=firstname,lastname,phone,email
 locale=en_US
 nbregpages=0
 filter_match_style=any
