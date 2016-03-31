@@ -112,6 +112,7 @@ sub execute_child {
         $tls_module->execute();
     }
     elsif ($provisioner->authorize($mac) == 0) {
+        $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
         $self->show_provisioning();
     }
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){

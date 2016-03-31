@@ -926,4 +926,6 @@ msgstr ""
 msgid "No e-mail given"
 msgstr ""
 
-
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
+msgid "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below."
+msgstr ""
