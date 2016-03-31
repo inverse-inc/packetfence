@@ -18,6 +18,7 @@ use pf::constants::eap_type qw($EAP_TLS);
 use pf::log;
 use captiveportal::DynamicRouting::Module::TLSEnrollment;
 use pf::util;
+use pf::provisioner;
 
 has 'skipable' => (is => 'rw', default => sub {'disabled'});
 
@@ -111,11 +112,14 @@ sub execute_child {
         my $tls_module = captiveportal::DynamicRouting::Module::TLSEnrollment->new(id => $self->id."_pki_module", parent => $self, app => $self->app, pki_provider_id => $provisioner->getPkiProvider()->id);
         $tls_module->execute();
     }
+    elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
+        $self->done();
+    }
     elsif ($provisioner->authorize($mac) == 0) {
         $self->app->flash->{notice} = [ "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below.", $provisioner->description ];
         $self->show_provisioning();
     }
-    elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
+    elsif ($provisioner->authorize($mac) == $TRUE || $provisioner->authorize($mac) == $pf::provisioner::COMMUNICATION_FAILED) {
         $self->done();
     }
     else {

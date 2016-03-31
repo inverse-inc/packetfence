@@ -17,6 +17,7 @@ use warnings;
 use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
 use pf::log;
+use pf::constants;
 
 use Moo;
 extends 'pf::provisioner';
@@ -194,7 +195,7 @@ sub authorize {
     my ($self, $mac) = @_;
     my $info = pf::node::node_view($mac);
     $self->for_username($info->{pid});
-    return 1;
+    return $FALSE;
 }
 
 
