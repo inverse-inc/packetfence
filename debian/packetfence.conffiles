@@ -112,7 +112,6 @@
 /usr/local/pf/html/captive-portal/templates/error.html
 /usr/local/pf/html/captive-portal/templates/oauth2/landing.html
 /usr/local/pf/html/captive-portal/templates/release.html
-/usr/local/pf/html/captive-portal/templates/redirect.html
 /usr/local/pf/html/captive-portal/templates/webFormRelease.html
 /usr/local/pf/html/captive-portal/templates/saml.html
 /usr/local/pf/html/captive-portal/templates/device-registration/registration.html
