@@ -82,11 +82,6 @@ URI to download the Mac OSX agent
 
 has mac_osx_agent_download_uri => (is => 'rw');
 
-sub cache {
-    my ($self) = @_;
-    return pf::CHI->new(namespace => 'provisioning');
-}
-
 sub _token_cache_key {
     my ($self) = @_;
     return $self->id."-token";
