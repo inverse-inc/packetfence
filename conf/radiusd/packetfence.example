@@ -13,15 +13,16 @@ server packetfence {
 #  need to setup hints for the remote radius server
 authorize {
 
-    # Add in PacketFence specific configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+		&control:Tmp-Integer-0 := "%l"
+	}
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -85,12 +86,12 @@ authorize {
 	#files
 
     # Accept any non-eap request and send it to the packetfence module for authorization
-    if ( !EAP-Message ) { 
-        update { 
-            &control:Auth-Type := Accept
-        }
-    }
-    packetfence
+	if ( !EAP-Message ) {
+		update {
+			&control:Auth-Type := Accept
+		}
+	}
+	packetfence
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
@@ -192,7 +193,7 @@ authenticate {
 #
 preacct {
 	preprocess
-    rewrite_called_station_id
+	rewrite_called_station_id
 
 	#
 	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
@@ -245,20 +246,20 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
-    # Add in PacketFence specific configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
 	#
 	#  Log traffic to an SQL database.
 	#
 	#  See "Accounting queries" in mods-available/sql
-  %%accounting_sql%%
+	%%accounting_sql%%
 
 	#
 	#  If you receive stop packets with zero session length,
@@ -298,15 +299,15 @@ session {
 #  additional steps we can take.
 post-auth {
 
-    # Add in PacketFence configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
 	#
 	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
 	#  The "session-state" attributes are automatically cached when
@@ -320,15 +321,18 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 
-    # If the request has not been handled inside the inner-tunnel
-    # send it to packetfence
-    if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-        packetfence
-        -sql
-    }
+	# If the request has not been handled inside the inner-tunnel
+	# send it to packetfence
+	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+		packetfence
+		update {
+			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
+		}
+		-sql
+	}
 
 	attr_filter.packetfence_post_auth
-    linelog
+	linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
@@ -340,9 +344,12 @@ post-auth {
 	#
 	Post-Auth-Type REJECT {
         if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		    # log failed authentications in SQL, too.
-		    -sql
-        }
+		update {
+			&control:PacketFence-Request-Time := "%{expr: %l - %{control:Tmp-Integer-0}}"
+		}
+		# log failed authentications in SQL, too.
+		-sql
+	}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth
 

@@ -71,7 +71,7 @@ sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
     }
     $c->stash({
         columns => [sort @pf::radius_audit_log::FIELDS],
-        display_columns => [qw(mac node_status user_name ip created_at nas_ip_address nas_port_type)],
+        display_columns => [qw(mac node_status request_time user_name ip created_at nas_ip_address nas_port_type)],
     });
     $c->response->status($status);
 }

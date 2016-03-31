@@ -991,6 +991,7 @@ CREATE TABLE radius_audit_log (
   uuid varchar(255) NULL,
   radius_request TEXT,
   radius_reply TEXT,
+  request_time int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY `created_at` (created_at),
   KEY `mac` (mac),
