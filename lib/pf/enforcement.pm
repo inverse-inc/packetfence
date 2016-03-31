@@ -165,7 +165,7 @@ sub _vlan_reevaluation {
             'ifIndex'          => $ifIndex
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
-            $logger->debug("Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
+            $logger->debug("Calling API with ReAssign request on switch (".$switch_id.")");
             if ($cluster_deauth) {
                 $client->notify( 'ReAssignVlan_in_queue', %data );
             } else {
@@ -173,7 +173,7 @@ sub _vlan_reevaluation {
             }
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
-            $logger->debug("Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
+            $logger->debug("Calling API with desAssociate request on switch (".$switch_id.")");
             if ($cluster_deauth) {
                 $client->notify( 'desAssociate_in_queue', %data );
             } else {
