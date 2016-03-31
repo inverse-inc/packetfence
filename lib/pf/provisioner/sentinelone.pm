@@ -66,6 +66,22 @@ Protocol to connect to the SentinelOne web API
 
 has protocol => (is => 'rw', default => sub { "https" } );
 
+=head2 win_agent_download_uri
+
+URI to download the windows agent
+
+=cut
+
+has win_agent_download_uri => (is => 'rw');
+
+=head2 mac_osx_agent_download_uri
+
+URI to download the Mac OSX agent
+
+=cut
+
+has mac_osx_agent_download_uri => (is => 'rw');
+
 sub cache {
     my ($self) = @_;
     return pf::CHI->new(namespace => 'provisioning');
@@ -168,6 +184,9 @@ sub authorize {
 
     if( $info == $pf::provisioner::COMMUNICATION_FAILED){
         return $info;
+    }
+    elsif(!$info){
+        return $FALSE;
     }
     else {
         return $info->{is_active};

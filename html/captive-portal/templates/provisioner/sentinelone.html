@@ -1,0 +1,20 @@
+<h3>[% i18n("To complete your network activation you need to install the SentinelOne client.") %]</h3>
+<p>[% i18n("Once the application is installed, click 'Continue' to activate your network connection") %]</p>
+
+[% IF provisioner.win_agent_download_uri.defined %]
+<p>
+  <a target="_blank" href="[% provisioner.win_agent_download_uri %]">[% i18n("Click here to download the Windows agent") %]</a>
+</p>
+[% END %] 
+
+[% IF provisioner.mac_osx_agent_download_uri.defined %]
+<p>
+  <a target="_blank" href="[% provisioner.mac_osx_agent_download_uri %]">[% i18n("Click here to download the Mac OSX agent") %]</a>
+</p>    
+[% END %]
+
+<div class="input">
+<a class="btn" href="/captive-portal">[% i18n("Continue") %]</a>
+</div>
+
+
