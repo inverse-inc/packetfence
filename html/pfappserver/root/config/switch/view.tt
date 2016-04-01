@@ -127,7 +127,7 @@
                 <th>Identifier</th>
                 <th>Description</th>
               </tr>
-              <tr class="[% ' hidden' IF item.members.keys.size > 0 %]">
+              <tr class="[% ' hidden' IF item.members.keys.size %]">
                 <td colspan="3">
                 <div id="switchMembersEmpty" class="unwell unwell-horizontal">
                   <p>
