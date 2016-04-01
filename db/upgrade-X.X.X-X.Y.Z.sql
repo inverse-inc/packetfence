@@ -89,6 +89,9 @@ VALUES
 END /
 DELIMITER ;
 
+
+-- Adding RADIUS Stop Stored Procedure
+
 DROP PROCEDURE IF EXISTS acct_stop;
 DELIMITER /
 CREATE PROCEDURE acct_stop (
@@ -100,6 +103,8 @@ CREATE PROCEDURE acct_stop (
   IN p_connectinfo_stop varchar(50),
   IN p_acctuniqueid varchar(32),
   IN p_acctsessionid varchar(64),
+  IN p_username varchar(64),
+  IN p_nasipaddress varchar(15),
   IN p_acctstatustype varchar(25)
 )
 BEGIN
@@ -143,6 +148,9 @@ BEGIN
 END /
 DELIMITER ;
 
+
+-- Adding RADIUS Updates Stored Procedure
+
 DROP PROCEDURE IF EXISTS acct_update;
 DELIMITER /
 CREATE PROCEDURE acct_update(
@@ -154,7 +162,16 @@ CREATE PROCEDURE acct_update(
   IN p_acctuniqueid varchar(64),
   IN p_acctsessionid varchar(64),
   IN p_username varchar(64),
+  IN p_realm varchar(64),
   IN p_nasipaddress varchar(15),
+  IN p_nasportid varchar(15),
+  IN p_nasporttype varchar(32),
+  IN p_acctauthentic varchar(32),
+  IN p_connectinfo_start varchar(50),
+  IN p_calledstationid varchar(50),
+  IN p_callingstationid varchar(50),
+  IN p_servicetype varchar(32),
+  IN p_framedprotocol varchar(32),
   IN p_acctstatustype varchar(25)
 )
 BEGIN
@@ -170,12 +187,47 @@ BEGIN
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
 
-  # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
+    # Set values to 0 when no previous records
     SET Previous_Session_Time = 0;
     SET Previous_Input_Octets = 0;
     SET Previous_Output_Octets = 0;
     SET Previous_AcctUpdate_Time = p_timestamp;
+    # If there is no open session for this, open one.
+    INSERT INTO radacct 
+           (
+            acctsessionid,      acctuniqueid,       username, 
+            realm,              nasipaddress,       nasportid, 
+            nasporttype,        acctstarttime,      
+            acctupdatetime,     acctsessiontime,    acctauthentic, 
+            connectinfo_start,  acctinputoctets, 
+            acctoutputoctets,   calledstationid,    callingstationid, 
+            servicetype,        framedprotocol, 
+            framedipaddress
+           ) 
+    VALUES 
+        (
+            p_acctsessionid,        p_acctuniqueid,     p_username,
+            p_realm,                p_nasipaddress,     p_nasportid,
+            p_nasporttype,          date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ), 
+            p_timestamp,            p_acctsessiontime , p_acctauthentic,
+            p_connectinfo_start,    p_acctinputoctets,
+            p_acctoutputoctets,     p_calledstationid, p_callingstationid,
+            p_servicetype,          p_framedprotocol,
+            p_framedipaddress
+        );
+  ELSE 
+    # Update record with new traffic
+    UPDATE radacct SET
+        framedipaddress = p_framedipaddress,
+        acctsessiontime = p_acctsessiontime,
+        acctinputoctets = p_acctinputoctets,
+        acctoutputoctets = p_acctoutputoctets,
+        acctupdatetime = p_timestamp,
+        acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
+    WHERE acctuniqueid = p_acctuniqueid 
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
+
   END IF;
 
   # Update record with new traffic
@@ -199,7 +251,6 @@ BEGIN
     (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
-
 
 
 RENAME TABLE radius_nas TO radius_nas_fr2;
