@@ -496,58 +496,46 @@ sub field_list {
 
     # Add VLAN & role mapping for default roles
     foreach my $role (@ROLES) {
-        my $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Role' => $field);
-
-        $field =
-          {
-           type => 'TextArea',
-           label => $role,
-          };
-        push(@$list, $role.'AccessList' => $field);
-
-        $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Url' => $field);
-
-        # The VLAN mapping for default roles is mandatory for the default switch
-        $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Vlan' => $field);
+        $self->_add_role_mappings($list, $role);
     }
 
-    # Add VLAN & role mapping for custom roles
     if (defined $self->roles) {
         foreach my $role (map { $_->{name} } @{$self->roles}) {
-            my $field =
-              {
-               type => 'Text',
-               label => $role,
-              };
-            push(@$list, $role.'Vlan' => $field);
-            push(@$list, $role.'Role' => $field);
-            push(@$list, $role.'Url' => $field);
-            $field =
-              {
-               type => 'TextArea',
-               label => $role,
-              };
-            push(@$list, $role.'AccessList' => $field);
-
+            $self->_add_role_mappings($list, $role);
         }
     }
 
     return $list;
+}
+
+=head2 _add_role_mappings
+
+Add VLAN & role mapping for custom roles
+
+=cut
+
+sub _add_role_mappings {
+    my ($self, $list, $role) = @_;
+    my $text_field = {
+        type              => 'Text',
+        label             => $role,
+        wrap_label_method => \&role_label_wrap,
+    };
+    foreach my $type (qw(Role Url Vlan)) {
+        push(@$list, $role . $type => $text_field);
+    }
+
+    my $text_area_field = {
+        type              => 'TextArea',
+        label             => $role,
+        wrap_label_method => \&role_label_wrap,
+    };
+    push(@$list, $role . 'AccessList' => $text_area_field);
+}
+
+sub role_label_wrap {
+    my ($self, $label) = @_;
+    return $label;
 }
 
 =head2 update_fields
