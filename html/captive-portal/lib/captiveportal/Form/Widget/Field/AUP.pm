@@ -22,12 +22,12 @@ Render the AUP with its checkbox
 sub render_element {
     my ($self, $result) = @_;
     my $checkbox = HTML::FormHandler::Widget::Field::Checkbox::render_element($self, $result);
-    my $div = "<div>";
-    $div .= "<div class='aup'>".$self->form->app->_render("aup_text.html")."</div>";
-    $div .= $checkbox."<span>I accept</span>";
-    $div .= "</div>";
+    my $divs = '';
+    $divs .= '<div class="box box--large-height box--tint">'.$self->form->app->_render("aup_text.html").'</div>';
+    $divs .= '<div class="layout--center u-pt"><div class="layout__item u-1/2 u-2/3-lap u-1/1-palm btn btn--light">'.$checkbox.'<label for="'.$self->id.'">'.
+      $self->form->app->i18n('I accept the terms').'</label></div></div>';
 
-    return $div;
+    return $divs;
 }
 
 =head2 render

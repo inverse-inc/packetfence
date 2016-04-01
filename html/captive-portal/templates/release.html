@@ -2,7 +2,8 @@
 var waitTime=[% timer %];
 var action = function() {
   hidebar();
-  $('#toReplace').html("[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") | html %]");
+  $('#detectionNotice').hide();
+  $('#detectionError').show();
 }; 
 
 var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
@@ -17,16 +18,30 @@ $(document).ready(function() {
   // require access to web notifications now so it's ready when the access is activated
   initWebNotifications();
 });
-
 </script>
 
-<div id="about">
-  <img src="/content/images/unlock.png" alt="Access granted" />
-  <p id="toReplace">[% i18n("Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected.") %]</p>
-  <p id="browser_notes"></p>
-  <script type="text/javascript" src="/content/timerbar.js"></script>
-  <noscript><p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p></noscript>
+<div id="detectionNotice" class="media media--notice u-p u-mb">
+  <div class="media__img">[% flashIcon(level='notice') %]</div>
+  <p class="media__body">[% i18n("Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected.") %]</p>
 </div>
+
+<div id="detectionError" class="media media--error u-p u-mb" style="display: none">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") %]</p>
+</div>
+
+<div class="layout layout--center layout--auto">
+  <div class="layout__item">
+    <script type="text/javascript" src="/content/timerbar.js"></script>
+  </div>
+</div>
+
+<noscript>
+  <div class="media media--error u-p u-mb">
+    <div class="media__img">[% flashIcon(level='error') %]</div>
+    <p class="media__body">[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+  </div>
+</noscript>
 
 [%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
 <div id="internet-detection" style="display: none;"><img id="netdetect"/></div>

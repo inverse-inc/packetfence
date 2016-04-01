@@ -1,36 +1,49 @@
-
 [% INCLUDE 'billing/tier.html' %]
-<hr>
 
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
-  <div class="error"><p id="payment-errors"></p></div>
-
-  <div class="input">
-    <span>Name</span>
-    <input class="field" type="text" size="20" data-stripe="name" />
+  <div id="payment-errors" class="media media--error u-p u-m" style="display: none">
+    <div class="media__img">[% flashIcon(level='error') %]</div>
+    <p class="media__body"></p>
   </div>
 
-  <div class="input">
-    <span>Card Number</span>
-    <input class="field" type="text" size="20" data-stripe="number"/>
+  <div class="layout layout--center u-mt">
+    <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+
+      <div class="input-container">
+        <label for="name">Name</label>
+        <input id="name" type="text" size="20" data-stripe="name" />
+      </div>
+
+      <div class="input-container">
+        <label for="number">Card Number</label>
+        <input id="number" type="text" size="20" data-stripe="number"/>
+      </div>
+
+      <div class="input-container">
+        <label for="cvc">CVC</label>
+        <input id="cvc" type="text" size="4" data-stripe="cvc"/>
+      </div>
+
+      <div class="input-container">
+        <label>Expiration (MM/YYYY)</label>
+        <input class="u-1/4" type="number" min="1" max="12" placeholder="MM" data-stripe="exp-month"/>
+        /
+        <input class="u-1/2" type="number" placeholder="YYYY" data-stripe="exp-year"/>
+      </div>
+
+      <input type="hidden" name="stripeToken" value=""/>
+
+      <div class="u-mt">
+        <button type="submit" name="submit" class="btn btn--full">
+          <div class="flag">
+            <div class="flag__img">[% svgIcon(id='stripe-icon',size='small') %]</div>
+            <p class="flag__body">Submit</p>
+          </div>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="input">
-    <span>CVC</span>
-    <input class="field" type="text" size="4" data-stripe="cvc"/>
-  </div>
-
-  <div class="input">
-    <span>Expiration (MM/YYYY)</span>
-    <input type="text" size="2" data-stripe="exp-month"/>
-    /
-    <input type="text" size="4" data-stripe="exp-year"/>
-  </div>
-  <input type="hidden" name="stripeToken" value=""/>
-
-  <div class="input">
-    <button class="btn" type="submit">Submit Payment</button>
-  </div>
 </form>
 
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
@@ -38,8 +51,9 @@
 <script type="text/javascript">
   // This identifies your website in the createToken call below
     function stripeResponseHandler(status, response) {
-        if(response.error) {
-            $('#payment-errors').html(response.error.message);
+        if (response.error) {
+            $('#payment-errors p').html(response.error.message);
+            $('#payment-errors').show();
         }
         else {
             var token = response.id;
@@ -47,7 +61,7 @@
             $('#payment-form')[0].submit();
         }
     };
-    if(typeof Stripe !== 'undefined' ) {
+    if (typeof Stripe !== 'undefined' ) {
         Stripe.setPublishableKey('[% billing.publishable_key %]');
         $('#payment-form').submit(function(e) {
             Stripe.card.createToken(this, stripeResponseHandler);
@@ -55,7 +69,8 @@
         });
     }
     else {
-        $('#payment-errors').html('Unable to proceed with payment please contact your service provider');
+        $('#payment-errors p').html('Unable to proceed with payment please contact your service provider');
+        $('#payment-errors').show();
     }
       // ...
 </script>

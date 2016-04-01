@@ -1,27 +1,71 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link href="/content/new-styles.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/content/styles.css" media="screen" rel="stylesheet" type="text/css" />
     <script src="/common/jquery-1.11.3.min.js" type="text/javascript"></script>
     <script src="/common/pf.js" type="text/javascript"></script>
+    <script src="/content/captiveportal.js" type="text/javascript"></script>
     <title>[% IF title.defined ; i18n(title) ; ELSE ; i18n("PacketFence Registration system") ; END %]</title>
   </head>
-  <h1>PacketFence captive portal</h1>
-  [% FOREACH level IN flash.keys %]
-  <h3 class="flash-[% level %]">[% i18n(flash.$level) %]</h3>
-  [% END %]
-  [% content | none %]
+  <body>
 
-  [% UNLESS preregistration %]
-  <div>
-    <p>IP : [% client_ip %]</p>
-    <p>MAC address : [% client_mac %]</p>
-  </div>
-  [% END %]
+[% INCLUDE sprite.svg %]
 
-  [% IF show_restart %]
-  <div>
-    <a href="/logout">[% i18n("Restart from the beginning") %]</a>
-  </div>
-  [% END %]
+<!--
+    <header class="layout">
+      <div class="layout__item">
+        <h1>PacketFence</h1>
+      </div>
+    </header>
+-->
+
+    <!--
+      title: [% i18n(title) %]
+      module: [% current_module.pretty_class_name %]
+      description: [% current_module.description %]
+      -->
+
+      <div class="layout layout--center u-pb u-palm-p">
+      <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+        <div class="layout--right">
+          [% IF show_restart %]
+          <a href="/logout" alt="Close"
+             title="[% i18n("Restart from the beginning") %]"
+             class="btn btn--icon u-palm-p0">
+            [% svgIcon(id='ic_close_black_24px', size='tiny') %]
+          </a>
+          [% END %]
+        </div>
+        <div class="layout--center">
+          <div class="box box--hero u-m u-mb--">
+            [% moduleIcon(module=current_module.pretty_class_name) %]
+          </div>
+          <div id="dots">
+          </div>
+          [% IF title.defined %]<h4>[% i18n(title) %]</h4>[% END %]
+          [% FOREACH level IN flash.keys %]
+          <div class="media media--[% level %] u-p u-mb">
+            <div class="media__img">[% flashIcon(level=level) %]</div>
+            <p class="media__body">[% i18n(flash.$level) %]</p>
+          </div>
+          [% END %]
+        </div>
+        [% content | none %]
+      </div>
+    </div>
+
+    <footer>
+      <div class="layout layout--center">
+        <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
+          <div class="u-m">
+            [% UNLESS preregistration %]
+            <p class="u-mb--">IP <b>[% client_ip %]</b></p>
+            <p>MAC <b>[% client_mac %]</b></p>
+            [% END %]
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>

@@ -7,7 +7,6 @@
 
 var loadedcolor='darkgray' ;       // PROGRESS BAR COLOR
 var unloadedcolor='lightgrey';     // COLOR OF UNLOADED AREA
-var bordercolor='navy';            // COLOR OF THE BORDER
 var barheight=15;                  // HEIGHT OF PROGRESS BAR IN PIXELS
 var barwidth=320;                  // WIDTH OF THE BAR IN PIXELS
 
@@ -49,13 +48,13 @@ var txt='';
 if(ns4){
 txt+='<table border=0 cellpadding=0 cellspacing=0><tr><td>';
 txt+='<ilayer name="PBouter" visibility="hide" height="'+barheight+'" width="'+barwidth+'" onmouseup="clickBar()">';
-txt+='<layer width="'+barwidth+'" height="'+barheight+'" bgcolor="'+bordercolor+'" top="0" left="0"></layer>';
+txt+='<layer width="'+barwidth+'" height="'+barheight+'" top="0" left="0"></layer>';
 txt+='<layer width="'+(barwidth-2)+'" height="'+(barheight-2)+'" bgcolor="'+unloadedcolor+'" top="1" left="1"></layer>';
 txt+='<layer name="PBdone" width="'+(barwidth-2)+'" height="'+(barheight-2)+'" bgcolor="'+loadedcolor+'" top="1" left="1"></layer>';
 txt+='</ilayer>';
 txt+='</td></tr></table>';
 }else{
-txt+='<div id="PBouter" onmouseup="clickBar()" style="position:relative; visibility:hidden; background-color:'+bordercolor+'; width:'+barwidth+'px; height:'+barheight+'px;">';
+txt+='<div id="PBouter" onmouseup="clickBar()" style="position:relative; visibility:hidden; width:'+barwidth+'px; height:'+barheight+'px;">';
 txt+='<div style="position:absolute; top:1px; left:1px; width:'+(barwidth-2)+'px; height:'+(barheight-2)+'px; background-color:'+unloadedcolor+'; font-size:1px;"></div>';
 txt+='<div id="PBdone" style="position:absolute; top:1px; left:1px; width:0px; height:'+(barheight-2)+'px; background-color:'+loadedcolor+'; font-size:1px;"></div>';
 txt+='</div>';

@@ -1,17 +1,40 @@
-<h3>[% i18n("To complete your network activation you need to install MobileIron") %]</h3>
-<p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
+<div class="layout--center">
+  <h5 class="u-mb--">[% i18n("To complete your network activation you need to install MobileIron") %]</h5>
+  <p>[% i18n("Once the application is installed, click Continue to activate your network connection") %]</p>
+</div>
 
-<h5>[% i18n("If you are using an Android phone or tablet,") %]
-<a id="primary_download" href="[% provisioner.android_download_uri %]">[% i18n("Click here to download") %]</a>
-</h5>
+<div class="layout layout--center">
+  <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
 
-<h5>If you are using an Apple phone or tablet,
-<a id="primary_download" href="[% provisioner.ios_download_uri %]">>[% i18n("Click here to download") %]</a>
-</h5>
+    <p class="u-mb--">[% i18n("If you are using an Android phone or tablet") %]</p>
+    <a href="[% provisioner.android_download_uri %]" class="btn btn--full" target="_blank">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_android_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Install Agent") %]</p>
+      </div>
+    </a>
 
-<h5>If you are using a Windows phone,
-<a id="primary_download" href="[% provisioner.windows_phone_download_uri %]">>[% i18n("Click here to download") %]</a>
-</h5>
+    <p class="u-mt u-mb--">[% i18n("If you are using an Apple phone or tablet") %]</p>
+    <a href="[% provisioner.ios_download_uri %]" class="btn btn--full" target="_blank">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='apple-icon',size='small') %]</div>
+        <p class="flag__body">[% i18n("Install Agent") %]</p>
+      </div>
+    </a>
 
-<a href="/captive-portal">[% i18n("Continue") %]</a>
+    <p class="u-mt u-mb--">[% i18n("If you are using a Windows phone") %]</p>
+    <a href="[% provisioner.windows_phone_download_uri %]" class="btn btn--full" target="_blank">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='microsoft-windows-icon',size='small') %]</div>
+        <p class="flag__body">[% i18n("Install Agent") %]</p>
+      </div>
+    </a>
 
+    <a href="/captive-portal" class="btn btn--full btn--light u-mt">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Continue") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
