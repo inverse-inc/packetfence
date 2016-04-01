@@ -1093,11 +1093,37 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
+                        /usr/local/pf/html/captive-portal/content/Gruntfile.js
+                        /usr/local/pf/html/captive-portal/content/captiveportal.js
+                        /usr/local/pf/html/captive-portal/content/package.json
                         /usr/local/pf/html/captive-portal/content/timerbar.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+                        /usr/local/pf/html/captive-portal/content/scss/_base.body.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_base.footer.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_base.header.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_base.input.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_base.paragraphs.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_components.card.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_components.dot.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_components.iconic.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_components.input.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.box.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.buttons.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.layout.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.list-ui.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.media.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_objects.tables.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_settings.colors.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_settings.packetfence.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_tools.aliases.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_trumps.dev.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_trumps.flag.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_trumps.layout.scss
+                        /usr/local/pf/html/captive-portal/content/scss/_trumps.media.scss
+                        /usr/local/pf/html/captive-portal/content/scss/styles.scss
 %dir                    /usr/local/pf/html/captive-portal/lib
 
                         /usr/local/pf/html/captive-portal/lib/*
