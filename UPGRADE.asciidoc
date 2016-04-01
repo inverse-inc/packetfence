@@ -95,6 +95,8 @@ The parameter `mandatory_fields` of the Portal Profiles has been deprecated. Rem
 
 To configure mandatatory fields in the portal, refer to the 'Portal Modules' section of the Administration guide
 
+You need to add the `root_module` parameter to your default portal profile. In `profiles.conf` add `root_module=default_policy` to the default portal profile
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
