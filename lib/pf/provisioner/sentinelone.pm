@@ -230,7 +230,7 @@ sub authorize {
         return $FALSE;
     }
     else {
-        return $info->{is_active};
+        return $info->{is_active} && !$info->{is_uninstalled};
     }
 }
 
