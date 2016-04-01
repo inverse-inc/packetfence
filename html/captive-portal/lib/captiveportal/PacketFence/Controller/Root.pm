@@ -123,6 +123,9 @@ sub dynamic_application :Private {
         $c->response->redirect($application->template_output, $application->response_code);
     }
     else {
+        $c->response->header('Cache-Control', "no-cache, no-store, must-revalidate");
+        $c->response->header('Pragma', "no-cache");
+        $c->response->header('Expire', '10');
         $c->response->body($application->template_output);
         $c->response->status($application->response_code);
     }
