@@ -119,6 +119,7 @@ use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_coa);
 use pf::web::util;
+use pf::radius::constants;
 
 sub description { 'Cisco Catalyst 2960' }
 
@@ -484,6 +485,7 @@ sub returnRadiusAccessAccept {
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){

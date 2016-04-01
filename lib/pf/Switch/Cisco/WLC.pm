@@ -114,6 +114,7 @@ use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::violation qw(violation_count_reevaluate_access);
+use pf::radius::constants;
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -420,6 +421,7 @@ sub returnRadiusAccessAccept {
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
