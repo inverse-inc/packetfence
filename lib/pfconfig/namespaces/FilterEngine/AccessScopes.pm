@@ -115,7 +115,9 @@ sub build_filter_condition {
         my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
         return $module->new({conditions => $conditions});
     }
-    return $self->{prebuilt_conditions}->{$parsed_condition};
+    my $condition = $self->{prebuilt_conditions}->{$parsed_condition};
+    return $condition if defined $condition;
+    die "condition '$parsed_condition' was not found\n";
 }
 
 =head1 AUTHOR
