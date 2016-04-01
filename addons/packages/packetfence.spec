@@ -1090,9 +1090,7 @@ fi
                         /usr/local/pf/html/captive-portal/README
 %config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
                         /usr/local/pf/html/captive-portal/captiveportal.conf.example
-%config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
-%config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
@@ -1122,7 +1120,6 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/t
                         /usr/local/pf/html/captive-portal/t/*
                         /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
-                        /usr/local/pf/html/captive-portal/content/new-styles.css
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
