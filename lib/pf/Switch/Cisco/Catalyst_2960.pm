@@ -120,6 +120,7 @@ use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::radius::constants;
 
 
 sub description { 'Cisco Catalyst 2960' }
@@ -498,6 +499,7 @@ sub returnRadiusAccessAccept {
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
     my @av_pairs;
 
