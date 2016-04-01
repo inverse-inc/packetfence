@@ -196,7 +196,7 @@ sub getModuleName {
     my $type = $data{type};
     my $subclass = "${mainClass}::${type}";
     die "type is not defined for $name" unless defined $type;
-    die "$type is not a valid type" unless any { $_ eq $subclass  } @{$class->modules};
+    die "$type is not a valid type" unless any { $_ eq $subclass  } $class->modules;
     $subclass;
 }
 
