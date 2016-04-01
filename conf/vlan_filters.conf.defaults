@@ -32,7 +32,14 @@ filter = node_info.autoreg
 operator = is
 value = yes
 
-[pf_deauth_from_secure:(pf_wired_mac_auth|pf_wireless_mac_auth)&(pf_node_wired_eap|pf_node_wireless_eap)&pf_node_reg&pf_node_autoreg]
+# Rule definition : 
+#   If the device comes from a Wireless secure connection (802.1x) and is currently connected to an open SSID
+#   And if it is currently registered and was previously auto-registered
+# This is to prevent an autoregistered 802.1x user to switch to an Open SSID and keep the same level of access
+# That will make sure, the user will be presented the captive portal if he switches from secure to open
+# We do *NOT* apply this logic to wired as supplicant failures would unregister the device
+# To apply this flow to wired, see the example pf_deauth_from_wireless_secure in vlan_filters.conf.example
+[pf_deauth_from_wireless_secure:pf_wireless_mac_auth&pf_node_wireless_eap&pf_node_reg&pf_node_auto_reg]
 scope = RegisteredRole
 action = modify_node
 action_param = mac = $mac, status = unreg, autoreg = no

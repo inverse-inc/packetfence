@@ -119,6 +119,16 @@
 #scope = NodeInfoForAutoReg
 #role = machine
 #
+#### Unregister an auto-registered 802.1x device falling back to MAB ####
+#
+# The conditions below are already defined in vlan_filters.conf.defaults
+# To activate this filter you only need to add this section
+#[pf_deauth_from_wired_secure:pf_wired_mac_auth&pf_node_wired_eap&pf_node_reg&pf_node_auto_reg]
+#scope = RegisteredRole
+#action = modify_node
+#action_param = mac = $mac, status = unreg, autoreg = no
+#role = registration
+#
 # Web API call:
 #
 # [3:3]

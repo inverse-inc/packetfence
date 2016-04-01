@@ -27,23 +27,14 @@ sub init {
     my ($self) = @_;
     $self->{file} = $vlan_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
-    $self->{default_config}  = $self->{cache}->get_cache('config::VlanFiltersDefault');
+
+    my $defaults = Config::IniFiles->new( -file => $vlan_filters_config_default_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
     my ($self) = @_;
-    my %Default_Config = %{ $self->{default_config} };
     my %tmp_cfg = %{ $self->{cfg} };
-
-    my @keys;
-    # then everyone else
-    push @keys, keys(%Default_Config);
-    # Only keep unique elements
-    @keys = uniq(@keys);
-
-    foreach my $section_name ( @keys ) {
-        $tmp_cfg{$section_name} = $Default_Config{$section_name};
-    }
 
     $self->cleanup_whitespaces( \%tmp_cfg );
 
