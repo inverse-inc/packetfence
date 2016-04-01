@@ -147,23 +147,25 @@ DROP PROCEDURE IF EXISTS acct_update;
 DELIMITER /
 CREATE PROCEDURE acct_update(
   IN p_timestamp datetime,
-  IN p_acctinterval datetime,
   IN p_framedipaddress varchar(15),
   IN p_acctsessiontime int(12),
   IN p_acctinputoctets bigint(20),
   IN p_acctoutputoctets bigint(20),
   IN p_acctuniqueid varchar(64),
   IN p_acctsessionid varchar(64),
+  IN p_username varchar(64),
+  IN p_nasipaddress varchar(15),
   IN p_acctstatustype varchar(25)
 )
 BEGIN
   DECLARE Previous_Input_Octets bigint(20);
   DECLARE Previous_Output_Octets bigint(20);
   DECLARE Previous_Session_Time int(12);
+  DECLARE Previous_AcctUpdate_Time datetime;
 
   # Collect traffic previous values in the update table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
+  SELECT acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
+    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
     FROM radacct
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
@@ -173,6 +175,7 @@ BEGIN
     SET Previous_Session_Time = 0;
     SET Previous_Input_Octets = 0;
     SET Previous_Output_Octets = 0;
+    SET Previous_AcctUpdate_Time = p_timestamp;
   END IF;
 
   # Update record with new traffic
@@ -180,7 +183,9 @@ BEGIN
     framedipaddress = p_framedipaddress,
     acctsessiontime = p_acctsessiontime,
     acctinputoctets = p_acctinputoctets,
-    acctoutputoctets = p_acctoutputoctets
+    acctoutputoctets = p_acctoutputoctets,
+    acctupdatetime = p_timestamp,
+    acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
     WHERE acctuniqueid = p_acctuniqueid 
     AND (acctstoptime IS NULL OR acctstoptime = 0);
 
