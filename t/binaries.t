@@ -31,7 +31,9 @@ plan tests => scalar @binaries * 1 + 1;
 
 foreach my $current_binary (@binaries) {
     my $flags = '-I/usr/local/pf/t -Mtest_paths';
-
+    if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
+        $flags = '-T';
+    }
     is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
 }
 
