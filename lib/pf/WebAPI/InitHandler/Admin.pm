@@ -1,4 +1,4 @@
-package pf::WebAPI::InitHandler::Admin::Admin;
+package pf::WebAPI::InitHandler::Admin;
 
 =head1 NAME
 
