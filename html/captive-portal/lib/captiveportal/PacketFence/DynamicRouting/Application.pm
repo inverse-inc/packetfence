@@ -488,7 +488,12 @@ Empty the flash
 
 sub empty_flash {
     my ($self) = @_;
-    $self->user_session->{flash} = {};
+    if($self->user_session){
+        $self->user_session->{flash} = {};
+    }
+    else {
+        get_logger->warn("There is no user session in this request. Cannot delete its flash");
+    }
 }
 
 =head2 flash
@@ -499,8 +504,14 @@ Access the flash
 
 sub flash {
     my ($self) = @_;
-    $self->user_session->{flash} //= {};
-    return $self->user_session->{flash};
+    if($self->user_session){
+        $self->user_session->{flash} //= {};
+        return $self->user_session->{flash};
+    }
+    else {
+        get_logger->warn("There is no user session in this request. Cannot create its flash. The flash will only exist for this request.");
+        return {};
+    }
 }
 
 =head2 reset_session
