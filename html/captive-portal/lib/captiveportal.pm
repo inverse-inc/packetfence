@@ -27,7 +27,7 @@ use Catalyst qw/
   I18N
   Authentication
   Session
-  Session::Store::MAC_Based
+  Session::Store::CHI
   Session::State::MAC
   StackTrace
   Unicode::Encoding
@@ -152,9 +152,13 @@ sub user_session_id {
         return $SESSION_ID;
     }
     else {
-        $SESSION_ID = Digest::SHA1::sha1_hex(rand() . $$ . {} . time);
+        $SESSION_ID = $c->generate_session_id(); 
         return $SESSION_ID;
     }
+}
+
+sub generate_session_id {
+    return Digest::SHA1::sha1_hex(rand() . $$ . {} . time);
 }
 
 =head2 user_session

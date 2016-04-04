@@ -115,8 +115,13 @@ sub get_session_cookie {
     my $cookie_name = $c->_session_plugin_config->{cookie_name};
 
     my $mac = $c->portalSession->clientMac;
-    $mac =~ s/\://g;
-    return $mac;
+    if(valid_mac($mac)){
+        $mac =~ s/\://g;
+        return $mac;
+    }
+    else {
+        $c->generate_session_id();
+    }
 }
 
 sub get_session_id {
