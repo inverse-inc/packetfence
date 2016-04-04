@@ -10,7 +10,7 @@ pfconfig::namespaces::resource::SwitchTypesConfigured
 
 pfconfig::namespaces::resource::SwitchTypesConfigured
 
-This module creates the configuration hash of all the switches ranges (ex : 192.168.1.0/24)
+This module creates a hash of all the configured switches
 
 =cut
 
@@ -21,11 +21,23 @@ use base 'pfconfig::namespaces::resource';
 
 use NetAddr::IP;
 
+=head2 init
+
+Initialize the pfconfig::namespaces::resource::SwitchTypesConfigured object
+
+=cut
+
 sub init {
     my ($self) = @_;
     # we depend on the switch configuration object (russian doll style)
     $self->{switches} = $self->{cache}->get_cache('config::Switch');
 }
+
+=head2 build
+
+Builds a hash of all the configured switches
+
+=cut
 
 sub build {
     my ($self) = @_;

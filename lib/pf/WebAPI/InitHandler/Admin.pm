@@ -19,6 +19,12 @@ use pf::SwitchFactory();
 
 use base qw(pf::WebAPI::InitHandler);
 
+=head2 preloadSwitches
+
+Preload all the switches
+
+=cut
+
 sub preloadSwitches {
     pf::SwitchFactory->preloadAllModules();
 }

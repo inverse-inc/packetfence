@@ -67,7 +67,7 @@ sub post_config {
 
 =head2 preloadSwitches
 
-TODO: documention
+Preload switches in the post_config
 
 =cut
 
