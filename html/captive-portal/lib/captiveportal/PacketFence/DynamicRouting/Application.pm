@@ -350,7 +350,13 @@ sub render {
         client_ip => $self->current_ip,
         title => $self->title,
     };
+
     $args->{layout} //= $TRUE;
+    $args->{raw} //= $FALSE;
+    if($args->{raw}){
+        $args->{layout} = $FALSE;
+    }
+
     my $content = $args->{layout} ? $self->_render('layout.html', $layout_args) : $inner_content;
 
     $self->template_output($content);
@@ -389,23 +395,31 @@ sub _render {
     # Expose the preregistration flag in all templates
     $args->{preregistration} = $self->preregistration;
 
-    our $processor = Template::AutoFilter->new($self->_template_toolkit_options);
+    our $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
 
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
+
+    use Data::Dumper;
+    get_logger->info(Dumper($output));
 
     return $output;
 }
 
 sub _template_toolkit_options {
-    my ($self) = @_;
-    return {
+    my ($self, $args) = @_;
+    my $options = {
         AUTO_FILTER => 'html',
         RELATIVE => 1,
         PRE_PROCESS => 'macros.inc',
         INCLUDE_PATH => $self->profile->{_template_paths},
         ENCODING => 'utf8',
+    };
+    if($args->{raw}){
+        delete $options->{AUTO_FILTER};
+        delete $options->{PRE_PROCESS};
     }
+    return $options;
 }
 
 =head2 redirect
