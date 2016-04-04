@@ -51,8 +51,13 @@ around 'done' => sub {
         $self->show_preregistration_account();
     }
     else {
-        $self->execute_actions();
-        $self->release();
+        if($self->execute_actions()){
+            $self->release();
+        }
+        else {
+            $self->app->reset_session();
+            $self->app->redirect("/captive-portal");
+        }
     }
 };
 
@@ -206,8 +211,7 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
-    $self->apply_new_node_info();
-    return $TRUE;
+    return $self->apply_new_node_info();
 }
 
 =head2 apply_new_node_info
@@ -219,8 +223,14 @@ Apply the new node info in the session to the node
 sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
-    $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
-    node_register($self->current_mac, $self->username, %{$self->new_node_info()});
+    if(node_register($self->current_mac, $self->username, %{$self->new_node_info()})){
+        $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
+        return $TRUE;
+    }
+    else {
+        $self->app->flash->{error} = "Couldn't register your device. Please contact your local support staff.";
+        return $FALSE;
+    }
 }
 
 =head2 direct_route_billing
