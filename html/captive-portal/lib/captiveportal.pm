@@ -3,6 +3,7 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
+use Digest::SHA1;
 
 use Catalyst::Runtime 5.80;
 
@@ -18,6 +19,8 @@ use Catalyst::Runtime 5.80;
 # Static::Simple: will serve static files from the application's root
 #                 directory
 
+our $SESSION_ID;
+
 use Catalyst qw/
   ConfigLoader
   Static::Simple
@@ -25,7 +28,7 @@ use Catalyst qw/
   Authentication
   Session
   Session::Store::MAC_Based
-  Session::State::Cookie
+  Session::State::MAC
   StackTrace
   Unicode::Encoding
   /;
@@ -136,6 +139,24 @@ sub _user_session_backend {
     return pf::CHI->new(namespace  => 'httpd.portal');
 }
 
+=head2 user_session_id
+
+=cut
+
+sub user_session_id {
+    my ($c) = @_;
+    if($c->request->cookie('CGISESSION')){
+        $c->request->cookie('CGISESSION')->value();
+    }
+    elsif($SESSION_ID) {
+        return $SESSION_ID;
+    }
+    else {
+        $SESSION_ID = Digest::SHA1::sha1_hex(rand() . $$ . {} . time);
+        return $SESSION_ID;
+    }
+}
+
 =head2 user_session
 
 This needs to be called at the end of the request of whenever we want to save the session
@@ -144,7 +165,7 @@ This needs to be called at the end of the request of whenever we want to save th
 
 sub _build_user_session {
     my ($c) = @_;
-    return $c->_user_session_backend->get("user_session:".$c->request->cookie('CGISESSION')->value()) || {};
+    return $c->_user_session_backend->get("user_session:".$c->user_session_id) || {};
 }
 
 =head2 _save_user_session
@@ -156,7 +177,7 @@ This needs to be called at the end of the request of whenever we want to save th
 sub _save_user_session {
     my ($c) = @_;
     if($c->request->cookie('CGISESSION')){
-        $c->_user_session_backend->set("user_session:".$c->request->cookie('CGISESSION')->value(), $c->user_session);
+        $c->_user_session_backend->set("user_session:".$c->user_session_id, $c->user_session);
     }
 }
 
