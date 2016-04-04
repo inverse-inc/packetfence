@@ -144,10 +144,10 @@ our (
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
         @inline_enforcement_nets @vlan_enforcement_nets
