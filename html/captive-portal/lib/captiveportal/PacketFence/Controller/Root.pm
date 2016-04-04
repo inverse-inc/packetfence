@@ -67,6 +67,7 @@ sub setupDynamicRouting : Private {
     my $request = $c->request;
     my $profile = $c->portalSession->profile;
     my $application = captiveportal::DynamicRouting::Application->new(
+        user_session => $c->user_session,
         session => $c->session, 
         profile => $profile, 
         request => $request, 

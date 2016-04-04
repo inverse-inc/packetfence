@@ -31,6 +31,8 @@ use pf::web ();
 
 has 'session' => (is => 'rw', required => 1);
 
+has 'user_session' => (is => 'rw', required => 1);
+
 has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root");
 
 has 'root_module_id' => (is => 'rw');
@@ -486,7 +488,7 @@ Empty the flash
 
 sub empty_flash {
     my ($self) = @_;
-    $self->session->{flash} = {};
+    $self->user_session->{flash} = {};
 }
 
 =head2 flash
@@ -497,8 +499,8 @@ Access the flash
 
 sub flash {
     my ($self) = @_;
-    $self->session->{flash} //= {};
-    return $self->session->{flash};
+    $self->user_session->{flash} //= {};
+    return $self->user_session->{flash};
 }
 
 =head2 reset_session
@@ -509,7 +511,7 @@ Reset the session except for attributes that are not related to the device state
 
 sub reset_session {
     my ($self) = @_;
-    my @ignore = qw(flash destination_url client_mac client_ip);
+    my @ignore = qw(destination_url client_mac client_ip);
     foreach my $key (keys %{$self->session}){
         next if(any { $key eq $_ } @ignore);
         delete $self->session->{$key};
