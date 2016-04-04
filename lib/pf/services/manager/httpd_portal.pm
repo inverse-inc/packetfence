@@ -17,7 +17,6 @@ use warnings;
 use Moo;
 use List::MoreUtils qw(uniq);
 use Clone();
-use pf::file_paths;
 use pf::authentication();
 use pf::config;
 use pf::util;

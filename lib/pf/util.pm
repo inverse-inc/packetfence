@@ -95,7 +95,6 @@ use pf::constants::config;
 use pf::constants::user;
 #use pf::config;
 use pf::log;
-use pf::file_paths;
 
 =head1 SUBROUTINES
 

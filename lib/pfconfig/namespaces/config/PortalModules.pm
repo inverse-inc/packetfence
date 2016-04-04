@@ -18,7 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw(
+    $portal_modules_default_config_file
+    $portal_modules_config_file
+);
 use Config::IniFiles;
 
 use base 'pfconfig::namespaces::config';
@@ -26,7 +29,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $portal_modules_config_file;
-    
+
     my $defaults = Config::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
@@ -38,7 +41,7 @@ sub build_child {
 
     foreach my $module_id (keys %tmp_cfg){
         $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
-        
+
         if(defined($tmp_cfg{$module_id}{actions})){
             my @actions = @{$tmp_cfg{$module_id}{actions}};
             if(@actions){
@@ -56,13 +59,11 @@ sub build_child {
                 $tmp_cfg{$module_id}{actions} = undef;
             }
         }
-        
+
     }
 
     return \%tmp_cfg;
 }
-
-=back
 
 =head1 AUTHOR
 

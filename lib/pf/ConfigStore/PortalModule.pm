@@ -15,7 +15,10 @@ pf::ConfigStore::PortalModule
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw(
+    $portal_modules_config_file
+    $portal_modules_default_config_file
+);
 extends 'pf::ConfigStore';
 
 sub configFile { $portal_modules_config_file};
@@ -47,7 +50,7 @@ sub cleanupAfterRead {
     my ($self, $id, $object) = @_;
     $self->expand_list($object, $self->_fields_expanded);
     $self->expand_lines($object, $self->_fields_line_expanded);
-    
+
     # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
     if($object->{type} eq "Message" && ref($object->{message}) eq 'ARRAY'){
         $object->{message} = join("\n", @{$object->{message}});
@@ -72,8 +75,8 @@ sub cleanupBeforeCommit {
 
 sub _fields_expanded {
     return qw(
-    modules 
-    source_id 
+    modules
+    source_id
     custom_fields
     );
 }

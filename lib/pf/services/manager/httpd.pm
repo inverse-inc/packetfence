@@ -18,6 +18,7 @@ use pf::file_paths qw(
     $install_dir
     $conf_dir
     $generated_conf_dir
+    $var_dir
 );
 use Moo;
 use POSIX;

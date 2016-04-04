@@ -17,7 +17,6 @@ use Config::IniFiles;
 use pf::config::cached;
 use Data::Dumper;
 use Data::Compare;
-use pf::file_paths;
 
 use_ok('pf::ConfigStore::config');
 

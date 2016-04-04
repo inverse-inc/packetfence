@@ -7,7 +7,6 @@ use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::log;
 use pf::web;
 use pf::node;
-use pf::file_paths;
 use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -42,7 +41,7 @@ sub index : Path : Args(0) {
         # There is a violation, redirect the user
         # FIXME: there is not enough validation below
         my $vid      = $violation->{'vid'};
-    
+
         if ($vid == $POST_SCAN_VID) {
             $c->response->redirect("/captive-portal");
         }
@@ -130,7 +129,7 @@ sub release :Local {
             # we reevaluate the access so the user is release from isolation if needed
             pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
         }
-        
+
         $c->response->redirect("/captive-portal");
     } else {
         get_logger->info("$mac reached maximum violations");

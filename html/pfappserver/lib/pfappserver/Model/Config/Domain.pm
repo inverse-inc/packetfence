@@ -20,7 +20,6 @@ use pf::config;
 use pf::ConfigStore::Domain;
 use pf::util;
 use pf::domain;
-use pf::file_paths;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -52,7 +51,7 @@ sub status {
 
     my $chroot_path = pf::domain::chroot_path($domain);
     my ($join_status, $join_output) = pf::domain::test_join($domain);
-  
+
     return ($join_status, $join_output);
 
 }

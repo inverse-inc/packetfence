@@ -42,7 +42,7 @@ use pf::api::jsonrpcclient;
 use pf::cluster;
 use fingerbank::DB;
 use File::Slurp;
-use pf::file_paths;
+use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
 use pf::access_filter::dhcp;
 use pf::metascan();
@@ -1058,7 +1058,7 @@ sub fingerbank_update_component : Public {
     if(defined($postdata{email_admin}) && $postdata{email_admin}){
         pf::config::util::pfmailer(( subject => 'Fingerbank - '.$postdata{action}.' status', message => $status_msg ));
     }
-    
+
     return ($status, $status_msg);
 }
 
@@ -1281,7 +1281,7 @@ sub handle_accounting_metadata : Public {
     my $logger = pf::log::get_logger();
     $logger->debug("Entering handling of accounting metadata");
     my $client = pf::client::getClient();
-    
+
     my $mac = pf::util::clean_mac($RAD_REQUEST{'Calling-Station-Id'});
     if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
         #

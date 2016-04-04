@@ -24,6 +24,7 @@ use File::Slurp qw(read_dir read_file);
 use File::Spec::Functions;
 use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
+use pf::file_paths qw($captiveportal_templates_path);
 use Readonly;
 
 BEGIN { extends 'pfappserver::Controller::Config::Profile'; }

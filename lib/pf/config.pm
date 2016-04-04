@@ -25,7 +25,6 @@ use strict;
 use warnings;
 use pf::log;
 use pf::config::cached;
-use pf::file_paths;
 use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
@@ -838,7 +837,7 @@ sub is_network_type_vlan_reg {
     }
 }
 
-=head2 is_network_type_dns_enforcement
+=item is_network_type_dns_enforcement
 
 Returns true if given network is of type dns-enforcement and false otherwise.
 
