@@ -57,6 +57,12 @@ our %ACTION_MAP = (
     },
 );
 
+our %ACTION_MAP_CONDITION = (
+    "update-redis-db" => sub {
+        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('query', 'use_redis')) 
+    },
+);
+
 =head1 METHODS
 
 =head2 process

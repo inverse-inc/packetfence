@@ -522,6 +522,12 @@ sub update_fingerbank_data {
     if(fingerbank::Config::is_api_key_configured){
         my $apiclient = pf::client::getClient();
         foreach my $action (keys(%pf::fingerbank::ACTION_MAP)){
+            if(defined($pf::fingerbank::ACTION_MAP_CONDITION{$action})){
+                unless($pf::fingerbank::ACTION_MAP_CONDITION{$action}->()){
+                    get_logger->debug("Not executing $action because its condition returned false");
+                    next;
+                }
+            }
             get_logger->debug("Calling Fingerbank action $action");
             my ($status, $status_msg) = $apiclient->call('fingerbank_update_component', action => $action, email_admin => $FALSE);
             if(fingerbank::Util::is_success($status)){
