@@ -29,8 +29,8 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_ranges', 'interfaces::management_network' ];
-    
+    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured' ];
+
     $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
 }
 
@@ -54,9 +54,9 @@ sub build_child {
         push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
         foreach my $management_ip (@management_ips){
             $tmp_cfg{$management_ip} = {
-                type => 'PacketFence', 
-                mode => 'production', 
-                radiusSecret => 'testing1234', 
+                type => 'PacketFence',
+                mode => 'production',
+                radiusSecret => 'testing1234',
             };
         }
     }
