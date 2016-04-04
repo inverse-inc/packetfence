@@ -448,7 +448,9 @@ done
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_queue
+%if 0%{?el7}
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
+%endif
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
@@ -1269,7 +1271,9 @@ fi
 %dir                    /usr/local/pf/var/control
 %dir                    /usr/local/pf/var/redis_cache
 %dir                    /usr/local/pf/var/redis_queue
+%if 0%{?el7}
 %dir                    /usr/local/pf/var/ssl_mutex
+%endif
 %config(noreplace)      /usr/local/pf/var/cache_control
 
 # Remote snort sensor file list
