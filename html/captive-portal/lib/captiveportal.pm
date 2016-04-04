@@ -178,9 +178,7 @@ This needs to be called at the end of the request of whenever we want to save th
 
 sub _save_user_session {
     my ($c) = @_;
-    if($c->request->cookie('CGISESSION')){
-        $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
-    }
+    $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
 }
 
 =head2 user_session
