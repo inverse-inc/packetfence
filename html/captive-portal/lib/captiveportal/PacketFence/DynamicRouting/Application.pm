@@ -400,9 +400,6 @@ sub _render {
     my $output = '';
     $processor->process($template, $args, \$output) || die("Can't generate template $template: ".$processor->error."Error : ".$@);
 
-    use Data::Dumper;
-    get_logger->info(Dumper($output));
-
     return $output;
 }
 
