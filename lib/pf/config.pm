@@ -37,7 +37,6 @@ use threads;
 use Try::Tiny;
 use File::Which;
 use Socket;
-use List::MoreUtils qw(any);
 use Time::Local;
 use Linux::Distribution;
 use DateTime;
@@ -177,7 +176,6 @@ BEGIN {
         normalize_time access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
-        is_in_list
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
         %ConfigFirewallSSO
@@ -887,21 +885,6 @@ sub is_network_type_inline {
     } else {
         return $FALSE;
     }
-}
-
-=item is_in_list
-
-Searches for an item in a comma separated list of elements (like we do in our configuration files).
-
-Returns true or false values based on if item was found or not.
-
-=cut
-
-sub is_in_list {
-    my ($item, $list) = @_;
-    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
-    return $TRUE if any { $_ eq $item } @list;
-    return $FALSE;
 }
 
 =item is_omapi_lookup_enabled

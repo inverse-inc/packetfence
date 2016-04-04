@@ -34,7 +34,7 @@ foreach my $section ( tied(%default_cfg)->Sections ) {
 foreach my $section ( tied(%doc)->Sections ) {
     if ( ($section ne 'proxies') && ($section ne 'passthroughs') ) {
         if ($section =~ /^([^.]+)\.(.+)$/) {
-            if ( ($1 ne 'interface') && ($1 ne 'services') 
+            if ( ($1 ne 'interface') && ($1 ne 'services')
                  && (! ( ($1 eq 'alerting') && ($2 eq 'fromaddr') ) )
             ) {
                 $testNb++;
@@ -45,11 +45,10 @@ foreach my $section ( tied(%doc)->Sections ) {
     }
 }
 
-# +2 NoWarnings, use_ok 
-# +4 is_in_list
+# +2 NoWarnings, use_ok
 # +9 normalize_time
 # +15 access_duration
-plan tests => $testNb + 2 + 4 + 9 + 15;
+plan tests => $testNb + 2 + 9 + 15;
 
 use_ok('pf::config');
 
@@ -80,11 +79,6 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
-
-ok(is_in_list("sms","sms,email"), "is_in_list positive");
-ok(!is_in_list("sms","email"), "is_in_list negative");
-ok(!is_in_list("sms",""), "is_in_list empty list");
-ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 
 # normalize time
 is(normalize_time("5Z"), 0, "illegal normalize attempt");
@@ -142,7 +136,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
 
