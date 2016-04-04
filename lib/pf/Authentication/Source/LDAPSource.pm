@@ -20,7 +20,7 @@ use Readonly;
 use pf::LDAP;
 use List::Util;
 use Net::LDAP::Util qw(escape_filter_value);
-use pf::config;
+use pf::config qw(%Config);
 use List::MoreUtils qw(uniq);
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
