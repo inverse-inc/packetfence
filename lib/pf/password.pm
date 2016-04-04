@@ -78,7 +78,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::db;
 use pf::util;
 
@@ -573,7 +573,7 @@ sub reset_password {
     ) || return undef;
 }
 
-=head2 consume_login
+=item consume_login
 
 Consume a login for the password entry
 
