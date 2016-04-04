@@ -20,6 +20,15 @@ extends 'Catalyst::Plugin::Session::State::Cookie';
 
 our $VERSION = "0.01";
 
+=head2 get_session_id
+
+Get the session ID for the session
+In our case, if there is a MAC we use it
+Otherwise we take the value in the session cookie
+If all fails we generate a session ID
+
+=cut
+
 sub get_session_id {
     my $c = shift;
 
@@ -35,6 +44,12 @@ sub get_session_id {
         return $c->browser_session_id();
     }
 };
+
+=head2 update_session_cookie
+
+Update the session cookie by making sure we put the browser_session_id in it instead of the MAC address
+
+=cut
 
 sub update_session_cookie {
     my ( $c, $updated ) = @_;
@@ -66,21 +81,14 @@ sub browser_session_id {
     }
 }
 
-=back
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
@@ -101,4 +109,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
+
 1;
+
