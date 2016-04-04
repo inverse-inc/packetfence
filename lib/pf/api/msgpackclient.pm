@@ -22,7 +22,7 @@ pf::api::msgpackclient
 use strict;
 use warnings;
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::log;
 use WWW::Curl::Easy;
 use Data::MessagePack;
