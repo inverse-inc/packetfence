@@ -46,9 +46,8 @@ foreach my $section ( tied(%doc)->Sections ) {
 }
 
 # +2 NoWarnings, use_ok
-# +9 normalize_time
 # +15 access_duration
-plan tests => $testNb + 2 + 9 + 15;
+plan tests => $testNb + 2 + 15;
 
 use_ok('pf::config');
 
@@ -79,17 +78,6 @@ foreach my $section ( tied(%doc)->Sections ) {
         }
     }
 }
-
-# normalize time
-is(normalize_time("5Z"), 0, "illegal normalize attempt");
-is(normalize_time("5"), 5, "normalizing w/o a time resolution specified (seconds assumed)");
-is(normalize_time("2s"), 2 * 1, "normalizing seconds");
-is(normalize_time("2m"), 2 * 60, "normalizing minutes");
-is(normalize_time("2h"), 2 * 60 * 60, "normalizing hours");
-is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
-is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
-is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
-is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
 
 my $tsformat = "%Y-%m-%d %H:%M:%S";
 my $refdate = POSIX::mktime(0,0,12,2,0,101); # 2001-01-02 12:00:00 (Tuesday)

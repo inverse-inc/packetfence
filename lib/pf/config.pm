@@ -173,7 +173,7 @@ BEGIN {
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
-        normalize_time access_duration
+        access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
         $LOG4PERL_RELOAD_TIMER

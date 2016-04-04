@@ -8,7 +8,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 41;
+use Test::More tests => 50;
 use Test::NoWarnings;
 
 BEGIN {
@@ -96,10 +96,23 @@ is_deeply(\@return,
 @return = pf::util::apache::url_parser('invalid://url$.com');
 ok(!@return, "Passed invalid URL expecting undef");
 
+# is_in_list
 ok(is_in_list("sms","sms,email"), "is_in_list positive");
 ok(!is_in_list("sms","email"), "is_in_list negative");
 ok(!is_in_list("sms",""), "is_in_list empty list");
 ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
+
+# normalize time
+is(normalize_time("5Z"), 0, "illegal normalize attempt");
+is(normalize_time("5"), 5, "normalizing w/o a time resolution specified (seconds assumed)");
+is(normalize_time("2s"), 2 * 1, "normalizing seconds");
+is(normalize_time("2m"), 2 * 60, "normalizing minutes");
+is(normalize_time("2h"), 2 * 60 * 60, "normalizing hours");
+is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
+is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
+is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
+is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
+
 
 
 # TODO add more tests, we should test:
