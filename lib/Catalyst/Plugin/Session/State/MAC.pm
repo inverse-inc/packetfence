@@ -152,18 +152,18 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Session::State::Cookie - Maintain session IDs using cookies.
+Catalyst::Plugin::Session::State::MAC - Maintain session IDs using the MAC address of the device and a cookie.
 
 =head1 SYNOPSIS
 
-    use Catalyst qw/Session Session::State::Cookie Session::Store::Foo/;
+    use Catalyst qw/Session Session::State::MAC Session::Store::Foo/;
 
 =head1 DESCRIPTION
 
 In order for L<Catalyst::Plugin::Session> to work the session ID needs to be
 stored on the client, and the session data needs to be stored on the server.
 
-This plugin stores the session ID on the client using the cookie mechanism.
+This plugin stores a session ID on the client using the cookie mechanism but uses the MAC address as the read session ID.
 
 =head1 METHODS
 
