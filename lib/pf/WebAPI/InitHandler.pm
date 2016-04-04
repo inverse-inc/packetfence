@@ -61,7 +61,7 @@ sub post_config {
     pf::StatsD->closeStatsd;
     db_disconnect();
     pf::CHI->clear_memoized_cache_objects;
-    pf::SwitchFactory::preLoadModules();
+    pf::SwitchFactory->preloadConfiguredModules();
     return Apache2::Const::OK;
 }
 

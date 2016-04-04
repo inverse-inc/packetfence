@@ -89,7 +89,7 @@ daemonize($PROGRAM_NAME) if ($daemonize);
 our $PARENT_PID = $$;
 Log::Log4perl::MDC->put( 'tid', $$ );
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 
 register_tasks();
 wait_for_it();

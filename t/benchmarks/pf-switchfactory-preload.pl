@@ -28,7 +28,7 @@ BEGIN {
 }
 use pfconfig::manager;
 pfconfig::manager->new->expire_all;
-pf::SwitchFactory::preLoadModules() if $ARGV[0];
+pf::SwitchFactory->preloadConfiguredModules() if $ARGV[0];
 
 my @SWITCHES = (keys %pf::SwitchFactory::SwitchConfig);
 
