@@ -221,7 +221,7 @@ Call an API method on each member of the cluster
 =cut
 
 sub api_call_each_server {
-    my ($asynchronous, $api_method, %api_args) = @_;
+    my ($asynchronous, $api_method, @api_args) = @_;
 
     require pf::api::jsonrpcclient;
     my @failed;
