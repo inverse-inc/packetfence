@@ -36,7 +36,7 @@ use pf::StatsD::Timer;
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
 our %ACTION_MAP = (
-    "update-p0f" => sub { 
+    "update-p0f-map" => sub { 
         pf::fingerbank::_update_fingerbank_component("p0f map", sub{
             my ($status, $status_msg) = fingerbank::Config::update_p0f_map();
             return ($status, $status_msg);
