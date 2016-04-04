@@ -114,9 +114,9 @@ PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI
 PerlLoadModule pf::WebAPI::InitHandler
-PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
+PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 PerlInitHandler pf::WebAPI::InitHandler
-PerlChildInitHandler pf::WebAPI::InitHandler::child_init
+PerlChildInitHandler pf::WebAPI::InitHandler->child_init
 SetEnvIf User-Agent collectd is_collectd
 
 PidFile [% install_dir %]/var/run/[% name %].pid

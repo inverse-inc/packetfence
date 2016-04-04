@@ -104,9 +104,9 @@ AcceptMutex posixsem
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlLoadModule pfappserver
-PerlLoadModule pf::WebAPI::InitHandler
-PerlPostConfigHandler pf::WebAPI::InitHandler::post_config
-PerlChildInitHandler pf::WebAPI::InitHandler::child_init
+PerlLoadModule pf::WebAPI::InitHandler->Admin
+PerlPostConfigHandler pf::WebAPI::InitHandler->Admin->post_config
+PerlChildInitHandler pf::WebAPI::InitHandler->Admin->child_init
 PidFile [% install_dir %]/var/run/[% name %].pid
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
 User pf
