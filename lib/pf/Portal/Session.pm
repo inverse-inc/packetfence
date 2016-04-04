@@ -540,7 +540,7 @@ sub getLanguages {
     # 1. Check if a language is specified in the URL
     if ( defined($self->getCgi->url_param('lang')) ) {
         my $user_chosen_language = $self->getCgi->url_param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
