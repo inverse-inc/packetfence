@@ -139,26 +139,6 @@ sub _user_session_backend {
     return pf::CHI->new(namespace  => 'httpd.portal');
 }
 
-=head2 browser_session_id
-
-Get the browser session ID (not tied to MAC address)
-
-=cut
-
-sub browser_session_id {
-    my ($c) = @_;
-    if($c->request->cookie('CGISESSION')){
-        $c->request->cookie('CGISESSION')->value();
-    }
-    elsif($SESSION_ID) {
-        return $SESSION_ID;
-    }
-    else {
-        $SESSION_ID = $c->generate_session_id(); 
-        return $SESSION_ID;
-    }
-}
-
 =head2 _build_user_session
 
 This builds the user session using the browser session ID
