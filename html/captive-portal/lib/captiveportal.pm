@@ -3,7 +3,6 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
-use pf::util;
 
 use Catalyst::Runtime 5.80;
 
