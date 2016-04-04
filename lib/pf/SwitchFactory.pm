@@ -75,7 +75,6 @@ sub instantiate {
     my $switch_mac;
     my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
-    pfconfig::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
         if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
             $switch_mac = $switchRequest->{switch_mac};
@@ -93,7 +92,6 @@ sub instantiate {
             $switch_mac = $switchRequest;
         }
     }
-    });
 
     my $switch_data;
     foreach my $search (@requestedSwitches){
@@ -139,13 +137,9 @@ sub instantiate {
     }
 
 
-    my $switchOverlay;
-    pfconfig::timeme::timeme('overlayget', sub {
     # find the module to instantiate
-    $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
-    });
+    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my ($module, $type);
-    pfconfig::timeme::timeme('type import', sub {
     $type = untaint_chain( $switch_data->{'type'} );
     if ($requestedSwitch ne 'default') {
         $module = getModule($type);
@@ -159,20 +153,16 @@ sub instantiate {
         return 0;
     }
     $module = untaint_chain($module);
-    });
     # load the module to instantiate
 
-    my $result;
-    pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $module object");
-    $result = $module->new({
+    my $result = $module->new({
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
-    });
     });
 
     return $result;

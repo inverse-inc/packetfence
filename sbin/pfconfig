@@ -16,7 +16,7 @@ pfconfig [options]
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
    -n NAME            The name of process as reported in ps - default pfconfig
    -p PID_PATH        The path to the PID file (optional)
-   -c CONFIG_PATH     The path to the configuration file (optional) 
+   -c CONFIG_PATH     The path to the configuration file (optional)
 
 =cut
 
@@ -36,7 +36,6 @@ use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
-use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use File::Basename qw(basename);
 use Getopt::Std;
@@ -48,7 +47,6 @@ use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
-$pfconfig::timeme::VERBOSE = 0;
 our $RUNNING = 1;
 
 my %args = (

@@ -46,7 +46,6 @@ use warnings;
 use Tie::Hash;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
-use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use pf::log;
 use pfconfig::cached;
