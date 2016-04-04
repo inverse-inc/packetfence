@@ -19,7 +19,21 @@ use strict;
 use warnings;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %Config
+    @internal_nets
+    $fqdn
+    @routed_isolation_nets
+    @routed_registration_nets
+    @inline_nets
+    %connection_type_to_str
+    %connection_type
+    $UNKNOWN
+    $management_network
+    %ConfigRealm
+    $HTTPS
+    $HTTP
+);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use File::Basename;
 use Net::MAC::Vendor;
