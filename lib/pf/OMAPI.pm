@@ -29,7 +29,7 @@ use IO::Socket::INET;
 use Socket qw(MSG_WAITALL);
 use Time::HiRes qw(alarm);
 use pf::log;
-use pf::config;
+use pf::config qw(%Config);
 
 our $VERSION = '0.01';
 
