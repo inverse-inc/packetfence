@@ -1034,17 +1034,32 @@ sub fingerbank_process : Public {
     return undef;
 }
 
-=head2 fingerbank_update_upstream_db
+=head2 fingerbank_update_component
 
 =cut
 
-sub fingerbank_update_upstream_db : Public {
-    my ( $class ) = @_;
+sub fingerbank_update_component : Public {
+    my ( $class, %postdata ) = @_;
+    my @require = qw(action);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,\@found);
 
-    my ( $status, $status_msg ) = fingerbank::DB::update_upstream;
-    pf::fingerbank::sync_upstream_db();
+    my $action = $pf::fingerbank::ACTION_MAP{$postdata{action}};
+    my ($status, $status_msg);
+    if(defined($action)){
+        ( $status, $status_msg ) = $action->();
+        $status_msg //= "";
+    }
+    else {
+        $status = 404;
+        $status_msg = "Couldn't find action ".$postdata{action};
+    }
 
-    pf::config::util::pfmailer(( subject => 'Fingerbank - Update upstream DB status', message => $status_msg ));
+    if(defined($postdata{email_admin}) && $postdata{email_admin}){
+        pf::config::util::pfmailer(( subject => 'Fingerbank - '.$postdata{action}.' status', message => $status_msg ));
+    }
+    
+    return ($status, $status_msg);
 }
 
 =head2 fingerbank_submit_unmatched

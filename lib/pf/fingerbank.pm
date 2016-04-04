@@ -35,6 +35,28 @@ use pf::StatsD::Timer;
 
 our @fingerbank_based_violation_triggers = ('Device', 'DHCP_Fingerprint', 'DHCP_Vendor', 'MAC_Vendor', 'User_Agent');
 
+our %ACTION_MAP = (
+    "update-p0f" => sub { 
+        pf::fingerbank::_update_fingerbank_component("p0f map", sub{
+            my ($status, $status_msg) = fingerbank::Config::update_p0f_map();
+            return ($status, $status_msg);
+        });
+    },
+    "update-upstream-db" => sub {
+        pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
+            my ($status, $status_msg) = fingerbank::DB::update_upstream();
+            pf::fingerbank::sync_upstream_db();
+            return ($status, $status_msg);
+        });
+    },
+    "update-redis-db" => sub {
+        pf::fingerbank::_update_fingerbank_component("Redis combination map", sub{
+            my ($status, $status_msg) = fingerbank::Redis::update_from_api();
+            return ($status, $status_msg);
+        });
+    },
+);
+
 =head1 METHODS
 
 =head2 process
@@ -241,6 +263,7 @@ sub _update_fingerbank_component {
         $msg .= ", msg : $status_msg" if(defined($status_msg));
         $logger->error($msg);
     }
+    return ($status, $status_msg);
 }
 
 
