@@ -469,12 +469,6 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1
                },
-               {
-                'description' => 'Endpoints Online',
-                'vtitle' => 'Endpoints',
-                'target' => 'aliasByNode(stats.gauges.*.nodes.online,2)',
-                'columns' => 2
-               },
               ];
 
     foreach my $graph (@$graphs) {

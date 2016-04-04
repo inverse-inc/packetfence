@@ -19,6 +19,7 @@ use pfappserver::Base::Model::Search;
 use pf::log;
 use pf::util qw(calc_page_count);
 use pf::SearchBuilder;
+use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
 use HTTP::Status qw(:constants);
 use pf::util qw(calc_page_count);
@@ -84,7 +85,7 @@ sub add_searches {
 
 sub make_builder {
     my ($self) = @_;
-    return pf::SearchBuilder->new
+    return pf::SearchBuilder::Node->new
         ->select(qw(
             mac pid voip bypass_vlan status category_id bypass_role_id
             user_agent computername last_arp last_dhcp notes),
@@ -95,7 +96,7 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
-            L_("IF(locationlog.end_time = '0000-00-00 00:00:00', 'on' ,'off')", 'online'),
+            L_("IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
@@ -178,6 +179,21 @@ sub make_builder {
                            },
                            '=',
                            '0000-00-00 00:00:00'
+                        ],
+                    ],
+                },
+                {
+                    'table' => 'radacct',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'radacct',
+                                'name'  => 'radacctid',
+                            },
+                            '=',
+                            \"(select radacctid from radacct where callingstationid = REPLACE(`node`.`mac`,':','') ORDER BY acctstarttime DESC LIMIT 1)"
                         ],
                     ],
                 },
@@ -361,25 +377,7 @@ sub add_joins {
         my $online_date = $params->{online_date};
         my $start = $online_date->{start};
         my $end = $online_date->{end};
-        $builder->from({
-            'table' => \"(SELECT DISTINCT locationlog.mac FROM locationlog WHERE start_time >= \"$start 00:00:00\" and end_time <= \"$end 23:59\")",
-            'as'    => 'online_date',
-            'join'  => 'LEFT',
-            'on' => [
-                [
-                    {
-                        'table' => 'online_date',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        });
-        $builder->where({table => 'online_date', name => 'mac'}, '!=', undef);
+        $builder->where(\"UPPER(REPLACE(node.mac,':',''))", 'IN', \"select DISTINCT callingstationid from radacct where acctstarttime >= '$start 00:00:00' and acctstoptime <= '$end 23:59:59'");
     }
 }
 
@@ -426,4 +424,3 @@ USA.
 =cut
 
 1;
-

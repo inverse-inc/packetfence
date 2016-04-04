@@ -130,11 +130,13 @@ form {
 
       <select id="online_op" name="online_op" class="span2" >
         <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
       </select>
 
       <select id="online_value" name="online_value" class="span2" >
         <option value="on">[% l('Online') %]</option>
         <option value="off">[% l('Offline') %]</option>
+        <option value="unknown">[% l('Unknown') %]</option>
       </select>
     </div>
 
