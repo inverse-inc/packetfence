@@ -20,7 +20,7 @@ use List::MoreUtils qw(any);
 use Readonly;
 
 use pf::CHI;
-use pf::config;
+use pf::config qw(%Config);
 use pf::log;
 
 # List of MetaScan Online Scanner result IDs
@@ -45,11 +45,12 @@ Readonly::Scalar our $METASCAN_RESULT_IDS => {
 
 use constant METASCAN_CACHE_EXPIRE => 86400;
 
-=item hash_lookup
+=head2 hash_lookup
 
 Looking up an MD5 hash against OPSWAT MetaScan Online scanner
 
 =cut
+
 sub hash_lookup {
     my ( $self, $data ) = @_;
     my $logger = pf::log::get_logger;
@@ -85,14 +86,15 @@ sub hash_lookup {
 
             return $self->parse_scan_result($md5_hash, $result);
         }
-    );    
+    );
 }
 
-=item parse_scan_result
+=head2 parse_scan_result
 
 Parse JSON result from OPSWAT MetaScan Online Scanner
 
 =cut
+
 sub parse_scan_result {
     my ( $self, $md5_hash, $result ) = @_;
     my $logger = pf::log::get_logger;
