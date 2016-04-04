@@ -14,6 +14,7 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use pf::constants;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -23,13 +24,13 @@ Update "local" upstream Fingerbank database from Fingerbank project
 
 =cut
 
-sub update :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+sub update_upstream_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     my ( $self, $c ) = @_;
 
     $c->stash->{current_view} = 'JSON';
 
     my $apiclient = pf::client::getClient();
-    $apiclient->notify('fingerbank_update_upstream_db');
+    $apiclient->notify('fingerbank_update_component', action => "update-upstream-db", email_admin => $TRUE);
 
     $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status");
 }
@@ -50,6 +51,41 @@ sub submit :Local :Args(0) :AdminRole('FINGERBANK_READ') {
 
     $c->stash->{status_msg} = $c->loc("Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status");
 }
+
+=head2 update_p0f_map
+
+Update the p0f map using the fingerbank library
+
+=cut
+
+sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+
+    my $apiclient = pf::client::getClient();
+    $apiclient->notify('fingerbank_update_component', action => "update-p0f-map", email_admin => $TRUE);
+
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for the p0f map. An email will follow for status");
+}
+
+=head2 update_redis_db
+
+Update the redis db using the fingerbank library
+
+=cut
+
+sub update_redis_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+
+    my $apiclient = pf::client::getClient();
+    $apiclient->notify('fingerbank_update_component', action => "update-redis-db", email_admin => $TRUE);
+
+    $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for the redis DB. An email will follow for status");
+}
+
 
 =head1 AUTHOR
 
