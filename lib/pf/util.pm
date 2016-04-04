@@ -1242,6 +1242,17 @@ sub pf_make_dir {
     );
 }
 
+=head2 generate_session_id
+
+Generate a session ID
+
+=cut
+
+sub generate_session_id {
+    return Digest::SHA1::sha1_hex(rand() . $$ . {} . time);
+}
+
+
 =back
 
 =head1 AUTHOR

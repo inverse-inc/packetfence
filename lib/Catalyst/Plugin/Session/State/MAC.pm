@@ -43,7 +43,7 @@ sub update_session_cookie {
 
     unless ( $c->cookie_is_rejecting( $updated ) ) {
         my $cookie_name = $c->_session_plugin_config->{cookie_name};
-        $c->response->cookies->{$cookie_name} = $c->make_session_cookie($c->user_session_id());
+        $c->response->cookies->{$cookie_name} = $c->make_session_cookie($c->browser_session_id());
     }
 }
 

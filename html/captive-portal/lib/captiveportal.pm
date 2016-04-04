@@ -3,7 +3,7 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
-use Digest::SHA1;
+use pf::util;
 
 use Catalyst::Runtime 5.80;
 
@@ -139,11 +139,13 @@ sub _user_session_backend {
     return pf::CHI->new(namespace  => 'httpd.portal');
 }
 
-=head2 user_session_id
+=head2 browser_session_id
+
+Get the browser session ID (not tied to MAC address)
 
 =cut
 
-sub user_session_id {
+sub browser_session_id {
     my ($c) = @_;
     if($c->request->cookie('CGISESSION')){
         $c->request->cookie('CGISESSION')->value();
@@ -157,19 +159,15 @@ sub user_session_id {
     }
 }
 
-sub generate_session_id {
-    return Digest::SHA1::sha1_hex(rand() . $$ . {} . time);
-}
+=head2 _build_user_session
 
-=head2 user_session
-
-This needs to be called at the end of the request of whenever we want to save the session
+This builds the user session using the browser session ID
 
 =cut
 
 sub _build_user_session {
     my ($c) = @_;
-    return $c->_user_session_backend->get("user_session:".$c->user_session_id) || {};
+    return $c->_user_session_backend->get("user_session:".$c->browser_session_id) || {};
 }
 
 =head2 _save_user_session
@@ -181,7 +179,7 @@ This needs to be called at the end of the request of whenever we want to save th
 sub _save_user_session {
     my ($c) = @_;
     if($c->request->cookie('CGISESSION')){
-        $c->_user_session_backend->set("user_session:".$c->user_session_id, $c->user_session);
+        $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
     }
 }
 
