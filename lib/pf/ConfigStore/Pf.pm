@@ -14,7 +14,11 @@ pf::ConfigStore::PF
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::config qw(
+    %Default_Config
+    %Config
+    %Doc_Config
+);
 use pf::config::cached;
 use pf::file_paths qw($pf_config_file $pf_default_file);
 
