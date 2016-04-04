@@ -211,7 +211,7 @@ Get the current module as an object
 
 sub current_module {
     my ($self) = @_;
-    return $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id};
+    return defined($self->current_module_id) ? $captiveportal::PacketFence::DynamicRouting::Factory::INSTANTIATED_MODULES{$self->current_module_id} : undef;
 }
 
 =head2 previous_module_id
