@@ -20,7 +20,7 @@ use POSIX;
 use Text::CSV;
 use List::MoreUtils qw(any none);
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::Authentication::constants;
 use pf::password;
 use pf::error qw(is_error is_success);

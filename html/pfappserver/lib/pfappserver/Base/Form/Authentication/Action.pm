@@ -17,7 +17,7 @@ extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
-use pf::config;
+use pf::config qw(%Config);
 use pf::web::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;

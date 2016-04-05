@@ -16,7 +16,7 @@ use namespace::autoclean;
 use Net::Netmask;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%ConfigDomain);
 use pf::error qw(is_error is_success);
 use pf::util;
 use pf::log;

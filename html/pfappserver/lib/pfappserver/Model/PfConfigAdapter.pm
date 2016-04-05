@@ -8,7 +8,10 @@ use Try::Tiny;
 
 use pf::log;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $management_network
+    %Config
+);
 use pfconfig::manager;
 
 =head1 NAME
