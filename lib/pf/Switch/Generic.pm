@@ -16,7 +16,6 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
 
 =head1 SUBROUTINES
 

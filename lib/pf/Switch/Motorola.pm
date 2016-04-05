@@ -57,7 +57,10 @@ use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util;
 
 =head1 SUBROUTINES

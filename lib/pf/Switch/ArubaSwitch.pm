@@ -37,7 +37,12 @@ sub description { 'Aruba Switches' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 
 =head1 SUBROUTINES
 

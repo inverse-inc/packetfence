@@ -6,7 +6,7 @@ pf::Switch::HP::Procurve_2500 - Object oriented module to access SNMP enabled HP
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2500 module implements an object 
+The pf::Switch::HP::Procurve_2500 module implements an object
 oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 =head1 STATUS
@@ -29,7 +29,10 @@ sub description { 'HP ProCurve 2500 Series' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::log;
 use Net::SSH2;
 
@@ -77,7 +80,7 @@ sub _connect {
     $logger->debug("SSH output : $_") while <$chan>;
     print $chan $self->{_cliEnablePwd}."\n";
     $logger->debug("SSH output : $_") while <$chan>;
-    
+
     return ($ssh, $chan);
 }
 
@@ -122,7 +125,7 @@ sub disableMABByIfIndex {
     $logger->debug("SSH output : $_") while <$chan>;
     print $chan "no aaa port-access mac-based $ifIndex\n";
     $logger->debug("SSH output : $_") while <$chan>;
-    
+
     $ssh->disconnect();
 
     return 1;

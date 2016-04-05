@@ -24,7 +24,10 @@ use Try::Tiny;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 sub description { 'Huawei AC6605' }
 
 # importing switch constants

@@ -12,7 +12,7 @@ Object oriented module to access and manage 3COM E4800G Switch
 
 =over
 
-=item Supports 
+=item Supports
 
 =over
 
@@ -39,23 +39,23 @@ MAC-Authentication / 802.1X known to work with firmware V5.20 rel 2202P15 tested
 
 =item Unclear NAS-Port to ifIndex translation
 
-This switch's NAS-Port usage is not well documented or easy to guess 
+This switch's NAS-Port usage is not well documented or easy to guess
 so we reversed engineered the translation for the 4200G but it might not apply well to other switches.
 If it's your case, please let us know the NAS-Port you obtain in a RADIUS Request and the physical port you are on.
 The consequence of a bad translation are that VLAN re-assignment (ie after registration) won't work.
 
 =item Port-Security: security traps not sent under some circumstances
 
-The 4200G exhibit a behavior where secureViolation traps are not sent 
-if the MAC has already been authorized on another port on the same VLAN. 
-This tend to happen a lot (when users move on the same switch) for this 
+The 4200G exhibit a behavior where secureViolation traps are not sent
+if the MAC has already been authorized on another port on the same VLAN.
+This tend to happen a lot (when users move on the same switch) for this
 reason we recommend not to use this switch in port-security mode.
 
-This behavior has been confirmed on the 4800G using latest firmware (as of April 2011). 
+This behavior has been confirmed on the 4800G using latest firmware (as of April 2011).
 
 =item 802.1X Re-Authentication doesn't trigger a DHCP Request from the endpoint
 
-Since this is critical for PacketFence's operation, as a work-around, 
+Since this is critical for PacketFence's operation, as a work-around,
 we decided to bounce the port which will force the client to re-authenticate and do DHCP.
 Because of the port bounce PCs behind IP phones aren't recommended.
 This behavior was experienced on a Windows 7 client on the 4200G with the latest firmware.
@@ -66,7 +66,7 @@ This behavior has not been confirmed or denied for this model.
 
 =head1 NOTES
 
-=over 
+=over
 
 =item MAC Authentication and 802.1X behavior
 
@@ -82,13 +82,7 @@ It's really a matter of choice.
 use strict;
 use warnings;
 
-use Net::SNMP;
-use POSIX;
-
 use base ('pf::Switch::ThreeCom::Switch_4200G');
-
-use pf::config;
-use pf::Switch::constants;
 
 sub description { '3COM E4800G' }
 

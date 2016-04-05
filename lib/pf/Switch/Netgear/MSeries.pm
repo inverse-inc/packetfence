@@ -13,10 +13,7 @@ Tested on a Netgear M4100 on firmware 10.0.1.27
 use strict;
 use warnings;
 
-use Net::SNMP;
 use pf::constants;
-use pf::config;
-use pf::Switch::constants;
 
 use base ('pf::Switch::Netgear');
 

@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use pf::constants;
-use pf::config;
 use base ('pf::Switch::Dell');
 
 sub description { 'Dell Force 10' }

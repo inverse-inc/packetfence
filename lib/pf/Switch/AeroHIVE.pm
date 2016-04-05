@@ -42,7 +42,11 @@ use Try::Tiny;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $ROLES_API_LEVEL
+    $MAC
+    $SSID
+);
 use pf::file_paths qw($lib_dir);
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
