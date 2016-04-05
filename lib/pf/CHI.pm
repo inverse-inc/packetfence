@@ -204,7 +204,6 @@ sub preload_chi_drivers {
 
 
 __PACKAGE__->config(chiConfigFromIniFile());
-__PACKAGE__->preload_chi_drivers();
 
 =head2 listify
 

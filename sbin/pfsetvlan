@@ -54,6 +54,7 @@ use constant {
 use lib INSTALL_DIR . '/lib';
 
 use pf::CHI;
+__PACKAGE__->preload_chi_drivers();
 use pf::db;
 use pf::constants;
 use pf::config;
