@@ -90,7 +90,6 @@ table.sources {
               [% pf_section_entry( 'trapping', 'Trapping') | none %]
               [% pf_section_entry( 'parking', 'parking') | none %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
-              [% pf_section_entry( 'guests_self_registration', 'Self Registration') | none %]
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
               [% pf_section_entry( 'services', 'Services') | none %]
