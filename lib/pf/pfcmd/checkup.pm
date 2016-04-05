@@ -134,7 +134,6 @@ sub sanity_check {
     switches();
     portal_profiles();
     guests();
-    unsupported();
     vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
@@ -1035,21 +1034,6 @@ sub guests {
     }
 }
 
-=item unsupported
-
-Feature that we know don't work under certain circumstances (or other features activated)
-
-=cut
-
-sub unsupported {
-
-    # SMS confirmation doesn't work with pre-registration
-    # This was not implemented due to a time constraint. We can fix it.
-    if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
-        add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
-    }
-}
-
 =item portal_profiles
 
 Make sure that portal profiles, if defined, have a filter and no unsupported parameters.
@@ -1065,7 +1049,7 @@ sub portal_profiles {
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration)/x;
 
     foreach my $portal_profile ( keys %Profiles_Config ) {
         my $data = $Profiles_Config{$portal_profile};
