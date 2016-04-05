@@ -49,7 +49,6 @@ BEGIN {
         ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
-        readpid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
         get_total_system_memory
         parse_mac_from_trap
@@ -441,24 +440,6 @@ sub sort_ip {
         map { $_->[0] }
         sort { $a->[1] <=> $b->[1] }
         map { [$_,ip2int($_)] } @_;
-}
-
-sub readpid {
-    my ($pname) = @_;
-    my $logger = get_logger();
-    $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    my $fh;
-
-    if (open($fh,"< $pidfile")) {
-        my $pid = <$fh>;
-        chomp($pid);
-        close($fh);
-        return ($pid);
-    } else {
-        $logger->error("$pname: unable to open $pidfile for reading: $!");
-        return (-1);
-    }
 }
 
 =item safe_file_update($file, $content)
