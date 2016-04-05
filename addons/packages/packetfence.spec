@@ -694,6 +694,9 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
+# Getting rid of wrong ipv6 dns address
+sed -i 's/\%.*$//g' /etc/resolv.conf
+
 # skip if this is an update
 #Starting PacketFence.
 echo "Starting PacketFence Administration GUI..."
