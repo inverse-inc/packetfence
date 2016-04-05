@@ -25,7 +25,7 @@ use pfappserver::Base::Action::SimpleSearch;
 use pf::util qw(load_oui download_oui calc_page_count);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
-use pf::config;
+use pf::config qw(%Config);
 use pf::config::cached;
 use Moose;
 use Class::MOP;
