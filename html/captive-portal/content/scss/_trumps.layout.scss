@@ -1,5 +1,10 @@
 /// _trumps.layout.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
+.#{$inuit-layout-namespace}layout__item,
+%#{$inuit-layout-namespace}layout__item {
+  max-width: 50em;
+}
+
 footer .#{$inuit-layout-namespace}layout,
 footer %#{$inuit-layout-namespace}layout {  
   background-color: $pf-footer-background-color;
