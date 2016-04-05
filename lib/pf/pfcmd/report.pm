@@ -72,7 +72,7 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw(%connection_type_explained);
 use pf::db;
 use pf::util;
 use pf::config::util;
