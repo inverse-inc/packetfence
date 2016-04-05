@@ -31,7 +31,14 @@ BEGIN {
 
 use pf::constants;
 use pf::clustermgmt;
-use pf::config;
+use pf::config qw(
+    %Config
+    @listen_ints
+    @dhcplistener_ints
+    $NO_VLAN
+    %ConfigNetworks
+    @inline_enforcement_nets
+);
 use pf::config::cached;
 use pf::util;
 use pf::config::util;
