@@ -27,7 +27,13 @@ BEGIN {
 }
 
 use pf::log;
-use pf::config;
+use pf::config qw(
+    %Config
+    %CAPTIVE_PORTAL
+    $HTTP
+    $HTTPS
+);
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::web::constants;
 use pf::web::filter;
