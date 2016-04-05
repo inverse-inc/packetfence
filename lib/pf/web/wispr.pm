@@ -26,7 +26,12 @@ use Template;
 
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::config;
+use pf::config qw(
+    %CAPTIVE_PORTAL
+    %Config
+    $HTTP
+    $HTTPS
+);
 use pf::iplog;
 use pf::node;
 use pf::web;
