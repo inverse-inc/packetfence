@@ -70,7 +70,7 @@ Get the browser session ID (not tied to MAC address)
 sub browser_session_id {
     my ($c) = @_;
     if($c->request->cookie('CGISESSION')){
-        $c->request->cookie('CGISESSION')->value();
+        return $c->request->cookie('CGISESSION')->value();
     }
     elsif($c->stash->{browser_session_id}) {
         return $c->stash->{browser_session_id};
