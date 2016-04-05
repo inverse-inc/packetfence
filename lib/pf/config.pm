@@ -185,7 +185,7 @@ BEGIN {
         %ConfigRealm
         %ConfigProvisioning
         %ConfigDomain
-        $TRUE $FALSE $default_pid
+        $default_pid
         %ConfigScan
         %ConfigWmi
         %ConfigPKI_Provider
