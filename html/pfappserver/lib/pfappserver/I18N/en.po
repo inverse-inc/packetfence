@@ -5212,10 +5212,6 @@ msgstr ""
 msgid "Sponsor"
 msgstr ""
 
-# conf/documentation.conf (guests_self_registration.sponsorship_cc)
-msgid "Sponsors requesting access and access confirmation emails are CC'ed to those addresses. Multiple destinations can be comma separated."
-msgstr ""
-
 # html/pfappserver/root/admin/nodes.tt
 msgid "Standard Searches"
 msgstr ""
@@ -7260,10 +7256,6 @@ msgstr "PID"
 # conf/documentation.conf
 msgid "guests_self_registration.preregistration"
 msgstr "Preregistration"
-
-# conf/documentation.conf
-msgid "guests_self_registration.sponsorship_cc"
-msgstr "Sponsorship CC"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
