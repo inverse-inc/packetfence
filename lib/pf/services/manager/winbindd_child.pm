@@ -71,9 +71,10 @@ sub build_namespaces(){
         my $LOGDIRECTORY="/var/log/samba$domain";
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
         my $OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$domain";
+        my $PIDDIRECTORY="$var_dir/run/$domain";
         pf_run("sudo mkdir -p $OUTERLOGDIRECTORY && sudo chown root.root $OUTERLOGDIRECTORY");
         pf_run("sudo mkdir -p $OUTERRUNDIRECTORY && sudo chown root.root $OUTERRUNDIRECTORY");
-
+        pf_run("sudo mkdir -p $PIDDIRECTORY && sudo chown root.root $PIDDIRECTORY");
         pf_run("sudo /usr/local/pf/addons/create_chroot.sh $domain $domains_chroot_dir");
         my $ip_a = "169.254.0.".$i;
         my $ip_b = "169.254.0.".($i+1);
@@ -85,6 +86,23 @@ sub build_namespaces(){
         pf_run("sudo ip netns exec $domain route add default gw $ip_b dev $domain-a");
         pf_run("sudo ip netns exec $domain ip link set dev lo up");
         $i+=4;
+    }
+}
+
+=head2 pidFile
+
+return the pid file of the service
+
+=cut
+
+sub pidFile {
+    my ($self) = @_;
+    my $name = $self->name;
+    my $domain = $self->domain;
+    if ( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) {
+        return "$var_dir/run/$domain/winbindd.pid";
+    } else {
+        return "$var_dir/run/$domain/$name.pid";
     }
 }
 

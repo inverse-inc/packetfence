@@ -48,6 +48,7 @@ sub _build_winbinddManagers {
             launcher => "sudo chroot $CHROOT_PATH $binary -D -s $CONFIGFILE -l $LOGDIRECTORY",
             forceManaged => $self->isManaged,
             orderIndex => $self->orderIndex,
+            domain => $_,
         })
     } uniq keys %ConfigDomain;
     return \@managers;
