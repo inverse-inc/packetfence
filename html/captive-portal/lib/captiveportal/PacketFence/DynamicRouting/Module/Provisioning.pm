@@ -55,7 +55,7 @@ Get the provisioner from the session or the portal profile
 
 sub get_provisioner {
     my ($self) = @_;
-    $self->session->{provisioner} //= $self->app->profile->findProvisioner($self->current_mac);
+    $self->session->{provisioner} //= $self->app->profile->findProvisioner($self->current_mac, $self->node_info);
     return $self->session->{provisioner};
 }
 
