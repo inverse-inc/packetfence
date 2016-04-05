@@ -6,6 +6,10 @@
 
   <div class="modal-body">
 
+    <div class="alert alert-warning">
+      [% l("Note that adding / modifying a network requires a restart of the 'dhcpd' service for changes to take place") %]
+    </div>
+
     [% form.field('network').render | none %]
     [% form.field('netmask').render | none %]
     [% form.field('type').render | none %]
