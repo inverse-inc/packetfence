@@ -75,6 +75,10 @@ sub code : Path : Args(1) {
 
     # if we have a MAC, guest was on-site and we set that MAC in the session
     $node_mac = $activation_record->{'mac'};
+    if($node_mac ne $portalSession->clientMac){
+        $self->showError($c, "Please use the device you are registering to validate the e-mail link");
+        $c->detach();
+    }
     if ( defined($node_mac) ) {
         $portalSession->guestNodeMac($node_mac);
     }
