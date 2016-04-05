@@ -53,7 +53,7 @@ Check that the AUP has been properly accepted
 
 sub check_aup {
     my ($self) = @_;
-    if($self->form->module->with_aup){
+    if($self->form->module->with_aup && $self->form->app->request->method eq "POST"){
         get_logger->debug("AUP is required and it's value is : ".$self->value);
         unless($self->value){
             $self->add_error("You must accept the terms and conditions");
