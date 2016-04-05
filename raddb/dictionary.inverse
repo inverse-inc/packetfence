@@ -37,6 +37,7 @@ ATTRIBUTE       PacketFence-Computer-Name             22       string
 ATTRIBUTE       PacketFence-Request-Time              24       integer
 # Next attribute is set if the inner tunnel has handled a request
 ATTRIBUTE       PacketFence-Handled                   23       string   
+ATTRIBUTE       PacketFence-NasName                   24       string
 
 END-VENDOR      Inverse
 
