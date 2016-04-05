@@ -1456,9 +1456,15 @@ RADIUS Debugging
 
 First, check the FreeRADIUS logs. The file is located at `/usr/local/pf/logs/radius.log`.
 
-If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
+If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following commands.
 
-  # radiusd -X -d /usr/local/pf/raddb
+For the authentication radius process:
+
+  # radiusd -X -d /usr/local/pf/raddb -n auth 
+
+For the accounting radius process:
+
+  # radiusd -X -d /usr/local/pf/raddb -n acct
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
 running FreeRADIUS daemon. PacketFence's FreeRADIUS is preconfigured with such support.
@@ -1470,9 +1476,15 @@ b. Run `raddebug` as root (less secure!)
 
 Now you can run `raddebug` easily:
 
-  raddebug -t 300 -d /usr/local/pf/raddb
+  raddebug -t 300 -f /usr/local/pf/var/run/radiusd.sock
 
-The above will output FreeRADIUS' debug logs for 5 minutes. See `man raddebug` for all the options.
+The above will output FreeRADIUS' authentication debug logs for 5 minutes.
+
+Use the following to debug radius accounting:
+
+  raddebug -t 300 -f /usr/local/pf/var/run/radiusd-acct.sock
+
+See `man raddebug` for all the options.
 
 
 More on VoIP Integration
