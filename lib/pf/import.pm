@@ -39,7 +39,7 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::node;
 use pf::util;
 
