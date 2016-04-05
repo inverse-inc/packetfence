@@ -21,7 +21,6 @@ use warnings;
 use pf::constants;
 use pf::config;
 use pf::constants::config qw($TIME_MODIFIER_RE);
-use English qw( -no_match_vars );
 use File::Basename;
 use FileHandle;
 use Net::MAC::Vendor;
@@ -376,7 +375,7 @@ sub portal_hosts {
     }
     push @hosts, $management_network->{Tip} if defined($management_network->{Tip});
     push @hosts, $management_network->{Tvip} if defined($management_network->{Tvip});
-    push @hosts, $fqdn; 
+    push @hosts, $fqdn;
     return @hosts;
 }
 

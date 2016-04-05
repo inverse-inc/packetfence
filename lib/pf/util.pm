@@ -17,7 +17,6 @@ modules.
 use strict;
 use warnings;
 
-use English qw( -no_match_vars );
 use File::Basename;
 use POSIX::2008;
 use FileHandle;
@@ -792,7 +791,7 @@ sub pf_run {
     # Prefixing command using LANG=C to avoid system locale messing up with return
     $command = 'LANG=C ' . $command;
 
-    local $OS_ERROR;
+    local $!;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
     my (@result, $result);
@@ -800,20 +799,20 @@ sub pf_run {
     if (not defined wantarray) {
         # void context
         `$command`;
-        return if ($CHILD_ERROR == 0);
+        return if ($? == 0);
 
     } elsif (wantarray) {
         # list context
         @result = `$command`;
-        return @result if ($CHILD_ERROR == 0);
+        return @result if ($? == 0);
 
     } else {
         # scalar context
         $result = `$command`;
-        return $result if ($CHILD_ERROR == 0);
+        return $result if ($? == 0);
     }
     # copying as soon as possible
-    my $exception = $OS_ERROR;
+    my $exception = $!;
 
     # slightly modified version of "perldoc -f system" error handling strategy
     my $caller = ( caller(1) )[3] || basename($0);
@@ -824,20 +823,20 @@ sub pf_run {
         $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g;
     }
     # died with an OS problem
-    if ($CHILD_ERROR == -1) {
+    if ($? == -1) {
         $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
 
     # died with a signal
-    } elsif ($CHILD_ERROR & 127) {
-        my $signal = ($CHILD_ERROR & 127);
-        my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
+    } elsif ($? & 127) {
+        my $signal = ($? & 127);
+        my $with_core = ($? & 128) ? 'with' : 'without';
         $logger->warn(
             "Problem trying to run command: $loggable_command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
     # Non-zero exit code received
     } else {
-        my $exit_status = $CHILD_ERROR >> 8;
+        my $exit_status = $? >> 8;
         # user specified that this error code is ok
         if (grep { $_ == $exit_status } @{$options{'accepted_exit_status'}}) {
             # we accept the result
