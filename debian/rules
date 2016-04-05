@@ -102,7 +102,7 @@ ifneq (,$(filter yes,$(wheezy) $(precise)))
 endif
 ifeq ($(jessie),yes)
 	install -d -m0700 $(CURDIR)/debian/packetfence/lib/systemd/system
-	install -m0700 $(CURDIR)/debian/packetfence@.service $(CURDIR)/debian/packetfence/lib/systemd/system
+	install -m0300 $(CURDIR)/debian/packetfence@.service $(CURDIR)/debian/packetfence/lib/systemd/system
 endif
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	#Sudoer

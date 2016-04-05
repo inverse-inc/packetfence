@@ -432,9 +432,9 @@ done
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
 %endif
 %if 0%{?el7}
-%{__install} -D -m0755 addons/systemd/packetfence.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence.service
-%{__install} -D -m0755 addons/systemd/packetfence@.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence@.service
-%{__install} -D -m0755 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
+%{__install} -D -m0311 addons/systemd/packetfence.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence.service
+%{__install} -D -m0311 addons/systemd/packetfence@.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence@.service
+%{__install} -D -m0311 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
 %endif
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
@@ -531,8 +531,8 @@ cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 %{__install} -D -m0755 packetfence-redis-cache.init $RPM_BUILD_ROOT%{_initrddir}/packetfence-redis-cache
 %endif
 %if 0%{?el7}
-%{__install} -D -m0755 addons/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0755 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
+%{__install} -D -m0311 addons/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
+%{__install} -D -m0311 addons/systemd/packetfence-redis-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis-cache.service
 %endif
 #end pfconfig
 # logfiles
@@ -823,9 +823,9 @@ fi
 %attr(0755, root, root) %{_initrddir}/packetfence-redis-cache
 %endif
 %if 0%{?el7}
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence.service
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence@.service
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence@.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence-redis-cache.service
 %endif
 %if 0%{?el6}
 %dir                    %{_sysconfdir}/logrotate.d
@@ -1319,7 +1319,7 @@ fi
 %attr(0755, root, root) %{_initrddir}/packetfence-config
 %endif
 %if 0%{?el7}
-%attr(0755, root, root) /usr/lib/systemd/system/packetfence-config.service
+%attr(0311, root, root) /usr/lib/systemd/system/packetfence-config.service
 %endif
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/conf
