@@ -19,7 +19,6 @@ use warnings;
 
 use File::Basename;
 use POSIX::2008;
-use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use File::Path qw(make_path remove_tree);
@@ -449,11 +448,12 @@ sub readpid {
     my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pidfile = $var_dir . "/run/$pname.pid";
-    my $file    = new FileHandle "$pidfile";
-    if ( defined($file) ) {
-        my $pid = $file->getline();
+    my $fh;
+
+    if (open($fh,"< $pidfile")) {
+        my $pid = <$fh>;
         chomp($pid);
-        $file->close;
+        close($fh);
         return ($pid);
     } else {
         $logger->error("$pname: unable to open $pidfile for reading: $!");

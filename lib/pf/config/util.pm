@@ -22,7 +22,6 @@ use pf::constants;
 use pf::config;
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use File::Basename;
-use FileHandle;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
@@ -367,6 +366,7 @@ sub get_translatable_time {
 Returns the list of host and IP on which the portal is configured to listen
 
 =cut
+
 sub portal_hosts {
     my @hosts;
     foreach my $net (@internal_nets) {
@@ -435,7 +435,7 @@ sub get_user_sources {
 
 }
 
-=item get_captive_portal_uri
+=head2 get_captive_portal_uri
 
 Returns the complete captive-portal URI
 
@@ -447,8 +447,6 @@ sub get_captive_portal_uri {
 
     return $captive_portal_uri;
 }
-
-=back
 
 =head1 AUTHOR
 
