@@ -191,14 +191,6 @@ device_registration=disabled
 # The role to assign to gaming devices. If none is specified, the role of the registrant is used.
 device_registration_role=
 
-[guests_self_registration]
-#
-# guests_self_registration.sponsorship_cc
-# 
-# Sponsors requesting access and access confirmation emails are CC'ed to this
-# address. Multiple destinations can be comma separated.
-sponsorship_cc=
-
 [guests_admin_registration]
 #
 # guests_admin_registration.access_duration_choices
