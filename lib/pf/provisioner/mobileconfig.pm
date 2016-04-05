@@ -30,7 +30,7 @@ If the provisioner has to be enforced on each connection
 
 =cut
 
-has '+enforce' => (is => 'rw', default => sub { 0 });
+has 'enforce' => (is => 'rw', default => sub { 0 });
 
 =head2 oses
 
