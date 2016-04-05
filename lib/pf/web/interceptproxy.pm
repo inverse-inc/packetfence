@@ -20,7 +20,7 @@ use pf::log;
 use URI::Escape::XS qw(uri_escape);
 use Data::UUID;
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 use pf::web::util;
 
