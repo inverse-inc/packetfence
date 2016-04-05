@@ -19,7 +19,7 @@ use base ('pf::firewallsso');
 
 use POSIX;
 
-use pf::config;
+use pf::config qw(%ConfigFirewallSSO);
 sub description { 'Barracuda NG Firewall' }
 use pf::node qw(node_view);
 use pf::log;
@@ -55,9 +55,9 @@ sub action {
             my $chan = $ssh->channel();
             $chan->shell();
             print $chan "phibstest 127.0.0.1 l peer=".$ip." origin=PacketFence service=PacketFence user=".$username." \n";
-            $logger->info("Node $mac and Username $username registered and allowed to pass the Barracuda Firewall"); 
+            $logger->info("Node $mac and Username $username registered and allowed to pass the Barracuda Firewall");
             $ssh->disconnect();
-                       
+
         }
     } elsif ($method eq 'Stop') {
         my $node_info = node_view($mac);
@@ -77,7 +77,7 @@ sub action {
             my $chan = $ssh->channel();
             $chan->shell();
             print $chan "phibstest 127.0.0.1 o peer=".$ip." origin=PacketFence service=PacketFence user=".$username." \n";
-            $logger->info("Node $mac and Username $username removed from the Barracuda Firewall"); 
+            $logger->info("Node $mac and Username $username removed from the Barracuda Firewall");
             $ssh->disconnect();
             }
     }

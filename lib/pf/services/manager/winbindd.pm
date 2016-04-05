@@ -15,7 +15,11 @@ pf::services::manager::winbindd
 use strict;
 use warnings;
 use Moo;
-use pf::config;
+use pf::config qw(
+    %ConfigDomain
+    %Config
+);
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;

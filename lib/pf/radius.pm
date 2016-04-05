@@ -26,7 +26,20 @@ use pf::Connection;
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
-use pf::config;
+use pf::config qw(
+    $ROLE_API_LEVEL
+    $WIRELESS
+    $VOIP
+    $NO_VOIP
+    %Config
+    $ACCOUNTING_POLICY_TIME
+    $WIRED
+    $WIRED_MAC_AUTH
+    $WIRED_802_1X
+    %ConfigFloatingDevices
+    $WIRELESS_MAC_AUTH
+    $WIRELESS_802_1X
+);
 use pf::locationlog;
 use pf::node;
 use pf::Switch;

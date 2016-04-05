@@ -76,7 +76,10 @@ use pf::log;
 use Readonly;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %ConfigFloatingDevices
+    $WIRED_MAC_AUTH
+);
 use pf::locationlog;
 use pf::util;
 use pf::config::util;

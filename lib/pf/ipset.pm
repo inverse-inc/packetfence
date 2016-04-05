@@ -21,8 +21,21 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 
-use pf::class qw(class_view_all class_trappable);
-use pf::config;
+#use pf::class qw(class_view_all class_trappable);
+use pf::config qw(
+    %connection_type_to_str
+    %Config
+    %ConfigNetworks
+    $IPTABLES_MARK_ISOLATION
+    $IPTABLES_MARK_REG
+    $IPTABLES_MARK_UNREG
+    %mark_type_to_str
+    $NET_TYPE_INLINE_L3
+    $SELFREG_MODE_GITHUB
+    $SELFREG_MODE_GOOGLE
+    $SELFREG_MODE_FACEBOOK
+    $INLINE
+);
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
 use pf::util;
@@ -63,16 +76,16 @@ sub iptables_generate {
 
     $cmd = "sudo ipset --create portal_deny hash:ip timeout 300 2>&1";
     @lines  = pf_run($cmd);
-    
+
     $cmd = "sudo ipset --create $PARKING_IPSET_NAME hash:ip 2>&1";
     @lines  = pf_run($cmd);
 
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-       
+
         # Create an ipset for each PacketFence defined role in both inline L2 and L3 cases
-        # Using the role ID in the name instead of the role name due to ipset name length constraint (max32) 
+        # Using the role ID in the name instead of the role name due to ipset name length constraint (max32)
         foreach my $role ( @roles ) {
             if ( $ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i ) {
                 $cmd = "sudo ipset --create PF-iL3_ID$role->{'category_id'}_$network bitmap:ip range $network/$inline_obj->{BITS} 2>&1";
@@ -497,7 +510,7 @@ sub update_node {
                     pf_run("sudo ipset add PF-iL2_ID$id\_$network $src_ip -exist 2>&1");
                 }
             }
- 
+
             if ($net_addr->contains($src_ip) && $net_addr->contains($old_ip) ) {
                 if (defined($mark)) {
                     $self->iptables_unmark_node($srcmac,$mark);

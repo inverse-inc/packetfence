@@ -20,8 +20,7 @@ use pf::file_paths qw(
     $generated_conf_dir
 );
 use pf::constants;
-use pf::config;
-use pf::violation_config;
+use pf::config qw(%Config $monitor_int);
 use Moo;
 use pf::util qw(parse_template);
 extends 'pf::services::manager';
@@ -37,6 +36,7 @@ has '+launcher' => (
 );
 
 sub generateConfig {
+    require pf::violation_config;
     my $logger = get_logger();
     my %tags;
     $tags{'template'}      = "$conf_dir/suricata.yaml";

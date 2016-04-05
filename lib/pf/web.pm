@@ -50,7 +50,10 @@ use pf::authentication;
 use pf::log;
 use pf::Authentication::constants;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %CAPTIVE_PORTAL
+    %Config
+);
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);

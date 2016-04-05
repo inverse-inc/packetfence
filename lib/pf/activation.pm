@@ -102,7 +102,10 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %Config
+    $fqdn
+);
 use pf::file_paths qw($conf_dir);
 use pf::db;
 use pf::util;

@@ -18,7 +18,13 @@ use strict;
 use warnings;
 
 use pf::client;
-use pf::config;
+use pf::config qw(
+    %ConfigFirewallSSO
+);
+use pf::constants qw(
+    $TRUE
+    $FALSE
+);
 use pf::log;
 use List::MoreUtils qw(any);
 use NetAddr::IP;

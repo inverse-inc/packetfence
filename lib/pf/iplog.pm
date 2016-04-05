@@ -34,7 +34,10 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw(
+    $management_network
+    %Config
+);
 use pf::db;
 use pf::node qw(node_add_simple node_exist);
 use pf::util;

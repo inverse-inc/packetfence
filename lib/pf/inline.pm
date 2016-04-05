@@ -17,7 +17,12 @@ use warnings;
 use pf::log;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $IPTABLES_MARK_UNREG
+    $IPTABLES_MARK_REG
+    %ConfigNetworks
+    $IPTABLES_MARK_ISOLATION
+);
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_reevaluate_access);
 use Try::Tiny;

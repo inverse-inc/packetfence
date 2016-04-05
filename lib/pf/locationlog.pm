@@ -60,7 +60,10 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw(
+    $WIRED
+    $NO_VOIP
+);
 use pf::db;
 use pf::node;
 use pf::util;

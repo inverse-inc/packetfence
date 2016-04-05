@@ -19,7 +19,7 @@ use warnings;
 
 use pf::log;
 
-use pf::config;
+use pf::config qw(%Profiles_Config);
 use pf::node;
 use pf::authentication;
 use pf::Portal::Profile;

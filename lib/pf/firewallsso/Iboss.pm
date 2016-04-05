@@ -20,7 +20,7 @@ use base ('pf::firewallsso');
 use POSIX();
 use pf::log;
 
-use pf::config;
+use pf::config qw(%ConfigFirewallSSO);
 sub description { 'Iboss Appliance' }
 use pf::node qw(node_view);
 use LWP::UserAgent ();
@@ -61,7 +61,7 @@ sub action {
             #print $req;
             $req->content_type('application/x-www-form-urlencoded');
             $req->content('query=libwww-perl&mode=dist');
-            
+
             # Pass request to the user agent and get a response back
             my $res = $ua->request($req);
 
@@ -72,7 +72,7 @@ sub action {
             else {
                 $logger->warn("Username $username with node $mac failed to register and not authorized in the Iboss");
             }
-    } 
+    }
     elsif ($method eq 'Stop') {
         my $node_info = node_view($mac);
         my $username = $node_info->{'pid'};

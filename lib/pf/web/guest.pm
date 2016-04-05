@@ -45,7 +45,11 @@ BEGIN {
 
 use pf::log;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %Config
+    $fqdn
+    %CAPTIVE_PORTAL
+);
 use pf::file_paths qw($conf_dir);
 use pf::password;
 use pf::util;
