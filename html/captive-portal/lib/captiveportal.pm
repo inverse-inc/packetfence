@@ -24,8 +24,8 @@ use Catalyst qw/
   I18N
   Authentication
   Session
-  Session::Store::MAC_Based
-  Session::State::Cookie
+  Session::Store::CHI
+  Session::State::MAC
   StackTrace
   Unicode::Encoding
   /;
@@ -136,15 +136,15 @@ sub _user_session_backend {
     return pf::CHI->new(namespace  => 'httpd.portal');
 }
 
-=head2 user_session
+=head2 _build_user_session
 
-This needs to be called at the end of the request of whenever we want to save the session
+This builds the user session using the browser session ID
 
 =cut
 
 sub _build_user_session {
     my ($c) = @_;
-    return $c->_user_session_backend->get("user_session:".$c->request->cookie('CGISESSION')->value()) || {};
+    return $c->_user_session_backend->get("user_session:".$c->browser_session_id) || {};
 }
 
 =head2 _save_user_session
@@ -155,9 +155,7 @@ This needs to be called at the end of the request of whenever we want to save th
 
 sub _save_user_session {
     my ($c) = @_;
-    if($c->request->cookie('CGISESSION')){
-        $c->_user_session_backend->set("user_session:".$c->request->cookie('CGISESSION')->value(), $c->user_session);
-    }
+    $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
 }
 
 =head2 user_session
