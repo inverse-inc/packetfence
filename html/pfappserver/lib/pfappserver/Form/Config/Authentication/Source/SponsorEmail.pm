@@ -61,6 +61,16 @@ has_field 'activation_domain' =>
     },
   );
 
+has_field 'sponsorship_cc' => (
+    type        => 'Text',
+    label       => 'Sponsorship CC',
+    required    => 0,
+    tags        => {
+        after_element   => \&help,
+        help            => "Sponsors requesting access and access confirmation emails are CC'ed to this address. Multiple destinations can be comma separated.",
+    },
+);
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.

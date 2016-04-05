@@ -1,4 +1,5 @@
 [% form.field('activation_domain').render | none %]
 [% form.field('allow_localdomain').render | none %]
+[% form.field('sponsorship_cc').render | none %]
 [% form.field('create_local_account').render | none %]
 [% form.field('local_account_logins').render | none %]
