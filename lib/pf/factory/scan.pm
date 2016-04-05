@@ -19,7 +19,9 @@ use warnings;
 use Module::Pluggable search_path => 'pf::scan', sub_name => 'modules' , require => 1, except => qr/^pf::scan::wmi::(.*)$/;
 use List::MoreUtils qw(any);
 use pf::scan;
-use pf::config;
+use pf::config qw(
+    %ConfigScan
+);
 
 our @MODULES = __PACKAGE__->modules;
 
