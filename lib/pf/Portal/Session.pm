@@ -562,7 +562,7 @@ sub getLanguages {
     # 3. Check the accepted languages of the browser
     my $browser_languages = $self->getRequestLanguages();
     foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         if (grep(/^$browser_language$/, @authorized_locales)) {
             $lang = $browser_language;
             push(@languages, $lang) unless (grep/^$lang$/, @languages);
