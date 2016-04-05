@@ -4,6 +4,7 @@ use Moose;
 use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
+use pf::constants::Portal::Profile qw($DEFAULT_PROFILE);
 use pf::config;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -499,7 +500,7 @@ sub authenticationLogin : Private {
             $c->stash( use_local_source => 1 );
         }
         my $options = {
-            'portal' => $person_info->{portal},
+            'portal' => exists($Profiles_Config{$person_info->{portal}}) ? $person_info->{portal} : $DEFAULT_PROFILE,
         };
         $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
     }
