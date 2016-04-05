@@ -29,7 +29,9 @@ use warnings;
 use base ('pf::Switch::Xirrus');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRELESS_MAC_AUTH
+);
 use pf::util;
 use pf::node;
 
@@ -99,7 +101,7 @@ sub returnRadiusAccessAccept {
     my $node = $args->{'node_info'};
 
     my $violation = pf::violation::violation_view_top($args->{'mac'});
-    # if user is unregistered or is in violation then we reject him to show him the captive portal 
+    # if user is unregistered or is in violation then we reject him to show him the captive portal
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
         $logger->info("is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {

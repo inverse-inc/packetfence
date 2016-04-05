@@ -114,7 +114,10 @@ use Try::Tiny;
 
 use base ('pf::Switch::Cisco::Catalyst_2950');
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_coa);
@@ -558,7 +561,7 @@ sub returnRoleAttribute {
     return 'Filter-Id';
 }
 
-=item returnRoleAttributes
+=head2 returnRoleAttributes
 
 Return the specific role attribute of the switch.
 

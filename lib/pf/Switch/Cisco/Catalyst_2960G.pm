@@ -26,8 +26,6 @@ use warnings;
 use pf::log;
 use Net::SNMP;
 
-use pf::config;
-
 use base ('pf::Switch::Cisco::Catalyst_2960');
 
 sub description { 'Cisco Catalyst 2960G' }

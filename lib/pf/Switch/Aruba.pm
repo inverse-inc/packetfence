@@ -62,7 +62,10 @@ use POSIX;
 use Try::Tiny;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::Switch::constants;
 use pf::util;
 sub description { 'Aruba Networks' }

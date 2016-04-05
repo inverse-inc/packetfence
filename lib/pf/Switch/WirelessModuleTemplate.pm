@@ -6,7 +6,7 @@ pf::Switch::WirelessModuleTemplate
 
 =head1 SYNOPSIS
 
-The pf::Switch::WirelessModuleTemplate module implements an object oriented interface to 
+The pf::Switch::WirelessModuleTemplate module implements an object oriented interface to
 manage <HARDWARE>
 
 =head1 STATUS
@@ -45,7 +45,9 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC $SSID
+);
 
 =head1 SUBROUTINES
 
@@ -79,10 +81,10 @@ sub parseTrap {
     my ( $self, $trapString ) = @_;
     my $trapHashRef;
     my $logger = $self->logger;
-    
+
     $logger->debug("trap currently not handled");
     $trapHashRef->{'trapType'} = 'unknown';
-        
+
     return $trapHashRef;
 }
 

@@ -26,7 +26,9 @@ Using the default success page of AeroHIVE works.
 use strict;
 use warnings;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRELESS_MAC_AUTH
+);
 use pf::node;
 use pf::violation;
 use pf::locationlog;
@@ -77,14 +79,14 @@ sub returnRadiusAccessAccept {
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
     my $violation = pf::violation::violation_view_top($args->{'mac'});
-    # if user is unregistered or is in violation then we reject him to show him the captive portal 
+    # if user is unregistered or is in violation then we reject him to show him the captive portal
     if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
         $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
         my $radius_reply_ref = {
             'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
             'Tunnel-Type' => $RADIUS::VLAN,
             'Tunnel-Private-Group-ID' => -1,
-        }; 
+        };
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
         return [$status, %$radius_reply_ref];
 

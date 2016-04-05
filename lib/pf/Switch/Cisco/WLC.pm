@@ -108,7 +108,10 @@ use Try::Tiny;
 use base ('pf::Switch::Cisco');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::web::util;
 use pf::util;
 use pf::node;
@@ -404,7 +407,7 @@ sub returnAuthorizeRead {
     return [$status, %$radius_reply_ref];
 }
 
-=head2 returnRadiusAccessAccept
+=item returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.
 
@@ -452,7 +455,7 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
-=head2 radiusDisconnect
+=item radiusDisconnect
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 

@@ -41,7 +41,12 @@ use pf::Switch::constants;
 use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::node;
 use pf::util::radius qw(perform_disconnect);
 

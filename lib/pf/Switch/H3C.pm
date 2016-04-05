@@ -26,7 +26,10 @@ use base ('pf::Switch');
 
 use pf::constants;
 use pf::constants::role qw($VOICE_ROLE);
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::radius::constants;
 use pf::Switch::constants;
 use pf::util;
