@@ -24,6 +24,14 @@ extends 'pf::provisioner';
 
 =head1 Atrributes
 
+=head2 enforce
+
+If the provisioner has to be enforced on each connection
+
+=cut
+
+has '+enforce' => (is => 'rw', default => sub { 0 });
+
 =head2 oses
 
 The set the default OS to IOS
