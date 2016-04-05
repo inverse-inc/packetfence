@@ -19,7 +19,9 @@ use pf::file_paths qw(
     $generated_conf_dir
     $install_dir
 );
-use pf::config;
+use pf::config qw(
+    %Config
+);
 use pf::util;
 
 extends 'pf::services::manager';

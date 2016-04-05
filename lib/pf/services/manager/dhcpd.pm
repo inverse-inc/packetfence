@@ -21,7 +21,12 @@ use POSIX;
 use Net::Netmask;
 use pf::constants;
 use NetAddr::IP;
-use pf::config;
+use pf::config qw(
+    @listen_ints
+    %Config
+    %ConfigNetworks
+);
+use pf::constants::parking;
 use pf::file_paths qw(
     $var_dir
     $conf_dir

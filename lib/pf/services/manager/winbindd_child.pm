@@ -20,9 +20,8 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($domains_chroot_dir $var_dir);
-use pf::config;
+use pf::config qw(%ConfigDomain $DISTRIB $DIST_VERSION);
 use pf::util;
-use pf::config;
 use pfconfig::manager;
 extends 'pf::services::manager';
 

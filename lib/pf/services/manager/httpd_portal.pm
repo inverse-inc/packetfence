@@ -18,7 +18,12 @@ use Moo;
 use List::MoreUtils qw(uniq);
 use Clone();
 use pf::authentication();
-use pf::config;
+use pf::config qw(
+    %Config
+    $management_network
+    @internal_nets
+    @portal_ints
+);
 use pf::util;
 use pf::config::util;
 use pf::constants::config;

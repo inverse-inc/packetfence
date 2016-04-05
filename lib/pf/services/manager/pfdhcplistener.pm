@@ -14,7 +14,11 @@ pf::services::manager::pfdhcplistener
 use strict;
 use warnings;
 use Moo;
-use pf::config;
+use pf::config qw(
+    %Config
+    @listen_ints
+    @dhcplistener_ints
+);
 use pf::file_paths qw(
     $var_dir
 );

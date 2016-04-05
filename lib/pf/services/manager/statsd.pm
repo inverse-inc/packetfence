@@ -20,7 +20,6 @@ use pf::file_paths qw(
     $conf_dir
 );
 use pf::util;
-use pf::config;
 use Moo;
 
 extends 'pf::services::manager';

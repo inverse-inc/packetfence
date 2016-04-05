@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::constants;
-use pf::config;
+use pf::config qw($management_network);
 use pf::file_paths qw(
     $install_dir
     $generated_conf_dir

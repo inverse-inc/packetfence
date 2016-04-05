@@ -14,7 +14,7 @@ pf::services::manager::roles::pf_conf_trapping_engine
 use strict;
 use warnings;
 use Moo::Role;
-use pf::config;
+use pf::config qw(%Config $monitor_int);
 use pf::util;
 
 =head2 isManaged

@@ -13,7 +13,14 @@ pf::services::manager::httpd
 
 use strict;
 use warnings;
-use pf::config;
+use pf::config qw(
+    %Config
+    $OS
+    %CAPTIVE_PORTAL
+    $SELFREG_MODE_EMAIL
+    $SELFREG_MODE_SPONSOR
+    $management_network
+);
 use pf::file_paths qw(
     $install_dir
     $conf_dir

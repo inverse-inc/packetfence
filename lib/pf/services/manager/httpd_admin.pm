@@ -14,7 +14,6 @@ pf::services::manager::httpd_admin
 use strict;
 use warnings;
 use Moo;
-use Template;
 
 extends 'pf::services::manager::httpd';
 

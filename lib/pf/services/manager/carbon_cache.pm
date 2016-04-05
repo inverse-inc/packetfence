@@ -20,7 +20,10 @@ use pf::file_paths qw(
     $conf_dir
 );
 use pf::util;
-use pf::config;
+use pf::config qw(
+    %Config
+    $management_network
+);
 use pf::cluster;
 use Moo;
 

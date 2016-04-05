@@ -15,7 +15,7 @@ pf::services::manager::httpd_aaa
 use strict;
 use warnings;
 use Moo;
-use pf::config;
+use pf::config qw(%Config);
 
 extends 'pf::services::manager::httpd_webservices';
 
