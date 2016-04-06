@@ -15,7 +15,8 @@ extends 'captiveportal::DynamicRouting::Module';
 
 use Tie::IxHash;
 use List::MoreUtils qw(uniq);
-use pf::config;
+use pf::constants qw($FALSE $TRUE);
+use pf::config qw(%Config);
 use pf::person;
 use pf::util;
 use pf::log;
@@ -122,14 +123,14 @@ sub execute_actions {
     unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
         get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
-        return $FALSE;        
+        return $FALSE;
     }
 
     $self->app->session->{source} = $self->source;
     if(isenabled($self->source->{create_local_account})){
         $self->create_local_account();
     }
-    
+
     get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
     return $TRUE;
 }
@@ -168,7 +169,7 @@ sub merged_fields {
     my ($self) = @_;
     tie my %merged, 'Tie::IxHash';
     foreach my $field (@{$self->required_fields}){
-        $merged{$field} = $self->request_fields->{$field}; 
+        $merged{$field} = $self->request_fields->{$field};
     }
     return \%merged;
 }

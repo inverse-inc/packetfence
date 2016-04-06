@@ -6,7 +6,7 @@ use pf::violation;
 use pf::class;
 use pf::node;
 use List::Util qw(first);
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 use File::Spec::Functions;
 

@@ -2,7 +2,15 @@ package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
 use pf::iplog;
-use pf::config;
+use pf::config qw(
+    $management_network
+    %CAPTIVE_PORTAL
+    %ConfigNetworks
+    $NO_PORT
+    $NO_VLAN
+    $NO_VOIP
+    $INLINE
+);
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
