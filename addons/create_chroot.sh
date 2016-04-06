@@ -17,8 +17,12 @@ cp -fr /var/cache/samba$NS $BASE/$NS/var/cache/
 
 DIRS=(proc etc lib lib64 bin usr sbin sys var/lib/samba dev var/log/samba)
 
-for dir in "${DIRS[@]}"; do
-  mount -o bind /$dir           $BASE/$NS/$dir
-done
+MOUNTS=(`mount | awk '{print $3}'`)
 
+for dir in "${DIRS[@]}"; do
+  value=$BASE/$NS/$dir
+  if [[ ! " ${MOUNTS[@]} " =~ " ${value} " ]]; then
+    mount -o bind /$dir           $BASE/$NS/$dir
+  fi
+done
 
