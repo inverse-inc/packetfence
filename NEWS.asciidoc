@@ -23,6 +23,8 @@ New Features
 * Radius support for avaya switches
 * pfdns filter engine. Added a way to return custom answer in pfdns
 * Redirect URL are defined in Role by Web Auth URL switch configuration. (Cisco)
+* Added support for Captive-Portal DHCP attribute (RFC7710)
+* Added Google Project Fi as a SMS carrier for SMS signup option
 
 Enhancements
 ++++++++++++
@@ -44,6 +46,7 @@ Enhancements
 * Trigger violation on source ip or destination ip addess if they are in the trapping range networks
 * Performance improvement for VoIP detection
 * Added a new computed return in radius filter (random number in a range).
+* Reinstating iplog (iplog_history and iplog_archive) rotation/cleanup jobs runned by pfmon
  
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
