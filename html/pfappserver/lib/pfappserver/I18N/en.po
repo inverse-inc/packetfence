@@ -8857,3 +8857,19 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+# conf/documentation.conf
+msgid "parking.lease_length"
+msgstr "Parking lease length"
+
+# conf/documentation.conf
+msgid "parking.threshold"
+msgstr "Parking threshold"
+
+# conf/documentation.conf
+msgid "parking.place_in_dhcp_parking_group"
+msgstr "Place in DHCP parking group"
+
+# conf/documentation.conf
+msgid "parking.show_parking_portal"
+msgstr "Show parking portal"
+
