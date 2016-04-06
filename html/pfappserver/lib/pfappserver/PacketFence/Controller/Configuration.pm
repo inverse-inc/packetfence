@@ -42,6 +42,7 @@ our %ALLOWED_SECTIONS = (
     general => undef,
     network => undef,
     trapping => undef,
+    parking => undef,
     registration => undef,
     guests_self_registration => undef,
     guests_admin_registration => undef,
