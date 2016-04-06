@@ -60,7 +60,7 @@ sub post_config {
     my ($class, $conf_pool, $log_pool, $temp_pool, $s) = @_;
     pf::StatsD->closeStatsd;
     db_disconnect();
-    $class->preloadSwitches();
+    preloadSwitches();
     pf::CHI->clear_memoized_cache_objects;
     return Apache2::Const::OK;
 }
