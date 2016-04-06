@@ -16,7 +16,7 @@ with 'captiveportal::Role::Routed';
 
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
-        '/status/billing' => \&direct_route_billing, 
+        '/status/billing' => \&direct_route_billing,
         '/billing.*' => \&check_billing_bypass,
         '/logout' => \&logout,
         '/access' => \&release,
@@ -28,6 +28,7 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::node;
 use pf::config;
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::violation;
 use pf::constants::scan qw($POST_SCAN_VID);
@@ -70,7 +71,7 @@ Logout of the captive portal
 sub logout {
     my ($self) = @_;
     $self->app->reset_session;
-    $self->redirect_root(); 
+    $self->redirect_root();
 }
 
 =head2 release
@@ -116,9 +117,9 @@ sub handle_web_form_release {
     my $session = new pf::Portal::Session()->session;
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
-        $self->render('webFormRelease.html', { 
-            content => $switch->getAcceptForm($self->client_mac, $self->app->session->{destination_url}, $session), 
-            %{$self->_release_args()} 
+        $self->render('webFormRelease.html', {
+            content => $switch->getAcceptForm($self->client_mac, $self->app->session->{destination_url}, $session),
+            %{$self->_release_args()}
         });
         return $TRUE;
     }
@@ -157,7 +158,7 @@ sub handle_violations {
     my $violation = violation_view_top($mac);
 
     return 1 unless(defined($violation));
-        
+
     return 1 if ($violation->{vid} == $POST_SCAN_VID);
 
     $self->app->redirect("/violation");
@@ -245,9 +246,9 @@ sub direct_route_billing {
     if($node->{status} eq "reg"){
         $self->session->{direct_route_billing} = $TRUE;
         $self->module_map({'_DYNAMIC_BILLING_MODULE_' => captiveportal::DynamicRouting::Module::Authentication::Billing->new(
-                    id => '_DYNAMIC_BILLING_MODULE_', 
-                    app => $self->app, 
-                    parent => $self, 
+                    id => '_DYNAMIC_BILLING_MODULE_',
+                    app => $self->app,
+                    parent => $self,
                     source_id => join(',',map {$_->id} $self->app->profile->getBillingSources()),
                 )});
         $self->modules_order(['_DYNAMIC_BILLING_MODULE_']);
@@ -256,7 +257,7 @@ sub direct_route_billing {
     else {
         $self->app->error("This section cannot be accessed by unregistered users");
     }
-    
+
 }
 
 =head2 check_billing_bypass
