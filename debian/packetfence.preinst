@@ -38,6 +38,12 @@ case "$1" in
     ;;
     
     upgrade)
+        # mv the old raddb dir if upgrading from FreeRADIUS 2
+        echo "Upgrading from $2"
+        if [ "$2" lt 6 ]; then 
+            mv /usr/local/pf/raddb /usr/local/pf/raddb2
+        fi
+
         stop_service_if_exists pfappserver
         stop_service_if_exists packetfence
         if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
