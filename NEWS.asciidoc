@@ -25,6 +25,7 @@ New Features
 * Redirect URL are defined in Role by Web Auth URL switch configuration. (Cisco)
 * Added support for Captive-Portal DHCP attribute (RFC7710)
 * Added Google Project Fi as a SMS carrier for SMS signup option
+* FreeRADIUS 3 support with Redis integration
 
 Enhancements
 ++++++++++++
