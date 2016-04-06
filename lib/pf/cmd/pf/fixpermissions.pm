@@ -23,7 +23,19 @@ use warnings;
 
 use base qw(pf::base::cmd::action_cmd);
 
-use pf::file_paths;
+use pf::file_paths qw(
+    $bin_dir
+    $var_dir
+    @log_files
+    @stored_config_files
+    $install_dir
+    $tt_compile_cache_dir
+    $generated_conf_dir
+    $pfconfig_cache_dir
+    $log_dir
+    $conf_dir
+    $lib_dir
+);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::util;

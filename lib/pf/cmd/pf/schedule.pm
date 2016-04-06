@@ -28,7 +28,7 @@ use strict;
 use warnings;
 use Readonly;
 use base qw(pf::base::cmd::action_cmd);
-use pf::file_paths;
+use pf::file_paths qw($bin_dir);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 

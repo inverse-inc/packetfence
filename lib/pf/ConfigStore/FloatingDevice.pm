@@ -15,7 +15,7 @@ pf::ConfigStore::FloatingDevice
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($floating_devices_config_file);
 extends 'pf::ConfigStore';
 
 

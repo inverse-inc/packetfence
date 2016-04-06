@@ -64,7 +64,7 @@ use Term::ANSIColor;
 our ($SERVICE_HEADER, $IS_INTERACTIVE);
 our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 use pf::config;
 use pf::config::util;
 use pf::util;

@@ -15,6 +15,9 @@ use strict;
 use warnings;
 use Moo;
 use pf::config;
+use pf::file_paths qw(
+    $var_dir
+);
 use pf::util;
 use List::MoreUtils qw(any all uniq);
 use Linux::Inotify2;

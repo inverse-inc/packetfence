@@ -15,8 +15,8 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
-use pf::file_paths;
 use pf::metascan();
+use pf::file_paths qw($suricata_categories_file);
 use File::Slurp;
 
 our @EXPORT_OK = qw(

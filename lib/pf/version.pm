@@ -17,7 +17,7 @@ use warnings;
 
 use pf::constants;
 use pf::db;
-use pf::file_paths;
+use pf::file_paths qw($conf_dir);
 use pf::log;
 
 use constant PF_VERSION => 'version';

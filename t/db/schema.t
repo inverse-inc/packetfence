@@ -21,6 +21,7 @@ use lib '/usr/local/pf/lib';
 use DBI;
 use FindBin qw($Bin);
 use File::Slurp qw(read_file);
+use pf::file_paths qw($install_dir);
 
 BEGIN {
     #include test libs
@@ -28,7 +29,6 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
-use pf::file_paths;
 
 
 use Test::More tests => 2;                      # last test to print

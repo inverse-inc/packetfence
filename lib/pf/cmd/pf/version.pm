@@ -20,7 +20,9 @@ output version information
 use strict;
 use warnings;
 
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 

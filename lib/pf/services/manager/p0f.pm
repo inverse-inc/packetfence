@@ -2,7 +2,7 @@ package pf::services::manager::p0f;
 
 =head1 NAME
 
-pf::services::manager::p0f management module. 
+pf::services::manager::p0f management module.
 
 =cut
 
@@ -14,11 +14,7 @@ pf::services::manager::p0f
 
 use strict;
 use warnings;
-use pf::file_paths;
-use pf::util;
-use pf::config;
 use Moo;
-use pf::cluster;
 use fingerbank::Config;
 
 extends 'pf::services::manager';

@@ -1,4 +1,5 @@
 package pf::services::manager::pfdetect;
+
 =head1 NAME
 
 pf::services::manager::pfdetect add documentation
@@ -14,9 +15,7 @@ pf::services::manager::pfdetect
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
 use pf::config;
-use pf::util;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
@@ -55,4 +54,3 @@ USA.
 =cut
 
 1;
-

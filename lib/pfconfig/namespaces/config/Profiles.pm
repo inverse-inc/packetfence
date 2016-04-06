@@ -18,7 +18,12 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw(
+    $profiles_config_file
+    $captiveportal_default_profile_templates_path
+    $captiveportal_templates_path
+    $captiveportal_profile_templates_path
+);
 use pf::util;
 use pfconfig::namespaces::resource::guest_self_registration;
 use pf::constants::Portal::Profile;

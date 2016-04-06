@@ -93,6 +93,7 @@ use lib INSTALL_DIR . '/lib';
 use pf::db;
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($bin_dir);
 use pf::enforcement;
 use pf::locationlog;
 use pf::SwitchFactory;

@@ -17,7 +17,11 @@ use warnings;
 use base qw(CHI);
 use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
-use pf::file_paths;
+use pf::file_paths qw(
+    $chi_defaults_config_file
+    $chi_config_file
+    $var_dir
+);
 use pf::IniFiles;
 use Hash::Merge;
 use List::MoreUtils qw(uniq any);

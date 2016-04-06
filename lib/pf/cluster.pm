@@ -24,7 +24,9 @@ use List::MoreUtils qw(first_index);
 use Net::Interface;
 use NetAddr::IP;
 use Socket;
-use pf::file_paths;
+use pf::file_paths qw(
+    $cluster_config_file
+);
 use pf::util;
 use pf::constants;
 use Config::IniFiles;

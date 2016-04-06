@@ -20,7 +20,7 @@ use warnings;
 use base 'pfconfig::backend';
 use Cache::BDB;
 use pfconfig::empty_string;
-use pf::file_paths;
+use pf::file_paths qw($pfconfig_cache_dir);
 
 sub init {
     my ($self) = @_;

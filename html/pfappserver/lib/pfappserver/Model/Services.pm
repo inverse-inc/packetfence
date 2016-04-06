@@ -5,6 +5,7 @@ use namespace::autoclean;
 extends 'Catalyst::Model';
 
 use pf::config;
+use pf::file_paths qw($bin_dir);
 use pf::error;
 use pf::util;
 use pf::services;

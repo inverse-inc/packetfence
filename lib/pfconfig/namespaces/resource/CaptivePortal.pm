@@ -14,7 +14,7 @@ pfconfig::namespaces::resource::CaptivePortal
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 use POSIX;
 
 use base 'pfconfig::namespaces::resource';

@@ -18,7 +18,7 @@ use Template;
 use pf::util;
 use pf::config;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($domains_chroot_dir);
 use pf::constants::domain qw($SAMBA_CONF_PATH);
 use File::Slurp;
 
@@ -34,7 +34,7 @@ Returns the path to a domain chroot
 
 sub chroot_path {
     my ($domain) = @_;
-    return $domains_chroot_dir."/".$domain; 
+    return $domains_chroot_dir."/".$domain;
 }
 
 =item run
@@ -96,8 +96,8 @@ sub join_domain {
     $logger->info("domain join : ".$output);
 
     restart_winbinds();
-    
-    return $output; 
+
+    return $output;
 }
 
 =item rejoin_domain
@@ -151,7 +151,7 @@ Generates the OS krb5.conf with all the domains configured in domain.conf
 
 sub generate_krb5_conf {
     my $logger = get_logger();
-    my @domains = keys %ConfigDomain; 
+    my @domains = keys %ConfigDomain;
     my $default_domain = $ConfigDomain{$domains[0]}->{dns_name};
     my $vars = {domains => \%ConfigDomain, default_domain => $default_domain};
 
@@ -177,7 +177,7 @@ sub generate_smb_conf {
         pf_run("/usr/bin/sudo touch /etc/samba/$domain.conf");
         pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/samba/$domain.conf");
         my $fname = untaint_chain("/etc/samba/$domain.conf");
-        $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
+        $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error());
     }
 }
 
@@ -198,8 +198,8 @@ sub generate_resolv_conf {
         pf_run("/usr/bin/sudo touch /etc/netns/$domain/resolv.conf");
         pf_run("/usr/bin/sudo chown pf.pf /etc/netns/$domain/resolv.conf");
         my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
-        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
-    }  
+        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error);
+    }
 }
 
 =item restart_winbinds
@@ -227,7 +227,7 @@ sub regenerate_configuration {
     pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
-=item has_os_configuration 
+=item has_os_configuration
 
 Detects whether or not this server had a non-PF configuration before
 Uses the samba configuration

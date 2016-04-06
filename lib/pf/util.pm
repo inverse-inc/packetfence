@@ -27,6 +27,12 @@ use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
 use Try::Tiny;
+use pf::file_paths qw(
+    $conf_dir
+    $oui_file
+    $oui_url
+    $var_dir
+);
 use NetAddr::IP;
 use File::Temp;
 use Date::Parse;
@@ -87,7 +93,6 @@ use pf::constants::config;
 use pf::constants::user;
 #use pf::config;
 use pf::log;
-use pf::file_paths;
 
 =head1 SUBROUTINES
 

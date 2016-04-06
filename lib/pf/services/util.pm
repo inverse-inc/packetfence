@@ -20,7 +20,9 @@ our @EXPORT = qw(daemonize createpid deletepid);
 use Log::Log4perl::Level;
 use pf::log;
 use pf::log::trapper;
-use pf::file_paths;
+use pf::file_paths qw(
+    $var_dir
+);
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
 

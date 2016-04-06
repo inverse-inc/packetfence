@@ -15,7 +15,7 @@ pf::ConfigStore::AdminRoles
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($admin_roles_config_file);
 extends 'pf::ConfigStore';
 
 sub expandableParams { return (qw(actions allowed_roles allowed_access_levels)); }

@@ -44,6 +44,7 @@ BEGIN {
 use Log::Log4perl::Level;
 use pf::log;
 use pf::config;
+use pf::file_paths qw($install_dir);
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)

@@ -31,6 +31,7 @@ use base ('pf::Switch');
 
 use pf::constants;
 use pf::config;
+use pf::file_paths qw($lib_dir);
 sub description { 'HP ProCurve MSM710 Mobility Controller' }
 
 # importing switch constants

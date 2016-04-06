@@ -13,7 +13,7 @@ Util to migrate existing OS Active Directory configuration into PacketFence and 
 use lib '/usr/local/pf/lib';
 
 use Term::ReadKey;
-use pf::file_paths;
+use pf::file_paths qw($domain_config_file);
 
 BEGIN {
   use Log::Log4perl;
@@ -43,12 +43,12 @@ chomp($NAMESERVER);
 
 print "CAUTION: This account needs to have the rights to bind a new server on the domain. \n";
 print "What is the username to bind this server on the domain : ";
-my $user =  <STDIN>; 
+my $user =  <STDIN>;
 chomp ($user);
 
 print "Password: ";
 ReadMode('noecho');
-my $password =  <STDIN>; 
+my $password =  <STDIN>;
 ReadMode(0);
 chomp ($password);
 print "\n";

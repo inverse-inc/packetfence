@@ -14,7 +14,7 @@ pf::ConfigStore::FirewallSSO
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($firewall_sso_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $firewall_sso_config_file };

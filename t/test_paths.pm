@@ -23,7 +23,7 @@ our $test_dir;
 BEGIN {
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
-    use pf::file_paths;
+    use pf::file_paths qw($install_dir);
     use pfconfig::constants;
 
     $test_dir = rel2abs(dirname($INC{'test_paths.pm'})) if exists $INC{'test_paths.pm'};

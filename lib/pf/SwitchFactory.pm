@@ -20,7 +20,6 @@ use Carp;
 use pf::log;
 use pf::util;
 use pf::freeradius;
-use pf::file_paths;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);

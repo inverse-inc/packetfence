@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($pfdetect_config_file);
 use pf::util;
 
 use base 'pfconfig::namespaces::config';
@@ -36,13 +36,13 @@ sub build_child {
     # There for backward compatibility for when suricata or snort is configured directly in PacketFence
     # Should this feature go, the code below can be removed
     # This will start a pfdetect process if the detection engine is enabled in PacketFence
-    if( 
+    if(
       isenabled($self->{config}->{trapping}->{detection}) &&
       $self->{config}->{trapping}->{detection_engine} ne "none"
     ) {
-      $tmp_cfg{pf_detection_engine} = { 
-                                        path => "/usr/local/pf/var/alert", 
-                                        type => $self->{config}->{trapping}->{detection_engine} 
+      $tmp_cfg{pf_detection_engine} = {
+                                        path => "/usr/local/pf/var/alert",
+                                        type => $self->{config}->{trapping}->{detection_engine}
                                       };
     }
 

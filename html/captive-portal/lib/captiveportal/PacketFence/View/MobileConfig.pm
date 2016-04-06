@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Moose;
 extends 'captiveportal::View::HTML';
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.xml',

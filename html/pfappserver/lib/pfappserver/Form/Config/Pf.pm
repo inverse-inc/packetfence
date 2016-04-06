@@ -16,7 +16,7 @@ with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
 use pf::config;
 use pf::IniFiles;
-use pf::file_paths;
+use pf::file_paths qw($pf_default_file);
 
 has 'section' => ( is => 'ro' );
 
@@ -32,7 +32,7 @@ sub field_list {
 
     my $list = [];
     my $section = $self->section;
-    my $default_pf_config = pf::IniFiles->new(-file => $default_config_file, -allowempty => 1);
+    my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {
         my $doc_section_name = "$section.$name";

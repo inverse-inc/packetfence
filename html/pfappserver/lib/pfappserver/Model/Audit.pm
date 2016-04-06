@@ -15,7 +15,7 @@ pfappserver::Model::Audit
 use strict;
 use warnings;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($admin_audit_log);
 use JSON::MaybeXS;
 use Moose;
 

@@ -32,7 +32,7 @@ BEGIN {
     use pf::log(service => 'pfqueue');
 }
 
-use pf::file_paths;
+use pf::file_paths qw($var_dir);;
 use pf::util;
 use pf::config::pfqueue;
 use pf::services::util;

@@ -30,7 +30,11 @@ use pf::Portal::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
 use pf::config;
 use pf::util;
-use pf::file_paths;
+use pf::file_paths qw(
+    $captiveportal_profile_templates_path
+    $captiveportal_default_profile_templates_path
+    $captiveportal_templates_path
+);
 use List::Util qw(any);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 

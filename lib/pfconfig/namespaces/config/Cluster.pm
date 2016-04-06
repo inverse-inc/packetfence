@@ -18,13 +18,13 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($cluster_config_file);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = "/usr/local/pf/conf/cluster.conf";
+    $self->{file} = $cluster_config_file;
     $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts'];
 }
 
@@ -41,12 +41,12 @@ sub build_child {
         next if ($section =~ m/\s/i);
 
         my $server = $cfg{$section};
-        
+
         foreach my $group ($self->GroupMembers($section)){
             $group =~ s/^$section //g;
             $server->{$group} = $cfg{"$section $group"};
         }
-  
+
         $tmp_cfg{$section} = $server;
 
         $server->{host} = $section;

@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pf::log;
 use pf::config;
 use pf::util qw(isenabled);
-use pf::file_paths;
+use pf::file_paths qw($network_config_file);
 
 extends 'pf::ConfigStore';
 

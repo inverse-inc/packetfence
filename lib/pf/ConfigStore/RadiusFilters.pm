@@ -15,7 +15,7 @@ pf::ConfigStore::RadiusFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($radius_filters_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $radius_filters_config_file };

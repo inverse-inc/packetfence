@@ -6,6 +6,7 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
 use pf::config;
+use pf::file_paths qw($conf_dir);
 use pf::log;
 use pf::util;
 use pf::Portal::Session;
@@ -23,7 +24,6 @@ use List::MoreUtils qw(uniq);
 use captiveportal::DynamicRouting::Factory;
 use captiveportal::DynamicRouting::Application;
 use pf::StatsD::Timer;
-use pf::file_paths;
 use File::Slurp qw(read_file);
 use pf::error;
 
@@ -54,7 +54,7 @@ sub auto : Private {
     $c->forward('setupCommonStash');
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
-    
+
     return 1;
 }
 
@@ -68,9 +68,9 @@ sub setupDynamicRouting : Private {
     my $profile = $c->portalSession->profile;
     my $application = captiveportal::DynamicRouting::Application->new(
         user_session => $c->user_session,
-        session => $c->session, 
-        profile => $profile, 
-        request => $request, 
+        session => $c->session,
+        profile => $profile,
+        request => $request,
         root_module_id => $node->{status} eq $pf::node::STATUS_PENDING ? "default_pending_policy" : $profile->{_root_module},
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;

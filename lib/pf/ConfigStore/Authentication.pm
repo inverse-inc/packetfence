@@ -15,7 +15,7 @@ pf::ConfigStore::Authentication
 use Moo;
 use namespace::autoclean;
 use pf::authentication;
-use pf::file_paths;
+use pf::file_paths qw($authentication_config_file);
 use HTTP::Status qw(:constants is_error is_success);
 use pf::authentication;
 use pf::log;

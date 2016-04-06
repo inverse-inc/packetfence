@@ -15,7 +15,7 @@ pf::ConfigStore::DNS_Filters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($dns_filters_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $dns_filters_config_file };

@@ -16,7 +16,7 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
-use pf::file_paths;
+use pf::file_paths qw($conf_dir);
 use pf::log;
 
 =head1 METHODS

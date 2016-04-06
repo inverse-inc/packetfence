@@ -20,6 +20,7 @@ use URI::Escape::XS qw(uri_escape);
 
 use pf::class;
 use pf::config;
+use pf::file_paths qw($bin_dir);
 use pf::iplog;
 use pf::node;
 use pf::Portal::Session;

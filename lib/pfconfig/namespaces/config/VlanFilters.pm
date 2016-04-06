@@ -18,8 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
-use List::MoreUtils qw(uniq);
+use pf::file_paths qw(
+    $vlan_filters_config_file
+    $vlan_filters_config_default_file
+);
 
 use base 'pfconfig::namespaces::config';
 

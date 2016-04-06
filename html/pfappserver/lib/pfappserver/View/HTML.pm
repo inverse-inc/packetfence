@@ -2,7 +2,6 @@ package pfappserver::View::HTML;
 
 use strict;
 use warnings;
-use pf::file_paths;
 use pf::admin_roles;
 
 use base 'Catalyst::View::TT';

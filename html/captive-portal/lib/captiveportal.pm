@@ -41,7 +41,6 @@ BEGIN {
 
 use captiveportal::Role::Request;
 use pf::config::cached;
-use pf::file_paths;
 use pf::CHI;
 use CHI::Driver::SubNamespace;
 

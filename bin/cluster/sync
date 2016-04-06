@@ -50,7 +50,12 @@ use Getopt::Long;
 use pf::api::jsonrpcclient;
 use pf::config::cached;
 use pfconfig::constants;
-use pf::file_paths;
+use pf::file_paths qw(
+    $server_cert
+    $server_key
+    $server_pem
+    $conf_dir
+);
 use pf::cluster;
 use fingerbank::FilePath;
 use Pod::Usage;

@@ -13,20 +13,22 @@ pf::services::manager::httpd
 
 use strict;
 use warnings;
+use pf::config;
+use pf::file_paths qw(
+    $install_dir
+    $conf_dir
+    $generated_conf_dir
+    $var_dir
+);
 use Moo;
 use POSIX;
-
-use pf::config;
-use pf::file_paths;
 use pf::util;
 use pf::config::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
-use pf::log;
 use pf::authentication;
-use pf::config;
+use pf::log;
 use pf::cluster;
-use pf::file_paths;
 use Template;
 
 extends 'pf::services::manager';
