@@ -51,7 +51,7 @@ RADIUS calls this method to authorize clients.
 =cut
 
 sub authorize {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 1.0, 'stat' => "freeradius::" . called() });
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, 'stat' => "freeradius::" . called() });
     # For debugging purposes only
     #&log_request_attributes;
 
