@@ -214,8 +214,7 @@ sub doSponsorRegistration : Private {
 
             # username
             $info{'pid'} = $pid;
-            $info{'cc'} =
-            $Config{'guests_self_registration'}{'sponsorship_cc'};
+            $info{'cc'} = $source->{sponsorship_cc};
 
             # we create a password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the password table) using

@@ -103,7 +103,7 @@ sub do_sponsor_registration {
 
     get_logger->info( "Adding guest person " . $pid );
 
-    $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
+    $info{'cc'} = $source->{sponsorship_cc};
 
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs

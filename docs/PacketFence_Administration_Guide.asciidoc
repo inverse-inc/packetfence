@@ -3257,7 +3257,6 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   [guests_self_registration]
   guest_pid=email
   preregistration=disabled
-  sponsorship_cc=
 
 These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
 

@@ -5550,12 +5550,6 @@ msgstr "Spécifiez un identifiant unique pour votre configuration.</br>Celui-ci 
 msgid "Sponsor"
 msgstr "Sponsor"
 
-# conf/documentation.conf (guests_self_registration.sponsorship_cc)
-msgid ""
-"Sponsors requesting access and access confirmation emails are CC'ed to those"
-" addresses. Multiple destinations can be comma separated."
-msgstr "Les sponsors qui demandent l'accès et les courriels de confirmation d'accès sont envoyé en CC. Des destinations multiples peuvent être ajoutées mais doivent être séparées par des virgules."
-
 # html/pfappserver/root/admin/nodes.tt
 msgid "Standard Searches"
 msgstr ""
@@ -7721,10 +7715,6 @@ msgstr "PID"
 # conf/documentation.conf
 msgid "guests_self_registration.preregistration"
 msgstr "Préinscription"
-
-# conf/documentation.conf
-msgid "guests_self_registration.sponsorship_cc"
-msgstr "Parainage CC"
 
 # conf/documentation.conf (interface.type options)
 msgid "high-availability"
