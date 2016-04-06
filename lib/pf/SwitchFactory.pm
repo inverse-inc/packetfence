@@ -36,12 +36,20 @@ our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 my @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
+our %SwitchTypesConfigured;
+tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
   search_path => [qw(pf::Switch)],
   'require' => 1,
-  sub_name    => 'modules';
+  sub_name    => '_all_modules';
+
+use Module::Pluggable
+  search_path => [qw(pf::Switch)],
+  'before_require' => \&isTypeConfigured,
+  'require' => 1,
+  sub_name    => '_configured_modules';
 
 our @MODULES;
 our %TYPE_TO_MODULE;
@@ -215,18 +223,32 @@ sub buildVendorsList {
     }
 }
 
-=item preLoadModules
+=item preloadAllModules
 
-pre load modules
+Preload all switch module
 
 =cut
 
-sub preLoadModules {
+sub preloadAllModules {
+    my ($class) = @_;
     unless (@MODULES) {
-        require pf::Switch;
-        @MODULES        = __PACKAGE__->modules;
+        @MODULES  = $class->_all_modules;
         buildTypeToModuleMap();
         buildVendorsList();
+    }
+}
+
+=item preloadConfiguredModules
+
+Preloads only the configured switch modules
+
+=cut
+
+sub preloadConfiguredModules {
+    my ($class) = @_;
+    unless (@MODULES) {
+        @MODULES = $class->_configured_modules;
+        buildTypeToModuleMap();
     }
 }
 
@@ -244,6 +266,16 @@ sub buildTypeToModuleMap {
       }
       #Include only concrete classes indictated by the existence of the description method
       grep { $_->can('description') } @MODULES;
+}
+
+=item isTypeConfigured
+
+Checks to see if the type is configured
+
+=cut
+
+sub isTypeConfigured {
+    exists $SwitchTypesConfigured{$_[0]}
 }
 
 =back

@@ -1,54 +1,42 @@
-#!/usr/bin/perl
-#
+package pf::WebAPI::InitHandler::Admin;
+
 =head1 NAME
 
-pf-switchfactory-preload -
+pf::WebAPI::InitHandler::Admin
 
 =cut
 
 =head1 DESCRIPTION
 
-pf-switchfactory-preload
+pf::WebAPI::InitHandler::Admin
 
 =cut
 
 use strict;
 use warnings;
-use Benchmark qw(timethese);
-use Module::Load;
 
-use lib qw(/usr/local/pf/lib);
+use pf::SwitchFactory();
 
-BEGIN {
-    use File::Spec::Functions qw(catfile catdir rel2abs);
-    use pf::file_paths;
-    my $test_dir ||= catdir($install_dir,'t');
-    $pf::file_paths::switches_config_file = catfile($test_dir,'data/all-switch-types.conf');
-    use pf::SwitchFactory;
+use base qw(pf::WebAPI::InitHandler);
+
+=head2 preloadSwitches
+
+Preload all the switches
+
+=cut
+
+sub preloadSwitches {
+    pf::SwitchFactory->preloadAllModules();
 }
-use pfconfig::manager;
-pfconfig::manager->new->expire_all;
-pf::SwitchFactory->preloadConfiguredModules() if $ARGV[0];
-
-my @SWITCHES = (keys %pf::SwitchFactory::SwitchConfig);
-
-timethese(
-    1,
-    {   "Preloaded" => sub {
-            foreach my $key (@SWITCHES) {
-                my $switch = pf::SwitchFactory->instantiate($key);
-            }
-          },
-    }
-);
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
@@ -68,4 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

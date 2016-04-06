@@ -48,7 +48,7 @@ use NetPacket::IPv6;
 use NetPacket::UDP;
 
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 
 # initialization
 # --------------

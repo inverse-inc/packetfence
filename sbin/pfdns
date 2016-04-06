@@ -47,7 +47,7 @@ use pf::node;
 use Storable 'dclone';
 use pf::access_filter::dns;
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 
 # initialization
 # --------------

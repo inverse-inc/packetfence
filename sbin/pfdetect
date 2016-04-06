@@ -41,7 +41,7 @@ use pf::services::util;
 use pf::violation;
 use pf::SwitchFactory;
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 use pf::factory::detect::parser;
 use pf::client;
 use pfconfig::cached_hash;

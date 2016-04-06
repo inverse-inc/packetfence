@@ -73,7 +73,7 @@ use pf::services::util;
 use pf::violation;
 use pf::role::custom $ROLE_API_LEVEL;
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 
 use threads;
 use threads::shared;
