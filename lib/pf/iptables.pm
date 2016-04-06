@@ -48,6 +48,8 @@ use pf::config qw(
     @ha_ints
     $IPTABLES_MARK_ISOLATION
     $IPTABLES_MARK_REG
+    is_inline_enforcement_enabled
+    is_type_inline
 );
 use pf::class qw(class_view_all class_trappable);
 use pf::file_paths qw($generated_conf_dir $conf_dir);
