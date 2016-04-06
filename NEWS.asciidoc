@@ -17,8 +17,12 @@ Version 6.0.0 released on 2016-04-XX
 New Features
 ++++++++++++
 
- * Fully redesigned frontend and backend of the captive portal
- * An unregistered device can now be set into a 'parking' state, where it will have a longer lease time and will only access a lightweight portal
+* Fully redesigned frontend and backend of the captive portal
+* An unregistered device can now be set into a 'parking' state, where it will have a longer lease time and will only access a lightweight portal
+* Debian jessie support
+* Radius support for avaya switches
+* pfdns filter engine. Added a way to return custom answer in pfdns
+* Redirect URL are defined in Role by Web Auth URL switch configuration. (Cisco)
 
 Enhancements
 ++++++++++++
@@ -31,11 +35,23 @@ Enhancements
 * Added caching of the latest accounting request for use in access reevaluation.
 * Reduced the number of webservices calls in accounting
 * Added configuration for apache 2.4 with template toolkit.
+* Added a timer for each radius request (radius audit log)
+* Assign the voice role to VoIP devices when PacketFence detect it
+* Renamed Vlan to Role in admin gui violation
+* Deregister a node from a secure connection to a unsecure one is now managed by the vlan filters.
+* Location history of a node show the role instead of the vlan id
+* Documentation to configure cisco switch with Identity Networking Policy
+* Trigger violation on source ip or destination ip addess if they are in the trapping range networks
+* Performance improvement for VoIP detection
+* Added a new computed return in radius filter (random number in a range).
  
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
-* TODO
+* Compute unregdate for secure connection
+* Fixed unescape value in ldap search
+* Fixed apache 2.4 core dump
+* Fixed update locationlog from accounting start with the wrong connection type
  
 Version 5.7.0 released on 2016-02-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
