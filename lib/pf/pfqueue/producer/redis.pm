@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Moo;
 extends qw(pf::pfqueue::producer);
-use Redis::Fast;
+use pf::Redis;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
