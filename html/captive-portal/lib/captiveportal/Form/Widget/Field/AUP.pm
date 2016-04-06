@@ -24,7 +24,7 @@ sub render_element {
     my $checkbox = HTML::FormHandler::Widget::Field::Checkbox::render_element($self, $result);
     my $divs = '';
     $divs .= '<div class="box box--large-height box--tint">'.$self->form->app->_render("aup_text.html").'</div>';
-    $divs .= '<div class="layout--center u-pt"><div class="layout__item u-1/2 u-2/3-lap u-1/1-palm btn btn--light">'.$checkbox.'<label for="'.$self->id.'">'.
+    $divs .= '<div class="layout--center u-pt"><div class="layout__item u-2/3 u-1/1-palm btn btn--light">'.$checkbox.'<label for="'.$self->id.'">'.
       $self->form->app->i18n('I accept the terms').'</label></div></div>';
 
     return $divs;

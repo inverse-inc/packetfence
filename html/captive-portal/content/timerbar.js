@@ -54,7 +54,7 @@ txt+='<layer name="PBdone" width="'+(barwidth-2)+'" height="'+(barheight-2)+'" b
 txt+='</ilayer>';
 txt+='</td></tr></table>';
 }else{
-txt+='<div id="PBouter" onmouseup="clickBar()" style="position:relative; visibility:hidden; width:'+barwidth+'px; height:'+barheight+'px;">';
+txt+='<div id="PBouter" onmouseup="clickBar()" style="position:relative; visibility:hidden; width:'+barwidth+'px; height:'+barheight+'px; margin: auto;">';
 txt+='<div style="position:absolute; top:1px; left:1px; width:'+(barwidth-2)+'px; height:'+(barheight-2)+'px; background-color:'+unloadedcolor+'; font-size:1px;"></div>';
 txt+='<div id="PBdone" style="position:absolute; top:1px; left:1px; width:0px; height:'+(barheight-2)+'px; background-color:'+loadedcolor+'; font-size:1px;"></div>';
 txt+='</div>';
