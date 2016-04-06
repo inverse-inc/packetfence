@@ -1709,6 +1709,9 @@ for 802.1X with MAC Authentication fallback:
   event authentication-success match-all
    10 class always do-until-failure
     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+  event violation match-all
+   10 class always do-all
+    10 replace
 
 for MAC Authentication only:
 
