@@ -25,6 +25,8 @@ use pf::config;
 use pfconfig::manager;
 extends 'pf::services::manager';
 
+has domain => (is => 'rw');
+
 our $CONFIG_GENERATED = 0;
 
 sub generateConfig {
