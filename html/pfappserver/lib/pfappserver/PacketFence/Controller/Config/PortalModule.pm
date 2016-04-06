@@ -21,7 +21,7 @@ use captiveportal::DynamicRouting::Factory;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
 use JSON::MaybeXS;
-use pf::config;
+use pf::config qw(%ConfigPortalModules);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -155,7 +155,7 @@ sub create_type : Path('create') : Args(1) {
     my $form = $c->action->{form};
 
     $c->stash->{current_form} = "${form}::${type}";
-    
+
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     $c->stash->{$itemKey}{type} = $type;
