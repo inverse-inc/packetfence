@@ -18,7 +18,7 @@ use Moose;
 use namespace::autoclean;
 use URI::Escape::XS;
 
-use pf::config;
+use pf::config qw(%Config);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
