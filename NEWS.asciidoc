@@ -30,7 +30,7 @@ Enhancements
 * Added option to deactivate the accounting recording in the SQL tables
 * Added caching of the latest accounting request for use in access reevaluation.
 * Reduced the number of webservices calls in accounting
-* Added configuratiion for apache 2.4 with template toolkit.
+* Added configuration for apache 2.4 with template toolkit.
  
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
