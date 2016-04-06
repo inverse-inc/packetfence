@@ -19,7 +19,7 @@ The first manager will create the namespaces for all winbindd processes through 
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($domains_chroot_dir);
+use pf::file_paths qw($domains_chroot_dir $var_dir);
 use pf::config;
 use pf::util;
 use pf::config;
