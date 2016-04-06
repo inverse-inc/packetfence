@@ -57,8 +57,8 @@
         }
         else {
             var token = response.id;
-            var form = $('#payment-form input[name="stripeToken"]').val(token);
-            $('#payment-form')[0].submit();
+            $('#payment-form input[name="stripeToken"]').val(token);
+            $('#payment-form').submit();
         }
     };
     if (typeof Stripe !== 'undefined' ) {
@@ -72,6 +72,6 @@
         $('#payment-errors p').html('Unable to proceed with payment please contact your service provider');
         $('#payment-errors').show();
     }
-      // ...
+  // ...
 </script>
 
