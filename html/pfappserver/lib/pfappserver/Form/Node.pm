@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(is_error);
-use pf::config;
+use pf::config qw(%Config);
 
 # Form select options
 has 'roles' => ( is => 'ro' );
