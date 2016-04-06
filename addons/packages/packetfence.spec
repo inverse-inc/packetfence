@@ -583,6 +583,15 @@ then
   exit
 fi
 
+%if 0%{?el6}
+    if [ "$1" = 2  ]; then 
+        # this is an upgrade, so we move the old raddb
+        if [ "%{ver}-%{rev}" = "6-0" ]; then
+            mv /usr/local/pf/raddb /usr/local/pf/raddb2
+        fi
+    fi
+%endif
+
 %pre -n %{real_name}-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
