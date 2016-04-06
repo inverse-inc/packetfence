@@ -24,7 +24,7 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth20_token
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'oauth_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'wl.basic,wl.emails');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://apis.live.net/v5.0/me');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/windowslive');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'login.live.com,auth.gfx.ms,account.live.com');
 
 =head2 dynamic_routing_module

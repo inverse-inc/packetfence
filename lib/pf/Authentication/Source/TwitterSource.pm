@@ -28,7 +28,7 @@ has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => '<C
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com');
 has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/authenticate');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/request_token');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/twitter');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com/oauth/access_token');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
 

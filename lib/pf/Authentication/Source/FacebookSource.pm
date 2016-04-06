@@ -24,7 +24,7 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/access_
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com/me?fields=id,name,email,first_name,last_name');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/facebook');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.facebook.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
 
 =head2 dynamic_routing_module
