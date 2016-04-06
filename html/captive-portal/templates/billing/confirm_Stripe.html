@@ -1,7 +1,7 @@
 [% INCLUDE 'billing/tier.html' %]
 
 <form action="/billing/[% billing.id %]/verify" method="POST" id="payment-form">
-  <div id="payment-errors" class="media media--error u-p u-m" style="display: none">
+  <div class="payment-errors media media--error u-p u-m" style="display: none">
     <div class="media__img">[% flashIcon(level='error') %]</div>
     <p class="media__body"></p>
   </div>
@@ -31,10 +31,8 @@
         <input class="u-1/2" type="number" placeholder="YYYY" data-stripe="exp-year"/>
       </div>
 
-      <input type="hidden" name="stripeToken" value=""/>
-
       <div class="u-mt">
-        <button type="submit" name="submit" class="btn btn--full">
+        <button type="submit" name="submit-btn" class="btn btn--full">
           <div class="flag">
             <div class="flag__img">[% svgIcon(id='stripe-icon',size='small') %]</div>
             <p class="flag__body">Submit</p>
@@ -49,29 +47,48 @@
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 
 <script type="text/javascript">
-  // This identifies your website in the createToken call below
+  $(function() {
+
     function stripeResponseHandler(status, response) {
-        if (response.error) {
-            $('#payment-errors p').html(response.error.message);
-            $('#payment-errors').show();
-        }
-        else {
-            var token = response.id;
-            $('#payment-form input[name="stripeToken"]').val(token);
-            $('#payment-form').submit();
-        }
-    };
+      var $form = $('#payment-form');
+      
+      if (response.error) {
+        // Show the errors on the form
+        $form.find('.payment-errors p').text(response.error.message);
+        $form.find('.payment-errors').show();
+      }
+      else {
+        // response contains id and card, which contains additional card details
+        var token = response.id;
+        // Insert the token into the form so it gets submitted to the server
+        $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+        // and submit
+        $form.get(0).submit();
+      }
+    }
+
     if (typeof Stripe !== 'undefined' ) {
-        Stripe.setPublishableKey('[% billing.publishable_key %]');
-        $('#payment-form').submit(function(e) {
-            Stripe.card.createToken(this, stripeResponseHandler);
-            return false;
-        });
+      // This identifies your website in the createToken call below
+      Stripe.setPublishableKey('[% billing.publishable_key %]');
+
+      $('#payment-form').submit(function(event) {
+        var $form = $(this);
+
+        // Disable the submit button to prevent repeated clicks
+        $form.find('button').prop('disabled', true);
+        
+        Stripe.card.createToken($form, stripeResponseHandler);
+
+        // Prevent the form from submitting with the default action
+        return false;
+      });
     }
     else {
-        $('#payment-errors p').html('Unable to proceed with payment please contact your service provider');
-        $('#payment-errors').show();
+      var $form = $('#payment-form');
+      $form.find('.payment-errors p').text('Unable to proceed with payment please contact your service provider');
+      $form.find('.payment-errors').show();
     }
-  // ...
+
+  });
 </script>
 
