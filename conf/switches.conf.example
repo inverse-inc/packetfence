@@ -15,6 +15,7 @@ isolationVlan = 3
 macDetectionVlan = 4
 voiceVlan = 5
 inlineVlan = 6
+REJECTVlan = -1
 inlineTrigger = 
 normalRole = normal
 registrationRole = registration
