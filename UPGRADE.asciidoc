@@ -128,6 +128,11 @@ pf.conf configuration parameters
 * expire.radius_audit_log is now maintenance.radius_audit_log_cleanup_window
 * expire.traplog is now maintenance.traplog_cleanup_window
 
+node category / role
+^^^^^^^^^^^^^^^^^^^^
+
+The 'REJECT' role is now a default standard role. If you already have such role, make sure no conflict exists.
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
