@@ -122,4 +122,10 @@ ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
   [% END %]
 </Directory>
 
+Alias "/common" "[% install_dir %]/html/common"
+
+<Directory [% install_dir %]/html/common>
+  Allow from all
+</Directory>
+
 ErrorDocument 404 /index.html
