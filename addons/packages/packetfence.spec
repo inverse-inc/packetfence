@@ -268,7 +268,9 @@ Requires: perl(IO::Interface)
 Requires: perl(Time::Period)
 Requires: perl(Time::Piece)
 Requires: perl(Number::Range)
-Requires: iproute >= 3.0.0, samba, krb5-workstation
+Requires: iproute >= 3.0.0, krb5-workstation
+%{?el6:Requires: samba <= 3.9.9}
+%{?el7:Requires: samba >= 4}
 Requires: perl(Linux::Distribution)
 # configuration-wizard
 Requires: iproute, vconfig
