@@ -30,7 +30,7 @@ BEGIN { use lib qw(/usr/local/pf/t); }
 BEGIN { use setup_test_config; }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::SwitchFactory;
 use pf::Switch::constants;
 
