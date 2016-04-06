@@ -212,6 +212,8 @@ sub curl {
     $curl->setopt(CURLOPT_HEADER,               0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL,             1);
+    # Paypal now requires minimum TLS 1.2
+    $curl->setopt(CURLOPT_SSLVERSION, 6);
     return $curl;
 }
 
