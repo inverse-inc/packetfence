@@ -134,6 +134,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_RE
         node_fields => \@pf::radius_audit_log::NODE_FIELDS,
         radius_fields => \@pf::radius_audit_log::RADIUS_FIELDS,
     });
+    for my $field (@pf::radius_audit_log::RADIUS_FIELDS) {
+        $c->stash->{item}{$field} =~ s/=2C /"\n"/ge;
+        $c->stash->{item}{$field} =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
+    }
 }
 
 =head1 AUTHOR
