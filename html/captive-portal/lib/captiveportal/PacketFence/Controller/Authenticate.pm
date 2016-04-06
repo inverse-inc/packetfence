@@ -5,7 +5,7 @@ use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
 use pf::constants::Portal::Profile qw($DEFAULT_PROFILE);
-use pf::config;
+use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
 use pf::node;
 use pf::util;
@@ -89,7 +89,7 @@ sub authenticationLogin : Private {
     my $password = $request->param("password");
 
     my @sources = $self->getSources($c, $username, $realm);
-    
+
     # If all sources use the stripped username, we strip it
     # Otherwise, we leave it as is
     my $use_stripped = all { isenabled($_->{stripped_user_name}) } @sources;
