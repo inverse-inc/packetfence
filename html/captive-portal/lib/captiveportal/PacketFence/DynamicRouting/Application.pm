@@ -175,7 +175,7 @@ Fingerbank processing
 
 sub process_fingerbank {
     my ( $self ) = @_;
-    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05});
 
     my %fingerbank_query_args = (
         user_agent          => $self->request->user_agent,
@@ -249,7 +249,7 @@ Processing that needs to occur before we execute the application
 
 sub preprocessing {
     my ($self) = @_;
-    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05});
     $self->process_user_agent();
     $self->process_destination_url();
     $self->process_fingerbank();
@@ -264,7 +264,7 @@ This will cycle through the proper modules and the appropriate module will set t
 
 sub execute {
     my ($self) = @_;
-    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05});
     # This will be defined after the first time the user hits the dynamic routing portal
     # Then will be true on the second time he hits the dynamic routing portal
     $self->root_module->execute();
