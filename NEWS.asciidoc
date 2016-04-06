@@ -17,12 +17,19 @@ Version 6.0.0 released on 2016-04-XX
 New Features
 ++++++++++++
 
- * TODO
+ * Fully redesigned frontend and backend of the captive portal
+ * An unregistered device can now be set into a 'parking' state, where it will have a longer lease time and will only access a lightweight portal
 
 Enhancements
 ++++++++++++
 
-* TODO
+* Added ability to expire users
+* Automatically update all the Fingerbank databases (Redis, p0f, SQLite3)
+* Don't allow the TRACE method to be used in any of the web processes
+* Can now limit the maximum unregdate an administrator can set to a person.
+* Added option to deactivate the accounting recording in the SQL tables
+* Added caching of the latest accounting request for use in access reevaluation.
+* Reduced the number of webservices calls in accounting
  
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
