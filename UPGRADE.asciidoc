@@ -97,6 +97,13 @@ To configure mandatatory fields in the portal, refer to the 'Portal Modules' sec
 
 You need to add the `root_module` parameter to your default portal profile. In `profiles.conf` add `root_module=default_policy` to the default portal profile
 
+Changes to OAuth2 sources callback URL
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All the OAuth2 sources you have configured (Facebook, Github, Google, LinkedIn and Twitter) need to be adjusted as the redirect URL is now the same for all the types.
+
+In the admin interface change `Portal URL` from `https://YOUR_HOSTNAME/oauth/SOURCE_TYPE` to `https://YOUR_HOSTNAME/oauth/callback` (where `SOURCE_TYPE` would be the lower case name of the source type). Note that this parameter is named `redirect_url` in the configuration file.
+
 Changes to Cisco Web auth
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
