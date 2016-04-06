@@ -105,6 +105,22 @@ Use the Cisco::WLC_http switch module instead of the Cisco::WLC_http as switch t
 The portalURL configuration parameter is now configured per-role so make sure you have http://ip_portal/$session_id assigned to the registration role in the `Role by Web Auth URL` section of the switch configuration.
 See the Network Device configuration guide for additional details
 
+SMS carrier database table
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Google Project Fi have been added as a supported carrier. Since an ID is hardcoded on creation of a new entry in the 'sms_carrier' database table, a manual intervention may be required in the case the database schema update fails.
+
+pf.conf configuration parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+'expire' and 'maintenance' section have been reworked and 'expire' section is no longer a thing. Make sure to adjust configuration parameter accordingly if needed;
+ 
+* expire.node is now maintenance.node_cleanup_window
+* expire.iplog is now maintenance.iplog_cleanup_window
+* expire.locationlog is now maintenance.locationlog_cleanup_window
+* expire.radius_audit_log is now maintenance.radius_audit_log_cleanup_window
+* expire.traplog is now maintenance.traplog_cleanup_window
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
