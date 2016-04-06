@@ -45,6 +45,7 @@ Readonly::Scalar our $VOICE_ROLE         => 'voice';
 Readonly::Scalar our $DEFAULT_ROLE       => 'default';
 Readonly::Scalar our $GUEST_ROLE         => 'guest';
 Readonly::Scalar our $GAMING_ROLE        => 'gaming';
+Readonly::Scalar our $REJECT_ROLE        => 'REJECT';
 
 Readonly::Array our @ROLES => (
     $REGISTRATION_ROLE,
@@ -58,6 +59,7 @@ Readonly::Hash our %STANDARD_ROLES => (
     $DEFAULT_ROLE => 1,
     $GUEST_ROLE   => 1,
     $GAMING_ROLE  => 1,
+    $REJECT_ROLE  => 1,
 );
 
 =head1 AUTHOR

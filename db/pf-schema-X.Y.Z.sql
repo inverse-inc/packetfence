@@ -128,6 +128,12 @@ INSERT INTO `node_category` (name,notes) VALUES ("gaming","Gaming devices");
 INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
 
 --
+-- Insert 'REJECT' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
+
+--
 -- Table structure for table `node`
 --
 
