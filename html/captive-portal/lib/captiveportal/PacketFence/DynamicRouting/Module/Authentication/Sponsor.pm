@@ -14,6 +14,7 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 
 use pf::log;
+use pf::constants qw($TRUE);
 use pf::config qw(%Config);
 use Date::Format qw(time2str);
 use pf::Authentication::constants;
