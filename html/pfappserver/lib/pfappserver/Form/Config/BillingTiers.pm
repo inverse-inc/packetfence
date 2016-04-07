@@ -74,10 +74,10 @@ has_field 'access_duration' => (
 );
 
 has_field 'use_time_balance' => (
-    type             => 'Checkbox',
+    type             => 'Toggle',
     label            => 'Use time balance',
     checkbox_value   => 'enabled',
-    input_without_param   => 'disabled',
+    unchecked_value  => 'disabled',
     tags             => { 
         after_element   => \&help,
         help            => 'Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.',
