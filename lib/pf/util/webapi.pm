@@ -26,15 +26,21 @@ sub add_mac_to_log_context {
         if (ref($args->[0]) eq 'HASH') {
             $params = $args->[0];
         }
+        else {
+            return;
+        }
     }
     else {
         $params = {@$args};
     }
     if ($params) {
         for my $key (qw(mac Calling-Station-Id User-Name)) {
-            if (exists $params->{$key} && valid_mac (my $mac = $params->{$key})) {
-                Log::Log4perl::MDC->put('mac', $mac);
-                last;
+            if (exists $params->{$key}) {
+                my $mac = clean_mac($params->{$key});
+                if ($mac) {
+                    Log::Log4perl::MDC->put('mac', $mac);
+                    last;
+                }
             }
         }
     }
