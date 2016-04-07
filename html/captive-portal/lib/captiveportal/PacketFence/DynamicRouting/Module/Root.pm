@@ -56,7 +56,7 @@ around 'done' => sub {
         }
         else {
             $self->app->reset_session();
-            $self->app->redirect_root();
+            $self->redirect_root();
         }
     }
 };
@@ -70,7 +70,7 @@ Logout of the captive portal
 sub logout {
     my ($self) = @_;
     $self->app->reset_session;
-    $self->app->redirect_root(); 
+    $self->redirect_root(); 
 }
 
 =head2 release

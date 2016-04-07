@@ -49,6 +49,9 @@ sub execute_child {
     elsif(pf::activation::activation_has_entry($self->current_mac,'sponsor')){
         $self->waiting_room();
     }
+    elsif($self->session->{sponsor_activated}){
+        $self->done();
+    }
     else{
         $self->prompt_fields();
     }
@@ -71,7 +74,7 @@ sub check_activation {
     my $record = pf::activation::view_by_code($self->session->{activation_code}); 
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
-        $self->done();
+        $self->session->{sponsor_activated} = $TRUE;
     }
     else {
         get_logger->debug("Activation record has not yet been validated");

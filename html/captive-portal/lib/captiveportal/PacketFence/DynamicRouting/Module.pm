@@ -199,7 +199,7 @@ sub execute {
 
     unless($self->path_is_allowed('/'.$self->app->request->path)){
         get_logger->debug('/'.$self->app->request->path." is not allowed in module : ".$self->id);
-        $self->app->redirect_root();
+        $self->redirect_root();
         return;
     }
 
@@ -264,7 +264,7 @@ sub done {
         get_logger->warn("Execute actions of module ".$self->id." did not succeed.");
         # we give a generic message if there is none in the flash error
         $self->app->flash->{error} = "Could not execute actions" unless($self->app->flash->{error});
-        $self->app->redirect_root();
+        $self->redirect_root();
         return;
     }
     $self->parent->next();
