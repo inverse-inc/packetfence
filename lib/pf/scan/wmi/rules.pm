@@ -109,29 +109,25 @@ Parse the result of the wmicli
 
 sub parseResult {
     my ($self, $string) = @_;
+    my $logger = $self->logger;
+    if (!defined ($string)) {
+        $logger->warn("uninitialized response given");
+        return [];
+    }
+    $logger->trace( sub { "The WMI string to parse '$string' " });
     $string =~ s/\r\n/\n/g;
 
-    my @answer = split('\n', $string);
-    my $i = 0;
-    my $line;
+    my ($class, $header, @answers) = split('\n', $string);
+    if (!defined ($header)) {
+        $logger->error("No WMI header given in string '$string'");
+        return [];
+    }
+    my @entries = split(/\|/, $header);
     my @result;
-
-    my $response = {};
-
-    shift @answer;
-    my @entries = split(/\|/,shift @answer);
-
-
-    foreach $line (@answer) {
-        my @values = split(/\|/,$line);
-        my $j = 0;
-        foreach my $elements (@entries) {
-            $response->{"$elements"} = $values[$j];
-            $j++;
-        }
-        $result[$i] = $response;
-        undef $response;
-        $i++;
+    foreach my $answer (@answers) {
+        my %response;
+        @response{@entries} = split(/\|/,$answer);
+        push @result, \%response;
     }
     return \@result;
 }
