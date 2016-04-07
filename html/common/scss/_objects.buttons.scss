@@ -43,6 +43,11 @@ button.#{$inuit-btn-namespace}btn {
     background-color: lighten($pf-list-tint-hue-1-background, 5%);
     color: $pf-list-tint-color;
   }
+
+  &.#{$inuit-btn-namespace}btn--disabled {
+    background-color: darken($pf-list-tint-hue-1-background, 5%);
+    color: lighten($pf-list-tint-color, 20%);
+  }
   
   svg use {
     fill: $pf-list-icon-color;
