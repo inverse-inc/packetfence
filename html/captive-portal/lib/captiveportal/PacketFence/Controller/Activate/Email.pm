@@ -75,10 +75,6 @@ sub code : Path : Args(1) {
 
     # if we have a MAC, guest was on-site and we set that MAC in the session
     $node_mac = $activation_record->{'mac'};
-    if($node_mac ne $portalSession->clientMac){
-        $self->showError($c, "Please use the device you are registering to validate the e-mail link");
-        $c->detach();
-    }
     if ( defined($node_mac) ) {
         $portalSession->guestNodeMac($node_mac);
     }
@@ -86,6 +82,13 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
+
+        # Guest activation should only be validated with the original device
+        if($node_mac ne $portalSession->clientMac){
+            $self->showError($c, "Please use the device you are registering to validate the e-mail link");
+            $c->detach();
+        }
+
         my $unregdate = $c->user_session->{"email_unregdate"};
         get_logger->info("Extending duration to $unregdate");
         node_modify($c->portalSession->clientMac, unregdate => $unregdate);
