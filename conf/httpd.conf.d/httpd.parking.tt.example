@@ -125,7 +125,11 @@ ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 Alias "/common" "[% install_dir %]/html/common"
 
 <Directory [% install_dir %]/html/common>
+  [% IF apache_version == "2.4" %]
+  Require all granted
+  [% ELSE %]
   Allow from all
+  [% END %]
 </Directory>
 
 ErrorDocument 404 /index.html
