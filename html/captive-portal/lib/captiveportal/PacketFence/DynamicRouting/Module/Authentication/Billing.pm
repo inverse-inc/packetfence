@@ -97,7 +97,7 @@ sub cancel {
         get_logger->error($@);
     }
     $self->app->flash->{notice} = 'Order was canceled';
-    $self->index();
+    $self->redirect_root();
 }
 
 =head2 verify
@@ -122,7 +122,7 @@ sub verify {
     if ($@) {
         get_logger->error($@);
         $self->app->flash->{error} = "Unable to process payment";
-        $self->index();
+        $self->redirect_root();
         return 0;
     }
     else {
@@ -244,7 +244,7 @@ Confirm billing transaction
 sub confirm {
     my ($self) = @_;
     
-    return $self->index() unless($self->validate_form());
+    return $self->redirect_root() unless($self->validate_form());
 
     return unless($self->validate());
 
@@ -262,7 +262,7 @@ sub confirm {
     if ($@) {
         get_logger->error($@);
         $self->app->flash->{error} = "An error occured while preparing the request to the external provider";
-        $self->index();
+        $self->redirect_root();
         return;
     }
 
@@ -288,10 +288,10 @@ sub validate {
 
     my $source_param = first { /^billing_source_/ } $request->param_names;
     if($source_param =~ /^billing_source_(.*)/) {
-        return $self->index() unless($self->find_source($1));
+        return $self->redirect_root() unless($self->find_source($1));
     } else {
         $self->app->flash->{error} = "Invalid billing source for profile";
-        $self->index();
+        $self->redirect_root();
         return 0;
     }
 
@@ -300,7 +300,7 @@ sub validate {
     unless ($selected_tier) {
         get_logger->error("No Tier selected");
         $self->app->flash->{error} = "No Tier selected";
-        $self->index();
+        $self->redirect_root();
         return 0;
     }
 
@@ -308,7 +308,7 @@ sub validate {
     unless ($tier) {
         get_logger->error("Selected Tier is invalid");
         $self->app->flash->{error} = "Selected Tier is invalid";
-        $self->index();
+        $self->redirect_root();
         return 0;
     }
 

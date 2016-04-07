@@ -199,7 +199,7 @@ sub execute {
 
     unless($self->path_is_allowed('/'.$self->app->request->path)){
         get_logger->debug('/'.$self->app->request->path." is not allowed in module : ".$self->id);
-        $self->app->redirect("/captive-portal");
+        $self->app->redirect_root();
         return;
     }
 
@@ -264,7 +264,7 @@ sub done {
         get_logger->warn("Execute actions of module ".$self->id." did not succeed.");
         # we give a generic message if there is none in the flash error
         $self->app->flash->{error} = "Could not execute actions" unless($self->app->flash->{error});
-        $self->app->redirect("/captive-portal");
+        $self->app->redirect_root();
         return;
     }
     $self->parent->next();
@@ -295,6 +295,17 @@ sub render {
     else {
         $self->app->render(@params);
     }
+}
+
+=head2 redirect_root
+
+Allows to redirect to the root page of the captive portal to recalculate where the user should be
+
+=cut
+
+sub redirect_root {
+    my ($self) = @_;
+    $self->app->redirect("/captive-portal");
 }
 
 =head1 AUTHOR
