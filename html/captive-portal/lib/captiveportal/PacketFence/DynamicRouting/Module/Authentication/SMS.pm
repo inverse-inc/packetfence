@@ -72,7 +72,7 @@ User has no PIN, so we invalidate all of them and redirect back to the beginning
 sub no_pin {
     my ($self) = @_;
     pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
-    $self->app->redirect("/captive-portal");
+    $self->app->redirect_root();
 }
 
 =head2 prompt_fields

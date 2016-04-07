@@ -55,7 +55,7 @@ sub next {
     }
     else {
         $self->current_module($self->get_module($self->current_module_index)->id);
-        $self->app->redirect("/captive-portal");
+        $self->app->redirect_root();
     }
 }
 
