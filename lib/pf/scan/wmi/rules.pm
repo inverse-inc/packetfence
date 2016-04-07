@@ -59,7 +59,10 @@ sub test {
     foreach my $rule  ( @rules ) {
         my $rule_config = $pf::config::ConfigWmi{$rule};
         my ($rc, $result) = $self->runWmi($rules,$rule_config);
-        return $rc if (!$rc);
+        if(!$rc) {
+            $logger->error("Error rule wmi rule '$rule': $result");
+            return $rc;
+        }
         $success = $rc;
         my $action = $rule_config->{'action'};
         my %cfg;
@@ -97,8 +100,10 @@ sub runWmi {
     $request->{'Host'} = $rules->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
     my ($rc, $ret_string) = wmiclient($request);
-    return ($rc,$self->parseResult($ret_string));
-
+    if ($rc) {
+        return ($rc, $self->parseResult($ret_string));
+    }
+    return ($rc, $ret_string);
 }
 
 =item parseResult
