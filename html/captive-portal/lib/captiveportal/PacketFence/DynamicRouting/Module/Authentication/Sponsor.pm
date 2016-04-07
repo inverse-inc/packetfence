@@ -75,6 +75,8 @@ sub check_activation {
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;
+        $self->app->response_code(200);
+        $self->app->template_output('');
     }
     else {
         get_logger->debug("Activation record has not yet been validated");
