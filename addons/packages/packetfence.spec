@@ -664,8 +664,9 @@ do
     echo "Disabling $service startup script"
     /bin/systemctl disable $service > /dev/null 2>&1
   fi
+  %endif
 done
-%endfi
+
 
 %if 0%{?el6}
 for service in mysqld
@@ -686,7 +687,7 @@ do
     /bin/systemctl enable $service > /dev/null 2>&1
   fi
 done
-%endfi
+%endif
 
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
