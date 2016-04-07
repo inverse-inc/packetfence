@@ -86,7 +86,7 @@ sub code : Path : Args(1) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
-        my $unregdate = $c->session->{"email_unregdate"};
+        my $unregdate = $c->user_session->{"email_unregdate"};
         get_logger->info("Extending duration to $unregdate");
         node_modify($c->portalSession->clientMac, unregdate => $unregdate);
         pf::activation::set_status_verified($code);
@@ -159,7 +159,7 @@ sub doSponsorRegistration : Private {
 
         # if we have a username in session it means user has already authenticated
         # so we go ahead and allow the guest in
-        if ( !defined( $c->session->{"username"} ) ) {
+        if ( !defined( $c->user_session->{"username"} ) ) {
 
             # User is not logged and didn't provide username or password: show login form
             if (!(  $request->param("username") && $request->param("password")
@@ -176,11 +176,11 @@ sub doSponsorRegistration : Private {
             $c->detach('login') if $c->has_errors;
         }
         # Verify if the user has the role mark as sponsor
-        my $source_match = $c->session->{source_match} || $c->session->{source_id};
-        my $value = &pf::authentication::match($source_match, {username => $c->session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
+        my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
+        my $value = &pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
         unless (defined $value) {
-            $c->log->error( $c->session->{"username"} . " does not have permission to sponsor a user"  );
-            $c->session->{username} = undef;
+            $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
+            $c->user_session->{username} = undef;
             $self->showError($c,"does not have permission to sponsor a user");
             $c->detach('login');
         }
@@ -192,12 +192,12 @@ sub doSponsorRegistration : Private {
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away
         if ( defined( $request->param("action") )
             && $request->param("action") eq "logout" ) {
-            $c->session->{username} = undef;
+            $c->user_session->{username} = undef;
             $c->detach('login');
         }
 
         # User is authenticated (session username exists OR auth_return == $TRUE above)
-        $logger->debug( $c->session->{username}
+        $logger->debug( $c->user_session->{username}
               . " successfully authenticated. Activating sponsored guest" );
 
         my ( %info, $template );
