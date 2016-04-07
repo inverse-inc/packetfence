@@ -327,8 +327,8 @@ sub parse_dhcp_request {
         $self->rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
     }
 
-    if ($self->{is_inline_vlan} || grep ( { defined $_->{'gateway'} && $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
-        $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+    if ($self->{is_inline_vlan}) {
+        $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
         $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
     }
     else {

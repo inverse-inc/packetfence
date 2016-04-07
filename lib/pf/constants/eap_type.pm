@@ -84,7 +84,8 @@ Readonly::Scalar our $EAP_AKA2 => 50;
 Readonly::Scalar our $EAP_GPSK => 51;
 Readonly::Scalar our $EAP_PWD => 52;
 Readonly::Scalar our $EAP_EVEV1 => 53;
-
+Readonly::Scalar our $INLINE_L2 => 54;
+Readonly::Scalar our $INLINE_L3 => 55;
 
 #This was auto generated from the following command
 # egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep EAP-Type- | awk 'BEGIN{print "our \%RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 ", " } END { print ");" }' | perl -p -e's/EAP-Type-//'
@@ -144,6 +145,8 @@ our %RADIUS_EAP_TYPE_2_VALUES = (
     "Microsoft-MS-CHAPv2" => 26,
     "Cisco-MS-CHAPv2" => 29,
     "MS-CHAP-V2" => 26,
+    "inlinel2" => 54,
+    "inlinel3" => 55,
 );
 
 =head1 AUTHOR
