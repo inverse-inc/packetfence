@@ -121,9 +121,11 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-            if [ -e "/lib/systemd/system/"$service".service" ] ; then
-                systemctl stop $service
-                systemctl disable $service
+            if [ ${DIST} = "jessie" ] ; then
+                if [ -e "/lib/systemd/system/"$service".service" ] ; then
+                    systemctl stop $service
+                    systemctl disable $service
+                fi
             fi
 
         done
