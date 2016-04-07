@@ -653,12 +653,21 @@ fi
 
 for service in snortd httpd snmptrapd portreserve redis
 do
+  %if 0%{?el6}
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
     /sbin/chkconfig --del $service > /dev/null 2>&1
   fi
+  %endif
+  %if 0%{?el7}
+  if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
+    echo "Disabling $service startup script"
+    /bin/systemctl disable $service > /dev/null 2>&1
+  fi
 done
+%endfi
 
+%if 0%{?el6}
 for service in mysqld
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
@@ -667,6 +676,17 @@ do
     /sbin/chkconfig $service on > /dev/null 2>&1
   fi
 done
+%endif
+
+%if 0%{?el7}
+for service in mariadb
+do
+  if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
+    echo "Enabling $service startup script"
+    /bin/systemctl enable $service > /dev/null 2>&1
+  fi
+done
+%endfi
 
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
