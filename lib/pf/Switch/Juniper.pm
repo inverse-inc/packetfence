@@ -6,19 +6,19 @@ pf::Switch::Juniper - Object oriented module manage Juniper' switches
 
 =head1 STATUS
 
-Supports 
+Supports
  MAC Authentication (MAC RADIUS in Juniper's terms)
 
 Developed and tested on Juniper ex4200-48t running on JUNOS 10.3R1.9
 
 =head1 BUGS AND LIMITATIONS
- 
+
 =over
 
 =item Bouncing a port is slow
 
-Bouncing a port is done on a VLAN change when in MAC Authentication. 
-Because of the lack of SNMP read-write capabilities on the IF-MIB, 
+Bouncing a port is done on a VLAN change when in MAC Authentication.
+Because of the lack of SNMP read-write capabilities on the IF-MIB,
 a full disable / commit / enable / commit is performed on the switch making it very slow.
 
 =item Voice over IP
@@ -35,7 +35,7 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw($MAC $PORT);
 use pf::locationlog;
 # importing switch constants
 use pf::Switch::constants;
@@ -89,7 +89,7 @@ sub NasPortToIfIndex {
 
     # because no obvious link could be made between a sub-interface ifIndex and it's parent, we use a regexp to do it
     my $subIntName = $self->getIfName($subIntIfIndex);
-    # interface: ge-0/0/46 
+    # interface: ge-0/0/46
     # sub-interface: ge-0/0/46.0
     if ($subIntName !~ /^(.+)\.\d+$/) {
         $logger->warn(
@@ -117,31 +117,31 @@ Warning: This is really slow! About 6 second for the link change.
 sub setAdminStatus {
     my ($self, $ifIndex, $enable) = @_;
     my $logger = $self->logger;
-    
+
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't set the admin status for ifIndex $ifIndex");
         return 1;
-    }   
+    }
     my $session;
     eval {
         require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $self->{_cliTransport},        
-            Platform  => "JUNOS",    
+            Transport => $self->{_cliTransport},
+            Platform  => "JUNOS",
         );
-        
+
         $session->connect(
             Name     => $self->{_cliUser},
             Password => $self->{_cliPwd}
-        );  
-    };  
-    
+        );
+    };
+
     if ($@) {
         $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
-    }   
+    }
 
     my $port = $self->getIfName($ifIndex);
 

@@ -23,7 +23,7 @@ use base ('pf::scan');
 
 use pf::constants;
 use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 
 sub description { 'Openvas Scanner' }
@@ -32,7 +32,7 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
-=head1 METHODS 
+=head1 METHODS
 
 =over
 
@@ -59,7 +59,7 @@ sub createEscalator {
     $logger->trace("Scan escalator creation output: $output");
 
     # Fetch response status and escalator id
-    my ($response, $escalator_id) = ($output =~ /<create_escalator_response\ 
+    my ($response, $escalator_id) = ($output =~ /<create_escalator_response\
             status="([0-9]+)"\      # status code
             id="([a-zA-Z0-9\-]+)"   # escalator id
             /x);
@@ -98,7 +98,7 @@ sub createTarget {
     $logger->trace("Scan target creation output: $output");
 
     # Fetch response status and target id
-    my ($response, $target_id) = ($output =~ /<create_target_response\ 
+    my ($response, $target_id) = ($output =~ /<create_target_response\
             status="([0-9]+)"\      # status code
             id="([a-zA-Z0-9\-]+)"   # task id
             /x);
@@ -138,7 +138,7 @@ sub createTask {
     $logger->trace("Scan task creation output: $output");
 
     # Fetch response status and task id
-    my ($response, $task_id) = ($output =~ /<create_task_response\ 
+    my ($response, $task_id) = ($output =~ /<create_task_response\
             status="([0-9]+)"\      # status code
             id="([a-zA-Z0-9\-]*)"   # task id
             /x);
@@ -156,7 +156,7 @@ sub createTask {
 
 =item processReport
 
-Retrieve the report associated with a task. 
+Retrieve the report associated with a task.
 When retrieving a report in other format than XML, we received the report in base64 encoding.
 
 Report processing's duty is to ensure that the proper violation will be triggered.
@@ -169,7 +169,7 @@ sub processReport {
 
     my $name                = $self->{_id};
     my $report_id           = $self->{_reportId};
-    my $report_format_id    = $self->{'_openvas_reportformatid'}; 
+    my $report_format_id    = $self->{'_openvas_reportformatid'};
     my $command             = "<get_reports report_id=\"$report_id\" format_id=\"$report_format_id\"/>";
 
     $logger->info("Getting the scan report for the finished scan task named $name");
@@ -181,7 +181,7 @@ sub processReport {
     $logger->trace("Report fetching output: $output");
 
     # Fetch response status and report
-    my ($response, $raw_report) = ($output =~ /<get_reports_response\ 
+    my ($response, $raw_report) = ($output =~ /<get_reports_response\
             status="([0-9]+)"       # status code
             [^\<]+[\<][^\>]+[\>]    # get to the report
             ([a-zA-Z0-9\=]+)        # report base64 encoded
@@ -284,7 +284,7 @@ sub startTask {
     $logger->trace("Scan task starting output: $output");
 
     # Fetch response status and report id
-    my ($response, $report_id) = ($output =~ /<start_task_response\ 
+    my ($response, $report_id) = ($output =~ /<start_task_response\
             status="([0-9]+)"[^\<]+[\<] # status code
             report_id>([a-zA-Z0-9\-]+)  # report id
             /x);

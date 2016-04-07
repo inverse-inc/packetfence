@@ -24,7 +24,11 @@ use pf::file_paths qw(
     $var_dir
 );
 use pf::util;
-use pf::config;
+use pf::config qw(
+    %Config
+    $management_network
+    %ConfigDomain
+);
 use NetAddr::IP;
 use pf::cluster;
 extends 'pf::services::manager';
@@ -39,6 +43,7 @@ Generate the configuration for ALL radiusd childs
 Executed once for ALL processes
 
 =cut
+
 sub generateConfig {
     my ($self, $quick) = @_;
 

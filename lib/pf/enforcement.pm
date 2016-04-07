@@ -36,7 +36,15 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $INLINE_API_LEVEL
+    $ROLE_API_LEVEL
+    %Config
+    $INLINE
+    %connection_type_explained
+    $WIRED
+    $WIRELESS
+);
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
 use pf::locationlog;

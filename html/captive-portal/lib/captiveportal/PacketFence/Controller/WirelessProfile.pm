@@ -5,7 +5,8 @@ use File::Slurp qw(read_file);
 use pf::constants;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
-use pf::config;
+
+use pf::config qw($reverse_fqdn);
 
 __PACKAGE__->config( namespace => 'wireless-profile.mobileconfig', );
 

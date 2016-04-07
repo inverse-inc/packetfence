@@ -15,7 +15,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::factory::provisioner;
-use pf::config;
+use pf::config qw(%Profiles_Config);
 use List::MoreUtils qw(any);
 
 BEGIN {

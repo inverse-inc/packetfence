@@ -15,11 +15,7 @@ use warnings;
 
 use base ('pf::Switch::Juniper');
 
-use pf::config;
 sub description { 'Juniper EX Series' }
-
-# importing switch constants
-use pf::Switch::constants;
 
 =head1 AUTHOR
 

@@ -15,8 +15,10 @@ extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
 use pf::util;
-use pf::config;
+use pf::config qw($default_pid);
 use pf::log;
+use pf::auth_log;
+use pf::Authentication::constants;
 
 has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
@@ -40,7 +42,7 @@ Execute this module
 =cut
 
 sub execute_child {
-    my ($self) = @_;    
+    my ($self) = @_;
     if($self->app->request->method eq "POST"){
         $self->authenticate();
     }
@@ -61,9 +63,9 @@ sub authenticate {
 
     if($self->requires_email) {
         $pid = $self->request_fields->{$self->pid_field};
-        
+
         get_logger->info("Validating e-mail for user $pid");
-        my ($return, $message, $source_id) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source); 
+        my ($return, $message, $source_id) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
         if(defined($return) && $return == 1){
             pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
         }

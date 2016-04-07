@@ -30,7 +30,7 @@ BEGIN {
         get_networkdevices_modules get_networkdevices_classes
     );
 }
-use pf::config;
+use pf::config qw(%Config);
 
 # Tests are categorized here
 our @cli_tests = qw(

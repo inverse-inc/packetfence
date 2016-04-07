@@ -28,7 +28,9 @@ use pf::node;
 use pf::factory::provisioner;
 use pf::ConfigStore::Scan;
 use pf::StatsD::Timer;
-use pf::config;
+use pf::config qw(
+    %ConfigBillingTiers
+);
 
 =head1 METHODS
 

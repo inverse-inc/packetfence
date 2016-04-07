@@ -16,9 +16,6 @@ carbon-relay daemon manager module for PacketFence.
 use strict;
 use warnings;
 use pf::file_paths qw($install_dir);
-use pf::util;
-use pf::config;
-use pf::cluster;
 use Moo;
 
 extends 'pf::services::manager';

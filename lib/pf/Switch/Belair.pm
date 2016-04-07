@@ -41,7 +41,9 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC $SSID
+);
 use pf::util;
 
 sub description { 'Belair Networks AP' }

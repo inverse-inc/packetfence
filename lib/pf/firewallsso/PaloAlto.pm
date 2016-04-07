@@ -20,7 +20,7 @@ use base ('pf::firewallsso');
 use POSIX;
 use pf::log;
 
-use pf::config;
+use pf::config qw(%ConfigFirewallSSO);
 sub description { 'PaloAlto Firewall' }
 use pf::node qw(node_view);
 use LWP::UserAgent;

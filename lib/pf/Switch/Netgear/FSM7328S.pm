@@ -8,7 +8,7 @@ pf::Switch::Netgear::FSM7328S - Object oriented module to access and configure e
 
 =head2 Port-security
 
-- Developped and tested on a FSM7328S using firmware (Software version) 7.3.1.7 
+- Developped and tested on a FSM7328S using firmware (Software version) 7.3.1.7
 
 - VoIP configuration not tested
 
@@ -34,7 +34,6 @@ use Net::SNMP;
 
 use pf::Switch::constants;
 use pf::constants;
-use pf::config;
 use pf::util;
 
 use base ('pf::Switch::Netgear');
@@ -77,7 +76,7 @@ sub authorizeMAC {
     if ($deauthMac) {
         if($self->isFakeMac($deauthMac)){
             $deauthVlan = 1;
-        } 
+        }
 
         $logger->trace( "SNMP set_request for agentPortSecurityMACAddressRemove: "
                 . "( $OID_agentPortSecurityMACAddressRemove.$ifIndex)" );
@@ -301,9 +300,9 @@ sub parseTrap {
 # link up/down traps
 # Example:
 # 2013-07-25|13:01:28|UDP: [10.100.6.31]:1024->[10.100.16.90]|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (244400) 0:40:44.00|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.6.3.1.1.5.4|.1.3.6.1.2.1.2.2.1.1.1 = INTEGER: 1|.1.3.6.1.2.1.2.2.1.7.1 = INTEGER: up(1)|.1.3.6.1.2.1.2.2.1.8.1 = INTEGER: up(1) END VARIABLEBINDINGS
-    if ($trapString =~ 
-            /BEGIN\ TYPE\ \d+\ END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\ 
-             BEGIN\ VARIABLEBINDINGS\ .+ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+)\ 
+    if ($trapString =~
+            /BEGIN\ TYPE\ \d+\ END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\
+             BEGIN\ VARIABLEBINDINGS\ .+ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+)\
              =\ INTEGER:\ (up|down)
             /x
         )
@@ -320,9 +319,9 @@ sub parseTrap {
 # Example:
 # 2013-07-25|13:16:03|UDP: [10.100.6.31]:1024->[10.100.16.90]|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (331900) 0:55:19.00|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.6132.1.1.20.2.1|.1.3.6.1.2.1.2.2.1.1 = INTEGER: 1|.1.3.6.1.4.1.4526.10.20.1.2.1.7 = STRING: "100 b8:88:e3:dd:f9:45" END VARIABLEBINDINGS
     elsif (
-        $trapString =~ 
+        $trapString =~
             /BEGIN\ VARIABLEBINDINGS\ .+1\.3\.6\.1\.2\.1\.2\.2\.1\.1\ = \ INTEGER:\ (\d+)
-             .+ .1.3.6.1.4.1.4526.10.20.1.2.1.7\ =\ STRING:\ "(\d+)\ ([^"]+)" 
+             .+ .1.3.6.1.4.1.4526.10.20.1.2.1.7\ =\ STRING:\ "(\d+)\ ([^"]+)"
             /x
         )
     {

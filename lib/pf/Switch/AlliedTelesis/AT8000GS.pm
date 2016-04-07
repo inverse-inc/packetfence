@@ -21,15 +21,10 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Net::SNMP;
+
 use base ('pf::Switch::AlliedTelesis');
 
 sub description { 'AlliedTelesis AT8000GS' }
-
-# importing switch constants
-use pf::Switch::constants;
-use pf::util;
-use pf::config;
 
 =head1 SUBROUTINES
 

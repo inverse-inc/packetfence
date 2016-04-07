@@ -6,7 +6,7 @@ pf::Switch::Anyfi
 
 =head1 SYNOPSIS
 
-The pf::Switch::Anyfi module implements an object oriented interface to 
+The pf::Switch::Anyfi module implements an object oriented interface to
 manage the Anyfi Gateway
 
 =head1 STATUS
@@ -21,7 +21,10 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 
 sub description {"Anyfi Gateway"}
 

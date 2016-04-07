@@ -1,4 +1,5 @@
 package pf::services::manager::radiusd;
+
 =head1 NAME
 
 pf::services::manager::radiusd add documentation
@@ -19,9 +20,7 @@ use pf::file_paths qw(
     $install_dir
 );
 use pf::util;
-use pf::config;
 use Moo;
-use NetAddr::IP;
 use pf::cluster;
 use pf::services::manager::radiusd_child;
 

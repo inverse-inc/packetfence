@@ -23,7 +23,7 @@ use strict;
 use warnings;
 
 use JSON::MaybeXS;
-use pf::config;
+use pf::config qw(%Config);
 use pf::log;
 use WWW::Curl::Easy;
 use Moo;

@@ -20,7 +20,10 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
-use pf::config;
+use pf::config qw(
+    $management_network
+    %Config
+);
 use pf::cluster;
 use Sys::Hostname;
 

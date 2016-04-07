@@ -20,7 +20,16 @@ use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::clustermgmt;
-use pf::config;
+use pf::config qw(
+    $INLINE_API_LEVEL
+    %ConfigNetworks
+    %Config
+    @inline_nets
+    $NO_VOIP
+    $NO_PORT
+    %connection_type_to_str
+    $INLINE
+);
 use pf::config::cached;
 use pf::db;
 use pf::firewallsso;
@@ -438,7 +447,7 @@ sub check_for_parking {
     }
 
     get_logger->debug("Checking if $client_mac is in parking state");
-    
+
     my $node = node_view($client_mac);
 
     if($node->{status} eq $STATUS_REGISTERED){

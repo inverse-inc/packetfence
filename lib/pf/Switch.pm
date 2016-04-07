@@ -26,7 +26,16 @@ our $VERSION = 2.10;
 use pf::CHI;
 use pf::constants;
 use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE);
-use pf::config;
+use pf::config qw(
+    $ROLES_API_LEVEL
+    $management_network
+    %Config
+    $WIRED_SNMP_TRAPS
+    $VOIP
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+    $NO_VOIP
+);
 use pf::locationlog;
 use pf::node;
 use pf::cluster;

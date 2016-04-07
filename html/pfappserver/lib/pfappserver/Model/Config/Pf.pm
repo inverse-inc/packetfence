@@ -13,7 +13,10 @@ pfappserver::Model::Config::PF
 
 use Moose;
 use namespace::autoclean;
-use pf::config;
+use pf::config qw(
+    %Doc_Config
+    %Default_Config
+);
 use pf::ConfigStore::Pf;
 
 extends 'pfappserver::Base::Model::Config';

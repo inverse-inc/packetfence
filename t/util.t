@@ -8,7 +8,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 37;
+use Test::More tests => 50;
 use Test::NoWarnings;
 
 BEGIN {
@@ -64,7 +64,7 @@ is( mac2oid('f0:4d:a2:cb:d9:c5'), '240.77.162.203.217.197', "mac2oid legit conve
 
 # regression test for get_translatable_time
 is_deeply(
-    [ get_translatable_time("3D") ], 
+    [ get_translatable_time("3D") ],
     ["day", "days", 3],
     "able to translate new format with capital date modifiers"
 );
@@ -96,6 +96,25 @@ is_deeply(\@return,
 @return = pf::util::apache::url_parser('invalid://url$.com');
 ok(!@return, "Passed invalid URL expecting undef");
 
+# is_in_list
+ok(is_in_list("sms","sms,email"), "is_in_list positive");
+ok(!is_in_list("sms","email"), "is_in_list negative");
+ok(!is_in_list("sms",""), "is_in_list empty list");
+ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
+
+# normalize time
+is(normalize_time("5Z"), 0, "illegal normalize attempt");
+is(normalize_time("5"), 5, "normalizing w/o a time resolution specified (seconds assumed)");
+is(normalize_time("2s"), 2 * 1, "normalizing seconds");
+is(normalize_time("2m"), 2 * 60, "normalizing minutes");
+is(normalize_time("2h"), 2 * 60 * 60, "normalizing hours");
+is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
+is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
+is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
+is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
+
+
+
 # TODO add more tests, we should test:
 #  - all methods ;)
 
@@ -108,21 +127,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

@@ -1,4 +1,5 @@
 package pf::services::manager::httpd_proxy;
+
 =head1 NAME
 
 pf::services::manager::httpd_proxy add documentation
@@ -14,7 +15,7 @@ pf::services::manager::httpd_proxy
 use strict;
 use warnings;
 use Moo;
-use pf::config;
+use pf::config qw(%Config @internal_nets);
 use pf::util;
 
 extends 'pf::services::manager::httpd';

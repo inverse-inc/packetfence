@@ -94,7 +94,9 @@ BEGIN {
 use pf::action;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::class qw(class_view);
-use pf::config;
+use pf::constants qw(
+    $TRUE
+);
 use pf::enforcement;
 use pf::db;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);

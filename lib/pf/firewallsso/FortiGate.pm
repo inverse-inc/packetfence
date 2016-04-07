@@ -20,7 +20,7 @@ use base ('pf::firewallsso');
 use POSIX;
 use pf::log;
 
-use pf::config;
+use pf::config qw(%ConfigFirewallSSO);
 sub description { 'FortiGate Firewall' }
 use pf::util::radius qw(perform_rsso);
 use pf::node qw(node_view);

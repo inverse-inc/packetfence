@@ -1,4 +1,5 @@
 package pf::services::manager::httpd_webservices;
+
 =head1 NAME
 
 pf::services::manager::httpd_webservices
@@ -15,7 +16,10 @@ use strict;
 use warnings;
 use Moo;
 
-use pf::config;
+use pf::config qw(
+    $management_network
+    %Config
+);
 use pf::cluster;
 use List::MoreUtils qw(uniq);
 

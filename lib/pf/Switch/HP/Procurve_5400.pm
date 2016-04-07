@@ -12,7 +12,7 @@ Module to manage HP Procurve 5400 switches
 
 =over
 
-=item Supports 
+=item Supports
 
 =over
 
@@ -45,7 +45,10 @@ use Net::SNMP;
 use base ('pf::Switch::HP::Procurve_2500');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::Switch::constants;
 use pf::util;
 
@@ -63,7 +66,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";
 
-=over 
+=over
 
 =item getVoipVSA
 

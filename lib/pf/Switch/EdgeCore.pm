@@ -11,19 +11,17 @@ The pf::Switch::EdgeCore module manages access to EdgeCore
 
 =head1 STATUS
 
-Tested on EdgeCore 4510 running v1.3.2.0 
+Tested on EdgeCore 4510 running v1.3.2.0
 
 =cut
 
 use strict;
 use warnings;
 
-use POSIX;
-
 use base ('pf::Switch');
 
-use pf::constants;
-use pf::config;
+use pf::constants qw($TRUE);
+
 sub description { 'EdgeCore' }
 
 =head1 SUBROUTINES

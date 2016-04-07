@@ -12,7 +12,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::config;
+use pf::config qw(%ConfigPKI_Provider);
 
 has roles => ( is => 'rw' );
 has oses => ( is => 'rw' );

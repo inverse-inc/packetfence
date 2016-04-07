@@ -21,7 +21,11 @@ use pf::file_paths qw(
     $log_dir
 );
 use pf::util;
-use pf::config;
+use pf::config qw(
+    %Config
+    $OS
+    $management_network
+);
 use Moo;
 use Sys::Hostname;
 

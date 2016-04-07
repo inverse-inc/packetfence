@@ -25,7 +25,7 @@ use Socket;
 
 use strict;
 use warnings;
-use pf::config;
+use pf::config qw(%Config);
 use pf::config::cached;
 use pf::log;
 use pf::util;

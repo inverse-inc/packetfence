@@ -9,7 +9,7 @@ enabled 3COM 4200G Switch
 
 =over
 
-=item Supports 
+=item Supports
 
 =over
 
@@ -38,23 +38,23 @@ Developed and tested on Switch 4200G firmware version 3.02.04s56
 
 =item Unclear NAS-Port to ifIndex translation
 
-This switch's NAS-Port usage is not well documented or easy to guess 
+This switch's NAS-Port usage is not well documented or easy to guess
 so we reversed engineered the translation for the 4200G but it might not apply well to other switches.
 If it's your case, please let us know the NAS-Port you obtain in a RADIUS Request and the physical port you are on.
 The consequence of a bad translation are that VLAN re-assignment (ie after registration) won't work.
 
 =item Port-Security: security traps not sent under some circumstances
 
-The 4200G exhibit a behavior where secureViolation traps are not sent 
-if the MAC has already been authorized on another port on the same VLAN. 
-This tend to happen a lot (when users move on the same switch) for this 
+The 4200G exhibit a behavior where secureViolation traps are not sent
+if the MAC has already been authorized on another port on the same VLAN.
+This tend to happen a lot (when users move on the same switch) for this
 reason we recommend not to use this switch in port-security mode.
 
 Firmware version 3.02.00s56 and 3.02.04s56 (latest) were tested and had the problematic behavior.
 
 =item 802.1X Re-Authentication doesn't trigger a DHCP Request from the endpoint
 
-Since this is critical for PacketFence's operation, as a work-around, 
+Since this is critical for PacketFence's operation, as a work-around,
 we decided to bounce the port which will force the client to re-authenticate and do DHCP.
 Because of the port bounce PCs behind IP phones aren't recommended.
 This behavior was experienced on a Windows 7 client on the 4200G with the latest firmware.
@@ -68,7 +68,7 @@ OS V3.03.02s168p21 works well, we did lot of tests on it.
 
 =head1 NOTES
 
-=over 
+=over
 
 =item MAC Authentication and 802.1X behavior
 
@@ -90,7 +90,10 @@ use POSIX;
 use base ('pf::Switch::ThreeCom::SS4500');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::Switch::constants;
 
 sub description { '3COM 4200G' }
@@ -103,8 +106,8 @@ sub description { '3COM 4200G' }
 
 =cut
 
-sub supportsWiredMacAuth { return $TRUE; } 
-sub supportsWiredDot1x { return $TRUE; } 
+sub supportsWiredMacAuth { return $TRUE; }
+sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusVoip { return $SNMP::TRUE; }
 sub supportsLldp { return $TRUE; }
 
@@ -121,7 +124,7 @@ sub NasPortToIfIndex {
     my ($self, $nas_port) = @_;
     my $logger = $self->logger;
 
-    # 4096 NAS-Port slots are reserved per physical ports, 
+    # 4096 NAS-Port slots are reserved per physical ports,
     # I'm assuming that each client will get a +1 so I translate all of them into the same ifIndex
     # Also there's a large offset (16781312), couldn't find where it is coming from...
     my $port = ceil(($nas_port - $THREECOM::NAS_PORT_OFFSET) / $THREECOM::NAS_PORTS_PER_PORT_RANGE);
@@ -144,7 +147,7 @@ sub NasPortToIfIndex {
 
 =item dot1xPortReauthenticate
 
-Because of issues with 802.1X re-auth on these switches, we bounce the port instead. 
+Because of issues with 802.1X re-auth on these switches, we bounce the port instead.
 See in L</"BUGS AND LIMITATIONS">.
 
 =cut

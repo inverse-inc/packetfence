@@ -17,7 +17,7 @@ use warnings;
 use Module::Pluggable search_path => 'pf::provisioner', sub_name => 'modules' , require => 1;
 use List::MoreUtils qw(any);
 use pf::provisioner;
-use pf::config;
+use pf::config qw(%ConfigProvisioning);
 
 our @MODULES = __PACKAGE__->modules;
 

@@ -8,7 +8,7 @@ pf::Switch::Cisco::Catalyst_2950 - Object oriented module to access and configur
 
 The minimum required firmware version is 12.1(22)EA10.
 
-=over 
+=over
 
 =item Supports
 
@@ -21,7 +21,7 @@ The minimum required firmware version is 12.1(22)EA10.
 =item MAC notifications with VoIP
 
 =back
- 
+
 =item Untested
 
 =over
@@ -40,11 +40,11 @@ This module extends pf::Switch::Cisco.
 
 =item Problematic firmware versions
 
-We got reports that 12.1(22)EA13 is buggy. 
+We got reports that 12.1(22)EA13 is buggy.
 Not sending port-security traps under uncertain circumstances.
- 
+
 =item 802.1X
- 
+
 802.1X doesn't support Dynamic VLAN Assignments over RADIUS.
 We had to work around that limitation by setting the VLAN using SNMP instead.
 Also, we realized that we need to do a shut / no-shut on the port in order for the client to properly re-authenticate.
@@ -52,8 +52,8 @@ This has nasty side-effects when used with VoIP (client don't re-DHCP automatica
 
 =item No MAC-Authentication Bypass support
 
-These switches don't support MAB (what we call MAC-Authentication in 
-PacketFence) and so their 802.1X support is a lot less attractive because of 
+These switches don't support MAB (what we call MAC-Authentication in
+PacketFence) and so their 802.1X support is a lot less attractive because of
 that. Briefly it means that devices that don't support 802.1X can't coexist
 with 802.1X capable devices with the same port config.
 
@@ -61,17 +61,17 @@ https://supportforums.cisco.com/thread/216455
 
 =item SNMPv3
 
-SNMPv3 support is broken for link-up / link-down and MAC Notification modes. 
-Cisco didn't implement SNMPv3 context support for this IOS line and it is required to query the MAC address table. 
+SNMPv3 support is broken for link-up / link-down and MAC Notification modes.
+Cisco didn't implement SNMPv3 context support for this IOS line and it is required to query the MAC address table.
 See #1284.
 
 =item VLAN enforcement on trunk ports through SSH
 
-On trunk ports, we need to clear the MAC address table when performing a 
-VLAN change (however this assumption might need to get revisited). 
-Clearing MAC is done over CLI (Telnet / SSH) and currently under SSH it is 
+On trunk ports, we need to clear the MAC address table when performing a
+VLAN change (however this assumption might need to get revisited).
+Clearing MAC is done over CLI (Telnet / SSH) and currently under SSH it is
 broken. Because we don't recommend users securing trunk ports with NAC and
-since Telnet works fine, this is a low priority issue. See #1371 for more 
+since Telnet works fine, this is a low priority issue. See #1371 for more
 details.
 
 =back
@@ -91,7 +91,13 @@ use Net::SNMP;
 use Data::Dumper;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $ROLE_API_LEVEL
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::locationlog;
 sub description { 'Cisco Catalyst 2950' }
 
@@ -204,8 +210,8 @@ sub _getIfDescMacVlan {
 
 =item clearMacAddressTable
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread
+safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
@@ -478,8 +484,8 @@ sub getMaxMacAddresses {
 
 =item ping
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread
+safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
@@ -645,7 +651,7 @@ sub setPortSecurityEnableByIfIndex {
     return ( defined($result) );
 }
 
-=item setPortSecurityMaxSecureMacAddrByIfIndex 
+=item setPortSecurityMaxSecureMacAddrByIfIndex
 
 Sets the global (data + voice) maximum number of MAC addresses for port-security on a port
 
@@ -674,7 +680,7 @@ sub setPortSecurityMaxSecureMacAddrByIfIndex {
 =item setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex
 
 Wraps around _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex by spawning
-a process to call it thus working around bug #1369: thread crash with 
+a process to call it thus working around bug #1369: thread crash with
 floating network devices with VoIP through SSH transport
 
 =cut
@@ -686,7 +692,7 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
     # http://www.cpanforum.com/threads/6909
 
-    my $command = 
+    my $command =
         "/usr/local/pf/bin/pfcmd_vlan -switch $self->{_ip} "
         . "-runSwitchMethod _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex $ifIndex $maxSecureMac"
     ;
@@ -696,11 +702,11 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     return $TRUE;
 }
 
-=item _setPortSecurityMaxSecureMacAddrVlanByIfIndex 
+=item _setPortSecurityMaxSecureMacAddrVlanByIfIndex
 
 Sets the maximum number of MAC addresses on the data vlan for port-security on a port
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
@@ -772,7 +778,7 @@ sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     return 1;
 }
 
-=item setPortSecurityViolationActionByIfIndex 
+=item setPortSecurityViolationActionByIfIndex
 
 Tells the switch what to do when the number of MAC addresses on the port has exceeded the maximum: shut down the port, send a trap or only allow traffic from the secure port and drop packets from other MAC addresses
 
@@ -801,33 +807,33 @@ sub setPortSecurityViolationActionByIfIndex {
 
 =item setTaggedVlans
 
-Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
+Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devices only
 
 =cut
 
 sub setTaggedVlans {
     my ( $self, $ifIndex, $switch_locker, @vlans ) = @_;
     my $logger = $self->logger;
-    
+
     if ( !$self->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port vlanTrunkPortVlansEnabled");
         return 1;
-    }   
-    
+    }
+
     if (! @vlans) {
         $logger->error("Tagged Vlan list is empty. Cannot set the tagged Vlans on trunk port $ifIndex");
         return 0;
-    }   
-        
+    }
+
     if ( !$self->connectWrite() ) {
         return 0;
-    }       
-         
+    }
+
     my $OID_vlanTrunkPortVlansEnabled   = '1.3.6.1.4.1.9.9.46.1.6.1.1.4';
     my $OID_vlanTrunkPortVlansEnabled2k = '1.3.6.1.4.1.9.9.46.1.6.1.1.17';
     my $OID_vlanTrunkPortVlansEnabled3k = '1.3.6.1.4.1.9.9.46.1.6.1.1.18';
     my $OID_vlanTrunkPortVlansEnabled4k = '1.3.6.1.4.1.9.9.46.1.6.1.1.19';
-    
+
     my @bits = split //, ("0" x 1024);
     foreach my $t (@vlans) {
         if ($t > 1024) {
@@ -840,7 +846,7 @@ sub setTaggedVlans {
     my $bitString = join ('', @bits);
 
     my $taggedVlanMembers = pack("B*", $bitString);
-        
+
     $logger->trace("SNMP set_request for OID_vlanTrunkPortVlansEnabled: $OID_vlanTrunkPortVlansEnabled");
     my $result = $self->{_sessionWrite}->set_request( -varbindlist => [
             "$OID_vlanTrunkPortVlansEnabled.$ifIndex", Net::SNMP::OCTET_STRING, $taggedVlanMembers,
@@ -848,11 +854,11 @@ sub setTaggedVlans {
             "$OID_vlanTrunkPortVlansEnabled3k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024),
             "$OID_vlanTrunkPortVlansEnabled4k.$ifIndex", Net::SNMP::OCTET_STRING, pack("B*", 0 x 1024) ] );
     return defined($result);
-}   
+}
 
-=item removeAllTaggedVlans 
+=item removeAllTaggedVlans
 
-Removes all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
+Removes all the tagged Vlans on a multi-Vlan port. Used for floating network devices only
 
 =cut
 
@@ -875,10 +881,10 @@ sub removeAllTaggedVlans {
     my $OID_vlanTrunkPortVlansEnabled4k = '1.3.6.1.4.1.9.9.46.1.6.1.1.19';
 
     # to reset the tagged Vlans we need to:
-    # - set 7F FF ... FF to OID_vlanTrunkPortVlansEnabled   
-    # - set FF FF ... FF to OID_vlanTrunkPortVlansEnabled2k   
-    # - set FF FF ... FF to OID_vlanTrunkPortVlansEnabled3k   
-    # - set FF FF ... FE to OID_vlanTrunkPortVlansEnabled4k   
+    # - set 7F FF ... FF to OID_vlanTrunkPortVlansEnabled
+    # - set FF FF ... FF to OID_vlanTrunkPortVlansEnabled2k
+    # - set FF FF ... FF to OID_vlanTrunkPortVlansEnabled3k
+    # - set FF FF ... FE to OID_vlanTrunkPortVlansEnabled4k
     my $bitString = '0';
     my $bitString4k = '1';
     for (my $i = 1; $i < 1023; $i++) {
@@ -928,9 +934,9 @@ sub enablePortConfigAsTrunk {
     }
 
     # FIXME
-    # this is a hack that should be removed. For a mysterious reason if we don't wait 5 sec between the moment we set 
-    # the port as trunk and the moment we enable linkdown traps, the switch port starts a never ending linkdown/linkup 
-    # trap cycle. The problem would probably not occur if we could enable only linkdown traps without linkup. 
+    # this is a hack that should be removed. For a mysterious reason if we don't wait 5 sec between the moment we set
+    # the port as trunk and the moment we enable linkdown traps, the switch port starts a never ending linkdown/linkup
+    # trap cycle. The problem would probably not occur if we could enable only linkdown traps without linkup.
     # But we can't on Cisco's...
     sleep(5);
 
@@ -945,7 +951,7 @@ Translate RADIUS NAS-Port into switch's ifIndex.
 
 sub NasPortToIfIndex {
     my ($self, $NAS_port) = @_;
-    my $logger = $self->logger; 
+    my $logger = $self->logger;
 
     # 50017 is ifIndex 17
     if ($NAS_port =~ s/^500//) {
@@ -955,8 +961,8 @@ sub NasPortToIfIndex {
             ."VLAN re-assignment and switch/port accounting will be affected.");
     }
     return $NAS_port;
-}   
-    
+}
+
 =item getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
@@ -972,8 +978,8 @@ sub getVoipVsa {
 
 =item dot1xPortReauthenticate
 
-Because of the incomplete 802.1X support of this switch, 
-instead of issuing a re-negociation here we bounce if there's no VoIP device 
+Because of the incomplete 802.1X support of this switch,
+instead of issuing a re-negociation here we bounce if there's no VoIP device
 or set the VLAN and log if there is a VoIP device.
 
 =cut
@@ -1013,9 +1019,9 @@ sub dot1xPortReauthenticate {
         );
         return;
     }
-    
+
     $logger->debug(
-        "A VoIP phone is currently connected at $self->{_ip} ifIndex $ifIndex so the port will not be bounced. " . 
+        "A VoIP phone is currently connected at $self->{_ip} ifIndex $ifIndex so the port will not be bounced. " .
         "Changing VLAN and leaving everything as it is."
     );
 
@@ -1025,9 +1031,9 @@ sub dot1xPortReauthenticate {
     my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => pf::node::node_attributes($mac), switch => $self, ifIndex => $ifIndex, connection_type => $WIRED_802_1X});
     my $vlan = $self->getVlanByName($role->{role});
     $self->_setVlan(
-        $ifIndex, 
+        $ifIndex,
         $vlan,
-        undef, 
+        undef,
         # TODO passing an empty switchlocker is not the best thing to do...
         {}
     );

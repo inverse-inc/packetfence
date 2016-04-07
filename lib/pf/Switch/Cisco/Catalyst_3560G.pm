@@ -29,10 +29,10 @@ The hardware should support it.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2950 make sure to check the BUGS AND LIMITATIONS section of 
+Because a lot of code is shared with the 2950 make sure to check the BUGS AND LIMITATIONS section of
 L<pf::Switch::Cisco::Catalyst_2950> also.
 
-=over 
+=over
 
 =item port-security + Voice over IP (VoIP)
 
@@ -62,8 +62,6 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-
-use pf::config;
 
 use base ('pf::Switch::Cisco::Catalyst_3560');
 

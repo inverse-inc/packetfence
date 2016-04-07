@@ -19,7 +19,11 @@ use pf::file_paths qw(
     $conf_dir
     $install_dir
 );
-use pf::config;
+use pf::config qw(
+    %Config
+    $management_network
+    $OS
+);
 use pf::util;
 use pf::cluster;
 use pf::log;

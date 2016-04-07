@@ -6,7 +6,7 @@ pf::SNMP::Juniper::EX2200 - Object oriented module to manage Juniper's EX Series
 
 =head1 STATUS
 
-Supports 
+Supports
  MAC Authentication (MAC RADIUS in Juniper's terms)
  802.1X
 
@@ -32,7 +32,10 @@ use warnings;
 use base ('pf::Switch::Juniper');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 sub description { 'Juniper EX 2200 Series' }
 
 # importing switch constants
@@ -65,18 +68,18 @@ For now it returns the voiceVlan untagged since Juniper supports multiple untagg
 =cut
 
 sub getVoipVsa{
-    my ($self) = @_; 
-    my $logger = $self->logger; 
+    my ($self) = @_;
+    my $logger = $self->logger;
     my $voiceVlan = $self->{'_voiceVlan'};
     $logger->info("Accepting phone with untagged Access-Accept on voiceVlan $voiceVlan");
-    
+
     # Return the normal response except we force the voiceVlan to be sent
     return (
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $voiceVlan, 
+        'Tunnel-Private-Group-ID' => $voiceVlan,
     );
- 
+
 }
 
 
@@ -125,7 +128,7 @@ sub radiusDisconnect {
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip(),
         };
-       
+
         my $acctsessionid = node_accounting_current_sessionid($mac);
         # Standard Attributes
         my $attributes_ref = {
@@ -163,7 +166,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub wiredeauthTechniques { 
+sub wiredeauthTechniques {
    my ($self, $method, $connection_type) = @_;
    my $logger = $self->logger;
 
@@ -182,7 +185,7 @@ sub wiredeauthTechniques {
         my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::RADIUS => 'deauthenticateMacRadius',
-        ); 
+        );
         if (!defined($method) || !defined($tech{$method})) {
             $method = $default;
         }
@@ -201,29 +204,29 @@ Connects to the switch and configures the specified port to be RADIUS floating d
 =cut
 
 sub enableMABFloatingDevice{
-    my ($self, $ifIndex) = @_; 
+    my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
-    
+
     my $session;
     eval {
         require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $self->{_cliTransport},        
-            Platform  => "JUNOS",    
+            Transport => $self->{_cliTransport},
+            Platform  => "JUNOS",
         );
-        
+
         $session->connect(
             Name     => $self->{_cliUser},
             Password => $self->{_cliPwd}
-        );  
-    };  
-    
+        );
+    };
+
     if ($@) {
         $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
-    }   
+    }
 
     my $port = $self->getIfName($ifIndex);
 
@@ -236,7 +239,7 @@ sub enableMABFloatingDevice{
         $session->in_privileged_mode(1);
         $session->begin_configure();
 
-    
+
         @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
         @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
         @output = $session->cmd(String => 'commit comment "configured floating device"', Timeout => '30');
@@ -261,29 +264,29 @@ Connects to the switch and removes the RADIUS floating device configuration
 =cut
 
 sub disableMABFloatingDevice{
-    my ($self, $ifIndex) = @_; 
+    my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
-    
+
     my $session;
     eval {
         require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,
-            Transport => $self->{_cliTransport},        
-            Platform  => "JUNOS",    
+            Transport => $self->{_cliTransport},
+            Platform  => "JUNOS",
         );
-        
+
         $session->connect(
             Name     => $self->{_cliUser},
             Password => $self->{_cliPwd}
-        );  
-    };  
-    
+        );
+    };
+
     if ($@) {
         $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
         return;
-    }   
+    }
 
     my $port = $self->getIfName($ifIndex);
 
@@ -295,7 +298,7 @@ sub disableMABFloatingDevice{
         $session->in_privileged_mode(1);
         $session->begin_configure();
 
-    
+
         @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
         @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
         @output = $session->cmd(String => 'commit comment "deconfigured floating device"', Timeout => '30');
@@ -324,7 +327,7 @@ sub disableMABFloatingDevice{
 #
 #    # if can't SNMP read abort
 #    return if ( !$self->connectRead() );
-#    
+#
 #    # LLDP info takes a few seconds to appear in the SNMP table after the switch makes the radius request
 #    # Sleep for 2 seconds to make sure the info is there
 #    sleep(2);
@@ -335,7 +338,7 @@ sub disableMABFloatingDevice{
 #
 #    my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
 #    my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
-#    
+#
 #    $logger->trace(
 #        "SNMP get_next_request for lldpRemSysCapEnabled: "
 #        . "$oid_lldpRemSysCapEnabled"
@@ -346,7 +349,7 @@ sub disableMABFloatingDevice{
 #    # Cap entries look like this:
 #    # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
 #    # We want to validate that the telephone capability bit is turned on.
-#    my @phones = (); 
+#    my @phones = ();
 #    foreach my $oid ( keys %{$result} ) {
 #
 #        # grab the lldpRemIndex

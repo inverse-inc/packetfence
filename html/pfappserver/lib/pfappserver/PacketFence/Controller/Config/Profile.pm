@@ -28,7 +28,8 @@ use Readonly;
 use pf::cluster;
 use pf::Portal::ProfileFactory;
 use captiveportal::DynamicRouting::Application;
-use pf::config;
+use pf::config qw(%connection_type);
+use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::file_paths qw(
     $captiveportal_profile_templates_path

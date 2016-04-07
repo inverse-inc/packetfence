@@ -11,7 +11,7 @@ to access SNMP enabled AlliedTelesis switches.
 
 =head1 STATUS
 
-=over 
+=over
 
 =item Supports
 
@@ -48,7 +48,10 @@ use base ('pf::Switch');
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 
 =head1 SUBROUTINES
 

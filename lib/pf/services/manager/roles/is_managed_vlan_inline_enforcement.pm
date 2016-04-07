@@ -13,7 +13,7 @@ pf::services::manager::roles::is_managed_vlan_inline_enforcement
 
 use strict;
 use warnings;
-use pf::config;
+use pf::config qw(is_inline_enforcement_enabled is_vlan_enforcement_enabled is_dns_enforcement_enabled);
 
 use Moo::Role;
 

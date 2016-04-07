@@ -25,7 +25,7 @@ use File::Path qw(make_path remove_tree);
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
     $conf_dir
@@ -83,6 +83,7 @@ BEGIN {
         touch_file
         pf_make_dir
         empty_dir
+        is_in_list
     );
 }
 
@@ -1226,6 +1227,22 @@ sub pf_make_dir {
         }
     );
 }
+
+=item is_in_list
+
+Searches for an item in a comma separated list of elements (like we do in our configuration files).
+
+Returns true or false values based on if item was found or not.
+
+=cut
+
+sub is_in_list {
+    my ($item, $list) = @_;
+    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
+    return $TRUE if any { $_ eq $item } @list;
+    return $FALSE;
+}
+
 
 =back
 

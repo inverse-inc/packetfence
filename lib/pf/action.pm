@@ -71,7 +71,10 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw(
+    %Config
+    $fqdn
+);
 use pf::db;
 use pf::util;
 use pf::config::util;

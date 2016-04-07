@@ -33,7 +33,7 @@ BEGIN {
 
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
-    
+
     use pf::db;
     # Setup database connection infos based on ENV variables if they are defined
     $pf::db::DB_Config->{host} = $ENV{PF_TEST_DB_HOST} // $pf::db::DB_Config->{host};
@@ -42,7 +42,10 @@ BEGIN {
     $pf::db::DB_Config->{db}   = $ENV{PF_TEST_DB_NAME} // $pf::db::DB_Config->{db};
     $pf::db::DB_Config->{port} = $ENV{PF_TEST_DB_PORT} // $pf::db::DB_Config->{port};
 
-    use pf::config;
+    use pf::config qw(
+        %Config
+        $management_network
+    );
     # Setup IP and VIP of management network
     if(defined($ENV{PF_TEST_MGMT_INT})){
         my $section_name = "interface ".$ENV{PF_TEST_MGMT_INT};
@@ -53,7 +56,7 @@ BEGIN {
         $management_network->tag('vip', $Config{$section_name}{vip});
     }
 }
- 
+
 END {
     my $pid = read_file($PFCONFIG_TEST_PID_FILE);
     `kill $pid`

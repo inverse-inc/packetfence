@@ -15,7 +15,7 @@ pf::services::manager::pfdetect
 use strict;
 use warnings;
 use Moo;
-use pf::config;
+use pf::config qw(%ConfigDetect);;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });

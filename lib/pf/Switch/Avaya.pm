@@ -36,7 +36,11 @@ use Try::Tiny;
 use base ('pf::Switch::Nortel');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_MAC_AUTH
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
@@ -48,6 +52,10 @@ sub description { 'Avaya Switch Module' }
 
 =head1 CAPABILITIES
 
+TODO: This list is incomplete
+
+=cut
+
 =head1 METHODS
 
 TODO: This list is incomplete
@@ -58,7 +66,7 @@ sub supportsWiredMacAuth { return $SNMP::TRUE; }
 sub supportsWiredDot1x { return $SNMP::TRUE }
 sub supportsRadiusVoip { return $SNMP::TRUE }
 
-=item identifyConnectionType
+=head2 identifyConnectionType
 
 Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
 
@@ -72,13 +80,13 @@ sub _identifyConnectionType {
         $logger->info("Request type is not set. On Nortel this means it's MAC AUTH");
         return $WIRED_MAC_AUTH;
     }
-    
+
     # if we're not overiding, we call the parent method
     return $self->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
 }
 
-=item parseRequest
+=head2 parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 NAS Port type (Ethernet, Wireless, etc.)
@@ -109,7 +117,7 @@ sub parseRequest {
 }
 
 
-=item getVoipVSA
+=head2 getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
@@ -119,7 +127,7 @@ sub getVoipVsa {
     return {};
 }
 
-=item parseTrap
+=head2 parseTrap
 
 Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
 
@@ -162,12 +170,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item getIfIndex
+=head2 getIfIndex
 
 return the ifindex based on the slot number and the port number
 
 =cut
- 
+
 sub getIfIndex {
     my ($self, $ifDesc_param,$param2) = @_;
 
@@ -186,7 +194,7 @@ sub getIfIndex {
     }
 }
 
-=item getBoardPortFromIfIndex
+=head2 getBoardPortFromIfIndex
 
 return the slot and the port number based on the ifindex
 
@@ -222,7 +230,7 @@ sub getBoardPortFromIfIndexForSecurityStatus {
     return ( $board, $port );
 }
 
-=item getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
+=head2 getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
 
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
@@ -257,7 +265,7 @@ sub getAllSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-=item getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
+=head2 getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
 
 Returns an hashref with MAC => Array(VLANs)
 
@@ -297,7 +305,7 @@ sub getSecureMacAddresses {
 }
 
 
-=item authorizeMAC - authorize a MAC address and de-authorize the previous one if required
+=head2 authorizeMAC - authorize a MAC address and de-authorize the previous one if required
 
 =cut
 
@@ -316,9 +324,9 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here.
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
-    # on the same switch!!! 
+    # on the same switch!!!
     my ( $boardIndx, $portIndx ) = $self->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
     my @boardIndx;
 
@@ -328,7 +336,7 @@ sub _authorizeMAC {
     } else {
         push (@boardIndx, $boardIndx);
     }
- 
+
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
@@ -368,7 +376,7 @@ sub _authorizeMAC {
     return;
 }
 
-=item getPhonesLLDPAtIfIndex
+=head2 getPhonesLLDPAtIfIndex
 
 Return list of MACs found through LLDP on a given ifIndex.
 

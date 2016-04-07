@@ -48,7 +48,12 @@ BEGIN {
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $BANDWIDTH_DIRECTION_RE
+    $BANDWIDTH_UNITS_RE
+    $ACCOUNTING_POLICY_TIME
+    $ACCOUNTING_POLICY_BANDWIDTH
+);
 use pf::constants::config qw($ACCT_TIME_MODIFIER_RE);
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::config::violation;

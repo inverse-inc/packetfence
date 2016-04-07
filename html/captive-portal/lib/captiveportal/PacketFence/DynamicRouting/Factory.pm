@@ -25,7 +25,9 @@ use pf::util;
 use Graph;
 use List::MoreUtils qw(any);
 use captiveportal::util;
-use pf::config;
+use pf::config qw(
+    %ConfigPortalModules
+);
 use pf::log;
 
 has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Application');

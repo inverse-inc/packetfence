@@ -20,7 +20,7 @@ use pf::OMAPI;
 use pf::violation;
 use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 
 =head2 trigger_parking
@@ -91,8 +91,6 @@ sub remove_parking_actions {
 
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
-
-=back
 
 =head1 AUTHOR
 

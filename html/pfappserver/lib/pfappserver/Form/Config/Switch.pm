@@ -17,7 +17,12 @@ with 'pfappserver::Base::Form::Role::Help';
 use File::Find qw(find);
 use File::Spec::Functions;
 
-use pf::config;
+use pf::config qw(
+    $PORT
+    $MAC
+    $SSID
+    $ALWAYS
+);;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;

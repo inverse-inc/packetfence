@@ -16,7 +16,7 @@ use Moose;
 use namespace::autoclean;
 
 use pf::config::cached;
-use pf::config;
+use pf::config qw(%CAPTIVE_PORTAL);
 use pf::violation_config;
 use HTTP::Status qw(:constants is_error is_success);
 use pf::ConfigStore::Violations;

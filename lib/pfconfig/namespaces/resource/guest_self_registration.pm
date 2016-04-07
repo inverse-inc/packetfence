@@ -15,6 +15,7 @@ pfconfig::namespaces::resource::guest_self_registration
 use strict;
 use warnings;
 
+use pf::util qw(is_in_list);
 use pf::constants;
 use pf::constants::config;
 use List::MoreUtils qw(none any);
@@ -70,23 +71,6 @@ sub _guest_modes_from_sources {
 
     return \@guest_modes;
 }
-
-=item is_in_list
-
-Searches for an item in a comma separated list of elements (like we do in our configuration files).
-
-Returns true or false values based on if item was found or not.
-
-=cut
-
-sub is_in_list {
-    my ( $item, $list ) = @_;
-    my @list = ( ref($list) eq 'ARRAY' ) ? @$list : split( /\s*,\s*/, $list );
-    return $TRUE if any { $_ eq $item } @list;
-    return $FALSE;
-}
-
-=back
 
 =head1 AUTHOR
 

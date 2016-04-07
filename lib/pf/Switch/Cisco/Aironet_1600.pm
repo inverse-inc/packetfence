@@ -17,7 +17,11 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use pf::config;
+use pf::constants qw($TRUE);
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::Switch::constants;
 use pf::util qw(format_mac_as_cisco);
 use pf::util::radius qw(perform_coa perform_disconnect);

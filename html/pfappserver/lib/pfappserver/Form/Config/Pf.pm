@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
-use pf::config;
+use pf::config qw(%Default_Config %Doc_Config);
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 

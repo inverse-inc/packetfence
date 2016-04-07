@@ -29,7 +29,11 @@ use APR::URI;
 use List::MoreUtils qw(uniq);
 use pf::log;
 
-use pf::config;
+use pf::config qw(
+    @internal_nets
+    @portal_ints
+    $management_network
+);
 use pf::util;
 use pf::web::constants;
 

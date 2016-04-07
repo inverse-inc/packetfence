@@ -81,7 +81,12 @@ BEGIN {
 
 use pf::constants;
 use pf::config::violation;
-use pf::config;
+use pf::config qw(
+    %connection_type_to_str
+    $INLINE
+    $VOIP
+    $NO_VOIP
+);
 use pf::db;
 use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);

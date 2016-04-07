@@ -34,7 +34,13 @@ BEGIN {
     use pf::log(service => 'pfdns');
 }
 
-use pf::config;
+use pf::config qw(
+    %Config
+    $IF_ENFORCEMENT_VLAN
+    %ConfigNetworks
+    $IF_ENFORCEMENT_DNS
+    is_type_inline
+);
 use pf::config::cached;
 use pf::util;
 use pf::services::util;
@@ -173,7 +179,7 @@ sub run_child {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         _run_child($id);
-    } 
+    }
 }
 
 populate_ipset_cache($IPSET_SESSION);
@@ -239,7 +245,7 @@ sub response_handler {
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
-    
+
     foreach my $network (@routed_dns_enforcement_nets_named) {
         if ($network->contains($ip)) {
             $logger->trace("Performing DNS enforcement on $ip");

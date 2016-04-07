@@ -42,7 +42,10 @@ use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util;
 
 sub description { 'Ruckus Wireless Controllers' }
@@ -67,7 +70,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 =cut
 
-sub supportsWebFormRegistration { 
+sub supportsWebFormRegistration {
     my ($self) = @_;
     return $self->{_deauthMethod} eq $SNMP::HTTP;
 }

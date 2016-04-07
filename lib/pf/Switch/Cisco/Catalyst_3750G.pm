@@ -38,7 +38,6 @@ use warnings;
 
 use Net::SNMP;
 
-use pf::config;
 use pf::Switch::constants;
 
 use base ('pf::Switch::Cisco::Catalyst_3750');

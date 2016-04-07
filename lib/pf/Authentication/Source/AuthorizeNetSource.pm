@@ -15,7 +15,8 @@ pf::Authentication::Source::AuthorizeNetSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn);
+use pf::config qw($default_pid $fqdn);
+use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;

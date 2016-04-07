@@ -19,7 +19,30 @@ use Readonly;
 
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
-use pf::config;
+use pf::config qw(
+    %Config
+    $management_network
+    $IF_INTERNAL
+    $IF_ENFORCEMENT_VLAN
+    $IF_ENFORCEMENT_INLINE
+    %ConfigNetworks
+    $monitor_int
+    %ConfigAuthentication
+    %ConfigNetworks
+    @internal_nets
+    %Doc_Config
+    $INLINE_API_LEVEL
+    $ROLE_API_LEVEL
+    $SOH_API_LEVEL
+    $RADIUS_API_LEVEL
+    $ROLES_API_LEVEL
+    %Profiles_Config
+    %ConfigBillingTiers
+    $SELFREG_MODE_EMAIL
+    $SELFREG_MODE_SMS
+    $SELFREG_MODE_SPONSOR
+    is_inline_enforcement_enabled
+);
 use pf::config::cached;
 use pf::violation_config;
 use pf::util;

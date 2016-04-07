@@ -22,7 +22,7 @@ locationlog-cleanup
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::config;
+use pf::config qw(%Config);
 use pf::locationlog;
 
 use Getopt::Long;

@@ -7,7 +7,7 @@ BEGIN { extends 'captiveportal::Base::Controller'; }
 use POSIX;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
 use pf::Portal::Session;

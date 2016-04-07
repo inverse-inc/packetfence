@@ -19,7 +19,18 @@ use pf::log;
 
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
-use pf::config;
+use pf::config qw(
+    %ConfigFloatingDevices
+    $WIRELESS_MAC_AUTH
+    %Config
+    $WIRED_MAC_AUTH
+    $EAP
+    $VOIP
+    $ALWAYS
+    $MAC
+    $PORT
+    $SSID
+);
 use pf::node qw(node_exist node_modify);
 use pf::Switch::constants;
 use pf::constants::role qw($VOICE_ROLE);

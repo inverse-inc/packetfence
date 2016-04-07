@@ -27,7 +27,6 @@ use Try::Tiny;
 use base ('pf::Switch::Huawei');
 
 use pf::constants;
-use pf::config;
 sub description { 'Huawei S5710' }
 
 =head1 SUBROUTINES

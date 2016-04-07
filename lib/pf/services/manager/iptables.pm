@@ -1,4 +1,5 @@
 package pf::services::manager::iptables;
+
 =head1 NAME
 
 pf::services::manager::iptables add documentation
@@ -15,7 +16,6 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw($install_dir);
-use pf::config;
 use pf::log;
 use pf::util;
 

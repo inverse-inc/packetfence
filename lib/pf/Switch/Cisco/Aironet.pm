@@ -53,7 +53,10 @@ use Net::SNMP;
 use base ('pf::Switch::Cisco');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util qw(format_mac_as_cisco);
 
 =head1 SUBROUTINES

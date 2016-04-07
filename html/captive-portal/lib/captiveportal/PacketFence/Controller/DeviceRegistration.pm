@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config;
+use pf::config qw(%Config);
 use pf::log;
 use pf::node;
 use pf::util;

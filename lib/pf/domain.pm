@@ -16,7 +16,8 @@ use warnings;
 use Net::SNMP;
 use Template;
 use pf::util;
-use pf::config;
+use pf::config qw(%ConfigDomain);
+use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use pf::file_paths qw($domains_chroot_dir);
 use pf::constants::domain qw($SAMBA_CONF_PATH);
@@ -26,7 +27,7 @@ use File::Slurp;
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
 
-=item chroot_path
+=head2 chroot_path
 
 Returns the path to a domain chroot
 
@@ -37,7 +38,7 @@ sub chroot_path {
     return $domains_chroot_dir."/".$domain;
 }
 
-=item run
+=head2 run
 
 Executes a command and returns the results as the domain interfaces expect it
 
@@ -52,7 +53,7 @@ sub run {
     return ($code , $result);
 }
 
-=item test_join
+=head2 test_join
 
 Executes the command in the OS to test the domain join
 
@@ -64,7 +65,7 @@ sub test_join {
     return ($status, $output);
 }
 
-=item test_auth
+=head2 test_auth
 
 Executes the command on the OS to test an authentication to the domain
 
@@ -79,7 +80,7 @@ sub test_auth {
 }
 
 
-=item join_domain
+=head2 join_domain
 
 Joins the domain
 
@@ -100,7 +101,7 @@ sub join_domain {
     return $output;
 }
 
-=item rejoin_domain
+=head2 rejoin_domain
 
 Unjoins then joins the domain
 
@@ -120,7 +121,7 @@ sub rejoin_domain {
     }
 }
 
-=item unjoin_domain
+=head2 unjoin_domain
 
 Joins the domain through the ip namespace
 
@@ -143,7 +144,7 @@ sub unjoin_domain {
 
 }
 
-=item generate_krb5_conf
+=head2 generate_krb5_conf
 
 Generates the OS krb5.conf with all the domains configured in domain.conf
 
@@ -160,7 +161,7 @@ sub generate_krb5_conf {
     $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
 }
 
-=item generate_smb_conf
+=head2 generate_smb_conf
 
 Generates all files for the domains configured in domain.conf
 Will generate one samba config file per domain
@@ -181,7 +182,7 @@ sub generate_smb_conf {
     }
 }
 
-=item generate_resolv_conf
+=head2 generate_resolv_conf
 
 Generates the resolv.conf for the domain and puts it in the ip namespace configuration
 
@@ -202,7 +203,7 @@ sub generate_resolv_conf {
     }
 }
 
-=item restart_winbinds
+=head2 restart_winbinds
 
 Calls pfcmd to restart the winbind processes
 
@@ -214,7 +215,7 @@ sub restart_winbinds {
 }
 
 
-=item regenerate_configuration
+=head2 regenerate_configuration
 
 This generates the configuration for the domain
 Since this needs elevated rights and that it's called by pf owned processes it needs to do it through pfcmd
@@ -227,7 +228,7 @@ sub regenerate_configuration {
     pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
-=item has_os_configuration
+=head2 has_os_configuration
 
 Detects whether or not this server had a non-PF configuration before
 Uses the samba configuration

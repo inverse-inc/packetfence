@@ -17,7 +17,7 @@ use warnings;
 use Readonly;
 
 use pf::authentication;
-use pf::config;
+use pf::config qw(%Config);
 use pf::class qw(class_view_all);
 use pf::util::apache qw(url_parser);
 

@@ -43,8 +43,14 @@ use Time::HiRes qw( usleep );
 
 use base ('pf::Switch');
 
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::role qw($MAC_DETECTION_ROLE);
-use pf::config;
+use pf::config qw(
+    %Config
+    $MAC
+    $PORT
+    $SSID
+);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;

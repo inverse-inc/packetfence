@@ -71,7 +71,10 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::file_paths qw($lib_dir);
 # importing switch constants
 use pf::Switch::constants;

@@ -14,7 +14,7 @@ use HTML::Entities;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 
-use pf::config;
+use pf::config qw(%Config);
 use List::MoreUtils qw(all);
 #use namespace::autoclean;
 
@@ -463,13 +463,13 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
             $c->session->{started} = 1;
             # restart pfconfig
             $c->model("Config::System")->restart_pfconfig();
-            $c->detach(Service => 'pf_start'); 
-        } else { 
+            $c->detach(Service => 'pf_start');
+        } else {
             my ($HTTP_CODE, $services) = $c->model('Services')->status;
             if( all { $_ ne '0' } values %{ $services->{services} } ) {
                 $c->model('Configurator')->update_currently_at();
             }
-            $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);    
+            $c->controller('Service')->_process_model_results_as_json($c, $HTTP_CODE, $services);
         }
     }
 }

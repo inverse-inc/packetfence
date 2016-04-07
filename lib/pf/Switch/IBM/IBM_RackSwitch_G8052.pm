@@ -24,7 +24,9 @@ use Net::SNMP;
 
 use base ('pf::Switch::IBM');
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_802_1X
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::node qw(node_attributes);

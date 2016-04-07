@@ -16,7 +16,13 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::util qw(calc_page_count);
-use pf::config;
+use pf::config qw(
+    $ALWAYS
+    $PORT
+    $SSID
+    $PORT
+    $MAC
+);
 use pf::ConfigStore::Switch;
 use HTTP::Status qw(:constants is_error is_success);
 

@@ -20,7 +20,8 @@ use JSON::MaybeXS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
 
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::config qw($default_pid);
+use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;

@@ -16,17 +16,15 @@ This module is currently only a placeholder, see pf::Switch::AeroHIVE
 
 use strict;
 use warnings;
+use pf::constants;
 
 use base ('pf::Switch::AeroHIVE');
-use pf::Switch::constants;
-use pf::constants;
-use pf::config;
 sub description { 'AeroHive BR100' }
-
 
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -55,4 +53,3 @@ USA.
 =cut
 
 1;
-

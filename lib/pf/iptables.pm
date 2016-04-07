@@ -35,8 +35,23 @@ BEGIN {
     );
 }
 
+use pf::config qw(
+    %ConfigNetworks
+    %Config
+    $IPTABLES_MARK_UNREG
+    $management_network
+    @internal_nets
+    $IF_ENFORCEMENT_VLAN
+    %ConfigProvisioning
+    $IF_ENFORCEMENT_DNS
+    @portal_ints
+    @ha_ints
+    $IPTABLES_MARK_ISOLATION
+    $IPTABLES_MARK_REG
+    is_inline_enforcement_enabled
+    is_type_inline
+);
 use pf::class qw(class_view_all class_trappable);
-use pf::config;
 use pf::file_paths qw($generated_conf_dir $conf_dir);
 use pf::node qw(nodes_registered_not_violators);
 use pf::util;

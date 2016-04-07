@@ -92,7 +92,7 @@ use constant {
 use lib INSTALL_DIR . '/lib';
 use pf::db;
 use pf::constants;
-use pf::config;
+use pf::config qw(%connection_type_explained $UNKNOWN);
 use pf::file_paths qw($bin_dir);
 use pf::enforcement;
 use pf::locationlog;

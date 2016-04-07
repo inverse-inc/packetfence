@@ -12,7 +12,11 @@ Base Module for Dynamic Routing
 
 use Moose;
 use pf::log;
-use pf::config;
+use pf::constants qw($TRUE $FALSE);
+use pf::config qw(
+    %Config
+    %CAPTIVE_PORTAL
+);
 use Hash::Merge qw(merge);
 use List::MoreUtils qw(any);
 use pf::node;

@@ -14,7 +14,7 @@ authentication source.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Authentication::Action';
 
-use pf::config;
+use pf::config qw(%connection_group %connection_type);
 use pf::Authentication::constants;
 
 # Form select options
@@ -48,7 +48,7 @@ has_field 'match' =>
    type => 'Select',
    widget_wrapper => 'None',
    localize_labels => 1,
-   options => 
+   options =>
    [
     { value => $Rules::ANY, label => 'any' },
     { value => $Rules::ALL, label => 'all' },
@@ -225,7 +225,7 @@ the authentication source.
 
 sub options_attributes {
     my $self = shift;
-    
+
     my $form = $self->form;
     my @attributes = map {{
         label => $_->{value},

@@ -11,7 +11,7 @@ to access SNMP enabled Dlink DGS 3100 switches.
 
 =head1 STATUS
 
-=over 
+=over
 
 =item Supports
 
@@ -47,7 +47,10 @@ sub description { 'D-Link DGS 3100' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 
 =head1 SUBROUTINES
 
@@ -91,7 +94,7 @@ Translate RADIUS NAS-Port into the physical port ifIndex
 sub NasPortToIfIndex {
     my ($self, $NAS_port) = @_;
     my $logger = $self->logger;
-    
+
     #NAS-Port is ifIndex (Stacked switch not tested!!)
     return $NAS_port;
 }

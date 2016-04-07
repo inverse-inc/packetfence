@@ -37,7 +37,6 @@ use threads;
 use Try::Tiny;
 use File::Which;
 use Socket;
-use List::MoreUtils qw(any);
 use Time::Local;
 use Linux::Distribution;
 use DateTime;
@@ -145,10 +144,10 @@ our (
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
         @inline_enforcement_nets @vlan_enforcement_nets
@@ -174,10 +173,9 @@ BEGIN {
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
-        normalize_time access_duration
+        access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
-        is_in_list
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
         %ConfigFirewallSSO
@@ -187,7 +185,7 @@ BEGIN {
         %ConfigRealm
         %ConfigProvisioning
         %ConfigDomain
-        $TRUE $FALSE $default_pid
+        $default_pid
         %ConfigScan
         %ConfigWmi
         %ConfigPKI_Provider
@@ -887,21 +885,6 @@ sub is_network_type_inline {
     } else {
         return $FALSE;
     }
-}
-
-=item is_in_list
-
-Searches for an item in a comma separated list of elements (like we do in our configuration files).
-
-Returns true or false values based on if item was found or not.
-
-=cut
-
-sub is_in_list {
-    my ($item, $list) = @_;
-    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
-    return $TRUE if any { $_ eq $item } @list;
-    return $FALSE;
 }
 
 =item is_omapi_lookup_enabled

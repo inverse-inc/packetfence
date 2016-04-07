@@ -17,7 +17,12 @@ use Moo;
 use IPC::Cmd qw[can_run run];
 use List::MoreUtils qw(uniq);
 use POSIX;
-use pf::config;
+use pf::config qw(
+    %Config
+    @portal_ints
+    @listen_ints
+    @dhcplistener_ints
+);
 use pf::file_paths qw(
     $generated_conf_dir
     $install_dir

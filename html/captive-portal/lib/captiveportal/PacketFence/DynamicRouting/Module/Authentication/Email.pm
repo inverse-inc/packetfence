@@ -17,7 +17,8 @@ with 'captiveportal::Role::FieldValidation';
 has '+source' => (isa => 'pf::Authentication::Source::EmailSource');
 
 use pf::auth_log;
-use pf::config;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE);
 use pf::log;
 use pf::authentication;
 use pf::Authentication::constants;
@@ -81,7 +82,7 @@ sub do_email_registration {
         $self->app->profile->getName,
         %info,
       );
-    
+
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
     $self->session->{fields} = $self->request_fields;

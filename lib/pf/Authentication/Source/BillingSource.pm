@@ -14,7 +14,8 @@ pf::Authentication::Source::BillingSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn);
+use pf::config qw($default_pid $fqdn);
+use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::util;
 

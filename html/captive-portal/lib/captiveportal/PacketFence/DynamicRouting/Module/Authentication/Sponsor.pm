@@ -14,9 +14,12 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 
 use pf::log;
-use pf::config;
+use pf::constants qw($TRUE);
+use pf::config qw(%Config);
 use Date::Format qw(time2str);
 use pf::Authentication::constants;
+use pf::activation;
+use pf::web::guest;
 
 has '+source' => (isa => 'pf::Authentication::Source::SponsorEmailSource');
 
@@ -71,7 +74,7 @@ sub check_activation {
         $self->app->redirect("/signup");
         return;
     }
-    my $record = pf::activation::view_by_code($self->session->{activation_code}); 
+    my $record = pf::activation::view_by_code($self->session->{activation_code});
     if($record->{status} eq "verified"){
         get_logger->info("Activation record has been validated.");
         $self->session->{sponsor_activated} = $TRUE;
@@ -128,7 +131,7 @@ sub do_sponsor_registration {
         $self->app->profile->getName,
         %info,
       );
-    
+
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
     $self->session->{activation_code} = $activation_code;
@@ -166,7 +169,7 @@ sub _validate_sponsor {
         $self->prompt_fields();
         return 0;
     }
-    return 1; 
+    return 1;
 }
 
 =head2 auth_source_params_child

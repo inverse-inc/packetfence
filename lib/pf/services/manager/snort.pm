@@ -25,7 +25,11 @@ use pf::file_paths qw(
 );
 use pf::log;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $monitor_int
+    %Config
+    $monitor_int
+);
 use pf::violation_config;
 use pf::util qw(parse_template listify);
 use pf::config::util;

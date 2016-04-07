@@ -34,7 +34,7 @@ pf::Switch::LG - Object oriented module to access and configure enabled LG-Erics
 
 =item Port-security
 
-- The three port security statements (port security, port security max-mac-count, port security action) 
+- The three port security statements (port security, port security max-mac-count, port security action)
 are required on each port security enabled ports for the switch to correctly handle the feature. Make sure that
 the "port security" statement is correctly enabled using the recommandation in the "Network devices guide". If not
 correctly enabled, the method isPortSecurityEnabled can't return a good value and the switch sets the device MAC address
@@ -57,7 +57,10 @@ use POSIX;
 use Net::SNMP;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::Switch::constants;
 use pf::util;
 
@@ -72,8 +75,8 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =head1 SUBROUTINES
 
 This list is incomplete.
-         
-=over   
+
+=over
 
 =cut
 
@@ -84,10 +87,10 @@ sub parseTrap {
     my $logger = $self->logger;
 
     # link up/down
-    if ( $trapString =~ 
+    if ( $trapString =~
             /BEGIN\ VARIABLEBINDINGS\ [^|]+[|]\.
             1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0               # SNMP notification
-            \ =\ OID:\ \.                               
+            \ =\ OID:\ \.
             1\.3\.6\.1\.6\.3\.1\.1\.5\.([34])             # link UP(4) DOWN(3) trap
             \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+)    # ifIndex
             /x ) {
@@ -95,14 +98,14 @@ sub parseTrap {
         $trapHashRef->{'trapIfIndex'} = $2;
 
     # secure MAC violation
-    } elsif ( $trapString =~ 
+    } elsif ( $trapString =~
             /BEGIN\ VARIABLEBINDINGS\ [^|]+[|]\.
             1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0                               # SNMP notification
-            \ =\ OID:\ 
+            \ =\ OID:\
             \.1\.3\.6\.1\.4\.1\.572\.17389\.14500\.2\.1\.0\.36            # secure MAC violation trap
-            \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+\ =\ 
+            \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+\ =\
             INTEGER:\ ([0-9]+)                                            # ifIndex
-            \|\.1\.3\.6\.1\.4\.1\.572\.17389\.14500\.1\.14\.2\.29\.0\ =\ 
+            \|\.1\.3\.6\.1\.4\.1\.572\.17389\.14500\.1\.14\.2\.29\.0\ =\
             $SNMP::MAC_ADDRESS_FORMAT                                     # MAC Address
             /x ) {
         $trapHashRef -> {'trapType'} = 'secureMacAddrViolation';
@@ -169,7 +172,7 @@ sub authorizeMAC {
 
     if ( !$self->isProductionMode() ) {
         $logger->info(
-                "The switch isn't in production mode (Do nothing): " . 
+                "The switch isn't in production mode (Do nothing): " .
                 "Should deauthorize MAC $deauthMac on ifIndex $ifIndex, VLAN $deauthVlan " .
                 "and authorize MAC $authMac on ifIndex $ifIndex, VLAN $authVlan."
         );
@@ -228,7 +231,7 @@ sub authorizeMAC {
         }
     }
 
-    return 1;    
+    return 1;
 }
 
 
@@ -239,7 +242,7 @@ sub _setVlan {
     my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';                       # Q-BRIDGE-MIB
     my $OID_dot1qVlanStaticUntaggedPorts = '1.3.6.1.2.1.17.7.1.4.3.1.4';    # Q-BRIDGE-MIB
     my $OID_dot1qVlanStaticEgressPorts = '1.3.6.1.2.1.17.7.1.4.3.1.2';      # Q-BRIDGE-MIB
-    
+
     if ( !$self->isProductionMode() ) {
         $logger->info(
                 "The switch isn't in production mode (Do nothing): " .
@@ -256,12 +259,12 @@ sub _setVlan {
 
     if ( !$self->connectRead() ) {
         return 0;
-    }    
+    }
 
     {
         lock %{ $switch_locker_ref->{ $self->{_ip} } };
         $logger->trace( "locking - \$switch_locker{" . $self->{_ip} . "} locked in _setVlan" );
- 
+
         # Get current egress and untagged ports
         $logger->trace(
                 "SNMP get_request for dot1qVlanStaticEgressPorts: " .
@@ -275,14 +278,14 @@ sub _setVlan {
         $logger->trace(
                 "SNMP get_request for dot1qVlanStaticUntaggedPorts: " .
                 "( $OID_dot1qVlanStaticUntaggedPorts.$newVlan )" );
-        $self->{_sessionRead}->translate(0);    
+        $self->{_sessionRead}->translate(0);
         $result = $self->{_sessionRead}->get_request( -varbindlist => [
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan",
                 "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
                 "$OID_dot1qVlanStaticUntaggedPorts.$newVlan" ] );
         $self->{_sessionRead}->translate(1);
-    
+
         # Calculate new settings
         my $egressPortsOldVlan = $self->modifyBitmask(
                 $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
@@ -292,11 +295,11 @@ sub _setVlan {
                 $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"}, $dot1dBasePort - 1, 0 );
         my $untaggedPortsVlan = $self->modifyBitmask(
                 $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"}, $dot1dBasePort - 1, 1 );
-    
+
         if ( !$self->connectWrite() ) {
             return 0;
         }
-    
+
         # Setting egressPorts and untaggedPorts for new vlan
         $logger->trace(
             "SNMP set_request for OID_dot1qVlanStaticUntaggedPorts: " .
@@ -306,33 +309,33 @@ sub _setVlan {
             "SNMP set_request for OID_dot1qVlanStaticEgressPorts: " .
             "( $OID_dot1qVlanStaticEgressPorts.$newVlan s portList )"
         );
-        # This switch is sensitive about the order in which we set untagged vs egress parameters. 
+        # This switch is sensitive about the order in which we set untagged vs egress parameters.
         # This combination worked, don't touch it unless you know what you are doing!
         $result = $self->{_sessionWrite}->set_request( -varbindlist => [
-                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan, 
+                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan,
                 "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan ] );
         if ( !defined($result) ) {
-            $logger->error( 
+            $logger->error(
                     "Error setting untaggedPorts and egressPorts for new vlan $newVlan: " .  $self->{_sessionWrite}->error
             );
         } else {
             $logger->info( "Changed untaggedPorts and egressPorts for new vlan $newVlan" );
         }
-    
+
         # Changing port PVID for new vlan
         $logger->trace(
                 "SNMP set_request for OID_dot1qPvid: " .
                 "( $OID_dot1qPvid.$ifIndex u $newVlan )" );
-        $result = $self->{_sessionWrite}->set_request( -varbindlist => [ 
+        $result = $self->{_sessionWrite}->set_request( -varbindlist => [
                 "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE32, $newVlan ] );
         if ( !defined($result) ) {
-            $logger->error( 
+            $logger->error(
                     "Error changing port PVID for new vlan $newVlan: " .  $self->{_sessionWrite}->error
             );
         } else {
             $logger->info( "Changed port PVID for new vlan $newVlan" );
         }
-    
+
         # Setting egressPorts and untaggedPorts for old vlan
         $logger->trace(
                 "SNMP set_request for OID_dot1qVlanStaticUntaggedPorts: " .
@@ -341,7 +344,7 @@ sub _setVlan {
                 "SNMP set_request for OID_dot1qVlanStaticEgressPorts: " .
                 "( $OID_dot1qVlanStaticEgressPorts.$oldVlan s portList )" );
         $result = $self->{_sessionWrite}->set_request( -varbindlist => [
-                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan, 
+                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan,
                 "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan ] );
         if ( !defined($result) ) {
             $logger->error(
@@ -350,7 +353,7 @@ sub _setVlan {
         } else {
             $logger->info( "Changed untaggedPorts and egressPorts for old vlan $oldVlan" );
         }
- 
+
      }
 
     # if we are in port security mode we need to authorize the MAC in the new VLAN (and deauthorize the old stuff)
@@ -358,7 +361,7 @@ sub _setVlan {
     # Same behaviour/code as for Foundry switches
     if ( $self->isPortSecurityEnabled($ifIndex) ) {
         my $auth_result = $self->authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
-        
+
         if ( ( !defined($auth_result) ) || ( $auth_result != 1 ) ) {
             $logger->error("Couldn't authorize MAC for new VLAN: no secure mac");
         }
@@ -368,7 +371,7 @@ sub _setVlan {
 }
 
 
-=item getSecureMacAddresses 
+=item getSecureMacAddresses
 
 Return all MAC addresses in security table and their VLAN for a given ifIndex
 
@@ -396,7 +399,7 @@ sub getSecureMacAddresses {
 
         # if bit at ifIndex position is On, this MAC is on the ifIndex we are looking for, store it
         if ($self->getBitAtPosition($result->{$oid_including_mac}, $ifIndex-1)) {
-            if ($oid_including_mac =~ 
+            if ($oid_including_mac =~
                 /^$OID_dot1qStaticUnicastAllowedToGoTo\.             # query OID
                 ([0-9]+)\.                                           # <vlan>.
                 ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)     # MAC in OID format
@@ -428,7 +431,7 @@ sub getAllSecureMacAddresses {
     my $OID_dot1qStaticUnicastAllowedToGoTo = '1.3.6.1.2.1.17.7.1.3.1.1.3';    # Q-BRIDGE MIB
 
     my $secureMacAddrHashRef = {};
-    
+
     if ( !$self->connectRead() ) {
         return $secureMacAddrHashRef;
     }
@@ -439,13 +442,13 @@ sub getAllSecureMacAddresses {
         "( $OID_dot1qStaticUnicastAllowedToGoTo )"
     );
     $self->{_sessionRead}->translate(0);
-    my $result = $self->{_sessionRead}->get_table( -baseoid => 
+    my $result = $self->{_sessionRead}->get_table( -baseoid =>
         "$OID_dot1qStaticUnicastAllowedToGoTo" );
     $self->{_sessionRead}->translate(1);
 
     while ( my $oid_including_mac = each( %{$result} ) ) {
-        
-        # here is an example for port ethernet 1/16 
+
+        # here is an example for port ethernet 1/16
         # result is HEX and $y is bits
         #
         # the length of result varies based on SMC model, 480 bits on 8xxx and 64 bits on 6xxx
@@ -454,7 +457,7 @@ sub getAllSecureMacAddresses {
         # in this example then $ifIndex = 16
 
         my $port_list = unpack("B*", $result->{$oid_including_mac});
-        
+
         # Iterate through all ports enabled for that entry
         while( $port_list =~ /1/g ) {
             my $ifIndex = pos($port_list);
@@ -465,7 +468,7 @@ sub getAllSecureMacAddresses {
                     ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\.    # mac in oid format
                     [0-9]+                                                # unknown
                     /x ) {
-                
+
                 my $vlan = $1;
                 my $mac = oid2mac($2);
                 push @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} }, $vlan;
@@ -481,7 +484,7 @@ sub getDot1dBasePortForThisIfIndex {
     my ( $self, $ifIndex ) = @_;
     my $logger = $self->logger;
 
-    my $OID_dot1dBaseNumPort = '1.3.6.1.2.1.17.1.2.0';    # BRIDGE MIB 
+    my $OID_dot1dBaseNumPort = '1.3.6.1.2.1.17.1.2.0';    # BRIDGE MIB
 
    if ( !$self->connectRead() ) {
         return 0;

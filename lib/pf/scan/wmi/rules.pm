@@ -15,7 +15,7 @@ pf::scan::wmi::rules deny or allow based on rules.
 use strict;
 use warnings;
 
-use pf::config;
+use pf::constants;
 use pf::log;
 use Net::WMIClient qw(wmiclient);
 use Config::IniFiles;

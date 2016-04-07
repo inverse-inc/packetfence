@@ -10,10 +10,10 @@ The pf::Switch::Cisco::WLC_2100 module implements an object oriented interface t
 
 =head1 STATUS
 
-Developed and tested a long time ago on an undocumented IOS. 
+Developed and tested a long time ago on an undocumented IOS.
 
 With time and product line evolution, this module mostly became a placeholder,
-you should see L<pf::Switch::Cisco::WLC> for other relevant support items and 
+you should see L<pf::Switch::Cisco::WLC> for other relevant support items and
 issues.
 
 =over
@@ -42,7 +42,10 @@ use Net::SNMP;
 use base ('pf::Switch::Cisco::WLC');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util qw(format_mac_as_cisco);
 
 sub description { 'Cisco Wireless (WLC) 2100 Series' }
@@ -59,7 +62,7 @@ TODO: This list is incomplete
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
-# special features 
+# special features
 sub supportsSaveConfig { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -69,8 +72,8 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 Deprecated: This is no longer required since IOS 5.x+. New implementation is
 in pf::Switch::Cisco::WLC and relies on Disconnect-Message (RFC3576).
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread
+safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 

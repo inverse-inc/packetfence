@@ -66,7 +66,10 @@ use Try::Tiny;
 
 use pf::constants;
 use pf::constants::role qw($VOICE_ROLE);
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::file_paths qw($lib_dir);
 # importing switch constants
 use pf::Switch::constants;

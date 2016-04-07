@@ -19,7 +19,10 @@ use base ('pf::Switch');
 
 use pf::constants;
 use pf::file_paths qw($lib_dir);
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 sub description { 'Trapeze Wireless Controller' }
 
 # importing switch constants
