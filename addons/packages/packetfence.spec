@@ -653,18 +653,18 @@ fi
 
 for service in snortd httpd snmptrapd portreserve redis
 do
-  %if 0%{?el6}
+%if 0%{?el6}
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
     /sbin/chkconfig --del $service > /dev/null 2>&1
   fi
-  %endif
-  %if 0%{?el7}
+%endif
+%if 0%{?el7}
   if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
     /bin/systemctl disable $service > /dev/null 2>&1
   fi
-  %endif
+%endif
 done
 
 
