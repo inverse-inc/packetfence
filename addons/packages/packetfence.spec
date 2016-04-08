@@ -92,7 +92,7 @@ Requires: mod_perl, mod_qos, mod_evasive
 requires: libapreq2
 Requires: dhcp
 Requires: redis
-Requires: freeradius >= 3.0.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest
+Requires: freeradius >= 3.0.10, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff
 Requires: make
 Requires: net-tools
 Requires: sscep
