@@ -4237,7 +4237,7 @@ one to allow anything (Authorize_any) .
 image::docs/images/ACL.png[scaledwidth="100%",alt="ACL"]
 
 * Then the last step is to configure the WLC in PacketFence.
-Portal URL definition
+Role by Web Auth URL
 
 image::docs/images/WLC_PACKETFENCE.png[scaledwidth="100%",alt="ACL"]
 
