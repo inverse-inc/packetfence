@@ -26,6 +26,9 @@ use pf::config qw(
 );
 use pf::cluster;
 use Sys::Hostname;
+DateTime::Locale->add_aliases({
+    'i_default' => 'en',
+});
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
