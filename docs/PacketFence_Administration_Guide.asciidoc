@@ -2677,6 +2677,7 @@ Here are the main settings:
 * The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
 * The amount of grace time between two parking violations is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Parking'
 
 Optional components
 -------------------
