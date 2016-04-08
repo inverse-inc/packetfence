@@ -184,8 +184,8 @@
                         <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
                       [% ELSE %]
                         [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
-                        [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                       [% END %]
+                      [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                     </td>
                     <td>[% l(item.connection_type) %]</td>
                     <td>
