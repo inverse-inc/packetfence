@@ -25,6 +25,7 @@ use fingerbank::Model::Endpoint;
 use fingerbank::Util;
 use pf::cluster;
 use pf::constants;
+use pf::constants::fingerbank qw($RATE_LIMIT);
 
 use pf::client;
 use pf::error qw(is_error);
@@ -121,8 +122,12 @@ sub _query {
     my $logger = pf::log::get_logger;
 
     my $cache = pf::CHI->new( namespace => 'fingerbank' );
-    my $fingerbank = fingerbank::Query->new(cache => $cache);
-    return $fingerbank->match($args);
+    # Rate limit the fingerbank requests based on the query params
+    my $result = $cache->compute("fingerbank::_query-".encode_json($args), {expires_in => $RATE_LIMIT}, sub {
+        my $fingerbank = fingerbank::Query->new(cache => $cache);
+        return $fingerbank->match($args);
+    });
+    return $result;
 }
 
 =head2 _trigger_violations
