@@ -28,6 +28,7 @@ use URI::Escape::XS qw(uri_unescape);
 use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
+use pf::api::queue;
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -183,7 +184,8 @@ sub process_fingerbank {
         ip                  => $self->root_module->current_ip,
     );
 
-    pf::fingerbank::process(\%fingerbank_query_args);
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify('fingerbank_process', \%fingerbank_query_args);
 }
 
 =head2 current_module_id
