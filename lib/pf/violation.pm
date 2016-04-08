@@ -49,6 +49,23 @@ use pf::factory::condition::violation;
 pf::factory::condition::violation->modules;
 tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
 
+our %POST_OPEN_ACTIONS = (
+    "1300003" => sub {
+        my ($info) = @_;
+        require pf::parking;
+        my $mac = $info->{mac};
+        pf::parking::park($mac, pf::iplog::mac2ip($mac));
+    },
+);
+our %POST_CLOSE_ACTIONS = (
+    "1300003" => sub {
+        my ($info) = @_;
+        require pf::parking;
+        my $mac = $info->{mac};
+        pf::parking::remove_parking_actions($mac, pf::iplog::mac2ip($mac));
+    },
+);
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -507,6 +524,7 @@ sub violation_add {
         $logger->info("violation $vid added for $mac");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $vid, $data{notes} );
+            violation_post_open_action($mac, $vid);
         }
         return ($last_id);
     } else {
@@ -777,6 +795,7 @@ sub violation_close {
         db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
             || return (0);
         $logger->info("violation $vid closed for $mac");
+        violation_post_close_action($mac, $vid);
         return ($grace);
     }
     return (-1);
@@ -792,6 +811,7 @@ sub violation_force_close {
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
     $logger->info("violation $vid force-closed for $mac");
+    violation_post_close_action($mac, $vid);
     return (1);
 }
 
@@ -937,6 +957,32 @@ sub _violation_run_delayed {
     my $notes = $violation->{vid};
     pf::violation::violation_modify($violation->{id}, %data);
     pf::action::action_execute( $mac, $vid, $notes );
+}
+
+=head2 violation_post_open_action
+
+Execute an action that should occur after opening the violation if necessary
+
+=cut
+
+sub violation_post_open_action {
+    my ($mac, $vid) = @_;
+    if(exists($POST_OPEN_ACTIONS{$vid})) {
+        $POST_OPEN_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    }
+}
+
+=head2 violation_post_close_action
+
+Execute an action that should occur after closing the violation if necessary
+
+=cut
+
+sub violation_post_close_action {
+    my ($mac, $vid) = @_;
+    if(exists($POST_CLOSE_ACTIONS{$vid})) {
+        $POST_CLOSE_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    }
 }
 
 =back
