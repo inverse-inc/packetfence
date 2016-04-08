@@ -61,7 +61,7 @@ fi
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
 
-    /usr/local/pf/addons/database-cleaner.pl --table=locationlog --date-field=end_time --older-than="1 WEEK" --additionnal-condition="(end_time IS NOT NULL OR end_time <> 0)" 
+    /usr/local/pf/addons/database-cleaner.pl --table=locationlog --date-field=end_time --older-than="1 WEEK" --additionnal-condition="(end_time <> 0)"
     
     /usr/local/pf/addons/database-cleaner.pl --table=iplog_history --date-field=end_time --older-than="1 WEEK"
     
