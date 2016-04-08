@@ -137,7 +137,7 @@ The default stylesheet is the result of processing some http://sass-lang.com/[Sa
 
 In order to prepare your environment to process the Sass files, you need to install http://gruntjs.com/[grunt] (the task runner) and additional https://nodejs.org[nodejs] modules, including the various inuitcss components:
 
-  sudo npm install -g grunt
+  sudo npm install -g grunt-cli
   cd /usr/local/pf/html/captive-portal/content
   npm install
 

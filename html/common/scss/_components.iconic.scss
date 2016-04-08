@@ -5,6 +5,8 @@ $pf-iconic-size--small:    $inuit-base-line-height * 3/2;
 $pf-iconic-size--large:    $inuit-base-line-height * 7/3;
 
 .#{$pf-namespace}iconic {
+  width: 100%; // fill container
+
   use {
     fill: $inuit-base-text-color;
   }  
