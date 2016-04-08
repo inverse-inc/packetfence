@@ -55,8 +55,11 @@ Get the provisioner from the session or the portal profile
 
 sub get_provisioner {
     my ($self) = @_;
-    $self->session->{provisioner} //= $self->app->profile->findProvisioner($self->current_mac, $self->node_info);
-    return $self->session->{provisioner};
+    my $provisioner = defined($self->session->{provisioner_id}) ? 
+        pf::factory::provisioner->new($self->session->{provisioner_id}) :
+        $self->app->profile->findProvisioner($self->current_mac, $self->node_info);
+    $self->session->{provisioner_id} = $provisioner->id;
+    return $provisioner;
 }
 
 =head2 is_eap_tls
