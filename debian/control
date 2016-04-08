@@ -18,7 +18,7 @@ Pre-Depends:  ca-certificates,
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
 Breaks: libdata-alias-perl
-Depends: ${misc:Depends}, vlan, make,
+Depends: ${misc:Depends}, vlan,
  openssl, openssl-blacklist, openssl-blacklist-extra,
  mysql-server|mariadb-server|mariadb-galera-server,
  snmp, snmptrapfmt, snmp-mibs-downloader, conntrack,
@@ -28,9 +28,9 @@ Depends: ${misc:Depends}, vlan, make,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-qos,
  libapache2-mod-evasive,
- # freeradius etc.
+# freeradius
  freeradius (>= 3.0.10), freeradius-ldap, 
- freeradius-mysql,  freeradius-utils, freeradius-rest, freeradius-redis,
+ freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # binary
  make,
  samba,
