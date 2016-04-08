@@ -89,7 +89,6 @@
 /usr/local/pf/conf/monitoring/storage-schemas.conf
 /usr/local/pf/conf/monitoring/types.db
 /usr/local/pf/html/captive-portal/captiveportal.conf
-/usr/local/pf/html/captive-portal/content/styles.css
 /usr/local/pf/html/captive-portal/content/Gruntfile.js
 /usr/local/pf/html/captive-portal/content/captiveportal.js
 /usr/local/pf/html/captive-portal/content/package.json
