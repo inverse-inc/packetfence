@@ -54,8 +54,10 @@ sub process {
                 $query_args->{$param} = $query_args->{$param} // $node_info->{$param} || '';
             }
             # ip is a special case as it's not in the node_info
-            my $ip = pf::iplog::mac2ip($query_args->{mac});
-            $query_args->{ip} = $query_args->{ip} // $ip unless $ip eq 0;
+            unless(defined($query_args->{ip})){
+                my $ip = pf::iplog::mac2ip($query_args->{mac});
+                $query_args->{ip} = $ip unless $ip eq 0;
+            }
         }
     }
 
