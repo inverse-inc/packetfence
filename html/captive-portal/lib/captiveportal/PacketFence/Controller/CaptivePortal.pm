@@ -22,6 +22,7 @@ use List::Util qw(first);
 use pf::factory::provisioner;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
 use pf::inline;
+use pf::api::queue;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -135,7 +136,8 @@ sub processFingerbank :Private {
         ip                  => $portalSession->clientIp,
     );
 
-    pf::fingerbank::process(\%fingerbank_query_args);
+    my $client = pf::api::queue->new(queue => 'general');
+    $client->notify('fingerbank_process', \%fingerbank_query_args);
 }
 
 =head2 checkForViolation
