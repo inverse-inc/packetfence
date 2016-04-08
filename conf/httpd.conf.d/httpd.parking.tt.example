@@ -37,6 +37,9 @@
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
   </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -75,6 +78,9 @@
   </IfModule>
   <IfModule !mod_dir.c>
     LoadModule dir_module modules/mod_dir.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module modules/mod_headers.so
   </IfModule>
 </IfDefine>
 
@@ -123,6 +129,8 @@ ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 </Directory>
 
 Alias "/common" "[% install_dir %]/html/common"
+
+Header set Cache-Control "no-cache, no-store, must-revalidate"
 
 <Directory [% install_dir %]/html/common>
   [% IF apache_version == "2.4" %]
