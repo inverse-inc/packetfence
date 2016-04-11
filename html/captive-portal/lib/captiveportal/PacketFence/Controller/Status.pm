@@ -80,7 +80,8 @@ sub setExpiration {
     my ($node_info) = @_;
     if ( defined $node_info->{'last_start_timestamp'}
          && $node_info->{'last_start_timestamp'} > 0 ) {
-        if ( defined ( $node_info->{'time_balance'} )) {
+        if ( defined ( $node_info->{'time_balance'} )
+         && $node_info->{'time_balance'} > 0) {
             if ( $node_info->{'time_balance'} > 0 ) {
 
                 # Node has a usage duration
