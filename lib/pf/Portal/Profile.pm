@@ -32,6 +32,11 @@ use pf::config qw(
     %ConfigBillingTiers
 );
 
+use pfconfig::memory_cached;
+
+# a memory cache tied to the config::Profiles namepace 
+our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles');
+
 =head1 METHODS
 
 =over
@@ -247,7 +252,10 @@ Returns the authentication sources objects for the current captive portal profil
 
 sub getSourcesAsObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()};
+    my $sources = $SOURCES_CACHE->compute_from_subcache($self->getName, sub {  
+        [ grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()} ] 
+    } );
+    return @$sources;
 }
 
 =item getInternalSources
