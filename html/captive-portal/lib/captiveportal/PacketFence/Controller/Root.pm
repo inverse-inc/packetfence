@@ -60,7 +60,7 @@ sub auto : Private {
 
 sub setupDynamicRouting : Private {
     my ($self, $c) = @_;
-    my $timer = pf::StatsD::Timer->new({sample_rate => 1});
+    my $timer = pf::StatsD::Timer->new();
 
     my $node = node_attributes($c->portalSession->clientMac);
 
