@@ -71,7 +71,7 @@ sub setupDynamicRouting : Private {
         session => $c->session,
         profile => $profile,
         request => $request,
-        root_module_id => $node->{status} eq $pf::node::STATUS_PENDING ? "default_pending_policy" : $profile->{_root_module},
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? "default_pending_policy" : $profile->{_root_module},
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIp;
