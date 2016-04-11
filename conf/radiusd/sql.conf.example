@@ -408,3 +408,37 @@ sql pflocal {
         group_membership_query = "select 1"
         pool = sql 
 }
+
+sql sql_reject {
+        database = "mysql"
+        driver = "rlm_sql_${database}"
+
+        server = "%%db_host%%"
+        port = %%db_port%%
+        login = "%%db_username%%"
+        password = "%%db_password%%"
+
+
+        radius_db = "%%db_database%%"
+        acct_table1 = "radacct"
+        acct_table2 = "radacct"
+        postauth_table = "radpostauth"
+        authcheck_table = "password"
+        authreply_table = "radreply"
+        groupcheck_table = "radgroupcheck"
+        groupreply_table = "radgroupreply"
+        usergroup_table = "radusergroup"
+
+        delete_stale_sessions = yes
+        sqltrace = no
+        sqltracefile = ${logdir}/sqltrace.sql
+
+        sql_user_name = "%{User-Name}"
+        authorize_check_query = ""
+
+        postauth_query = ""
+        group_membership_query = ""
+        pool = sql
+        # Read database-specific queries
+        $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
+}

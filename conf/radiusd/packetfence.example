@@ -325,9 +325,13 @@ post-auth {
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		packetfence
-		request-timing
-		-sql
+        if (updated || ok || noop) {
+            request-timing
+            -sql
+        } else {
+            request-timing
+            -sql_reject
+        }
 	}
 
 	attr_filter.packetfence_post_auth
@@ -345,7 +349,7 @@ post-auth {
         if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		request-timing
 		# log failed authentications in SQL, too.
-		-sql
+		-sql_reject
 	}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth

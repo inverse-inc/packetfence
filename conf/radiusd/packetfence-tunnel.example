@@ -226,11 +226,13 @@ session {
 post-auth {
 	#
 	rest
-	request-timing
-	#  After authenticating the user, do another SQL query.
-	#
-	#  See "Authentication Logging Queries" in sql.conf
-	-sql
+    if (updated || ok || noop) {
+        request-timing
+        -sql
+    } else {
+        request-timing
+        -sql_reject
+    }
 
 	#
 	#  Un-comment the following if you have set
@@ -269,7 +271,7 @@ post-auth {
 	Post-Auth-Type REJECT {
 		request-timing
 		# log failed authentications in SQL, too.
-		-sql
+		-sql_reject
 		attr_filter.access_reject
 
 		#
