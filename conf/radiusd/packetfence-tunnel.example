@@ -88,7 +88,7 @@ authorize {
 
 	#
 	#  Read the 'users' file
-	files
+	#files
 
 	# Check if PacketFence local (SQL) authentication is enabled.
 	# Run the packetfence-local-auth policy if it is.
