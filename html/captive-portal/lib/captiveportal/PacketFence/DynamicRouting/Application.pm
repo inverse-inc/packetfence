@@ -29,6 +29,7 @@ use HTML::Entities;
 use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
 use pf::api::queue;
+use pf::file_paths qw($install_dir);
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -415,6 +416,8 @@ sub _template_toolkit_options {
         PRE_PROCESS => 'macros.inc',
         INCLUDE_PATH => $self->profile->{_template_paths},
         ENCODING => 'utf8',
+        COMPILE_DIR => $install_dir . "/var/tt_compile_cache",
+        COMPILE_EXT => '.compiled.template',
     };
     if($args->{raw}){
         delete $options->{AUTO_FILTER};
