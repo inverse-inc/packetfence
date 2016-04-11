@@ -172,8 +172,7 @@ sub post_auth {
                    $attributes->{$key} = $attributes->{$key}->{'item'};
                }
             }
-            %RAD_REPLY = (%RAD_REPLY, %$attributes); # The rest of result is the reply hash passed by the radius_authorize
-            %RAD_CHECK = (%RAD_CHECK, %$radius_audit); # Add the radius audit data to RAD_CHECK
+            %RAD_REPLY = (%RAD_REPLY, %$radius_audit, %$attributes); # The rest of result is the reply hash passed by the radius_authorize
         } else {
             return server_error_handler();
         }
@@ -342,7 +341,7 @@ sub accounting {
         send_msgpack_notification($config, "handle_accounting_metadata", \%RAD_REQUEST);
         if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
             $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
-        } 
+        }
 
         if ($data) {
             my $elements = $data->[0];
