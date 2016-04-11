@@ -80,14 +80,16 @@ sub setExpiration {
     my ($node_info) = @_;
     if ( defined $node_info->{'last_start_timestamp'}
          && $node_info->{'last_start_timestamp'} > 0 ) {
-        if ( $node_info->{'time_balance'} > 0 ) {
+        if ( defined ( $node_info->{'time_balance'} )) {
+            if ( $node_info->{'time_balance'} > 0 ) {
 
-            # Node has a usage duration
-            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
-            if ( $node_info->{'expiration'} < time ) {
-                # No more access time; RADIUS accounting should have triggered a violation
-                delete $node_info->{'expiration'};
-                $node_info->{'time_balance'} = 0;
+                # Node has a usage duration
+                $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
+                if ( $node_info->{'expiration'} < time ) {
+                    # No more access time; RADIUS accounting should have triggered a violation
+                    delete $node_info->{'expiration'};
+                    $node_info->{'time_balance'} = 0;
+                }
             }
         }
     }
