@@ -325,6 +325,7 @@ post-auth {
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+        packetfence
         if (updated || ok || noop) {
             request-timing
             -sql
