@@ -252,7 +252,7 @@ Returns the authentication sources objects for the current captive portal profil
 
 sub getSourcesAsObjects {
     my ($self) = @_;
-    my $sources = $SOURCES_CACHE->compute($self->getName, sub {  
+    my $sources = $SOURCES_CACHE->compute_from_subcache($self->getName, sub {  
         [ grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()} ] 
     } );
     return @$sources;

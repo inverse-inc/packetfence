@@ -42,24 +42,6 @@ sub init {
     return $self;
 }
 
-=head2 compute
-
-Compute a key using the subcache
-Should the pfconfig namespace have expired, the subcache will fail, meaning we will rebuild.
-
-=cut
-
-sub compute {
-    my ( $self, $key, $sub ) = @_;
-    my $logger = $self->logger;
-
-    my $result = $self->compute_from_subcache($key, sub {
-        return $sub->();
-    });
-
-    return $result;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -35,19 +35,19 @@ $manager->touch_cache($testns);
 
 my $result;
 
-$result = $mem->compute($testkey, sub {"dinde"});
+$result = $mem->compute_from_subcache($testkey, sub {"dinde"});
 is($result, "dinde", 
     "Computing should return proper value");
 
-$result = $mem->compute($testkey, sub {"that-would-be-bad"});
+$result = $mem->compute_from_subcache($testkey, sub {"that-would-be-bad"});
 is($result, "dinde", 
     "Computing should return cached value if namespace hasn't expired");
 
 $manager->touch_cache($testns);
 
-$result = $mem->compute($testkey, sub {"value changed !"});
+$result = $mem->compute_from_subcache($testkey, sub {"value changed !"});
 is($result, "value changed !", 
-    "Value is properly recomputed when namespace expired.");
+    "Value is properly recompute_from_subcached when namespace expired.");
 
 =head1 AUTHOR
 
