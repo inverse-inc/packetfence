@@ -58,7 +58,9 @@ sub get_provisioner {
     my $provisioner = defined($self->session->{provisioner_id}) ? 
         pf::factory::provisioner->new($self->session->{provisioner_id}) :
         $self->app->profile->findProvisioner($self->current_mac, $self->node_info);
-    $self->session->{provisioner_id} = $provisioner->id;
+    if(defined($provisioner)){
+        $self->session->{provisioner_id} = $provisioner->id;
+    }
     return $provisioner;
 }
 
