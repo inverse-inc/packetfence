@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Moose;
 
-use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => '_modules' , require => 1;
+use Module::Pluggable search_path => 'captiveportal::DynamicRouting::Module', sub_name => 'modules' , require => 1;
 use pfconfig::cached_hash;
 use pf::constants;
 use pf::util;
@@ -34,7 +34,7 @@ has 'application' => (is => 'rw', isa => 'captiveportal::DynamicRouting::Applica
 
 has 'graph' => (is => 'rw', isa => 'Graph', default => sub {Graph->new});
 
-our @MODULES;
+our @MODULES = modules();
 our %INSTANTIATED_MODULES;
 
 sub factory_for { 'captiveportal::DynamicRouting::Module' }
@@ -218,14 +218,6 @@ sub check_cyclic {
         return ($FALSE, $@);
     }
     return ($TRUE);
-}
-
-sub modules {
-    my ($class) = @_;
-    unless (@MODULES) {
-        @MODULES = $class->_modules;
-    }
-    return @MODULES;
 }
 
 =head1 AUTHOR
