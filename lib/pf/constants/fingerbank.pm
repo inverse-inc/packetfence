@@ -25,7 +25,7 @@ The amount of seconds between each fingerbank process based on the query paramet
 
 =cut
 
-Readonly our $RATE_LIMIT => 300;
+Readonly our $RATE_LIMIT => 60;
 
 =head1 AUTHOR
 

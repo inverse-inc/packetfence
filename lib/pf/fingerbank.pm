@@ -75,43 +75,52 @@ sub process {
     my ( $query_args ) = @_;
     my $logger = pf::log::get_logger;
 
-    if($query_args->{mac}){
-        my $node_info = pf::node::node_view($query_args->{mac});
-        if($node_info){
-            my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
-            foreach my $param (@base_params){
-                $query_args->{$param} = $query_args->{$param} // $node_info->{$param} || '';
-            }
-            # ip is a special case as it's not in the node_info
-            unless(defined($query_args->{ip})){
-                my $ip = pf::iplog::mac2ip($query_args->{mac});
-                $query_args->{ip} = $ip unless $ip eq 0;
+    my $cache = cache();
+    # Rate limit the fingerbank requests based on the partial query params (the ones that are passed)
+    my $result = $cache->compute_with_undef("fingerbank::process-partial-query-".encode_json($query_args),  sub {
+
+        if($query_args->{mac}){
+            my $node_info = pf::node::node_view($query_args->{mac});
+            if($node_info){
+                my @base_params = qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise);
+                foreach my $param (@base_params){
+                    $query_args->{$param} = $query_args->{$param} // $node_info->{$param} || '';
+                }
+                # ip is a special case as it's not in the node_info
+                unless(defined($query_args->{ip})){
+                    my $ip = pf::iplog::mac2ip($query_args->{mac});
+                    $query_args->{ip} = $ip unless $ip eq 0;
+                }
             }
         }
-    }
 
-    my $mac = $query_args->{'mac'};
+        my $mac = $query_args->{'mac'};
 
-    # Querying for a resultset
-    my $query_result = _query($query_args);
+        my $result = $cache->compute_with_undef("fingerbank::process-full-query-".encode_json($query_args), sub {
+            # Querying for a resultset
+            my $query_result = _query($query_args);
 
-    unless(defined($query_result)) {
-        $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-        return "unknown";
-    }
+            unless(defined($query_result)) {
+                $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
+                return "unknown";
+            }
 
-    # Processing the device class based on it's parents
-    my ( $class, $parents ) = _parse_parents($query_result);
+            # Processing the device class based on it's parents
+            my ( $class, $parents ) = _parse_parents($query_result);
 
-    # Updating the node device type based on the result
-    node_modify( $mac, (
-        'device_type'   => $query_result->{'device'}{'name'},
-        'device_class'  => $class,
-    ) );
+            # Updating the node device type based on the result
+            node_modify( $mac, (
+                'device_type'   => $query_result->{'device'}{'name'},
+                'device_class'  => $class,
+            ) );
 
-    _trigger_violations($query_args, $query_result, $parents);
+            _trigger_violations($query_args, $query_result, $parents);
 
-    return $query_result->{'device'}{'name'};
+            return $query_result->{'device'}{'name'};
+        }, {expires_in => $RATE_LIMIT});
+        return $result;
+    }, {expires_in => $RATE_LIMIT});
+    return $result;
 }
 
 =head2 _query
@@ -123,13 +132,8 @@ sub _query {
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
-    my $cache = pf::CHI->new( namespace => 'fingerbank' );
-    # Rate limit the fingerbank requests based on the query params
-    my $result = $cache->compute("fingerbank::_query-".encode_json($args), {expires_in => $RATE_LIMIT}, sub {
-        my $fingerbank = fingerbank::Query->new(cache => $cache);
-        return $fingerbank->match($args);
-    });
-    return $result;
+    my $fingerbank = fingerbank::Query->new(cache => cache());
+    return $fingerbank->match($args);
 }
 
 =head2 _trigger_violations
@@ -279,6 +283,9 @@ sub _update_fingerbank_component {
     return ($status, $status_msg);
 }
 
+sub cache {
+    return pf::CHI->new( namespace => 'fingerbank' );
+}
 
 =head1 AUTHOR
 
