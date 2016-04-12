@@ -374,6 +374,11 @@ haproxy=enabled
 # Order in which to start this service 
 haproxy_order=01
 #
+# services.haproxy_binary
+#
+# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
+haproxy_binary=/usr/sbin/haproxy
+#
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?
@@ -383,6 +388,7 @@ pfdns=enabled
 #
 # Order in which to start this service 
 pfdns_order=17
+
 #
 # services.snort
 #
@@ -394,6 +400,11 @@ snort=enabled
 # Order in which to start this service 
 snort_order=80
 #
+# services.snort_binary
+#
+# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
+snort_binary=/usr/sbin/snort
+#
 # services.suricata
 #
 # Should suricata be managed by PacketFence?
@@ -404,6 +415,11 @@ suricata=enabled
 # Order in which to start this service 
 suricata_order=80
 #
+# services.suricata_binary
+# 
+# Location of the suricata binary.
+suricata_binary=/usr/bin/suricata
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
@@ -413,6 +429,11 @@ radiusd=enabled
 #
 # Order in which to start this service 
 radiusd_order=12
+# 
+# services.radiusd_binary
+# 
+# Location of the named binary. Only necessary to change if you are not running the RPMed version.
+radiusd_binary=/usr/sbin/radiusd
 #
 # services.iptables
 #
@@ -423,6 +444,11 @@ iptables=enabled
 #
 # Order in which to start this service 
 iptables_order=05
+# 
+# services.iptables_binary
+# 
+# location of the iptables binary. only necessary to change if you are not running the rpmed version.
+iptables_binary=/sbin/iptables
 #
 # services.pfbandwidthd
 #
@@ -504,6 +530,11 @@ httpd_graphite=enabled
 # Order in which to start this service 
 httpd_graphite_order=99
 #
+# services.httpd_binary
+#
+# Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+httpd_binary=/usr/sbin/httpd
+#
 # services.pfsetvlan
 #
 # Should pfsetvlan be managed by PacketFence?
@@ -523,6 +554,11 @@ snmptrapd=disabled
 #
 # Order in which to start this service 
 snmptrapd_order=14
+#
+# services.snmptrapd_binary
+#
+# Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
+snmptrapd_binary=/usr/sbin/snmptrapd
 #
 # services.pfqueue
 #
@@ -562,6 +598,11 @@ redis_queue=enabled
 #
 # Order in which to start this service 
 redis_queue_order=06
+# 
+# services.redis_binary
+# 
+# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
+redis_binary=/usr/bin/redis-server
 #
 # services.pfdhcplistener
 #
@@ -573,6 +614,11 @@ pfdhcplistener=enabled
 # Order in which to start this service 
 pfdhcplistener_order=18
 #
+# services.dhcpd_binary
+#
+# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
+dhcpd_binary=/usr/sbin/dhcpd
+#
 # services.keepalived
 #
 # Should keepalived be started?
@@ -582,6 +628,11 @@ keepalived=enabled
 #
 # Order in which to start this service 
 keepalived_order=100
+#
+# services.keepalived_binary
+#
+# Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
+keepalived_binary=/usr/sbin/keepalived
 # services.winbindd
 #
 # Should winbindd be started?
@@ -591,6 +642,11 @@ winbindd=enabled
 #
 # Order in which to start this service 
 winbindd_order=11
+# 
+# services.winbindd_binary
+# 
+# location of the winbindd binary. only necessary to change if you are not running the rpmed version.
+winbindd_binary=/usr/sbin/winbindd
 # services.carbon-cache
 #
 # Should carbon-cache be started?
@@ -600,6 +656,11 @@ carbon-cache=enabled
 #
 # Order in which to start this service 
 carbon-cache_order=90
+# 
+# services.carbon-cache_binary
+# 
+# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
+carbon-cache_binary=/usr/bin/carbon-cache
 #
 # services.carbon-relay
 #
@@ -610,6 +671,11 @@ carbon-relay=enabled
 #
 # Order in which to start this service 
 carbon-relay_order=91
+# 
+# services.carbon-relay_binary
+# 
+# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
+carbon-relay_binary=/usr/bin/carbon-relay
 #
 # services.collectd
 #
@@ -620,8 +686,13 @@ collectd=enabled
 #
 # Order in which to start this service 
 collectd_order=92
+# 
+# services.collectd_binary
+# 
+# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
+collectd_binary=/usr/sbin/collectd
 #
-# services.collectd_order
+# services.pfdetect_order
 #
 # Order in which to start this service 
 pfdetect_order=88
@@ -635,6 +706,11 @@ statsd=enabled
 #
 # Order in which to start this service 
 statsd_order=93
+# 
+# services.statsd_binary
+# 
+# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+statsd_binary=/usr/bin/node
 #
 # services.radsniff
 #
@@ -645,6 +721,11 @@ radsniff=enabled
 #
 # Order in which to start this service 
 radsniff_order=94
+# 
+# services.radsniff_binary
+# 
+# Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
+radsniff_binary=/usr/bin/radsniff
 #
 # services.p0f
 #
@@ -655,101 +736,21 @@ p0f=enabled
 #
 # Order in which to start this service 
 p0f_order=81
-#
-# services.snort_binary
-#
-# Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
-snort_binary=/usr/sbin/snort
-#
-# services.suricata_binary
-# 
-# Location of the suricata binary.
-suricata_binary=/usr/bin/suricata
-#
-# services.haproxy_binary
-#
-# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
-haproxy_binary=/usr/sbin/haproxy
-#
-# services.httpd_binary
-#
-# Location of the apache binary. Only necessary to change if you are not running the RPMed version.
-httpd_binary=/usr/sbin/httpd
-#
-# services.openssl_binary
-#
-# Location of the openssl binary. Only necessary to change if you are not running the RPMed version.
-openssl_binary=/usr/bin/openssl
-#
-# services.dhcpd_binary
-#
-# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
-dhcpd_binary=/usr/sbin/dhcpd
-#
-# services.snmptrapd_binary
-#
-# Location of the snmptrapd binary. Only necessary to change if you are not using the RPMed version.
-snmptrapd_binary=/usr/sbin/snmptrapd
-# 
-# services.radiusd_binary
-# 
-# Location of the named binary. Only necessary to change if you are not running the RPMed version.
-radiusd_binary=/usr/sbin/radiusd
-# 
-# services.arp_binary
-# 
-# location of the arp binary. only necessary to change if you are not running the rpmed version.
-arp_binary=/sbin/arp
-# 
-# services.carbon-cache_binary
-# 
-# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-cache_binary=/usr/bin/carbon-cache
-# 
-# services.carbon-relay_binary
-# 
-# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-relay_binary=/usr/bin/carbon-relay
-# 
-# services.statsd_binary
-# 
-# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
-# 
-# services.collectd_binary
-# 
-# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
-collectd_binary=/usr/sbin/collectd
-# 
-# services.radsniff_binary
-# 
-# Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
-radsniff_binary=/usr/bin/radsniff
 # 
 # services.p0f_binary
 # 
 # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
 p0f_binary=/usr/local/bin/p0f
-# 
-# services.iptables_binary
-# 
-# location of the iptables binary. only necessary to change if you are not running the rpmed version.
-iptables_binary=/sbin/iptables
-# 
-# services.winbindd_binary
-# 
-# location of the iptables binary. only necessary to change if you are not running the rpmed version.
-winbindd_binary=/usr/sbin/winbindd
 #
-# services.keepalived_binary
+# services.openssl_binary
 #
-# Location of the keepalived binary. Only necessary to change if you are not running the RPMed version.
-keepalived_binary=/usr/sbin/keepalived
+# Location of the openssl binary. Only necessary to change if you are not running the RPMed version.
+openssl_binary=/usr/bin/openssl
 # 
-# services.redis_binary
+# services.arp_binary
 # 
-# Location of the redis binary. Only necessary to change if you are not running the pre-packaged version.
-redis_binary=/usr/bin/redis-server
+# location of the arp binary. only necessary to change if you are not running the rpmed version.
+arp_binary=/sbin/arp
 
 [vlan]
 #
