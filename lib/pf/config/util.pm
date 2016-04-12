@@ -18,6 +18,7 @@ modules.
 use strict;
 use warnings;
 
+use pf::cluster;
 use pf::constants;
 use pf::config qw(
     %Config
@@ -139,8 +140,9 @@ sub pfmailer {
     my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
     my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
+    my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
     my $subject
-        = $Config{'alerting'}{'subjectprefix'} . " " . $data{'subject'};
+        = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'};
     my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
     my $smtp = Net::SMTP->new( $smtpserver, Hello => $fqdn );
 
