@@ -88,7 +88,7 @@ table.sources {
               [% pf_section_entry('general', 'General') | none %]
               [% pf_section_entry( 'network', 'Network') | none %]
               [% pf_section_entry( 'trapping', 'Trapping') | none %]
-              [% pf_section_entry( 'parking', 'Portal Parking') | none %]
+              [% pf_section_entry( 'parking', 'Parking') | none %]
               [% pf_section_entry( 'registration', 'Registration') | none %]
               [% pf_section_entry( 'alerting', 'Alerting') | none %]
               [% pf_section_entry( 'maintenance', 'Maintenance') | none %]
