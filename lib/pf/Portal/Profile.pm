@@ -21,6 +21,7 @@ use List::Util qw(first);
 use List::MoreUtils qw(all none any uniq);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::config qw($SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX);
+use pf::constants::Portal::Profile qw($DEFAULT_ROOT_MODULE);
 use pf::util;
 use pf::config::util;
 use pf::log;
@@ -560,6 +561,17 @@ sub findScan {
 sub getUserSources {
     my ($self, $username, $realm) = @_;
     return get_user_sources([ $self->getInternalSources, $self->getExclusiveSources ], $username, $realm);
+}
+
+=item getRootModuleId
+
+Get the root module ID for the portal profile
+
+=cut
+
+sub getRootModuleId {
+    my ($self) = @_;
+    return $self->{_root_module} || $DEFAULT_ROOT_MODULE;
 }
 
 =back

@@ -2,6 +2,7 @@ package captiveportal::PacketFence::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
+use pf::constants::Portal::Profile qw($PENDING_POLICY);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
@@ -71,7 +72,7 @@ sub setupDynamicRouting : Private {
         session => $c->session,
         profile => $profile,
         request => $request,
-        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? "default_pending_policy" : $profile->{_root_module},
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : $profile->getRootModuleId(),
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIp;

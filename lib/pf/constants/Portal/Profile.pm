@@ -20,11 +20,15 @@ our @EXPORT_OK = qw(
     $BLOCK_INTERVAL_DEFAULT_VALUE
     $DEFAULT_PROFILE
     $MATCH_STYLE_ALL
+    $DEFAULT_ROOT_MODULE
+    $PENDING_POLICY
 );
 
 our $BLOCK_INTERVAL_DEFAULT_VALUE = '10m';
 our $DEFAULT_PROFILE = 'default';
 our $MATCH_STYLE_ALL = 'all';
+our $DEFAULT_ROOT_MODULE = "default_policy";
+our $PENDING_POLICY = "default_pending_policy";
 
 =head1 AUTHOR
 

@@ -336,7 +336,7 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
         session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
         profile => $profile,
         request => $c->request,
-        root_module_id => $profile->{_root_module},
+        root_module_id => $profile->getRootModuleId(),
     );
 
     $application->render($template, $c->stash);
