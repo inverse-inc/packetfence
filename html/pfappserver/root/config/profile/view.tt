@@ -13,25 +13,6 @@
       <a href="#" class="btn btn-primary btn-danger"><i class="icon-save"></i> [% l('Save Profile') %]</a>
     </div>
   </div><!-- cancelEdit -->
-  <div class="hidden" id="filter_templates">
-     <input type="text" name="default_filter_match" id="default_filter_match" value="" class="input-medium" data-required="required"/>
-     <input id="switch_filter_match" name="switch_filter_match" autocomplete="off" type="text" class="span6" data-provide="typeahead" placeholder="String...">
-     <select name="connection_type_filter_match" id="connection_type_filter_match" data-required="required">
-       [% FOREACH connection_type IN connection_types %]
-          <option value="[% connection_type %]">[% connection_type %]</option>
-       [% END %]
-     </select>
-     <select name="connection_sub_type_filter_match" id="connection_sub_type_filter_match" data-required="required">
-       [% FOREACH connection_sub_type IN connection_sub_types %]
-          <option value="[% connection_sub_type %]">[% connection_sub_type %]</option>
-       [% END %]
-     </select>
-     <select name="node_role_filter_match" id="node_role_filter_match" data-required="required">
-       [% FOREACH node_role IN node_roles %]
-          <option value="[% node_role.name %]"> [% node_role.name %] </option>
-       [% END %]
-     </select>
-  </div>
 
   <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Config::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
     <ul class="breadcrumb">
