@@ -9,14 +9,14 @@ my $TRUE = 1;
 BEGIN {
     use setup_test_config;
     use_ok('pf::password') or die;
-    use pf::password 'bcrypt';
+    use pf::password;
 }
 can_ok('pf::password', qw(  bcrypt ) ) or die;
 
-like( bcrypt( "helloworld"), qr/^\{bcrypt\}\$2[ay]\$\d\d\$/, "bcrypt hash has the correct prefix");
-is( length bcrypt( "helloworld"), (length('{bcrypt}') + 60), "bcrypt hash has the right length");
+like( pf::password::bcrypt( "helloworld"), qr/^\{bcrypt\}\$2[ay]\$\d\d\$/, "bcrypt hash has the correct prefix");
+is( length pf::password::bcrypt( "helloworld"), (length('{bcrypt}') + 60), "bcrypt hash has the right length");
 
-is( bcrypt( "helloworld", cost => 8, salt => "X6vbzGba/PiJ9JTbexP.5u" ),
+is( pf::password::bcrypt( "helloworld", cost => 8, salt => "X6vbzGba/PiJ9JTbexP.5u" ),
     q[{bcrypt}$2a$08$X6vbzGba/PiJ9JTbexP.5uZRmDcYo0twoqBNyUjvcyfPV/kWprcYy],
     "bcrypt returns the right hash given a set input" );
 
