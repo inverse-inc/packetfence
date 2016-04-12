@@ -388,7 +388,6 @@ pfdns=enabled
 #
 # Order in which to start this service 
 pfdns_order=17
-
 #
 # services.snort
 #
