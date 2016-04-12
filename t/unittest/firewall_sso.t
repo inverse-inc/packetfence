@@ -31,6 +31,7 @@ use NetAddr::IP;
 use List::MoreUtils qw(any);
 
 use_ok('pf::firewallsso');
+use_ok('pf::factory::firewallsso');
 use_ok('pf::config');
 
 ok((any { $_->contains(NetAddr::IP->new("172.20.0.1")) } @{$pf::config::ConfigFirewallSSO{testfw}{networks}}),
