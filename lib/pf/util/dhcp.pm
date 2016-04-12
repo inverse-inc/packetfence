@@ -17,10 +17,9 @@ use warnings;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(decompose_dhcp decode_dhcp dhcp_message_type_to_string dhcp_summary make_pcap_filter);
-    @EXPORT_OK = qw();
 }
 
 use NetPacket::Ethernet;

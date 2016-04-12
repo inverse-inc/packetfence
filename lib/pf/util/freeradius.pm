@@ -17,9 +17,8 @@ use warnings;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw();
     @EXPORT_OK = qw(clean_mac sanitize_parameter);
 }
 
@@ -27,7 +26,7 @@ BEGIN {
 
 =over
 
-=item clean_mac 
+=item clean_mac
 
 Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 

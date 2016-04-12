@@ -20,7 +20,7 @@ use pf::Redis;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(task_counter_id consumer_redis_client);
 }

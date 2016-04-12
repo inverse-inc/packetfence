@@ -22,9 +22,8 @@ use constant ACCOUNTING => 'accounting';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw($accounting_db_prepared accounting_db_prepare);
     @EXPORT_OK = qw(
         acct_maintenance
         node_accounting_current_sessionid

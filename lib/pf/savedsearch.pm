@@ -18,7 +18,7 @@ use pf::log;
 use constant USERPREF => 'savedsearch';
 
 BEGIN {
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
         $savedsearch_db_prepared

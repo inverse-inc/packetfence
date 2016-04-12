@@ -17,7 +17,7 @@ use warnings;
 
 BEGIN {
     use Exporter ();
-    our (@ISA, @EXPORT, @EXPORT_OK);
+    our (@ISA, @EXPORT);
     @ISA    = qw(Exporter);
     @EXPORT = qw(decompose_dhcpv6 decode_dhcpv6);
 }

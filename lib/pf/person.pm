@@ -25,7 +25,7 @@ use constant PERSON => 'person';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
         $person_db_prepared
@@ -44,8 +44,8 @@ BEGIN {
         person_custom_search
         person_cleanup
         persons_without_nodes
+        $PID_RE
     );
-    @EXPORT_OK = qw( $PID_RE );
 }
 
 use pf::db;
@@ -180,10 +180,10 @@ sub person_db_prepare {
             WHERE pid = ? ]);
 
     $person_statements->{'persons_without_nodes_sql'} = get_db_handle()->prepare(
-        qq[ 
-            SELECT person.pid as pid from person 
-            LEFT JOIN node on node.pid=person.pid  
-            GROUP BY pid 
+        qq[
+            SELECT person.pid as pid from person
+            LEFT JOIN node on node.pid=person.pid
+            GROUP BY pid
             HAVING count(node.mac)=0;
             ]);
 
@@ -405,7 +405,7 @@ Get all the persons who are not the owner of at least one node.
 =cut
 
 sub persons_without_nodes {
-   return db_data(PERSON, $person_statements, 'persons_without_nodes_sql'); 
+   return db_data(PERSON, $person_statements, 'persons_without_nodes_sql');
 }
 
 =head2 person_cleanup

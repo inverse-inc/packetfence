@@ -33,9 +33,8 @@ use warnings;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw();
     @EXPORT_OK = qw(perform_disconnect perform_coa perform_rsso);
 }
 

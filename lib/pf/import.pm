@@ -30,14 +30,6 @@ use pf::log;
 use Text::CSV;
 use POSIX;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
-    @ISA = qw(Exporter);
-    @EXPORT = qw();
-    @EXPORT_OK = qw();
-}
-
 use pf::constants;
 use pf::config qw(%Config);
 use pf::node;

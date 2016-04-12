@@ -17,7 +17,7 @@ Readonly our $INVALIDATED => "invalidated";
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
         auth_log_db_prepare
@@ -43,39 +43,39 @@ sub auth_log_db_prepare {
     ]);
 
     $auth_log_statements->{'auth_log_record_oauth_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name,source,mac,attempted_at,status) 
+        insert into auth_log (process_name,source,mac,attempted_at,status)
         VALUES(?, ?, ?, NOW(), '$INCOMPLETE');
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_oauth_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status=?, pid=? 
+        update auth_log set completed_at=NOW(), status=?, pid=?
         where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
 
     $auth_log_statements->{'auth_log_invalidate_previous_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status='$INVALIDATED' 
+        update auth_log set completed_at=NOW(), status='$INVALIDATED'
         where process_name=? and source=? and mac=? and status='$INCOMPLETE';
     ]);
 
     $auth_log_statements->{'auth_log_record_guest_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name,source,mac,pid,attempted_at,status) 
+        insert into auth_log (process_name,source,mac,pid,attempted_at,status)
         VALUES(?, ?, ?, ?, NOW(), '$INCOMPLETE');
     ]);
 
     $auth_log_statements->{'auth_log_record_completed_guest_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status=? 
+        update auth_log set completed_at=NOW(), status=?
         where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
 
     $auth_log_statements->{'auth_log_record_auth_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name, source, mac, pid, attempted_at, completed_at, status) 
+        insert into auth_log (process_name, source, mac, pid, attempted_at, completed_at, status)
         VALUES(?, ?, ?, ?, NOW(), NOW(), ?);
     ]);
 
     $auth_log_statements->{'auth_log_change_status_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set status=? 
+        update auth_log set status=?
         where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);

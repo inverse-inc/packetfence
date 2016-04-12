@@ -24,11 +24,9 @@ use constant USERAGENT => 'useragent';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw($useragent_db_prepared useragent_db_prepare);
     @EXPORT_OK = qw(
-        view view_all add
         property_to_tid
         process_useragent
         node_useragent_view

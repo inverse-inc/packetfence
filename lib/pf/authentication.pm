@@ -62,7 +62,7 @@ tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_reg
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT =
@@ -75,13 +75,6 @@ BEGIN {
             deleteAuthenticationSource
             %guest_self_registration
        );
-    @EXPORT_OK =
-      qw(
-            authenticate
-            match
-            username_from_email
-       );
-
 }
 
 our @SOURCES = __PACKAGE__->sources();

@@ -29,9 +29,8 @@ use pf::log;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA       = qw(Exporter);
-    @EXPORT    = qw();
     @EXPORT_OK = qw(reevaluate_access);
 }
 
