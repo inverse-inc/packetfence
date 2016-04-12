@@ -10,12 +10,12 @@ pf::api::local local client for pf::api
 pf::api::local
 
 local client for pf::api which calls the api calls directly
+To avoid circular dependencies pf::api needs to be included before consuming this module
 
 =cut
 
 use strict;
 use warnings;
-use pf::api;
 use pf::db;
 use Moo;
 
@@ -44,7 +44,7 @@ sub notify {
     };
     return;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
