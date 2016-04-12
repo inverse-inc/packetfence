@@ -28,12 +28,6 @@ An example of a new service foo
     has '+launcher' => (default => sub { '%1$s -d' } );
 
 
-To include the new service in pfcmd service
-
-* Add service name to the service regex in pf::pfcmd
-
-* Update the help in pf::pfcmd::help
-
 =cut
 
 use strict;
