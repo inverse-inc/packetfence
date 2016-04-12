@@ -24,9 +24,8 @@ use overload '""' => "toString";
 
 BEGIN {
     use Exporter ();
-    our (@ISA, @EXPORT, @EXPORT_OK);
+    our (@ISA, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT = qw(run_scan $scan_db_prepared scan_db_prepare);
     @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
@@ -119,7 +118,7 @@ sub parse_scan_report {
     my ( $scan, $scan_vid ) = @_;
     my $logger = get_logger();
 
-    $logger->debug("Scan report to analyze. Scan id: $scan"); 
+    $logger->debug("Scan report to analyze. Scan id: $scan");
 
     my $scan_report = $scan->getReport();
 
@@ -277,7 +276,7 @@ sub run_scan {
 
     # Start the scan (it return the scan_id if it failed)
     my $failed_scan = $scan->startScan();
-    
+
     # Hum ... somethings wrong in the scan ?
     if ( $failed_scan ) {
 
@@ -308,7 +307,7 @@ sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = get_logger();
 
-    db_query_execute(SCAN, $scan_statements, 'scan_update_sql', 
+    db_query_execute(SCAN, $scan_statements, 'scan_update_sql',
         $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
     ) || return 0;
     return $TRUE;

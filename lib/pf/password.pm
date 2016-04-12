@@ -61,18 +61,9 @@ Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(
-        password_db_prepare
-        $password_db_prepared
-    );
-
     @EXPORT_OK = qw(
-        view add modify
-        create match_by_mail
-        validate_password
-        bcrypt
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT
     );
 }

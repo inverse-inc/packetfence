@@ -79,23 +79,11 @@ Readonly our $GUEST_ACTIVATION => 'guest';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
-        activation_db_prepare
-        $activation_db_prepared
-    );
 
     @EXPORT_OK = qw(
-        view add modify
         view_by_code
-        invalidate_codes
-        invalidate_codes_for_mac
-        validate_code
-        modify_status
-        create
-        find_code
-        set_status_verified
         $UNVERIFIED $EXPIRED $VERIFIED $INVALIDATED
         $SPONSOR_ACTIVATION $GUEST_ACTIVATION
     );
