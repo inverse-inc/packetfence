@@ -353,6 +353,10 @@ sub create {
     my ($mac, $pid, $pending_addr, $type, $portal, $provider_id) = @_;
     my $logger = get_logger();
 
+    unless($mac){
+        $mac = undef;
+    }
+
     # invalidate older codes for the same MAC / contact_info
     invalidate_codes($mac, $pid, $pending_addr);
 

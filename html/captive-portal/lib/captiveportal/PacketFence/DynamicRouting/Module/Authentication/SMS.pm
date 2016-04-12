@@ -71,7 +71,14 @@ User has no PIN, so we invalidate all of them and redirect back to the beginning
 
 sub no_pin {
     my ($self) = @_;
-    pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
+    if($self->app->preregistration) {
+        get_logger->info("Invalidating codes for PID ".$self->session->{telephone});
+        pf::activation::invalidate_codes(undef, $self->session->{telephone}, $self->session->{telephone});
+    }
+    else {
+        get_logger->info("Invalidating codes for MAC address ".$self->current_mac);
+        pf::activation::invalidate_codes_for_mac($self->current_mac, "sms");
+    }
     $self->redirect_root();
 }
 
