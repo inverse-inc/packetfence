@@ -1143,6 +1143,8 @@ Calculates the number of pages
 
 sub calc_page_count {
     my ($count, $perPage) = @_;
+    $count //= 0;
+    $perPage //= 25;
     return int( ($count + $perPage  - 1) / $perPage );
 }
 
