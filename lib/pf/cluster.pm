@@ -362,6 +362,27 @@ sub sync_directory_empty {
     return \@failed;
 }
 
+=head2 notify_each_server
+
+Will dispatch an notify call to each server part of the cluster.
+If this is not a cluster, it will dispatch the notification only to itself.
+
+=cut
+
+sub notify_each_server {
+    my (@args) = @_;
+    if($cluster_enabled) {
+        foreach my $server (@cluster_servers) {
+            my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
+            $apiclient->notify(@args);
+        }
+    }
+    else {
+        my $apiclient = pf::client::getClient();
+        $apiclient->notify(@args);
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
