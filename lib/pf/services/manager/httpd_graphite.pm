@@ -44,6 +44,7 @@ sub generateConfig {
     generate_dashboard_settings();
 }
 
+sub vhost { "0.0.0.0" }
 sub port { 9000 }
 
 sub generate_local_settings {
