@@ -65,6 +65,7 @@ use pf::file_paths qw(
     @log_files
     $generated_conf_dir
 );
+use Crypt::OpenSSL::X509;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
@@ -1279,6 +1280,21 @@ sub portal_modules {
         }
     }
 }
+
+=item cert_has_expired
+
+Will validate that a certificate has not expired
+
+=cut
+
+sub cert_has_expired {
+    my ($path) = @_;
+    return undef if !defined $path;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+    return time > $expiration;
+}
+
 
 =back
 
