@@ -1061,6 +1061,7 @@ Will validate that a certificate has not expired
 
 sub cert_has_expired {
     my ($path) = @_;
+    return undef if !defined $path;
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
