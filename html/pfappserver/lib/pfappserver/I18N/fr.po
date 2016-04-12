@@ -53,8 +53,8 @@ msgstr "90 jours"
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid ""
 "A comma seperated list of access durations available to the admin user. If "
-"none are provided then the configured values are used"
-msgstr "Une liste des durées d'accès disponibles pour l'utilisateur admin (séparées par des virgules). Si aucune n'est fournit, les valeurs par défaut sont utilisées."
+"none are provided then the default access durations are used"
+msgstr "Une liste des durées d'accès disponibles pour l'utilisateur admin (séparées par des virgules). Si aucune n'est fournit, les valeurs des durées d'accès par défaut sont utilisées."
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "A description of the billing tier"

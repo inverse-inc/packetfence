@@ -88,7 +88,7 @@ has_field 'allowed_access_durations' =>
    label => 'Allowed user access durations',
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
    tags => { after_element => \&help,
-             help => 'A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used'},
+             help => 'A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used'},
   );
 
 sub build_do_form_wrapper{ 0 }

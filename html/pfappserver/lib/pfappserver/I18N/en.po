@@ -42,7 +42,7 @@ msgid "90 days"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-msgid "A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used"
+msgid "A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
