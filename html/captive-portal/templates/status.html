@@ -90,7 +90,7 @@ $(document).ready(function() {
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">
     [%- IF node.status == 'reg' %]
-    [%   i18n_format("Your device is registered to <strong>%s</strong>", node.pid) %]
+    [%   i18n_format("Your device is registered to <strong>%s</strong>", node.pid) | none %]
     [%- ELSE %]
     [%   i18n("Your current device is not registered on our network.") %]
     [%- END %]
