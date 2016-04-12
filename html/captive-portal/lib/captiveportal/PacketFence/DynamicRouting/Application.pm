@@ -393,7 +393,7 @@ sub _render {
     get_logger->debug(sub { "Previous : ". ($self->previous_module_id // "undef") . ", Current module : " . ($self->current_module_id // "undef") });
     $self->detect_first_action();
     $args->{ show_restart } //= $self->session->{action_made};
-    
+
     # Expose current module in all templates
     $args->{current_module} = $self->current_module;
 
@@ -420,7 +420,7 @@ sub _template_toolkit_options {
         COMPILE_EXT => '.compiled.template',
     };
     if($args->{raw}){
-        delete $options->{AUTO_FILTER};
+        $options->{AUTO_FILTER} = 'none';
         delete $options->{PRE_PROCESS};
     }
     return $options;
