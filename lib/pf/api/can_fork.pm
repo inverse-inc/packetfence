@@ -10,13 +10,13 @@ pf::api::can_fork local client for pf::api
 pf::api::can_fork
 
 can_fork client for pf::api which calls the api directly and fork on notify for api calls that are marked for forking
+To avoid circular dependencies pf::api needs to be included before consuming this module
 
 =cut
 
 use strict;
 use warnings;
 use pf::log;
-use pf::api;
 use pf::db;
 use pf::util::webapi;
 use POSIX;

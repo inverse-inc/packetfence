@@ -17,6 +17,7 @@ use warnings;
 use base 'pf::task';
 use POSIX;
 use pf::log;
+use pf::api;
 use pf::api::can_fork;
 use threads;
 my $logger = get_logger();

@@ -40,6 +40,7 @@ use pf::db;
 use Config::IniFiles;
 use pf::SwitchFactory;
 use pf::pfqueue::consumer::redis;
+use pf::api;
 use pf::client;
 pf::client::setClient("pf::api::can_fork");
 use threads;

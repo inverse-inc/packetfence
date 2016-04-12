@@ -47,6 +47,7 @@ use List::MoreUtils qw(any);
 use pf::util;
 use pf::node;
 use pf::fingerbank;
+use pf::api;
 my %options;
 GetOptions(\%options, "interface|i=s", "pcap|p=s", "help|h") or die("Error in command line arguments\n");
 
