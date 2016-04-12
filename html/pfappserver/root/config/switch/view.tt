@@ -64,7 +64,7 @@
             <h6>[% l('Role mapping by WebAuth URL') %]</h6>
           </div>
         </div>
-        [% form.field('WebAuthMap').render | none %]
+        [% form.field('UrlMap').render | none %]
         [% form.block('urls').render | none %]
       </div><!--tab-pane-->
 
