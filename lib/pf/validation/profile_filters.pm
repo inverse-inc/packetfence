@@ -52,6 +52,12 @@ our %TYPE_VALIDATOR = (
     'time' => \&validate_time,
 );
 
+=head2 validate
+
+Valid the profile filter
+
+=cut
+
 sub validate {
     my ($self, $filter) = @_;
     unless ($filter =~ $PROFILE_FILTER_REGEX ) {
@@ -70,6 +76,12 @@ sub validate {
     return ($TRUE, undef);
 }
 
+=head2 validate_network
+
+Validate the network value of a profile filter
+
+=cut
+
 sub validate_network {
     my ($self, $type, $ip) = @_;
     my $ip_addr = eval { NetAddr::IP->new($ip) };
@@ -79,6 +91,12 @@ sub validate_network {
     return ($TRUE, undef);
 }
 
+=head2 validate_connection_type
+
+Validate the connection type value of a profile filter
+
+=cut
+
 sub validate_connection_type {
     my ($self, $type, $value) = @_;
     unless (exists $connection_type{$value}) {
@@ -86,6 +104,12 @@ sub validate_connection_type {
     }
     return ($TRUE, undef);
 }
+
+=head2 validate_connection_sub_type
+
+Validate the connection sub type value of a profile filter
+
+=cut
 
 sub validate_connection_sub_type {
     my ($self, $type, $value) = @_;
@@ -95,6 +119,12 @@ sub validate_connection_sub_type {
     return ($TRUE, undef);
 }
 
+=head2 validate_switch
+
+Validate the switch value of a profile filter
+
+=cut
+
 sub validate_switch {
     my ($self, $type, $value) = @_;
     if (!exists $pf::SwitchFactory::SwitchConfig{$value} || $value eq 'default' || $value =~ /^group / ) {
@@ -102,6 +132,13 @@ sub validate_switch {
     }
     return ($TRUE, undef);
 }
+
+
+=head2 validate_switch
+
+Validate the switch port value of a profile filter
+
+=cut
 
 sub validate_switch_port {
     my ($self, $type, $value) = @_;
@@ -112,6 +149,12 @@ sub validate_switch_port {
     return $self->validate_switch($type, $switch);
 }
 
+=head2 validate_node_role
+
+Validate the node role value of a profile filter
+
+=cut
+
 sub validate_node_role {
     my ($self, $type, $value) = @_;
     my $role_id = nodecategory_lookup($value);
@@ -120,6 +163,13 @@ sub validate_node_role {
     }
     return ($TRUE, undef);
 }
+
+
+=head2 validate_node_role
+
+Validate the time value of a profile filter
+
+=cut
 
 sub validate_time {
     my ($self, $type, $value) = @_;
