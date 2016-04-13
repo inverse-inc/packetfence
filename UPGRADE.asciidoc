@@ -133,6 +133,13 @@ node category / role
 
 The 'REJECT' role is now a default standard role. If you already have such role, make sure no conflict exists.
 
+Changes to the generated smb.conf
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you have a domain configured directly in PacketFence (in 'Configuration->Domains'), you need to re-generate the associated configuration files as changes have been made to the samba configuration.
+
+Using the CLI `/usr/local/pf/bin/pfcmd generatedomainconfig` or in the admin interface in 'Configuration->Domains', click 'Refresh domain configuration'
+
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
