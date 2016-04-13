@@ -22,7 +22,7 @@ authorize {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
-		&control:PacketFence-Request-Time := 0
+		&reply:PacketFence-Request-Time := 0
 	}
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other

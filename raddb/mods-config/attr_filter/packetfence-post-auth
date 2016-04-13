@@ -30,4 +30,5 @@ DEFAULT
     PacketFence-Profile                   !* ANY,       
     PacketFence-Domain                    !* ANY,
     PacketFence-Computer-Name             !* ANY,
-    PacketFence-Handled                   !* ANY
+    PacketFence-Handled                   !* ANY,
+    PacketFence-Request-Time              !* ANY
