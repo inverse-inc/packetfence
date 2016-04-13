@@ -63,30 +63,30 @@ case "$1" in
           for file in \
             /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm \
             /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/PreRegister.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Redirect.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Release.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/SAML.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Billing.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Billing.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Access.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Aup.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Release.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Signup.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/SAML.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm \
-            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Redirect.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
           do
 
             rm_conffile "$file"
