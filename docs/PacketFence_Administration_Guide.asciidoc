@@ -859,6 +859,8 @@ Example with the most common ones:
 * *SSID:* Guest-SSID
 * *VLAN:* 100
 * *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
+* *Switch Port:* <SwitchId>-<Port>
+* *Network:* Network in CIDR format or an IP address
 
 CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
 
