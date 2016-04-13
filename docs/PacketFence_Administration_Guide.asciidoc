@@ -2651,6 +2651,34 @@ NOTE: If you are not using a routed network, you need to use Inline enforcement 
 
 Once this is done, you need to restart the dhcpd and pfdns services.
 
+Parked devices
+~~~~~~~~~~~~~~
+
+In the event that you are managing a large registration network with devices that stay there (ex: Students that can't register in your environment), these devices consume precious resources and generate useless load on the captive portal and registration DHCP server.
+
+Using the parking feature, you can make these devices have a longer lease and hit an extremelly lightweight captive portal so that the amount of resources they consume is minimal. In that captive portal, they will see a message explaining that they haven't registered their device for a certain amount of time, and will let them leave the *parked* state by pressing a link. 
+
+The *parked* vs *unparked* state is controlled through violation `1300003` which gets triggered according to the `parking.threshold` setting ('Configuration->Parking').
+
+So, in order to activate the parking, go in 'Configuration->Parking' and set the threshold to a certain amount of seconds. A suggested value would be `21600` which is 6 hours. This means that if a device stays in your registration network for more than 6 hours in a row, it will trigger violation `1300003` and place that device into the *parked* state.
+
+In that same section, you can define the lease length of the user when he is in the *parked* state.
+
+NOTE: Parking is detected when a device asks for DHCP, if PacketFence is not your DHCP server for the registration network, this feature will not work. Also, if the device goes into the parked state with a lease time of 1 hour and the user immediately releases himself from the parking state, it will take 1 hour before the next detection takes place even if you set `parking.threshold` to a lower value.
+
+Violation 1300003 
++++++++++++++++++
+
+This violation controls what happens when a user is detected doing parking.
+
+Here are the main settings: 
+
+* You can add actions to the predefined ones (like 'Email admin' or 'External action') in 'Definition -> Actions'
+* The amount of time a user can *unpark* their device is controlled through the 'Remediation -> Max enable' setting.
+* The amount of grace time between two parking violations is controlled by the 'Remediation -> Grace' setting. This means, once a user release himself from the *parked* state, he will have at least this amount of time to register before the parking triggers again.
+* The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
+* The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Parking'
+
 Optional components
 -------------------
 
