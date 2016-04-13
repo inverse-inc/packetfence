@@ -2686,7 +2686,7 @@ Since the suricata IDS is not packaged with the distros (except maybe Fedora, wh
 
 The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
 
-NOTE: To benefit the OPSWAT Metascan integration, Suricata needs to be built with libnss / libnspr support. Make sure to use JSON output. More information on how to achieve this can be found there: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/MD5
+NOTE: To benefit the OPSWAT Metadefender Cloud integration, Suricata needs to be built with libnss / libnspr support. Make sure to use JSON output. More information on how to achieve this can be found there: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/MD5
 
 Configuration
 +++++++++++++
@@ -2697,16 +2697,16 @@ When running locally, PacketFence provides a basic `suricata.yaml` that can be m
 
 In the case that Suricata is running on a separate server, Suricata configuration will have to be handled separately, which is not the purpose of the present guide.
 
-OPSWAT Metascan integration
-+++++++++++++++++++++++++++
+OPSWAT Metadefender Cloud
++++++++++++++++++++++++++
 
-It is possible to trigger violations based on threat level of downloaded files using the OPSWAT Metascan integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
+It is possible to trigger violations based on threat level of downloaded files using the Metadefender Cloud integration in conjunction with the Suricata MD5 extraction feature. Without entering in the details, here are the basic steps to make it work.
 
 First, an OPSWAT portal account is required to make use of the API. Such account can be obtained through the OPSWAT portal: https://portal.opswat.com.
 
 Other requirement is a Suricata working installation built with libnss / libnspr support as described in the upper "Installation" section.
 
-Along with the OPSWAT API key for Metascan Online (they call it 'License Key') and the working Suricata installation, some configuration (PacketFence based AND Suricata based) are also required.
+Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key') and the working Suricata installation, some configuration (PacketFence based AND Suricata based) is also required.
 
 Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
 
@@ -2714,7 +2714,7 @@ On the Suricata server (syslog-ng is preferred due to easier and more powerful c
 
 Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
 
-  ### PacketFence / OPSWAT Metascan integration
+  ### PacketFence / OPSWAT Metadefender Cloud integration
   # This line specifies where the files-json.log file is located
   # -> Make sure to configure the right path along with the right filename
   source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
@@ -2750,7 +2750,7 @@ Restart the rsyslog daemon
 
 At this point, Suricata should be able to extract MD5 checksum of downloaded files and send the related log entry to PacketFence.
 
-A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metascan integration.
+A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
 
 Configuration of a new 'syslog parser' should use the followings:
 
@@ -2760,7 +2760,7 @@ Configuration of a new 'syslog parser' should use the followings:
 Configuration of a new violation can use the following trigger types:
 
   Type: metascan
-  Triggers ID: The scan result returned by OPSWAT Metascan online
+  Triggers ID: The scan result returned by Metadefender Cloud online
 
   Type: suricata_md5
   Trigger ID: The MD5 hash returned by Suricata

@@ -8,7 +8,7 @@ pf::metascan
 
 =head1 DESCRIPTION
 
-Allow querying OPSWAT MetaScan online API
+Allow querying OPSWAT Metadefender Cloud online API
 
 =cut
 
@@ -23,7 +23,7 @@ use pf::CHI;
 use pf::config qw(%Config);
 use pf::log;
 
-# List of MetaScan Online Scanner result IDs
+# List of OPSWAT Metadefender Cloud Scanner result IDs
 # https://www.metascan-online.com/public-api#!/definitions
 Readonly::Scalar our $METASCAN_RESULT_IDS => {
     0   => 'Clean',
@@ -47,7 +47,7 @@ use constant METASCAN_CACHE_EXPIRE => 86400;
 
 =head2 hash_lookup
 
-Looking up an MD5 hash against OPSWAT MetaScan Online scanner
+Looking up an MD5 hash against OPSWAT Metadefender Cloud scanner
 
 =cut
 
@@ -56,7 +56,7 @@ sub hash_lookup {
     my $logger = pf::log::get_logger;
 
     my $md5_hash = $data->{'md5'};
-    $logger->debug("Looking up MD5 hash '$md5_hash' against MetaScan online scanner");
+    $logger->debug("Looking up MD5 hash '$md5_hash' against Metadefender Cloud online scanner");
 
     my $cache = pf::CHI->new(namespace => 'metascan');
     return $cache->compute(
@@ -72,15 +72,15 @@ sub hash_lookup {
             if ( $response->is_success ) {
                 $result = decode_json($response->content);
             } else {
-                $logger->warn("Looking up MD5 hash '$md5_hash' against MetaScan online scanner failed: " . $response->status_line);
+                $logger->warn("Looking up MD5 hash '$md5_hash' against Metadefender Cloud online scanner failed: " . $response->status_line);
                 return;
             }
 
             # Check whether or not the scan result contains informations
-            # MetaScan Online API scanner returns "Not Found" as a hash value where the key is the submitted MD5 hash if nothing has been found
+            # Metadefender Cloud API scanner returns "Not Found" as a hash value where the key is the submitted MD5 hash if nothing has been found
             # Ref: https://www.metascan-online.com/public-api#!/retrieve_single
             if ( any { $_ eq "Not Found" } values %$result ) {
-                $logger->debug("Looking up MD5 hash '$md5_hash' againt MetaScan online scanner returned a 'Not Found' status. Nothing to do");
+                $logger->debug("Looking up MD5 hash '$md5_hash' againt Metadefender Cloud scanner returned a 'Not Found' status. Nothing to do");
                 return;
             }
 
@@ -91,7 +91,7 @@ sub hash_lookup {
 
 =head2 parse_scan_result
 
-Parse JSON result from OPSWAT MetaScan Online Scanner
+Parse JSON result from OPSWAT Metadefender Cloud Scanner
 
 =cut
 
@@ -101,7 +101,7 @@ sub parse_scan_result {
 
     my $scan_all_result_i = $result->{'scan_results'}->{'scan_all_result_i'};
 
-    $logger->debug("Looking up MD5 hash '$md5_hash' against MetaScan online scanner returned '$scan_all_result_i' - '" . $METASCAN_RESULT_IDS->{$scan_all_result_i} . "'");
+    $logger->debug("Looking up MD5 hash '$md5_hash' against Metadefender Cloud scanner returned '$scan_all_result_i' - '" . $METASCAN_RESULT_IDS->{$scan_all_result_i} . "'");
 
     return $scan_all_result_i;
 }

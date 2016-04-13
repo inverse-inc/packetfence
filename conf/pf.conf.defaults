@@ -1388,13 +1388,13 @@ db_pass=
 #
 # metascan.api_key
 #
-# OPSWAT MetaScan Online Scanner API key
+# OPSWAT Metadefender Cloud Scanner API key
 api_key=
 
 #
 # metascan.query_url_hash
 #
-# OPSWAT MetaScan Online Scanner URL for hash queries
+# OPSWAT Metadefender Cloud Scanner URL for hash queries
 query_url_hash=https://hashlookup.metascan-online.com/v2/hash/
 
 [parking]

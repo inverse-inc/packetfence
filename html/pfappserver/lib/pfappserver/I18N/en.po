@@ -3505,11 +3505,11 @@ msgid "OMAPI"
 msgstr ""
 
 # conf/documentation.conf (metascan.api_key)
-msgid "OPSWAT MetaScan Online Scanner API key"
+msgid "OPSWAT Metadefender Cloud Scanner API key"
 msgstr ""
 
 # conf/documentation.conf (metascan.query_url_hash)
-msgid "OPSWAT MetaScan Online Scanner URL for hash queries"
+msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
