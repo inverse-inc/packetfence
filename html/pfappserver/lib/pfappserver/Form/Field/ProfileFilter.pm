@@ -19,6 +19,7 @@ use namespace::autoclean;
 
 use pf::config;
 use pf::factory::condition::profile;
+use pf::validation::profile_filters;
 
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
@@ -72,6 +73,17 @@ sub options_type {
     local $_;
     return map {{value => $_, label => $self->_localize("profile.filter.$_")}}
       sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
+}
+
+sub validate {
+    my ($self) = @_;
+    my $validator = pf::validation::profile_filters->new;
+    my $value = $self->filter_deflate($self->value);
+    my ($rc, $message) = $validator->validate($value);
+    unless ($rc) {
+        $self->add_error($message);
+    }
+    return $rc;
 }
 
 =head1 COPYRIGHT
