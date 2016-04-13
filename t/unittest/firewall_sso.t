@@ -23,7 +23,7 @@ BEGIN {
     use File::Basename qw(dirname);
     use setup_test_config;
 }
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 use Test::NoWarnings;
 use Test::Exception;
