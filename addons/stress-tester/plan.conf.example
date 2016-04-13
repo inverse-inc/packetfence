@@ -1,0 +1,43 @@
+#####
+## Define sections to define new plans to be executed
+## You should use someload for the plans
+## Any argument to someload after -- will be passed directly to the underlying script
+## See someload README for more info - https://github.com/julsemaan/someload/blob/master/README.md
+
+##
+# This send 8 concurrent requests to the server for 5 minutes
+[http_normal]
+command=someload -t 300 -l /dev/shm/xload.log -x mock_data.csv -type http -w 8 -- https://10.0.0.100/captive-portal --insecure 
+
+##
+# This send 5 concurrent requests to the server for 30 seconds and is delayed by 60 seconds after the plan is started
+[http_spike]
+delay_by=60
+command=someload -t 30 -l /dev/shm/xload.log -x mock_data.csv -type http -w 5 -- https://10.0.0.100/captive-portal --insecure 
+
+##
+# This sends 1 DHCP packet non stop to the server
+[dhcp_normal]
+command=someload -t 300 -l /dev/shm/xload.log -x mock_data.csv -type dhcp -w 1 -- --server=10.0.0.100
+
+##
+# This sends 15 concurrent EAP-PEAP requests to the server using the NAS-IP-Address 172.21.2.132
+[radius_normal]
+command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap -w 15 -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
+
+##
+# This sends 5 concurrent EAP-PEAP requests to the server using the NAS-IP-Address 172.21.2.132 and is delayed 60 seconds after the plan is started
+[radius_spike]
+delay_by=60
+command=someload -t 30 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap -w 5 -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
+
+##
+# This sends 15 concurrent RADIUS accounting requests to the server using the NAS-IP-Address 172.21.2.132
+[acct_normal]
+command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type acct -w 15 -- --server=10.0.0.100 --secret=radius --nas-ip-address=172.21.2.132
+
+##
+# This sends 15 concurrent RADIUS accounting requests to the server using the NAS-IP-Address 172.21.2.132 and is delayed 60 seconds after the plan is started
+[acct_spike]
+delay_by=60
+command=someload -t 30 -l /dev/shm/radload.log -x mock_data.csv -type acct -w 5 -- --server=10.0.0.100 --secret=radius --nas-ip-address=172.21.2.132

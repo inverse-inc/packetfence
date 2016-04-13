@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+
+#curl --globoff 'localhost:5984/test_acct/_design/test_acct/_view/timestamps_by_mac?start_key=["00-10-90-7D-35-95",0]&end_key=["00-10-90-7D-35-95",9999999999999]'
+
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Time::HiRes qw(time);
+use File::Temp qw(tempfile);
+use Getopt::Long;
+
+my %options = ();
+GetOptions (
+  \%options,
+  "h!",
+  "mac=s",
+  "username=s",
+  "server=s",
+  "port=s",
+  "secret=s", 
+  "nas-ip-address=s"
+) || die("Invalid options");
+
+my ($fh, $filename) = tempfile();
+
+our $ACCT_DB = "test_acct2";
+
+my @TYPES = qw(Start Stop);
+
+my $type = $TYPES[rand(@TYPES)];
+
+
+my $server = $options{server};
+my $port = $options{port} // 1813;
+my $secret = $options{secret};
+my $nas_ip_address = $options{'nas-ip-address'};
+
+sub fake_request {
+    my ($mac, $username, $input, $output, $time) = @_;
+    my $rand = rand(time);
+    my $pod = <<EOF;
+        NAS-IP-Address = "$nas_ip_address"
+        Acct-Session-Id = "$mac-00000098-$rand"
+        Acct-Status-Type = $type
+        Acct-Authentic = RADIUS
+        User-Name = "bob"
+        NAS-Port = 0
+        Called-Station-Id = "00-02-6F-AA-AA-AA:My Wireless"
+        Calling-Station-Id = "$mac"
+        NAS-Port-Type = Wireless-802.11
+        Connect-Info = "CONNECT 48Mbps 802.11b"
+        Acct-Session-Time = $time
+        Acct-Input-Octets = $input
+        Acct-Output-Octets = $output
+        Acct-Terminate-Cause = User-Request
+EOF
+    print $fh $pod;
+    close($fh);
+    `export LD_LIBRARY_PATH=/usr/local/lib && export LD_RUN_PATH=/usr/local/lib && cat $filename | /usr/bin/radclient -x $server:$port acct $secret`;
+}
+
+fake_request($options{mac}, $options{username}, int(rand()*10000), int(rand()*10000), int(rand()*1000));

@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+
+=head1 SYNOPSIS
+
+Craft a DHCP packet and send the DHCPREQUEST and DHCPACK on the network
+
+Usage : 
+    perl send_dhcp.pl --mac=00:11:22:33:44:55 --ip=172.20.20.192 --hostname=hello --dhcp-fingerprint=1,2,3,4 --dhcp-vendor=test
+
+=cut
+
+use warnings;
+use strict;
+use IO::Socket::INET;
+use Net::DHCP::Packet;
+use Net::DHCP::Constants;
+use Getopt::Long;
+
+my %options = ();
+GetOptions (
+  \%options,
+  "h!",
+  "mac=s",
+  "ip=s",
+  "hostname=s",
+  "dhcp-fingerprint=s",
+  "dhcp-vendor=s",
+  "server=s",
+  "port=s",
+) || die("Invalid options");
+
+$options{port} //= "67";
+
+$options{mac} =~ s/://g;
+$options{mac} = uc($options{mac});
+
+$options{'dhcp-vendor'} = $options{'dhcp-vendor'} eq "NULL" ? '' : $options{'dhcp-vendor'};
+$options{'dhcp-fingerprint'} = $options{'dhcp-fingerprint'} eq "NULL" ? '' : $options{'dhcp-fingerprint'};
+
+# Send the REQUEST + ACK
+send_packet();
+send_packet(1);
+
+sub send_packet {
+    my ($ack) = @_;
+    my $dhcpreq = new Net::DHCP::Packet(
+        Op => $ack ? BOOTREPLY() : BOOTREQUEST(),
+        Htype => HTYPE_ETHER(),
+        Hops => '0',
+        Xid => 0x2d5c8bd7,
+        Flags => '0',
+        Ciaddr => '0.0.0.0',
+        Yiaddr => $options{ip},
+        Siaddr => '10.0.0.10',
+        Giaddr => '172.21.2.1',
+        Chaddr => $options{mac},
+        DHO_DHCP_MESSAGE_TYPE() => $ack ? DHCPACK() : DHCPREQUEST(),
+        );
+
+    $dhcpreq->addOptionValue(DHO_DHCP_REQUESTED_ADDRESS() , $options{ip});
+    $dhcpreq->addOptionValue(DHO_DHCP_MAX_MESSAGE_SIZE() ,'1500');
+    $dhcpreq->addOptionValue(DHO_VENDOR_CLASS_IDENTIFIER() , $options{'dhcp-vendor'});
+    $dhcpreq->addOptionValue(DHO_HOST_NAME() , $options{hostname});
+    $dhcpreq->addOptionValue(DHO_DHCP_PARAMETER_REQUEST_LIST() , join(' ', split(',', $options{'dhcp-fingerprint'})));
+
+    my $sock_in = IO::Socket::INET->new(Type => SOCK_DGRAM, Reuse => 1, LocalPort => 68, Proto => 'udp',Broadcast => 1,PeerAddr => $options{server}.':'.$options{port});
+# Send the packet to the network
+    $sock_in->send($dhcpreq->serialize());
+    select(undef, undef, undef, 0.050);
+}
