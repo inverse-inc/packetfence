@@ -33,6 +33,14 @@ has '+class' => (default => 'exclusive');
 
 has '+type' => (default => 'Blackhole');
 
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Blackhole' }
+
 =head2 available_attributes
 
 Allow to make a condition on the user's email address.

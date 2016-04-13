@@ -11,7 +11,7 @@ description=Default pending policy
 [default_registration_policy]
 description=Default registration policy
 type=Choice
-modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy,default_saml_policy
+modules=default_login_policy,default_guest_policy,default_oauth_policy,default_billing_policy,default_saml_policy,default_blackhole_policy
 
 [default_login_policy]
 description=Username/password login
@@ -35,6 +35,11 @@ type=Authentication::Billing
 description=SAML login
 type=Authentication::Choice
 multi_source_object_classes=pf::Authentication::Source::SAMLSource
+
+[default_blackhole_policy]
+description=Refuse Login
+type=Authentication::Choice
+multi_source_object_classes=pf::Authentication::Source::BlackholeSource
 
 [default_provisioning_policy]
 description=Default Provisioning policy
