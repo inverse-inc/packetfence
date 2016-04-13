@@ -64,7 +64,7 @@ sub filter_deflate {
     my ($self, $value) = @_;
     my $type = $value->{type};
     my $match = $value->{match};
-    return  $match ? "${type}:${match}"  : "" ;
+    return "${type}:${match}";
 }
 
 sub options_type {
