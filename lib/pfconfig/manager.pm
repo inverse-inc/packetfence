@@ -144,7 +144,37 @@ Returns an Array ref of all the overlayed namespaces persisted in the backend
 
 sub all_overlayed_namespaces {
     my ($self) = @_;
-    return [ $self->{cache}->list_matching('\(.*\)$') ];
+    return [ uniq($self->{cache}->list_matching('\(.*\)$'), $self->list_control_overlayed_namespaces()) ];
+}
+
+=head2 list_control_overlayed_namespaces
+
+List all the overlayed namespaces contained in the control directory
+
+=cut
+
+sub list_control_overlayed_namespaces {
+    my ($self) = @_;
+    my $control_dir = $pfconfig::constants::CONTROL_FILE_DIR;
+    my @modules;
+    find(
+        {   wanted => sub {
+                my $module = $_;
+                #Ignore directories
+                return if -d $module;
+                $module =~ s/$control_dir\///g;
+                return if $module !~ /-control$/;
+                $module =~ s/\-control$//g;
+                if($module =~ /\(.*\)$/) {
+                    push @modules, $module;
+                }
+            },
+            no_chdir => 1
+        },
+        $control_dir
+    );
+    @modules = sort @modules;
+    return @modules;
 }
 
 =head2 new
