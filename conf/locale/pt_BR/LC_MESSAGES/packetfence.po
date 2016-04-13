@@ -645,9 +645,9 @@ msgstr "Para completar sua ativação a rede você precisa instalar o cliente IB
 
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
-"To complete your network activation you need to install the OPSWAT GEARS "
+"To complete your network activation you need to install the OPSWAT Metadefender Endpoint "
 "client."
-msgstr "Para completar sua ativação a rede você precisa instalar o cliente OPSWAT GEARS."
+msgstr "Para completar sua ativação a rede você precisa instalar o cliente OPSWAT Metadefender Endpoint."
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid ""

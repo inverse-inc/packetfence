@@ -643,7 +643,7 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
-"To complete your network activation you need to install the OPSWAT GEARS "
+"To complete your network activation you need to install the OPSWAT Metadefender Endpoint "
 "client."
 msgstr ""
 

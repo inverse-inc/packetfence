@@ -8,22 +8,22 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OPSWAT GEARS to provide information about device compliance before and during network access.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OPSWAT Metadefender Endpoint to provide information about device compliance before and during network access.
 
 Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment;
-* You have, or will create, an OPSWAT GEARS account at http://www.opswatgears.com/.
+* You have, or will create, an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/.
 
 Quick installation
 ------------------
-Step 1: Configure OPSWAT GEARS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You will first need to create an OPSWAT GEARS account at http://www.opswatgears.com and configure your account according to OPSWAT's documentation.
+Step 1: Configure OPSWAT Metadefender Endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You will first need to create an OPSWAT Metadefender Endpoint account athttps://www.opswat.com/products/metadefender/endpoint/management/ and configure your account according to OPSWAT's documentation.
 
 Step 2: Developer account
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-Now that you have basic functionality for your OPSWAT GEARS account, you will need to create a GEARS developer account so PacketFence can access the OPSWAT GEARS API. You can do this here https://gears.opswat.com/developers.
+Now that you have basic functionality for your OPSWAT Metadefender Endpoint account, you will need to create a Metadefender Endpoint developer account so PacketFence can access the OPSWAT Metadefender Endpoint API. You can do this here https://gears.opswat.com/developers.
 
 Creating the application
 ++++++++++++++++++++++++ 
@@ -33,9 +33,9 @@ Once you created the application, note the client key and client secret for usag
 
 Step 3: Gathering the install URL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-From your OPSWAT GEARS console, click '+Devices' at the top. Then click on Enable 'GEARS client on another device'.
+From your OPSWAT Metadefender Endpoint console, click '+Devices' at the top. Then click on Enable 'Metadefender Endpoint client on another device'.
 
-Then click 'Download or send link for guest Gears clients'
+Then click 'Download or send link for guest Metadefender Endpoint clients'
 
 image::docs/images/opswat-add-devices.png[scaledwidth="100%",alt="OPSWAT Add device"]
 
@@ -45,7 +45,7 @@ image::docs/images/opswat-add-guest-devices.png[scaledwidth="100%",alt="OPSWAT A
 
 Step 4: API access
 ~~~~~~~~~~~~~~~~~~
-In order to configure OPSWAT GEARS in PacketFence you will need to generate an OAuth2 access and refresh token so PacketFence can access the OPSWAT GEARS API.
+In order to configure OPSWAT Metadefender Endpoint in PacketFence you will need to generate an OAuth2 access and refresh token so PacketFence can access the OPSWAT Metadefender Endpoint API.
 
 Generate the authorization code
 +++++++++++++++++++++++++++++++
@@ -91,7 +91,7 @@ Now configure this new provisioner with the information you got above.
 Add the provisioner to the profile
 ++++++++++++++++++++++++++++++++++
 Now that you have created the provisioner, go in the 'Portal Profiles' menu on the left and select the default portal.
-Click 'Add Provisioner' and select the new OPSWAT GEARS provisioner that was created earlier.
+Click 'Add Provisioner' and select the new OPSWAT Metadefender Endpoint provisioner that was created earlier.
 
 image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
 
@@ -108,21 +108,21 @@ image::docs/images/opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passth
 
 Step 7: Test
 ~~~~~~~~~~~~
-You can now test that the installation of the OPSWAT GEARS client is mandatory after the device registration.
+You can now test that the installation of the OPSWAT Metadefender Endpoint client is mandatory after the device registration.
 Connect a device to your test network and register like you normally would.
-At the end of the registration process you will be presented a page asking you to install the OPSWAT GEARS client on your device.
-After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and OPSWAT GEARS is good.
+At the end of the registration process you will be presented a page asking you to install the OPSWAT Metadefender Endpoint client on your device.
+After you install the client click continue. If your access is enabled than this means the connectivity between PacketFence and OPSWAT Metadefender Endpoint is good.
 
 Compliance enforcement
 ----------------------
 
-PacketFence polls the OPSWAT GEARS API in order to trigger violations on noncompliant devices.
+PacketFence polls the OPSWAT Metadefender Endpoint API in order to trigger violations on noncompliant devices.
 
 PacketFence uses the number of critical issues the device has to determine whether or not it needs to isolate it.
 
-Step 1: Configure OPSWAT GEARS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-First you need to configure what you consider as a critical issue in your OPSWAT GEARS console.
+Step 1: Configure OPSWAT Metadefender Endpoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First you need to configure what you consider as a critical issue in your OPSWAT Metadefender Endpoint console.
 
 You will do that through the 'Configure' menu. Then you'll see a column that allows you to flag what is considered as a critical issue.
 

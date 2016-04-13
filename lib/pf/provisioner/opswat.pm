@@ -334,12 +334,12 @@ sub decode_response {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     elsif($code == 404) {
-        $logger->info("Device is not in OPSWAT gears. Assuming device doesn't have the agent.");
+        $logger->info("Device is not in OPSWAT Metadefender Endpoint. Assuming device doesn't have the agent.");
         my $json_response = decode_json($response_body);
         return $json_response;
     }
     elsif($code != 200){
-        $logger->error("Got error code $code when contacting the OPSWAT GEARS API. Here's the response body : $response_body");
+        $logger->error("Got error code $code when contacting the OPSWAT Metadefender Endpoint API. Here's the response body : $response_body");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     else {
