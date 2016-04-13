@@ -21,6 +21,24 @@ stop_service_if_exists() {
     fi
 }
 
+# Remove a no-longer used conffile; taken from http://wiki.debian.org/DpkgConffileHandling
+rm_conffile() {
+    CONFFILE="$1"
+
+    if [ -e "$CONFFILE" ]; then
+        md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+        old_md5sum="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\' $CONFFILE'{s/ obsolete$//;s/.* //p}\"`"
+        if [ "$md5sum" != "$old_md5sum" ]; then
+            echo "Obsolete conffile $CONFFILE has been modified by you."
+            echo "Saving as $CONFFILE.dpkg-bak ..."
+            mv -f "$CONFFILE" "$CONFFILE".dpkg-bak
+        else
+            echo "Removing obsolete conffile $CONFFILE ..."
+            rm -f "$CONFFILE"
+        fi
+    fi
+}
+
 case "$1" in
     install)
         stop_service_if_exists packetfence
@@ -41,23 +59,52 @@ case "$1" in
         # mv the old raddb dir if upgrading from FreeRADIUS 2
         echo "Upgrading from $2"
         if dpkg --compare-versions "$2" lt "6"; then
-            mv /usr/local/pf/raddb /usr/local/pf/raddb2
+          mv /usr/local/pf/raddb /usr/local/pf/raddb2
+          for file in \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm \
+            /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Redirect.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
+          do
+
+            rm_conffile "$file"
+
+            # must get rid of the overrides otherwise they corrupt the database
+            if dpkg-statoverride --list | grep -qw $file$; then
+              dpkg-statoverride --remove $file
+            fi
+
+          done
+          test -d /usr/local/pf/html/captive-portal/wispr && rmdir --ignore-fail-on-non-empty /usr/local/pf/html/captive-portal/wispr
+          test -d /usr/local/pf/var/cache && rmdir --ignore-fail-on-non-empty /usr/local/pf/var/cache
         fi
 
         stop_service_if_exists pfappserver
         stop_service_if_exists packetfence
-        if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
-                rm -fr /usr/local/pf/html/captive-portal/wispr
-        fi
-        if [ -d "/usr/local/pf/var/cache" ] ; then
-                rm -fr /usr/local/pf/var/cache/
-        fi
-        if [ -e "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
-                rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
-        fi
-        if [ -e "/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm" ] ; then
-                rm -fr /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
-        fi
+
+
         usermod pf -a -G fingerbank,winbindd_priv
         exit 0
     ;;
