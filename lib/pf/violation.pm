@@ -452,7 +452,7 @@ sub violation_view_all_active {
 
 #
 sub violation_add {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $mac, $vid, %data ) = @_;
     my $logger = get_logger();
     return (0) if ( !$vid );
@@ -648,7 +648,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 =cut
 
 sub violation_trigger {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
 
     my ( $argv ) = @_;
     my $logger = get_logger();

@@ -128,7 +128,7 @@ sub process {
 =cut
 
 sub _query {
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $args ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -141,7 +141,7 @@ sub _query {
 =cut
 
 sub _trigger_violations {
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $query_args, $query_result, $parents ) = @_;
     my $logger = pf::log::get_logger;
 
@@ -245,7 +245,7 @@ sub sync_upstream_db {
 =cut
 
 sub mac_vendor_from_mac {
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 8});
     my ($mac) = @_;
     my $mac_oui = $mac;
     $mac_oui =~ s/[:|\s|-]//g;          # Removing separators

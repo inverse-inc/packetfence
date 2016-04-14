@@ -50,7 +50,7 @@ be used instead.
 =cut
 
 sub new {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $class, $args_ref ) = @_;
     my $logger = get_logger();
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
@@ -266,7 +266,7 @@ Returns the internal authentication sources objects for the current captive port
 =cut
 
 sub getInternalSources {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self) = @_;
     my @sources = $self->getSourcesByClass( 'internal' );
     return @sources;
@@ -279,7 +279,7 @@ Returns the external authentication sources objects for the current captive port
 =cut
 
 sub getExternalSources {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self) = @_;
     my @sources = $self->getSourcesByClass( 'external' );
     return @sources;
@@ -292,7 +292,7 @@ Returns the exclusive authentication sources objects for the current captive por
 =cut
 
 sub getExclusiveSources {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self) = @_;
     my @sources = $self->getSourcesByClass( 'exclusive' );
     return @sources;
@@ -452,7 +452,7 @@ sub provisionerObjects {
 }
 
 sub findProvisioner {
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self, $mac, $node_attributes) = @_;
     my $logger = get_logger();
     my @provisioners = $self->provisionerObjects;
@@ -511,7 +511,7 @@ return the first scan that match the device
 =cut
 
 sub findScan {
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self, $mac, $node_attributes) = @_;
     my $scanners = $self->getScans;
     return undef unless defined $scanners;

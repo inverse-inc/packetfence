@@ -618,7 +618,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05 });
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 7 });
     my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role ) = @_;
     my $logger = get_logger();
     $logger->trace("verifying if locationlog is accurate called");

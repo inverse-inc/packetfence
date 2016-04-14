@@ -124,7 +124,7 @@ sub authorize {
     }
 
     {
-        my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex"});
+        my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex", level => 7});
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
     }
 
@@ -356,7 +356,7 @@ Update the location log based on the accounting information
 =cut
 
 sub update_locationlog_accounting {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05 });
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 6 });
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
 
@@ -451,7 +451,7 @@ Returns the same structure as authorize(), see it's POD doc for details.
 =cut
 
 sub _authorizeVoip {
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05 });
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 7 });
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
@@ -530,7 +530,7 @@ sub _switchUnsupportedReply {
 }
 
 sub _handleStaticPortSecurityMovement {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new(level => 7);
     my ($self,$args) = @_;
     my $logger = $self->logger;
     #determine if $mac is authorized elsewhere

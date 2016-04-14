@@ -7039,6 +7039,10 @@ msgid "advanced.update_iplog_with_accounting"
 msgstr "Update the iplog using the accounting"
 
 # conf/documentation.conf
+msgid "advanced.timing_stats_level"
+msgstr "Stats Timing level"
+
+# conf/documentation.conf
 msgid "alerting"
 msgstr "Alerting"
 

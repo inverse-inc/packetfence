@@ -61,7 +61,7 @@ Massages the profile values before creating the object
 =cut
 
 sub _from_profile {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self,$profile_name) = @_;
     my $logger = get_logger();
     $profile_name = "default" unless exists $Profiles_Config{$profile_name};
