@@ -104,7 +104,7 @@ sub pidFile {
     if ( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) {
         return "$var_dir/run/$domain/winbindd.pid";
     } else {
-        return "$var_dir/run/$name.pid";
+        return "$var_dir/run/$domain/$name.pid";
     }
 }
 
