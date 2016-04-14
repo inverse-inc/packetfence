@@ -66,6 +66,7 @@ use pf::file_paths qw(
     $generated_conf_dir
 );
 use Crypt::OpenSSL::X509;
+use Date::Parse;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
