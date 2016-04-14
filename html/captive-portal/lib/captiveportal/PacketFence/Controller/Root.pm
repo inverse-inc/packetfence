@@ -61,7 +61,7 @@ sub auto : Private {
 
 sub setupDynamicRouting : Private {
     my ($self, $c) = @_;
-    my $timer = pf::StatsD::Timer->new();
+    my $timer = pf::StatsD::Timer->new({level => 7});
 
     my $node = node_attributes($c->portalSession->clientMac);
 
@@ -99,7 +99,7 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
 
     $c->forward('dynamic_application');
 }

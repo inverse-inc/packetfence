@@ -73,7 +73,7 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 =cut
 
 sub instantiate {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $class, $switchRequest ) = @_;
     my $logger = get_logger();
     my @requestedSwitches;

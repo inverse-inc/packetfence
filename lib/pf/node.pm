@@ -424,7 +424,7 @@ sub node_view_reg_pid {
 # delete and return 1
 #
 sub node_delete {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ($mac) = @_;
     my $logger = get_logger();
 
@@ -470,7 +470,7 @@ our %DEFAULT_NODE_VALUES = (
 # clean input parameters and add to node table
 #
 sub node_add {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $mac, %data ) = @_;
     my $logger = get_logger();
     $logger->trace("node add called");
@@ -635,7 +635,7 @@ New implementation in 3.2.0.
 =cut
 
 sub node_view {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ($mac) = @_;
     # Uncomment to log callers
     #my $logger = get_logger();
@@ -668,7 +668,7 @@ sub node_view {
 }
 
 sub node_count_all {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $id, %params ) = @_;
     my $logger = get_logger();
 
@@ -740,7 +740,7 @@ Warning: The connection_type field is translated into its human form before retu
 =cut
 
 sub node_view_all {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $id, %params ) = @_;
     my $logger = get_logger();
 
@@ -803,7 +803,7 @@ node_attributes_with_fingerprint code.  This code will disappear in 2013.
 =cut
 
 sub node_view_with_fingerprint {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ($mac) = @_;
     my $logger = get_logger();
 
@@ -817,7 +817,7 @@ sub node_view_with_fingerprint {
 }
 
 sub node_modify {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
+    my $timer = pf::StatsD::Timer->new;
     my ( $mac, %data ) = @_;
     my $logger = get_logger();
 
@@ -928,7 +928,7 @@ sub node_modify {
 }
 
 sub node_register {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
+    my $timer = pf::StatsD::Timer->new();
     my ( $mac, $pid, %info ) = @_;
     my $logger = get_logger();
     $mac = lc($mac);
@@ -1223,7 +1223,7 @@ returns category_id, undef if no category was required or 0 if no category is fo
 =cut
 
 sub _node_category_handling {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my (%data) = @_;
     my $logger = get_logger();
 
@@ -1261,7 +1261,7 @@ The MAC address is currently not used.
 =cut
 
 sub is_max_reg_nodes_reached {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1 });
+    my $timer = pf::StatsD::Timer->new({ level => 6 });
     my ($mac, $pid, $category, $category_id) = @_;
     my $logger = get_logger();
 

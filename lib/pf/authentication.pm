@@ -266,7 +266,7 @@ our %ACTION_VALUE_FILTERS = (
 );
 
 sub match {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1});
+    my $timer = pf::StatsD::Timer->new();
     my ($source_id, $params, $action, $source_id_ref) = @_;
     my ($actions, @sources);
     $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });

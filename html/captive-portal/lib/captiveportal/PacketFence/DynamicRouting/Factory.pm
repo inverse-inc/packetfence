@@ -69,7 +69,7 @@ Instantiate all the Application Module objects so they can be configured after
 
 sub instantiate_all {
     my ($self) = @_;
-    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05});
+    my $timer = pf::StatsD::Timer->new({sample_rate => 0.05, level => 7});
     $self->instantiate_child($self->application->root_module_id);
 }
 
