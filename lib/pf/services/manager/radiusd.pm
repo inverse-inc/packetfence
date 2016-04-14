@@ -30,7 +30,7 @@ has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
 has '+name' => ( default => sub { 'radiusd' } );
 
-has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
+has '+launcher' => ( default => sub { "cd $install_dir && sudo %1\$s -d raddb/"} );
 
 sub _build_radiusdManagers {
     my ($self) = @_;
