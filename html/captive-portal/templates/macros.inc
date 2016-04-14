@@ -1,7 +1,10 @@
 [%# Insert an SVG element from sprite.svg %]
 [% MACRO svgIcon BLOCK %]
 <svg class="iconic[% IF size %] iconic--[% size %][% END %]" viewBox="0 0 100 100">
-  <use xlink:href="#[% id %]"></use>
+  <g class="iconic__hide">
+    <use xlink:href="#[% id %]"></use>
+  </g>
+  <image class="iconic[% IF size %] iconic--[% size %][% END %]" src="/common/img/[% id %].png" xlink:href=""/>
 </svg>
 [% END %]
 

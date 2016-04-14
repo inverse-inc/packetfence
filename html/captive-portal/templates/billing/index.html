@@ -2,9 +2,9 @@
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
   [% IF fields.exists('aup') %]
-  <section class="card">
+  <div class="card">
     [% form.get_field('aup').render | none %]
-  </section>
+  </div>
   [% END %]
 
   <div class="card card--hidden card--disabled layout layout--center">

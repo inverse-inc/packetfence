@@ -23,7 +23,8 @@
     }
   }
 
-  label {
+  label,
+  .#{$inuit-flag-namespace}flag__body {
     color: $pf-list-tint-color;
   }
 
