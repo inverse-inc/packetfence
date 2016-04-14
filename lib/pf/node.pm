@@ -23,6 +23,7 @@ use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::ipset;
 
 use constant NODE => 'node';
 
