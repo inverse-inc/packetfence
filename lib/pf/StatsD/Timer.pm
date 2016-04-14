@@ -54,6 +54,9 @@ use strict;
 use warnings;
 use pf::StatsD;
 use Time::HiRes;
+use pfconfig::cached_hash;
+
+tie our %levels, 'pfconfig::cached_hash', 'resource::stats_levels';
 
 =head2 $timer = $self->new({ 'stat' => "stat", sample_rate => $sample_rate });
 
@@ -64,7 +67,8 @@ sub new {
     my $class = ref($proto) || $proto;
     $args //= {};
     $args->{start_time} //= Time::HiRes::gettimeofday;
-    $args->{sample_rate} //= 0.25;
+    $args->{sample_rate} //= 0.10;
+    $args->{level} //= 5;
     #Get the name of the function enclosing this call
     $args->{'stat'} //= (caller(1))[3];
     my $self  = {%$args};
@@ -73,7 +77,9 @@ sub new {
 
 sub send_timing {
     my ($self, $sub_stat) = @_;
-    $pf::StatsD::statsd->end($self->{'stat'} . ".$sub_stat" . ".timing", $self->{'start_time'}, $self->{'sample_rate'});
+    if($self->{level} <= $levels{timing}){
+        $pf::StatsD::statsd->end($self->{'stat'} . ".$sub_stat" . ".timing", $self->{'start_time'}, $self->{'sample_rate'});
+    }
 }
 
 =head2 DESTROY
@@ -82,7 +88,9 @@ sub send_timing {
 
 sub DESTROY {
     my ($self) = @_;
-    $pf::StatsD::statsd->end($self->{'stat'} . ".timing" , $self->{'start_time'}, $self->{'sample_rate'});
+    if($self->{level} <= $levels{timing}){
+        $pf::StatsD::statsd->end($self->{'stat'} . ".timing" , $self->{'start_time'}, $self->{'sample_rate'});
+    }
 }
 
 =head1 AUTHOR

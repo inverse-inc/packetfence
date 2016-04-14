@@ -1053,6 +1053,12 @@ update_iplog_with_accounting=disabled
 #
 # Close the locationlog for a node on accounting stop
 locationlog_close_on_accounting_stop=enabled
+#
+# advanced.timing_stats_level
+#
+# Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log
+# Do not change unless you know what you are doing
+timing_stats_level=5
 
 [omapi]
 #
