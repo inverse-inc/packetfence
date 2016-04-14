@@ -27,3 +27,12 @@ $pf-iconic-size--large:    $inuit-base-line-height * 7/3;
     }
   }
 }
+
+.#{$pf-namespace}iconic__hide {
+  display: block;
+  position: absolute;
+  left: -100%;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+}
