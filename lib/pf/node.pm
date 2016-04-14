@@ -93,7 +93,6 @@ use pf::nodecategory;
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
 use pf::Portal::ProfileFactory;
-use pf::ipset;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $node_db_prepared = 0;
