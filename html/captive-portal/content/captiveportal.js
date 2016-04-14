@@ -5,62 +5,70 @@ $(function() {
 
   var dots,
       dotsParent = document.getElementById('dots'),
-      cards = document.getElementsByClassName('card');
+      cards = $('.card');
 
   initDots();
+  initSvgSprite();
   
   function initDots() {
-    var index;
+    var index, $card;
 
     if (cards.length > 1) {
       for (index = 0; index < cards.length; index++) {
+        $card = $(cards[index]);
         cards[index].id = 'card-' + index;
         addDot(dotsParent,
                index,
-               !cards[index].classList.contains('card--hidden'),
-               cards[index].classList.contains('card--disabled'));
+               !$card.hasClass('card--hidden'),
+               $card.hasClass('card--disabled'));
       }
       dots = dotsParent.children;
       initAup();
     }
   }
 
-  function initAup() {
-    var index, aup, checkAccept;
+  function initSvgSprite() {
+    $.get('/common/img/sprite.svg', function(data) {
+      var div = document.createElement("div");
+      div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
+      document.body.insertBefore(div, document.body.childNodes[0]);
+    });
+  }
 
-    aup = document.getElementById('aup');
+  function initAup() {
+    var $aup, checkAccept;
+
+    $aup = $('#aup');
     checkAccept = function() {
-      if (aup.checked) {
+      var $aup, index, $dot, $card;
+      $aup = $('#aup');
+      if ($aup.get(0) && $aup.get(0).checked) {
         for (index = 0; index < dots.length; index++) {
-          if (dots[index].classList.contains('dot--disabled')) {
-            dots[index].classList.remove('dot--disabled');
-            activateCard(index);
+          $dot = $(dots[index]);
+          if ($dot.hasClass('dot--disabled')) {
+            $dot.removeClass('dot--disabled');
+            activateCard({data: index});
             return;
           }
         }
       }
       else {
         for (index = 0; index < cards.length; index++) {
-          if (cards[index].classList.contains('card--disabled'))
-            dots[index].classList.add('dot--disabled')
+          $card = $(cards[index]);
+          if ($card.hasClass('card--disabled'))
+            $(dots[index]).addClass('dot--disabled')
         }
       }
     };
 
-    if (aup) {
-      if (aup.addEventListener)
-        aup.addEventListener('click', checkAccept, false);
-      else if (aup.attachEvent)
-        aup.attachEvent('click', checkAccept);
+    if ($aup) {
+      $aup.on('click', checkAccept);
       checkAccept();
     }
   }
   
   function addDot(dotsParent, index, active, disabled) {
-    var dot, activateFcn;
-
-    // Click event listener
-    activateFcn = activateCard.bind(dot, index);
+    var dot;
 
     dot = document.createElement('div');
     dot.id = 'dot-' + index;
@@ -72,31 +80,32 @@ $(function() {
     else if (disabled)
       dot.className += ' dot--disabled';
 
-    // Register click event listener
-    if (dot.addEventListener)
-      dot.addEventListener('click', activateFcn, false);
-    else if (dot.attachEvent)
-      dot.attachEvent('click', activateFcn);
+    dot.appendChild(document.createElement('div'));
 
-    dot.appendChild(document.createElement('span'));
+    // Register click event listener
+    $(dot).on('click', index, activateCard);
 
     dotsParent.appendChild(dot);
   }
 
-  function activateCard(activeIndex) {
-    var index;
+  function activateCard(event) {
+    var activeIndex, index, $card, $dot;
 
-    if (dots[activeIndex].classList.contains('dot--disabled'))
+    activeIndex = event.data;
+
+    if ($(dots[activeIndex]).hasClass('dot--disabled'))
       return;
     
     for (index = 0; index < cards.length; index++) {
+      $card = $(cards[index]);
+      $dot = $(dots[index]);
       if (index == activeIndex) {
-        cards[index].classList.remove('card--hidden');
-        dots[index].classList.add('dot--active');
+        $card.removeClass('card--hidden');
+        $dot.addClass('dot--active');
       }
       else {
-        cards[index].classList.add('card--hidden');
-        dots[index].classList.remove('dot--active');
+        $card.addClass('card--hidden');
+        $dot.removeClass('dot--active');
       }
     }
   }

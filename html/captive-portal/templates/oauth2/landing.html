@@ -2,9 +2,9 @@
 <form action="/oauth2/go" method="POST">
 
   [% IF with_aup %]
-  <section class="card">
+  <div class="card">
     [% form.get_field('aup').render | none %]
-  </section>
+  </div>
   [% END %]
 
   <div class="card card--hidden card--disabled layout layout--center">

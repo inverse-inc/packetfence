@@ -2,30 +2,31 @@
     START content-with-choice.html
     selected choice: [% mod_manager_current_module %]
   -->
-<section class="card[% IF mod_manager_current_module %] card--hidden[% END %]">
-<div class="layout--center">
-  <h5>[% i18n('Select an authentication method') %]</h5>
-</div>
-<div class="layout layout--center">
+<div class="card[% IF mod_manager_current_module %] card--hidden[% END %]">
 
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <ul class="list-ui list-ui--tiny list-ui--btns">
-      [% FOREACH module IN modules %]
-      <li class="[% module.pretty_class_name.lower %][% IF mod_manager_current_module == module.id %] list-ui__item--selected[% END %]">
-        <a href="/switchto/[% module.id %]"
-           class="btn btn--full">
-          <div class="flag">
-            <div class="flag__img">[% moduleIcon(module=module.pretty_class_name,size='small') %]</div>
-            <p class="flag__body">[% module.description || module.id %]</p>
-          </div>
-        </a>
-      </li>
-      [% END %]
-    </ul>
+  <div class="layout--center">
+    <h5>[% i18n('Select an authentication method') %]</h5>
+  </div>
+
+  <div class="layout layout--center">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      <ul class="list-ui list-ui--tiny list-ui--btns">
+        [% FOREACH module IN modules %]
+        <li class="[% module.pretty_class_name.lower %][% IF mod_manager_current_module == module.id %] list-ui__item--selected[% END %]">
+          <a href="/switchto/[% module.id %]"
+             class="btn btn--full">
+            <div class="flag">
+              <div class="flag__img">[% moduleIcon(module=module.pretty_class_name,size='small') %]</div>
+              <p class="flag__body">[% module.description || module.id %]</p>
+            </div>
+          </a>
+        </li>
+        [% END %]
+      </ul>
+    </div>
   </div>
 
 </div>
-</section>
 <!-- END content-with-choice.html -->
 
 [% content | none %]
