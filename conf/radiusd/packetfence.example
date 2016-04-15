@@ -332,14 +332,17 @@ post-auth {
 		packetfence
 		if (updated || ok || noop) {
 			request-timing
+			copy_to_control
+			attr_filter.packetfence_post_auth
 			-sql
 		} else {
 			request-timing
+                        copy_to_control
+                        attr_filter.packetfence_post_auth
 			-sql_reject
 		}
 	}
 
-	attr_filter.packetfence_post_auth
 	linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
@@ -353,11 +356,12 @@ post-auth {
 	Post-Auth-Type REJECT {
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 			request-timing
+                        copy_to_control
+                        attr_filter.packetfence_post_auth
 			# log failed authentications in SQL, too.
 			-sql_reject
 		}
 		attr_filter.access_reject
-		attr_filter.packetfence_post_auth
 
 		# Insert EAP-Failure message if the request was
 		# rejected by policy instead of because of an
