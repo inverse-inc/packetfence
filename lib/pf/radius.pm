@@ -530,7 +530,7 @@ sub _switchUnsupportedReply {
 }
 
 sub _handleStaticPortSecurityMovement {
-    my $timer = pf::StatsD::Timer->new(level => 7);
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self,$args) = @_;
     my $logger = $self->logger;
     #determine if $mac is authorized elsewhere
