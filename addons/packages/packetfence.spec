@@ -522,7 +522,7 @@ cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
-cp -r README $RPM_BUILD_ROOT/usr/local/pf/
+cp -r README.md $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
@@ -1256,7 +1256,7 @@ fi
 %ghost                  %logdir/pfmon
 %doc                    /usr/local/pf/NEWS.asciidoc
 %doc                    /usr/local/pf/NEWS.old
-%doc                    /usr/local/pf/README
+%doc                    /usr/local/pf/README.md
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
