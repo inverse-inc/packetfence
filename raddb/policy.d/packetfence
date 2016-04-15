@@ -49,3 +49,72 @@ request-timing {
         }
     }
 }
+
+copy_to_control {
+
+if (&reply:PacketFence-Switch-Id) {
+    update control {
+        &PacketFence-Switch-Id := &reply:PacketFence-Switch-Id
+    }
+}
+if (&reply:PacketFence-IsPhone) {
+    update control {
+        &PacketFence-IsPhone := &reply:PacketFence-IsPhone
+    }
+}
+if (&reply:PacketFence-IfIndex) {
+    update control {
+        &PacketFence-IfIndex := &reply:PacketFence-IfIndex
+    }
+}
+if (&reply:PacketFence-Computer-Name) {
+    update control {
+        &PacketFence-Computer-Name := &reply:PacketFence-Computer-Name
+    }
+}
+if (&reply:PacketFence-Role) {
+    update control {
+        &PacketFence-Role := &reply:PacketFence-Role
+    }
+}
+if (&reply:PacketFence-Status) {
+    update control {
+        &PacketFence-Status := &reply:PacketFence-Status
+    }
+}
+if (&reply:PacketFence-Switch-Ip-Address) {
+    update control {
+        &PacketFence-Switch-Ip-Address := &reply:PacketFence-Switch-Ip-Address
+    }
+}
+if (&reply:PacketFence-AutoReg) {
+    update control {
+        &PacketFence-AutoReg := &reply:PacketFence-AutoReg
+    }
+}
+if (&reply:PacketFence-Connection-Type) {
+    update control {
+        &PacketFence-Connection-Type := &reply:PacketFence-Connection-Type
+    }
+}
+if (&reply:PacketFence-Switch-Mac) {
+    update control {
+        &PacketFence-Switch-Mac := &reply:PacketFence-Switch-Mac
+    }
+}
+if (&reply:PacketFence-Mac) {
+    update control {
+        &PacketFence-Mac := &reply:PacketFence-Mac
+    }
+}
+if (&reply:PacketFence-UserName) {
+    update control {
+        &PacketFence-UserName := &reply:PacketFence-UserName
+    }
+}
+if (&reply:PacketFence-Eap-Type) {
+    update control {
+        &PacketFence-Eap-Type := &reply:PacketFence-Eap-Type
+    }
+}
+}
