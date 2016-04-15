@@ -19,14 +19,18 @@ function saveStep(href) {
     $.ajax({
         type: 'POST',
         url: href
+    }).always(function(data) {
+        setInterval(function(){getStatus(href)}, 10000)
+    }
     }).done(function(data) {
         resetAlert($('#services'));
       
-        setInterval(function(){getStatus(href)}, 10000)
     }).fail(function(jqXHR) {
         servicesError();
         var obj = $.parseJSON(jqXHR.responseText);
-        showPermanentError($('#services table'), obj.status_msg);
+        if(obj) {
+            showError($('#services table'), obj.status_msg);
+        }
     });
 
 }
@@ -42,7 +46,9 @@ function getStatus(href){
     }).fail(function(jqXHR) {
         servicesError();
         var obj = $.parseJSON(jqXHR.responseText);
-        showPermanentError($('#services table'), obj.status_msg);
+        if(obj) {
+            showError($('#services table'), obj.status_msg);
+        }
     });
     
 }
