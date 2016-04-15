@@ -3881,19 +3881,19 @@ This filter will return an error code (501) if the user agent is Dalvik and the 
 Dashboard Optimizations (statistics collection)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The collection and aggregation of statistics in the whisper database can be IO intensive per moment. This means that it can be beneficial to seperate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
+The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to seperate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
 
-First, add a disk in your virtual machine or baremetal server and reboot (this example will use /dev/sdb as the new devic
+First, add a disk in your virtual machine or baremetal server and reboot (this example will use /dev/sdb as the new device.
 
-Make sure packetfence is stopped :
+Make sure packetfence is stopped:
 
   # service packetfence stop
 
-Create an ext4 partition : 
+Create an ext4 partition: 
 
   # mkfs.ext4 /dev/sdb
 
-Then move the old databases to a backup point.
+Then move the old databases to a backup point:
 
   # mv /usr/local/pf/var/graphite /usr/local/pf/var/graphite.bak
 
