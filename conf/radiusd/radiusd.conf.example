@@ -781,7 +781,6 @@ instantiate {
 	#	sql2
 	#}
     redis
-    sql
     rest
     raw
 }
