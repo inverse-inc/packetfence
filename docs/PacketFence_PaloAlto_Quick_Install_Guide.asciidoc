@@ -3,6 +3,7 @@ PaloAlto firewall Quick Integration Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 include::includes/global-attributes.asciidoc[]
 

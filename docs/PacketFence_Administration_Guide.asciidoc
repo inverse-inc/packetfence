@@ -3,6 +3,7 @@ Administration Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 ////
 
@@ -418,7 +419,7 @@ More on SNMP traps VLAN isolation
 
 When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
-image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
+image::docs/images/diagram-trap-interaction.png[pfsetvlan SNMP interactions diagram, 400]
 
 You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
 
@@ -1367,7 +1368,7 @@ image::docs/images/portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
 
 Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the 'Modules' fields
 
-image::docs/images/portal-modules/chianed_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
+image::docs/images/portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
 
 Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 

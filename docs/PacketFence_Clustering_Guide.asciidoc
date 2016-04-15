@@ -3,6 +3,7 @@ Clustering Quick Installation Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 include::includes/global-attributes.asciidoc[]
 

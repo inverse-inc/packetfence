@@ -3,6 +3,7 @@ ZEN Administration Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 ////
 

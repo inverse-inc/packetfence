@@ -3,6 +3,7 @@ PacketFence Out-of-Band Deployment Quick Guide using ZEN
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 ////
 

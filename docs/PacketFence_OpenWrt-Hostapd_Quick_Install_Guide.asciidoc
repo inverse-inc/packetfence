@@ -3,6 +3,7 @@ OpenWrt BarrierBreaker 14.07 with hostapd Quick Integration Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 include::includes/global-attributes.asciidoc[]
 
