@@ -41,7 +41,7 @@ Enhancements
 * Added a timer for each RADIUS request (radius audit log)
 * Assign the voice role to VoIP devices when PacketFence detects them
 * Renamed VLAN to Role in admin gui violation
-* Unregister a node from a secure connection to an unsecure one is now managed by the VLAN filters
+* Unregister a node from a secure connection to an unsecured one is now managed by the VLAN filters
 * Location history of a node show the role instead of the VLAN id
 * Documentation to configure Cisco switches with Identity Networking Policy
 * Trigger violation on source or destination IP address if they are in the trapping range networks
@@ -52,7 +52,7 @@ Enhancements
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
-* Compute unregdate for secure connections
+* Compute unregistration for secure connections
 * Fixed unescape value in LDAP search
 * Fixed Apache 2.4 core dump
 * Fixed update locationlog from accounting start with the wrong connection type
