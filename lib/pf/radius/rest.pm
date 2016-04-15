@@ -30,19 +30,18 @@ Format a PacketFence RADIUS response to the format expected by the FreeRADIUS RE
 sub format_response {
     my ($response) = @_;
 
-    my $radius_return = shift @$response; 
-    my %mapped_object = @$response; 
-    %mapped_object = ( %{$mapped_object{"RADIUS_AUDIT"}}, %mapped_object);
+    my $radius_return = shift @$response;
+    my %mapped_object = @$response;
+    %mapped_object = ( %{ delete $mapped_object{"RADIUS_AUDIT"} // {} }, %mapped_object);
 
-    delete $mapped_object{"RADIUS_AUDIT"};
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
-    $response = \%mapped_object; 
-    
+    $response = \%mapped_object;
+
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
         die pf::api::error->new(status => Apache2::Const::HTTP_FORBIDDEN, response => $response);
     }
 
-    unless ($radius_return == $RADIUS::RLM_MODULE_OK) { 
+    unless ($radius_return == $RADIUS::RLM_MODULE_OK) {
         die pf::api::error->new(status => Apache2::Const::HTTP_UNAUTHORIZED, response => $response);
     }
 
