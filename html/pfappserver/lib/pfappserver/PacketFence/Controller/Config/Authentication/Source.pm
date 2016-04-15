@@ -76,7 +76,7 @@ Authentication source chained dispatcher
 
 =cut
 
-sub object :Chained('/') :PathPart('authentication') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('config/authentication/source') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
 
     my $source = pf::ConfigStore::Authentication::getSource($id);
