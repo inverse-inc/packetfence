@@ -57,6 +57,7 @@
     </div>
 
     <footer>
+      [% UNLESS preregistration %]
       <div class="layout layout--tiny layout--center"
         ><div class="layout__item u-1/4 u-1/3-lap u-1/2-palm">
           <div class="u-m--">
@@ -65,13 +66,12 @@
         </div
         ><div class="layout__item u-1/4 u-1/3-lap u-1/2-palm">
           <div class="u-m--">
-            [% UNLESS preregistration %]
             <p class="u-mb--">IP <b>[% client_ip %]</b></p>
             <p>MAC <b>[% client_mac %]</b></p>
-            [% END %]
           </div>
         </div
       ></div>
+      [% END %]
     </footer>
   </body>
 </html>
