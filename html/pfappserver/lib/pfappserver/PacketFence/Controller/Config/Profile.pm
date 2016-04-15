@@ -333,6 +333,7 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
     $self->add_fake_profile_data($c, $template, @pathparts);
     my $profile = pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
     my $application = captiveportal::DynamicRouting::Application->new(
+        user_session => {},
         session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
         profile => $profile,
         request => $c->request,
@@ -341,6 +342,7 @@ sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_REA
 
     $application->render($template, $c->stash);
     $c->response->body($application->template_output);
+    $c->response->content_type('text/html');
     $c->detach();
 
 }
