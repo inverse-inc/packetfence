@@ -32,7 +32,12 @@ sub format_response {
 
     my $radius_return = shift @$response;
     my %mapped_object = @$response;
-    %mapped_object = ( %{ delete $mapped_object{"RADIUS_AUDIT"} // {} }, %mapped_object);
+    my $radius_audit = delete $mapped_object{"RADIUS_AUDIT"} // {};
+    my %audit;
+    while (my ($key, $value) = each %$radius_audit) {
+        $audit{"control:$key"} = $value;
+    }
+    %mapped_object = ( %audit, %mapped_object);
 
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object;
