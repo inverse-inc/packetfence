@@ -24,6 +24,8 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&reply:PacketFence-Request-Time := 0
 	}
+	rewrite_calling_station_id
+	rewrite_called_station_id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -86,7 +88,7 @@ authorize {
 	#  raddb/mods-config/files/authorize
 	#files
 
-    # Accept any non-eap request and send it to the packetfence module for authorization
+	# Accept any non-eap request and send it to the packetfence module for authorization
 	if ( !EAP-Message ) {
 		update {
 			&control:Auth-Type := Accept
@@ -217,9 +219,9 @@ preacct {
 	#  The start time is: NOW - delay - session_length
 	#
 
-#	update request {
-#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
-#	}
+	#	update request {
+	#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	#	}
 
 
 	#
@@ -234,7 +236,7 @@ preacct {
 	#
 	#  Accounting requests are generally proxied to the same
 	#  home server as authentication requests.
-#	IPASS
+	#	IPASS
 	suffix
 	ntdomain
 
@@ -256,6 +258,8 @@ accounting {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+	rewrite_calling_station_id
+	rewrite_called_station_id
 	#
 	#  Log traffic to an SQL database.
 	#
@@ -279,7 +283,7 @@ accounting {
 	#  Filter attributes from the accounting response.
 	attr_filter.accounting_response
     
-    packetfence
+	packetfence
 }
 
 
@@ -287,11 +291,11 @@ accounting {
 #  or rlm_sql module can handle this.
 #  The rlm_sql module is *much* faster
 session {
-#	radutmp
+	#	radutmp
 
 	#
 	#  See "Simultaneous Use Checking Queries" in mods-available/sql
-#	sql
+	#	sql
 }
 
 
@@ -325,14 +329,14 @@ post-auth {
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-        packetfence
-        if (updated || ok || noop) {
-            request-timing
-            -sql
-        } else {
-            request-timing
-            -sql_reject
-        }
+		packetfence
+		if (updated || ok || noop) {
+			request-timing
+			-sql
+		} else {
+			request-timing
+			-sql_reject
+		}
 	}
 
 	attr_filter.packetfence_post_auth
@@ -347,11 +351,11 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
-        if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		request-timing
-		# log failed authentications in SQL, too.
-		-sql_reject
-	}
+		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+			request-timing
+			# log failed authentications in SQL, too.
+			-sql_reject
+		}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth
 
@@ -362,7 +366,7 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
-        linelog
+		linelog
 	}
 }
 

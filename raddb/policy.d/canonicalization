@@ -58,22 +58,39 @@ mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^
 #  be provided by 802.1X authenticators.
 #
 rewrite_called_station_id {
-	if (&Called-Station-Id && (&Called-Station-Id =~ /^${policy.mac-addr-regexp}([^0-9a-f](.+))?$/i)) {
-		update request {
-			&Called-Station-Id := "%{toupper:%{1}-%{2}-%{3}-%{4}-%{5}-%{6}}"
-		}
+     if((&Called-Station-Id) && (&Called-Station-Id =~ /^${policy.mac-addr-regexp}(:(.+))?$/i)) {
+         update request {
+             &Called-Station-Id !* ANY
+             &Called-Station-Id := "%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}"
+         }
 
-		# SSID component?
-		if ("%{8}") {
-			update request {
-				&Called-Station-SSID := "%{8}"
-			}
-		}
-		updated
-	}
-	else {
-		noop
-	}
+         # SSID component?
+         if ("%{8}") {
+             update request {
+                 &Called-Station-Id := "%{Called-Station-Id}:%{8}"
+                 &Called-Station-SSID := "%{8}"
+             }
+         }
+         elsif ( (Colubris-AVPair) && "%{Colubris-AVPair}" =~ /^ssid=(.*)$/i) {
+            update request {
+                 &Called-Station-SSID := "%{1}"
+             }
+         }
+         elsif (Aruba-Essid-Name) {
+             update request {
+                 &Called-Station-SSID := "%{Aruba-Essid-Name}"
+             }
+         }
+         elsif ( (Cisco-AVPair)  && "%{Cisco-AVPair}" =~ /^ssid=(.*)$/i) {
+             update request {
+                 &Called-Station-SSID := "%{1}"
+             }
+         }
+         updated
+     }
+    else {
+        noop
+    }
 }
 
 #
@@ -84,14 +101,13 @@ rewrite_called_station_id {
 #  be provided by 802.1X authenticators.
 #
 rewrite_calling_station_id {
-	if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
-		update request {
-			&Calling-Station-Id := "%{toupper:%{1}-%{2}-%{3}-%{4}-%{5}-%{6}}"
-		}
-		updated
-	}
-	else {
-		noop
-	}
+        if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
+                update request {
+                        &Calling-Station-Id := "%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}"
+                }
+                updated
+        }
+        else {
+                noop
+        }
 }
-

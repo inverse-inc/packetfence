@@ -94,8 +94,8 @@ authorize {
 	# Run the packetfence-local-auth policy if it is.
 	rewrite_called_station_id
     
-    # Uncomment the following line to enable local PEAP authentication
-    # packetfence-local-auth
+	# Uncomment the following line to enable local PEAP authentication
+	# packetfence-local-auth
 
 
 
@@ -181,9 +181,9 @@ authenticate {
 	#  authentication server, and knows what to do with authentication.
 	#  LDAP servers do not.
 	#
-#	Auth-Type LDAP {
-#		ldap
-#	}
+	#	Auth-Type LDAP {
+	#		ldap
+	#	}
 
 	#
 	#  Allow EAP authentication.
@@ -206,7 +206,7 @@ session {
 
 	#
 	#  See "Simultaneous Use Checking Queries" in sql.conf
-#	sql
+	#	sql
 }
 
 
@@ -226,13 +226,13 @@ session {
 post-auth {
 	#
 	rest
-    if (updated || ok || noop) {
-        request-timing
-        -sql
-    } else {
-        request-timing
-        -sql_reject
-    }
+	if (updated || ok || noop) {
+		request-timing
+		-sql
+	} else {
+		request-timing
+		-sql_reject
+	}
 
 	#
 	#  Un-comment the following if you have set
@@ -294,17 +294,17 @@ post-auth {
 pre-proxy {
 	#  Uncomment the following line if you want to change attributes
 	#  as defined in the preproxy_users file.
-#	files
+	#	files
 
 	#  Uncomment the following line if you want to filter requests
 	#  sent to remote servers based on the rules defined in the
 	#  'attrs.pre-proxy' file.
-#	attr_filter.pre-proxy
+	#	attr_filter.pre-proxy
 
 	#  If you want to have a log of packets proxied to a home
 	#  server, un-comment the following line, and the
 	#  'detail pre_proxy_log' section, above.
-#	pre_proxy_log
+	#	pre_proxy_log
 }
 
 #
@@ -317,11 +317,11 @@ post-proxy {
 	#  If you want to have a log of replies from a home server,
 	#  un-comment the following line, and the 'detail post_proxy_log'
 	#  section, above.
-#	post_proxy_log
+	#	post_proxy_log
 
 	#  Uncomment the following line if you want to filter replies from
 	#  remote proxies based on the rules defined in the 'attrs' file.
-#	attr_filter.post-proxy
+	#	attr_filter.post-proxy
 
 	#
 	#  If you are proxying LEAP, you MUST configure the EAP
