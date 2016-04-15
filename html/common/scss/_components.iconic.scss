@@ -12,10 +12,12 @@ $pf-iconic-size--large:    $inuit-base-line-height * 7/3;
   }  
 
   &--tiny {
+    height: $pf-iconic-size--tiny;
     width: $pf-iconic-size--tiny;
   }
 
   &--small {
+    height: $pf-iconic-size--small;
     width: $pf-iconic-size--small;
   }
 
