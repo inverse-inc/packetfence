@@ -64,6 +64,24 @@ CREATE PROCEDURE acct_start (
     IN p_acctstatustype varchar(25)
 )
 BEGIN
+
+    
+# We make sure there are no left over sessions for which we never received a "stop"
+DECLARE Previous_Session_Time int(12);
+SELECT acctsessiontime
+INTO Previous_Session_Time
+FROM radacct
+WHERE acctuniqueid = p_acctuniqueid
+AND (acctstoptime IS NULL OR acctstoptime = 0);
+
+IF (Previous_Session_Time IS NOT NULL) THEN
+    UPDATE radacct SET
+      acctstoptime = p_timestamp,
+      acctterminatecause = 'UNKNOWN',
+      WHERE acctuniqueid = p_acctuniqueid
+      AND (acctstoptime IS NULL OR acctstoptime = 0);
+END IF;
+
 INSERT INTO radacct 
            (
             acctsessionid,      acctuniqueid,       username, 
@@ -86,6 +104,7 @@ VALUES
     p_acctterminatecause, p_servicetype, p_framedprotocol,
     p_framedipaddress
     );
+
 
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
