@@ -15,13 +15,13 @@ Assumptions
 -----------
 * You have at least two servers with a fresh install of PacketFence 5+
 * Both servers are identical copies for the network interfaces
-* Both servers are running CentOS 6
+* Both servers are running CentOS 6 or 7
 * Both servers have access to the same layer 2 network on all their network interfaces
 * Both servers have an empty, unformatted partition for the database
 * Both servers hostname must be resolvable via a DNS resolution
 
-Installation
-------------
+Installation on Centos 6
+------------------------
 Step 1: Install the replicated database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -43,12 +43,9 @@ After the install, you need to create the extra partition for drbd. Using fdisk,
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CentOS 6
-++++++++
-
 Add the repository ELRepo.
   
-  # rpm -Uvh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
+  # rpm -ivh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
 
 Edit the repo file to disable ELRepo by default:
 
@@ -68,6 +65,7 @@ Edit the repo file to disable ELRepo by default:
 Install now the package DRBD v8.4 enabling .
 
   yum install kmod-drbd84 --enablerepo=elrepo
+
 
 DRBD Configuration and setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -229,6 +227,7 @@ Make sure MySQL does *not* start at boot time:
 
   # chkconfig --level 2345 mysqld off
 
+
 Heartbeat configuration
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -326,6 +325,40 @@ Create the pem that combines the key and certificate for the http services. Adap
 MySQL configuration
 ^^^^^^^^^^^^^^^^^^^
 
+ node pf1_server_name \
+         attributes standby=off
+ node pf2_server_name \
+         attributes standby=off
+ primitive DRBD ocf:linbit:drbd \
+         params drbd_resource=mysql \
+         op start interval=0 timeout=180s \
+         op stop interval=0 timeout=180s \
+         op monitor interval=120s timeout=40s
+ primitive DRBD_fs Filesystem \
+         params device="/dev/drbd0" directory="/var/lib/mysql" fstype=ext4 \
+         op start interval=0 timeout=180s \
+         op stop interval=0 timeout=180s \
+         op monitor interval=120s timeout=40s
+ primitive MySQL lsb:mariadb \
+         op start interval=0 timeout=180s \
+         op stop interval=0 timeout=180s \
+         op monitor interval=120s on-fail=restart timeout=40s
+ group data_group DRBD_fs MySQL \
+         meta target-role=Started is-managed=true
+ ms DRBD_ms DRBD \
+         meta master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true target-role=Started is-managed=true
+ location DRBD_ms-master-on-pf1_server_name data_group \
+         rule $role=master #uname eq pf1_server_name
+ colocation fs_on_drbd inf: DRBD_fs DRBD_ms:Master
+ order DRBD_fs-after-DRBD_ms inf: DRBD_ms:promote DRBD_fs:start
+ property cib-bootstrap-options: \
+         dc-version=1.1.11-97629de \
+         cluster-infrastructure="classic openais (with plugin)" \
+         expected-quorum-votes=2 \
+         stonith-enabled=false \
+         no-quorum-policy=ignore \
+         last-lrm-refresh=1442332143
+
 In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
 
 In `conf/pf.conf` :
@@ -360,6 +393,394 @@ Next, you need to remove the empty users from your MySQL database
 mysql> delete from mysql.user where user = '' ;
 mysql> flush privileges;
 ----
+
+Installation on Centos 7
+------------------------
+
+First make sure that you system is correctly configured and uptodate
+
+  # yum update
+
+`/etc/hosts` must contain:
+
+  ha_interface_ip_address_1 pf1_server_name
+  ha_interface_ip_address_2 pf2_server_name
+
+And set the hostname:
+
+  # hostnamectl set-hostname pf1_server_name
+  # hostnamectl set-hostname pf2_server_name
+
+[options="compact"]
+* `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
+* `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
+
+
+Step 1: Install the replicated database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: In this implementation, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
+
+Installing DRBD
+^^^^^^^^^^^^^^^
+
+Creation of the DRBD partition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
+
+Partitioning
+^^^^^^^^^^^^
+
+After the install, you need to create the extra partition for drbd. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+
+
+
+Pacemaker and Corosync installation and configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Install pcs (pacemaker/corosync) configuration system
+
+  # yum install -y pcs
+
+First you need to disable firewalld and replace it by iptables
+
+  # systemctl disable firewalld
+  # yum install -y iptables-services
+  # systemctl enable iptables.service
+  # iptables -F
+  # iptables -X
+  # iptables -t nat -F
+  # iptables -t nat -X
+  # iptables -t mangle -F
+  # iptables -t mangle -X
+  # iptables -P INPUT ACCEPT
+  # iptables -P FORWARD ACCEPT
+  # iptables -P OUTPUT ACCEPT
+  # service iptables save
+
+Next you need to set up a password for the pcs administration account named hacluster
+
+  # echo "passwd" | passwd hacluster --stdin
+
+Start and enable the service
+
+  # systemctl start pcsd.service
+  # systemctl enable pcsd.service
+
+Create a new cluster:
+  # pcs cluster auth ha_interface_ip_address_1 ha_interface_ip_address_2 -u hacluster -p passwd
+  # pcs cluster setup --name mysql_cluster ha_interface_ip_address_1 ha_interface_ip_address_2 -u hacluster -p passwd
+  # pcs cluster start --all
+
+
+DRBD Configuration and setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add the repository ELREpo.
+
+  # rpm -ivh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+
+Edit the repo file to disable ELRepo by default:
+
+  /etc/yum.repos.d/elrepo.repo
+
+----
+ [elrepo]
+ name=ELRepo.org Community Enterprise Linux Repository - el7
+ baseurl=http://elrepo.org/linux/elrepo/el7/$basearch/
+ 	http://mirrors.coreix.net/elrepo/elrepo/el7/$basearch/
+ 	http://jur-linux.org/download/elrepo/elrepo/el7/$basearch/
+ 	http://repos.lax-noc.com/elrepo/elrepo/el7/$basearch/
+ 	http://mirror.ventraip.net.au/elrepo/elrepo/el7/$basearch/
+ mirrorlist=http://mirrors.elrepo.org/mirrors-elrepo.el7
+ enabled=0
+ gpgcheck=1
+ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+ protect=0
+----
+
+Install now the package DRBD v8.4 enabling .
+
+  # yum install kmod-drbd84 --enablerepo=elrepo
+
+
+CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available on DRBD website so you have a better idea about how it works.
+
+Here we assume the name of the partition is mysql.
+
+Load the DRBD kernel module:
+
+  modprobe drbd
+
+Edit `/etc/drbd.d/global_common.conf` and put the following content:
+
+----
+global {
+    usage-count yes;
+}
+
+common {
+    protocol C;
+
+    startup {
+        degr-wfc-timeout 120;
+    }
+
+    syncer {
+        rate 100M;
+        al-extents 257;
+    }
+
+    disk {
+        on-io-error     detach;
+    }
+}
+----
+
+
+Create the file /etc/drbd.d/mysql.res with the following content:
+
+----
+cat << EOL >/etc/drbd.d/mysql.res
+resource mysql {
+ protocol C;
+ meta-disk internal;
+ device storage_device;
+ disk   /dev/sdb;
+ handlers {
+  split-brain "/usr/lib/drbd/notify-split-brain.sh root";
+ }
+ net {
+  allow-two-primaries no;
+  after-sb-0pri discard-zero-changes;
+  after-sb-1pri discard-secondary;
+  after-sb-2pri disconnect;
+  rr-conflict disconnect;
+ }
+ disk {
+  on-io-error detach;
+ }
+ syncer {
+  verify-alg sha1;
+ }
+ on pf1 {
+  address  ha_interface_ip_address_1:7789;
+ }
+ on pf2 {
+  address  ha_interface_ip_address_2:7789;
+ }
+}
+EOL
+----
+
+where:
+
+[options="compact"]
+* `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
+* `storage_device` is the device to use for the MySQL partition (ie. `/dev/sda2`)
+
+Then initialize the partition:
+
+  [root@pf1 ~]# drbdadm create-md mysql
+  Writing meta data...
+  initializing activity log
+  NOT initialized bitmap
+  New drbd meta data block successfully created.
+  success
+
+Start DRBD on both servers:
+
+  # modeprobe drbd
+  # systemctl start drbd
+
+You should see something similar to this when typing cat /proc/drbd:
+
+  ...
+   0: cs:Connected ro:Secondary/Secondary ds:Inconsistent/Inconsistent C r----
+      ns:0 nr:0 dw:0 dr:0 al:0 bm:0 lo:0 pe:0 ua:0 ap:0 ep:1 wo:b oos:30702640
+
+NOTE: If you get connectivity issues make sure your iptables are disabled.
+
+Synchronize the servers by forcing one to become the primary. So on pf1 do:
+
+  # drbdadm primary --force mysql
+
+After issuing this command, the initial full synchronization will start. You will be able to monitor its progress via `/proc/drbd`. It may take some time depending on the size of the device. Wait until it completes.
+
+When the sync is complete, create the filesystem on the primary node only:
+
+  # mkfs.ext4 /dev/drbd0
+
+Make sure DRBD is started at boot time:
+
+  # systemctl enable drbd
+
+Restart both servers.
+
+When done, look in `/proc/drbd` and make sure you see:
+
+  ...
+   0: cs:Connected ro:Primary/Secondary ds:UpToDate/UpToDate C r---
+      ns:0 nr:0 dw:0 dr:0 al:0 bm:0 lo:0 pe:0 ua:0 ap:0 ep:1 wo:b oos:0
+
+MariaDB Configuration
+^^^^^^^^^^^^^^^^^^^^^
+
+First you need to ensure it will not start on boot : 
+
+```
+systemctl disable mariadb
+ ```
+
+NOTE: By default MariaDB puts its data in `/var/lib/mysql`. In order to replicate data between the two servers, we mount the DRBD partition under `/var/lib/mysql`. 
+
+When first starting MariaDB, the partition must be mounted.
+
+In order to do so:
+
+On the master server (the server you are working on), tell DRBD to become the primary node with:
+
+  # drbdadm primary mysql
+
+`mysql` being the name of the DRBD partition.
+
+The command `cat /proc/drbd` should display something like:
+
+  ...
+   0: cs:Connected ro:Primary/Secondary ds:UpToDate/UpToDate C r----
+      ns:145068 nr:4448 dw:149516 dr:10490 al:31 bm:14 lo:0 pe:0 ua:0 ap:0 ep:1 wo:d oos:0
+
+Stop and backup previous MariaDB data
+
+  # systemctl stop mariadb
+  # mkdir /var/lib/mysql.bak
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/
+
+Mount the partition with:
+
+  # mount /dev/drbd0 /var/lib/mysql
+
+Start MariaDBL
+
+  # systemctl start mariadb
+
+Execute the secure installation script in order to set the root password, remove the test databases and anonymous user created by default:
+
+  # /usr/bin/mysql_secure_installation
+
+Make sure MariaDB does *not* start at boot time:
+
+  # systemctl disable mariadb
+
+MariaDB network configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order for your PacketFence cluster to communicate properly with the MariaDB database, you need to have MariaDB bind on the management IP address.
+
+Adjust your MariaDB configuration in `/etc/my.cnf` on both servers and make sure the bind_address line is :
+
+  bind_address=<management_ip_address>
+
+Step 2 : Server configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
+
+On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysctl -p'
+
+  net.ipv4.ip_nonlocal_bind = 1
+
+Create the pem that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates.
+
+  # cd /usr/local/pf/conf/ssl
+  # cat server.key server.crt > server.pem
+
+MariaDB configuration
+^^^^^^^^^^^^^^^^^^^^^
+
+  # pcs cluster cib clust_cfg
+
+  # pcs -f clust_cfg property set stonith-enabled=false
+
+  # pcs -f clust_cfg property set no-quorum-policy=ignore
+
+  # pcs -f clust_cfg resource defaults resource-stickiness=200
+
+  # pcs -f clust_cfg resource create DRBD ocf:linbit:drbd \
+     drbd_resource=mysql \
+     op monitor interval=30s
+
+  # pcs -f clust_cfg resource master MySQLClone DRBD \
+     master-max=1 master-node-max=1 \
+     clone-max=2 clone-node-max=1 \
+     notify=true
+
+  # pcs -f clust_cfg resource create DRBD_fs Filesystem \
+     device="/dev/drbd0" \
+     directory="/var/lib/mysql" \
+     fstype="ext4"
+
+  # pcs -f clust_cfg constraint colocation add DRBD_fs with MySQLClone \
+     INFINITY with-rsc-role=Master
+
+  # pcs -f clust_cfg constraint order promote MySQLClone then start DRBD_fs
+
+  # pcs -f clust_cfg resource create MariaDB ocf:heartbeat:mysql \
+     binary="/usr/bin/mysqld_safe" \
+     config="/etc/my.cnf" \
+     datadir="/var/lib/mysql" \
+     pid="/var/lib/mysql/mariadb.pid" \
+     socket="/var/lib/mysql/mysql.sock" \
+     additional_parameters="--bind-address=0.0.0.0" \
+     op start timeout=60s \
+     op stop timeout=60s \
+     op monitor interval=20s timeout=30s
+
+  # pcs -f clust_cfg constraint colocation add MariaDB with DRBD_fs INFINITY
+
+  # pcs -f clust_cfg constraint order DRBD_fs then MariaDB
+
+  # pcs cluster cib-push clust_cfg
+
+  # pcs status
+
+In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
+
+In `conf/pf.conf` :
+
+----
+[database]
+host=127.0.0.1
+
+[monitoring]
+db_host=127.0.0.1
+....
+----
+
+In `conf/pfconfig.conf` :
+
+----
+[mysql]
+host=127.0.0.1
+....
+----
+
+Make sure you restart MySQL, packetfence-config and packetfence
+
+  # service mysqld restart
+  # service packetfence-config restart
+  # service packetfence restart
+
+Next, you need to remove the empty users from your MySQL database
+
+----
+# mysql
+mysql> delete from mysql.user where user = '' ;
+mysql> flush privileges;
+----
+
+
 
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
