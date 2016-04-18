@@ -150,7 +150,7 @@ Upgrade from FreeRADIUS 2 to FreeRADIUS 3
 
 PacketFence 6 relies on FreeRADIUS 3 rather that FreeRADIUS 2 as provided in PacketFence 5.
 The configuration files, directory layout and "unlang" directives have changed significantly.
-The packaging should automatically rename the existing raddb directory to raddb-pre6.
+The packaging will automatically rename the existing raddb directory to raddb-pre6.
 All your existing configuration and certificates (if stored under raddb/certs) should be preserved but may need to be merged with the new raddb directory layout if you customized them.
 
 The configuration files under conf/radiusd/*.example have also changed somewhat.
