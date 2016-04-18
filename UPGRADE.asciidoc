@@ -133,6 +133,10 @@ node category / role
 
 The 'REJECT' role is now a default standard role. If you already have such role, make sure no conflict exists.
 
+Also, add the following line to the default section of `switches.conf` :
+
+`REJECTVlan = -1`
+
 Changes to the generated smb.conf
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
