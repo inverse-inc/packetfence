@@ -1251,6 +1251,7 @@ RADIUS authorize method that uses REST
 
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
@@ -1271,6 +1272,7 @@ RADIUS switch authorize method that uses REST
 
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
     my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};

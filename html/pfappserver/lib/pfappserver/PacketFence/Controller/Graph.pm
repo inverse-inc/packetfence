@@ -416,7 +416,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
                {
                 'description' => 'Apache AAA call timing',
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.freeradius__main__post_auth.timing.mean_90,2)',
+                'target' => 'aliasByNode(stats.timers.*.pf__api__radius_rest_authorize.timing.mean_90,2)',
                 'columns' => 1
                },
                {
