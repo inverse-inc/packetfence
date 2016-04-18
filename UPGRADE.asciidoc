@@ -18,6 +18,8 @@ You can take a backup of the pf directory with the following command:
 
   tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
 
+It is recommend to go through (read) the upgrade instructions specific to the upgrade path taken since some steps may be required to be done *BEFORE* the packages upgrades.
+
 Upgrade procedure
 -----------------
 
