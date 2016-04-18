@@ -3893,6 +3893,7 @@ Then move the old databases to a backup point:
 Mount your new disk and check that it is mounted:
 
   # echo "/dev/sdb /usr/local/pf/var/graphite             ext4    defaults        1 1" >> /etc/fstab
+  # mkdir /usr/local/pf/var/graphite
   # mount -a
   # dh -h
   
