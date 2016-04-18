@@ -13,6 +13,9 @@ A complete database backup can be taken using this command:
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
+It is also possible to simply backup the actual mysql files themselves -- as long as the database is not currently running.
+To do so, stop mysql and then copy all files under /var/lib/mysql to a secure directory.
+
 Taking a complete backup of your current installation is strongly recommended.
 You can take a backup of the pf directory with the following command:
 
@@ -141,6 +144,53 @@ Changes to the generated smb.conf
 If you have a domain configured directly in PacketFence (in 'Configuration->Domains'), you need to re-generate the associated configuration files as changes have been made to the samba configuration.
 
 Using the CLI `/usr/local/pf/bin/pfcmd generatedomainconfig` or in the admin interface in 'Configuration->Domains', click 'Refresh domain configuration'
+
+Upgrade from FreeRADIUS 2 to FreeRADIUS 3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence 6 relies on FreeRADIUS 3 rather that FreeRADIUS 2 as provided in PacketFence 5.
+The configuration files, directory layout and "unlang" directives have changed significantly.
+The packaging should automatically rename the existing raddb directory to raddb-pre6.
+All your existing configuration and certificates (if stored under raddb/certs) should be preserved but may need to be merged with the new raddb directory layout if you customized them.
+
+The configuration files under conf/radiusd/*.example have also changed somewhat.
+Make sure to compare them to your conf/radiusd/* files if you have any customizations, and merge any *.rpmnew files that may have been created by the packaging.
+
+The default location for the FreeRADIUS server certificates has changed from conf/ssl/ to raddb/certs.
+The configuration of the certificates location is in conf/radiusd/eap.conf.
+You may point it to any valid file by setting the value of "certificate_file" and "private_key_file".
+It is not recommended to use the same server certificate for the http services and the RADIUS server as the requirements for each are different.
+Reusing the same certificate will work, but you would be well advised to consider separate certificates.
+
+Finally, the database schema for the radius accounting tables and stored procedures has changed.
+Make sure to apply the database changes as described in the following section.
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+Significant changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 5.7 schema to 6.0.
+
+Since the schema of the "radacct" table has been reworked, the script will rename the existing table to "radacct2" and insert it's content into the new radacct table.
+If your existing radacct table is large (as is sometimes the case) that operation may take a long time and consume a significant amount of disk space.
+Make sure to have plenty of both before running the upgrade script.
+
+You can estimate the size of the existing radacct table by running the following command:
+
+    mysql> SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE table_schema = "pf" AND table_name = "radacct";
+
+You should have at least twice as much space as that table uses in the filesystem on which the mysql data directory is mounted (usually /var/lib/mysql).
+
+If you do not have enough space or time, you may consider truncating the radacct table (or simply deleting some of the rows) before running the upgrade script.
+
+
+When ready, run the following to update your schema:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.7.0-6.0.0.sql
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.7.0).
+You may also want to drop the "radacct2" table from the database as it will no longer be needed.
+
 
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
