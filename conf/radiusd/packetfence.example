@@ -22,7 +22,7 @@ authorize {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 		&control:Tmp-Integer-0 := "%l"
-		&reply:PacketFence-Request-Time := 0
+		&control:PacketFence-Request-Time := 0
 	}
 	rewrite_calling_station_id
 	rewrite_called_station_id
