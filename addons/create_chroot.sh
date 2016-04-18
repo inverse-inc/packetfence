@@ -13,6 +13,7 @@ for dir in "${DIRS[@]}"; do
   [ -d $BASE/$NS/$dir ]                || mkdir -p $BASE/$NS/$dir
 done
 
+touch /var/cache/samba$NS/secrets.tdb
 cp -fr /var/cache/samba$NS $BASE/$NS/var/cache/
 
 DIRS=(proc etc lib lib64 bin usr sbin sys var/lib/samba dev var/log/samba)
