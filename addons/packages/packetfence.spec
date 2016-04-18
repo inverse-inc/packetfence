@@ -587,7 +587,7 @@ fi
 %if 0%{?el6}
     if [ "$1" = "2"  ]; then
         # this is an upgrade, so we move the old raddb
-        if [ `echo %{ver} | cut -d. -f1-2` = "6.0" ]; then
+        if [ -f /usr/local/pf/raddb/packetfence.pm ] ; then
             mv /usr/local/pf/raddb /usr/local/pf/raddb-pre6
         fi
     fi
