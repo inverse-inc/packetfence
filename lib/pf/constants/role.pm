@@ -29,6 +29,7 @@ our @EXPORT_OK = qw(
     $DEFAULT_ROLE
     $GUEST_ROLE
     $GAMING_ROLE
+    $REJECT_ROLE
 );
 
 =head2 ROLES

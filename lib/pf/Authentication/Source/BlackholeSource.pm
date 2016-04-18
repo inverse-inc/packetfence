@@ -20,6 +20,7 @@ use pf::config;
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::util;
+use pf::constants::role qw($REJECT_ROLE);
 
 extends 'pf::Authentication::Source';
 
@@ -81,17 +82,16 @@ sub available_actions {
 
 =cut
 
-sub match_in_subclass {
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    my $username =  $params->{'username'};
-    foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
-            if ( $condition->matches("username", $username) ) {
-                push(@{ $matching_conditions }, $condition);
-            }
-        }
-    }
-    return $username;
+sub match {
+    my ($self, $params) = @_;
+    return [ 
+        pf::Authentication::Action->new({
+            type    => $Actions::SET_ROLE,
+            value   => $REJECT_ROLE,
+            class   => pf::Authentication::Action->getRuleClassForAction($Actions::SET_ROLE),
+        }) 
+    ];
+       
 }
 
 =head2 authenticate
