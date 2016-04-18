@@ -50,12 +50,6 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
   service packetfence-config restart
   service packetfence restart
 
-With the changes made to RADIUS in the version 5.5, you will need to remove the following files if they are present on your setup.
-
-  /usr/local/pf/raddb/sites-enabled/inner-tunnel
-  /usr/local/pf/raddb/sites-enabled/default
-
-
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
