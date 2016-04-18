@@ -153,16 +153,16 @@ The configuration files, directory layout and "unlang" directives have changed s
 The packaging will automatically rename the existing raddb directory to raddb-pre6.
 All your existing configuration and certificates (if stored under raddb/certs) should be preserved but may need to be merged with the new raddb directory layout if you customized them.
 
-The configuration files under conf/radiusd/*.example have also changed somewhat.
+The configuration files under conf/radiusd/*.example have also changed.
 Make sure to compare them to your conf/radiusd/* files if you have any customizations, and merge any *.rpmnew files that may have been created by the packaging.
 
-The default location for the FreeRADIUS server certificates has changed from conf/ssl/ to raddb/certs.
+The default location for the FreeRADIUS server certificates has changed from conf/ssl/ to raddb/certs/.
 The configuration of the certificates location is in conf/radiusd/eap.conf.
-You may point it to any valid file by setting the value of "certificate_file" and "private_key_file".
-It is not recommended to use the same server certificate for the http services and the RADIUS server as the requirements for each are different.
+You may point it to any valid certificate and key by setting the value of `certificate_file` and `private_key_file` respectively.
+It is not recommended to use the same server certificate for the HTTP services and the RADIUS server as the requirements for each are different.
 Reusing the same certificate will work, but you would be well advised to consider separate certificates.
 
-Finally, the database schema for the radius accounting tables and stored procedures has changed.
+Finally, the database schema for the RADIUS accounting tables and stored procedures has changed.
 Make sure to apply the database changes as described in the following section.
 
 Database schema update
@@ -171,26 +171,25 @@ Database schema update
 Significant changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the 5.7 schema to 6.0.
 
-Since the schema of the "radacct" table has been reworked, the script will rename the existing table to "radacct2" and insert it's content into the new radacct table.
-If your existing radacct table is large (as is sometimes the case) that operation may take a long time and consume a significant amount of disk space.
+Since the schema of the `radacct` table has been reworked, the script will rename the existing table to `radacct2` and insert it's content into the new `radacct` table.
+If your existing `radacct` table is large (as is sometimes the case), the operation may take a long time and consume a significant amount of disk space.
 Make sure to have plenty of both before running the upgrade script.
 
-You can estimate the size of the existing radacct table by running the following command:
+You can estimate the size of the existing `radacct` table by running the following command:
 
     mysql> SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE table_schema = "pf" AND table_name = "radacct";
 
 You should have at least twice as much space as that table uses in the filesystem on which the mysql data directory is mounted (usually /var/lib/mysql).
 
-If you do not have enough space or time, you may consider truncating the radacct table (or simply deleting some of the rows) before running the upgrade script.
-
+If you do not have enough space or time, you may consider truncating the `radacct` table (or simply deleting some of the rows) before running the upgrade script.
 
 When ready, run the following to update your schema:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.7.0-6.0.0.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.0.0).
-You may also want to drop the "radacct2" table from the database as it will no longer be needed.
 
+You will also want to drop the `radacct2` table from the database as it will no longer be needed.
 
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
