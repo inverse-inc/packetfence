@@ -35,7 +35,6 @@ use pf::file_paths qw(
 );
 use NetAddr::IP;
 use File::Temp;
-use Date::Parse;
 use Encode qw(encode);
 use MIME::Lite::TT;
 use Digest::MD5;
