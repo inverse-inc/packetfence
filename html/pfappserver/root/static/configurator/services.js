@@ -20,8 +20,7 @@ function saveStep(href) {
         type: 'POST',
         url: href
     }).always(function(data) {
-        setInterval(function(){getStatus(href)}, 10000)
-    }
+        setInterval(function(){getStatus(href)}, 10000);
     }).done(function(data) {
         resetAlert($('#services'));
       
