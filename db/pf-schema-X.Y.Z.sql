@@ -549,7 +549,7 @@ CREATE TABLE radacct (
   framedprotocol varchar(32) default NULL,
   framedipaddress varchar(15) NOT NULL default '',
   PRIMARY KEY (radacctid),
-  UNIQUE KEY acctuniqueid (acctuniqueid),
+  KEY acctuniqueid (acctuniqueid),
   KEY username (username),
   KEY framedipaddress (framedipaddress),
   KEY acctsessionid (acctsessionid),
