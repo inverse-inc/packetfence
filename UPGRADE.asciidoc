@@ -3,6 +3,21 @@ PacketFence Upgrade Guide
 
 http://www.packetfence.org/
 
+General Upgrade Tips
+--------------------
+
+Before making any changes to your database, ensure that you have a backup.
+A complete database backup can be taken using this command:
+
+  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
+
+If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
+
+Taking a complete backup of your current installation is strongly recommended.
+You can take a backup of the pf directory with the following command:
+
+  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
+
 Upgrade procedure
 -----------------
 
@@ -18,6 +33,8 @@ For RedHat-based systems, run the following command:
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
+Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+
 You should take care to review any changes to configuration files and merge them if required. 
 To find out which configuration files have changed run this command:
 
@@ -32,24 +49,6 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 
   service packetfence-config restart
   service packetfence restart
-
-
-General Upgrade tips
-^^^^^^^^^^^^^^^^^^^^
-
-Before making any changes to your database, ensure that you have a backup.
-A complete database backup can be taken using this command:
-
-  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
-
-If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
-
-Taking a complete backup of your current installation is strongly recommended. 
-You can take a backup of the pf directory with the following command:
-
-  tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
-
-Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
 
 With the changes made to RADIUS in the version 5.5, you will need to remove the following files if they are present on your setup.
 
