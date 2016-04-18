@@ -103,8 +103,11 @@ Changes to Cisco Web auth
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use the Cisco::Catalyst_2960 switch module instead of the Cisco::Catalyst_2960_http as switch type.
+
 Use the Cisco::WLC switch module instead of the Cisco::WLC_http as switch type.
+
 The portalURL configuration parameter is now configured per-role so make sure you have http://ip_portal/$session_id assigned to the registration role in the `Role by Web Auth URL` section of the switch configuration.
+
 See the Network Device configuration guide for additional details.
 
 SMS carrier database table
