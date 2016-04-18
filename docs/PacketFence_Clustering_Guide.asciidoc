@@ -560,7 +560,6 @@ Then initialize the partition:
 
 Start DRBD on both servers:
 
-  # modeprobe drbd
   # systemctl start drbd
 
 You should see something similar to this when typing cat /proc/drbd:
