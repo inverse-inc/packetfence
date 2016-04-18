@@ -406,10 +406,14 @@ First make sure that you system is correctly configured and uptodate
   ha_interface_ip_address_1 pf1_server_name
   ha_interface_ip_address_2 pf2_server_name
 
-And set the hostname:
+Set hostname on each servers:
 
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
+
+Disable selinux
+
+  # setenforce 0
 
 [options="compact"]
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
@@ -469,6 +473,7 @@ Start and enable the service
   # systemctl enable pcsd.service
 
 Create a new cluster:
+
   # pcs cluster auth ha_interface_ip_address_1 ha_interface_ip_address_2 -u hacluster -p passwd
   # pcs cluster setup --name mysql_cluster ha_interface_ip_address_1 ha_interface_ip_address_2 -u hacluster -p passwd
   # pcs cluster start --all
