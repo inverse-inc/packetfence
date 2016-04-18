@@ -20,12 +20,12 @@ Assumptions
 * Both servers have an empty, unformatted partition for the database
 * Both servers hostname must be resolvable via a DNS resolution
 
-Installation on Centos 6
+Installation on CentOS 6
 ------------------------
 Step 1: Install the replicated database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: In this implementation, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
+NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
 
 Installing DRBD
 ^^^^^^^^^^^^^^^
@@ -38,7 +38,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the install, you need to create the extra partition for drbd. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+After the installiation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -70,7 +70,7 @@ Install now the package DRBD v8.4 enabling .
 DRBD Configuration and setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available on DRBD website so you have a better idea about how it works.
+CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available ifrom the DRBD website so you have a better idea about how it works.
 
 Here we assume the name of the partition is mysql.
 
@@ -78,7 +78,7 @@ Load the DRBD kernel module:
 
   modprobe drbd
 
-Edit `/etc/drbd.d/global_common.conf` and put the following content:
+Edit `/etc/drbd.d/global_common.conf` with the following content:
 
 ----
 global {
@@ -317,7 +317,7 @@ On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysc
 
   net.ipv4.ip_nonlocal_bind = 1
 
-Create the pem that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates.
+Create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates.
 
   # cd /usr/local/pf/conf/ssl
   # cat server.key server.crt > server.pem
@@ -394,10 +394,10 @@ mysql> delete from mysql.user where user = '' ;
 mysql> flush privileges;
 ----
 
-Installation on Centos 7
+Installation on CentOS 7
 ------------------------
 
-First make sure that you system is correctly configured and uptodate
+First make sure that you system is correctly configured and up-to-date
 
   # yum update
 
@@ -406,7 +406,7 @@ First make sure that you system is correctly configured and uptodate
   ha_interface_ip_address_1 pf1_server_name
   ha_interface_ip_address_2 pf2_server_name
 
-Set hostname on each servers:
+Set hostname on each server:
 
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
@@ -423,7 +423,7 @@ Disable selinux
 Step 1: Install the replicated database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: In this implementation, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
+NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
 
 Installing DRBD
 ^^^^^^^^^^^^^^^
@@ -436,7 +436,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the install, you need to create the extra partition for drbd. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 
 
@@ -510,7 +510,7 @@ Install now the package DRBD v8.4 enabling .
   # yum install kmod-drbd84 --enablerepo=elrepo
 
 
-CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available on DRBD website so you have a better idea about how it works.
+CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available from the DRBD website so you have a better idea about how it works.
 
 Here we assume the name of the partition is mysql.
 
@@ -518,7 +518,7 @@ Load the DRBD kernel module:
 
   modprobe drbd
 
-Edit `/etc/drbd.d/global_common.conf` and put the following content:
+Edit `/etc/drbd.d/global_common.conf` with the following content:
 
 ----
 global {
@@ -666,7 +666,7 @@ Mount the partition with:
 
   # mount /dev/drbd0 /var/lib/mysql
 
-Start MariaDBL
+Start MariaDB
 
   # systemctl start mariadb
 
@@ -696,7 +696,7 @@ On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysc
 
   net.ipv4.ip_nonlocal_bind = 1
 
-Create the pem that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates.
+Create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates.
 
   # cd /usr/local/pf/conf/ssl
   # cat server.key server.crt > server.pem
