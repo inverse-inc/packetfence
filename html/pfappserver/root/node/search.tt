@@ -12,6 +12,60 @@
 [% MACRO column_checkbox(column, title) BLOCK -%]
                 <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% title %]</label></a></li>
 [% END -%]
+
+[%- MACRO node_pagination(action, pageNumber, query, from_form, captures)  BLOCK -%]
+[%
+# Number of pages to show before and after the middle page in the list
+    pageWrap = 3;
+    pageWrapTotal = pageWrap * 2;
+# Calculate the first of the list
+    firstPage = pageNumber - pageWrap;
+    #Take care of wrap around
+    IF firstPage < 1; firstPage = 1; END;
+# Calculate the last page
+    lastPage = firstPage + pageWrapTotal;
+    #Take care of wrap around
+    IF lastPage > pageNumber;
+        lastPage = pageNumber + 1;
+        firstPage = lastPage - pageWrapTotal;
+        IF firstPage < 1; firstPage = 1; END;
+    END;
+    add_captures = [];
+    IF captures.defined;
+        CALL add_captures.import(captures);
+    END;
+    params = {};
+    CALL params.import(query);
+%]
+<div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
+  <ul>
+    [% IF pageNumber == 1 %]
+    <li class="disabled"><span>&larr;</span></li>
+    [% ELSE %]
+    [% params.page_num = pageNumber - 1 %]
+    <li><a href="[% c.uri_for(action, add_captures, params) %]">&larr;</a></li>
+    [% END %]
+    [%- IF firstPage > 1 -%]
+      [% params.page_num = 1 %]
+      <li><a href="[% c.uri_for(action, add_captures, params) %]" title="Page 1">1</a></li>
+      <li class="disabled"><span>&hellip;</span></li>
+    [%- END -%]
+    [% currentPage = firstPage %]
+    [% WHILE currentPage <= lastPage %]
+      [% params.page_num = currentPage %]
+      [%IF currentPage == pageNumber %]
+        <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      [% ELSE  %]
+        <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      [%END%]
+    [%currentPage = currentPage + 1%]
+    [% END %]
+    [% params.page_num = pageNumber + 1 %]
+    <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+  </ul>
+</div>
+[%- END -%]
+
 [%
     columns_list = [
         { name => 'status', label => l('Status') },
@@ -52,7 +106,7 @@
               </ul>
               </form>
             </div>
-            [% pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
+            [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
             <form id="items" method="POST">
               <table id="nodes" class="table table-condensed table-striped">
                 <thead>
@@ -100,7 +154,7 @@
                 </tbody>
               </table>
             </form>
-            [% pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
+            [% node_pagination(search_action, page_num, page_count, {by => by, direction => direction}, from_form) | none %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No node found') %]</p>
       </div>
