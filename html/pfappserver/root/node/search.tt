@@ -60,6 +60,7 @@
       [%END%]
     [%currentPage = currentPage + 1%]
     [% END %]
+    <li class="disabled"><span>&hellip;</span></li>
     [% params.page_num = pageNumber + 1 %]
     <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
   </ul>
