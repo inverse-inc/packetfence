@@ -80,7 +80,7 @@ sub generate_dashboard_settings {
 
 sub get_cluster_destinations {
     @cluster_hosts
-      ? join( ', ', map { $_ . ":9000" } @cluster_hosts )
+      ? join( ', ', map { $_->{management_ip} . ":9000" } @cluster_servers )
       : undef;
 }
 
