@@ -188,7 +188,7 @@ When ready, run the following to update your schema:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-5.7.0-6.0.0.sql
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.7.0).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.0.0).
 You may also want to drop the "radacct2" table from the database as it will no longer be needed.
 
 
