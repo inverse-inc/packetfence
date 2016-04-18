@@ -1184,56 +1184,47 @@ authorize {
 Option 4: EAP Guest Authentication on email, sponsor and SMS registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The goal here is to be able to use the credential PacketFence created on guest access and use this one on a secure connection.
-First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS) and check Add user on email registration and/or
-Add user on sponsor registration in Configuration -> Self Registration section.
-At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor. For SMS use your
-phone number and the PIN code.
+This section will allow local credentials created during guest registration to be used in 802.1x EAP-PEAP connections.
 
-Note that this option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
+First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
 
-In `/usr/local/pf/raddb/sites-available/packetfence-tunnel` there is an example on how to configure RADIUS to enable this feature (uncomment to make it work).
+At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor. For SMS the phone number and the PIN code should be used.
 
-In this example we activate this feature on a specific SSID name (Secure-Wireless), disabled by default NTLM Auth,
-test email credential (pfguest), test sponsor (pfsponsor) and test sms (pfsms). If all failled then we reactivate NTLM Auth.
+NOTE: This option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
 
+In `/usr/local/pf/conf/radiusd/packetfence-tunnel` uncomment the line `# packetfence-local-auth` and restart radiusd.
 
-----
-authorize {	
-        suffix
-        ntdomain
-        eap {
-                ok = return
+This will activate the feature for any local account on the PacketFence server. You can restrict which accounts can be used by commenting the appropriate line in `/usr/local/pf/raddb/policy.d/packetfence`.
+For example, if you would want to deactivate this feature for accounts created via SMS, you would have the following :
+
+    packetfence-local-auth {
+        # Disable ntlm_auth
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := No
         }
-        files
-####Activate local user eap authentication based on a specific SSID ####
-## Set Called-Station-SSID with the current SSID
-#        set.called_station_ssid
-#        if (Called-Station-SSID == 'Secure-Wireless') {
-## Disable ntlm_auth
-#            update control {
-#                MS-CHAP-Use-NTLM-Auth := No
-#            }
-## Check password table with email and password for a sponsor registration
-#            pfguest
-#            if (fail || notfound) {
-## Check password table with email and password for a guest registration
-#                pfsponsor
-#                if (fail || notfound) {
-## Check activation table with phone number and PIN code
-#                    pfsms
-#                    if (fail || notfound) {
-#                        update control {
-#                           MS-CHAP-Use-NTLM-Auth := Yes
-#                        }
-#                    }
-#                }
-#            }
-#        }
-----
+        # Check password table for local user
+        pflocal
+        if (fail || notfound) {
+            # Check password table with email and password for a sponsor registration
+            pfguest
+            if (fail || notfound) {
+                # Check password table with email and password for a guest registration
+                pfsponsor
+                if (fail || notfound) {
+                    # *Don't* check activation table with phone number and PIN code 
+                    # pfsms <--- This line was commented out
+                    if (fail || notfound) {
+                        update control {
+                           &MS-CHAP-Use-NTLM-Auth := Yes
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-NOTE: For this feature to work, the users' passwords must be stored in cleartext in the database.
 
+NOTE: For this feature to work, the users' passwords must be stored in cleartext in the database. This is configurable via `advanced.hash_passwords`.
 
 Option 5: EAP Local user Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
