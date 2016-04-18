@@ -588,7 +588,7 @@ fi
     if [ "$1" = "2"  ]; then
         # this is an upgrade, so we move the old raddb
         if [ `echo %{ver} | cut -d. -f1-2` = "6.0" ]; then
-            mv /usr/local/pf/raddb /usr/local/pf/raddb2
+            mv /usr/local/pf/raddb /usr/local/pf/raddb-pre6
         fi
     fi
 %endif
