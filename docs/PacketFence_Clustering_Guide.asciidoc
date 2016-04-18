@@ -38,7 +38,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the installiation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+After the installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -70,7 +70,7 @@ Install now the package DRBD v8.4 enabling .
 DRBD Configuration and setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available ifrom the DRBD website so you have a better idea about how it works.
+CAUTION: Initializing, configuring and troubleshooting DRBD is not straight forward! We strongly recommend that you read the online documentation available from the DRBD website so you have a better idea about how it works.
 
 Here we assume the name of the partition is mysql.
 
@@ -325,40 +325,6 @@ Create the PEM that combines the key and certificate for the http services. Adap
 MySQL configuration
 ^^^^^^^^^^^^^^^^^^^
 
- node pf1_server_name \
-         attributes standby=off
- node pf2_server_name \
-         attributes standby=off
- primitive DRBD ocf:linbit:drbd \
-         params drbd_resource=mysql \
-         op start interval=0 timeout=180s \
-         op stop interval=0 timeout=180s \
-         op monitor interval=120s timeout=40s
- primitive DRBD_fs Filesystem \
-         params device="/dev/drbd0" directory="/var/lib/mysql" fstype=ext4 \
-         op start interval=0 timeout=180s \
-         op stop interval=0 timeout=180s \
-         op monitor interval=120s timeout=40s
- primitive MySQL lsb:mariadb \
-         op start interval=0 timeout=180s \
-         op stop interval=0 timeout=180s \
-         op monitor interval=120s on-fail=restart timeout=40s
- group data_group DRBD_fs MySQL \
-         meta target-role=Started is-managed=true
- ms DRBD_ms DRBD \
-         meta master-max=1 master-node-max=1 clone-max=2 clone-node-max=1 notify=true target-role=Started is-managed=true
- location DRBD_ms-master-on-pf1_server_name data_group \
-         rule $role=master #uname eq pf1_server_name
- colocation fs_on_drbd inf: DRBD_fs DRBD_ms:Master
- order DRBD_fs-after-DRBD_ms inf: DRBD_ms:promote DRBD_fs:start
- property cib-bootstrap-options: \
-         dc-version=1.1.11-97629de \
-         cluster-infrastructure="classic openais (with plugin)" \
-         expected-quorum-votes=2 \
-         stonith-enabled=false \
-         no-quorum-policy=ignore \
-         last-lrm-refresh=1442332143
-
 In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
 
 In `conf/pf.conf` :
@@ -437,8 +403,6 @@ Partitioning
 ^^^^^^^^^^^^
 
 After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
-
-
 
 Pacemaker and Corosync installation and configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -701,8 +665,8 @@ Create the PEM that combines the key and certificate for the http services. Adap
   # cd /usr/local/pf/conf/ssl
   # cat server.key server.crt > server.pem
 
-MariaDB configuration
-^^^^^^^^^^^^^^^^^^^^^
+Corosync configuration
+^^^^^^^^^^^^^^^^^^^^^^
 
   # pcs cluster cib clust_cfg
 
@@ -750,6 +714,9 @@ MariaDB configuration
 
   # pcs status
 
+MariaDB configuration
+^^^^^^^^^^^^^^^^^^^^^
+
 In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
 
 In `conf/pf.conf` :
@@ -773,9 +740,9 @@ host=127.0.0.1
 
 Make sure you restart MySQL, packetfence-config and packetfence
 
-  # service mysqld restart
-  # service packetfence-config restart
-  # service packetfence restart
+  # systemctl restart mariadb
+  # systemctl restart packetfence-config
+  # systemctl restart packetfence
 
 Next, you need to remove the empty users from your MySQL database
 
