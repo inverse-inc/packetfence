@@ -1038,11 +1038,18 @@ sub fingerbank_process : Public {
 
 =cut
 
-sub fingerbank_update_component : Public {
+sub fingerbank_update_component : Public : Fork {
     my ( $class, %postdata ) = @_;
     my @require = qw(action);
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
+
+    if(defined($postdata{'fork_to_queue'}) && $postdata{'fork_to_queue'}) {
+        delete $postdata{'fork_to_queue'};
+        pf::log::get_logger->info("Sending fingerbank component update to local queue.");
+        pf::api::queue->new->notify('fingerbank_update_component', %postdata);
+        return (200, "Sent to local queue");
+    }
 
     my $action = $pf::fingerbank::ACTION_MAP{$postdata{action}};
     my ($status, $status_msg);

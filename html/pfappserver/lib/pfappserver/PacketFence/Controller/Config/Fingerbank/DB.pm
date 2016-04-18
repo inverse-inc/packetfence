@@ -29,7 +29,7 @@ sub update_upstream_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->stash->{current_view} = 'JSON';
 
-    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-upstream-db", email_admin => $TRUE);
+    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-upstream-db", email_admin => $TRUE, fork_to_queue => $TRUE);
 
     $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status");
 }
@@ -77,7 +77,7 @@ sub update_redis_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
 
     $c->stash->{current_view} = 'JSON';
 
-    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-redis-db", email_admin => $TRUE);
+    pf::cluster::notify_each_server('fingerbank_update_component', action => "update-redis-db", email_admin => $TRUE, fork_to_queue => $TRUE);
 
     $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for the redis DB. An email will follow for status");
 }

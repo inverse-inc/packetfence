@@ -35,7 +35,7 @@ BEGIN {
 use pf::file_paths qw($var_dir);
 use pf::accounting qw(acct_maintenance);
 use pf::config qw(%Config);
-use pf::constants qw($FALSE);
+use pf::constants qw($FALSE $TRUE);
 use pf::config::cached;
 use pf::inline::accounting;
 use pf::iplog;
@@ -57,6 +57,7 @@ use pf::fingerbank;
 use fingerbank::Config;
 use fingerbank::Redis;
 use fingerbank::DB;
+use pf::cluster;
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -512,7 +513,7 @@ sub update_fingerbank_data {
                 }
             }
             get_logger->debug("Calling Fingerbank action $action");
-            my ($status, $status_msg) = $apiclient->call('fingerbank_update_component', action => $action, email_admin => $FALSE);
+            my ($status, $status_msg) = pf::cluster::notify_each_server('fingerbank_update_component', action => $action, email_admin => $TRUE, fork_to_queue => $TRUE);
             if(fingerbank::Util::is_success($status)){
                 get_logger->info("Successfully executed action $action");
             }
