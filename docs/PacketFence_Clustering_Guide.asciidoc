@@ -310,6 +310,8 @@ Adjust your MySQL configuration in `/etc/my.cnf` on both servers and make sure t
 Step 2 : Server configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+NOTE: If you are using CentOS 7, you need to make sure the interfaces name will be the same on both servers. See 'Setting the interfaces name on CentOS 7' in the Appendix section of this document.
+
 You will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
 
 On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysctl -p'
@@ -566,4 +568,34 @@ The following features are not supported when using active/active clustering.
 
 * Switches using SNMP based enforcement (port-security, link up/down, ...)
 * SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
+
+Appendix
+--------
+
+Setting the interfaces name on CentOS 7
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On CentOS 7 you need to make sure that all the servers in the cluster use the same interfaces name.
+This section covers how to set the interfaces to the ethX format. 
+Note that you can set it to the format you desire as long as the names are the same on all servers.
+
+First, go in `/etc/default/grub` and add `net.ifnames=0` to the variable: `GRUB_CMDLINE_LINUX`.
+
+  GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet net.ifnames=0"
+
+Then regenerate the GRUB configuration by executing the following command:
+
+  # grub2-mkconfig -o /boot/grub2/grub.cfg
+
+Then, rename the network script of your management interface (`eno16780032` in this example) to be in the ethX form (`eth0` in this example)
+
+  # mv /etc/sysconfig/network-scripts/ifcfg-eno16780032 /etc/sysconfig/network-scripts/ifcfg-eth0
+
+And rename the name of the interface in the script (making sure you replace `eno16780032` and `eth0` by the appropriate values):
+
+  # sed -i.bak "s/eno16780032/eth0/g" /etc/sysconfig/network-scripts/ifcfg-eth0
+
+Apply the last two steps for any other interface you have on your server. Keep in mind, you can use the PacketFence configurator to reconfigure them later as long as your management interface is correctly configured and is accessible on your network.
+
+Now, reboot your server and when it finishes starting, your interfaces name should now be using the format `ethX`
 
