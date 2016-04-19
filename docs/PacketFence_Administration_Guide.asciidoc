@@ -139,20 +139,6 @@ In this guide, we assume that all those components are running on the same serve
 
 Good understanding of those underlying component and GNU/Linux is required to install PacketFence. If you miss some of those required components, please refer to the appropriate documentation and proceed with the installation of these requirements before continuing with this guide.
 
-The following table provides recommendations for the required components, together with version numbers :
-
-[cols="1,3",frame="topbot",grid="rows"]
-|========================================
-|MySQL server     |MySQL 5.1
-|Web server       |Apache 2.2
-|DHCP server      |DHCP 4.1
-|RADIUS server    |FreeRADIUS 2.2.x
-|Snort            |Snort 2.9.1
-|Suricata         |Suricata 1.4.1
-|========================================
-
-More recent versions of the software mentioned above can also be used.
-
 Minimum Hardware Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -170,10 +156,9 @@ Operating System Requirements
 PacketFence supports the following operating systems on the x86_64 architectures: 
 
 [options="compact"]
-* Red Hat Enterprise Linux 6.x Server
-* Community ENTerprise Operating System (CentOS) 6.x
-* Debian 7.0 (Wheezy)
-* Ubuntu 12.04 LTS (Precise Pangolin)
+* Red Hat Enterprise Linux 6.x and 7.x Server
+* Community ENTerprise Operating System (CentOS) 6.x and 7.x
+* Debian 7.0 (Wheezy) and 8.0 (Jessie)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
@@ -235,8 +220,8 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
   rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
 
-Debian and Ubuntu
-^^^^^^^^^^^^^^^^^
+Debian
+^^^^^^
 
 All the PacketFence dependencies are available through the official repositories.
 
@@ -245,7 +230,7 @@ Software Download
 
 PacketFence provides a RPM repository for RHEL / CentOS instead of a single RPM file.
 
-For Debian and Ubuntu, PacketFence also provides package repositories.
+For Debian, PacketFence also provides package repositories.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages:
 
@@ -262,7 +247,7 @@ RHEL / CentOS
 
 In order to use the PacketFence repository :
 
-  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1-2.centos6.noarch.rpm
+  # yum localinstall http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
@@ -276,30 +261,17 @@ Once installed, the Web-based configuration interface will automatically be star
 Debian
 ^^^^^^
 
-You must enable non-free repository:
-
-For non-free, edit the file `/etc/apt/source.list` and add non-free like that:
-
-   deb http://debian.mirror.iweb.ca/debian/ wheezy main non-free
+For Debian 7:
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
    echo 'deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy' > /etc/apt/sources.list.d/packetfence.list
 
-Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (Database
-server, DHCP server, RADIUS server) using:
-
-  sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
-  sudo apt-get update
-  sudo apt-get install packetfence
-
-Ubuntu
-^^^^^^
+For Debian 8:
 
 In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list`:
 
-  echo 'deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise' > /etc/apt/sources.list.d/packetfence.list
+   echo 'deb http://inverse.ca/downloads/PacketFence/debian jessie jessie' > /etc/apt/sources.list.d/packetfence.list
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database
@@ -308,9 +280,6 @@ server, DHCP server, RADIUS server) using:
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
   sudo apt-get update
   sudo apt-get install packetfence
-
-
-Once installed, the Web-based configuration interface will automatically be started. You can access it from https://@ip_of_packetfence:1443/configurator
 
 Get off on the right foot
 -------------------------
