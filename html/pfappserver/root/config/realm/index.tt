@@ -16,7 +16,9 @@
       </div>
 
       <h2>[% l('Realm')  %]</h2>
-      <h4 class="alert alert-warning">Adding or removing a realm requires to restart the radiusd service to be effective.</h4>
+      <div class="alert alert-warning">
+        <strong>[% l('Warning!') %]</strong> [% l('Adding or removing a realm requires to restart the radiusd service to be effective.') %]
+      </div>
 
       [% INCLUDE config/realm/list.tt %]
 

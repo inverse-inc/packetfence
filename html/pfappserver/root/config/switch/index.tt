@@ -16,7 +16,7 @@
       </div>
       
       <div class="tab-content">
-        <ul style="font-size:130%" class="nav nav-tabs">
+        <ul class="nav nav-tabs">
           <li [% IF controller_namespace == 'Config::Switch' %]class="active" [% END %]>
             <a href="[% c.pf_hash_for(c.controller('Config::Switch').action_for('index'),[]) %]">[% l('Switches') %]</a>
           </li>
