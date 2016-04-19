@@ -1350,7 +1350,7 @@ For IOS 12.2:
    permit udp any any eq domain
    deny   ip any any
 
- And assign this ACL on the switch port yo want to do ACL per port.
+And assign this ACL on the switch port yo want to do ACL per port.
 
  interface GigabitEthernetx/y/z
   ...
