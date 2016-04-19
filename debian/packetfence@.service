@@ -7,7 +7,7 @@ Requires=packetfence-config.service packetfence-redis-cache.service
 Type=forking
 ExecStart=/usr/local/pf/bin/pfcmd service %i start
 ExecStop=/usr/local/pf/bin/pfcmd service %i stop
-
+Restart=no
 
 [Install]
 WantedBy=multi-user.target
