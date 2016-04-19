@@ -13,7 +13,7 @@ A complete database backup can be taken using this command:
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
-It is also possible to simply backup the actual mysql files themselves -- as long as the database is not currently running.
+It is also possible to simply backup the actual MySQL files themselves -- as long as the database is not currently running.
 To do so, stop mysql and then copy all files under /var/lib/mysql to a secure directory.
 
 Taking a complete backup of your current installation is strongly recommended.
@@ -57,9 +57,6 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
-
-THIS IS A DRAFT
-^^^^^^^^^^^^^^^
 
 Devices parking
 ^^^^^^^^^^^^^^^
@@ -162,7 +159,7 @@ You may point it to any valid certificate and key by setting the value of `certi
 It is not recommended to use the same server certificate for the HTTP services and the RADIUS server as the requirements for each are different.
 Reusing the same certificate will work, but you would be well advised to consider separate certificates.
 
-Finally, the database schema for the RADIUS accounting tables and stored procedures has changed.
+Finally, the database schema for the RADIUS accounting tables and stored procedures have changed.
 Make sure to apply the database changes as described in the following section.
 
 Database schema update
@@ -179,7 +176,7 @@ You can estimate the size of the existing `radacct` table by running the followi
 
     mysql> SELECT table_name AS "Table", round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" FROM information_schema.TABLES WHERE table_schema = "pf" AND table_name = "radacct";
 
-You should have at least twice as much space as that table uses in the filesystem on which the mysql data directory is mounted (usually /var/lib/mysql).
+You should have at least twice as much space as that table uses in the filesystem on which the MySQL data directory is mounted (usually /var/lib/mysql).
 
 If you do not have enough space or time, you may consider truncating the `radacct` table (or simply deleting some of the rows) before running the upgrade script.
 
