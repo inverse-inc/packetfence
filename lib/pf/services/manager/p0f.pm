@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use Moo;
 use fingerbank::Config;
-use pf::file_paths qw($install_dir);
 
 extends 'pf::services::manager';
 
@@ -24,7 +23,15 @@ has '+name' => ( default => sub {'p0f'} );
 has '+optional' => ( default => sub {1} );
 
 has '+launcher' => (
-    default => sub { "$install_dir/sbin/p0f_wrapper" }
+    default => sub {
+        my ($self) = @_;
+        my $FingerbankConfig = fingerbank::Config::get_config;
+        my $p0f_map = $FingerbankConfig->{tcp_fingerprinting}{p0f_map_path};
+        my $p0f_sock = $FingerbankConfig->{tcp_fingerprinting}{p0f_socket_path};
+        my $pid_file = $self->pidFile;
+        my $name = $self->name;
+        "sudo %1\$s -d -i any -p -f $p0f_map -s $p0f_sock > /dev/null && pidof $name > $pid_file";
+    }
 );
 
 =head1 AUTHOR
