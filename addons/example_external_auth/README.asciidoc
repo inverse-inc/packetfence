@@ -16,4 +16,6 @@ LoadModule php5_module modules/libphp5.so
 
 Then restart the httpd.admin process and this will be available on port 10000
 
+Make sure you also open the necessary ports in iptables (`/usr/local/pf/conf/iptables.conf`)
+
 Note that this should only be used for testing purposes and IS NOT made for production purposes
