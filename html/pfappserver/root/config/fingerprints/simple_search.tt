@@ -1,7 +1,7 @@
 <h2>[% l('Fingerprints') %]</h2>
 <div class="options">
   <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerprints').action_for('upload') )%]" ><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
-[% IF can_access("FINGERPRINTS_UPDATE") %] | <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerprints').action_for('update') )%]" ><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>[% END %]
+[% IF can_access("FINGERBANK_UPDATE") %] | <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Config::Fingerprints').action_for('update') )%]" ><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>[% END %]
 </div>
 
 [%- INCLUDE 'config/listing.inc' titles = {
