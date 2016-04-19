@@ -12,7 +12,7 @@ Base Module for Dynamic Routing
 
 use Moose;
 use pf::log;
-use pf::constants qw($TRUE $FALSE);
+use pf::constants qw($TRUE $FALSE $default_pid);
 use pf::config qw(
     %Config
     %CAPTIVE_PORTAL
@@ -21,6 +21,7 @@ use Hash::Merge qw(merge);
 use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
+use captiveportal::Base::Actions;
 
 has id => (is => 'ro', required => 1);
 
@@ -38,6 +39,33 @@ has username => (is => 'rw', builder => '_build_username', lazy => 1);
 
 has renderer => (is => 'rw');
 
+has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{}});
+
+sub BUILD {
+    my ($self) = @_;
+    my %available_actions = map { $_ => 1 } @{$self->available_actions};
+    while(my ($action, $params) = each %{$self->actions}){
+        unless($available_actions{$action}){
+            get_logger->error("Action $action is not allowed in module ".$self->id.". It will be ignored.");
+            delete $self->actions->{$action};
+        }
+    }
+}
+
+=head2 available_actions
+
+Lists the actions that can be applied to this module
+
+=cut
+
+sub available_actions {
+    return [
+        'set_role',
+        'set_unregdate',
+        'set_access_duration',
+    ];
+}
+
 =head2 display
 
 Defines whether or not a module should be displayed
@@ -54,7 +82,7 @@ Builder for the username (to restore from the session)
 
 sub _build_username {
     my ($self) = @_;
-    return $self->app->session->{username};
+    return $self->app->session->{username} // $default_pid;
 }
 
 =head2 after username
@@ -252,7 +280,11 @@ Actions to be executed when the module has been completed.
 =cut
 
 sub execute_actions {
-    # implement me in subclasses
+    my ($self) = @_;
+    while(my ($action, $params) = each %{$self->actions}){
+        get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
+        $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
+    }
     return $TRUE;
 }
 

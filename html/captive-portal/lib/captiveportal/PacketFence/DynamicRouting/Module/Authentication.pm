@@ -22,6 +22,7 @@ use pf::util;
 use pf::log;
 use captiveportal::Form::Authentication;
 use pf::locationlog;
+use captiveportal::Base::Actions;
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
@@ -37,13 +38,28 @@ has 'pid_field' => ('is' => 'rw', default => sub {'email'});
 
 has 'with_aup' => ('is' => 'rw', default => sub {1});
 
-has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
+has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
 
 use pf::authentication;
 use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
 use captiveportal::Base::Actions;
+
+=head2 available_actions
+
+Lists the actions that can be applied to this module
+
+=cut
+
+sub available_actions {
+    my ($self) = @_;
+    return [
+        @{$self->SUPER::available_actions()},
+        'unregdate_from_source',
+        'role_from_source',
+    ];
+}
 
 =head2 allowed_urls
 
@@ -115,10 +131,7 @@ Will also create the local account if necessary
 sub execute_actions {
     my ($self) = @_;
 
-    while(my ($action, $params) = each %{$self->actions}){
-        get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
-        $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
-    }
+    $self->SUPER::execute_actions();
 
     unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
         get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
