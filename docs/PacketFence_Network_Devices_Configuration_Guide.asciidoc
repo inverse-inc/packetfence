@@ -627,8 +627,8 @@ Then, the LLDP configuration:
 
    hostname switch-name
    ip domain-name domain.local
-   lldp med network-policy 1 voice vlan Y vlan-type tagged dscp 34
-   lldp med network-policy 2 voice-signaling vlan Y vlan-type tagged dscp 34
+   lldp med network-policy 1 voice vlan 100 vlan-type tagged dscp 34
+   lldp med network-policy 2 voice-signaling vlan 100 vlan-type tagged dscp 34
 
 Finally, enable the necessary 802.1X and VOIP settings:
 
