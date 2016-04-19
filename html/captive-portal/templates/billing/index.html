@@ -7,7 +7,7 @@
   </div>
   [% END %]
 
-  <div class="card card--hidden card--disabled layout layout--center">
+  <div class="card[% IF fields.exists('aup') %] card--hidden card--disabled[% END %] layout layout--center">
     <div class="layout__item u-2/3 u-1/1-palm">
       [% FOREACH field IN fields.keys %]
       [% NEXT IF field == 'aup' %]
