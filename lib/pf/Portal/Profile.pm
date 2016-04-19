@@ -136,6 +136,12 @@ sub findFirstTemplate {
     return undef;
 }
 
+sub findViolationTemplate {
+    my ($self, $template, $langs) = @_;
+    my @subTemplates  = ((map {"violations/${template}.${_}.html"} @$langs), "violations/$template.html");
+    return $self->findFirstTemplate(\@subTemplates);
+}
+
 =item getBillingTiers
 
 Get the billing tiers for this portal profile
