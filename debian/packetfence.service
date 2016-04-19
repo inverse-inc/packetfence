@@ -1,7 +1,7 @@
 [Unit]
 Description=PacketFence Service
 After=network.target packetfence-config.service packetfence-redis-cache.service
-Requires=packetfence-config.service packetfence-redis-cache.service
+#Requires=packetfence-config.service packetfence-redis-cache.service
 
 [Service]
 Type=forking
