@@ -16,7 +16,7 @@
         </div>
       </div>
 
-      <h2>[% l('Billing tiers')  %]</h2>
+      <h2>[% l('Billing Tiers')  %]</h2>
 
       [% INCLUDE config/billingtiers/list.tt %]
 

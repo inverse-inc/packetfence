@@ -665,23 +665,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "BILLING_TIER"
-msgstr ""
+msgstr "Billing Tiers"
 
 # pf::admin_roles (Actions)
 msgid "BILLING_TIER_CREATE"
-msgstr ""
+msgstr "Billing Tiers - Create"
 
 # pf::admin_roles (Actions)
 msgid "BILLING_TIER_DELETE"
-msgstr ""
+msgstr "Billing Tiers - Delete"
 
 # pf::admin_roles (Actions)
 msgid "BILLING_TIER_READ"
-msgstr ""
+msgstr "Billing Tiers - Read"
 
 # pf::admin_roles (Actions)
 msgid "BILLING_TIER_UPDATE"
-msgstr ""
+msgstr "Billing Tiers - Update"
 
 # html/pfappserver/root/node/view.tt
 msgid "Bandwidth Balance"
@@ -721,13 +721,13 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 # html/pfappserver/root/config/billingtiers/view.tt
-msgid "Billing tier"
+msgid "Billing Tier"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/billingtiers/list.tt
 # html/pfappserver/root/config/profile/tab-content.tt
-msgid "Billing tiers"
+msgid "Billing Tiers"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -1440,23 +1440,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "DOMAIN"
-msgstr ""
+msgstr "RADIUS Domains"
 
 # pf::admin_roles (Actions)
 msgid "DOMAIN_CREATE"
-msgstr ""
+msgstr "RADIUS Domains - Create"
 
 # pf::admin_roles (Actions)
 msgid "DOMAIN_DELETE"
-msgstr ""
+msgstr "RADIUS Domains - Delete"
 
 # pf::admin_roles (Actions)
 msgid "DOMAIN_READ"
-msgstr ""
+msgstr "RADIUS Domains - Read"
 
 # pf::admin_roles (Actions)
 msgid "DOMAIN_UPDATE"
-msgstr ""
+msgstr "RADIUS Domains - Update"
 
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
@@ -2089,47 +2089,35 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "FILTERS"
-msgstr ""
+msgstr "Filter Engines"
 
 # pf::admin_roles (Actions)
 msgid "FILTERS_READ"
-msgstr "Filter engines - Read"
+msgstr "Filter Engines - Read"
 
 # pf::admin_roles (Actions)
 msgid "FILTERS_UPDATE"
-msgstr "Filter engines - Update"
+msgstr "Filter Engines - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "FINGERBANK"
-msgstr ""
+msgstr "Fingerbank"
 
 # pf::admin_roles (Actions)
 msgid "FINGERBANK_CREATE"
-msgstr ""
+msgstr "Fingerbank - Create"
 
 # pf::admin_roles (Actions)
 msgid "FINGERBANK_DELETE"
-msgstr ""
+msgstr "Fingerbank - Delete"
 
 # pf::admin_roles (Actions)
 msgid "FINGERBANK_READ"
-msgstr ""
+msgstr "Fingerbank - Read"
 
 # pf::admin_roles (Actions)
 msgid "FINGERBANK_UPDATE"
-msgstr ""
-
-# pf::admin_roles (Actions groups)
-msgid "FINGERPRINTS"
-msgstr "Fingerprints"
-
-# pf::admin_roles (Actions)
-msgid "FINGERPRINTS_READ"
-msgstr "Fingerprints - Read"
-
-# pf::admin_roles (Actions)
-msgid "FINGERPRINTS_UPDATE"
-msgstr "Fingerprints - Update"
+msgstr "Fingerbank - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "FIREWALL_SSO"
@@ -3657,8 +3645,8 @@ msgid "Order in which the service should be started. Lower order services start 
 msgstr ""
 
 # conf/documentation.conf (services.pfdetect_order)
-msgid "Order in which the service should be started.Lower order services start first and stop last."
-msgstr "Order in which the service should be started.Lower order services start first and stop last."
+msgid "Order in which the service should be started. Lower order services start first and stop last."
+msgstr "Order in which the service should be started. Lower order services start first and stop last."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Organization"
@@ -3684,23 +3672,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "PFDETECT"
-msgstr ""
+msgstr "Syslog Parsers"
 
 # pf::admin_roles (Actions)
 msgid "PFDETECT_CREATE"
-msgstr ""
+msgstr "Syslog Parsers - Create"
 
 # pf::admin_roles (Actions)
 msgid "PFDETECT_DELETE"
-msgstr ""
+msgstr "Syslog Parsers - Delete"
 
 # pf::admin_roles (Actions)
 msgid "PFDETECT_READ"
-msgstr ""
+msgstr "Syslog Parsers - Read"
 
 # pf::admin_roles (Actions)
 msgid "PFDETECT_UPDATE"
-msgstr ""
+msgstr "Syslog Parsers - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -3738,43 +3726,43 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "PKI_PROVIDER"
-msgstr ""
+msgstr "PKI Providers"
 
 # pf::admin_roles (Actions)
 msgid "PKI_PROVIDER_CREATE"
-msgstr ""
+msgstr "PKI Providers - Create"
 
 # pf::admin_roles (Actions)
 msgid "PKI_PROVIDER_DELETE"
-msgstr ""
+msgstr "PKI Providers - Delete"
 
 # pf::admin_roles (Actions)
 msgid "PKI_PROVIDER_READ"
-msgstr ""
+msgstr "PKI Providers - Read"
 
 # pf::admin_roles (Actions)
 msgid "PKI_PROVIDER_UPDATE"
-msgstr ""
+msgstr "PKI Providers - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "PORTAL_MODULE"
-msgstr ""
+msgstr "Portal Modules"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_MODULE_CREATE"
-msgstr ""
+msgstr "Portal Modules - Create"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_MODULE_DELETE"
-msgstr ""
+msgstr "Portal Modules - Delete"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_MODULE_READ"
-msgstr ""
+msgstr "Portal Modules - Read"
 
 # pf::admin_roles (Actions)
 msgid "PORTAL_MODULE_UPDATE"
-msgstr ""
+msgstr "Portal Modules - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "PORTAL_PROFILES"
@@ -4400,31 +4388,31 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "RADIUS_LOG"
-msgstr ""
+msgstr "RADIUS Audit Log"
 
 # pf::admin_roles (Actions)
 msgid "RADIUS_LOG_READ"
-msgstr ""
+msgstr "RADIUS Audit Log - Read"
 
 # pf::admin_roles (Actions groups)
 msgid "REALM"
-msgstr ""
+msgstr "RADIUS Realms"
 
 # pf::admin_roles (Actions)
 msgid "REALM_CREATE"
-msgstr ""
+msgstr "RADIUS Realms - Create"
 
 # pf::admin_roles (Actions)
 msgid "REALM_DELETE"
-msgstr ""
+msgstr "RADIUS Realms - Delete"
 
 # pf::admin_roles (Actions)
 msgid "REALM_READ"
-msgstr ""
+msgstr "RADIUS Realms - Read"
 
 # pf::admin_roles (Actions)
 msgid "REALM_UPDATE"
-msgstr ""
+msgstr "RADIUS Realms - Update"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -4432,7 +4420,7 @@ msgid "REPORTS"
 msgstr "Reports"
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Radius"
+msgid "RADIUS"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
@@ -4529,7 +4517,7 @@ msgid "Really delete this statement of health filter?"
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
-msgid "Really delete this syslog parser ?"
+msgid "Really delete this syslog parser?"
 msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
@@ -4843,23 +4831,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "SCAN"
-msgstr ""
+msgstr "Scan Engines"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_CREATE"
-msgstr ""
+msgstr "Scan Engines - Create"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_DELETE"
-msgstr ""
+msgstr "Scan Engines - Delete"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_READ"
-msgstr ""
+msgstr "Scan Engines - Read"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_UPDATE"
-msgstr ""
+msgstr "Scan Engines - Update"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -4956,7 +4944,7 @@ msgstr "Switches - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "SWITCH_LOGIN"
-msgstr ""
+msgstr "Switches CLI"
 
 # pf::admin_roles (Actions)
 msgid "SWITCH_LOGIN_READ"
@@ -5094,7 +5082,7 @@ msgid "Scan on registration"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Scanner Definition"
+msgid "Scan Engines"
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -5681,7 +5669,7 @@ msgid "Syslog parser"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-msgid "Syslog parsers"
+msgid "Syslog Parsers"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -6656,15 +6644,12 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "WMI"
-msgstr ""
+msgstr "WMI Rules"
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/scan/type/wmi.tt
 # html/pfappserver/root/config/wmi/list.tt
 msgid "WMI Rules"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "WMI Rules Definition"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
@@ -6673,19 +6658,19 @@ msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "WMI_CREATE"
-msgstr ""
+msgstr "WMI Rules - Create"
 
 # pf::admin_roles (Actions)
 msgid "WMI_DELETE"
-msgstr ""
+msgstr "WMI Rules - Delete"
 
 # pf::admin_roles (Actions)
 msgid "WMI_READ"
-msgstr ""
+msgstr "WMI Rules - Read"
 
 # pf::admin_roles (Actions)
 msgid "WMI_UPDATE"
-msgstr ""
+msgstr "WMI Rules - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Wrix.pm
 msgid "WPA Enterprise"
@@ -6711,19 +6696,19 @@ msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "WRIX_CREATE"
-msgstr ""
+msgstr "WRIX - Create"
 
 # pf::admin_roles (Actions)
 msgid "WRIX_DELETE"
-msgstr ""
+msgstr "WRIX - Delete"
 
 # pf::admin_roles (Actions)
 msgid "WRIX_READ"
-msgstr ""
+msgstr "WRIX - Read"
 
 # pf::admin_roles (Actions)
 msgid "WRIX_UPDATE"
-msgstr ""
+msgstr "WRIX - Update"
 
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/admin/wrapper.tt
@@ -8807,7 +8792,7 @@ msgstr "pfbandwidthd service ordering"
 
 # conf/documentation.conf
 msgid "services.pfdetect_order"
-msgstr "pfdetect_order service ordering"
+msgstr "pfdetect service ordering"
 
 # conf/documentation.conf
 msgid "services.pfdhcplistener"

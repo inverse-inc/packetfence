@@ -1,7 +1,7 @@
       <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
         <thead>
           <tr>
-            <th>[% l('Billing tiers') %]</th>
+            <th>[% l('Billing Tiers') %]</th>
             <th></th>
           </tr>
         </thead>
