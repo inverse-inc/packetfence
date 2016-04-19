@@ -513,7 +513,7 @@ sub update_fingerbank_data {
                 }
             }
             get_logger->debug("Calling Fingerbank action $action");
-            my ($status, $status_msg) = pf::cluster::notify_each_server('fingerbank_update_component', action => $action, email_admin => $TRUE, fork_to_queue => $TRUE);
+            my ($status, $status_msg) = pf::cluster::notify_each_server('fingerbank_update_component', action => $action, email_admin => $FALSE, fork_to_queue => $TRUE);
             if(fingerbank::Util::is_success($status)){
                 get_logger->info("Successfully executed action $action");
             }
