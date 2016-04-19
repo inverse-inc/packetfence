@@ -35,7 +35,7 @@ use pf::config qw(
 
 use pfconfig::memory_cached;
 
-# a memory cache tied to the config::Profiles namepace 
+# a memory cache tied to the config::Profiles namepace
 our $SOURCES_CACHE = pfconfig::memory_cached->new('config::Profiles');
 
 =head1 METHODS
@@ -117,6 +117,23 @@ sub getTemplatePath {
             return "$path/$name";
         }
     }
+    return;
+}
+
+=item findFirstTemplate
+
+Find the first template in the list
+
+=cut
+
+sub findFirstTemplate {
+    my ($self, $files) = @_;
+    my $template_paths = $self->{_template_paths};
+    print join("\n",@$template_paths,"");
+    foreach my $file (@$files) {
+        return $file if any {-f "$_/$file"} @$template_paths
+    }
+    return undef;
 }
 
 =item getBillingTiers
@@ -253,8 +270,8 @@ Returns the authentication sources objects for the current captive portal profil
 
 sub getSourcesAsObjects {
     my ($self) = @_;
-    my $sources = $SOURCES_CACHE->compute_from_subcache($self->getName, sub {  
-        [ grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()} ] 
+    my $sources = $SOURCES_CACHE->compute_from_subcache($self->getName, sub {
+        [ grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()} ]
     } );
     return @$sources;
 }
