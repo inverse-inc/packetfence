@@ -13,7 +13,7 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Introduction
 ------------
-This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1x). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence.
+This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence.
 
 Assumptions
 -----------

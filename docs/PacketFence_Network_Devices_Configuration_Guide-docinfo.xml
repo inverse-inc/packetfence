@@ -15,7 +15,7 @@
     <revnumber>2.9</revnumber>
     <date>2015-02-04</date>
     <revremark>
-    - Adding 802.1x documentation for HP Procurve 2610
+    - Adding 802.1X documentation for HP Procurve 2610
     - Adding Juniper floating config to documentation
     </revremark>
   </revision>
