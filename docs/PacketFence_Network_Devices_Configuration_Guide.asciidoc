@@ -1082,12 +1082,12 @@ AAA Groups and Configuration:
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration
+CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
@@ -1125,7 +1125,7 @@ On each interface:
   dot1x timeout quiet-period 2 
   dot1x timeout tx-period 3 
 
-AAA Groups and Configuration 
+AAA Groups and Configuration:
 
   aaa new-model 
   aaa group server radius packetfence 
@@ -1134,12 +1134,12 @@ AAA Groups and Configuration
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration 
+RADIUS server configuration:
 
   radius-server host 10.10.10.10 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration
+CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
@@ -1157,11 +1157,11 @@ MAC Authentication bypass only
 Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
 ====
 
-Global config settings 
+Global config settings:
 
   dot1x system-auth-control 
 
-On each interface
+On each interface:
 
   switchport mode access 
   switchport voice vlan 100 
@@ -1176,7 +1176,7 @@ On each interface
   mab 
   no snmp trap link-status 
 
-AAA Groups and Configuration 
+AAA Groups and Configuration:
 
   aaa new-model 
   aaa group server radius packetfence 
@@ -1185,12 +1185,12 @@ AAA Groups and Configuration
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration 
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration
+CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
@@ -1494,7 +1494,7 @@ AAA groups and configuration:
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
@@ -2510,7 +2510,7 @@ PacketFence supports these switches with the following technologies:
 802.1X
 ++++++
 
-Radius scheme creation:
+RADIUS scheme creation:
 
   radius scheme packetfence
   primary authentication 192.168.1.5 1812 key useStrongerSecret
@@ -2590,7 +2590,7 @@ Interfaces configuration:
 MAC Authentication
 ++++++++++++++++++
 
-Radius scheme creation:
+RADIUS scheme creation:
 
   radius scheme packetfence
   primary authentication 192.168.1.5 1812 key useStrongerSecret
@@ -2921,7 +2921,7 @@ RackSwitch G8052
 
 PacketFence supports only 802.1x authentication. It has been tested on version 7.9.11.0.
 
-Radius configuration
+RADIUS configuration
 ++++++++++++++++++++
 
 ----

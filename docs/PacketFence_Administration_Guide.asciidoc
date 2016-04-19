@@ -2569,7 +2569,7 @@ The third example will autoregister the device and assign the role staff to each
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
-Radius Filter Definition
+RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.

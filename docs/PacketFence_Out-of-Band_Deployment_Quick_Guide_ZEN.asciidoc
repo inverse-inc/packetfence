@@ -281,7 +281,7 @@ Roles:
    isolation VLAN: 3
    default: 10
 
-Radius:
+RADIUS:
 
    Secret Passphrase: useStrongerSecret
 
