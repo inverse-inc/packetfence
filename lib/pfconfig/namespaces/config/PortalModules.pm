@@ -56,7 +56,7 @@ sub build_child {
                 $tmp_cfg{$module_id}{actions} = $new_actions;
             }
             else {
-                $tmp_cfg{$module_id}{actions} = undef;
+                delete $tmp_cfg{$module_id}{actions};
             }
         }
 
