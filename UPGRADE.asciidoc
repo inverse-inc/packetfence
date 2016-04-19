@@ -38,7 +38,7 @@ For RedHat-based systems, run the following command:
   
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
-Please note that the sections below are cumulative. That is to say, if you are upgrading from version 4.3 to version 5.0 you must apply in order all changes in between the two versions, including database schema changes.
+Please note that the sections below are cumulative. That is to say, if you are upgrading from version 5.3 to version 6.0 you must apply in order all changes in between the two versions, including database schema changes.
 
 You should take care to review any changes to configuration files and merge them if required. 
 To find out which configuration files have changed run this command:
@@ -58,7 +58,7 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
-Upgrading PacketFence from a versin older than v6.0.0 will be a complex undertaking.
+Upgrading PacketFence from a version older than v6.0.0 will be a complex undertaking.
 While it's entirely possible if done meticulously, we
 suggest you start from scratch and move your customizations and
 nodes information over to your new installation.
