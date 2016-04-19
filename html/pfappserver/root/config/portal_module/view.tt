@@ -20,20 +20,23 @@
     [% form.block('definition').render | none %]
   </div>
 
-  [% IF form.field('modules') %]
-  <div class="control-group">
-    <label class="control-label" for="modules">[% l('Modules') %]</label>
-    <div class="controls">
-      [% form.field('modules').render | none %]
-      <div id="modulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('modules').index > 1 %]">
-        <p>
-          <i class="icon-cog icon-large"></i>
-          [% l('No modules selected') %]
-          <a href="#add">[% l('Add a module.') %]</a>
-        </p>
+  [% dynamic_table_fields = ["modules", "actions"] %]
+  [% FOREACH field IN dynamic_table_fields %]
+    [% IF form.field(field) %]
+    <div class="control-group">
+      <label class="control-label" for="[% field %]">[% l(field) %]</label>
+      <div class="controls">
+        [% form.field(field).render | none %]
+        <div id="[% field %]Empty" class="unwell unwell-horizontal[% ' hidden' IF form.field(field).index > 1 %]">
+          <p>
+            <i class="icon-cog icon-large"></i>
+            [% l('No ' _ field _ ' selected') %]
+            <a href="#add">[% l('Add one.') %]</a>
+          </p>
+        </div>
       </div>
     </div>
-  </div>
+    [% END %]
   [% END %]
 
   [% IF form.block('multi_source_definition') %]

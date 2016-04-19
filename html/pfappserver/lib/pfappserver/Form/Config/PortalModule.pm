@@ -44,14 +44,31 @@ has_field 'description' =>
              help => 'The description that will be displayed to users' },
   );
 
+has_field 'actions' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+has_field 'actions.contains' =>
+  (
+    type => 'Select',
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+
 has_block definition =>
   (
    # Generated via the BUILD method
    render_list => [],
   );
 
+
+
 sub BUILD {
     my ($self) = @_;
+    $self->field('actions.contains')->options([$self->options_actions]);
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
     $self->setup();
 }
@@ -83,6 +100,16 @@ sub remove_field {
             $self->add_field($field);
         }
     }
+}
+
+sub options_actions {
+    my ($self) = @_;
+    return map { 
+        {
+            value => $_,
+            label => $_,
+        }
+    } @{$self->for_module->available_actions};
 }
 
 =over
