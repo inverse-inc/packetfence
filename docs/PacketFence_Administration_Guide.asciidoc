@@ -247,7 +247,7 @@ RHEL / CentOS
 
 In order to use the PacketFence repository :
 
-  # rpm -Uvh http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm
+  # yum localinstall http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (Database

@@ -45,7 +45,7 @@ DRBD and Linux-HA Installation
 
 Add the repository ELRepo.
   
-  # rpm -ivh http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
+  # yum localinstall http://www.elrepo.org/elrepo-release-6-6.el6.elrepo.noarch.rpm
 
 Edit the repo file to disable ELRepo by default:
 
@@ -233,7 +233,7 @@ Heartbeat configuration
 
 Install the EPEL repository
 
-  # rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+  # yum localinstall http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
 In `/etc/yum.repos.d/epel.repo`, disable the repository
 
@@ -446,7 +446,7 @@ DRBD Configuration and setup
 
 Add the repository ELREpo.
 
-  # rpm -ivh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+  # yum localinstall http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
 
 Edit the repo file to disable ELRepo by default:
 
