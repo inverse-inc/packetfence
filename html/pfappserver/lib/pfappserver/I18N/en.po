@@ -8055,19 +8055,19 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "metascan"
-msgstr ""
+msgstr "OPSWAT Metadefender Cloud Scanner"
 
 # conf/documentation.conf
 msgid "metascan.api_key"
-msgstr ""
+msgstr "API key"
 
 # conf/documentation.conf
 msgid "metascan.query_url_hash"
-msgstr ""
+msgstr "Query URL hash"
 
 # pf::config (SoH Status)
 msgid "microsoft"
-msgstr ""
+msgstr "Microsoft"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
@@ -8447,27 +8447,27 @@ msgstr "Proxies"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy"
-msgstr ""
+msgstr "Proxy"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy.host"
-msgstr ""
+msgstr "Host"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy.port"
-msgstr ""
+msgstr "Port"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy.use_proxy"
-msgstr ""
+msgstr "Use proxy"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "proxy.verify_ssl"
-msgstr ""
+msgstr "Verify SSL"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query"
-msgstr ""
+msgstr "Query"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.record_unmatched"
@@ -8475,7 +8475,7 @@ msgstr "Record Unmatched Parameters"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
-msgstr ""
+msgstr "Use TCP fingerprinting"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
@@ -9052,15 +9052,15 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting.p0f_map_url"
-msgstr ""
+msgstr "p0f map URL"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting.p0f_socket_map"
-msgstr ""
+msgstr "p0f socket map"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "tcp_fingerprinting.p0f_socket_path"
-msgstr ""
+msgstr "p0f socket path"
 
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
