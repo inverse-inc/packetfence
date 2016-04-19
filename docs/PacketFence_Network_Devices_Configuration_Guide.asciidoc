@@ -941,7 +941,7 @@ On each interface _with VoIP_:
 3550 (802.1x with MAB)
 ^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and Port-Security. 
+CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
 
 Global settings:
 ++++++++++++++++
@@ -954,7 +954,7 @@ Global settings:
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
@@ -965,7 +965,7 @@ CoA configuration:
    client 192.168.1.5 server-key useStrongerSecret
   port 3799
 
-Activate SNMP v1 on the switch:
+Enable SNMP v1 on the switch:
 
   snmp-server community public RO
 
