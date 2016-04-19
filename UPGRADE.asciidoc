@@ -58,6 +58,12 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
+Upgrading PacketFence from a versin older than v6.0.0 will be a complex undertaking.
+While it's entirely possible if done meticulously, we
+suggest you start from scratch and move your customizations and
+nodes information over to your new installation.
+
+
 Devices parking
 ^^^^^^^^^^^^^^^
 
