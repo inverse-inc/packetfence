@@ -572,6 +572,25 @@ sub register_node : Public {
     return;
 }
 
+=head2 register_node_ip
+
+Register a node by ip address
+
+=cut
+
+sub register_node_ip : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(ip pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
+
+    pf::node::node_register($mac, $postdata{'pid'}, %postdata);
+    return;
+}
+
 =head2 deregister_node
 
 Deregister a node
