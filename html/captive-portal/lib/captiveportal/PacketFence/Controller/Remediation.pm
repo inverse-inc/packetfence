@@ -62,19 +62,7 @@ sub index : Path : Args(0) {
 
         # Find the subtemplate
         my $langs = $c->forward(Root => 'getLanguages');
-        my $paths = $c->forward('getTemplateIncludePath');
-        push(@$langs, ''); # default template
-        foreach my $lang (@$langs) {
-            my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
-            foreach my $dir (@$paths) {
-                if ( -f "$dir/$file" ) {
-                    # We found our sub template. Stop here.
-                    $logger->info("Showing the $file  remediation page.");
-                    $c->stash->{'sub_template'} = $file;
-                    return;
-                }
-            }
-        }
+        $c->stash->{sub_template} = $c->profile->findViolationTemplate($template, $langs);
 
     } else {
         $logger->info( "No open violation for " . $mac );
@@ -111,15 +99,6 @@ sub getViolation {
         $c->stash->{violation} = $violation = violation_view_top($mac);
     }
     return $violation;
-}
-
-=head2 getTemplateIncludePath
-
-=cut
-
-sub getTemplateIncludePath : Private {
-    my ($self, $c) = @_;
-    return $c->profile->{_template_paths};
 }
 
 =head1 AUTHOR

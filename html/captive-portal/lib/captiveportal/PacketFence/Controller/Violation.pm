@@ -92,20 +92,11 @@ Get the subtemplate in the right portal profile
 
 =cut
 
-sub getSubTemplate :Private {
-    my ( $self, $c, $template ) = @_;
+sub getSubTemplate : Private {
+    my ($self, $c, $template) = @_;
     my $portalSession = $c->portalSession;
-    return "violations/$template.html";
-#    my $langs         = $portalSession->getRequestLanguages();
-    my $langs         = [];
-    my $paths         = $portalSession->templateIncludePath();
-    my @subTemplates =
-      map { "violations/$template" . ( $_ ? ".$_" : "" ) . ".html" } @$langs,
-      '';
-    return first { -f $_ } map {
-        my $path = $_;
-        map {"$path/$_"} @subTemplates
-    } @$paths;
+    my $langs         = $portalSession->getRequestLanguages();
+    return $c->profile->findViolationTemplate($template, $langs);
 }
 
 
