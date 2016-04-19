@@ -1,3 +1,5 @@
+# normalize MAC addresses
+mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})'
 # packetfence-local-auth
 # Try to get the Cleartext-Password from any of the pfguest, pfsponsor or pfsms
 # databases.
@@ -46,6 +48,7 @@ request-timing {
         }
     }
 }
+
 
 packetfence-eap-mac-policy {
     if ( &EAP-Type ) {
