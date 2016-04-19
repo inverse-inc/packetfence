@@ -622,7 +622,6 @@ echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence-redis-cache
 %endif
 %if 0%{?el7}
-/bin/systemctl enable mariadb
 /bin/systemctl enable packetfence
 /bin/systemctl enable packetfence-redis-cache
 %endif
@@ -667,6 +666,8 @@ do
 done
 
 
+#Only add mysql or mariadb enabled by default on a fresh install
+if [ "$1" = "1" ]; then
 %if 0%{?el6}
 for service in mysqld
 do
@@ -687,6 +688,7 @@ do
   fi
 done
 %endif
+fi
 
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
