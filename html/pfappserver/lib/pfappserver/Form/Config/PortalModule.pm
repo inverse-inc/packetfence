@@ -49,11 +49,18 @@ has_field 'actions' =>
     'type' => 'DynamicTable',
     'sortable' => 1,
     'do_label' => 0,
+     inflate_default_method => sub {
+         [
+          map { pfappserver::Form::Field::PortalModuleAction->action_inflate($_) }
+          @{$_[1]}
+         ]
+     }
   );
 
 has_field 'actions.contains' =>
   (
-    type => 'Select',
+    label => 'Action',
+    type => '+PortalModuleAction',
     widget_wrapper => 'DynamicTableRow',
   );
 
@@ -68,7 +75,7 @@ has_block definition =>
 
 sub BUILD {
     my ($self) = @_;
-    $self->field('actions.contains')->options([$self->options_actions]);
+    $self->field('actions.contains')->field('type')->options([$self->options_actions]);
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
     $self->setup();
 }

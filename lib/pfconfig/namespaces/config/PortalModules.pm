@@ -43,17 +43,8 @@ sub build_child {
         $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
 
         if(defined($tmp_cfg{$module_id}{actions})){
-            my @actions = @{$tmp_cfg{$module_id}{actions}};
-            if(@actions){
-                my $new_actions = {};
-                foreach my $action (@{$tmp_cfg{$module_id}{actions}}){
-                    if($action =~ /(.+)\((.*)\)/){
-                        my $action_name = $1;
-                        my $action_params = $2;
-                        $new_actions->{$action_name} = [split(/\s*,\s*/, $action_params)];
-                    }
-                }
-                $tmp_cfg{$module_id}{actions} = $new_actions;
+            if(@{$tmp_cfg{$module_id}{actions}}){
+                $tmp_cfg{$module_id}{actions} = inflate_actions($tmp_cfg{$module_id}{actions});
             }
             else {
                 delete $tmp_cfg{$module_id}{actions};
@@ -63,6 +54,25 @@ sub build_child {
     }
 
     return \%tmp_cfg;
+}
+
+sub inflate_actions {
+    my ($actions) = @_;
+    my $new_actions = {};
+    foreach my $action (@$actions){
+        my ($action_name, $action_args) = inflate_action($action);
+        $new_actions->{$action_name} = $action_args;
+    }
+    return $new_actions;
+}
+
+sub inflate_action {
+    my ($action) = @_;
+    if($action =~ /(.+)\((.*)\)/){
+        my $action_name = $1;
+        my $action_params = $2;
+        return ($action_name, [split(/\s*,\s*/, $action_params)]);
+    }
 }
 
 =head1 AUTHOR
