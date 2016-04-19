@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.0.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-04-08 12:02-0400\n"
+"PO-Revision-Date: 2016-04-19 10:35-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -400,6 +400,10 @@ msgstr ""
 msgid "Add violation"
 msgstr ""
 
+# html/pfappserver/root/config/realm/index.tt
+msgid "Adding or removing a realm requires to restart the radiusd service to be effective."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Additionnal listening daemon(s)"
 msgstr ""
@@ -532,6 +536,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
+msgstr ""
+
+# html/pfappserver/root/config/pfdetect/index.tt
+msgid "Any change to the syslog parsers requires a restart of the pfdetect service."
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -2743,6 +2751,10 @@ msgstr ""
 msgid "Legend"
 msgstr ""
 
+# conf/documentation.conf (advanced.timing_stats_level)
+msgid "Level of timing stats to keep - 0 is the lowest - 10 the highest amount to logDo not change unless you know what you are doing"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Limit the number of login attempts. A value of 0 disables the limit."
 msgstr ""
@@ -3460,7 +3472,7 @@ msgid "Note : The URL is always prefixed by a slash (/)"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
-msgid "Note that adding / modifying a network requires a restart of the 'dhcpd' service for changes to take place"
+msgid "Note that adding / modifying a network requires a restart of the dhcpd and pfdns services for the changes to take place"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -3627,6 +3639,7 @@ msgstr ""
 # conf/documentation.conf (services.keepalived_order)
 # conf/documentation.conf (services.p0f_order)
 # conf/documentation.conf (services.pfbandwidthd_order)
+# conf/documentation.conf (services.pfdetect_order)
 # conf/documentation.conf (services.pfdhcplistener_order)
 # conf/documentation.conf (services.pfdns_order)
 # conf/documentation.conf (services.pfmon_order)
@@ -3641,10 +3654,6 @@ msgstr ""
 # conf/documentation.conf (services.statsd_order)
 # conf/documentation.conf (services.suricata_order)
 # conf/documentation.conf (services.winbindd_order)
-msgid "Order in which the service should be started. Lower order services start first and stop last."
-msgstr ""
-
-# conf/documentation.conf (services.pfdetect_order)
 msgid "Order in which the service should be started. Lower order services start first and stop last."
 msgstr "Order in which the service should be started. Lower order services start first and stop last."
 
@@ -3827,6 +3836,10 @@ msgstr ""
 # pf::firewallsso (Firewall SSO)
 msgid "PaloAlto"
 msgstr "PaloAlto Networks"
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Parking"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
@@ -4368,6 +4381,7 @@ msgstr ""
 msgid "Queue"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/radiuslog/view.tt
@@ -4418,10 +4432,6 @@ msgstr "RADIUS Realms - Update"
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "RADIUS"
-msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 msgid "Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it"
@@ -5065,6 +5075,10 @@ msgstr ""
 msgid "Scan Engine"
 msgstr ""
 
+# html/pfappserver/root/admin/configuration.tt
+msgid "Scan Engines"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan Type"
 msgstr ""
@@ -5079,10 +5093,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan on registration"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "Scan Engines"
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -5664,12 +5674,13 @@ msgstr ""
 msgid "Switches"
 msgstr ""
 
-# html/pfappserver/root/config/pfdetect/view.tt
-msgid "Syslog parser"
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/pfdetect/index.tt
+msgid "Syslog Parsers"
 msgstr ""
 
-# html/pfappserver/root/admin/configuration.tt
-msgid "Syslog Parsers"
+# html/pfappserver/root/config/pfdetect/view.tt
+msgid "Syslog parser"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -6712,6 +6723,8 @@ msgstr "WRIX - Update"
 
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/config/pfdetect/index.tt
+# html/pfappserver/root/config/realm/index.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/configurator/wrapper.tt
@@ -7020,12 +7033,12 @@ msgid "advanced.sso_on_access_reevaluation"
 msgstr ""
 
 # conf/documentation.conf
-msgid "advanced.update_iplog_with_accounting"
-msgstr "Update the iplog using the accounting"
-
-# conf/documentation.conf
 msgid "advanced.timing_stats_level"
 msgstr "Stats Timing level"
+
+# conf/documentation.conf
+msgid "advanced.update_iplog_with_accounting"
+msgstr "Update the iplog using the accounting"
 
 # conf/documentation.conf
 msgid "alerting"
@@ -8270,7 +8283,6 @@ msgid "other"
 msgstr "Other"
 
 # conf/documentation.conf
-# html/pfappserver/root/admin/configuration.tt
 msgid "parking"
 msgstr ""
 

@@ -7,7 +7,7 @@
   <div class="modal-body">
 
     <div class="alert alert-warning">
-      [% l("Note that adding / modifying a network requires a restart of the 'dhcpd' and 'pfdns' services for the changes to take place") %]
+      [% l("Note that adding / modifying a network requires a restart of the dhcpd and pfdns services for the changes to take place") %]
     </div>
 
     [% form.field('network').render | none %]

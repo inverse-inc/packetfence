@@ -23,7 +23,7 @@ has roles => ( is => 'rw' );
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Billing tier',
+   label => 'Billing Tier',
    required => 1,
    messages => { required => 'Please specify a billing tier identifier' },
   );
