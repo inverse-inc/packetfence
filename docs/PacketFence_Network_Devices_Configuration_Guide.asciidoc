@@ -551,8 +551,7 @@ PacketFence supports the AT8000GS switch using :
 
 * MAC Authentication (mac-only)
 * 802.1X
-
-VoIP support is limited using 802.1X/MAC authentication.  We do have a limitation where the phone needs to be on the same VLAN as the PC (no voice VLAN concept).
+* 802.1X + VOIP
 
 MAC Authentication
 ++++++++++++++++++
@@ -607,6 +606,44 @@ Finally, enable the necessary 802.1X settings:
    interface ethernet g1    
    dot1x radius-attributes vlan
    dot1x port-control auto
+
+802.1X + VOIP
++++++++++++++
+
+
+First, activate 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server and AAA settings:
+
+   radius-server host 10.0.0.100
+   radius-server key qwerty
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius
+   aaa accounting dot1x radius
+
+Then, the LLDP configuration:
+
+   hostname switch-name
+   ip domain-name domain.local
+   lldp med network-policy 1 voice vlan Y vlan-type tagged dscp 34
+   lldp med network-policy 2 voice-signaling vlan Y vlan-type tagged dscp 34
+
+Finally, enable the necessary 802.1X and VOIP settings:
+
+   interface ethernet g1
+   dot1x port-control force-authorized
+   no dot1x guest-vlan enable
+   no dot1x mac-authentication
+   no dot1x radius-attributes vlan
+   no dot1x re-authentication
+   switchport mode trunk
+   switchport trunk native vlan 5
+   switchport trunk allowed vlan add 100
+   lldp med enable network-policy
+   lldp med network-policy add 1
+   lldp med network-policy add 2
 
 Amer 
 ~~~~
