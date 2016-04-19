@@ -959,7 +959,7 @@ Radius server configuration:
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration
+CoA configuration:
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
@@ -1162,7 +1162,7 @@ On each interface:
 MAC Authentication bypass only 
 ++++++++++++++++++++++++++++++
 
-On each interface
+On each interface:
 
   switchport mode access 
   switchport voice vlan 100 
