@@ -5898,11 +5898,11 @@ msgid "The hostname must be the one of your captive portal."
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_host)
-msgid "The hostname of the the database storing the Graphite dashboard settings.Will default to database.host if none is provided."
+msgid "The hostname of the the database storing the Graphite dashboard settings. Will default to database.host if none is provided."
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_pass)
-msgid "The hostname of the the database storing the Graphite dashboard settings.Will default to database.user if none is provided."
+msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
@@ -5985,11 +5985,11 @@ msgid "The port must be configured as a muti-vlan port"
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_port)
-msgid "The port to connect to the database storing the Graphite dashboard settings.Will default to database.port if none is provided."
+msgid "The port to connect to the database storing the Graphite dashboard settings. Will default to database.port if none is provided."
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_user)
-msgid "The port to connect to the database storing the Graphite dashboard settings.Will default to database.user if none is provided."
+msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
