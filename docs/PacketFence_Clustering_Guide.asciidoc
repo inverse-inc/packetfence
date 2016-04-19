@@ -309,8 +309,6 @@ Adjust your MySQL configuration in `/etc/my.cnf` on both servers and make sure t
 Step 2 : Server configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: If you are using CentOS 7, you need to make sure the interfaces name will be the same on both servers. See 'Setting the interfaces name on CentOS 7' in the Appendix section of this document.
-
 You will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
 
 On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysctl -p'
@@ -482,9 +480,10 @@ Load the DRBD kernel module:
 
   modprobe drbd
 
-Edit `/etc/drbd.d/global_common.conf` with the following content:
+Create the file  `/etc/drbd.d/global_common.conf`:
 
 ----
+cat << EOL >/etc/drbd.d/global_common.conf
 global {
     usage-count yes;
 }
@@ -505,18 +504,19 @@ common {
         on-io-error     detach;
     }
 }
+EOL
 ----
 
 
-Create the file /etc/drbd.d/mysql.res with the following content:
+Create the file `/etc/drbd.d/mysql.res`:
 
 ----
 cat << EOL >/etc/drbd.d/mysql.res
 resource mysql {
  protocol C;
  meta-disk internal;
- device storage_device;
- disk   /dev/sdb;
+ device /dev/drbd0;
+ disk   storage_device;
  handlers {
   split-brain "/usr/lib/drbd/notify-split-brain.sh root";
  }
@@ -586,20 +586,20 @@ Make sure DRBD is started at boot time:
 
 Restart both servers.
 
-When done, look in `/proc/drbd` and make sure you see:
+When done, do `drbd-overview` and make sure you see:
 
   ...
-   0: cs:Connected ro:Primary/Secondary ds:UpToDate/UpToDate C r---
-      ns:0 nr:0 dw:0 dr:0 al:0 bm:0 lo:0 pe:0 ua:0 ap:0 ep:1 wo:b oos:0
+    0:mysql/0  Connected Primary/Secondary UpToDate/UpToDate
 
 MariaDB Configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
 First you need to ensure it will not start on boot : 
 
+
 ```
 systemctl disable mariadb
- ```
+```
 
 NOTE: By default MariaDB puts its data in `/var/lib/mysql`. In order to replicate data between the two servers, we mount the DRBD partition under `/var/lib/mysql`. 
 
@@ -653,6 +653,8 @@ Adjust your MariaDB configuration in `/etc/my.cnf` on both servers and make sure
 Step 2 : Server configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You need to make sure the interfaces name will be the same on both servers. See 'Setting the interfaces name on CentOS 7' in the Appendix section of this document.
+
 You will need to configure the server so the services can bind on IP addresses they don't currently have configured. This allows faster failover of the services.
 
 On CentOS, add the following line in /etc/sysctl.conf and then reload with 'sysctl -p'
@@ -666,6 +668,8 @@ Create the PEM that combines the key and certificate for the http services. Adap
 
 Corosync configuration
 ^^^^^^^^^^^^^^^^^^^^^^
+
+  # pcs cluster start --all
 
   # pcs cluster cib clust_cfg
 
@@ -713,8 +717,46 @@ Corosync configuration
 
   # pcs status
 
-MariaDB configuration
-^^^^^^^^^^^^^^^^^^^^^
+Check the status of the cluster:
+
+  # pcs status
+
+Then try a failover:
+
+  # pcs cluster standby pf1_server_name
+
+  # pcs status
+
+```
+Cluster name: mysql_cluster
+Last updated: Tue Apr 19 09:38:56 2016		Last change: Tue Apr 19 09:38:47 2016 by root via crm_attribute on pf1
+Stack: corosync
+Current DC: pf2 (version 1.1.13-10.el7_2.2-44eb2dd) - partition with quorum
+2 nodes and 4 resources configured
+
+Node pf1_server_name: standby
+Online: [ pf2_server_name ]
+
+Full list of resources:
+
+ Master/Slave Set: MySQLClone [DRBD]
+     Masters: [ pf2 ]
+     Stopped: [ pf1 ]
+ DRBD_fs	(ocf::heartbeat:Filesystem):	Started pf2_server_name
+ MariaDB	(ocf::heartbeat:mysql):	Started pf2_server_name
+
+PCSD Status:
+  pf1: Online
+  pf2: Online
+
+Daemon Status:
+  corosync: active/disabled
+  pacemaker: active/disabled
+  pcsd: active/enabled
+```
+
+  # pcs cluster unstandby pf1_server_name
+
 
 In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
 
