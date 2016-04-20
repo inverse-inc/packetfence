@@ -16,6 +16,13 @@ $('#section').on('submit', 'form[name="formItem"]', function(e) {
   btn = form.find('.btn-primary'),
   valid = isFormValid(form);
 
+  $('select[name$=".type"]:not(:disabled)').each(function(i,e){
+    if($(e).val() == "Select an option"){
+      valid = false;
+      showPermanentError(form, "Please select a valid action.");
+    }
+  });
+
   if (valid) {
     btn.button('loading');
     resetAlert($('#section'));

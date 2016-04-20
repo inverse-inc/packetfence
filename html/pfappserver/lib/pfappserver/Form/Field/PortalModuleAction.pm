@@ -34,7 +34,7 @@ has_field 'type' =>
    do_label => 0,
    required => 1,
    widget_wrapper => 'None',
-   default => 'set_role',
+   default => 'Select an option',
   );
 has_field 'arguments' =>
   (
@@ -42,7 +42,6 @@ has_field 'arguments' =>
    do_label => 0,
    widget_wrapper => 'None',
    element_class => ['input-medium'],
-   required => 1,
   );
 
 sub action_inflate {
