@@ -117,7 +117,7 @@ sub options_actions {
             value => $_,
             label => $_,
         }
-    } @{$self->for_module->available_actions};
+    } ("Select an option", @{$self->for_module->available_actions});
 }
 
 sub dynamic_tables {

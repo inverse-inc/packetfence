@@ -63,3 +63,40 @@ $('#section').on('click', '.expand', function(e){
   });
   return false;  
 });
+
+$('#section').on('change', '#actions select[name$=".type"]', function(event) {
+  var type_input = $(event.currentTarget);
+  updateActionMatchInput(type_input,false);
+});
+
+$('#section').on('click', '#actionsContainer a[href="#add"]', function(event) {
+  setTimeout(initActionMatchInput, 3000);
+});
+
+function initActionMatchInput() {
+  $('select[name$=".type"]:not(:disabled)').each(function(i,e){
+      updateActionMatchInput($(e),true);
+  });
+}
+
+function updateActionMatchInput(type_input, keep) {
+    var match_input = type_input.next();
+    var type_value = type_input.val();
+    var match_input_template_id = '#' + type_value + "_action_match";
+    var match_input_template = $(match_input_template_id);
+    if ( match_input_template.length == 0 ) {
+        match_input_template = $('#default_action_match');
+    }
+    if ( match_input_template.length ) {
+        changeInputFromTemplate(match_input, match_input_template, keep);
+        if (type_value == "switch") {
+            type_input.next().typeahead({
+                source: searchSwitchesGenerator($('#section h2')),
+                minLength: 2,
+                items: 11,
+                matcher: function(item) { return true; }
+            });
+        }
+    }
+}
+

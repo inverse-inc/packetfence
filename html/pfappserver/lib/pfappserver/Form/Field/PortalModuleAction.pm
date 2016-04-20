@@ -38,7 +38,7 @@ has_field 'type' =>
   );
 has_field 'arguments' =>
   (
-   type => 'Text',
+   type => 'Hidden',
    do_label => 0,
    widget_wrapper => 'None',
    element_class => ['input-medium'],
