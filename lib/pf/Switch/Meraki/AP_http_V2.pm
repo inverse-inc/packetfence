@@ -51,9 +51,9 @@ use pf::locationlog;
 # access technology supported
 sub description { 'Meraki cloud controller v2' }
 sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
-sub supportsWebFormRegistration { return $FALSE }
+sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsUrlBasedEnforcement { return $TRUE; }
 
 =head2 parseUrl
 
@@ -121,47 +121,88 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $radius_reply_ref = {};
-
     $args->{'unfiltered'} = $TRUE;
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
-    $radius_reply_ref = \%radius_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-    my $role = $self->getRoleByName($args->{'user_role'});
-    if(defined($role) && $role ne ""){
-        my $mac = $args->{'mac'};
-        my $node_info = $args->{'node_info'};
-        my $violation = pf::violation::violation_view_top($mac);
-        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
-            my $session_id = generate_session_id(6);
-            my $chi = pf::CHI->new(namespace => 'httpd.portal');
-            $chi->set($session_id,{
-                client_mac => $mac,
-                wlan => $args->{'ssid'},
-                switch_id => $self->{_id},
-            });
-            pf::locationlog::locationlog_set_session($mac, $session_id);
-            my $redirect_url = $self->{'_portalURL'}."/cep$session_id";
-            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+
+    my $role = $args->{'user_role'};
+    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
+            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+            #override role if a role in role map is define
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
+            push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
-
-            # remove the role if any as we push the redirection ACL along with it's role
-            delete $radius_reply_ref->{$self->returnRoleAttribute()};
         }
-
     }
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-
-    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
 }
+#sub returnRadiusAccessAccept {
+#    my ($self, $args) = @_;
+#    my $logger = $self->logger;
+#
+#    my $radius_reply_ref = {};
+#
+#    $args->{'unfiltered'} = $TRUE;
+#    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+#    my $status = shift @super_reply;
+#    my %radius_reply = @super_reply;
+#    $radius_reply_ref = \%radius_reply;
+#
+#    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
+#    my $role = $self->getRoleByName($args->{'user_role'});
+#    if(defined($role) && $role ne ""){
+#        my $mac = $args->{'mac'};
+#        my $node_info = $args->{'node_info'};
+#        my $violation = pf::violation::violation_view_top($mac);
+#        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
+#            my $session_id = generate_session_id(6);
+#            my $chi = pf::CHI->new(namespace => 'httpd.portal');
+#            $chi->set($session_id,{
+#                client_mac => $mac,
+#                wlan => $args->{'ssid'},
+#                switch_id => $self->{_id},
+#            });
+#            pf::locationlog::locationlog_set_session($mac, $session_id);
+#            my $redirect_url = $self->{'_portalURL'}."/cep$session_id";
+#            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
+#            push @av_pairs, "url-redirect=".$redirect_url;
+#
+#            # remove the role if any as we push the redirection ACL along with it's role
+#            delete $radius_reply_ref->{$self->returnRoleAttribute()};
+#        }
+#
+#    }
+#
+#    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+#
+#    my $filter = pf::access_filter::radius->new;
+#    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+#    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+#    use Data::Dumper;
+#    $logger->info('RAD' . Dumper(%$radius_reply_ref));
+#
+#    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+#}
 
 =head2 deauthenticateMacDefault
 
