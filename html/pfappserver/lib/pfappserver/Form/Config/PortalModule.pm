@@ -110,6 +110,12 @@ sub remove_field {
     }
 }
 
+=head2 options_actions
+
+Options available for the actions
+
+=cut
+
 sub options_actions {
     my ($self) = @_;
     return map { 
@@ -119,6 +125,12 @@ sub options_actions {
         }
     } ("Select an option", @{$self->for_module->available_actions});
 }
+
+=head2 dynamic_tables
+
+Get all the DynamicTable fields of this form
+
+=cut
 
 sub dynamic_tables {
     my ($self) = @_;

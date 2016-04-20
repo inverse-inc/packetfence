@@ -56,6 +56,20 @@ sub build_child {
     return \%tmp_cfg;
 }
 
+=head2 inflate_actions
+
+Inflate an array ref of actions to a hash ref of the format :
+  {
+    "action_name_1" => [
+      "arg1",
+      "arg2",
+      "arg3"
+    ]
+    ...
+  }
+
+=cut
+
 sub inflate_actions {
     my ($actions) = @_;
     my $new_actions = {};
@@ -65,6 +79,20 @@ sub inflate_actions {
     }
     return $new_actions;
 }
+
+=head2 inflate_action
+
+Inflate an action of the format action_name_1(arg1,arg2,arg3) to the following :
+ (
+  "action_name_1",
+  [
+    "arg1",
+    "arg2",
+    "arg3"
+  ]
+ )
+
+=cut
 
 sub inflate_action {
     my ($action) = @_;

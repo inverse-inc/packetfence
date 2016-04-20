@@ -6,10 +6,7 @@ pfappserver::Form::Field::PortalModuleAction - an action for the portal modules
 
 =head1 DESCRIPTION
 
-This is a compound field that requires only one value of the form
-  \d[smhDWMY]
-
-The time unit is rendered using the ButtonGroup widget.
+This is to create an action for a portal module
 
 =cut
 
@@ -44,10 +41,16 @@ has_field 'arguments' =>
    element_class => ['input-medium'],
   );
 
+=head2 action_inflate
+
+Inflate an action of the format :
+  action(arg1,arg2,arg3)
+
+=cut
+
 sub action_inflate {
     my ($self, $value) = @_;
     my $hash = {};
-    use pf::log; use Data::Dumper; get_logger->info("HELLOOOOOO");
     if (defined $value) {
         @{$hash}{'type', 'arguments'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
         $hash->{arguments} = join(',',@{$hash->{arguments}});
@@ -55,6 +58,13 @@ sub action_inflate {
     use pf::log; use Data::Dumper; get_logger->info(Dumper($hash));
     return $hash;
 }
+
+=head2 action_inflate
+
+Deflate an action to the format :
+  action(arg1,arg2,arg3)
+
+=cut
 
 sub action_deflate {
     my ($self, $value) = @_;
