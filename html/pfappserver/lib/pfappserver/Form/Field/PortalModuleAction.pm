@@ -55,7 +55,6 @@ sub action_inflate {
         @{$hash}{'type', 'arguments'} = pfconfig::namespaces::config::PortalModules::inflate_action($value);
         $hash->{arguments} = join(',',@{$hash->{arguments}});
     }
-    use pf::log; use Data::Dumper; get_logger->info(Dumper($hash));
     return $hash;
 }
 
