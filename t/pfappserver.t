@@ -42,8 +42,8 @@ SKIP: {
     my ($port, $status) = $runner->start_catalyst_server;
     skip "The Catalyst Service could not be started", $casper_tests if $status ne 'ready';
     my $base_url = "http://localhost:$port/";
-    casperjs_ok("login_admin.js", "--url=$base_url/admin --username=admin --password=admin2 --is-password-valid=false");
-    casperjs_ok("login_admin.js", "--url=$base_url/admin --username=admin --password=admin --is-password-valid=true");
+    casperjs_ok("login_admin.js", "--base_url=$base_url --username=admin --password=admin2 --is_password_valid=false");
+    casperjs_ok("login_admin.js", "--base_url=$base_url --username=admin --password=admin --is_password_valid=true");
     casperjs_ok("logout_admin.js", "--base_url=$base_url --username=admin --password=admin");
 }
 

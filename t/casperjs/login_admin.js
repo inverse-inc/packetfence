@@ -3,10 +3,10 @@ var system = require('system');
 
 
 
-var url = casper.cli.get('url');
+var base_url = casper.cli.get('base_url');
 var username = casper.cli.get('username');
 var password = casper.cli.get('password');
-var is_password_valid = casper.cli.get('is-password-valid');
+var is_password_valid = casper.cli.get('is_password_valid');
 
 var number_of_tests = 6;
 
@@ -17,7 +17,7 @@ if(is_password_valid) {
 }
 
 casper.test.begin('Packetfence Admin Login Test', number_of_tests, function suite(test) {
-    casper.start(url , function() {
+    casper.start(base_url + "/admin" , function() {
         test.assertTitle("Administrator - PacketFence");
         test.assertExists('form[name="login"]', "login form is found");
         test.assertExists('#username', "username field found");
