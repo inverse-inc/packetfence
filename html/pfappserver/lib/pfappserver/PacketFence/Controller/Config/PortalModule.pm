@@ -21,7 +21,7 @@ use captiveportal::DynamicRouting::Factory;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
 use JSON::MaybeXS;
-use pf::config qw(%ConfigPortalModules);
+use pf::config qw(%ConfigPortalModules %Config);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -137,6 +137,12 @@ after list => sub {
     }
     $c->stash->{structured_roots} = \@structured_roots;
     $c->stash->{structured_roots_json} = encode_json($c->stash->{structured_roots});
+};
+
+after view => sub {
+    my ($self, $c) = @_;
+    $c->stash->{node_roles} = $c->model('Roles')->list();
+    $c->stash->{access_durations} = [split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})];
 };
 
 sub _module_as_hashref : Private {
