@@ -589,7 +589,7 @@ Finally, enable the necessary 802.1X settings for mac-only authentication:
 
 The settings are almost the same as the MAC Authentication with some small differences.
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
@@ -615,7 +615,7 @@ First, activate 802.1X globally:
 
    dot1x system-auth-control
 
-Next, configure the RADIUS server and AAA settings:
+Next, configure the RADIUS server configuration and AAA settings:
 
    radius-server host 10.0.0.100
    radius-server key qwerty
@@ -623,27 +623,27 @@ Next, configure the RADIUS server and AAA settings:
    aaa authentication dot1x default radius
    aaa accounting dot1x radius
 
-Then, the LLDP configuration:
+Then, LLDP configuration:
 
    hostname switch-name
    ip domain-name domain.local
    lldp med network-policy 1 voice vlan 100 vlan-type tagged dscp 34
    lldp med network-policy 2 voice-signaling vlan 100 vlan-type tagged dscp 34
 
-Finally, enable the necessary 802.1X and VOIP settings:
+Finally, enable the necessary 802.1X and VOIP settings on each interface:
 
    interface ethernet g1
-   dot1x port-control force-authorized
-   no dot1x guest-vlan enable
-   no dot1x mac-authentication
-   no dot1x radius-attributes vlan
-   no dot1x re-authentication
-   switchport mode trunk
-   switchport trunk native vlan 5
-   switchport trunk allowed vlan add 100
-   lldp med enable network-policy
-   lldp med network-policy add 1
-   lldp med network-policy add 2
+    dot1x port-control force-authorized
+    no dot1x guest-vlan enable
+    no dot1x mac-authentication
+    no dot1x radius-attributes vlan
+    no dot1x re-authentication
+    switchport mode trunk
+    switchport trunk native vlan 5
+    switchport trunk allowed vlan add 100
+    lldp med enable network-policy
+    lldp med network-policy add 1
+    lldp med network-policy add 2
 
 Amer 
 ~~~~
