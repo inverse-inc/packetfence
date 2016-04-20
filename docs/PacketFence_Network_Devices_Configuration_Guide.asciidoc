@@ -4364,20 +4364,26 @@ image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page 
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
-Version 2
-+++++++++
+CoA Compliance
+++++++++++++++
 
-In the version X.X of the Meraki firmware, the WebAuth mode has been improved and now allow CoA, and the use of redirect-URL instead of passing by the external captive portal.
+NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab "Roles" from the switch configuration. More details below.
 
-If you have the version X.X, the configuration for your SSID should look like this:
+In the version X.X of the Meraki firmware, the WebAuth mode has been improved and now allows CoA and the use of redirect URL via a RADIUS attribute.
+
+The configuration for your SSID should look like this:
 
 image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
 image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
-When your configuration is ready on the Meraki side, add the switch in PacketFence, select the module "Meraki cloud controller v2". Make sure to have RADIUS as the deauthentification method. To work in webAuth, you need to select "Role by Web Auth URL" in the tab "Roles". 
+NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
 
-Refer to Cisco WebAuth section to see how to configure it.
+The switch module to use for this configuration is "Meraki cloud controller V2".
+
+Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured in the roles in the switch configuration in PacketFence. Creation of the policy `Guest devices`:
+
+image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
 
 Mikrotik
