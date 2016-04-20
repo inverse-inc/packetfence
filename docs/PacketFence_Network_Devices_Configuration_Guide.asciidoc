@@ -556,7 +556,7 @@ PacketFence supports the AT8000GS switch using :
 MAC Authentication
 ++++++++++++++++++
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
