@@ -4371,17 +4371,14 @@ In the version X.X of the Meraki firmware, the WebAuth mode has been improved an
 
 If you have the version X.X, the configuration for your SSID should look like this:
 
-image::docs/images/Meraki-config-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
+image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
-image::docs/images/Meraki-config-2.png[scaledwidth="100%",alt="Network configuration"]
+image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
-While done you will need to add the address for the redirection in the switch configuration in PacketFence. Add the Meraki IP to PacketFence, then choose the module "Meraki cloud controller v2" and add the portal interface ip in the "Portal URL" section. It should look like the following:
+When your configuration is ready on the Meraki side, add the switch in PacketFence, select the module "Meraki cloud controller v2". Make sure to have RADIUS as the deauthentification method. To work in webAuth, you need to select "Role by Web Auth URL" in the tab "Roles". 
 
-----
- http://192.168.1.5
-----
+Refer to Cisco WebAuth section to see how to configure it.
 
-Also make sure to select RADIUS as the deauthentication method.
 
 Mikrotik
 ~~~~~~~~
