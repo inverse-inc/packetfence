@@ -19,6 +19,10 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Root'}
 
 ## Definition
 
+sub setup {
+    my ($self) = @_;
+    $self->remove_field("actions");
+}
 
 =over
 

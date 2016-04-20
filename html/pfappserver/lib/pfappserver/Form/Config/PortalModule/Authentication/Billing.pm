@@ -24,6 +24,11 @@ sub child_definition {
     return (qw(source_id custom_fields with_aup));
 }
 
+sub setup {
+    my ($self) = @_;
+    $self->remove_field("actions");
+}
+
 ## Definition
 
 =over

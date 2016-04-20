@@ -54,7 +54,10 @@ has_field 'actions' =>
           map { pfappserver::Form::Field::PortalModuleAction->action_inflate($_) }
           @{$_[1]}
          ]
-     }
+     },
+     tags => { 
+       when_empty => 'If none are specified, the default ones of the module will be used.' 
+     },
   );
 
 has_field 'actions.contains' =>
@@ -70,8 +73,6 @@ has_block definition =>
    # Generated via the BUILD method
    render_list => [],
   );
-
-
 
 sub BUILD {
     my ($self) = @_;
@@ -117,6 +118,17 @@ sub options_actions {
             label => $_,
         }
     } @{$self->for_module->available_actions};
+}
+
+sub dynamic_tables {
+    my ($self) = @_;
+    my @fields;
+    foreach my $field ($self->all_fields){
+        if($field->type eq "DynamicTable") {
+            push @fields, $field->name;
+        }
+    }
+    return @fields;
 }
 
 =over

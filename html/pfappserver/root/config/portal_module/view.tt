@@ -20,8 +20,7 @@
     [% form.block('definition').render | none %]
   </div>
 
-  [% dynamic_table_fields = ["modules", "actions"] %]
-  [% FOREACH field IN dynamic_table_fields %]
+  [% FOREACH field IN form.dynamic_tables %]
     [% IF form.field(field) %]
     <div class="control-group">
       <label class="control-label" for="[% field %]">[% l(field) %]</label>
@@ -33,6 +32,7 @@
             [% l('No ' _ field _ ' selected') %]
             <a href="#add">[% l('Add one.') %]</a>
           </p>
+          <p>[% form.field(field).tags.when_empty %]</p>
         </div>
       </div>
     </div>
