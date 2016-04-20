@@ -611,7 +611,7 @@ Finally, enable the necessary 802.1X settings:
 +++++++++++++
 
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
