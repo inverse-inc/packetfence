@@ -117,6 +117,7 @@ conf/snort/reference.config
 conf/switches.conf
 conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
+conf/ipset.conf
 conf/listener.msg
 conf/provisioning.conf
 conf/portal_modules.conf
