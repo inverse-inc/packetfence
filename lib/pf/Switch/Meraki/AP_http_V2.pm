@@ -20,7 +20,7 @@ Developed and tested on a MR12 access point
 use strict;
 use warnings;
 
-use base ('pf::Switch::Meraki::AP_http');
+use base ('pf::Switch');
 
 use Net::SNMP;
 use Try::Tiny;
@@ -47,8 +47,20 @@ use pf::locationlog;
 sub description { 'Meraki cloud controller v2' }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsUrlBasedEnforcement { return $TRUE; }
+
+=head2 getVersion - obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->info("we don't know how to determine the version through SNMP !");
+    return '1';
+}
 
 =item returnRoleAttribute
 
@@ -130,53 +142,6 @@ sub returnRadiusAccessAccept {
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     return [$status, %$radius_reply_ref];
 }
-#sub returnRadiusAccessAccept {
-#    my ($self, $args) = @_;
-#    my $logger = $self->logger;
-#
-#    my $radius_reply_ref = {};
-#
-#    $args->{'unfiltered'} = $TRUE;
-#    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
-#    my $status = shift @super_reply;
-#    my %radius_reply = @super_reply;
-#    $radius_reply_ref = \%radius_reply;
-#
-#    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-#    my $role = $self->getRoleByName($args->{'user_role'});
-#    if(defined($role) && $role ne ""){
-#        my $mac = $args->{'mac'};
-#        my $node_info = $args->{'node_info'};
-#        my $violation = pf::violation::violation_view_top($mac);
-#        unless ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED && !defined($violation)) {
-#            my $session_id = generate_session_id(6);
-#            my $chi = pf::CHI->new(namespace => 'httpd.portal');
-#            $chi->set($session_id,{
-#                client_mac => $mac,
-#                wlan => $args->{'ssid'},
-#                switch_id => $self->{_id},
-#            });
-#            pf::locationlog::locationlog_set_session($mac, $session_id);
-#            my $redirect_url = $self->{'_portalURL'}."/cep$session_id";
-#            $logger->info("Adding web authentication redirection to reply using role : $role and URL : $redirect_url.");
-#            push @av_pairs, "url-redirect=".$redirect_url;
-#
-#            # remove the role if any as we push the redirection ACL along with it's role
-#            delete $radius_reply_ref->{$self->returnRoleAttribute()};
-#        }
-#
-#    }
-#
-#    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
-#
-#    my $filter = pf::access_filter::radius->new;
-#    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-#    $radius_reply_ref = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-#    use Data::Dumper;
-#    $logger->info('RAD' . Dumper(%$radius_reply_ref));
-#
-#    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
-#}
 
 =head2 deauthenticateMacDefault
 
@@ -268,49 +233,20 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one.
-        # We send a regular disconnect if there is an open trapping violation
-        # to ensure the VLAN is actually changed to the isolation VLAN.
-        if (  defined($role) &&
-            ( violation_count_reevaluate_access($mac) == 0 )  &&
-            ( $node_info->{'status'} eq 'reg' )
-           ) {
+		my $vsa = [
+            {
+            vendor => "Cisco",
+            attribute => "Cisco-AVPair",
+            value => "audit-session-id=$node_info->{'sessionid'}",
+            },
+            {
+            vendor => "Cisco",
+            attribute => "Cisco-AVPair",
+            value => "subscriber:command=reauthenticate",
+            },
+        ];
+        $response = perform_coa($connection_info, $attributes_ref, $vsa);
 
-            my $vsa = [
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "audit-session-id=$node_info->{'sessionid'}",
-                },
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "subscriber:command=reauthenticate",
-                },
-            ];
-            $response = perform_coa($connection_info, $attributes_ref, $vsa);
-
-        }
-        else {
-            $connection_info = {
-                nas_ip => $send_disconnect_to,
-                secret => $self->{'_radiusSecret'},
-                LocalAddr => $self->deauth_source_ip(),
-                nas_port => $port_to_disconnect,
-            };
-            $attributes_ref = {
-                'Calling-Station-Id' => $mac,
-            };
-            my $vsa = [
-                {
-                vendor => "Cisco",
-                attribute => "Cisco-AVPair",
-                value => "audit-session-id=$node_info->{'sessionid'}",
-                },
-            ];
-
-            $response = perform_disconnect($connection_info, $attributes_ref, $vsa);
-        } 
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
