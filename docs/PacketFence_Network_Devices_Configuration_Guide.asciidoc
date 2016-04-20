@@ -4381,9 +4381,15 @@ NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute s
 
 The switch module to use for this configuration is "Meraki cloud controller V2".
 
-Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured in the roles in the switch configuration in PacketFence. Creation of the policy `Guest devices`:
+Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured in the roles in the switch configuration in PacketFence. Creation of the policy `Guest`:
 
 image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
+
+Your configuration for the tab "Roles" in PacketFence will look like the following:
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
+
+image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence url configuration"]
 
 
 Mikrotik
