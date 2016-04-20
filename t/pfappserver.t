@@ -20,16 +20,19 @@ use lib qw(
   /usr/local/pf/html/pfappserver/lib
 );
 
+our $casper_tests;
+
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+    $casper_tests = 3;
 }
 
 use catalyst_runner;
 
-use Test::More tests => 2;
+use Test::More tests => $casper_tests + 1;
 
 #This test will running last
 use Test::NoWarnings;
@@ -37,15 +40,16 @@ use Test::NoWarnings;
 SKIP: {
     my $runner = catalyst_runner->new(app => 'pfappserver');
     my ($port, $status) = $runner->start_catalyst_server;
-    skip "The Catalyst Service could not be started", 1 if $status ne 'ready';
+    skip "The Catalyst Service could not be started", $casper_tests if $status ne 'ready';
     my $base_url = "http://localhost:$port/";
     casperjs_ok("login_admin.js", "--url=$base_url/admin --username=admin --password=admin2 --is-password-valid=false");
     casperjs_ok("login_admin.js", "--url=$base_url/admin --username=admin --password=admin --is-password-valid=true");
+    casperjs_ok("logout_admin.js", "--base_url=$base_url --username=admin --password=admin");
 }
 
 sub casperjs_ok {
     my ($script, $options, $msg) = @_;
-    my $cmd = "casperjs test casperjs/$script $options";
+    my $cmd = "casperjs test /usr/local/pf/t/casperjs/$script $options";
     $msg //= $cmd;
     local $?;
     system($cmd);
