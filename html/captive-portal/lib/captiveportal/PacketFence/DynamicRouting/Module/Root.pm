@@ -118,7 +118,7 @@ sub handle_web_form_release {
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
         $self->render('webFormRelease.html', {
-            content => $switch->getAcceptForm($self->app->client_mac, $self->app->session->{destination_url}, $session),
+            content => $switch->getAcceptForm($self->current_mac, $self->app->session->{destination_url}, $session),
             %{$self->_release_args()}
         });
         return $TRUE;
