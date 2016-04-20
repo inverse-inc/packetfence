@@ -68,6 +68,23 @@ sub setup {
     return;
 }
 
+=head2 remove_field
+
+Remove a field from the definition of the form
+
+=cut
+
+sub remove_field {
+    my ($self, $name) = @_;
+    my @fields = $self->all_fields;
+    $self->clear_fields();
+    foreach my $field (@fields) {
+        unless($field->name eq $name) {
+            $self->add_field($field);
+        }
+    }
+}
+
 =over
 
 =back
