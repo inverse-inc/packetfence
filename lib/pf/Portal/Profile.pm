@@ -129,7 +129,6 @@ Find the first template in the list
 sub findFirstTemplate {
     my ($self, $files) = @_;
     my $template_paths = $self->{_template_paths};
-    print join("\n",@$template_paths,"");
     foreach my $file (@$files) {
         return $file if any {-f "$_/$file"} @$template_paths
     }
