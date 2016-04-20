@@ -196,8 +196,6 @@ sub deauthenticateMacDefault {
     }
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
-    # (not done because it doesn't exist in current branch)
     return $self->radiusDisconnect( $mac );
 }
 
