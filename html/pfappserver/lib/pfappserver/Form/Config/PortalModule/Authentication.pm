@@ -56,7 +56,10 @@ sub child_definition {
 
 sub BUILD {
     my ($self) = @_;
-    $self->field('pid_field')->default($self->for_module->meta->find_attribute_by_name('pid_field')->default->());
+    my $pid_default_method = $self->for_module->meta->find_attribute_by_name('pid_field')->default;
+    if($pid_default_method) {
+        $self->field('pid_field')->default($pid_default_method->());
+    }
     $self->field('with_aup')->default($self->for_module->meta->find_attribute_by_name('with_aup')->default->());
     $self->field('signup_template')->default($self->for_module->meta->find_attribute_by_name('signup_template')->default->());
 }
@@ -68,7 +71,12 @@ sub auth_module_definition {
 
 sub options_pid_field {
     my ($self) = @_;
-    return map {$_ => $_} uniq($self->form->for_module->meta->find_attribute_by_name('pid_field')->default->(), @pf::person::PROMPTABLE_FIELDS);
+    my $default_method = $self->form->for_module->meta->find_attribute_by_name('pid_field')->default;
+    my @fields = @pf::person::PROMPTABLE_FIELDS;
+    if($default_method){
+        unshift @fields, $default_method->();
+    }
+    return map {$_ => $_} uniq(@fields);
 }
 
 
