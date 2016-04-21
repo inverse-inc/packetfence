@@ -164,8 +164,6 @@ sub returnRadiusAccessAccept {
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
-Need to implement the CoA to remove the ACL and the redirect URL.
-
 =cut
 
 sub deauthenticateMacDefault {
