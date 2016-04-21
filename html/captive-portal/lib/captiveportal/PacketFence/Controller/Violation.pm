@@ -95,7 +95,7 @@ Get the subtemplate in the right portal profile
 sub getSubTemplate : Private {
     my ($self, $c, $template) = @_;
     my $portalSession = $c->portalSession;
-    my $langs         = $portalSession->getRequestLanguages();
+    my $langs = $c->forward(Root => 'getRequestLanguages');
     return $c->profile->findViolationTemplate($template, $langs);
 }
 
