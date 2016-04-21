@@ -8051,7 +8051,7 @@ msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
-msgstr ""
+msgstr "nested group"
 
 # conf/documentation.conf
 msgid "metascan"
