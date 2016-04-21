@@ -4395,7 +4395,9 @@ image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence 
 VLAN enforcement
 ++++++++++++++++
 
-If you want to run the Meraki in VLAN assignement, you will need to use the Group policies, create a group policy under `Network-wide->Group policies` and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
+NOTE: VLAN assignment in MAC authentication does not work at the moment, you can look through lib/pf/Switch/Meraki/AP_http_V2.pm in the `BUGS AND LIMITATIONS` part or use the following method. Note that this method will be considered as deprecated when the Meraki firmware is fixed.
+
+If you want to run the Meraki in VLAN assignment, you will need to use the Group policies, create a group policy under `Network-wide->Group policies` and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
 
 image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
 
