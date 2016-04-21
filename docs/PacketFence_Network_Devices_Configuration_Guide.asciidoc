@@ -4365,13 +4365,14 @@ image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
 CoA Compliance
-++++++++++++++
+^^^^^^^^^^^^^^
 
-NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab "Roles" from the switch configuration. More details below.
+WebAuth
++++++++
 
-In the version X.X of the Meraki firmware, the WebAuth mode has been improved and now allows CoA and the use of redirect URL via a RADIUS attribute.
+NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab "Roles" from the switch configuration.
 
-The configuration for your SSID should look like this:
+Configure your SSID as shown below:
 
 image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
@@ -4391,6 +4392,20 @@ image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence
 
 image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence url configuration"]
 
+VLAN enforcement
+++++++++++++++++
+
+If you want to run the Meraki in VLAN assignement, you will need to use the Group policies, create a group policy under `Network-wide->Group policies` and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
+
+image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
+
+While using VLAN enforcement make sure to have the setting “RADIUS override” set to “RADIUS response can override VLAN tag” under your SSID configuration.
+
+image::docs/images/Meraki-config-ssid-vlan.png[scaledwidth="100%",alt="RADIUS override"]
+
+In the configuration of PacketFence, use "Role mapping by Switch Role" instead of "Role by VLAN ID".
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 Mikrotik
 ~~~~~~~~
