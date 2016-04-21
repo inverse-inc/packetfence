@@ -4382,7 +4382,7 @@ NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute s
 
 The switch module to use for this configuration is "Meraki cloud controller V2".
 
-Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured in the roles in the switch configuration in PacketFence. Creation of the policy `Guest`:
+Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
 
 image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
@@ -4398,10 +4398,6 @@ VLAN enforcement
 If you want to run the Meraki in VLAN assignement, you will need to use the Group policies, create a group policy under `Network-wide->Group policies` and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
 
 image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
-
-While using VLAN enforcement make sure to have the setting “RADIUS override” set to “RADIUS response can override VLAN tag” under your SSID configuration.
-
-image::docs/images/Meraki-config-ssid-vlan.png[scaledwidth="100%",alt="RADIUS override"]
 
 In the configuration of PacketFence, use "Role mapping by Switch Role" instead of "Role by VLAN ID".
 
