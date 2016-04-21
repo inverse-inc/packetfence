@@ -40,6 +40,7 @@
 [% IF user.password.defined  %]
             [%- IF can_access("USERS_UPDATE") %]
             <div class="tab-pane fade in" id="userPassword">
+              [% form.field('login_remaining').render | none %]
               <div class="control-group">
                 <label class="control-label" for="password">[% l('Password') %]</label>
                 <div class="controls">

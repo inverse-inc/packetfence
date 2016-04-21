@@ -15,6 +15,7 @@ use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Base::Form::Authentication::Action';
+with 'pfappserver::Base::Form::Role::Help';
 
 has '+source_type' => ( default => 'SQL' );
 
@@ -120,8 +121,9 @@ has_field 'login_remaining' =>
    type => 'PosInteger',
    label => 'Login remaining',
    default => undef,
+   disabled => 1,
    tags => { after_element => \&help,
-             help => 'Set empty to allow unlimited logins.' },
+             help => 'Unlimited logins when empty.' },
   );
 
 =head2 valid_from
