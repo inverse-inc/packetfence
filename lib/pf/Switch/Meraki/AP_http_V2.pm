@@ -37,36 +37,7 @@ Using this, you will be able to configure the VLAN ids in PacketFence and simply
 use strict;
 use warnings;
 
-use base ('pf::Switch');
-
-use Net::SNMP;
-use Try::Tiny;
-
-use pf::Switch::constants;
-use pf::constants;
-use pf::web::util;
-use pf::config;
-use pf::roles::custom;
-use pf::util;
-use pf::node;
-use pf::util::radius qw(perform_coa perform_disconnect);
-use pf::node qw(node_view);
-use pf::violation;
-use pf::locationlog;
-
-
-=head1 SUBROUTINES
-
-=cut
-
-# CAPABILITIES
-# access technology supported
-sub description { 'Meraki cloud controller v2' }
-sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWirelessDot1x { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
-sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsUrlBasedEnforcement { return $TRUE; }
+use base ('pf::Switch::Cisco::WLC');
 
 =head2 getVersion - obtain image version information from switch
 
@@ -87,96 +58,6 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 
 sub returnRoleAttribute {
     return 'Airespace-ACL-Name';
-}
-
-=head2 deauthTechniques
-
-Return the reference to the deauth technique or the default deauth technique.
-
-=cut
-
-sub deauthTechniques {
-    my ($self, $method) = @_;
-    my $logger = $self->logger;
-    my $default = $SNMP::RADIUS;
-    my %tech = (
-        $SNMP::RADIUS => 'deauthenticateMacDefault',
-    );
-
-    if (!defined($method) || !defined($tech{$method})) {
-        $method = $default;
-    }
-    return $method,$tech{$method};
-}
-
-sub parseSwitchIdFromRequest {
-    my($class, $req) = @_;
-    return $$req->param('ap_mac');
-}
-
-=head2 returnRadiusAccessAccept
-
-Overloading L<pf::Switch>'s implementation to return specific attributes.
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-
-    $args->{'unfiltered'} = $TRUE;
-    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
-    my $status = shift @super_reply;
-    my %radius_reply = @super_reply;
-    my $radius_reply_ref = \%radius_reply;
-    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
-
-    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-
-    my $role = $args->{'user_role'};
-    if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
-        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
-            my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $args->{'session_id'} = "cep".$self->setSession($args) if ($redirect_url =~ /\$session_id/);
-            $redirect_url =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
-            #override role if a role in role map is define
-            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-                my $role_map = $self->getRoleByName($args->{'user_role'});
-                $role = $role_map if (defined($role_map));
-                # remove the role if any as we push the redirection ACL along with it's role
-                delete $radius_reply_ref->{$self->returnRoleAttribute()};
-            }
-            $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
-            push @av_pairs, "url-redirect-acl=$role";
-            push @av_pairs, "url-redirect=".$redirect_url;
-        }
-    }
-
-    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    return [$status, %$radius_reply_ref];
-}
-
-=head2 deauthenticateMacDefault
-
-De-authenticate a MAC address from wireless network (including 802.1x).
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = $self->logger;
-
-    if ( !$self->isProductionMode() ) {
-        $logger->info("not in production mode... we won't perform deauthentication");
-        return 1;
-    }
-
-    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    return $self->radiusDisconnect( $mac );
 }
 
 =head2 radiusDisconnect
@@ -216,7 +97,6 @@ sub radiusDisconnect {
         $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
-    my $port_to_disconnect = '1700';
     if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
         $logger->info("controllerPort is set, we will use port $self->{_controllerPort} to perform deauth");
         $port_to_disconnect = $self->{'_controllerPort'};
@@ -231,7 +111,7 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip(),
-            nas_port => $port_to_disconnect,
+            nas_port => '1700',
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
@@ -279,32 +159,6 @@ sub radiusDisconnect {
     return;
 }
 
-
-=head2 parseRequest
-
-Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
-
-=cut
-
-sub parseRequest {
-    my ( $self, $radius_request ) = @_;
-    my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
-                           ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
-                           : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
-    my $port            = $radius_request->{'NAS-Port'};
-    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
-    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-
-    my $session_id;
-    if (defined($radius_request->{'Cisco-AVPair'})) {
-        if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
-            $session_id =$1;
-        }
-    }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
-}
 
 =head1 AUTHOR
 
