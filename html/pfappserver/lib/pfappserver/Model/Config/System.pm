@@ -382,7 +382,7 @@ sub writeNetworkConfigs {
     }
 
     open IN, '<', $_network_conf_dir.$_network_conf_file;
-    chomp(my @content = <IN>);
+    my @content = <IN>;
     close IN;
 
     @content = grep !/^GATEWAY=/, @content;
