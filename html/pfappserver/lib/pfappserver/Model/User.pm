@@ -38,7 +38,7 @@ use pf::web::guest;
 =cut
 
 sub field_names {
-    return [qw(pid firstname lastname email telephone nodes) ];
+    return [qw(pid firstname lastname email telephone nodes login_remaining) ];
 }
 
 =head2 read
@@ -370,9 +370,7 @@ sub createSingle {
         # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-        $result = pf::password::generate($pid,
-                                                   $data->{actions},
-                                                   $data->{password});
+        $result = pf::password::generate($pid, $data->{actions}, $data->{password}, $data->{login_remaining});
         if ($result) {
             push(@users, { pid => $pid, email => $data->{email}, password => $result });
         }
@@ -451,8 +449,7 @@ sub createMultiple {
             # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-            $result = pf::password::generate($pid,
-                                                       $data->{actions});
+            $result = pf::password::generate($pid, $data->{actions}, undef, $data->{login_remaining});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
                 $count++;
@@ -544,9 +541,7 @@ sub importCSV {
                 # The registration window is add to the actions
                 push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
                 push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
-                $result = pf::password::generate($pid,
-                                                           $data->{actions},
-                                                           $row->[$index{'c_password'}]);
+                $result = pf::password::generate($pid, $data->{actions}, $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
                 $count++;
             }

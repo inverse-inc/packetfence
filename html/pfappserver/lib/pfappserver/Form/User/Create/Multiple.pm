@@ -48,6 +48,15 @@ has_field 'notes' =>
    type => 'TextArea',
    label => 'Notes',
   );
+has_field 'login_remaining' =>
+  (
+   type => 'PosInteger',
+   label => 'Login remaining',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Leave it empty to allow unlimited logins.' },
+  );
+
 
 =head1 COPYRIGHT
 

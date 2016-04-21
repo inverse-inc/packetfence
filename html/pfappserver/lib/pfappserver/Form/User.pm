@@ -111,6 +111,19 @@ has_field 'notes' =>
    label => 'Notes',
   );
 
+=head2 login_remaining
+
+=cut
+
+has_field 'login_remaining' =>
+  (
+   type => 'PosInteger',
+   label => 'Login remaining',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Set empty to allow unlimited logins.' },
+  );
+
 =head2 valid_from
 
 =cut
