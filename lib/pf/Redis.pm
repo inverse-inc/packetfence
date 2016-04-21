@@ -29,7 +29,11 @@ Will create a Redis::Fast connection or a shared one
 sub new {
     my ($self, %args) = @_;
     my $on_connect = delete $args{on_connect};
-    return $CHI_CACHE->compute(\%args, { expire_if => \&expire_if }, sub { return compute_redis(\%args, $on_connect) });
+    my $redis = $CHI_CACHE->compute(\%args, { expire_if => \&expire_if }, sub { return compute_redis(\%args) });
+    if ($redis && $on_connect) {
+        $on_connect->($redis);
+    }
+    return $redis;
 }
 
 =head2 expire_if
@@ -61,11 +65,8 @@ Function to create the redis connection
 =cut
 
 sub compute_redis {
-    my ($args, $on_connect) = @_;
+    my ($args) = @_;
     my $redis = Redis::Fast->new(%$args);
-    if ($redis && $on_connect) {
-        $on_connect->($redis);
-    }
     return $redis;
 }
 
