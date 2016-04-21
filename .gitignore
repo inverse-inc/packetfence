@@ -11,6 +11,7 @@
 .#*
 
 # Configuration not in git
+addons/stress-tester/plan.conf
 conf/admin.conf
 conf/httpd.conf
 conf/named.conf
