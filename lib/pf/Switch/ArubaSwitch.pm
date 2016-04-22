@@ -266,7 +266,7 @@ sub radiusDisconnect {
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         # Roles are configured and the user should have one
-        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
+        if ( defined($role) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}) ) {
 
             $attributes_ref = {
                 %$attributes_ref,

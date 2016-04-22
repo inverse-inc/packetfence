@@ -328,6 +328,7 @@ sub new {
         '_roles'                    => undef,
         '_inlineTrigger'            => undef,
         '_deauthMethod'             => undef,
+        '_useCoA'                   => 'enabled',
         '_switchIp'                 => undef,
         '_ip'                       => undef,
         '_switchMac'                => undef,
