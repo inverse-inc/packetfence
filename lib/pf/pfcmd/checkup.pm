@@ -174,6 +174,7 @@ sub sanity_check {
     db_check_version();
     valid_certs();
     portal_modules();
+    cluster();
 
     return @problems;
 }
@@ -1290,6 +1291,29 @@ sub portal_modules {
             }
         }
     }
+}
+
+sub cluster {
+    require pf::cluster;
+    require pf::ConfigStore::Interface;
+
+    my $int_cs = pf::ConfigStore::Interface->new;
+    my @ints = @{$int_cs->readAll('name')};
+    my @servers = @pf::cluster::cluster_servers;
+
+    foreach my $server (@servers){
+        my $server_name = $server->{host};
+        unless(defined($server->{management_ip}) && valid_ip($server->{management_ip})){
+            add_problem($FATAL, "management_ip is not defined for server $server_name");
+        }
+
+        foreach my $int (@ints) {
+            unless(exists($server->{"interface ".$int->{name}})) {
+                add_problem($FATAL, "Interface $int->{name} is not defined for server $server_name");
+            }
+        }
+    }
+
 }
 
 =item cert_has_expired
