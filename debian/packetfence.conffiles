@@ -41,6 +41,7 @@
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy.conf
+/usr/local/pf/conf/cluster.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
