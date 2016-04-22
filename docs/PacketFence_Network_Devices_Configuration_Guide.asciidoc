@@ -4364,13 +4364,13 @@ image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page 
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
-CoA Compliance
-^^^^^^^^^^^^^^
+RFC 5176
+^^^^^^^^
 
 WebAuth
 +++++++
 
-NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab "Roles" from the switch configuration.
+NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
 
 Configure your SSID as shown below:
 
@@ -4390,7 +4390,7 @@ Your configuration for the tab "Roles" in PacketFence will look like the followi
 
 image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
-image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence url configuration"]
+image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
 VLAN enforcement
 ++++++++++++++++
