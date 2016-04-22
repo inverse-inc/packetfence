@@ -28,6 +28,7 @@ use pf::config qw(
     %Config
     $management_network
     %ConfigDomain
+    $local_secret
 );
 use NetAddr::IP;
 use pf::cluster;
@@ -247,7 +248,7 @@ home_server pf$i.cluster {
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
         port = 1812
-        secret = testing1234
+        secret = $local_secret
         response_window = 6
         status_check = status-server
         revive_interval = 120
@@ -273,7 +274,7 @@ EOT
         foreach my $radius_back (@radius_backend) {
             $tags{'config'} .= <<"EOT";
 client $radius_back {
-        secret = testing1234
+        secret = $local_secret
         shortname = pf
 }
 EOT

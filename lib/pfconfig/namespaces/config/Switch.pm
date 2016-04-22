@@ -32,6 +32,7 @@ sub init {
     $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured' ];
 
     $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
+    $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
 }
 
 sub build_child {
@@ -47,19 +48,6 @@ sub build_child {
         SNMPVersionTrap   => '1',
         SNMPCommunityTrap => 'public'
     };
-
-    if($self->{management_network}){
-        my @management_ips;
-        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
-        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
-        foreach my $management_ip (@management_ips){
-            $tmp_cfg{$management_ip} = {
-                type => 'PacketFence',
-                mode => 'production',
-                radiusSecret => 'testing1234',
-            };
-        }
-    }
 
     my @keys;
     # default is always first
@@ -118,6 +106,19 @@ sub build_child {
         foreach my $snmpDefault (qw(communityRead communityTrap communityWrite version)) {
             my $snmpkey = "SNMP" . ucfirst($snmpDefault);
             $switch->{$snmpkey} ||= $switch->{$snmpDefault};
+        }
+    }
+
+    if($self->{management_network}){
+        my @management_ips;
+        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
+        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+        foreach my $management_ip (@management_ips){
+            $tmp_cfg{$management_ip} = {
+                type => 'PacketFence',
+                mode => 'production',
+                radiusSecret => $self->{local_secret},
+            };
         }
     }
 
