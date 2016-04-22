@@ -485,11 +485,13 @@ sub dashboard :Local :AdminRole('REPORTS') {
     $c->stash->{current_view} = 'HTML';
 }
 
-=head2 reports
+=head2 predefined_search
+
+Data to use for the predefined search
 
 =cut
 
-sub reports :Local :AdminRole('REPORTS') {
+sub predefined_search :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end); 
