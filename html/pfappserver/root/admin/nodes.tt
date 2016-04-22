@@ -202,12 +202,12 @@ form {
                     <div class="accordion-group">
                     [% FOREACH switch_group IN switch_groups %]
                     <div class="accordion-heading">
-                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapse[% switch_group.id %]">[% switch_group.id %]</a>
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#collapseOne" href="#collapse_[% switch_group.id %]">[% switch_group.id %]</a>
                     </div>
-                      <div id="collapse[% switch_group.id %]" class="accordion-body collapse">
+                      <div id="collapse_[% switch_group.id %]" class="accordion-body collapse">
                         <div class="accordion-inner">
                         [% FOREACH member IN switch_group.members %]
-                            <a href="#" data-toggle="pf-search-form" data-target="advanced">[% member.id %]</a>
+                            <a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
                               <form>
                                 <input type="hidden" name="searches.0.name" value="switch_id"/>
                                 <input type="hidden" name="searches.0.op" value="is"/>
