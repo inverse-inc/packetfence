@@ -22,6 +22,7 @@ use pfconfig::namespaces::config;
 use Data::Dumper;
 use pf::log;
 use pf::file_paths qw($domain_config_file);
+use Sys::Hostname;
 
 use base 'pfconfig::namespaces::config';
 
@@ -35,6 +36,14 @@ sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
+
+    # Inflate %h to the host machine name
+    # This is done since Samba 4+ doesn't inflate it itself anymore
+    while(my ($id, $cfg) = each(%tmp_cfg)){
+        if(lc($cfg->{server_name}) eq "%h") {
+            $cfg->{server_name} = [split(/\./,hostname())]->[0];
+        }
+    }
 
     $self->{cfg} = \%tmp_cfg;
 
