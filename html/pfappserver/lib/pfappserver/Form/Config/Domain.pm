@@ -27,6 +27,12 @@ has_field 'id' =>
    messages => { required => 'Please specify an identifier' },
    tags => { after_element => \&help,
              help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
+   apply => [
+       {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
+           message =>
+             'The domain id is invalid. A domain id can only contain alphanumeric characters, dashes, period and or underscores'
+       }
+   ],
   );
 
 has_field 'workgroup' =>
