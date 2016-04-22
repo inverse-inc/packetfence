@@ -624,7 +624,7 @@ collectd_order=92
 # services.collectd_order
 #
 # Order in which to start this service 
-pfdetect_order=88
+pfdetect_order=79
 #
 # services.statsd
 #
