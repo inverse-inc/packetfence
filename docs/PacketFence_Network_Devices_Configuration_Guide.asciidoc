@@ -4382,7 +4382,7 @@ NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute s
 
 The switch module to use for this configuration is "Meraki cloud controller V2".
 
-Next, configure the roles for the devices on your network. Go in `Network-wide->Group policies`, then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
+Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
 
 image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
@@ -4397,7 +4397,7 @@ VLAN enforcement
 
 NOTE: VLAN assignment in MAC authentication does not work at the moment, you can look through lib/pf/Switch/Meraki/AP_http_V2.pm in the `BUGS AND LIMITATIONS` part or use the following method. Note that this method will be considered as deprecated when the Meraki firmware is fixed.
 
-If you want to run the Meraki in VLAN assignment, you will need to use the Group policies, create a group policy under `Network-wide->Group policies` and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
+If you want to run the Meraki in VLAN assignment, you will need to use the Group policies, create a group policy under 'Network-wide->Group policies' and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
 
 image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
 
