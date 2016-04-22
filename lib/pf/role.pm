@@ -79,7 +79,7 @@ sub fetchRoleForNode {
     if ($self->isInlineTrigger($args)) {
         $logger->info("Inline trigger match, the node is in inline mode");
         my $inline = $self->getInlineRole($args);
-        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned Role: $inline->{'role'}");
         return ({ role => "inline", wasInline => 1 });
     }
 
@@ -695,13 +695,14 @@ sub isInlineTrigger {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
             # at first, we are liberal in what we accept
-            if ($trigger !~ /^\w+::(.*)$/) {
-                $logger->warn("[$args->{'mac'}] Invalid trigger id ($trigger)");
+
+            if (!$trigger->{'type'} || !$trigger->{'value'}) {
+                $logger->warn("[$args->{'mac'}] Invalid trigger id ($trigger->{'type'})");
                 return $FALSE;
             }
 
-            my ( $type, $tid ) = split( /::/, $trigger );
-            $type = lc($type);
+            my $type = lc($trigger->{'type'});
+            my $tid = $trigger->{'value'};
             $tid =~ s/\s+$//; # trim trailing whitespace
 
             return $TRUE if ($type eq $ALWAYS);
