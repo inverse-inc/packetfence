@@ -256,16 +256,31 @@ form {
                   </div>
                 <div id="collapseOS" class="accordion-body collapse">
                   <div class="accordion-inner"> 
-                    [% FOREACH dhcp_fingerprint IN dhcp_fingerprints %]
                     <li>
-                      <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">[% dhcp_fingerprint %]</a>
+                      <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
-                          <input type="hidden" name="searches.0.value" value="[% os.type %]"/>
+                          <input type="hidden" name="searches.0.value" value="Windows"/>
                         </form>
                     </li>
-                    [% END %]
+					<li>
+                      <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="Linux"/>
+                        </form>
+                    </li>
+					<li>
+                      <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="Macintosh"/>
+                        </form>
+                    </li>
+
                   </div>
                 </div>
                 </div>
