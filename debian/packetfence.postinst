@@ -93,6 +93,12 @@ case "$1" in
             /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
         fi
 
+        # Create server local RADIUS secret
+        if [ ! -f /usr/local/pf/conf/local_secret ]; then
+            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+        fi
+
+
 	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	    echo "Building default RADIUS certificates..."
 	    cd /usr/local/pf/raddb/certs
