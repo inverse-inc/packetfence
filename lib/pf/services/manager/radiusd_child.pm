@@ -268,24 +268,23 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
         parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
-    } else {
-        my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
-        unlink($file);
-    }
-    $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
-    my $ip = NetAddr::IP::Lite->new($cfg->{'ip'}, $cfg->{'mask'});
-    my $net = $ip->network();
-    if ($pf::cluster::cluster_enabled) {
-        $tags{'config'} .= <<"EOT";
-client $net {
+        
+        push @radius_backend, $cluster_ip;
+        foreach my $radius_back (@radius_backend) {
+            $tags{'config'} .= <<"EOT";
+client $radius_back {
         secret = testing1234
         shortname = pf
 }
 EOT
+        }
+
+        $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
+        parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
     } else {
-        $tags{'config'} = '';
+        my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
+        unlink($file);
     }
-    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
 }
 
 =head1 AUTHOR
