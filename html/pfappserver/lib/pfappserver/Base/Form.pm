@@ -156,6 +156,21 @@ sub ACCEPT_CONTEXT {
     return $self->new(ctx => $c, @args);
 }
 
+=head2 id_validator
+
+Validation for an identifier
+
+=cut
+
+sub id_validator {
+    my ($field_name) = @_;
+    return {
+        check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
+        message =>
+            "The $field_name is invalid. The $field_name can only contain alphanumeric characters, dashes, period and underscores."
+   };   
+}
+
 
 =head1 COPYRIGHT
 
