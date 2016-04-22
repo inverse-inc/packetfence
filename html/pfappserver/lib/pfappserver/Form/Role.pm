@@ -26,7 +26,8 @@ has_field 'name' =>
    type => 'Text',
    label => 'Name',
    required => 1,
-   messages => { required => 'Please specify a name for the category.' },
+   messages => { required => 'Please specify a name for the role.' },
+   apply => [ pfappserver::Base::Form::id_validator('role name') ]
   );
 has_field 'notes' =>
   (

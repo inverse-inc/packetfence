@@ -28,6 +28,7 @@ has_field 'id' =>
    label => 'Realm',
    required => 1,
    messages => { required => 'Please specify a Realm' },
+   apply => [ pfappserver::Base::Form::id_validator('realm') ]
   );
 
 has_field 'options' =>

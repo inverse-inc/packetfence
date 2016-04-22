@@ -28,6 +28,7 @@ has_field 'id' =>
    messages => { required => 'Please specify the name of the PKI provider' },
    tags => { after_element => \&help,
              help => 'The unique id of the PKI provider'},
+   apply => [ pfappserver::Base::Form::id_validator('PKI provider name') ]
   );
 
 has_field 'type' =>

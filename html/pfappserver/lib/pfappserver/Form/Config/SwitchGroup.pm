@@ -27,6 +27,7 @@ has_field 'id' =>
    label => 'Group name',
    required => 1,
    messages => { required => 'Please specify a group name' },
+   apply => [ pfappserver::Base::Form::id_validator('group name') ]
   );
 
 =head2 group

@@ -64,12 +64,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   apply => [
-       {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
-           message =>
-             'The profile id is invalid. A profile id can only contain alphanumeric characters, dashes, period and or underscores'
-       }
-   ],
+   apply => [ pfappserver::Base::Form::id_validator('profile name') ],
    tags => { after_element => \&help,
              help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );

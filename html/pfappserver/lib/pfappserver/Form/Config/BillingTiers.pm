@@ -26,6 +26,7 @@ has_field 'id' =>
    label => 'Billing Tier',
    required => 1,
    messages => { required => 'Please specify a billing tier identifier' },
+   apply => [ pfappserver::Base::Form::id_validator('billing tier') ]
   );
 
 has_field 'name' =>
