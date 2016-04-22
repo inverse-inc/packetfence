@@ -15,6 +15,7 @@ addons/stress-tester/plan.conf
 conf/admin.conf
 conf/httpd.conf
 conf/named.conf
+conf/cluster-files.txt
 conf/pf.conf
 conf/*.lock
 conf/*.lockonce
