@@ -4105,6 +4105,7 @@ Aironet 1600
 ^^^^^^^^^^^^
 
 CoA and radius:
+
 ----
 radius-server attribute 32 include-in-access-req format %h
 radius-server vsa send accounting
@@ -4362,6 +4363,47 @@ Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* an
 image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
+
+RFC 5176
+^^^^^^^^
+
+WebAuth
++++++++
+
+NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
+
+Configure your SSID as shown below:
+
+image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
+
+image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
+
+NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
+
+The switch module to use for this configuration is "Meraki cloud controller V2".
+
+Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
+
+image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
+
+Your configuration for the tab "Roles" in PacketFence will look like the following:
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
+
+image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
+
+VLAN enforcement
+++++++++++++++++
+
+NOTE: VLAN assignment in MAC authentication does not work at the moment, you can look through lib/pf/Switch/Meraki/AP_http_V2.pm in the `BUGS AND LIMITATIONS` part or use the following method. Note that this method will be considered as deprecated when the Meraki firmware is fixed.
+
+If you want to run the Meraki in VLAN assignment, you will need to use the Group policies, create a group policy under 'Network-wide->Group policies' and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
+
+image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
+
+In the configuration of PacketFence, use "Role mapping by Switch Role" instead of "Role by VLAN ID".
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 Mikrotik
 ~~~~~~~~
