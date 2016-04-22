@@ -1296,20 +1296,27 @@ sub portal_modules {
 sub cluster {
     require pf::cluster;
     require pf::ConfigStore::Interface;
+    require pfconfig::namespaces::config::Cluster;
 
     my $int_cs = pf::ConfigStore::Interface->new;
     my @ints = @{$int_cs->readAll('name')};
     my @servers = @pf::cluster::cluster_servers;
 
+    my $cluster_config = pfconfig::namespaces::config::Cluster->new;
+    $cluster_config->build();
+    
+    unshift @servers, $cluster_config->{_CLUSTER};
+
+    # Check each member configuration
     foreach my $server (@servers){
         my $server_name = $server->{host};
         unless(defined($server->{management_ip}) && valid_ip($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not defined for server $server_name");
+            add_problem($FATAL, "management_ip is not defined for $server_name");
         }
 
         foreach my $int (@ints) {
             unless(exists($server->{"interface ".$int->{name}})) {
-                add_problem($FATAL, "Interface $int->{name} is not defined for server $server_name");
+                add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
             }
         }
     }
