@@ -53,6 +53,7 @@ sub _processCreatePost {
     $c->stash( current_view => 'JSON');
     my ($status, $status_msg);
     $form->process(params => $c->request->params);
+    $c->stash->{form} = $form;
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
@@ -64,7 +65,7 @@ sub _processCreatePost {
         my $id = $item->{$idKey};
         $c->stash(
             $itemKey => $item,
-            $idKey   => $id
+            $idKey   => $id,
         );
         ($status, $status_msg) = $model->create($id, $item);
         $self->audit_current_action($c, status => $status);
@@ -114,6 +115,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     $c->stash->{current_view} = 'JSON';
     $form = $self->getForm($c);
     $form->process(params => $c->request->params);
+    $c->stash->{form} = $form;
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
