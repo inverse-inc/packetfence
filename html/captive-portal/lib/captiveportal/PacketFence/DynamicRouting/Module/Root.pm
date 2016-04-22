@@ -139,7 +139,17 @@ sub unknown_state {
     }
     else {
         unless($self->handle_web_form_release){
-            reevaluate_access( $self->current_mac, 'manage_register' );
+
+            my $cached_lost_device = $self->app->user_cache->get("unknown_state_hits");
+            if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
+                # set the cache, incrementing before on purpose (otherwise it's not hitting the cache)
+                $self->app->user_cache->set("unknown_state_hits", ++$cached_lost_device, "5 minutes");
+
+                get_logger->info("Reevaluating access of device.");
+
+                reevaluate_access( $self->current_mac, 'manage_register' );
+            }
+
             return $self->app->error("Your network should be enabled within a minute or two. If it is not reboot your computer.");
         }
     }
