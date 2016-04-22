@@ -46,6 +46,7 @@ use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
 use pf::access_filter::dhcp;
 use pf::metascan();
+use pf::services();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -1311,6 +1312,21 @@ sub handle_accounting_metadata : Public {
         }
     }
 
+}
+
+sub services_status : Public {
+    my ($class, $services) = @_;
+    my @managers = pf::services::getManagers($services);
+
+    my $statuses = {};
+    foreach my $manager (@managers){
+        my $isManaged = $manager->isManaged;
+        my $status = $manager->status;
+        if($manager->isManaged) {
+            $statuses->{$manager->name} = $status;
+        }
+    }
+    return $statuses;
 }
 
 =head1 AUTHOR
