@@ -35,6 +35,7 @@ sub vhosts {
             push @vhosts, $management_network->{'Tvip'};
         } elsif ( $cluster_enabled ){
             push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'};
+            push @vhosts, pf::cluster::current_server->{management_ip};
         } else {
             push @vhosts, $management_network->{'Tip'};
        }
