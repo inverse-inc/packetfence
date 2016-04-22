@@ -53,7 +53,6 @@ sub createVars {
     my %vars = (
         ports => $Config{'ports'},
         port => $self->port,
-        vhost => $self->vhost,
         vhosts => $self->vhosts,
         install_dir => $install_dir,
         var_dir => $var_dir,
@@ -315,23 +314,6 @@ sub serverAdmin {
         $server_admin = "root\@" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
     }
     return $server_admin;
-}
-
-sub vhost {
-    my ($self) = @_;
-    my $vhost;
-    if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-            $vhost = $management_network->{'Tvip'};
-        } elsif ( $cluster_enabled ){
-            $vhost = $ConfigCluster{'CLUSTER'}{'management_ip'};
-        } else {
-            $vhost = $management_network->{'Tip'};
-       }
-    } else {
-        $vhost = "0.0.0.0";
-    }
-    return $vhost;
 }
 
 

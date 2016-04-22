@@ -146,11 +146,13 @@ SSLHonorCipherOrder  on
 
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
-Listen [% vhost %]:[% port %]
-
 ServerAdmin [% server_admin %]
 
-NameVirtualHost [% vhost %]:[% port %]
+[% FOREACH vhost IN vhosts %]
+
+  Listen [% vhost %]:[% port %]
+
+  NameVirtualHost [% vhost %]:[% port %]
 
 <VirtualHost [% vhost %]:[% port %] >
     ServerName [% server_name %]
