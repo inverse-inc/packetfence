@@ -20,7 +20,7 @@ The firmware allow only for VLAN enforcement at the moment. We cannot push the p
 =head2 Cannot reevaluate the access
 
 There is currently no way to reevaluate the access of the device.
-There is neither an API access or a RADIUS disconnect that can be sent either to the AP or to the controller.
+There is neither an API access or a RADIUS disconnect that can be sent either to the switch.
 
 =cut
 
@@ -45,7 +45,9 @@ sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 
-=head2 getVersion - obtain image version information from switch
+=head2 getVersion 
+
+obtain image version information from switch
 
 =cut
 
@@ -58,7 +60,7 @@ sub getVersion {
 
 =head2 parseRequest
 
-Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
+Redefinition of pf::Switch::parseRequest due to specific attribute being used by Meraki
 
 =cut
 
@@ -88,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2016 Inverse inc.
 
 =head1 LICENSE
 
@@ -110,7 +112,3 @@ USA.
 =cut
 
 1;
-
-# vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
