@@ -4469,13 +4469,13 @@ The Meraki switch offer configuration for VLAN enforcement only.
 
 You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a MAB bypass policy or a dot1x policy. Depending if you want to authenticate user via dot1x or MacAuth. You cannot combine both or have a fallback mode on the same port, each port with a policy applied will be either MAB or dot1x.
 
-To access the policies creation go to `Switch->Access policies` in the Meraki dashboard menu. From there create a new policy either for MAB or dot1x as you need, add PacketFence management interface as your RADIUS server.
+To access the policies creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy either for MAB or dot1x as you need, add PacketFence management interface as your RADIUS server.
 
-image::docs/images/Meraki-Switch-policy.png[scaledwidth="100%",alt="Access policies"]
+image::docs/images/Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
 
-You need to apply policy for ports, at the moment it is only doable via the Meraki dashboard. To do so you need to go to `Switch->Switch ports` and select the options you want to setup. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to setup the ports in "mode access" and using your registration VLAN as the default access VLAN.
+You now need to apply a policy to ports. To do so, go to 'Switch->Switch ports' and chose your options. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to configure the port in "mode access", the default access VLAN is not important if your VLANs are properly configured on PacketFence side.
 
-image::docs/images/Meraki-Switch-port.png[scaledwidth="100%",alt="Switch Ports"]
+image::docs/images/Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
 Mikrotik
 ~~~~~~~~
