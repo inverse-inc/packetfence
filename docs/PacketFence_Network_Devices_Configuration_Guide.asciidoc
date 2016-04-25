@@ -553,6 +553,14 @@ PacketFence supports the AT8000GS switch using :
 * 802.1X
 * 802.1X + VOIP
 
+Assumptions
++++++++++++
+
+PacketFence management IP: 192.168.1.5
+Switch management IP: 10.0.0.14
+Guest VLAN (Internet): VLAN 1
+
+
 MAC Authentication
 ++++++++++++++++++
 
@@ -562,15 +570,15 @@ First, enable 802.1X globally:
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100               
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
    aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 In order to get mac authentication, you need to enable the guest VLAN globally: 
 
-   interface vlan 5
+   interface vlan 1
    name "Guest Vlan"
    dot1x guest-vlan
    exit
@@ -595,10 +603,10 @@ First, enable 802.1X globally:
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
-   aaa authentication dot1x default radius
+   aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 Finally, enable the necessary 802.1X settings:
