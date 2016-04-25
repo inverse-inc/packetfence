@@ -287,6 +287,8 @@ sub _decode_dhcp_option82 {
 
 Decode the dhcp option82 sub option1
 
+Reference http://mincebert.blogspot.ca/2013/09/dhcp-option-82-cisco-switches-and.html
+
 =cut
 
 #TODO move the responsibility of parsing this to the switch
@@ -307,6 +309,8 @@ sub _decode_dhcp_option82_suboption1 {
 =item _decode_dhcp_option82_suboption2
 
 Decode the dhcp option82 sub option2
+
+Reference http://mincebert.blogspot.ca/2013/09/dhcp-option-82-cisco-switches-and.html
 
 =cut
 
