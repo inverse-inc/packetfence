@@ -34,6 +34,14 @@ has '+launcher' => (
     }
 );
 
+sub preStartSetup {
+    my ($self, $quickStart) = @_;
+    my $result = $self->SUPER::preStartSetup($quickStart);
+    local ($!, $?);
+    system("pkill p0f");
+    return $result;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
