@@ -104,6 +104,32 @@ sub status {
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
+=item server_status
+
+Calls the webservices in order to get the server services status
+
+Returns a tuple status, hashref with servicename => true / false values.
+Returns only the list of services that should be started based on
+configuration.
+
+=cut
+
+sub server_status {
+    my ($self, $cluster_id) = @_;
+    my $server_status;
+    eval {
+        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', ['pf']);
+    };
+    unless($@) {
+        my %services_ref = map { $_ => $server_status->{$_} ne '0' } keys %$server_status;
+        return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
+    }
+
+    my $msg = "Cannot get status from server $cluster_id : $@";
+    get_logger->error($msg);
+    return ($STATUS::INTERNAL_SERVER_ERROR, $msg);
+}
+
 =item service_status
 
 =cut

@@ -1,0 +1,35 @@
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>[% l('Daemon') %]</th>
+        [% FOREACH server IN servers %]
+        <th>[% server %]</th>
+        [% END %]
+      </tr>
+      </thead>
+    <tbody>
+      [%- FOREACH service IN services.keys.sort %]
+        <tr>
+          <td>[% service %]</td>
+          [% FOREACH server IN services.$service.keys.sort %]
+          [% started = services.$service.$server %]
+          [% unknown = services.$service.$server == "unknown" %]
+            <td>
+              <span id="service-[% service %]"
+              class="label [% IF unknown %]label-warning[% ELSIF started %]label-success[% END %]">
+              [%- IF unknown %]
+                [% l('Unknown') %]
+              [%- ELSIF started %]
+                [% l('Started') %]
+              [%- ELSE -%]
+                [% l('Stopped') %]
+              [% END -%]
+              </span>
+            </td>
+          [% END %]
+          </td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>

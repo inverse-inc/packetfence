@@ -20,6 +20,7 @@ use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
 use List::MoreUtils qw(none);
 use pf::pfcmd::checkup;
+use pf::cluster;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -173,7 +174,7 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
 
 sub status :Chained('object') :PathPart('status') :Args(0) {
     my ( $self, $c ) = @_;
-
+    $c->stash->{cluster_enabled} = $cluster_enabled;
 }
 
 =head2 reports
