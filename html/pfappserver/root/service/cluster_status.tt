@@ -4,7 +4,12 @@
       <tr>
         <th>[% l('Daemon') %]</th>
         [% FOREACH server IN servers %]
-        <th>[% server %]</th>
+        <th>
+          <a href="https://[% config_cluster.$server.management_ip %]:1443" target="_blank">
+            [% server %]
+            <i class="icon-search icon-wrench"></i>
+          </a>
+        </th>
         [% END %]
       </tr>
       </thead>

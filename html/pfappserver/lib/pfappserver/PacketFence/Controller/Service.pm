@@ -64,6 +64,7 @@ sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
 sub cluster_status :Local :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $c->stash->{servers} = \@cluster_hosts;
+    $c->stash->{config_cluster} = \%ConfigCluster;
     $c->stash->{services} = {};
     foreach my $server (@cluster_hosts){
         my ($status, $result) = $c->model('Services')->server_status($server);
