@@ -323,11 +323,26 @@ sub _decode_dhcp_option82_suboption2 {
     my $data = pack("C*", @chars);
     if ($type == 0) {
         $option->{switch} = clean_mac(unpack("H*", $data));
+        $option->{switch_id} =  _get_switch_from_option_82($option->{switch});
     }
     else {
         $option->{host} = $data;
     }
 }
+
+=item _get_switch_from_option_82
+
+Resolve the mac of the switch from Suboption2 to the switch_id
+
+=cut
+
+sub _get_switch_from_option_82 {
+    my($mac) = @_;
+    my $cache = pf::CHI->new( namespace => 'switch' );
+    my $switch = $cache->get($mac);
+    return $switch;
+}
+
 
 
 =item make_pcap_filter
