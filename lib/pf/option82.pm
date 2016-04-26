@@ -39,16 +39,13 @@ Return the ip address of the switch that match the mac address on option 82 in d
 =cut
 
 sub search_switch {
-    my ($class, $mac) = @_;
     my $logger = pf::log::get_logger();
+    $logger->info("map switch mac address to switch_id for option 82");
     my $cache = pf::CHI->new( namespace => 'switch' );
     foreach my $switch_id ( grep { $_ ne 'default' } keys %pf::SwitchFactory::SwitchConfig ) {
         my $switch = pf::SwitchFactory->instantiate($switch_id);
         my $switch_mac = $switch->getRelayAgentInfoOptRemoteIdSub();
-        if ($switch_mac eq $mac) {
-            $cache->set($mac, $switch_id);
-            last;
-        }
+        $cache->set($switch_mac, $switch_id);
     }
 }
 
