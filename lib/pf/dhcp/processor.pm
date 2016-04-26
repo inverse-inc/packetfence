@@ -641,12 +641,12 @@ sub parse_dhcp_option82 {
     my ($self, $dhcp) = @_;
 
     # slicing the hash to retrive the stuff we are interested in
-    my ($switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch', 'vlan', 'module', 'port'};
-    if ( defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
+    my ($switch_id, $switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch_id', 'switch', 'vlan', 'module', 'port'};
+    if ( defined($switch_id) && defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
 
         # TODO port should be translated into ifIndex
         # FIXME option82 stuff needs to be re-validated (#1340)
-        $self->{api_client}->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
+        $self->{api_client}->notify('insert_close_locationlog',$switch_id, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
     }
 }
 
