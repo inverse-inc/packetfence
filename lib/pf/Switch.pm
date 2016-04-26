@@ -3233,13 +3233,13 @@ sub shouldUseCoA {
 =head2
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82.
-In this case this is not supported on this switch
+In this case this is not supported on this switch and we return undef
 
 =cut
 
 sub getRelayAgentInfoOptRemoteIdSub {
     my($self) = @_;
-    return $FALSE;
+    return undef;
 }
 
 =back

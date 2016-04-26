@@ -277,7 +277,7 @@ sub registertasks  {
         'option 82 task',
         'option_82_task_interval',
         sub {
-            search_switch() if isenabled($Config{'network'}{'option_82'});
+            search_switch() if isenabled($Config{'network'}{'dhcpoption82logger'});
         }
     );
 }
