@@ -21,8 +21,8 @@ Remove this note when it will be no longer relevant. ;)
 
 =cut
 
-use strict;
-use warnings;
+use Moose;
+use namespace::autoclean;
 
 use List::MoreUtils qw(none);
 use pf::log;
