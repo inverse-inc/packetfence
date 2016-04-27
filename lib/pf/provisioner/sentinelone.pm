@@ -1,13 +1,13 @@
 package pf::provisioner::sentinelone;
 =head1 NAME
 
-pf::provisioner::opswat add documentation
+pf::provisioner::sentinelone
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::provisioner::opswat
+Allows to validate installation and compliance using the SentinelOne API
 
 =cut
 
