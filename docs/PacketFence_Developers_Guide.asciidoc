@@ -131,15 +131,15 @@ CSS
 
 The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/getting-started[inuitcss] architectural foundation.
 
-* `/usr/local/pf/html/captive-portal/content/Gruntfile.js` -- the task runner configuration file
-* `/usr/local/pf/html/captive-portal/content/package.js` -- the npm dependencies required to process the Sass files
-* `/usr/local/pf/html/captive-portal/content/scss/` -- the directory containing the Sass source files
-* `/usr/local/pf/html/captive-portal/content/styles.css` -- the generated stylesheet
+* `/usr/local/pf/html/common/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/common/package.js` -- the npm dependencies required to process the Sass files
+* `/usr/local/pf/html/common/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/common/styles.css` -- the generated stylesheet
 
 In order to prepare your environment to process the Sass files, you need to install http://gruntjs.com/[grunt] (the task runner) and additional https://nodejs.org[nodejs] modules, including the various inuitcss components:
 
   sudo npm install -g grunt-cli
-  cd /usr/local/pf/html/captive-portal/content
+  cd /usr/local/pf/html/common
   npm install
 
 Once all modules are downloaded, you can customize the Sass files and generate a new stylesheet:
