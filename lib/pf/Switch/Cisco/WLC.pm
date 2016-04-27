@@ -428,7 +428,7 @@ sub returnRadiusAccessAccept {
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
-    my $role = $args->{'user_role'};
+    my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
