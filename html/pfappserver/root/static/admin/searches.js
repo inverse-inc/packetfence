@@ -95,7 +95,7 @@ $(function() {
             to_form   =  $("#" + target + "Search"  );
         }
         var new_searches =  from_form.find('[name^="searches."]');
-		to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
+        to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
         if(new_searches.length > 0) {
             var table = to_form.find('table');
             var emptyId = '#' + table.attr('id') + 'Empty';
