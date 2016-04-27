@@ -13,7 +13,7 @@
                 <li><a><label class="checkbox"><input type="checkbox" name="column" value="[% column | html %]"[% ' checked' IF c.session.nodecolumns.$column %]>[% title %]</label></a></li>
 [% END -%]
 
-[%- MACRO node_pagination(action, pageNumber, query, from_form, captures)  BLOCK -%]
+[%- MACRO node_pagination(action, pageNumber, page_count, query, from_form, captures)  BLOCK -%]
 [%
 # Number of pages to show before and after the middle page in the list
     pageWrap = 3;
