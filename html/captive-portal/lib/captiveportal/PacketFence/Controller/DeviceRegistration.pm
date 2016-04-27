@@ -169,6 +169,11 @@ sub registerNode : Private {
     }
 }
 
+sub logout : Local {
+    my ( $self, $c ) = @_;
+    $c->user_session({});
+    $c->forward('index');
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
