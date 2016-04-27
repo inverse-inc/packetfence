@@ -61,7 +61,7 @@ sub action_inflate {
 =head2 action_inflate
 
 Deflate an action to the format :
-  action(arg1,arg2,arg3)
+  action(arg1;arg2;arg3)
 
 =cut
 

@@ -99,7 +99,7 @@ sub inflate_action {
     if($action =~ /(.+)\((.*)\)/){
         my $action_name = $1;
         my $action_params = $2;
-        return ($action_name, [split(/\s*,\s*/, $action_params)]);
+        return ($action_name, [split(/\s*;\s*/, $action_params)]);
     }
 }
 
