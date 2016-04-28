@@ -33,7 +33,8 @@
           <a href="/logout" alt="Close"
              title="[% i18n("Restart from the beginning") %]"
              class="btn btn--icon u-palm-p0">
-            [% svgIcon(id='ic_close_black_24px', size='tiny') %]
+            <div class="btn--hint"><span>[% i18n("Restart registration process") %]</span></div>
+            [% svgIcon(id='ic_replay_black_24px', size='tiny') %]
           </a>
           [% END %]
         </div>
