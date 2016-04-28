@@ -52,7 +52,6 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    $c->forward('setupCommonStash');
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
 
@@ -132,38 +131,6 @@ sub dynamic_application :Private {
         $c->response->status($application->response_code);
     }
     $c->detach;
-}
-
-=head2 setupCommonStash
-
-Add all the common variables in the stash
-
-=cut
-
-sub setupCommonStash : Private {
-    my ( $self, $c ) = @_;
-    my $logger = $c->log();
-    my $portalSession   = $c->portalSession;
-
-    if (defined( $portalSession->clientMac ) ) {
-        my $node_info = node_view($portalSession->clientMac);
-        if ( defined( $node_info ) ) {
-            $c->stash(
-                map { $_ => $node_info->{$_} }
-                  qw(dhcp_fingerprint last_switch last_port
-                  last_vlan last_connection_type last_ssid username)
-            );
-        }
-    }
-    $c->stash(
-        pf::web::constants::to_hash(),
-        logo            => $c->profile->getLogo,
-    );
-    $c->stash(
-        client_mac => $portalSession->clientMac,
-        client_ip => $portalSession->clientIp,
-    );
-
 }
 
 =head2 setupLanguage
