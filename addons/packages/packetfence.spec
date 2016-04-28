@@ -1129,6 +1129,7 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
                         /usr/local/pf/html/captive-portal/captiveportal.conf.example
 %config(noreplace)      /usr/local/pf/html/common/styles.css
+%config(noreplace)      /usr/local/pf/html/common/styles-dark.css
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/common/Gruntfile.js
