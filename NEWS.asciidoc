@@ -17,6 +17,7 @@ Version 6.0.1 released on 2016-04-28
 Bug Fixes (bug Id is denoted with #id)
 ++++++++++++++++++++++++++++++++++++++
 
+* Added back the option to set the logo in a portal profile
 * Fixed Blackhole and Null authentication portal modules (#1439)
 * Added missing username field in Debian maintenance crontab
 * Fixed web authentication web form release in captive portal 
