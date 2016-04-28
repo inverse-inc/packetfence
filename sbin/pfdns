@@ -188,7 +188,12 @@ sub _run_child {
 }
 
 END {
-    deletepid("pfdns") unless $args{h};
+    if ( !$args{h} ) {
+        unless($IS_CHILD) {
+            deletepid("pfdns");
+            $logger->info("stopping pfdns");
+        }
+    }
 }
 
 sub response_handler {
