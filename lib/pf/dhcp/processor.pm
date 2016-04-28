@@ -643,10 +643,22 @@ sub parse_dhcp_option82 {
     # slicing the hash to retrive the stuff we are interested in
     my ($switch_id, $switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch_id', 'switch', 'vlan', 'module', 'port'};
     if ( defined($switch_id) && defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
-
+        my $pfswitch = pf::SwitchFactory->instantiate($switch_id);
+        my $mac = clean_mac($dhcp->{'chaddr'});
+        my %locationlog_data = (
+            'mac'         => $mac,
+            'switch_id'   => $switch_id,
+            'switch_ip'   => $pfswitch->{_switchIp},
+            'switch_mac'  => $pfswitch->{_switchMac},
+            'port'        => "$mod/$port",
+            'vlan'        => $vlan,
+            'user_name'   => $mac,
+            'connection_type' => '',
+            'ssid'        => '',
+        );
         # TODO port should be translated into ifIndex
         # FIXME option82 stuff needs to be re-validated (#1340)
-        $self->{api_client}->notify('insert_close_locationlog',$switch_id, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
+        $self->{api_client}->notify('insert_close_locationlog',%locationlog_data);
     }
 }
 
