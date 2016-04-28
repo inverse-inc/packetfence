@@ -144,7 +144,14 @@ sub startService {
     my ($service,@services) = @_;
     use sort qw(stable);
     my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
+
+    if ( !@managers ) {
+        print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
+        return $EXIT_SUCCESS;
+    }
+
     print $SERVICE_HEADER;
+
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
 
