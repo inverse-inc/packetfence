@@ -27,6 +27,7 @@ our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'match'             => 'pf::condition::matches',
     'regex'             => 'pf::condition::regex',
     'match_not'         => 'pf::condition::not_matches',
+    'regex_not'         => 'pf::condition::regex_not',
     'defined'           => 'pf::condition::is_defined',
     'not_defined'       => 'pf::condition::not_defined',
     'date_is_before'    => 'pf::condition::date_before',
