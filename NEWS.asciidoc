@@ -11,6 +11,23 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.0.1 released on 2016-04-28
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed Blackhole and Null authentication portal modules (#1439)
+* Added missing username field in Debian maintenance crontab
+* Fixed web authentication web form release in captive portal 
+* Validate configuration identifiers so they don't contain invalid characters (#1417)
+* Fixed incorrect samba handling of "%h" in server name
+* Fixed registration ACL computing for Cisco WLC and 2960 in web authentication
+* Adjust pfdetect startup order to allow Snort / Suricata to start 
+* Fixed pfsetvlan compilation error
+* Fixed violations internationalization
+* Fix incorrect rogue dhcp detection
+
 Version 6.0.0 released on 2016-04-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
