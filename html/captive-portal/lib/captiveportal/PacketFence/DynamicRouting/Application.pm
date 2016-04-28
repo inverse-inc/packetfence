@@ -353,6 +353,7 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
+        logo => $self->profile->getLogo
     };
 
     $args->{layout} //= $TRUE;

@@ -41,6 +41,7 @@ $inuit-base-font-size:                   15px;
 // OBJECTS:
 //@import "node_modules/inuit-block/objects.block";
 $inuit-enable-box--flush:                true;
+$inuit-enable-box--small:                true;
 @import "node_modules/inuit-box/objects.box";
 @import "objects.box";
 $inuit-btn-radius:                       $pf-border-radius;
@@ -86,6 +87,7 @@ $inuit-enable-margins--none:              true;
 $inuit-enable-paddings:                   true;
 $inuit-enable-paddings--tiny:             true;
 @import "node_modules/inuit-spacing/trumps.spacing";
+$inuit-enable-responsive-margins--small:  true;
 $inuit-enable-responsive-paddings:        true;
 $inuit-enable-responsive-paddings--tiny:  true;
 $inuit-enable-responsive-paddings--none:  true;
