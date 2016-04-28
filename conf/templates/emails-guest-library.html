@@ -1,0 +1,45 @@
+<html>
+<head>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">User Access</h1>
+                    <p>Hello [% firstname %] [% lastname %],</p>
+                    <p>You can now login the libraries computer using the following</p>
+                    <p>User name : [% username %]</p>
+                    <p>Password  : [% password %]</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="footer">
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>This is a post only E-mail, please do not reply.</p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>
