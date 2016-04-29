@@ -55,8 +55,13 @@ around 'source' => sub {
     # If the source is set in the session we use it.
     if($self->session->{source_id}){
         $source = first { $_->id eq $self->session->{source_id} } @{$self->sources};
-        get_logger->info("Found source ".$source->id." in session.");
-        return $source;
+        if($source){
+            get_logger->info("Found source ".$source->id." in session.");
+            return $source;
+        }
+        else {
+            die "Cannot find your current authentication source, please restart your registration process.";
+        }
     }
     else {
         $self->$orig();
