@@ -36,7 +36,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
     'nessus'            => {type => 'equals',        key  => 'last_nessus_id',          event => $TRUE},
     'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
-    'metascan'          => {type => 'equals',        key  => 'last_metascan_id',        event => $TRUE},
+    'metadefender'      => {type => 'equals',        key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
     'soh'               => {type => 'equals',        key  => 'last_soh_id',             event => $TRUE},
     'suricata_event'    => {type => 'starts_with',   key  => 'last_suricata_event',     event => $TRUE},

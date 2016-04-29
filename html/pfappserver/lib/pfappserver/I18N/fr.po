@@ -3788,11 +3788,11 @@ msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
 msgid "OMAPI"
 msgstr "OMAPI"
 
-# conf/documentation.conf (metascan.api_key)
+# conf/documentation.conf (metadefender.api_key)
 msgid "OPSWAT Metadefender Cloud Scanner API key"
 msgstr "Clé d'API de d'OPSWAT Metadefender Cloud Scanner"
 
-# conf/documentation.conf (metascan.query_url_hash)
+# conf/documentation.conf (metadefender.query_url_hash)
 msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
 msgstr "URL pour les requêtes de hash de OPSWAT Metadefender Cloud Scanner"
 
@@ -8599,15 +8599,15 @@ msgid "memberOf:1.2.840.113556.1.4.1941:"
 msgstr "groupe imbriqué (dn)"
 
 # conf/documentation.conf
-msgid "metascan"
+msgid "metadefender"
 msgstr "OPSWAT Metadefender Cloud Scanner"
 
 # conf/documentation.conf
-msgid "metascan.api_key"
+msgid "metadefender.api_key"
 msgstr "Clé de l'API"
 
 # conf/documentation.conf
-msgid "metascan.query_url_hash"
+msgid "metadefender.query_url_hash"
 msgstr "Hash de l'url pour la requête "
 
 # pf::config (SoH Status)

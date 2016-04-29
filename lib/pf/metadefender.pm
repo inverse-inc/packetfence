@@ -1,8 +1,8 @@
-package pf::metascan;
+package pf::metadefender;
 
 =head1 NAME
 
-pf::metascan
+pf::metadefender
 
 =cut
 
@@ -24,8 +24,8 @@ use pf::config qw(%Config);
 use pf::log;
 
 # List of OPSWAT Metadefender Cloud Scanner result IDs
-# https://www.metascan-online.com/public-api#!/definitions
-Readonly::Scalar our $METASCAN_RESULT_IDS => {
+# https://www.metadefender.com/public-api#!/definitions
+Readonly::Scalar our $METADEFENDER_RESULT_IDS => {
     0   => 'Clean',
     1   => 'Infected/Known',
     2   => 'Suspicious',
@@ -43,7 +43,7 @@ Readonly::Scalar our $METASCAN_RESULT_IDS => {
     14  => 'Exceeded Archive File Number',
 };
 
-use constant METASCAN_CACHE_EXPIRE => 86400;
+use constant METADEFENDER_CACHE_EXPIRE => 86400;
 
 =head2 hash_lookup
 
@@ -58,16 +58,16 @@ sub hash_lookup {
     my $md5_hash = $data->{'md5'};
     $logger->debug("Looking up MD5 hash '$md5_hash' against Metadefender Cloud online scanner");
 
-    my $cache = pf::CHI->new(namespace => 'metascan');
+    my $cache = pf::CHI->new(namespace => 'metadefender');
     return $cache->compute(
         $md5_hash,
-        {expires_in => METASCAN_CACHE_EXPIRE},
+        {expires_in => METADEFENDER_CACHE_EXPIRE},
         sub {
 
             my $ua = LWP::UserAgent->new;
             $ua->timeout(2);
-            $ua->default_header('apikey' => $Config{'metascan'}{'api_key'});
-            my $response = $ua->get($Config{'metascan'}{'query_url_hash'} . $md5_hash);
+            $ua->default_header('apikey' => $Config{'metadefender'}{'api_key'});
+            my $response = $ua->get($Config{'metadefender'}{'query_url_hash'} . $md5_hash);
             my $result;
             if ( $response->is_success ) {
                 $result = decode_json($response->content);
@@ -78,7 +78,7 @@ sub hash_lookup {
 
             # Check whether or not the scan result contains informations
             # Metadefender Cloud API scanner returns "Not Found" as a hash value where the key is the submitted MD5 hash if nothing has been found
-            # Ref: https://www.metascan-online.com/public-api#!/retrieve_single
+            # Ref: https://www.metadefender.com/public-api#!/retrieve_single
             if ( any { $_ eq "Not Found" } values %$result ) {
                 $logger->debug("Looking up MD5 hash '$md5_hash' againt Metadefender Cloud scanner returned a 'Not Found' status. Nothing to do");
                 return;
@@ -101,7 +101,7 @@ sub parse_scan_result {
 
     my $scan_all_result_i = $result->{'scan_results'}->{'scan_all_result_i'};
 
-    $logger->debug("Looking up MD5 hash '$md5_hash' against Metadefender Cloud scanner returned '$scan_all_result_i' - '" . $METASCAN_RESULT_IDS->{$scan_all_result_i} . "'");
+    $logger->debug("Looking up MD5 hash '$md5_hash' against Metadefender Cloud scanner returned '$scan_all_result_i' - '" . $METADEFENDER_RESULT_IDS->{$scan_all_result_i} . "'");
 
     return $scan_all_result_i;
 }

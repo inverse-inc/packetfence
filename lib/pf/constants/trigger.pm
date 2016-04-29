@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use base qw(Exporter);
 use Readonly;
-use pf::metascan();
+use pf::metadefender();
 use pf::file_paths qw($suricata_categories_file);
 use File::Slurp;
 use pf::SwitchFactory;
@@ -25,7 +25,7 @@ use pf::config qw(
 );
 
 our @EXPORT_OK = qw(
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_METASCAN $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_METADEFENDER $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
         $TRIGGER_ID_PROVISIONER
         $TRIGGER_MAP
 );
@@ -37,7 +37,7 @@ Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
 Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
 Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
 Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
-Readonly::Scalar our $TRIGGER_TYPE_METASCAN => 'metascan';
+Readonly::Scalar our $TRIGGER_TYPE_METADEFENDER => 'metadefender';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
 Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
@@ -68,7 +68,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
     $TRIGGER_ID_PROVISIONER => "Check status",
   },
   $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
-  $TRIGGER_TYPE_METASCAN => $pf::metascan::METASCAN_RESULT_IDS,
+  $TRIGGER_TYPE_METADEFENDER => $pf::metadefender::METADEFENDER_RESULT_IDS,
   $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
   $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,
 };

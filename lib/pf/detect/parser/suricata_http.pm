@@ -55,7 +55,7 @@ sub parse {
     # We do the process async using API rather than going through pfdetect since it requires external resources evaluation that may take some time
     my $apiclient = pf::api::queue->new;
     $apiclient->notify('trigger_violation', ( 'mac' => $mac, 'tid' => $md5_hash, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
-    $apiclient->notify('metascan_process', $data);  # Process Metascan MD5 hash lookup
+    $apiclient->notify('metadefender_process', $data);  # Process Metadefender MD5 hash lookup
     
     return 0;   # Returning 0 to pfdetect indicates "job's done"
 }

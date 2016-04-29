@@ -2769,7 +2769,7 @@ Configuration of a new 'syslog parser' should use the followings:
 
 Configuration of a new violation can use the following trigger types:
 
-  Type: metascan
+  Type: metadefender
   Triggers ID: The scan result returned by Metadefender Cloud online
 
   Type: suricata_md5
