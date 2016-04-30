@@ -72,7 +72,7 @@ sub match_all {
 
 =head2 build_match_arg
 
-Build the arguement for matching
+Build the argument for matching
 
 =cut
 

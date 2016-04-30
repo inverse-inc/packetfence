@@ -61,7 +61,7 @@ sub test {
 
 =head2 filter
 
- Filter the arguements passed
+ Filter the arguments passed
 
 =cut
 

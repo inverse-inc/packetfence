@@ -42,7 +42,7 @@ use List::MoreUtils qw(any);
 
 =head2 parseArgs
 
-parsing the arguements for the cache command
+parsing the arguments for the cache command
 
 =cut
 
@@ -50,7 +50,7 @@ sub parseArgs {
     my ($self) = @_;
     my @args = $self->args;
     if (@args <= 1 || @args > 3 ) {
-        print STDERR  "invalid arguements\n";
+        print STDERR  "invalid arguments\n";
         return 0;
     }
     my $namespace = shift @args;

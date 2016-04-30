@@ -313,8 +313,8 @@ Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
 Creates a new pf::config::cached
 
-Accepts all the arguements from L<Config::IniFiles-E<gt>new|Config::IniFiles/new>
-With the the following additional arguements
+Accepts all the arguments from L<Config::IniFiles-E<gt>new|Config::IniFiles/new>
+With the the following additional arguments
 
 =over
 
