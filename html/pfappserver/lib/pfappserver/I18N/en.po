@@ -779,7 +779,7 @@ msgid "Bypass VLAN"
 msgstr "Bypass VLAN"
 
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass)
-msgid "Bypass the captive-portal detection mecanism of some browsers / end-points by proxying the detection request."
+msgid "Bypass the captive-portal detection mechanism of some browsers / end-points by proxying the detection request."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
@@ -1123,7 +1123,7 @@ msgid "Comma-delimited list of MAC addresses that are immune to isolation. In in
 msgstr ""
 
 # conf/documentation.conf (captive_portal.detection_mecanism_urls)
-msgid "Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mecanism."
+msgid "Comma-delimited list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism."
 msgstr ""
 
 # conf/documentation.conf (trapping.passthroughs)
@@ -1734,7 +1734,7 @@ msgid "Describes the technique PacketFence will use to enforce network access.VL
 msgstr ""
 
 # conf/documentation.conf (interface.type)
-msgid "Describes type of the named interface.<ul><li><i>internal</i> describes interfaces where PacketFence will enforce network access.</li><li><i>management</i> (or managed) interfaces have the administrative GUI running on them, host SNMP trap receiver and RADIUS server.</li><li><i>monitor</i> is the interface that snort listens on.</li><li><i>dhcp-listener</i> is an interface where the DHCP traffic is coming in either via a network SPAN or IP-Helpers configuration.</li><li><i>high-availability</i> is for an interface between two PacketFence servers dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> interface have the captive-portal running on them without the need of having any enforcement mecanism.</li></ul>"
+msgid "Describes type of the named interface.<ul><li><i>internal</i> describes interfaces where PacketFence will enforce network access.</li><li><i>management</i> (or managed) interfaces have the administrative GUI running on them, host SNMP trap receiver and RADIUS server.</li><li><i>monitor</i> is the interface that snort listens on.</li><li><i>dhcp-listener</i> is an interface where the DHCP traffic is coming in either via a network SPAN or IP-Helpers configuration.</li><li><i>high-availability</i> is for an interface between two PacketFence servers dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> interface have the captive-portal running on them without the need of having any enforcement mechanism.</li></ul>"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -7163,11 +7163,11 @@ msgstr "Captive portal"
 
 # conf/documentation.conf
 msgid "captive_portal.detection_mecanism_bypass"
-msgstr "Captive Portal detection mecanism bypass"
+msgstr "Captive Portal detection mechanism bypass"
 
 # conf/documentation.conf
 msgid "captive_portal.detection_mecanism_urls"
-msgstr "Captive Portal detection mecanism URLs"
+msgstr "Captive Portal detection mechanism URLs"
 
 # conf/documentation.conf
 msgid "captive_portal.httpd_mod_evasive"

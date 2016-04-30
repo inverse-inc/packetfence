@@ -832,7 +832,7 @@ msgstr "VLAN de contournement"
 
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass)
 msgid ""
-"Bypass the captive-portal detection mecanism of some browsers / end-points "
+"Bypass the captive-portal detection mechanism of some browsers / end-points "
 "by proxying the detection request."
 msgstr "Contourne le mécanisme de détection du portail captif de certains navigateurs / appareils en proxyant la requête de détection"
 
@@ -1196,7 +1196,7 @@ msgstr "Liste séparée par des virgules des adresses MAC pour lequel l'isolemen
 # conf/documentation.conf (captive_portal.detection_mecanism_urls)
 msgid ""
 "Comma-delimited list of URLs known to be used by devices to detect the "
-"presence of a captive portal and trigger their captive portal mecanism."
+"presence of a captive portal and trigger their captive portal mechanism."
 msgstr "Liste, délimitée par des virgules, des URLs connues à utiliser par les appareils pour détecter la présence d'un portail captif et lancer leur mécanisme de portail captif."
 
 # conf/documentation.conf (trapping.passthroughs)
@@ -1855,7 +1855,7 @@ msgid ""
 ">high-availability</i> is for an interface between two PacketFence servers "
 "dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> "
 "interface have the captive-portal running on them without the need of having"
-" any enforcement mecanism.</li></ul>"
+" any enforcement mechanism.</li></ul>"
 msgstr "Décrit le type de l'interface nommée. <ul> <li>Interne<i> </i> décrit les interfaces où PacketFence donnera l'accès au réseau. </lii> <li> <i> gestion </i> les interfaces internes ont l'écoute de l'administration web, hôte pour les traps SNMP et le serveur RADIUS. </li> <li> <i> Moniteur </i> est l'interface de snort qui écoute. </li> <li> <i> dhcp -listener </i> est une interface où le trafic DHCP vient soit via un réseau configuration SPAN ou IP-Helpers. </li> <li> <i>haute disponibilité</i> est une interface entre deux serveurs PacketFence dédiés à la haute disponibilité (drbd, corosync). </li><li><i>portail</i> cette interface a le portail captif en écoute sans la nécessité d'avoir un mécanisme d'enregistrement</li> </ ul>"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
