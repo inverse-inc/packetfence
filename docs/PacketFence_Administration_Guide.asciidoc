@@ -835,7 +835,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
+PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
 In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservices`, `httpd.aaa`.
 
