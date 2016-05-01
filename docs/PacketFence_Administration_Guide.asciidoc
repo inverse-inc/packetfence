@@ -821,7 +821,7 @@ Here are the different configuration parameters that can be set for each portal 
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
+* Filters under *Configuration -> Portal Profile -> Portal Name -> Filters*
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
