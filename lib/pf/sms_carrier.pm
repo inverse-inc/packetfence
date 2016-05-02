@@ -48,7 +48,7 @@ sub sms_carrier_db_prepare {
     ]);
 
     $sms_carrier_statements->{'sms_carrier_view_sql'} = qq[
-        SELECT id, name
+        SELECT id, name, email_pattern
         FROM sms_carrier
         WHERE id IN (?)
     ];
