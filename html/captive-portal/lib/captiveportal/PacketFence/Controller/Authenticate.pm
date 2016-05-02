@@ -68,6 +68,12 @@ sub authenticationLogin : Private {
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id );
     $logger->debug("authentication attempt");
+
+    my $aup_status = $request->param("aup_signed");
+    if ( !defined $aup_status ) {
+        $c->error("The AUP was not signed"); 
+    }
+
     if ($request->{'match'} eq "status/login") {
         use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
