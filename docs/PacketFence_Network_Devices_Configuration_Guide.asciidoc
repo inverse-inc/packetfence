@@ -1563,7 +1563,7 @@ RADIUS server configuration:
   radius server packetfence
    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
    key useStrongerSecret
-   automate-tester username cisco idle-time 1
+   automate-tester username cisco ignore-acct-port idle-time 1
 
 CoA configuration:
 
@@ -1659,7 +1659,7 @@ for 802.1X with MAC Authentication fallback:
    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
     10 activate service-template CRITICAL_AUTH_VLAN
     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-    30 activate service-template CRITICAL-ACCES
+    30 activate service-template CRITICAL-ACCESS
     40 pause reauthentication
     50 authorize
    30 class DOT1X_NO_RESP do-until-failure
@@ -1707,7 +1707,7 @@ for MAC Authentication only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class always do-until-failure
@@ -1741,7 +1741,7 @@ for 802.1X only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class DOT1X_FAILED do-until-failure
@@ -1817,7 +1817,7 @@ Interface Template (802.1X):
    authentication timer reauthenticate server
    service-policy type control subscriber DOT1X
 
-On each interface for 802.1X with MAC Authentcation:
+On each interface for 802.1X with MAC Authentication:
 
   source template identity-template-mab
   dot1x timeout tx-period 5
@@ -1862,6 +1862,13 @@ To see what is the status of a port let's run:
         Method           State
 
         dot1x            Authc Success
+
+Debug command:
+
+In order to be able to debug the Identity Networking Policy you can launch the following command in the switch cli:
+
+ term mon
+ debug pre all
 
 Router ISR 1800 Series 
 ++++++++++++++++++++++
