@@ -5,6 +5,8 @@ use namespace::autoclean;
 use pf::sms_carrier;
 use pf::util::add_ldap;
 use pf::web::util;
+use pf::custom::ldap_add_config qw(%LdapAddConfig);
+use List::MoreUtils qw(any);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -28,6 +30,14 @@ Catalyst Controller.
 
 
 =cut
+
+sub begin : Private {
+    my ($self, $c) = @_;
+    if (exists $LdapAddConfig{allowed_profiles}) {
+        my $name = $c->profile->name;
+        $self->showError($c, "Not allowed to access this resource") unless any { $_ eq $name } @{$LdapAddConfig{allowed_profiles} // [] };
+    }
+}
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;

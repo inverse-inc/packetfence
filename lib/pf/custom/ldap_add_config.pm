@@ -27,6 +27,7 @@ our %LdapAddConfig = (
     binddn       => 'CN=Administrator,CN=Users,DC=inverse,DC=inc',
     user_groups  => ['CN=tsestgroup,OU=testaccount,DC=inverse,DC=inc'],
     objectClass  => ['top', 'person', 'organizationalPerson', 'user'],
+    allowed_profiles => [qw(default)],
     password     => '',
     username_generation => {
         min => 6,
