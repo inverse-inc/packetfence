@@ -106,10 +106,12 @@ sub validate {
         return 0;
     }
 
-    my $mobileprovider = $userinfo->{mobileprovider};
-    if (length($mobileprovider) == 0 ) {
-        $c->stash({txt_validation_error => 'Please supply your mobileprovider' });
-        return 0;
+    if ($userinfo->{by_sms}) {
+        my $mobileprovider = $userinfo->{mobileprovider};
+        if (length($mobileprovider) == 0 ) {
+            $c->stash({txt_validation_error => 'Please supply your mobileprovider' });
+            return 0;
+        }
     }
 
     my $phone = $userinfo->{phone};
