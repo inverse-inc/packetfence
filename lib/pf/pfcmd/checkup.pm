@@ -173,6 +173,7 @@ sub sanity_check {
     db_check_version();
     valid_certs();
     portal_modules();
+    advanced_config();
 
     return @problems;
 }
@@ -1294,6 +1295,18 @@ sub cert_has_expired {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
+}
+
+=item advanced_config
+
+Check the advanced config section
+
+=cut
+
+sub advanced_config {
+    if ($Config{advanced}{pfdhcplistener_packet_size} < 576) {
+        add_problem($FATAL, "advanced.pfdhcplistener_packet_size is set to a value less than 576");
+    }
 }
 
 
