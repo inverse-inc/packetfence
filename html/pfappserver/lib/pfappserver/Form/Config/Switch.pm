@@ -118,7 +118,7 @@ has_field 'VoIPLLDPDetect' =>
   (
    type => 'Toggle',
    label => 'VoIPLLDPDetect',
-   default => 'Y',
+   default => undef,
    tags => { after_element => \&help,
              help => 'Detect VoIP with a SNMP request in the LLDP MIB'},
   );
@@ -127,7 +127,7 @@ has_field 'VoIPCDPDetect' =>
   (
    type => 'Toggle',
    label => 'VoIPCDPDetect',
-   default => 'Y',
+   default => undef,
    tags => { after_element => \&help,
              help => 'Detect VoIP with a SNMP request in the CDP MIB'},
   );
@@ -136,7 +136,7 @@ has_field 'VoIPDHCPDetect' =>
   (
    type => 'Toggle',
    label => 'VoIPDHCPDetect',
-   default => 'Y',
+   default => undef,
    tags => { after_element => \&help,
              help => 'Detect VoIP with the DHCP Fingerprint'},
   );
