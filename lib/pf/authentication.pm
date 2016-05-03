@@ -213,10 +213,10 @@ sub authenticate {
         @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
     }
 
-    my $cloned_sources = clone(\@sources);
-
     # If a rule class is defined, we filter out authentication sources rules that doesn't match it
     if ( defined($params->{'rule_class'}) ) {
+        my $cloned_sources = clone(\@sources);
+        @sources = ();
         foreach my $source ( @$cloned_sources ) {
             my @rules = ();
             foreach my $rule ( @{ $source->{'rules'} } ) {
@@ -225,8 +225,8 @@ sub authenticate {
             if ( @rules ) {
                 @{$source->{'rules'}} = ();
                 push (@{$source->{'rules'}}, @rules);
-                push (@sources, $source);
             }
+            push (@sources, $source);
         }
     }
 
