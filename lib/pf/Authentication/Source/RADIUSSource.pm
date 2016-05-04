@@ -93,11 +93,25 @@ sub _handle_radius_request {
         return ($TRUE, $AUTH_SUCCESS_MSG);
     }
     elsif ($result == ACCESS_CHALLENGE) {
-        return ($LOGIN_CHALLENGE, { id => $self->id ,result => $result, attributes => [$radius->get_attributes]});
+        return ($LOGIN_CHALLENGE, $self->_make_challenge_data($result, $radius));
     }
     return ($FALSE, $AUTH_FAIL_MSG);
 }
 
+sub _make_challenge_data {
+    my ($self, $result, $radius) = @_;
+    my @attributes = $radius->get_attributes;
+    my ($state_attribute) = grep { $_->{Name} eq 'State'} @attributes;
+    my ($message_attribute) = grep { $_->{Name} eq 'Reply-Message'} @attributes;
+    return {
+        id         => $self->id,
+        result     => $result,
+        attributes => \@attributes,
+        state      => $state_attribute->{RawValue},
+        state_code => $state_attribute->{Code},
+        message    => $message_attribute->{Value},
+    };
+}
 sub check_radius_password {
     my ($self, $radius, $name, $pwd, $nas, @extra) = @_;
 
