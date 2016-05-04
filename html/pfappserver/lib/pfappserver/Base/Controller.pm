@@ -72,6 +72,11 @@ sub auto :Private {
         return 0;
     }
 
+    if ($c->session->{user_challenge}) {
+        $c->go('/admin/challenge');
+        return 0;
+    }
+
     return 1;
 }
 
