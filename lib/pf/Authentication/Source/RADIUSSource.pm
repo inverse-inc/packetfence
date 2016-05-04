@@ -65,8 +65,11 @@ sub authenticate {
 
 sub challenge {
     my ($self, $username, $password, $challenge_data) = @_;
-    my ($state) = grep { $_->{Name} eq 'State'} @{$challenge_data->{attributes}};
-    my $attribute = {Name => $state->{Code}, Value => $state->{RawValue}, Type => 'string' };
+    my $attribute = {
+        Name  => $challenge_data->{state_code},
+        Value => $challenge_data->{state},
+        Type  => 'string'
+    };
     my $logger = get_logger();
 
     my $radius = Authen::Radius->new(
