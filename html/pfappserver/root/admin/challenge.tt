@@ -1,0 +1,28 @@
+[%  jsFiles = ['admin/login'] %]
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span10">
+          <h2>[% l('Admin Login Challenge') %]</h2>
+[% IF status_msg %]
+          <div class="alert alert-warning">
+            <button class="close" data-dismiss="alert-success">&times;</button>
+            <strong>[% l("Warning!") %]</strong> <span>[% status_msg %]</span>
+          </div>
+[% END %]
+          <form name="challenge" class="form-horizontal" action="[% c.uri_for(c.controller.action_for('challenge')) %]" method="post">
+            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller.action_for('index')) %]">
+            <div class="control-group">
+              <label class="control-label" for="password">[% l('Challenge') %]</label>
+              <div class="controls">
+                <input type="password" class="input" name="challenge" id="challenge">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" data-loading-text="[% l('Logging in ..') %]">[% l('Login') %]</button>
+            </div>
+          </form>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/container-->
