@@ -21,7 +21,7 @@ use pf::config::util;
 use List::MoreUtils qw(all);
 use pf::auth_log;
 use pf::person;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
 use pf::web::guest;
 
 has '+pid_field' => (default => sub { "username" });
@@ -30,8 +30,22 @@ has '+sources' => (isa => 'ArrayRef['.join('|', @{sources_classes()}).']');
 
 has '+multi_source_object_classes' => (default => sub{sources_classes()});
 
+has 'challenge_template' => (is => 'ro', default => sub { "challenge.html" } );
+
+has 'challenge_data' => (is => 'rw', builder => '_build_challenge_data', lazy => 1, trigger => \&_trigger_challenge_data);
+
+sub _build_challenge_data {
+    my ($self) = @_;
+    return $self->app->session->{challenge_data};
+}
+
+sub _trigger_challenge_data {
+    my ($self, $data, $old_data) = @_;
+    $self->app->session->{challenge_data} = $data;
+}
+
 sub sources_classes {
-    return [ 
+    return [
         "pf::Authentication::Source::SQLSource",
         "pf::Authentication::Source::LDAPSource",
         "pf::Authentication::Source::HtpasswdSource",
@@ -61,10 +75,24 @@ Execute this module
 sub execute_child {
     my ($self) = @_;
     if($self->app->request->method eq "POST"){
-        $self->authenticate();
+        if($self->app->request->path eq "challenge") {
+            if( defined $self->challenge_data){
+                $self->challenge();
+            }
+            else {
+                $self->prompt_fields();
+            }
+        } else {
+            $self->authenticate();
+        }
     }
     else {
-        $self->prompt_fields();
+        if( defined $self->challenge_data){
+            $self->display_challenge();
+        }
+        else {
+            $self->prompt_fields();
+        }
     }
 };
 
@@ -78,7 +106,7 @@ sub authenticate {
     my ($self) = @_;
     my $username = $self->request_fields->{$self->pid_field};
     my $password = $self->request_fields->{password};
-    
+
     my ($stripped_username, $realm) = strip_username($username);
 
     my @sources = get_user_sources($self->sources, $stripped_username, $realm);
@@ -113,8 +141,15 @@ sub authenticate {
         # validate login and password
         my ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
-        if ( defined($return) && $return == 1 ) {
-            $self->source(pf::authentication::getAuthenticationSource($source_id));
+        if (!defined $return || $return == $LOGIN_FAILURE) {
+            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
+            $self->app->flash->{error} = $message;
+            $self->prompt_fields();
+            return;
+        }
+        $self->username($username);
+        $self->source(pf::authentication::getAuthenticationSource($source_id));
+        if ( $return == $LOGIN_SUCCESS ) {
 
             if($self->source->type eq "SQL"){
                 unless(pf::password::consume_login($username)){
@@ -127,18 +162,49 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
-        } else {
-            pf::auth_log::record_auth(join(',',map { $_->id } @sources), $self->current_mac, $username, $pf::auth_log::FAILED);
-            $self->app->flash->{error} = $message;
-            $self->prompt_fields();
+        } elsif ($return == $LOGIN_CHALLENGE) {
+            $self->challenge_data($message);
+            $self->display_challenge();
             return;
         }
     }
-    
+
     $self->update_person_from_fields();
-    $self->username($username);
     $self->done();
 }
+
+sub challenge {
+    my ($self) = @_;
+    my $password = $self->request_fields->{password};
+    my ($results, $message) = $self->source->challenge($self->username, $password, $self->challenge_data);
+    if ($results == $LOGIN_FAILURE) {
+        $self->app->flash->{error} = $message;
+        $self->display_challenge();
+        return;
+    }
+    if ($results == $LOGIN_CHALLENGE) {
+        $self->challenge_data($message);
+        $self->display_challenge();
+        return;
+    }
+    $self->challenge_data(undef);
+    $self->done();
+
+}
+
+sub display_challenge {
+    my ($self, $args) = @_;
+    $args //= {};
+    $self->render($self->challenge_template, {
+        previous_request => $self->app->request->parameters(),
+        fields => {password => ''},
+        form => $self->form,
+        title => $self->challenge_data->{message},
+        %{$args},
+    });
+}
+
+sub allowed_urls_auth_module { ['/challenge'] }
 
 =head1 AUTHOR
 
@@ -170,4 +236,3 @@ USA.
 __PACKAGE__->meta->make_immutable;
 
 1;
-
