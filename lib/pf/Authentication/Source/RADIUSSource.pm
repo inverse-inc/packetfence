@@ -9,7 +9,7 @@ pf::Authentication::Source::RADIUSSource
 =cut
 
 use pf::constants qw($TRUE $FALSE);
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 use pf::log;
 
@@ -46,33 +46,47 @@ sub available_attributes {
 =cut
 
 sub authenticate {
+    my ($self, $username, $password) = @_;
+    my $logger = get_logger();
 
-  my ( $self, $username, $password ) = @_;
+    my $radius = Authen::Radius->new(
+        Host   => "$self->{'host'}:$self->{'port'}",
+        Secret => $self->{'secret'},
+    );
 
-  my $logger = get_logger();
-
-  my $radius = new Authen::Radius(
-    Host => "$self->{'host'}:$self->{'port'}",
-    Secret => $self->{'secret'},
-  );
-
-  if (defined $radius) {
-     my $result = $radius->check_pwd($username, $password);
-
-     if ($radius->get_error() eq 'ENONE') {
-
-       if ($result) {
+    if (!defined $radius) {
+        $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
+        return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
+    my $result = $self->check_radius_password($radius, $username, $password);
+    if ($radius->get_error() ne 'ENONE') {
+        $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
+        return ($FALSE, $COMMUNICATION_ERROR_MSG);
+    }
+    if ($result == ACCESS_ACCEPT) {
         return ($TRUE, $AUTH_SUCCESS_MSG);
-      } else {
-        return ($FALSE, $AUTH_FAIL_MSG);
-       }
-     }
-   }
+    }
+    elsif ($result == ACCESS_CHALLENGE) {
+        return ($LOGIN_CHALLENGE, {result => $result, attributes => [$radius->get_attributes]});
+    }
+    return ($FALSE, $AUTH_FAIL_MSG);
+}
 
-   $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error() );
+sub check_radius_password {
+    my ($self, $radius, $name, $pwd, $nas) = @_;
 
-   return ($FALSE, $COMMUNICATION_ERROR_MSG);
- }
+    $nas = eval {$radius->{'sock'}->sockhost()} unless defined($nas);
+    $radius->clear_attributes;
+    $radius->add_attributes(
+        {Name => 1, Value => $name, Type => 'string'},
+        {Name => 2, Value => $pwd,  Type => 'string'},
+        {Name => 4, Value => $nas || '127.0.0.1', Type => 'ipaddr'});
+
+    $radius->send_packet(ACCESS_REQUEST);
+    my $rcv = $radius->recv_packet();
+    return $rcv;
+}
+
 
 =head2 match_in_subclass
 
