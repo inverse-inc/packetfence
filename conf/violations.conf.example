@@ -90,7 +90,7 @@ enabled=N
 [1100006]
 desc=P2P Isolation (snort example)
 template=p2p
-trigger=Suricata::ET P2P
+trigger=suricata_event::ET P2P
 actions=reevaluate_access,email_admin,log
 enabled=N
 
@@ -261,7 +261,7 @@ priority=4
 template=malware
 enabled=N
 actions=reevaluate_access,email_admin,log
-trigger=Suricata::ET MALWARE
+trigger=suricata_event::ET MALWARE
 
 [2000032]
 desc=LSASS Exploit
@@ -277,7 +277,7 @@ priority=3
 auto_enable=N
 template=trojan
 enabled=N
-trigger=Suricata::ET TROJAN
+trigger=suricata_event::ET TROJAN
 actions=reevaluate_access,email_admin,log
 
 # The following signatures replace the generic portscan detector.  It was notoriously noisy, expecially
