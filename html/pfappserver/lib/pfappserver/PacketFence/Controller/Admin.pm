@@ -144,7 +144,16 @@ sub challenge :Local :Args(0) {
     my ($self, $c) = @_;
     my $req = $c->req;
     my $user_challenge = $c->session->{user_challenge};
-    if ($user_challenge && exists($req->params->{'challenge'})) {
+    unless (defined $user_challenge) {
+        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->detach();
+    }
+
+    $c->stash({
+        challenge_message => ($user_challenge->{message} // "Admin Login Challenge")
+    });
+
+    if (exists($req->params->{'challenge'})) {
         my $source = getAuthenticationSource($user_challenge->{id});
         my ($results, $message) = $source->challenge($c->user->id, $req->params->{'challenge'}, $user_challenge);
         $c->log->info("results : $results");
