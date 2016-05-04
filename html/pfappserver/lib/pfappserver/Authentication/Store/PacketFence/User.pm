@@ -9,13 +9,13 @@ use warnings;
 use pf::constants;
 use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::log;
 use List::MoreUtils qw(all any);
 use pf::config::util;
 use pf::util;
 
-BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }
+BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles _challenge/) }
 
 use overload '""' => sub { shift->id }, fallback => 1;
 
@@ -57,6 +57,9 @@ sub check_password {
   if ($result) {
       my $value = &pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
       $self->_roles([split /\s*,\s*/,$value]) if defined $value;
+      if ($result == $LOGIN_CHALLENGE ) {
+            $self->_challenge($message);
+      }
       return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
   }
 
