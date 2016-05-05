@@ -111,7 +111,7 @@ Depends: ${misc:Depends}, vlan,
 # oauth2
  libnet-oauth2-perl (>=0.57),
 # used by Captive Portal authentication modules
- libauthen-radius-perl, libauthen-krb5-simple-perl,
+ libauthen-radius-perl (>=0.24), libauthen-krb5-simple-perl,
 # used by bin/pftest
  libio-interactive-perl,
 # cluster
