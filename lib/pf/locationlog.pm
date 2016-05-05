@@ -46,7 +46,7 @@ BEGIN {
         locationlog_cleanup
 
         locationlog_insert_start
-        locationlog_insert_closed
+        locationlog_replace_closed
         locationlog_update_end
         locationlog_update_end_mac
         locationlog_update_end_mac_switch_port
@@ -224,6 +224,18 @@ sub locationlog_db_prepare {
         ) VALUES (
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
         )
+    ]);
+
+    $locationlog_statements->{'locationlog_update_closed_sql'} = get_db_handle()->prepare(qq[
+        UPDATE locationlog SET
+            mac = ?, switch = ?, switch_ip = ?, switch_mac = ?, port = ?, vlan = ?, role = ?, connection_type = ?, connection_sub_type = ?, dot1x_username = ?, ssid = ?, stripped_user_name = ?, realm = ?, start_time = NOW(), end_time = NOW()
+        WHERE mac = ? AND connection_type = ?
+    ]);
+
+    $locationlog_statements->{'locationlog_view_close_dhcp_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT *
+        FROM locationlog
+        WHERE mac = ? and connection_type = 'DHCP'
     ]);
 
     $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(qq[
@@ -413,16 +425,27 @@ sub locationlog_insert_start {
     return (1);
 }
 
-sub locationlog_insert_closed {
+sub locationlog_replace_closed {
     my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role ) = @_;
     my $logger = get_logger();
-
     my $conn_type = connection_type_to_str($connection_type)
         or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
 
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql',
-        lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
+    my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_close_dhcp_mac_sql', $mac)
         || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    if ($ref) {
+        db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_closed_sql',
+            lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, lc($mac), $conn_type)
+            || return (0);
+    } else {
+        db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql',
+            lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
+            || return (0);
+    }
     return (1);
 }
 

@@ -29,6 +29,7 @@ use pf::config qw(
     $NO_PORT
     %connection_type_to_str
     $INLINE
+    $DHCP
 );
 use pf::config::cached;
 use pf::db;
@@ -653,12 +654,13 @@ sub parse_dhcp_option82 {
             'port'        => "$mod/$port",
             'vlan'        => $vlan,
             'user_name'   => $mac,
-            'connection_type' => '',
+            'connection_type' => $DHCP,
+            'connection_sub_type' => 'Option 82',
             'ssid'        => '',
         );
         # TODO port should be translated into ifIndex
         # FIXME option82 stuff needs to be re-validated (#1340)
-        $self->{api_client}->notify('insert_close_locationlog',%locationlog_data);
+        $self->{api_client}->notify('replace_close_locationlog',%locationlog_data);
     }
 }
 
