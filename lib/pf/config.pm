@@ -309,13 +309,14 @@ Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
 # connection type constants
-Readonly our $WIRELESS_802_1X   => 0b110000001;
-Readonly our $WIRELESS_MAC_AUTH => 0b100000010;
-Readonly our $WIRED_802_1X      => 0b011000100;
-Readonly our $WIRED_MAC_AUTH    => 0b001001000;
+Readonly our $WIRELESS_802_1X   => 0b110000000;
+Readonly our $WIRELESS_MAC_AUTH => 0b100000000;
+Readonly our $WIRED_802_1X      => 0b011000000;
+Readonly our $WIRED_MAC_AUTH    => 0b001000000;
 Readonly our $WIRED_SNMP_TRAPS  => 0b001010000;
 Readonly our $INLINE            => 0b000100000;
 Readonly our $UNKNOWN           => 0b000000000;
+Readonly our $DHCP              => 0b000001000;
 # masks to be used on connection types
 Readonly our $WIRELESS => 0b100000000;
 Readonly our $WIRED    => 0b001000000;
@@ -336,6 +337,7 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
     'Inline'                => $INLINE,
     'WIRED_MAC_AUTH'        => $WIRED_MAC_AUTH,
+    'DHCP'                  => $DHCP,
 );
 %connection_group = (
     'Wireless'              => $WIRELESS,
@@ -352,6 +354,7 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',
+    $DHCP => 'DHCP',
 );
 %connection_group_to_str = (
     $WIRELESS => 'Wireless',
@@ -370,6 +373,7 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'Wired SNMP',
     $INLINE => 'Inline',
     $UNKNOWN => 'Unknown',
+    $DHCP => 'DHCP',
 );
 
 # VoIP constants
