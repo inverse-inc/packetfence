@@ -1819,7 +1819,7 @@ msgstr ""
 msgid "Devices"
 msgstr ""
 
-# conf/documentation.conf (advanced.hash_passwords)
+# conf/documentation.conf (advanced.disable_pf_domain_auth)
 msgid "Disable Active-Directory domain configuration from within PacketFence"
 msgstr ""
 
@@ -5832,6 +5832,10 @@ msgstr ""
 msgid "The access duration of the devices that use this tier."
 msgstr ""
 
+# conf/documentation.conf (advanced.hash_passwords)
+msgid "The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords."
+msgstr ""
+
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_blocking_period)
 msgid "The amount of time (in seconds) that a client will be blocked for if they are added to the blocking list. During this time, all subsequent requests from the client will result in a 403 (Forbidden) and the timer being reset (e.g. another 10 seconds). Since the timer is reset for every subsequent request, it is not necessary to have a long blocking period; in the event of a DoS attack, this timer will keep getting reset."
 msgstr ""
@@ -5874,6 +5878,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The certificate for signing profiles"
+msgstr ""
+
+# conf/documentation.conf (advanced.hashing_cost)
+msgid "The cost factor to apply to the password hashing if applicable.Currently only applies to bcrypt."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
@@ -7009,8 +7017,16 @@ msgid "advanced"
 msgstr "Advanced"
 
 # conf/documentation.conf
+msgid "advanced.disable_pf_domain_auth"
+msgstr "Disable Pf Domain Auth"
+
+# conf/documentation.conf
 msgid "advanced.hash_passwords"
 msgstr "Database passwords hashing method"
+
+# conf/documentation.conf
+msgid "advanced.hashing_cost"
+msgstr "Hashing Cost"
 
 # conf/documentation.conf
 msgid "advanced.ldap_attributes"
@@ -7018,7 +7034,7 @@ msgstr "LDAP Attributes"
 
 # conf/documentation.conf
 msgid "advanced.locationlog_close_on_accounting_stop"
-msgstr ""
+msgstr "locationlog Close On Accounting Stop"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -7046,7 +7062,7 @@ msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
 msgid "advanced.sso_on_access_reevaluation"
-msgstr ""
+msgstr "SSO on access reevaluation"
 
 # conf/documentation.conf
 msgid "advanced.timing_stats_level"
@@ -7141,6 +7157,10 @@ msgstr "Auto Registration"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
+
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "bcrypt"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "birthday"
@@ -7416,7 +7436,7 @@ msgstr ""
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -7527,7 +7547,7 @@ msgstr ""
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -8335,6 +8355,10 @@ msgstr ""
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 msgid "phonenumber"
+msgstr ""
+
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "plaintext"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
