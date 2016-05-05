@@ -15,7 +15,11 @@ pf::pfmon::task
 use strict;
 use warnings;
 
-use Moo;
+use Moose;
+
+has type => (is => 'ro', isa => 'String', required => 1);
+
+has interval => (is => 'ro', isa => 'Int', required => 1);
 
 sub run {
     my ($proto) = @_;
