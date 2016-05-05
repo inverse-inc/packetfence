@@ -19,6 +19,7 @@ use Try::Tiny;
 use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
+use pf::constants::eap_type qw($OPTION_82);
 use pf::clustermgmt;
 use pf::config qw(
     $INLINE_API_LEVEL
@@ -655,7 +656,7 @@ sub parse_dhcp_option82 {
             'vlan'        => $vlan,
             'user_name'   => $mac,
             'connection_type' => $DHCP,
-            'connection_sub_type' => 'Option 82',
+            'connection_sub_type' => $OPTION_82,
             'ssid'        => '',
         );
         # TODO port should be translated into ifIndex
