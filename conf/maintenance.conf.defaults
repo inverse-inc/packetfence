@@ -1,0 +1,70 @@
+#The default for maintenance tasks
+
+[iplog_rotation]
+# type
+#
+# The type of task to perform
+type=iplog_rotation
+
+# enabled
+#
+# If this task is enabled
+enabled=yes
+
+# window
+#
+# How long to keep iplog_history entry before rotating it to iplog_archive
+window=1W
+
+#
+# interval
+#
+# At which interval to run the iplog_history rotation job
+interval=60s
+
+#
+# batch
+#
+# How many iplog_history entries to rotate in one job
+batch=100
+
+#
+# timeout
+#
+# How long a iplog_history rotation job can take before being killed
+timeout=10s
+
+[iplog_cleanup]
+# type
+#
+# The type of task to perform
+type=iplog_cleanup
+
+# enabled
+#
+# If this task is enabled
+enabled=yes
+
+#
+# window
+#
+# How long to keep a iplog_archive entry before deleting it
+window=0D
+
+#
+# interval
+#
+# At which interval to run the iplog_archive cleanup job
+interval=60s
+
+#
+# batch
+#
+# How many iplog_archive entries to clean up in one job
+batch=100
+
+#
+# timeout
+#
+# How long a iplog_archive cleanup job can take before being killed
+timeout=10s
