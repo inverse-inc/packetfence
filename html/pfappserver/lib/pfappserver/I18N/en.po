@@ -2341,6 +2341,10 @@ msgstr ""
 msgid "Hostname or IP Address"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.host)
+msgid "Hostname or IP address of the Redis server"
+msgstr ""
+
 # html/pfappserver/root/config/wrix/view.tt
 msgid "Hours"
 msgstr ""
@@ -4012,7 +4016,7 @@ msgid "Please specify a group name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Role.pm
-msgid "Please specify a name for the category."
+msgid "Please specify a name for the role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -4193,6 +4197,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Port"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.port)
+msgid "Port of the Redis server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
@@ -5255,6 +5263,10 @@ msgstr ""
 msgid "Should Fingerbank interact with WWW using a proxy ?"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis)
+msgid "Should Redis be used to match combinations ? Requires to have the Attribute map imported into the Redis instance"
+msgstr ""
+
 # conf/documentation.conf (services.carbon-cache)
 msgid "Should carbon-cache be managed by PacketFence?"
 msgstr "Should carbon-cache be managed by PacketFence?"
@@ -5804,6 +5816,10 @@ msgstr ""
 msgid "The Root Portal Module to use"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
+msgid "The URL to download the attribute map."
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (tcp_fingerprinting.p0f_map_url)
 msgid "The URL to download the p0f map from"
 msgstr ""
@@ -5901,10 +5917,6 @@ msgstr ""
 msgid "The hostname of the the database storing the Graphite dashboard settings. Will default to database.host if none is provided."
 msgstr ""
 
-# conf/documentation.conf (monitoring.db_pass)
-msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
-msgstr ""
-
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
 msgid "The interval in seconds for the page count threshold."
 msgstr ""
@@ -5949,6 +5961,10 @@ msgstr ""
 msgid "The parser to use for the alert pipe"
 msgstr ""
 
+# conf/documentation.conf (monitoring.db_pass)
+msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The path to the Paypal certificate you downloaded."
 msgstr ""
@@ -5986,10 +6002,6 @@ msgstr ""
 
 # conf/documentation.conf (monitoring.db_port)
 msgid "The port to connect to the database storing the Graphite dashboard settings. Will default to database.port if none is provided."
-msgstr ""
-
-# conf/documentation.conf (monitoring.db_user)
-msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
@@ -6063,6 +6075,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "The url used to connect to the SCEP PKI service"
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_user)
+msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -7394,6 +7410,7 @@ msgstr ""
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
@@ -7504,6 +7521,7 @@ msgstr ""
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
@@ -8474,6 +8492,10 @@ msgid "query.record_unmatched"
 msgstr "Record Unmatched Parameters"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.use_redis"
+msgstr "Use Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
 msgstr "Use TCP fingerprinting"
 
@@ -8506,6 +8528,22 @@ msgstr "Red"
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "redir.cgi"
 msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis"
+msgstr "Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.attribute_map_url"
+msgstr "Attribute Map Url"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.host"
+msgstr "Redis Host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.port"
+msgstr "Redis Port"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
