@@ -55,6 +55,9 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
   service packetfence-config restart
   service packetfence restart
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
