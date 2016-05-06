@@ -71,6 +71,7 @@ sub _generateConfig {
     $self->generate_radiusd_sitesconf();
     $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster();
+    $self->generate_radiusd_cliconf();
 }
 
 
@@ -105,6 +106,10 @@ sub generate_radiusd_sitesconf {
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+
+    %tags = ();
+    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
 
 }
 
@@ -165,6 +170,15 @@ sub generate_radiusd_acctconf {
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
 }
 
+sub generate_radiusd_cliconf {
+    my ($self) = @_;
+    my %tags;
+    $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
+    parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+}
 
 =head2 generate_radiusd_eapconf
 Generates the eap.conf configuration file

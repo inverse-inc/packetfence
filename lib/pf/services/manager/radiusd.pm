@@ -48,6 +48,9 @@ sub _build_radiusdManagers {
     $listens->{acct} = {
       launcher => $self->launcher . " -n acct"
     };
+    $listens->{cli} = {
+      launcher => $self->launcher . " -n cli"
+    };
 
     my @managers = map {
         my $id = $_;

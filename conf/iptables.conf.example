@@ -40,6 +40,8 @@
 -A input-management-if --protocol udp --match udp --dport 1812 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 1814 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1814 --jump ACCEPT
 # SNMP Traps
 -A input-management-if --protocol udp --match udp --dport 162  --jump ACCEPT
 # DHCP (for IP Helpers to mgmt to track users' IP in production VLANs)
