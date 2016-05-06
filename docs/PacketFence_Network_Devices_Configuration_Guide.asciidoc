@@ -1926,6 +1926,20 @@ In order to be able to debug the Identity Networking Policy you can launch the f
  term mon
  debug pre all
 
+DHCP Option 82
+++++++++++++++
+
+In order to enable the dhcp option 82 you need to configure add configuration parameters in the Cisco switch.
+Let's say you want to enable it for the vlan 1 to 1024:
+
+ ip dhcp snooping
+ ip dhcp snooping vlan 1-1024
+
+On uplink interfaces:
+
+ ip dhcp snooping trust
+ 
+
 Router ISR 1800 Series 
 ++++++++++++++++++++++
 
