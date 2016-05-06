@@ -15,6 +15,7 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
 use pf::config qw(%Default_Config %Doc_Config);
+use pf::log;
 use pf::IniFiles;
 use pf::file_paths qw($pf_default_file);
 
@@ -87,6 +88,16 @@ sub field_list {
             };
             $type eq 'numeric' && do {
                 $field->{type} = 'PosInteger';
+                if (exists $doc_section->{minimum}) {
+                    my $minimum = $doc_section->{minimum};
+                    $field->{apply} = [{
+                            check   => sub {$_[0] >= $minimum},
+                            message => sub {
+                                my ($value, $field) = @_;
+                                return $field->name . " must be greater or equal to $minimum";
+                            },
+                        }];
+                }
                 last;
             };
             $type eq 'multi' && do {

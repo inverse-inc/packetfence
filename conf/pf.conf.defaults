@@ -1059,6 +1059,12 @@ locationlog_close_on_accounting_stop=enabled
 # Level of timing stats to keep - 0 is the lowest - 10 the highest amount to log
 # Do not change unless you know what you are doing
 timing_stats_level=5
+#
+# advanced.pfdhcplistener_packet_size
+#
+# Set the max size of DHCP packets
+# Do not change unless you know what you are doing
+pfdhcplistener_packet_size=576
 
 [omapi]
 #

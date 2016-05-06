@@ -5223,6 +5223,10 @@ msgstr ""
 msgid "Set role"
 msgstr ""
 
+# conf/documentation.conf (advanced.pfdhcplistener_packet_size)
+msgid "Set the max size of DHCP packetsDo not change unless you know what you are doing"
+msgstr ""
+
 # conf/documentation.conf (active_active.dns_on_vip_only)
 msgid "Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster."
 msgstr ""
@@ -7047,6 +7051,10 @@ msgstr "Success color"
 # conf/documentation.conf
 msgid "advanced.pfcmd_warning_color"
 msgstr "Warning color"
+
+# conf/documentation.conf
+msgid "advanced.pfdhcplistener_packet_size"
+msgstr "pfdhcplistener Packet Size"
 
 # conf/documentation.conf
 msgid "advanced.pfdns_processes"
