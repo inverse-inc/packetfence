@@ -254,38 +254,79 @@ On cisco, option 82 can be populated on the layer 3 switch when relaying by ente
 
 sub _decode_dhcp_option82 {
     my ($dhcp_ref) = @_;
-
+    my $option82 = $dhcp_ref->{'options'}{'82'};
     my %sub_opt_82;
-    my @option82 = @{$dhcp_ref->{'options'}{'82'}};
-    while ( @option82 ) {
-        my $subopt = shift( @option82 );
-        my $len = shift( @option82 );
-
+    my @options = @$option82;
+    while ( @options ) {
+        my $subopt = shift( @options );
+        my $len = shift( @options );
         while ($len) {
-            my $val = shift( @option82 );
+            my $val = shift( @options );
             push( @{ $sub_opt_82{$subopt} }, $val );
             $len--;
         }
     }
+    my %new_option = (
+        '_raw' => $option82,
+        '_subopts' => \%sub_opt_82,
+    );
 
     # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
-    $dhcp_ref->{'options'}{'82'} = {
-        '_raw' => $dhcp_ref->{'options'}{'82'},
-        '_subopts' => \%sub_opt_82,
-    };
+    $dhcp_ref->{'options'}{'82'} = \%new_option;
     if ( defined( $sub_opt_82{'1'} ) ) {
-
-        # TODO not sure this is the good stuff
-        my ( $vlan, $module, $port ) = unpack('nCC', pack("C*", @{$sub_opt_82{'1'}}));
-        $dhcp_ref->{'options'}{'82'}{'vlan'} = $vlan;
-        $dhcp_ref->{'options'}{'82'}{'module'} = $module;
-        $dhcp_ref->{'options'}{'82'}{'port'} = $port;
+        _decode_dhcp_option82_suboption1(\%new_option, $sub_opt_82{'1'});
     }
 
     if ( defined( $sub_opt_82{'2'} ) ) {
-        $dhcp_ref->{'options'}{'82'}{'switch'} = clean_mac( unpack("H*", pack("C*", @{$sub_opt_82{'2'}})) );
+        _decode_dhcp_option82_suboption2(\%new_option, $sub_opt_82{'2'});
     }
 
+}
+
+=item _decode_dhcp_option82_suboption1
+
+Decode the dhcp option82 sub option1
+
+Reference http://mincebert.blogspot.ca/2013/09/dhcp-option-82-cisco-switches-and.html
+
+=cut
+
+#TODO move the responsibility of parsing this to the switch
+#As this is cisco specific
+
+sub _decode_dhcp_option82_suboption1 {
+    my ($option, $sub_option) = @_;
+    my ($type, $length, @chars) = @$sub_option;
+    my $data = pack("C*", @chars);
+    if ($type == 0) {
+        @{$option}{qw(vlan module port)} = unpack("nCC", $data);
+    }
+    else {
+        $option->{circuit_id_string} = $data;
+    }
+}
+
+=item _decode_dhcp_option82_suboption2
+
+Decode the dhcp option82 sub option2
+
+Reference http://mincebert.blogspot.ca/2013/09/dhcp-option-82-cisco-switches-and.html
+
+=cut
+
+#TODO move the responsibility of parsing this to the switch
+#As this is cisco specific
+
+sub _decode_dhcp_option82_suboption2 {
+    my ($option, $sub_option) = @_;
+    my ($type, $length, @chars) = @$sub_option;
+    my $data = pack("C*", @chars);
+    if ($type == 0) {
+        $option->{switch} = clean_mac(unpack("H*", $data));
+    }
+    else {
+        $option->{host} = $data;
+    }
 }
 
 
