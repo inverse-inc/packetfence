@@ -41,6 +41,19 @@ The command itself is in charge of exiting after the right amount of time as the
 
 See the example plan in plan.conf.example
 
+## Importing the users in your Active directory
+
+You then need to import the users in `mock_data.csv` in your Active Directory (or any other directory)
+
+To do so, put the powershell script `import-users.ps1` as well as `mock_data.csv` in a directory directly on your Active Directory server.
+
+Then execute powershell as Administrator and then switch directory to where you put the two files above.
+Then, launch the script and make sure the users were imported afterwards.
+
+## Configure PacketFence
+
+Make sure, you configure PacketFence so that the users that were imported can authenticate both via ntlm_auth and via the authentication sources.
+
 ## Using the test plan
 
 Run the plan using the following command : 
