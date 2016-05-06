@@ -115,6 +115,11 @@ authorize {
 	#
 	#pap
 	rest-cli
+	if (updated || ok || noop) {
+		update {
+			&control:Auth-Type := Accept
+		}
+	}
 }
 
 
