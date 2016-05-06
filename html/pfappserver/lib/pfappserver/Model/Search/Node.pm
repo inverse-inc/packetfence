@@ -17,7 +17,7 @@ use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
 use pf::log;
-use pf::util qw(calc_page_count);
+use pf::util qw(calc_page_count clean_mac);
 use pf::SearchBuilder;
 use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
@@ -379,7 +379,8 @@ sub add_joins {
 sub _pre_process_query {
     my ($self, $query) = @_;
     #Change the query for the online
-    if ($query->{name} eq 'online') {
+    my $name = $query->{name};
+    if ($name eq 'online') {
         if($query->{op} eq 'equal') {
             my $value = $query->{value};
             if ($value eq 'on') {
@@ -388,6 +389,12 @@ sub _pre_process_query {
                 $query->{op} = 'is_null';
                 $query->{value} = undef;
             }
+        }
+    }
+    elsif ( $name eq 'mac' || $name eq 'switch_mac' )  {
+        my $op = $query->{op};
+        if ($op eq 'equal' || $op eq 'not_equal' )  {
+            $query->{value} = clean_mac ($query->{value});
         }
     }
 }
