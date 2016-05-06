@@ -89,11 +89,11 @@ authorize {
 	#files
 
 	# Accept any non-eap request and send it to the packetfence module for authorization
-	if ( !EAP-Message ) {
-		update {
-			&control:Auth-Type := Accept
-		}
-	}
+	#if ( !EAP-Message ) {
+	#	update {
+	#		&control:Auth-Type := Accept
+	#	}
+	#}
 	#packetfence-eap-mac-policy
 	#
 	#  Look in an SQL database.  The schema of the database
@@ -114,7 +114,7 @@ authorize {
 	#  get a chance to set Auth-Type for themselves.
 	#
 	#pap
-
+	rest-cli
 }
 
 
@@ -320,7 +320,6 @@ post-auth {
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		rest-cli
 		if (updated || ok || noop) {
 			request-timing
 			-sql

@@ -260,16 +260,16 @@ rest rest-cli {
 	}
 	connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/"
 	authorize {
+                uri = "${..connect_uri}/radius/rest/switch/authorize"
+                method = 'post'
+                body = 'json'
+                tls = ${..tls}
 	}
 	authenticate {
 	}
 	accounting {
 	}
 	post-auth {
- 		uri = "${..connect_uri}/radius/rest/switch/authorize"
-		method = 'post'
-		body = 'json'
-		tls = ${..tls}
 	}
 	pool {
 		start = ${thread[pool].start_servers}
