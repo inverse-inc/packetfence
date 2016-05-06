@@ -3644,7 +3644,7 @@ The DHCP traffic should now be reflected on your PacketFence server.
 Switch login access
 ~~~~~~~~~~~~~~~~~~~
 
-PacketFence is able to act as an authentication and authorization service for granting command-line interface (CLI) access to switches.
+PacketFence is able to act as an authentication and authorization service on the port 1814 for granting command-line interface (CLI) access to switches.
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
 From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
