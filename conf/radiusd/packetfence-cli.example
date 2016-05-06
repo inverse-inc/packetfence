@@ -24,8 +24,8 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
 	}
-	rewrite_calling_station_id
-	rewrite_called_station_id
+	#rewrite_calling_station_id
+	#rewrite_called_station_id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -79,9 +79,9 @@ authorize {
 	#  initial set of packets that go back and forth to set up
 	#  TTLS or PEAP.
 	#
-	eap {
-		ok = return
-	}
+	#eap {
+	#	ok = return
+	#}
 
 	#
 	#  Read the 'users' file.  In v3, this is located in
@@ -186,9 +186,9 @@ authenticate {
 	#  authentication server, and knows what to do with authentication.
 	#  LDAP servers do not.
 	#
-#	Auth-Type LDAP {
-#		ldap
-#	}
+	#Auth-Type LDAP {
+	#	ldap
+	#}
 
 	#
 	#  Allow EAP authentication.
@@ -207,7 +207,7 @@ preacct {
 	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
 	#  into a single 64bit counter Acct-[Input|Output]-Octets64.
 	#
-#	acct_counters64
+	#acct_counters64
 
 	#
 	#  Session start times are *implied* in RADIUS.
