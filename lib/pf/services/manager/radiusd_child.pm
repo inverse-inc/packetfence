@@ -268,9 +268,24 @@ home_server pf$i.cluster {
         check_interval = 30
         num_answers_to_alive = 3
 }
+home_server pf$i.cli.cluster {
+        type = auth
+        ipaddr = $radius_back
+        src_ipaddr = $cluster_ip
+        port = 1814
+        secret = testing1234
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
 EOT
             $tags{'home_server'} .= <<"EOT";
         home_server =  pf$i.cluster
+EOT
+            $tags{'home_server_cli'} .= <<"EOT";
+        home_server =  pf$i.cli.cluster
 EOT
             $i++;
         }

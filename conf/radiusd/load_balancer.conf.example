@@ -18,6 +18,13 @@ listen {
 }
 
 listen {
+        ipaddr = %%virt_ip%%
+        port = 1814
+        type = auth
+        virtual_server = pfcli.cluster
+}
+
+listen {
     type = control
     socket = %%socket_file%%
     mode = rw
