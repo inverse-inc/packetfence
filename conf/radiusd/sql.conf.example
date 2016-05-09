@@ -286,7 +286,7 @@ sql pfguest {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
+        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -323,7 +323,7 @@ sql pfsponsor {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
+        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -361,7 +361,7 @@ sql pfsms {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
+        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -399,7 +399,7 @@ sql pflocal {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"Cleartext-Password\", password, \":=\" \
+        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           WHERE pid = '%{SQL-User-Name}' \
           AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{SQL-User-Name}') "
