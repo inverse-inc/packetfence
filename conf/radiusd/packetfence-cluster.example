@@ -78,7 +78,7 @@ server pfcli.cluster {
 
         authorize {
                 update control {
-                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Load-Balance-Key := "%{NAS-IP-Address}"
                         Proxy-To-Realm := "packetfence-cli"
                 }
                 if(!NAS-IP-Address){
