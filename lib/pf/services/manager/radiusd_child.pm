@@ -18,6 +18,7 @@ The first manager will create the config for all radiusd processes through the g
 use strict;
 use warnings;
 use Moo;
+use List::MoreUtils qw(any);
 use pf::file_paths qw(
     $conf_dir
     $install_dir
@@ -173,11 +174,16 @@ sub generate_radiusd_acctconf {
 sub generate_radiusd_cliconf {
     my ($self) = @_;
     my %tags;
-    $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-    $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
-    $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
-    parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
+        $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
+        parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+    } else {
+        my $file = $install_dir."/raddb/cli.conf";
+        unlink($file);
+    }
 }
 
 =head2 generate_radiusd_eapconf

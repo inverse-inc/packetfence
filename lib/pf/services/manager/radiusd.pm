@@ -14,6 +14,7 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
+use List::MoreUtils qw(any);
 use pf::file_paths qw(
     $var_dir
     $conf_dir
@@ -48,9 +49,11 @@ sub _build_radiusdManagers {
     $listens->{acct} = {
       launcher => $self->launcher . " -n acct"
     };
-    $listens->{cli} = {
-      launcher => $self->launcher . " -n cli"
-    };
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
+        $listens->{cli} = {
+          launcher => $self->launcher . " -n cli"
+        };
+    }
 
     my @managers = map {
         my $id = $_;
