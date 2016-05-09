@@ -11,7 +11,7 @@ var RadiusAuditLog = function() {
 
 RadiusAuditLog.prototype = new Items();
 
-RadiusAuditLog.prototype.id  = '#radiusAuditLog';
+RadiusAuditLog.prototype.id  = '#RadiusAuditLog';
 
 RadiusAuditLog.prototype.formName  = 'modalRadiusAuditLog';
 
@@ -42,4 +42,22 @@ RadiusAuditLog.prototype.post = function(options) {
             showError(options.errorSibling, status_msg);
         });
 };
+
+/*
+ * The RadiusAuditLogView class defines the DOM operations from the Web interface.
+ */
+
+
+var RadiusAuditLogView = function(options) {
+    ItemView.call(this,options);
+    var that = this;
+    this.parent = options.parent;
+    this.items = options.items;
+};
+
+RadiusAuditLogView.prototype = (function(){
+    function F(){};
+    F.prototype = ItemView.prototype;
+    return new F();
+})();
 

@@ -23,7 +23,7 @@ Items.prototype.get = function(options) {
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
+            showPermanentError(options.errorSibling, status_msg);
         });
 };
 
@@ -37,7 +37,7 @@ Items.prototype.post = function(options) {
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
+            showPermanentError(options.errorSibling, status_msg);
         });
 };
 

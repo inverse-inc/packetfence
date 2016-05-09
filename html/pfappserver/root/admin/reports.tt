@@ -10,6 +10,7 @@
         'app/bootstrap-timepicker',
         'app/jquery.ba-hashchange',
         'admin/config/items',
+        'admin/radiusauditlog',
         'app/chosen.jquery.min',
         'js/bootstrapSwitch',
         'js/node',
