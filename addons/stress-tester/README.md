@@ -5,6 +5,7 @@ This toolkit allows to generate DHCP, HTTP, RADIUS EAP-PEAP and RADIUS accountin
 ## Installation
 
 ### Required Perl modules
+You might want to use CPAN to install theses modules
 * Net::DHCP::Packet
 * Net::DHCP::Constants
 * Getopt::Long
