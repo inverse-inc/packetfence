@@ -434,6 +434,11 @@ Start and enable the service
   # systemctl start pcsd.service
   # systemctl enable pcsd.service
 
+Enable corosync and pacemaker
+
+  # systemctl enable corosync
+  # systemctl enable pacemaker
+
 Create a new cluster:
 
   # pcs cluster auth ha_interface_ip_address_1 ha_interface_ip_address_2 -u hacluster -p passwd
