@@ -64,6 +64,11 @@
                 <a href="[% c.uri_for(c.controller('Admin').action_for('reports')) %]">[% l('Reports') %]</a>
               </li>
               [%- END %]
+              [%- IF can_access("RADIUS_LOG_READ") %]
+              <li[% ' class="active"' IF c.action.name == 'radiuslog' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('radiuslog')) %]">[% l('Radius Log') %]</a>
+              </li>
+              [%- END %]
               [%- IF can_access("NODES_READ") %]
               <li[% ' class="active"' IF c.action.name == 'nodes' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('nodes')) %]">[% l('Nodes') %]</a>

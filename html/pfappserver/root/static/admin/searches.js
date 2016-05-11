@@ -35,12 +35,12 @@ function saveSearchFromForm(form_id) {
     modal.on('shown', function(event) {
         $(this).find(':input:first').focus();
     });
-    return true;
+    return false;
 }
 
 $(function() {
     /* Save a simple search */
-    $('#simpleSavedSearchBtn').on('click', function(event) {
+    $('body').on('click', '#simpleSavedSearchBtn', function(event) {
         return saveSearchFromForm($(this).closest("form"));
     });
 
