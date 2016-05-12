@@ -32,14 +32,14 @@ To do so, run the following commands:
   service packetfence stop
   service packetfence-config stop
 
-For RedHad-based systems
+For RedHat-based systems
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the following command to update PacketFence:
 
   yum update packetfence --enablerepo=packetfence
   
-Since PacketFence heavily rely on Fingerbank, it is recommended to make sure running the latest version:
+Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
 
   yum update fingerbank --enablerepo=packetfence
 
