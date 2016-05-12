@@ -217,9 +217,6 @@ ProxyHTMLLinks  script      src for
       ProxyPassReverse /portal_preview/ https://[% server_name %]/
       ProxyPassReverse /portal_preview/ http://[% server_name %]/
       ProxyPassReverse /portal_preview/ /
-      ProxyHTMLLogVerbose On
-      RewriteLog [% install_dir %]/logs/[% name %].rewrite
-      RewriteLogLevel 3
       #LogLevel debug
 
       <Location /portal_preview >
@@ -229,7 +226,6 @@ ProxyHTMLLinks  script      src for
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
 
-          ProxyHTMLLogVerbose On
           ProxyPassReverse /
           ProxyHTMLEnable On
           ProxyHTMLInterp On
