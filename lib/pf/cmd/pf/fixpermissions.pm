@@ -40,7 +40,7 @@ use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::util;
 
-use fingerbank::FilePath;
+use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
 
@@ -134,9 +134,7 @@ sub _changeFilesToOwner {
 }
 
 sub _fingerbank {
-    _changeFilesToOwner('fingerbank', @fingerbank::FilePath::PATHS, @fingerbank::FilePath::FILES);
-    chmod(0664, @fingerbank::FilePath::FILES);
-    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl');
+    fingerbank::Util::fix_permissions;
 }
 
 =head1 AUTHOR
