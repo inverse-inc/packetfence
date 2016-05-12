@@ -14,6 +14,11 @@ pf::services::manager::httpd_admin
 use strict;
 use warnings;
 use Moo;
+use List::MoreUtils qw(uniq);
+use pf::config qw(
+    @internal_nets
+    @portal_ints
+);
 
 extends 'pf::services::manager::httpd';
 
@@ -49,6 +54,28 @@ sub vhosts {
         push @vhosts, "0.0.0.0";
     }
     return \@vhosts;
+}
+
+
+=head2 additionalVars
+
+=cut
+
+sub additionalVars {
+    my ($self) = @_;
+    return (preview_ip => $self->portal_preview_ip);
+}
+
+=head2 portal_preview_ip
+
+The creates the portal preview ip addresss
+
+=cut
+
+sub portal_preview_ip {
+    my ($self) = @_;
+    my  @ints = uniq (@internal_nets, @portal_ints);
+    return $ints[0]->{Tip};
 }
 
 

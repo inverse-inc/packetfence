@@ -46,6 +46,18 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_xml2enc.c>
+    LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
+  </IfModule>
+  <IfModule !mod_proxy_html.c>
+    LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
+  </IfModule>
+  <IfModule !mod_env.c>
+      LoadModule env_module /usr/lib/apache2/modules/mod_env.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+      LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -94,6 +106,19 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_xml2enc.c>
+    LoadModule xml2enc_module modules/mod_xml2enc.so
+  </IfModule>
+  <IfModule !mod_proxy_html.c>
+    LoadModule proxy_html_module modules/mod_proxy_html.so
+  </IfModule>
+  <IfModule !mod_env.c>
+      LoadModule env_module modules/mod_env.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+      LoadModule rewrite_module modules/mod_rewrite.so
+  </IfModule>
+
 </IfDefine>
 [% IF apache_version == "2.4" %]
 Mutex posixsem default
@@ -148,6 +173,22 @@ ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
 
+ProxyHTMLLinks  a       href
+ProxyHTMLLinks  area        href
+ProxyHTMLLinks  link        href
+ProxyHTMLLinks  img     src longdesc usemap
+ProxyHTMLLinks  image   src longdesc usemap
+ProxyHTMLLinks  object      classid codebase data usemap
+ProxyHTMLLinks  q       cite
+ProxyHTMLLinks  blockquote  cite
+ProxyHTMLLinks  ins     cite
+ProxyHTMLLinks  del     cite
+ProxyHTMLLinks  form        action
+ProxyHTMLLinks  input       src usemap
+ProxyHTMLLinks  head        profile
+ProxyHTMLLinks  base        href
+ProxyHTMLLinks  script      src for
+
 [% FOREACH vhost IN vhosts %]
   Listen [% vhost %]:[% ports.admin %]
   Listen [% vhost %]:[% ports.pf_status %]
@@ -169,6 +210,39 @@ ServerAdmin [% server_admin %]
       ProxyRequests off
       ProxyPreserveHost on
       ProxyVia off
+      #Html cleanup for the portal preview
+      ProxyRequests off
+      ProxyPass /portal_preview/ http://[% preview_ip %]/
+      ProxyPassReverse /portal_preview/ http://[% preview_ip %]/
+      ProxyPassReverse /portal_preview/ https://[% server_name %]/
+      ProxyPassReverse /portal_preview/ http://[% server_name %]/
+      ProxyPassReverse /portal_preview/ /
+      ProxyHTMLLogVerbose On
+      RewriteLog [% install_dir %]/logs/[% name %].rewrite
+      RewriteLogLevel 3
+      #LogLevel debug
+
+      <Location /portal_preview >
+          SetEnv X_PORTAL default
+          RewriteEngine on
+          RewriteCond %{QUERY_STRING} .*PORTAL=(.*)
+          RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
+          RequestHeader unset Accept-Encoding
+
+          ProxyHTMLLogVerbose On
+          ProxyPassReverse /
+          ProxyHTMLEnable On
+          ProxyHTMLInterp On
+          ProxyHTMLURLMap http://[% preview_ip %]/ /portal_preview/ l
+          ProxyHTMLURLMap https://[% preview_ip %]/ /portal_preview/ l
+          ProxyHTMLURLMap https://[% server_name %]/ /portal_preview/ l
+          ProxyHTMLURLMap http://[% server_name %]/ /portal_preview/ l
+          ProxyHTMLURLMap /portal_preview/ / l
+          ProxyHTMLURLMap ^(.*\?.*)$ $1\&PORTAL=${X_PORTAL} RVl
+          ProxyHTMLURLMap ^([^\?]*)$ $1?PORTAL=${X_PORTAL} RVl
+          ProxyHTMLURLMap / /portal_preview/
+
+      </Location>
       Alias /static [% install_dir %]/html/pfappserver/root/static
       <Location / >
            SetHandler modperl
