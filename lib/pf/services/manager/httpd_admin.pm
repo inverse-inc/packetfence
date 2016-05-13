@@ -86,7 +86,11 @@ Pass the environmental variable X_PORTAL to avoid warnings in centos7
 
 sub _build_launcher {
     my ($self) = @_;
-    return "X_PORTAL=default " . $self->SUPER::_build_launcher;
+    my $launcher = $self->SUPER::_build_launcher;
+    if ($self->apache_version >= 2.4)  {
+        return "X_PORTAL=default $launcher";
+    }
+    return $launcher;
 }
 
 
