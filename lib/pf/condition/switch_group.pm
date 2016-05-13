@@ -52,7 +52,7 @@ sub match {
     return $FALSE unless defined $last_switch;
     my $switch = pf::SwitchFactory->instantiate($last_switch);
     unless (grep( /$switch->{_group}/, @ConfigSwitchesGroup ) ) {
-        $logger->info("'$last_switch' is not a switch group");
+        $logger->info("'$last_switch' is not in switch group");
         return $FALSE;
     }
     return $TRUE;
