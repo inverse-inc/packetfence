@@ -142,6 +142,8 @@ our (
     %ConfigPortalModules,
 #conf/local_secret
     $local_secret,
+#Switches Group
+    @ConfigSwitchesGroup,
 );
 
 BEGIN {
@@ -196,6 +198,7 @@ BEGIN {
         %ConfigAdminRoles
         %ConfigPortalModules
         $local_secret
+        @ConfigSwitchesGroup
     );
 }
 
@@ -269,6 +272,8 @@ tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
+
+tie @ConfigSwitchesGroup, 'pfconfig::cached_array', 'resource::switches_group';
 
 use pf::util::apache qw(url_parser);
 
