@@ -78,6 +78,17 @@ sub portal_preview_ip {
     return $ints[0]->{Tip};
 }
 
+=head2 _build_launcher
+
+Pass the environmental variable X_PORTAL to avoid warnings in centos7
+
+=cut
+
+sub _build_launcher {
+    my ($self) = @_;
+    return "X_PORTAL=default " . $self->_build_launcher;
+}
+
 
 =head1 AUTHOR
 
