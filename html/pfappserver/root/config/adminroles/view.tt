@@ -24,6 +24,7 @@
             [% form.field('allowed_roles').render | none %]
             [% form.field('allowed_access_durations').render | none %]
             [% form.field('allowed_unreg_date').render | none %]
+            [% form.field('allowed_actions').render | none %]
           </div>
           <h4>[% l('Allowed node options') %]</h4>
           <div class="controls">
