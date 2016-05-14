@@ -128,8 +128,11 @@ sub options_actions {
         $self->form->ctx->log->error($@);
     }
     else {
-        $actions_ref = $classname->available_actions();
-        @actions = map { { value => $_, label => $self->_localize($_), attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } } } @{$actions_ref};
+        my @allowed_actions = $self->form->_get_allowed_options('allowed_actions');
+        unless (@allowed_actions) {
+            @allowed_actions = @{$classname->available_actions()};
+        }
+        @actions = map { { value => $_, label => $self->_localize($_), attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } } } @allowed_actions;
     }
 
     return @actions;
