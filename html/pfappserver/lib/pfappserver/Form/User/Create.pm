@@ -16,6 +16,7 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 use List::Util qw(first);
 use List::MoreUtils qw(none);
 use pf::admin_roles;
+use pf::log;
 use DateTime;
 has '+source_type' => ( default => 'SQL' );
 
@@ -43,15 +44,23 @@ has_field 'expiration' =>
 #
 # The field substitution is made through JavaScript.
 
-has_block 'templates' =>
-  (
-   tag => 'div',
-   render_list => [
-                   map( { "${_}_action" } map( { @$_ } values %Actions::ACTIONS)), # the field are defined in the super class
-                  ],
-   attr => { id => 'templates' },
-   class => [ 'hidden' ],
-  );
+sub build_block_list {
+    my ($self) = @_;
+    my @options_actions = $self->_get_allowed_options('allowed_actions');
+    unless (@options_actions) {
+        @options_actions = map {@$_} values %Actions::ACTIONS;
+    }
+    return [{
+            name => 'templates',
+            tag         => 'div',
+            render_list => [
+                map({"${_}_action"} @options_actions),   # the field are defined in the super class
+            ],
+            attr  => {id => 'templates'},
+            class => ['hidden'],
+        }
+      ];
+}
 
 =head2 validate
 
