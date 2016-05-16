@@ -51,11 +51,11 @@ sub match {
     my ($self, $last_switch) = @_;
     return $FALSE unless defined $last_switch;
     my $switch = pf::SwitchFactory->instantiate($last_switch);
-    unless (grep( /$switch->{_group}/, @ConfigSwitchesGroup ) ) {
-        $logger->info("'$last_switch' is not in switch group");
+    if ($switch->{_group} eq $self->value) {
+        return $TRUE;
+    } else {
         return $FALSE;
     }
-    return $TRUE;
 }
 
 =head1 AUTHOR
