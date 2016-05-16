@@ -274,7 +274,7 @@ Requires: iproute >= 3.0.0, krb5-workstation
 %{?el7:Requires: samba >= 4}
 Requires: perl(Linux::Distribution)
 # configuration-wizard
-Requires: iproute, vconfig
+Requires: vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
 # SAML
