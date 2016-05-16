@@ -163,6 +163,56 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
     }
 }
 
+=item create_bond
+
+Create an bond interface
+
+Usage: /interface/<logical_name_bond>/create
+
+=cut
+
+sub create_bond :Chained('object') :PathPart('create_bond') :Args(0) :AdminRole('INTERFACES_CREATE') {
+    my ( $self, $c ) = @_;
+
+    my $mechanism = 'all';
+    if ($c->session->{'enforcements'}) {
+        $mechanism = [ keys %{$c->session->{'enforcements'}} ];
+    }
+    my $types = $c->model('Enforcement')->getAvailableTypes($mechanism);
+
+    my ($status, $result, $form);
+
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c, types => $types);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors; # translated by the form
+        }
+        else {
+            my $data = $form->value;
+            my $interface = $c->stash->{interface} . "." . $data->{bond};
+            ($status, $result) = $c->model('Interface')->create_bond($interface);
+            if (is_success($status)) {
+                ($status, $result) = $c->model('Interface')->update($interface, $data);
+            }
+            $self->audit_current_action($c, status => $status, interface => $interface);
+
+        }
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c,
+                                                          types => $types,
+                                                          init_object => { name => $c->stash->{interface} });
+        $form->process();
+        $c->stash->{form} = $form;
+
+        $c->stash->{template} = 'interface/create_bond.tt';
+    }
+}
 =item delete
 
 Delete an existing vlan interface

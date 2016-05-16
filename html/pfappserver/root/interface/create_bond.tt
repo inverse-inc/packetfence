@@ -1,0 +1,30 @@
+<form name="modalCreateBond" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('create_bond'), [interface]) %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3><i>[% l('New Bond for') %]</i> <span>[% interface | html %]</span></h3>
+  </div>
+  <div class="modal-body">
+    [% form.field('name').render_element | none %]
+    [% form.field('interface1').render | none %]
+    [% form.field('interface2').render | none %]
+    [% form.field('ipaddess').render | none %]
+    [% form.field('netmask').render | none %]
+    [% form.field('interface1_ip').render | none %]
+    [% form.field('interface1_netmask').render | none %]
+    [% form.field('interface2_ip').render | none %]
+    [% form.field('interface2_netmask').render | none %]
+    [% form.field('type').render | none %]
+    [% form.field('additional_listening_daemons').render | none %]
+    [% form.field('mode').render | none %]
+    [% form.field('dns').render | none %]
+    [% form.field('vip').render | none %]
+    [% form.field('dhcpd_enabled').render | none %]
+    [% form.field('nat_enabled').render | none %]
+    <p class="info_inline">[% l('Remember to enable ip_forward on your operating system for the inline mode to work.') %]</p>
+    <p class="info_routed">[% l('Since NATting mode is disabled, PacketFence will adjust iptables to rules to route traffic rather than natting it. Make sure to add the routes on the system.') %]</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Creating') %]">[% l('Create') %]</button>
+  </div>
+</form>

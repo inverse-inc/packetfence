@@ -39,6 +39,7 @@
                 [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
                 [% ELSE -%]
                 [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
+                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create_bond'), [i]) %]">[% l('Create Bond') %]</a>[% END %]
                 [% END -%]
               </td>
             </tr>

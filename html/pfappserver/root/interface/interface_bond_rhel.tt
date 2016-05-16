@@ -1,0 +1,12 @@
+DEVICE=[% logical_name_bond %]
+NAME=[% logical_name_bond %]
+[% IF !vlan_device %]HWADDR=[% hwaddr %][% END %][% IF vlan_device %]VLAN=yes[% END %]
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=yes
+IPADDR=[% ipaddr %]
+NETMASK=[% netmask %]
+GATEWAY=[% gateway %]
+TYPE=Bond
+BONDING_OPTS=mode=[% mode %]
+BONDING_MASTER=yes
