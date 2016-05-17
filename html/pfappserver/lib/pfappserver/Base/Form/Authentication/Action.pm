@@ -14,6 +14,7 @@ Authentication::Rule).
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
@@ -164,17 +165,6 @@ sub options_roles {
     }
     # Build a list of existing roles
     return map { { value => $_, label => $_ } } @options_values;
-}
-
-=head2 _get_allowed_options
-
-Get the allowed options for the current user based off their role.
-
-=cut
-
-sub _get_allowed_options {
-    my ($self,$option) = @_;
-    return admin_allowed_options([$self->ctx->user->roles],$option);
 }
 
 =head2 options_durations
