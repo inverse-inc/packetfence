@@ -12,6 +12,7 @@ Form definition to create or update a node.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(is_error);
 use pf::config;
@@ -44,6 +45,7 @@ has_field 'category_id' =>
   (
    type => 'Select',
    label => 'Role',
+   options_method => \&get_role_options,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
@@ -51,6 +53,7 @@ has_field 'bypass_role_id' =>
   (
    type => 'Select',
    label => 'Bypass Role',
+   options_method => \&get_role_options,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
@@ -188,6 +191,25 @@ sub validate {
             $self->field('pid')->add_error("The specified user doesn't exist.");
         }
     }
+}
+
+=head2 get_role_options
+
+=cut
+
+sub get_role_options {
+    my ($self) = @_;
+    my $form = $self->form;
+    my %allowed_node_roles = map { $_ => undef } $form->_get_allowed_options('allowed_node_roles');
+    my @roles;
+    my @all_roles = @{ $form->roles // [] };
+    if (keys %allowed_node_roles) {
+        @roles = map { $_->{category_id} => $_->{name} } grep { exists $allowed_node_roles{$_->{name}} } @all_roles;
+    }
+    else {
+        @roles = map { $_->{category_id} => $_->{name} } @all_roles;
+    }
+    return ('' => '', @roles);
 }
 
 =head1 COPYRIGHT
