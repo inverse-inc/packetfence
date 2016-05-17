@@ -18,12 +18,18 @@
           <div class="controls">
             [% form.field('actions').render | none %]
           </div>
+          <h4>[% l('Allowed user options') %]</h4>
+          <div class="controls">
+            [% form.field('allowed_access_levels').render | none %]
+            [% form.field('allowed_roles').render | none %]
+            [% form.field('allowed_access_durations').render | none %]
+            [% form.field('allowed_unreg_date').render | none %]
+          </div>
+          <h4>[% l('Allowed node options') %]</h4>
+          <div class="controls">
+            [% form.field('allowed_node_roles').render | none %]
+          </div>
         </div>
-        [% form.field('allowed_access_levels').render | none %]
-        [% form.field('allowed_roles').render | none %]
-        [% form.field('allowed_access_durations').render | none %]
-        [% form.field('allowed_unreg_date').render | none %]
-        [% form.field('allowed_node_roles').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
