@@ -23,6 +23,7 @@
         [% form.field('allowed_roles').render | none %]
         [% form.field('allowed_access_durations').render | none %]
         [% form.field('allowed_unreg_date').render | none %]
+        [% form.field('allowed_node_roles').render | none %]
   </div><!--modal-body-->
 
   <div class="modal-footer">
