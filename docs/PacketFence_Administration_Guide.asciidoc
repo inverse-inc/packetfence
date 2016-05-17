@@ -293,7 +293,7 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
-The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you device to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
+The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you decide to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
 
 Technical introduction to Inline enforcement
 --------------------------------------------
