@@ -197,9 +197,13 @@ sub make_builder {
 
 my %COLUMN_MAP = (
     person_name => 'pid',
-    online => {
-        'table' => 'locationlog',
-        'name'  => 'end_time',
+    unknown => {
+        'table' => 'radacct',
+        'name'  => 'acctstarttime',
+    },
+    online_offline => {
+        'table' => 'radacct',
+        'name'  => 'acctstoptime',
     },
     category => {
         table => 'node_category',
@@ -381,13 +385,15 @@ sub _pre_process_query {
     #Change the query for the online
     my $name = $query->{name};
     if ($name eq 'online') {
+        my $value = $query->{value};
         if($query->{op} eq 'equal') {
-            my $value = $query->{value};
-            if ($value eq 'on') {
-                $query->{value} = '0000-00-00 00:00:00';
-            } elsif($value eq 'off') {
+            $query->{value} = undef;
+            if ($value eq 'unknown' ) {
                 $query->{op} = 'is_null';
-                $query->{value} = undef;
+                $query->{name} = 'unknown';
+            } else {
+                $query->{name} = 'online_offline';
+                $query->{op} = $value eq 'on' ? 'is_null' : 'is_not_null';
             }
         }
     }
