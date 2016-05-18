@@ -51,10 +51,10 @@ We need to handle both cases thus this precompiled regexp.
 
 Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
     (
-        Hex-STRING:\
+        Hex-STRING:\ 
         [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2}\ [0-9A-Z]{2} # MAC Address
     |
-        STRING:\
+        STRING:\ 
         ".+"
     )
 /sx; # which may contain newline characters to mean hex 0a (thus the s)
