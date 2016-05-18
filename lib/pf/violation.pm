@@ -629,6 +629,7 @@ sub info_for_violation_engine {
       mac => $mac,
       mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
       user_agent_id => $results->{user_agent},
+      last_switch => $node_info->{'last_switch'},
     };
 
     my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
