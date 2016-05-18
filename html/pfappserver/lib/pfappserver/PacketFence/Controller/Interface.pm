@@ -171,7 +171,7 @@ Usage: /interface/<logical_name_bond>/create
 
 =cut
 
-sub create_bond :Chained('object') :PathPart('create_bond') :Args(0) :AdminRole('INTERFACES_CREATE') {
+sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
     my ( $self, $c ) = @_;
 
     my $mechanism = 'all';
@@ -183,7 +183,7 @@ sub create_bond :Chained('object') :PathPart('create_bond') :Args(0) :AdminRole(
     my ($status, $result, $form);
 
     if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Interface::Create->new(ctx => $c, types => $types);
+        $form = pfappserver::Form::Interface::CreateBond->new(ctx => $c, types => $types);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;

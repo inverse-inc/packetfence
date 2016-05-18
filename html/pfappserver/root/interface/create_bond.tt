@@ -1,7 +1,7 @@
-<form name="modalCreateBond" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('create_bond'), [interface]) %]">
+<form name="modalCreateBond" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('create_bond')) %]">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3><i>[% l('New Bond for') %]</i> <span>[% interface | html %]</span></h3>
+    <h3><i>[% l('New Bond') %]</i></h3>
   </div>
   <div class="modal-body">
     [% form.field('name').render_element | none %]
@@ -9,10 +9,6 @@
     [% form.field('interface2').render | none %]
     [% form.field('ipaddess').render | none %]
     [% form.field('netmask').render | none %]
-    [% form.field('interface1_ip').render | none %]
-    [% form.field('interface1_netmask').render | none %]
-    [% form.field('interface2_ip').render | none %]
-    [% form.field('interface2_netmask').render | none %]
     [% form.field('type').render | none %]
     [% form.field('additional_listening_daemons').render | none %]
     [% form.field('mode').render | none %]

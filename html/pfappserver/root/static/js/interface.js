@@ -56,6 +56,9 @@ var InterfaceView = function(options) {
     var update = $.proxy(this.updateInterface, this);
     options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"]', update);
 
+    var update = $.proxy(this.updateBondInterface, this);
+    options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateBond"]', update);
+
     var delete_i = $.proxy(this.deleteInterface, this);
     options.parent.on('click', '#interfaces [href$="/delete"]', delete_i);
 
@@ -261,6 +264,34 @@ InterfaceView.prototype.fakeMacChanged = function(e) {
 };
 
 InterfaceView.prototype.updateInterface = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var form = $(e.target);
+    var btn = form.find('.btn-primary');
+    var modal = $('#modalEditInterface');
+    var valid = isFormValid(form);
+    if (valid) {
+        var modal_body = modal.find('.modal-body').first();
+        resetAlert(modal_body);
+        btn.button('loading');
+        this.interfaces.post({
+            url: form.attr('action'),
+            data: form.serialize(),
+            always: function() {
+                btn.button('reset');
+            },
+            success: function(data) {
+                modal.modal('toggle');
+                showSuccess($('#interfaces table'), data.status_msg);
+                that.list();
+            },
+            errorSibling: modal_body.children().first()
+        });
+    }
+};
+
+InterfaceView.prototype.updateBondInterface = function(e) {
     e.preventDefault();
 
     var that = this;
