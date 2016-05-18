@@ -14,6 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Interface';
 with 'pfappserver::Base::Form::Role::Help';
 
+has 'interfaces' => ( is => 'ro' );
 
 # Form fields
 has_field 'interface1' =>
@@ -21,22 +22,36 @@ has_field 'interface1' =>
    type => 'Select',
    label => 'Interface 1',
    required => 1,
+   option_method => \&options_interfaces,
    element_class => ['chzn-deselect'],
    element_attr => { 'data-placeholder' => 'None' },
    tags => { after_element => \&help,
              help => 'Select your first interface' },
   );
 
-has_field 'interfacer2' =>
+has_field 'interface2' =>
   (
    type => 'Select',
    label => 'Interface 2',
    required => 1,
+   option_method => \&options_interfaces,
    element_class => ['chzn-deselect'],
    element_attr => { 'data-placeholder' => 'None' },
    tags => { after_element => \&help,
              help => 'Select your second interface' },
   );
+
+sub ACCEPT_CONTEXT {
+    my ($self, $c, @args) = @_;
+    my ($status, $roles) = $c->model('Interface')->list();
+    my @interfaces;
+    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => @interfaces);
+}
+
+sub options_interfaces {
+    my $self = shift;
+    return $self->form->interfaces;
+}
 
 =head1 COPYRIGHT
 
