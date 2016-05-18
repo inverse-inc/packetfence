@@ -11,46 +11,47 @@ Form definition to add a Bond to the network configuration.
 =cut
 
 use HTML::FormHandler::Moose;
+use pf::log;
 extends 'pfappserver::Form::Interface';
 with 'pfappserver::Base::Form::Role::Help';
 
 has 'interfaces' => ( is => 'ro' );
 
 # Form fields
-has_field 'interface1' =>
+has_field 'interfaces' =>
   (
    type => 'Select',
-   label => 'Interface 1',
-   required => 1,
-   option_method => \&options_interfaces,
-   element_class => ['chzn-deselect'],
+   label => 'Interfaces',
+   multiple => 1,
+   options_method => \&options_interfaces,
+   element_class => ['chzn-select'],
    element_attr => { 'data-placeholder' => 'None' },
    tags => { after_element => \&help,
-             help => 'Select your first interface' },
+             help => 'Select your interfaces' },
   );
 
-has_field 'interface2' =>
+has_field 'mode' =>
   (
-   type => 'Select',
-   label => 'Interface 2',
-   required => 1,
-   option_method => \&options_interfaces,
-   element_class => ['chzn-deselect'],
-   element_attr => { 'data-placeholder' => 'None' },
-   tags => { after_element => \&help,
-             help => 'Select your second interface' },
+   type => 'Hidden',
+   label => 'Mode',
+   value => 'active-backup',
   );
+
+use Data::Dumper;
+
+my $logger = get_logger();
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Interface')->list();
-    my @interfaces;
-    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => @interfaces);
+    my $interfaces = $c->model('Interface')->get('all');
+    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => $interfaces, @args);
 }
 
 sub options_interfaces {
     my $self = shift;
-    return $self->form->interfaces;
+    my $interfaces_list = [
+        keys %{$self->form->interfaces} ];
+    return sort ( $interfaces_list );
 }
 
 =head1 COPYRIGHT

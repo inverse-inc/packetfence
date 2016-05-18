@@ -5,9 +5,8 @@
   </div>
   <div class="modal-body">
     [% form.field('name').render_element | none %]
-    [% form.field('interface1').render | none %]
-    [% form.field('interface2').render | none %]
-    [% form.field('ipaddess').render | none %]
+    [% form.field('interfaces').render | none %]
+    [% form.field('ipaddress').render | none %]
     [% form.field('netmask').render | none %]
     [% form.field('type').render | none %]
     [% form.field('additional_listening_daemons').render | none %]

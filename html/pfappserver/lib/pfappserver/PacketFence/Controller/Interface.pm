@@ -183,7 +183,8 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
     my ($status, $result, $form);
 
     if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Interface::CreateBond->new(ctx => $c, types => $types);
+        $form = $c->form('Interface::CreateBond');
+        #$form = pfappserver::Form::Interface::CreateBond->new(ctx => $c, types => $types);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
@@ -204,9 +205,10 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $form = pfappserver::Form::Interface::CreateBond->new(ctx => $c,
-                                                          types => $types,
-                                                          init_object => { name => $c->stash->{interface} });
+        #$form = pfappserver::Form::Interface::CreateBond->new(ctx => $c,
+        #                                                  types => $types,
+        #                                                  init_object => { name => $c->stash->{interface} });
+        $form = $c->form('Interface::CreateBond');
         $form->process();
         $c->stash->{form} = $form;
 
