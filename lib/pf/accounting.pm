@@ -451,7 +451,7 @@ Returns the current sessionid for a given mac address
 =cut
 
 sub node_accounting_current_sessionid {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     if(my $entry = pf::accounting->cache->get($mac)){
         return $entry->{'Acct-Session-Id'};
     }
@@ -468,7 +468,7 @@ Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
 =cut
 
 sub node_accounting_dynauth_attr {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     if(my $entry = pf::accounting->cache->get($mac)){
         return {username => $entry->{'User-Name'}, acctsessionid => $entry->{'Acct-Session-Id'}};
     }
@@ -485,7 +485,7 @@ Returns true if an accounting entry exists undef or 0 otherwise.
 =cut
 
 sub node_accounting_exist {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_exist_sql', $mac) || return (0);
     my ($val) = $query->fetchrow_hashref();
     $query->finish();
@@ -497,7 +497,7 @@ sub node_accounting_exist {
 =cut
 
 sub node_accounting_view {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -517,7 +517,7 @@ sub node_accounting_view_all {
 =cut
 
 sub node_accounting_daily_bw {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_daily_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -530,7 +530,7 @@ sub node_accounting_daily_bw {
 =cut
 
 sub node_accounting_weekly_bw {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_weekly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -542,7 +542,7 @@ sub node_accounting_weekly_bw {
 =cut
 
 sub node_accounting_monthly_bw {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_monthly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -554,7 +554,7 @@ sub node_accounting_monthly_bw {
 =cut
 
 sub node_accounting_yearly_bw {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_yearly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -566,7 +566,7 @@ sub node_accounting_yearly_bw {
 =cut
 
 sub node_accounting_daily_time {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_daily_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -578,7 +578,7 @@ sub node_accounting_daily_time {
 =cut
 
 sub node_accounting_weekly_time {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_weekly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -590,7 +590,7 @@ sub node_accounting_weekly_time {
 =cut
 
 sub node_accounting_monthly_time {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_monthly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
@@ -602,7 +602,7 @@ sub node_accounting_monthly_time {
 =cut
 
 sub node_accounting_yearly_time {
-    my ($mac) = format_mac_for_acct(@_);
+    my ($mac) = @_;
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_yearly_sql', $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
