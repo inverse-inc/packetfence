@@ -300,6 +300,7 @@ See pf::import::nodes
 
 sub importCSV {
     my ($self, $data, $user) = @_;
+    my %allowed_node_roles = map {$_ => undef} admin_allowed_options([$self->ctx->user->roles], 'allowed_node_roles');
 
     my $logger = get_logger();
     my ($status, $message);
