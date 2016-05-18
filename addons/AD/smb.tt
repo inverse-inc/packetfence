@@ -51,3 +51,9 @@ guest ok = no
 
 # prevent winbind from periodically changing the password
 machine password timeout = 0
+
+# Prevent 'Failed to join domain: failed to lookup DC info for domain 'DOMAIN.DOMAIN' over rpc: Access denied' error when attempting a domain join
+# Command 'net ads join -d 5' outputs the following relevant lines
+#   cli_negprot: SMB signing is mandatory and the server doesn't support it.
+#   failed negprot: NT_STATUS_ACCESS_DENIED
+client ipc signing = auto
