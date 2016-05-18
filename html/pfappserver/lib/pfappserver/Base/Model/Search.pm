@@ -29,6 +29,7 @@ my %OP_MAP = (
     in          => 'IN',
     not_in      => 'NOT IN',
     is_null     => 'IS NULL',
+    is_not_null => 'IS NOT NULL',
 );
 
 =head2 Methods
@@ -52,7 +53,7 @@ sub process_query {
     my @escape;
     my @where_args = ($query->{name}, $sql_op);
     my $value = $query->{value};
-    return unless defined $value || $sql_op eq 'IS NULL';
+    return unless defined $value || $sql_op eq 'IS NULL' || $sql_op eq 'IS NOT NULL';
     my @values;
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
