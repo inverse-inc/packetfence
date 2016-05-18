@@ -28,7 +28,6 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    my $logger = get_logger();
     my @switches_group = map { my $a = $_; $a =~ s/group //;$a} grep { $_ =~ /group/} @{$self->{switches_group}};
 
     return \@switches_group;
