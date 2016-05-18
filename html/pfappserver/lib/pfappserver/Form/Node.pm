@@ -16,6 +16,7 @@ with 'pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(is_error);
 use pf::config qw(%Config);
+use pf::log;
 
 # Form select options
 has 'roles' => ( is => 'ro' );
@@ -198,13 +199,16 @@ sub validate {
 =cut
 
 sub get_role_options {
+    my $logger  = get_logger();
     my ($self) = @_;
     my $form = $self->form;
+    my $previous_role = $self->value // '';
     my %allowed_node_roles = map { $_ => undef } $form->_get_allowed_options('allowed_node_roles');
     my @roles;
     my @all_roles = @{ $form->roles // [] };
+
     if (keys %allowed_node_roles) {
-        @roles = map { $_->{category_id} => $_->{name} } grep { exists $allowed_node_roles{$_->{name}} } @all_roles;
+        @roles = map { $_->{category_id} => $_->{name} } grep { exists $allowed_node_roles{$_->{name}} || $previous_role eq $_->{category_id} } @all_roles;
     }
     else {
         @roles = map { $_->{category_id} => $_->{name} } @all_roles;
