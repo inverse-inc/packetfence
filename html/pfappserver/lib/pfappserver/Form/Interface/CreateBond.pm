@@ -18,6 +18,13 @@ with 'pfappserver::Base::Form::Role::Help';
 has 'interfaces' => ( is => 'ro' );
 
 # Form fields
+
+has_field 'name' =>
+  (
+   type => 'Text',
+   label => 'Name',
+  );
+
 has_field 'interfaces' =>
   (
    type => 'Select',
@@ -36,6 +43,12 @@ has_field 'mode' =>
    label => 'Mode',
    value => 'active-backup',
   );
+
+has_block definition =>
+  (
+   render_list => [ qw(name interfaces ipaddress netmask type additional_listening_daemons dns vip dhcpd_enabled nat_enabled) ],
+  );
+
 
 use Data::Dumper;
 
