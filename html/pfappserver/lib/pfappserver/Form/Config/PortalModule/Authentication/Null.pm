@@ -16,6 +16,11 @@ extends 'pfappserver::Form::Config::PortalModule::Authentication';
 use captiveportal::DynamicRouting::Module::Authentication::Null;
 sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication::Null'}
 
+before 'setup' => sub {
+    my ($self) = @_;
+    $self->remove_field("pid_field");
+};
+
 ## Definition
 
 =over

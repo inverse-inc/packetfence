@@ -306,7 +306,7 @@ sub accounting {
     my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
     if($isStart || $isUpdate){
-        pf::accounting->cache->set(format_mac_for_acct($mac), $radius_request);
+        pf::accounting->cache->set($mac, $radius_request);
     }
 
     if ($isStop || $isUpdate) {

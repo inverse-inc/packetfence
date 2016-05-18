@@ -25,6 +25,7 @@ has_field 'id' =>
    label => 'Provisioning ID',
    required => 1,
    messages => { required => 'Please specify the ID of the Provisioning entry.' },
+   apply => [ pfappserver::Base::Form::id_validator('provisioning ID') ]
   );
 
 has_field 'description' =>

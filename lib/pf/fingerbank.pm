@@ -46,7 +46,6 @@ our %ACTION_MAP = (
     "update-upstream-db" => sub {
         pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
             my ($status, $status_msg) = fingerbank::DB::update_upstream();
-            pf::fingerbank::sync_upstream_db();
             return ($status, $status_msg);
         });
     },

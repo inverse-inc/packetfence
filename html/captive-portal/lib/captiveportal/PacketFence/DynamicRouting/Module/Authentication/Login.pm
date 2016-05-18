@@ -23,6 +23,7 @@ use pf::auth_log;
 use pf::person;
 use pf::Authentication::constants;
 use pf::web::guest;
+use pf::node qw(node_view);
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -107,8 +108,26 @@ sub authenticate {
     if(isenabled($self->app->profile->reuseDot1xCredentials)) {
         my $mac       = $self->current_mac;
         my $node_info = node_view($mac);
-        $username = strip_username($node_info->{'last_dot1x_username'});
+        ($username,$realm) = strip_username($node_info->{'last_dot1x_username'});
         get_logger->info("Reusing 802.1x credentials. Gave username ; $username");
+        my $params = {
+            username => $node_info->{'last_dot1x_username'},
+            connection_type => $node_info->{'last_connection_type'},
+            SSID => $node_info->{'last_ssid'},
+            stripped_user_name => $username,
+            rule_class => 'authentication',
+        };
+        # Test the source to find the matching source
+        my $source_id;
+        my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source_id);
+        if ( defined($role) ) {
+            $self->source(pf::authentication::getAuthenticationSource($source_id));
+            #Update username
+            $self->username($username);
+        } else {
+            get_logger->error("Reusing 802.1x credentials but not able to find the source for username $username");
+            $self->app->flash->{error} = "Reusing 802.1x credentials but not able to find the source for username $username, did you define the source on the portal ?";
+        }
     } else {
         # validate login and password
         my ( $return, $message, $source_id ) =

@@ -12,16 +12,16 @@ packetfence-local-auth {
     }
     # Check password table for local user
     pflocal
-    if (fail || notfound) {
+    if (fail || notfound || noop) {
         # Check password table with email and password for a sponsor registration
         pfguest
-        if (fail || notfound) {
+        if (fail || notfound || noop) {
             # Check password table with email and password for a guest registration
             pfsponsor
-            if (fail || notfound) {
+            if (fail || notfound || noop) {
                 # Check activation table with phone number and PIN code 
                 pfsms
-                if (fail || notfound) {
+                if (fail || notfound || noop) {
                     update control {
                        &MS-CHAP-Use-NTLM-Auth := Yes
                     }

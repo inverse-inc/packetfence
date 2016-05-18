@@ -27,6 +27,7 @@ has_field 'id' =>
    messages => { required => 'Please specify an identifier' },
    tags => { after_element => \&help,
              help => 'Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain' },
+   apply => [ pfappserver::Base::Form::id_validator('identifier') ]
   );
 
 has_field 'workgroup' =>

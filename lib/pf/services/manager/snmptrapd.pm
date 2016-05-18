@@ -14,6 +14,7 @@ pf::services::manager::snmptrapd
 use strict;
 use warnings;
 use Moo;
+use pf::cluster;
 use pf::constants;
 use pf::config qw($management_network);
 use pf::file_paths qw(
@@ -33,7 +34,12 @@ has '+name' => (default => sub { 'snmptrapd' } );
 my $management_ip = '';
 
 if (ref($management_network)) {
-    $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    if ( $pf::cluster::cluster_enabled ) {
+        $management_ip = pf::cluster::management_cluster_ip();
+    } else {
+        $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    }
+
     $management_ip .= ':162';
 }
 

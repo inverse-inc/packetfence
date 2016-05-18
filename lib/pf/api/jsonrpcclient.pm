@@ -177,10 +177,13 @@ sub curl {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
-    if($self->username && $self->password && ($self->proto eq 'https') ) {
+    if($self->proto eq 'https') {
+        if($self->username && $self->password) {
+            $curl->setopt(CURLOPT_USERNAME, $self->username);
+            $curl->setopt(CURLOPT_PASSWORD, $self->password);
+        }
+
         $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
-        $curl->setopt(CURLOPT_USERNAME, $self->username);
-        $curl->setopt(CURLOPT_PASSWORD, $self->password);
         # Removed SSL verification
         $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
         $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);

@@ -205,7 +205,7 @@ Client Authentication Profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This profile will be used to generate the RADIUS client certificate and key.
-The client certificate is used by the 802.1x supplicant to authenticate its end of the connection to the server.
+The client certificate is used by the 802.1X supplicant to authenticate its end of the connection to the server.
 
 image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 

@@ -32,10 +32,17 @@ To do so, run the following commands:
   service packetfence stop
   service packetfence-config stop
 
-For RedHat-based systems, run the following command:
+For RedHat-based systems
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run the following command to update PacketFence:
 
   yum update packetfence --enablerepo=packetfence
   
+Since PacketFence heavily relies on Fingerbank, it is recommended to make sure running the latest version:
+
+  yum update fingerbank --enablerepo=packetfence
+
 PacketFence should now be upgraded.  However, there may be extra steps required depending on the version you are upgrading from.  Please review the following notes about upgrading from an older release.
 
 Please note that the sections below are cumulative. That is to say, if you are upgrading from version 5.3 to version 6.0 you must apply in order all changes in between the two versions, including database schema changes.
@@ -54,6 +61,9 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 
   service packetfence-config restart
   service packetfence restart
+
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
 
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
@@ -112,7 +122,7 @@ Use the Cisco::Catalyst_2960 switch module instead of the Cisco::Catalyst_2960_h
 
 Use the Cisco::WLC switch module instead of the Cisco::WLC_http as switch type.
 
-The portalURL configuration parameter is now configured per-role so make sure you have http://ip_portal/$session_id assigned to the registration role in the `Role by Web Auth URL` section of the switch configuration.
+The portalURL configuration parameter is now configured per-role so make sure you have `http://ip_portal/$session_id` assigned to the registration role in the `Role by Web Auth URL` section of the switch configuration.
 
 See the Network Device configuration guide for additional details.
 

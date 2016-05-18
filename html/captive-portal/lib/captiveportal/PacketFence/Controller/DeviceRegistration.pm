@@ -159,6 +159,7 @@ sub registerNode : Private {
             $info{'category'} = $role if ( defined $role );
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
+            $info{'pid'} = $pid;
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
             node_modify($mac, status => "reg", %info);

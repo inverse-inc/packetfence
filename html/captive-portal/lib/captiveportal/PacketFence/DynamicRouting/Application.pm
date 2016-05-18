@@ -142,7 +142,7 @@ Process the user agent
 
 sub process_user_agent {
     my ( $self ) = @_;
-    my $user_agent    = $self->request->user_agent;
+    my $user_agent    = $self->current_user_agent;
     my $logger        = get_logger();
     my $mac           = $self->current_mac;
     unless ($user_agent) {
@@ -179,7 +179,7 @@ sub process_fingerbank {
     my ( $self ) = @_;
 
     my %fingerbank_query_args = (
-        user_agent          => $self->request->user_agent,
+        user_agent          => $self->current_user_agent,
         mac                 => $self->current_mac,
         ip                  => $self->root_module->current_ip,
     );
@@ -275,6 +275,18 @@ sub execute {
     }
 }
 
+=head2 current_user_agent
+
+The current user agent in the request.
+Returns an empty string if it is undefined
+
+=cut
+
+sub current_user_agent {
+    my ($self) = @_;
+    return $self->request->user_agent ? $self->request->user_agent : "";
+}
+
 =head2 current_mac
 
 The MAC address that is tied to the current request
@@ -353,6 +365,7 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
+        logo => $self->profile->getLogo
     };
 
     $args->{layout} //= $TRUE;

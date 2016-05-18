@@ -664,9 +664,10 @@ sub is_config_documented {
     #starting with documentation vs configuration
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
-    foreach my $section ( sort keys %Doc_Config) {
+    foreach my $section ( keys %Doc_Config) {
         my ( $group, $item ) = split( /\./, $section );
-        my $type = $Doc_Config{$section}{'type'};
+        my $doc = $Doc_Config{$section};
+        my $type = $doc->{'type'};
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
@@ -685,7 +686,7 @@ sub is_config_documented {
                 }
             } elsif ( $type eq "multi" || $type eq "toggle" ) {
                 my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} );
-                my @availableOptions = @{$Doc_Config{$section}{'options'}};
+                my @availableOptions = @{$doc->{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
                         add_problem( $FATAL,
@@ -694,6 +695,12 @@ sub is_config_documented {
                             "If you are sure of this choice, please update conf/documentation.conf"
                         );
                     }
+                }
+            }
+            elsif ($type eq 'numeric') {
+                if (exists $doc->{minimum}) {
+                    my $minimum = $doc->{minimum};
+                    add_problem( $FATAL,"$section is less than the minimum value of $minimum" ) if $Config{$group}{$item} < $minimum;
                 }
             }
         } elsif( $Config{$group}{$item} ne "0"  ) {
@@ -1295,7 +1302,6 @@ sub cert_has_expired {
     my $expiration = str2time($cert->notAfter);
     return time > $expiration;
 }
-
 
 =back
 

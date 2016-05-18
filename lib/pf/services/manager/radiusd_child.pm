@@ -193,6 +193,7 @@ sub generate_radiusd_sqlconf {
    $tags{'db_database'} = $Config{'database'}{'db'};
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
+   $tags{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'} eq 'ntlm' ? 'NT-Password' : 'Cleartext-Password';
 
    parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/mods-enabled/sql" );
 }

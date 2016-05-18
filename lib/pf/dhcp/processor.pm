@@ -614,7 +614,9 @@ Otherwise, an empty array is returned
 
 sub add_rogue_dhcp {
     my ($self, $rogue_dhcp, $offer, $threshold) = @_;
-    my @offers = $self->_get_redis_client->evalsha($LUA_ROGUE_DHCP_SHA1, 0, $rogue_dhcp, $offer, $threshold);
+    my $redis = $self->_get_redis_client;
+    _on_redis_connect($redis);
+    my @offers = $redis->evalsha($LUA_ROGUE_DHCP_SHA1, 0, $rogue_dhcp, $offer, $threshold);
     return \@offers;
 }
 

@@ -8,6 +8,7 @@ Type=forking
 PIDFile=/usr/local/pf/var/run/pfconfig.pid
 ExecStart=/usr/local/pf/sbin/pfconfig -d
 ExecStop=/bin/systemctl kill packetfence-config.service
+User=pf
 
 [Install]
 WantedBy=multi-user.target

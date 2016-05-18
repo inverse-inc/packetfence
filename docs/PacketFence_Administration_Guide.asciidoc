@@ -293,7 +293,7 @@ Prior configuring PacketFence, you must chose an appropriate enforcement mode to
 
 It is also possible to combine enforcement modes. For example, you could use the out-of-band mode on your wired switches, while using the inline mode on your old WiFi access points.
 
-The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you device to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
+The following sections will explain these enforcement modes. If you decide to use the inline mode, please refer to the PacketFence Inline Deployment Quick Guide using ZEN for a complete configuration example. If you decide to use the out-of-band mode, please refer to the PacketFence Out-of-Band Deployment Quick Guide using ZEN
 
 Technical introduction to Inline enforcement
 --------------------------------------------
@@ -833,7 +833,7 @@ Example with the most common ones:
 * *Switch Port:* <SwitchId>-<Port>
 * *Network:* Network in CIDR format or an IP address
 
-CAUTION: Node role will take effect only with a 802.1x connection or if you use VLAN filters.
+CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
 
@@ -1105,7 +1105,7 @@ Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with 
 Option 3: EAP authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To authenticate 802.1x connection against OpenLDAP you need to define the ldap connection in `/usr/local/pf/raddb/modules/ldap` and
+To authenticate 802.1X connection against OpenLDAP you need to define the LDAP connection in `/usr/local/pf/raddb/modules/ldap` and
 be sure that the userpassword is define as a NTHASH or as cleartext.
 
 ----
@@ -1156,7 +1156,7 @@ authorize {
 Option 4: EAP Guest Authentication on email, sponsor and SMS registration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section will allow local credentials created during guest registration to be used in 802.1x EAP-PEAP connections.
+This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
 
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
 
@@ -2967,8 +2967,8 @@ There are common parameters for each scan engines:
   Scan before registration: Trigger the scan when the device appear on the registration vlan
   Scan after registration: Trigger the scan just after registration on the captive portal
   Scan after registration: Trigger the scan on the production network (pfdhcplistener must receive production dhcp traffic)
-  802.1x: Even if the auto-registration has been enabled, the scan will be trigger on a EAP connection
-  802.1x types: comma delimited EAP type that will trigger the scan if 802.1x above has been enabled
+  802.1X: Even if the auto-registration has been enabled, the scan will be trigger on a EAP connection
+  802.1X types: comma delimited EAP type that will trigger the scan if 802.1X above has been enabled
 
 Specific to Nessus:
 

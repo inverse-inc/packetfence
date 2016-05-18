@@ -20,6 +20,7 @@ use pf::util::webapi;
 use Apache2::RequestIO;
 use Apache2::RequestRec;
 use Apache2::Response;
+use Sub::Util qw(subname);
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use List::MoreUtils qw(any);
@@ -61,9 +62,9 @@ sub handler {
     my ($method, $id) = ($r->uri, 1);
     my $dispatch_to = $self->dispatch_to;
     my $method_sub;
-    
+
     if(my $rest_method = $self->dispatch_to->restPath($method)){
-        pf::log::get_logger->info("Found method $rest_method for REST path $method");
+        pf::log::get_logger->trace(sub { "Found method " . subname($rest_method) . " for REST path $method" });
         $method_sub = $rest_method;
     }
     # We fallback to using the method name
@@ -120,9 +121,9 @@ sub handler {
             );
         }
     }
-    
+
     return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
-    
+
     # Notify message defer until later
     $r->push_handlers(
         PerlCleanupHandler => sub {

@@ -359,7 +359,7 @@ Alcatel
 OS6250, OS6450 
 ^^^^^^^^^^^^^^
 
-PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
 
 Global configuration
 ++++++++++++++++++++
@@ -375,7 +375,7 @@ Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
     aaa authentication mac packetfence
-    aaa authentication 802.1x packetfence
+    aaa authentication 802.1X packetfence
 
 You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
@@ -399,7 +399,7 @@ Next, configure the switch in PacketFence. In the case of this example, the upli
     defaultRole=employee
     guestRole=guest
 
-802.1x
+802.1X
 ++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -407,18 +407,18 @@ First, make sure you followed the steps above in 'Global configuration'
 You will need to configure the ports you want to do authentication on.
 
     vlan port mobile 1/2
-    vlan port 1/2 802.1x enable
-    802.1x 1/2 supplicant policy authentication pass group-mobility block fail block
-    802.1x 1/2 non-supplicant policy authentication pass group-mobility block fail block
+    vlan port 1/2 802.1X enable
+    802.1X 1/2 supplicant policy authentication pass group-mobility block fail block
+    802.1X 1/2 non-supplicant policy authentication pass group-mobility block fail block
 
 MAC Authentication
 ++++++++++++++++++
 
-First, make sure you followed the steps above in 'Global configuration' and '802.1x'
+First, make sure you followed the steps above in 'Global configuration' and '802.1X'
 
-Next configure the interface to bypass 802.1x authentication
+Next configure the interface to bypass 802.1X authentication
 
-    802.1x 1/2 supplicant bypass enable
+    802.1X 1/2 supplicant bypass enable
 
 VoIP
 ++++
@@ -439,7 +439,7 @@ Next, make sure you enable VoIP in the switch configuration in PacketFence and c
 OS6860
 ^^^^^^
 
-PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
 
 NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not support this configuration.
 
@@ -457,7 +457,7 @@ Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
     aaa device-authentication mac packetfence
-    aaa device-authentication 802.1x packetfence
+    aaa device-authentication 802.1X packetfence
 
 You now need to configure an edge profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
@@ -508,7 +508,7 @@ You will need to create an edge template and apply it on the ports you want to d
     unp port 1/1/2 port-type edge
     unp port 1/1/2 edge-template pf_mab
 
-802.1x
+802.1X
 ++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -938,7 +938,7 @@ On each interface _with VoIP_:
   snmp trap mac-notification added 
   snmp trap mac-notification removed 
 
-3550 (802.1x with MAB)
+3550 (802.1X with MAB)
 ^^^^^^^^^^^^^^^^^^^^^^
 
 CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
@@ -1084,7 +1084,7 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 2960, 2970, 3560, 3750
 ^^^^^^^^^^^^^^^^^^^^^^
 
-NOTE: You shouldn't use any port-security features when doing 802.1x and/or Mac Authentication. This can cause unexpected behavior.
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or Mac Authentication. This can cause unexpected behavior.
 
 [WARNING]
 ====
@@ -1563,7 +1563,7 @@ RADIUS server configuration:
   radius server packetfence
    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
    key useStrongerSecret
-   automate-tester username cisco idle-time 1
+   automate-tester username cisco ignore-acct-port idle-time 1
 
 CoA configuration:
 
@@ -1659,7 +1659,7 @@ for 802.1X with MAC Authentication fallback:
    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
     10 activate service-template CRITICAL_AUTH_VLAN
     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-    30 activate service-template CRITICAL-ACCES
+    30 activate service-template CRITICAL-ACCESS
     40 pause reauthentication
     50 authorize
    30 class DOT1X_NO_RESP do-until-failure
@@ -1707,7 +1707,7 @@ for MAC Authentication only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class always do-until-failure
@@ -1741,7 +1741,7 @@ for 802.1X only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class DOT1X_FAILED do-until-failure
@@ -1817,7 +1817,7 @@ Interface Template (802.1X):
    authentication timer reauthenticate server
    service-policy type control subscriber DOT1X
 
-On each interface for 802.1X with MAC Authentcation:
+On each interface for 802.1X with MAC Authentication:
 
   source template identity-template-mab
   dot1x timeout tx-period 5
@@ -1862,6 +1862,13 @@ To see what is the status of a port let's run:
         Method           State
 
         dot1x            Authc Success
+
+Debug command:
+
+In order to be able to debug the Identity Networking Policy you can launch the following command in the switch cli:
+
+ term mon
+ debug pre all
 
 Router ISR 1800 Series 
 ++++++++++++++++++++++
@@ -2833,7 +2840,7 @@ Basic configuration
 
 ----
 
-l2protocol-tunnel user-defined-protocol 802.1x protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
+l2protocol-tunnel user-defined-protocol 802.1X protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
 domain pf
 
 dot1x enable
@@ -2896,7 +2903,7 @@ IBM
 RackSwitch G8052
 ^^^^^^^^^^^^^^^^
 
-PacketFence supports only 802.1x authentication. It has been tested on version 7.9.11.0.
+PacketFence supports only 802.1X authentication. It has been tested on version 7.9.11.0.
 
 RADIUS configuration
 ++++++++++++++++++++
@@ -3117,7 +3124,7 @@ Ctrl-D
 # commit comment "packetfenced VoIP"
 ----
 
-802.1x configuration
+802.1X configuration
 ++++++++++++++++++++
 
 ----
@@ -4105,6 +4112,7 @@ Aironet 1600
 ^^^^^^^^^^^^
 
 CoA and radius:
+
 ----
 radius-server attribute 32 include-in-access-req format %h
 radius-server vsa send accounting
@@ -4362,6 +4370,47 @@ Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* an
 image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
+
+RFC 5176
+^^^^^^^^
+
+WebAuth
++++++++
+
+NOTE: While using the WebAuth mode on the Meraki controller with a version superior to X.X, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
+
+Configure your SSID as shown below:
+
+image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
+
+image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
+
+NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
+
+The switch module to use for this configuration is "Meraki cloud controller V2".
+
+Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
+
+image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
+
+Your configuration for the tab "Roles" in PacketFence will look like the following:
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
+
+image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
+
+VLAN enforcement
+++++++++++++++++
+
+NOTE: VLAN assignment in MAC authentication does not work at the moment, you can look through lib/pf/Switch/Meraki/AP_http_V2.pm in the `BUGS AND LIMITATIONS` part or use the following method. Note that this method will be considered as deprecated when the Meraki firmware is fixed.
+
+If you want to run the Meraki in VLAN assignment, you will need to use the Group policies, create a group policy under 'Network-wide->Group policies' and change the setting `VLAN` to `Tag VLAN`, insert the VLAN number of your registration VLAN and save the policy.
+
+image::docs/images/Meraki-config-vlan.png[scaledwidth="100%",alt="VLAN policy"]
+
+In the configuration of PacketFence, use "Role mapping by Switch Role" instead of "Role by VLAN ID".
+
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 Mikrotik
 ~~~~~~~~

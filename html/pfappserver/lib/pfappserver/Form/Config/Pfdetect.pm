@@ -25,6 +25,7 @@ has_field 'id' =>
    label => 'Detector',
    required => 1,
    messages => { required => 'Please specify a detector id' },
+   apply => [ pfappserver::Base::Form::id_validator('detector id') ]
   );
 
 has_field 'path' =>

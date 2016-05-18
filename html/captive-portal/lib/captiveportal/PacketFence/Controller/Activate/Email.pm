@@ -236,7 +236,7 @@ sub doSponsorRegistration : Private {
         $c->stash(
             title => "Sponsor request accepted",
             template => $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE );
-        $c->delete_session();
+        $c->user_session({});
         $c->detach;
     } else {
         $logger->warn( "No active sponsor source for profile "

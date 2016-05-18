@@ -428,7 +428,7 @@ sub returnRadiusAccessAccept {
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
-    my $role = $args->{'user_role'};
+    my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->supportsUrlBasedEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             my $redirect_url = $self->getUrlByName($args->{'user_role'});
@@ -578,6 +578,33 @@ sub radiusDisconnect {
     );
     return;
 }
+
+=head2 parseRequest
+
+Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
+
+=cut
+
+sub parseRequest {
+    my ( $self, $radius_request ) = @_;
+    my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    my $session_id;
+    if (defined($radius_request->{'Cisco-AVPair'})) {
+        if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
+            $session_id =$1;
+        }
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id);
+}
+
 
 =back
 

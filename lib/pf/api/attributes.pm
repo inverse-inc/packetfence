@@ -22,7 +22,7 @@ our %ALLOWED_ATTRIBUTES = (
     Fork => 1,
 );
 
-our $REST_PATHS_REGEX = '^RestPath\(.*\)';
+our $REST_PATHS_REGEX = qr/^RestPath\((.*)\)/;
 
 our %TAGS;
 our %REST_PATHS;
@@ -33,16 +33,17 @@ sub MODIFY_CODE_ATTRIBUTES {
     foreach my $attr (@attrs) {
         if (exists $ALLOWED_ATTRIBUTES{$attr} ) {
             push @good, $attr;
-        } 
-        elsif ( $attr =~ /$REST_PATHS_REGEX/ ){
-            $rest_path = $attr;
+        }
+        elsif ( $attr =~ $REST_PATHS_REGEX ){
+            $rest_path = $1;
+            push @good, $attr;
         }
         else {
             push @bad, $attr;
         }
     }
     unless(@bad){
-        _updateTags($code,@good);
+        _updateTags($code, @good);
         if($rest_path) {
             _updateRestPath($code, $rest_path);
         }
@@ -50,25 +51,15 @@ sub MODIFY_CODE_ATTRIBUTES {
     return @bad;
 }
 
-sub _parseRestPath {
-    my ($tag) = @_;
-    if($tag =~ /\((.*)\)/){
-        return $1;
-    }
-    return undef;
-}
-
 sub restPath {
     my ($class, $path) = @_;
+    return undef unless exists $REST_PATHS{$path};
     return $REST_PATHS{$path};
 }
 
 sub _updateRestPath {
     my ($code, $rest_path) = @_;
-    my %attrs;
-    my $ref_add = Scalar::Util::refaddr($code);
-    my $path = _parseRestPath($rest_path);
-    $REST_PATHS{$path} = $code;
+    $REST_PATHS{$rest_path} = $code;
 }
 
 sub _updateTags {
@@ -87,7 +78,7 @@ sub isPublic {
 }
 
 sub _hasTag {
-    my ($class,$method, $tag) = @_;
+    my ($class, $method, $tag) = @_;
     my $code = $class->can($method);
     return unless $code;
     my $ref_addr = Scalar::Util::refaddr($code);

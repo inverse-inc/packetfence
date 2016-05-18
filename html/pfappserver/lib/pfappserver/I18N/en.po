@@ -1819,7 +1819,7 @@ msgstr ""
 msgid "Devices"
 msgstr ""
 
-# conf/documentation.conf (advanced.hash_passwords)
+# conf/documentation.conf (advanced.disable_pf_domain_auth)
 msgid "Disable Active-Directory domain configuration from within PacketFence"
 msgstr ""
 
@@ -2339,6 +2339,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Hostname or IP Address"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.host)
+msgid "Hostname or IP address of the Redis server"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/view.tt
@@ -4012,7 +4016,7 @@ msgid "Please specify a group name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Role.pm
-msgid "Please specify a name for the category."
+msgid "Please specify a name for the role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -4193,6 +4197,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Port"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.port)
+msgid "Port of the Redis server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
@@ -5215,6 +5223,10 @@ msgstr ""
 msgid "Set role"
 msgstr ""
 
+# conf/documentation.conf (advanced.pfdhcplistener_packet_size)
+msgid "Set the max size of DHCP packetsDo not change unless you know what you are doing"
+msgstr ""
+
 # conf/documentation.conf (active_active.dns_on_vip_only)
 msgid "Set the name server option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster."
 msgstr ""
@@ -5253,6 +5265,10 @@ msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy)
 msgid "Should Fingerbank interact with WWW using a proxy ?"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis)
+msgid "Should Redis be used to match combinations ? Requires to have the Attribute map imported into the Redis instance"
 msgstr ""
 
 # conf/documentation.conf (services.carbon-cache)
@@ -5804,6 +5820,10 @@ msgstr ""
 msgid "The Root Portal Module to use"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
+msgid "The URL to download the attribute map."
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (tcp_fingerprinting.p0f_map_url)
 msgid "The URL to download the p0f map from"
 msgstr ""
@@ -5814,6 +5834,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The access duration of the devices that use this tier."
+msgstr ""
+
+# conf/documentation.conf (advanced.hash_passwords)
+msgid "The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_blocking_period)
@@ -5860,6 +5884,10 @@ msgstr ""
 msgid "The certificate for signing profiles"
 msgstr ""
 
+# conf/documentation.conf (advanced.hashing_cost)
+msgid "The cost factor to apply to the password hashing if applicable.Currently only applies to bcrypt."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 msgid "The description that will be displayed to users"
 msgstr ""
@@ -5899,10 +5927,6 @@ msgstr ""
 
 # conf/documentation.conf (monitoring.db_host)
 msgid "The hostname of the the database storing the Graphite dashboard settings. Will default to database.host if none is provided."
-msgstr ""
-
-# conf/documentation.conf (monitoring.db_pass)
-msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
 msgstr ""
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
@@ -5949,6 +5973,10 @@ msgstr ""
 msgid "The parser to use for the alert pipe"
 msgstr ""
 
+# conf/documentation.conf (monitoring.db_pass)
+msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The path to the Paypal certificate you downloaded."
 msgstr ""
@@ -5986,10 +6014,6 @@ msgstr ""
 
 # conf/documentation.conf (monitoring.db_port)
 msgid "The port to connect to the database storing the Graphite dashboard settings. Will default to database.port if none is provided."
-msgstr ""
-
-# conf/documentation.conf (monitoring.db_user)
-msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
@@ -6063,6 +6087,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "The url used to connect to the SCEP PKI service"
+msgstr ""
+
+# conf/documentation.conf (monitoring.db_user)
+msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -6993,8 +7021,16 @@ msgid "advanced"
 msgstr "Advanced"
 
 # conf/documentation.conf
+msgid "advanced.disable_pf_domain_auth"
+msgstr "Disable Pf Domain Auth"
+
+# conf/documentation.conf
 msgid "advanced.hash_passwords"
 msgstr "Database passwords hashing method"
+
+# conf/documentation.conf
+msgid "advanced.hashing_cost"
+msgstr "Hashing Cost"
 
 # conf/documentation.conf
 msgid "advanced.ldap_attributes"
@@ -7002,7 +7038,7 @@ msgstr "LDAP Attributes"
 
 # conf/documentation.conf
 msgid "advanced.locationlog_close_on_accounting_stop"
-msgstr ""
+msgstr "locationlog Close On Accounting Stop"
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -7015,6 +7051,10 @@ msgstr "Success color"
 # conf/documentation.conf
 msgid "advanced.pfcmd_warning_color"
 msgstr "Warning color"
+
+# conf/documentation.conf
+msgid "advanced.pfdhcplistener_packet_size"
+msgstr "pfdhcplistener Packet Size"
 
 # conf/documentation.conf
 msgid "advanced.pfdns_processes"
@@ -7030,7 +7070,7 @@ msgstr "Reevaluate access reasons"
 
 # conf/documentation.conf
 msgid "advanced.sso_on_access_reevaluation"
-msgstr ""
+msgstr "SSO on access reevaluation"
 
 # conf/documentation.conf
 msgid "advanced.timing_stats_level"
@@ -7125,6 +7165,10 @@ msgstr "Auto Registration"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
+
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "bcrypt"
+msgstr ""
 
 # html/pfappserver/root/admin/users.tt
 msgid "birthday"
@@ -7394,12 +7438,13 @@ msgstr ""
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -7504,12 +7549,13 @@ msgstr ""
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
@@ -8051,7 +8097,7 @@ msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
-msgstr ""
+msgstr "nested group"
 
 # conf/documentation.conf
 msgid "metascan"
@@ -8319,6 +8365,10 @@ msgstr ""
 msgid "phonenumber"
 msgstr ""
 
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "plaintext"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -8474,6 +8524,10 @@ msgid "query.record_unmatched"
 msgstr "Record Unmatched Parameters"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.use_redis"
+msgstr "Use Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
 msgstr "Use TCP fingerprinting"
 
@@ -8506,6 +8560,22 @@ msgstr "Red"
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "redir.cgi"
 msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis"
+msgstr "Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.attribute_map_url"
+msgstr "Attribute Map Url"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.host"
+msgstr "Redis Host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.port"
+msgstr "Redis Port"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"

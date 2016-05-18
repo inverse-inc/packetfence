@@ -28,11 +28,26 @@ button.#{$inuit-btn-namespace}btn {
 .#{$inuit-btn-namespace}btn--icon {
   background-color: transparent;
   border: none;
-  &:hover {
+  &:hover svg {
     transform: scale(1.25);
   }
 }
 
+.#{$inuit-btn-namespace}btn--hint {
+  display: inline-block;
+  margin-right: $inuit-btn-padding;
+  transform: translateX($inuit-btn-padding);
+  opacity: 0;
+  overflow: hidden;
+  transition: all 240ms;
+  vertical-align: top;
+}
+
+.#{$inuit-btn-namespace}btn:hover .#{$inuit-btn-namespace}btn--hint {
+  opacity: 1;
+  transform: translateX(0px);
+  transition-delay: 240ms;
+}
 
 .#{$inuit-btn-namespace}btn--light {
   background-color: $pf-list-tint-hue-1-background;

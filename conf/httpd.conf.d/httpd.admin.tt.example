@@ -118,9 +118,9 @@ UseCanonicalName Off
 Timeout  50
 KeepAliveTimeout  10
 
-MaxClients  4
-StartServers  2
-MinSpareServers  1
+MaxClients  16
+StartServers  4
+MinSpareServers  2
 HostnameLookups  off
 MaxRequestsPerChild  1000
 

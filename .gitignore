@@ -11,9 +11,11 @@
 .#*
 
 # Configuration not in git
+addons/stress-tester/plan.conf
 conf/admin.conf
 conf/httpd.conf
 conf/named.conf
+conf/cluster-files.txt
 conf/pf.conf
 conf/*.lock
 conf/*.lockonce
@@ -36,6 +38,7 @@ raddb/auth.conf
 raddb/acct.conf
 raddb/sql.conf
 raddb/proxy.conf.inc
+raddb/load_balancer.conf
 raddb/clients.conf.inc
 raddb/sites-available/packetfence
 raddb/sites-available/packetfence-tunnel

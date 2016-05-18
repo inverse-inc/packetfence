@@ -1,7 +1,9 @@
 /// _objecs.box.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
 $pf-box-hero-width: $inuit-base-line-height * 6;
-$pf-box-hero-width--small: $inuit-base-line-height * 4;
+$pf-box-hero-width--palm: $inuit-base-line-height * 4;
+
+$pf-box-width--small: $inuit-base-line-height * 2;
 
 .#{$inuit-box-namespace}box--large-height {
   max-height: $inuit-base-line-height * 18;
@@ -32,8 +34,20 @@ $pf-box-hero-width--small: $inuit-base-line-height * 4;
   width: $pf-box-hero-width;
 
   @include media-query(palm) {
-    height: $pf-box-hero-width--small;
-    padding: $pf-box-hero-width--small/2/2;
-    width: $pf-box-hero-width--small;
+    height: $pf-box-hero-width--palm;
+    padding: $pf-box-hero-width--palm/2/2;
+    width: $pf-box-hero-width--palm;
+  }
+}
+
+.#{$inuit-box-namespace}box--hero.#{$inuit-box-namespace}box--small {
+  height: $pf-box-width--small;
+  padding: $pf-box-width--small/2/2;
+  width: $pf-box-width--small;
+
+  @include media-query(palm) {
+    height: $pf-box-width--small;
+    padding: $pf-box-width--small/2/2;
+    width: $pf-box-width--small;
   }
 }

@@ -62,7 +62,7 @@ after [qw(create clone)] => sub {
 
 after [qw(create update)] => sub {
     my ($self, $c) = @_;
-    if($c->request->method eq 'POST' ){
+    if( $c->request->method eq 'POST' && !$c->stash->{form}->has_errors ) {
         pf::domain::regenerate_configuration();
         my $output = pf::domain::join_domain($c->req->param('id'));
         $c->stash->{items}->{join_output} = $output;

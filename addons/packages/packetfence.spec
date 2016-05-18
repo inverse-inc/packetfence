@@ -202,6 +202,7 @@ Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(Bytes::Random::Secure)
 Requires: perl(Crypt::Eksblowfish::Bcrypt)
+Requires: perl(Crypt::SmbHash)
 Requires: perl(MIME::Lite::TT)
 Requires: perl(Cache::Cache), perl(HTML::Parser)
 Requires: perl(URI::Escape::XS)
@@ -273,7 +274,7 @@ Requires: iproute >= 3.0.0, krb5-workstation
 %{?el7:Requires: samba >= 4}
 Requires: perl(Linux::Distribution)
 # configuration-wizard
-Requires: iproute, vconfig
+Requires: vconfig
 # wmi
 Requires: wmi, perl(Net::WMIClient)
 # SAML
@@ -682,7 +683,7 @@ done
 %if 0%{?el7}
 for service in mariadb
 do
-  if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
+  if /bin/systemctl list-unit-files | grep $service > /dev/null 2>&1; then
     echo "Enabling $service startup script"
     /bin/systemctl enable $service > /dev/null 2>&1
   fi
@@ -1129,6 +1130,7 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
                         /usr/local/pf/html/captive-portal/captiveportal.conf.example
 %config(noreplace)      /usr/local/pf/html/common/styles.css
+%config(noreplace)      /usr/local/pf/html/common/styles-dark.css
                         /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/common/Gruntfile.js

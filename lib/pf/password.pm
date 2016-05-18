@@ -34,6 +34,7 @@ use warnings;
 
 use Date::Parse;
 use Crypt::GeneratePassword qw(word);
+use Crypt::SmbHash qw(nthash);
 use pf::log;
 use POSIX;
 use Readonly;
@@ -55,6 +56,7 @@ Readonly our $AUTH_FAILED_EXPIRED       => 2;
 Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
 Readonly our $PLAINTEXT                 => 'plaintext';
 Readonly our $BCRYPT                    => 'bcrypt';
+Readonly our $NTLM                      => 'ntlm';
 
 # Expiration time in seconds
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
@@ -64,7 +66,7 @@ BEGIN {
     our ( @ISA, @EXPORT_OK );
     @ISA    = qw(Exporter);
     @EXPORT_OK = qw(
-        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT $NTLM
     );
 }
 
@@ -448,9 +450,11 @@ sub _check_password {
     # Plaintext passwords have no prefix.
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
-
+    my $ntlm_re = quotemeta('{ntlm}');
     if ($hash_string =~ /^$bcrypt_re/) {
         return _check_bcrypt(@_);
+    } elsif ($hash_string =~ /^$ntlm_re/) {
+        return _check_ntlm(@_);
     } else {
         # I am leaving room for additional cases (NT hashes, md5 etc.)
         return $plaintext eq $hash_string ? $TRUE : $FALSE;
@@ -480,6 +484,8 @@ sub _hash_password {
         return $plaintext;
     } elsif ($algorithm =~ /$BCRYPT/) {
         return bcrypt($plaintext, %params);
+    } elsif ($algorithm =~ /$NTLM/) {
+        return '{ntlm}'.nthash($plaintext);
     } else {
         $logger->error("Unsupported hash algorithm " . $params{"algorithm"});
     }
@@ -536,6 +542,19 @@ sub bcrypt {
     my $cost_str = sprintf( "%02d", $cost ) . '$';
     my $salt_str = en_base64($salt);
     return '{bcrypt}' . '$2a$' . $cost_str . $salt_str . $hash_str;
+}
+
+sub _check_ntlm {
+    my ( $plaintext, $hash_string ) = @_;
+
+    my $hashed_plaintext = '{ntlm}'.nthash($plaintext);
+
+    if ( $hashed_plaintext eq $hash_string ) {
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 =item reset_password

@@ -24,6 +24,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the scan engine' },
+   apply => [ pfappserver::Base::Form::id_validator('name') ]
   );
 
 has_field 'request' =>
