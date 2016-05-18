@@ -167,7 +167,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
 
 Create an bond interface
 
-Usage: /interface/<logical_name_bond>/create
+Usage: /interface/create
 
 =cut
 
@@ -204,7 +204,7 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $form = pfappserver::Form::Interface::Create->new(ctx => $c,
+        $form = pfappserver::Form::Interface::CreateBond->new(ctx => $c,
                                                           types => $types,
                                                           init_object => { name => $c->stash->{interface} });
         $form->process();
