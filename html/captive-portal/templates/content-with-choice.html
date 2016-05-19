@@ -2,6 +2,7 @@
     START content-with-choice.html
     selected choice: [% mod_manager_current_module %]
   -->
+[% IF modules.count > 1 %]
 <div class="card[% IF mod_manager_current_module %] card--hidden[% END %]">
 
   <div class="layout--center">
@@ -27,6 +28,7 @@
   </div>
 
 </div>
+[% END %]
 <!-- END content-with-choice.html -->
 
 [% content | none %]
