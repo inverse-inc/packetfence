@@ -213,7 +213,7 @@ sub _where_clause {
         my $method = $OP_GROUP_MAP{$op};
         push @clauses, $self->$method($lhs,$op,@rhs);
     } else {
-        die "invalid operator $op provided";
+        die "invalid operator '$op' provided";
     }
     return @clauses;
 }
