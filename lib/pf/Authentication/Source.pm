@@ -125,7 +125,7 @@ sub getRule {
 
 =head2 getDefaultOfType
 
-TODO: documention
+Get the default value of a type
 
 =cut
 

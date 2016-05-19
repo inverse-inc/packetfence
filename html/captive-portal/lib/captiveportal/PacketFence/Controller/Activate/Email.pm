@@ -117,8 +117,6 @@ sub code : Path : Args(1) {
 
 =head2 login
 
-TODO: documention
-
 =cut
 
 sub login : Private {
@@ -135,8 +133,6 @@ sub login : Private {
 }
 
 =head2 doSponsorRegistration
-
-TODO: documention
 
 =cut
 
