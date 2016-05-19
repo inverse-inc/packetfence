@@ -88,8 +88,6 @@ sub gaming_registration: Path('/gaming-registration') {
 
 =head2 userNotLoggedIn
 
-TODO: documention
-
 =cut
 
 sub userNotLoggedIn : Private {

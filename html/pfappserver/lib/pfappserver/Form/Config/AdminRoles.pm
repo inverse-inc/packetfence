@@ -113,7 +113,7 @@ sub options_actions {
 
 =head2 options_allowed_access_levels
 
-TODO: documention
+The list of allowed access levels
 
 =cut
 

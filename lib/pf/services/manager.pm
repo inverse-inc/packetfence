@@ -445,7 +445,7 @@ sub launchService {
 
 =head2 _cmdLine
 
-TODO: documention
+Build the command string from the launcher and the cmdLineArgs
 
 =cut
 
@@ -462,7 +462,7 @@ sub _cmdLine {
 
 =head2 _cmdLineArgs
 
-TODO: documention
+Return the list if values to replace in the launcher
 
 =cut
 
