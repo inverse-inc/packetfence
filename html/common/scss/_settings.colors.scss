@@ -2,7 +2,6 @@
 
 $inuit-base-text-color:                  #F1F1F1;
 $inuit-base-background-color:            #92c668;    // light green
-//$inuit-base-background-color:            #44535A;    // dark blue gray
 
 $inuit-btn-background:                   #247BA0;
 
@@ -14,7 +13,6 @@ $pf-color-error:                         #C97064;    // red
 $pf-color-notice:                        #93BAB6;    // light blue
 
 $pf-base-accent-color:                   #5E913A;    // dark green
-//$pf-base-accent-color:                   #4D616A;    // blue gray
 
 $pf-footer-background-color:             #333333;
 $pf-footer-text-color:                   #CCCCCC;
@@ -28,3 +26,11 @@ $pf-list-tint-hue-1-background:          #D0DFC1;
 $pf-list-icon-color:                     $pf-color-light-gray;
 
 $pf-input-caption:                       $pf-color-light-gray;
+
+/**
+ * Alternative blue-gray palette. Packaged as styles-dark.css in the repo.
+ */
+
+//$inuit-base-background-color:            #44535A;    // dark blue gray
+//$pf-base-accent-color:                   #4D616A;    // blue gray
+//$pf-list-tint-hue-1-background:          #7B9CAA;    // light blue gray
