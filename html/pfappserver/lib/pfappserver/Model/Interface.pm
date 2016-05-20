@@ -80,6 +80,7 @@ sub create_bond {
     my ( $self, $interface ) = @_;
     my $logger = get_logger();
 
+    use Data::Dumper;
     my ($status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
@@ -96,7 +97,7 @@ sub create_bond {
     #my ($physical_interface, $vlan_id) = split( /\./, $interface );
 
     # Check if interfaces exists
-    my $interfaces = $interface_ref->interface->{'interfaces'};
+    my $interfaces = $interface->{interfaces};
     ($status, $status_msg) = $self->exists($interfaces);
     if ( is_error($status) ) {
         $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$interfaces];
@@ -105,8 +106,8 @@ sub create_bond {
     }
 
     # Create requested virtual interface
-    my $bond_name = $interface_ref->interface->{'name'};
-    my $mode = $interface_ref->interface->{'mode'};
+    my $bond_name = $interface->{name};
+    my $mode = $interface->{mode};
     my $cmd = "sudo nmcli con add type bond con-name $bond_name ifname $bond_name mode $mode";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
@@ -119,7 +120,7 @@ sub create_bond {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+    return ($STATUS::CREATED, ["Interface Bond [_1] successfully created",$interface]);
 }
 =head2 delete
 

@@ -174,6 +174,9 @@ Usage: /interface/create_bond
 sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
     my ( $self, $c ) = @_;
 
+    use Data::Dumper;
+    use pf::log;
+    my $logger = get_logger();
     my $mechanism = 'all';
     if ($c->session->{'enforcements'}) {
         $mechanism = [ keys %{$c->session->{'enforcements'}} ];
@@ -192,7 +195,8 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
         }
         else {
             my $data = $form->value;
-            my $interface = $c->stash->{interface} . "." . $data->{bond};
+            my $interface = $c->stash->{bond_name}; # . "." . $data->{bond};
+            $logger->info('bond name' . Dumper($interface));
             ($status, $result) = $c->model('Interface')->create_bond($interface);
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);

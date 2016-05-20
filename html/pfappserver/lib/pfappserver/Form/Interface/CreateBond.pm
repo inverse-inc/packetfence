@@ -19,7 +19,7 @@ has 'interfaces' => ( is => 'ro' );
 
 # Form fields
 
-has_field 'name' =>
+has_field 'bond_name' =>
   (
    type => 'Text',
    label => 'Name',
