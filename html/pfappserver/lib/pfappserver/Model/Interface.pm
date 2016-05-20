@@ -72,6 +72,55 @@ sub create {
     return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
 }
 
+=head2 create_bond
+
+=cut
+
+sub create_bond {
+    my ( $self, $interface ) = @_;
+    my $logger = get_logger();
+
+    my ($status, $status_msg);
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+        if ( ($interface eq 'all') || ($interface eq 'lo') );
+
+    # Check if requested interface exists
+    ($status, $status_msg) = $self->exists($interface);
+    if ( is_success($status) ) {
+        $status_msg = ["Interface Bond [_1] already exists",$interface];
+        return ($STATUS::OK, $status_msg);
+    }
+
+    #my ($physical_interface, $vlan_id) = split( /\./, $interface );
+
+    # Check if interfaces exists
+    my $interfaces = $interface_ref->interface->{'interfaces'};
+    ($status, $status_msg) = $self->exists($interfaces);
+    if ( is_error($status) ) {
+        $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$interfaces];
+        $logger->warn($status_msg);
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    }
+
+    # Create requested virtual interface
+    my $bond_name = $interface_ref->interface->{'name'};
+    my $mode = $interface_ref->interface->{'mode'};
+    my $cmd = "sudo nmcli con add type bond con-name $bond_name ifname $bond_name mode $mode";
+    eval { $status = pf_run($cmd) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error in creating interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Might want to move this one in the controller... create doesn't invoke up...
+    # Enable the newly created virtual interface
+    $self->up($interface);
+
+    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
+}
 =head2 delete
 
 =cut

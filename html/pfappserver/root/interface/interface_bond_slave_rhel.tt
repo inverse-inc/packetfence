@@ -1,4 +1,4 @@
-DEVICE=[% logical_name %]
+DEVICE=bond_[% logical_name %]
 ONBOOT=yes
 BOOTPROTO=none
 NM_CONTROLLED=no
