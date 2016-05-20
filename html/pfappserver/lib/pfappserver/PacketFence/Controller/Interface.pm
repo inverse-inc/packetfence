@@ -167,7 +167,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
 
 Create an bond interface
 
-Usage: /interface/create
+Usage: /interface/create_bond
 
 =cut
 

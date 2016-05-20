@@ -348,17 +348,27 @@ sub writeNetworkConfigs {
 
         my $vars = {
             logical_name    => $interface,
+            name_bond       => $interfaces_ref->[$interface]->{'name'},
             vlan_device     => $interfaces_ref->{$interface}->{'vlan'},
             hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
             ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
             netmask         => $interfaces_ref->{$interface}->{'netmask'},
+            mode            => $interfaces_ref->{$interface}->{'mode'},
+            bond_slave      => $interfaces_ref->{$interface}->{'interfaces'},
         };
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
             OUTPUT_PATH     => $var_dir,
         });
-        $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        
+        if ( defined $vars->{'mode'} ) {
+            $template->process( "interface_bond_rhel.tt", $vars, $_interface_conf_file.$interface );
+            $template->process( "interface_bond_slave_rhel.tt", $vars, $_interface_conf_file.$interface );
+
+        } else {
+            $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
+        }
 
         if ( $template->error() ) {
             $status_msg = "Error while writing system network interfaces configuration";

@@ -1,0 +1,6 @@
+DEVICE=[% logical_name %]
+ONBOOT=yes
+BOOTPROTO=none
+NM_CONTROLLED=no
+MASTER=[% name_bond %]
+SLAVE=yes

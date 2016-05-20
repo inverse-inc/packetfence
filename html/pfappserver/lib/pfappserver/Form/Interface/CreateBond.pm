@@ -44,10 +44,10 @@ has_field 'mode' =>
    value => 'active-backup',
   );
 
-has_block definition =>
-  (
-   render_list => [ qw(name interfaces ipaddress netmask type additional_listening_daemons dns vip dhcpd_enabled nat_enabled) ],
-  );
+#has_block definition =>
+#  (
+#   render_list => [ qw(name interfaces ipaddress netmask type additional_listening_daemons dns vip dhcpd_enabled nat_enabled) ],
+#  );
 
 
 use Data::Dumper;

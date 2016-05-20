@@ -4,7 +4,7 @@
     <h3><i>[% l('New Bond') %]</i></h3>
   </div>
   <div class="modal-body">
-    [% form.field('name').render_element | none %]
+    [% form.field('name').render | none %]
     [% form.field('interfaces').render | none %]
     [% form.field('ipaddress').render | none %]
     [% form.field('netmask').render | none %]
