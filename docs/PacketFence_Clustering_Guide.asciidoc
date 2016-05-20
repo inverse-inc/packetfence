@@ -709,7 +709,6 @@ Corosync configuration
      datadir="/var/lib/mysql" \
      pid="/var/lib/mysql/mariadb.pid" \
      socket="/var/lib/mysql/mysql.sock" \
-     additional_parameters="--bind-address=0.0.0.0" \
      op start timeout=60s \
      op stop timeout=60s \
      op monitor interval=20s timeout=30s
