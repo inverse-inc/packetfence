@@ -123,6 +123,10 @@ Usage: /interface/<logical_name>/create
 sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACES_CREATE') {
     my ( $self, $c ) = @_;
 
+    use Data::Dumper;
+    use pf::log;
+    my $logger = get_logger();
+
     my $mechanism = 'all';
     if ($c->session->{'enforcements'}) {
         $mechanism = [ keys %{$c->session->{'enforcements'}} ];
@@ -140,7 +144,9 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
         }
         else {
             my $data = $form->value;
+            $logger->info('test1' . Dumper($data));
             my $interface = $c->stash->{interface} . "." . $data->{vlan};
+            $logger->info('test' . Dumper($interface));
             ($status, $result) = $c->model('Interface')->create($interface);
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);
@@ -183,8 +189,6 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
     }
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism);
     
-    $c->stash->{type} = $types;
-
     my ($status, $result, $form);
 
     if ($c->request->method eq 'POST') {
@@ -196,13 +200,15 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
         }
         else {
             my $data = $form->value;
-            my $interface = $c->stash->{bond_name}; # . "." . $data->{bond};
+            my $interface = $data->{bond_name};
+            $logger->info('data' . Dumper($data));
+            $logger->info('interfaces' . Dumper($data->{interfaces}));
             $logger->info('bond name' . Dumper($interface));
-            ($status, $result) = $c->model('Interface')->create_bond($interface);
+            ($status, $result) = $c->model('Interface')->create_bond($interface, $data);
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);
             }
-            $self->audit_current_action($c, status => $status, interface => $interface);
+            $self->audit_current_action($c, status => $status, interface => $interface, data => $data );
 
         }
         $c->response->status($status);

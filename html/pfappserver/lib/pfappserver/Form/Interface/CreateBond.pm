@@ -43,9 +43,14 @@ has_field 'mode' =>
    default => 'active-backup',
   );
 
+use pf::log;
+use Data::Dumper;
+my $logger = get_logger();
+
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my $interfaces = $c->model('Interface')->get('all');
+    $logger->info('test' . Dumper($interfaces));
     my $types = $c->model('Enforcement')->getAvailableTypes('all');
     return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => $interfaces,  types => $types, @args);
 }
@@ -54,6 +59,7 @@ sub options_interfaces {
     my $self = shift;
     my $interfaces_list = [
         keys %{$self->form->interfaces} ];
+    $logger->info('test2' . Dumper($interfaces_list));
     return sort ( $interfaces_list );
 }
 
