@@ -29,6 +29,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         freeradius_populate_dhcpd_config
+<<<<<<< ba36c296304cddc23008d752e1e10e91ab38b882
         freeradius_update_dhcpd_lease
         freeradius_delete_dhcpd_lease
         ping_dhcpd
@@ -111,7 +112,7 @@ sub dhcpd_db_prepare {
 
 =item _insert_dhcpd
 
-Add a new NAS (FreeRADIUS client) record
+Add a new IP in pool (FreeRADIUS dhcpd pool) record
 
 =cut
 
@@ -172,7 +173,7 @@ sub freeradius_update_dhcpd_lease {
 }
 
 
-=item freeradius_delete_dhcpd_leas
+=item freeradius_delete_dhcpd_lease
 
 Delete dhcp lease in radippool table
  

@@ -18,7 +18,6 @@ Services managed by PacketFence:
   carbon-cache     | carbon-cache daemon
   carbon-relay     | carbon-relay daemon
   collectd         | collectd daemon
-  dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
@@ -35,6 +34,7 @@ Services managed by PacketFence:
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
+  radiusd-dhcpd    | FreeRADIUS dhcpd daemon
   radsniff         | radsniff daemon
   redis_queue      | Redis for pfqueue
   routes           | manage static routes

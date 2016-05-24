@@ -49,6 +49,8 @@ tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 use NetAddr::IP;
 use pf::cluster;
+use pfconfig::cached_array;
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 use pf::dhcpd qw (freeradius_populate_dhcpd_config);
 
 extends 'pf::services::manager';
