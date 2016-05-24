@@ -11,7 +11,6 @@ Form definition to add a Bond to the network configuration.
 =cut
 
 use HTML::FormHandler::Moose;
-use pf::log;
 extends 'pfappserver::Form::Interface';
 with 'pfappserver::Base::Form::Role::Help';
 
@@ -41,23 +40,14 @@ has_field 'mode' =>
   (
    type => 'Hidden',
    label => 'Mode',
-   value => 'active-backup',
+   default => 'active-backup',
   );
-
-#has_block definition =>
-#  (
-#   render_list => [ qw(name interfaces ipaddress netmask type additional_listening_daemons dns vip dhcpd_enabled nat_enabled) ],
-#  );
-
-
-use Data::Dumper;
-
-my $logger = get_logger();
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my $interfaces = $c->model('Interface')->get('all');
-    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => $interfaces, @args);
+    my $types = $c->model('Enforcement')->getAvailableTypes('all');
+    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => $interfaces,  types => $types, @args);
 }
 
 sub options_interfaces {

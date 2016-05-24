@@ -51,7 +51,7 @@ var InterfaceView = function(options) {
     this.disableToggle = false;
 
     var read = $.proxy(this.readInterface, this);
-    options.parent.on('click', '#interfaces [href$="/read"], #interfaces [href$="/create"], #interfaces [href$="/view"]', read);
+    options.parent.on('click', '#interfaces [href$="/read"], #interfaces [href$="/create"], #interfaces [href$="/create_bond"],  #interfaces [href$="/view"]', read);
 
     var update = $.proxy(this.updateInterface, this);
     options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"]', update);
