@@ -1,0 +1,11 @@
+pidfile = %%pid_file%%
+
+$INCLUDE radiusd.conf
+
+%%listen%%
+
+listen {
+    type = control
+    socket = %%socket_file%%
+    mode = rw
+}

@@ -12,7 +12,7 @@ Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, 
- dhcp3-server | isc-dhcp-server, ca-certificates, winbind,
+ ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}),
  fingerbank (>= 3.0.0), packetfence-redis-cache (>= ${source:Version}),
 # wmi
