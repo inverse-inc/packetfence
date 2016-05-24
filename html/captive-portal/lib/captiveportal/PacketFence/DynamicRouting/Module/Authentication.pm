@@ -148,7 +148,16 @@ sub _build_required_fields {
     push @fields, $self->pid_field if(defined($self->pid_field));
     push @fields, 'email' if(defined($self->source) && isenabled($self->source->{create_local_account}));
     push @fields, (defined($self->source) ? $self->source->mandatoryFields() : (), @{$self->required_fields_child}, @{$self->custom_fields});
-    return [uniq(@fields)];
+
+    @fields = uniq(@fields);
+
+    # Remove 'username' and 'password' fields from required fields if 'reuseDot1x' feature is enabled
+    if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
+        @fields = grep { $_ ne "username" } @fields;
+        @fields = grep { $_ ne "password" } @fields;
+    }
+
+    return [@fields];
 }
 
 =head2 required_fields_child
@@ -279,7 +288,14 @@ Update the person using the fields that have been collected
 sub update_person_from_fields {
     my ($self, %options) = @_;
     $options{additionnal_fields} //= {};
-    $options{pid} //= $self->request_fields->{$self->pid_field};
+
+    # we assume we use 'username' field as the PID when using 'reuseDot1x' feature
+    if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
+        $options{pid} //= "username";
+    } else {
+        $options{pid} //= $self->request_fields->{$self->pid_field};
+    }
+
     # not sure we should set the portal + source here...
     person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id);
 }
