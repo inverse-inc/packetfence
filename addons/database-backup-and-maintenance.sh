@@ -29,6 +29,7 @@ BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
 PERCONA_XTRABACKUP_INSTALLED=0
+SQL_ENGINE=''
 
 # For replication
 ACTIVATE_REPLICATION=0
@@ -58,7 +59,6 @@ else
 fi
 
 # check if MySQL or MariaDB is installed
-$SQL_ENGINE=''
 if mysql -V | grep "MariaDB"; then
     $SQL_ENGINE='mariadb'
 else
