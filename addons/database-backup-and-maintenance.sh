@@ -57,9 +57,16 @@ else
     echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
 fi
 
+# check if MySQL or MariaDB is installed
+$SQL_ENGINE=''
+if mysql -V | grep "MariaDB"; then
+    $SQL_ENGINE='mariadb'
+else
+    $SQL_ENGINE="mysql"
+fi
 
 # is MySQL running? meaning we are the live packetfence
-if [ -f /var/run/mysqld/mysqld.pid ]; then
+if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
 
     /usr/local/pf/addons/database-cleaner.pl --table=locationlog --date-field=end_time --older-than="1 WEEK" --additionnal-condition="(end_time <> 0)"
     
