@@ -71,7 +71,9 @@ sub _build_radiusdManagers {
           launcher => $self->launcher . " -n cli"
         };
     }
-
+    $listens->{dhcpd} = {
+      launcher => $self->launcher . " -n dhcpd"
+    };
     my @managers = map {
         my $id = $_;
         my $launcher = $self->launcher;

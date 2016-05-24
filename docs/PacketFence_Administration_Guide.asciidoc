@@ -171,7 +171,6 @@ PacketFence takes care of handling the operation of the following services:
 
 [options="compact"]
 * Web server (httpd)
-* DHCP server (dhcpd)
 * FreeRADIUS server (radiusd)
 * Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
@@ -2371,7 +2370,7 @@ If your isolation and registration networks are not locally-reachable (at layer 
 
 image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network exemple diagram"]
 
-For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
+For radiusd-dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
 
 If we consider the network architecture illustrated in the above schema, `conf/pf.conf` will include the local registration and isolation interfaces only.
 
@@ -2695,7 +2694,7 @@ After, you need to configure a routed network for this interface by clicking 'Ad
 
 NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
 
-Once this is done, you need to restart the dhcpd and pfdns services.
+Once this is done, you need to restart the radiusd-dhcpd and pfdns services.
 
 Parked devices
 ~~~~~~~~~~~~~~

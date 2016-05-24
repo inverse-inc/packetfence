@@ -39,9 +39,15 @@ use pf::config qw(
     $management_network
     %ConfigDomain
     $local_secret
+    @listen_ints
+    %ConfigNetworks
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+
+use NetAddr::IP;
+use pf::cluster;
+use pf::dhcpd qw (freeradius_populate_dhcpd_config);
 
 extends 'pf::services::manager';
 
@@ -86,6 +92,7 @@ sub _generateConfig {
     $self->generate_radiusd_cluster();
     $self->generate_radiusd_cliconf();
     $self->generate_radiusd_eduroamconf();
+    $self->generate_radiusd_dhcpd();
 }
 
 
@@ -489,6 +496,217 @@ EOT
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
     parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
 }
+
+sub generate_radiusd_dhcpd {
+    my %tags;
+    my %direct_subnets;
+
+    freeradius_populate_dhcpd_config();
+    $tags{'template'}    = "$conf_dir/radiusd/dhcpd.conf";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
+    $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
+
+    foreach my $interface ( @listen_ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+        my $members = pf::cluster::dhcpd_peer($interface);
+        my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+            $tags{'listen'} .= <<"EOT";
+
+listen {
+	type = dhcp
+	ipaddr = $cfg->{'ip'}
+	src_ipaddr = $cfg->{'ip'}
+	port = 67
+	interface = $interface
+	broadcast = yes
+        virtual_server = dhcp\.$interface
+}
+
+EOT
+
+        $tags{'config'} .= <<"EOT";
+
+server dhcp\.$interface {
+dhcp DHCP-Discover {
+
+	update reply {
+	       DHCP-Message-Type = DHCP-Offer
+	}
+
+EOT
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
+        if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+            if (defined($net{'next_hop'})) {
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+             }
+
+             if ($current_network->contains($ip)) {
+                 my $network = $current_network2->network();
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $tags{'config'} .= <<"EOT";
+
+	if ($prefix/$mask > %{DHCP-Gateway-IP-Address})
+		update {
+			&reply:DHCP-Domain-Name-Server = $net{'dns'}
+			&reply:DHCP-Subnet-Mask = $net{'netmask'}
+			&reply:DHCP-Router-Address = $net{'gateway'}
+			&reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&reply:DHCP-Domain-Name = $net{'domain-name'}
+			&control:Pool-Name := "$network"
+		}
+	}
+EOT
+            }
+        }
+    }
+
+ $tags{'config'} .= <<"EOT";
+	dhcp_sqlippool
+	ok
+}
+
+dhcp DHCP-Request {
+
+	update reply {
+	       &DHCP-Message-Type = DHCP-Ack
+	}
+
+EOT
+
+    foreach my $network ( keys %ConfigNetworks ) {
+        # shorter, more convenient local accessor
+        my %net = %{$ConfigNetworks{$network}};
+        if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+            my $current_network2 = NetAddr::IP->new( $net{'gateway'}, $net{'netmask'} );
+            if (defined($net{'next_hop'})) {
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+             }
+
+             if ($current_network->contains($ip)) {
+                 my $network = $current_network2->network();
+                 my $prefix = $current_network2->network()->nprefix();
+                 my $mask = $current_network2->masklen();
+                 $tags{'config'} .= <<"EOT";
+
+	if ($prefix/$mask > %{DHCP-Gateway-IP-Address})
+		update {
+			&reply:DHCP-Domain-Name-Server = $net{'dns'}
+			&reply:DHCP-Subnet-Mask = $net{'netmask'}
+			&reply:DHCP-Router-Address = $net{'gateway'}
+			&reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&reply:DHCP-Domain-Name = $net{'domain-name'}
+			&control:Pool-Name := "$network"
+		}
+	}
+
+EOT
+            }
+        }
+    }
+
+ $tags{'config'} .= <<"EOT";
+	dhcp_sqlippool
+	ok
+}
+
+dhcp DHCP-Decline {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+#
+#  For Windows 7 boxes
+#
+dhcp DHCP-Inform {
+	update reply {
+		Packet-Dst-Port = 67
+		DHCP-Message-Type = DHCP-ACK
+		DHCP-DHCP-Server-Identifier = "%{Packet-Dst-IP-Address}"
+		DHCP-Site-specific-28 = 0x0a00
+	}
+	ok
+}
+
+dhcp DHCP-Release {
+	update reply {
+	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+
+dhcp DHCP-Lease-Query {
+
+	# has MAC, asking for IP, etc.
+	if (&DHCP-Client-Hardware-Address) {
+		# look up MAC in database
+	}
+
+	# has IP, asking for MAC, etc.
+	elsif (&DHCP-Your-IP-Address) {
+		# look up IP in database
+	}
+
+	# has host name, asking for IP, MAC, etc.
+	elsif (&DHCP-Client-Identifier) {
+		# look up identifier in database
+	}
+	else {
+		update reply {
+			&DHCP-Message-Type = DHCP-Lease-Unknown
+		}
+
+		ok
+
+		# stop processing
+		return
+	}
+
+	if (notfound) {
+		update reply {
+			&DHCP-Message-Type = DHCP-Lease-Unknown
+		}
+		ok
+		return
+	}
+
+	update reply {
+		&DHCP-Message-Type = DHCP-Lease-Unassigned
+	}
+
+}
+
+}
+
+EOT
+        }
+
+
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-dhcp", "$install_dir/raddb/sites-enabled/packetfence-dhcp" );
+    parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
+    return 1;
+}
+
 
 =head1 AUTHOR
 
