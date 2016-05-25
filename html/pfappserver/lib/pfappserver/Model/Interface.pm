@@ -105,7 +105,7 @@ sub create_bond {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    # Create requested virtual interface
+    # Create requested bond interface
     my $mode = $data->{mode};
     my $cmd = "sudo nmcli con add type bond con-name $interface ifname $interface mode $mode";
     eval { $status = pf_run($cmd) };
@@ -115,9 +115,18 @@ sub create_bond {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
+    # Creating requested slave bond interfaces
+    my $cmd_slave = "sudo nmcli con add type bond-slave con-name $interfaces[$_] master $interface";
+    eval { $status = pf_run($cmd_slave) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error in creating interface Bond Slave [_1]",$interface[$_]];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
     # Might want to move this one in the controller... create doesn't invoke up...
-    # Enable the newly created virtual interface
-    $self->up($interface);
+    # Enable the newly created bond interface
+    $self->up($interfaces, $interface);
 
     return ($STATUS::CREATED, ["Interface Bond [_1] successfully created",$interface]);
 }

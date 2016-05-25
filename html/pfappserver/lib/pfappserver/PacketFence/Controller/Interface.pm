@@ -202,8 +202,6 @@ sub create_bond :Local :AdminRole('INTERFACES_CREATE') {
             my $data = $form->value;
             my $interface = $data->{bond_name};
             $logger->info('data' . Dumper($data));
-            $logger->info('interfaces' . Dumper($data->{interfaces}));
-            $logger->info('bond name' . Dumper($interface));
             ($status, $result) = $c->model('Interface')->create_bond($interface, $data);
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);

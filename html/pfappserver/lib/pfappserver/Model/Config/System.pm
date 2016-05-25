@@ -329,6 +329,7 @@ our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
+our $__bond_salve         = "bond-slave-";
 our $var_dir              = "/usr/local/pf/var/";
 
 =head1 METHODS
@@ -368,7 +369,7 @@ sub writeNetworkConfigs {
         
         if ( defined $interfaces_ref->{$interface}->{'mode'} ) {
             $template->process( "interface_bond_rhel.tt", $vars, $_interface_conf_file.$interface );
-            $template->process( "interface_bond_slave_rhel.tt", $vars, $_interface_conf_file.$interface );
+            $template->process( "interface_bond_slave_rhel.tt", $vars, $_interface_conf_file.$_bond_slave.$interface );
 
         } else {
             $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );

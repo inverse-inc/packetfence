@@ -1,6 +1,6 @@
 DEVICE=bond_[% logical_name %]
 ONBOOT=yes
 BOOTPROTO=none
-NM_CONTROLLED=no
+NM_CONTROLLED=yes
 MASTER=[% name_bond %]
 SLAVE=yes
