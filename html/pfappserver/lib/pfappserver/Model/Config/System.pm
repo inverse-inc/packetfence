@@ -329,7 +329,7 @@ our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
-our $__bond_salve         = "bond-slave-";
+our $_bond_slave         = "bond-slave-";
 our $var_dir              = "/usr/local/pf/var/";
 
 =head1 METHODS

@@ -116,13 +116,13 @@ sub create_bond {
     }
 
     # Creating requested slave bond interfaces
-    my $cmd_slave = "sudo nmcli con add type bond-slave con-name $interfaces[$_] master $interface";
-    eval { $status = pf_run($cmd_slave) };
-    if ( $@ || !$status ) {
-        $status_msg = ["Error in creating interface Bond Slave [_1]",$interface[$_]];
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
+    #my $cmd_slave = "sudo nmcli con add type bond-slave con-name $interfaces[$_] ifname $interfaces[$_] master $interface";
+    #eval { $status = pf_run($cmd_slave) };
+    #if ( $@ || !$status ) {
+    #    $status_msg = ["Error in creating interface Bond Slave [_1]",$interface[$_]];
+    #    $logger->error($status_msg);
+    #    return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    #}
 
     # Might want to move this one in the controller... create doesn't invoke up...
     # Enable the newly created bond interface

@@ -60,10 +60,10 @@ sub options_interfaces {
         keys %{$self->form->interfaces} ];
     $logger->info('test2' . Dumper($interfaces_list));
     my $match = /\.(.*)$/;
-    foreach my $int ($interfaces_list) {
-        $match, $interfaces_list;
-    }
-    $logger->info('test4' . Dumper($int, $match));
+    #foreach my $int ($interfaces_list) {
+    #    $match, $interfaces_list;
+    #}
+    #$logger->info('test4' . Dumper($int, $match));
     return sort ( $interfaces_list );
 }
 
