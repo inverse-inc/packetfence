@@ -89,7 +89,7 @@ sub code : Path : Args(1) {
             $c->detach();
         }
 
-        my $unregdate = $c->user_session->{"email_unregdate"};
+        my $unregdate = $c->_session->{"email_unregdate"};
         get_logger->info("Extending duration to $unregdate");
         node_modify($c->portalSession->clientMac, unregdate => $unregdate);
         pf::activation::set_status_verified($code);
