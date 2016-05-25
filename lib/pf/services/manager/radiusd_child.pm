@@ -516,7 +516,7 @@ sub generate_radiusd_dhcpd {
 
 listen {
 	type = dhcp
-	ipaddr = $cfg->{'ip'}
+	ipaddr = 0.0.0.0
 	src_ipaddr = $cfg->{'ip'}
 	port = 67
 	interface = $interface
@@ -551,9 +551,20 @@ EOT
                  my $network = $current_network2->network();
                  my $prefix = $current_network2->network()->nprefix();
                  my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
+                 if (defined($net{'next_hop'})) {
+                     $tags{'config'} .= <<"EOT";
+
+        if ( ("%{request:DHCP-Gateway-IP-Address}" != '0.0.0.0') && ($prefix/$mask > "%{request:DHCP-Gateway-IP-Address}") )
+EOT
+                 } else {
+                     $tags{'config'} .= <<"EOT";
+        if ( ("%{request:DHCP-Gateway-IP-Address}" == '0.0.0.0') && ($prefix/$mask > "%{request:DHCP-Gateway-IP-Address}") )
+
+EOT
+                 }
                  $tags{'config'} .= <<"EOT";
 
-	if ($prefix/$mask > %{DHCP-Gateway-IP-Address})
 		update {
 			&reply:DHCP-Domain-Name-Server = $net{'dns'}
 			&reply:DHCP-Subnet-Mask = $net{'netmask'}
@@ -596,9 +607,20 @@ EOT
                  my $network = $current_network2->network();
                  my $prefix = $current_network2->network()->nprefix();
                  my $mask = $current_network2->masklen();
+                 $prefix =~ s/\.$//;
+                 if (defined($net{'next_hop'})) {
+                     $tags{'config'} .= <<"EOT";
+
+        if ( ("%{request:DHCP-Gateway-IP-Address}" != '0.0.0.0') && ($prefix/$mask > "%{request:DHCP-Gateway-IP-Address}") )
+EOT
+                 } else {
+                     $tags{'config'} .= <<"EOT";
+        if ( ("%{request:DHCP-Gateway-IP-Address}" == '0.0.0.0') && ($prefix/$mask > "%{request:DHCP-Gateway-IP-Address}") )
+
+EOT
+                 }
                  $tags{'config'} .= <<"EOT";
 
-	if ($prefix/$mask > %{DHCP-Gateway-IP-Address})
 		update {
 			&reply:DHCP-Domain-Name-Server = $net{'dns'}
 			&reply:DHCP-Subnet-Mask = $net{'netmask'}
