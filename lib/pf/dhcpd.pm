@@ -62,7 +62,7 @@ sub dhcpd_db_prepare {
                 pool_name, framedipaddress
             ) VALUES (
                 ?, ?
-            )
+            ) ON DUPLICATE KEY  UPDATE id=id
         ]);
 
         $dhcpd_db_prepared = 1;
@@ -106,7 +106,7 @@ sub freeradius_populate_dhcpd_config {
             my $lower = NetAddr::IP->new( $net{'dhcp_start'}, $net{'netmask'});
             my $upper = NetAddr::IP->new( $net{'dhcp_end'}, $net{'netmask'});
             while ($current_network <= $upper) {
-                if ($current_network < $lower -1 ) {
+                if ($current_network < $lower ) {
                     $current_network ++;
                 } else {
                     _insert_dhcpd($network,$current_network->addr());
