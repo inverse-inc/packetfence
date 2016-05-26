@@ -555,25 +555,32 @@ EOT
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
 
-        if ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
+        if ( ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-        if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
+        if ( ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
                  $tags{'config'} .= <<"EOT";
 
-		update {
-			&reply:DHCP-Domain-Name-Server = $net{'dns'}
-			&reply:DHCP-Subnet-Mask = $net{'netmask'}
-			&reply:DHCP-Router-Address = $net{'gateway'}
-			&reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
-			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-			&reply:DHCP-Domain-Name = $net{'domain-name'}
-			&control:Pool-Name := "$network"
-		}
+                update {
+                        &reply:DHCP-Domain-Name-Server = $net{'dns'}
+                        &reply:DHCP-Subnet-Mask = $net{'netmask'}
+                        &reply:DHCP-Router-Address = $net{'gateway'}
+                        &reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+                        &reply:DHCP-Domain-Name = $net{'domain-name'}
+                        &control:Pool-Name := "$network"
+                        &request:DHCP-Domain-Name-Server = $net{'dns'}
+                        &request:DHCP-Subnet-Mask = $net{'netmask'}
+                        &request:DHCP-Router-Address = $net{'gateway'}
+                        &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+                        &request:DHCP-Domain-Name = $net{'domain-name'}
+                }
+
 	}
 EOT
             }
@@ -611,29 +618,35 @@ EOT
                  $prefix =~ s/\.$//;
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
-
-        if ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
+        if (  ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-        if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) )
+        if ( ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
-                 $tags{'config'} .= <<"EOT";
+                $tags{'config'} .= <<"EOT";
 
-		update {
-			&reply:DHCP-Domain-Name-Server = $net{'dns'}
-			&reply:DHCP-Subnet-Mask = $net{'netmask'}
-			&reply:DHCP-Router-Address = $net{'gateway'}
-			&reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
-			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-			&reply:DHCP-Domain-Name = $net{'domain-name'}
-			&control:Pool-Name := "$network"
-		}
-	}
+                update {
+                        &reply:DHCP-Domain-Name-Server = $net{'dns'}
+                        &reply:DHCP-Subnet-Mask = $net{'netmask'}
+                        &reply:DHCP-Router-Address = $net{'gateway'}
+                        &reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+                        &reply:DHCP-Domain-Name = $net{'domain-name'}
+                        &control:Pool-Name := "$network"
+                        &request:DHCP-Domain-Name-Server = $net{'dns'}
+                        &request:DHCP-Subnet-Mask = $net{'netmask'}
+                        &request:DHCP-Router-Address = $net{'gateway'}
+                        &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+                        &request:DHCP-Domain-Name = $net{'domain-name'}
+                }
+        }
 
 EOT
+
             }
         }
     }
