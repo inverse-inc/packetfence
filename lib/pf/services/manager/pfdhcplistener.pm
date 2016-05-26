@@ -45,7 +45,7 @@ sub _build_pfdhcplistenerManagers {
             forceManaged => $self->isManaged,
             orderIndex => $self->orderIndex,
         })
-    } uniq @listen_ints, @dhcplistener_ints;
+    } uniq @dhcplistener_ints;
     return \@managers;
 }
 
