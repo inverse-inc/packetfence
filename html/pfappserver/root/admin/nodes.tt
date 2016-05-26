@@ -194,71 +194,73 @@ form {
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup">
                     SwitchGroups
                 <i class="icon-chevron-down pull-right"></i></a>
-                <li id="collapseSwitchGroup" class="collapse">
+                <ul id="collapseSwitchGroup" class="collapse">
                   [% FOREACH switch_group IN switch_groups %]
                     <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]<i class="icon-chevron-down pull-right"></i></a>
-                    <div id="collapse_[% switch_group.id %]" class="collapse">
-                      [% FOREACH member IN switch_group.members %]
-                        <a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
+                    <li id="collapse_[% switch_group.id %]" class="collapse">
+                      <ul>[% FOREACH member IN switch_group.members %]
+                        <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
                           <form>
                             <input type="hidden" name="searches.0.name" value="switch_id"/>
                             <input type="hidden" name="searches.0.op" value="is"/>
                             <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
                           </form>
+                        </li>
                       [% END %]
-                    </div>
+                      </ul>
+                    </li>
                   [% END %]
-                </li>
+                </ul>
               </li>
 
               <li class="" id="accordion-Role">
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole">
                   Roles
                 <i class="icon-chevron-down pull-right"></i></a>
-                <li id="collapseRole" class="collapse">
+                <ul id="collapseRole" class="collapse">
                   [% FOREACH role IN roles %]
-                    <div>
+                    <li>
                       <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseRole">[% role.name %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="category"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
                           <input type="hidden" name="searches.0.value" value="[% role.name %]"/>
                         </form>
-                    </div>
+                    </li>
                   [% END %]
-                </li>
+                </ul>
               </li>
 
               <li class="" id="accordion-OS">
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS">
                    OS
                 <i class="icon-chevron-down pull-right"></i></a>
-                <li id="collapseOS" class="collapse">
-                  <div>
+                <ul id="collapseOS" class="collapse">
+                  <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Windows"/>
                       </form>
-                  </div>
-                  <div>
+                  </li>
+                  <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Linux"/>
                       </form>
-                  </div>
-                  <div>
+                  </li>
+                  <li>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Macintosh"/>
                       </form>
-                  </div>
-                </li>
+                  </li>
+                </ul>
               </li>
 
               <li class="nav-header">[% l('Saved Searches') %]</li>
