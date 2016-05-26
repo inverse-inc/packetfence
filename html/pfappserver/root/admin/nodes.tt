@@ -209,6 +209,13 @@ form {
                       [% END %]
                       </ul>
                     </li>
+                    <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroup" data-target="advanced">[% switchs %]</a>
+                      <form>
+                        <input type="hidden" name="searches.0.name" value="switch_id"/>
+                        <input type="hidden" name="searches.0.op" value="is"/>
+                        <input type="hidden" name="searches.0.value" value="[% switchs %]"/>
+                      </form>
+                    </li>
                   [% END %]
                 </ul>
               </li>

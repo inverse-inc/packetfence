@@ -204,11 +204,13 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     (undef, my $roles) = $c->model('Roles')->list();
+    my $switchs = pf::ConfigStore::Switch->new->readAllIds();
     $c->stash(
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
         roles => $roles,
         switch_groups => $switch_groups,
+        switchs => $switchs,
     );
 }
 
