@@ -49,21 +49,17 @@ my $logger = get_logger();
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    my $interfaces = $c->model('Interface')->get('all');
+    my @interfaces = grep {!defined $_->{master}} $c->model('Interface')->_listInterfaces('all');
+    $logger->info('my int' . Dumper(@interfaces));
     my $types = $c->model('Enforcement')->getAvailableTypes('all');
-    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => $interfaces,  types => $types, @args);
+    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => @interfaces,  types => $types, @args);
 }
 
 sub options_interfaces {
     my $self = shift;
-    my $interfaces_list = [
-        keys %{$self->form->interfaces} ];
+    my $interfaces_list = [ #$self->form->interfaces->{name} ];
+        values %{$self->form->interfaces->{name}} ];
     $logger->info('test2' . Dumper($interfaces_list));
-    my $match = /\.(.*)$/;
-    #foreach my $int ($interfaces_list) {
-    #    $match, $interfaces_list;
-    #}
-    #$logger->info('test4' . Dumper($int, $match));
     return sort ( $interfaces_list );
 }
 

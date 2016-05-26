@@ -282,6 +282,7 @@ sub get {
     my ( $self, $interface) = @_;
     my $logger = get_logger();
     my $models = $self->{models};
+    use Data::Dumper;
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
