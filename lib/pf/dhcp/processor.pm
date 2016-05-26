@@ -174,6 +174,7 @@ sub process_packet_dhcp {
     $dhcp->{'dest_mac'} = $self->{'dest_mac'} if (defined($self->{'dst_mac'}));
     $dhcp->{'src_ip'} = $self->{'src_ip'} if (defined($self->{'src_ip'}));
     $dhcp->{'dest_ip'} = $self->{'dest_ip'} if (defined($self->{'dst_ip'}));
+    $self->{'net_type'} = $dhcp->{'net_type'} if (defined($self->{'net_type'}));
 
     if (!valid_mac($dhcp->{'src_mac'})) {
         $logger->debug("Source MAC is invalid. skipping");

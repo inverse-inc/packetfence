@@ -491,6 +491,7 @@ sub generate_radiusd_dhcpd {
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
+        my $enforcement = $cfg->{'enforcement'};
         my $members = pf::cluster::dhcpd_peer($interface);
         my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
             $tags{'listen'} .= <<"EOT";
@@ -560,6 +561,7 @@ EOT
                         &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
                         &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &request:DHCP-Domain-Name = $net{'domain-name'}
+                        &request:DHCP-Site-specific-0 = $enforcement
                 }
 
 	}
@@ -623,6 +625,7 @@ EOT
                         &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
                         &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &request:DHCP-Domain-Name = $net{'domain-name'}
+                        &request:DHCP-Site-specific-0 = $enforcement
                 }
         }
 
