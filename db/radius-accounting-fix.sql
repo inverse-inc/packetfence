@@ -83,10 +83,11 @@ BEGIN
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    `timestamp`, acctstatustype, acctinputoctets, 
+    acctoutputoctets, acctsessiontime)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
-    p_acctstarttime, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time));
+    p_acctstarttime, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets),
+    (p_acctoutputoctets - Previous_Output_Octets), (p_acctsessiontime - Previous_Session_Time));
 END /
 DELIMITER ;
