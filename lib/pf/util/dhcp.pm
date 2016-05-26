@@ -81,10 +81,13 @@ Readonly my %dhcp_attributes = (
 Readonly my %dhcp_options = (
     'DHCP-Client-FQDN' => '81',
     'DHCP-Vendor-Class-Identifier' => '60',
-    'DHCP-Message-Type' => '53',
-    'DHCP-Client-Identifier' => '61',
-    'DHCP-Hostname' => '12',
-    'DHCP-Parameter-Request-List' => '55',
+    'DHCP-Message-Type'            => '53',
+    'DHCP-Client-Identifier'       => '61',
+    'DHCP-Hostname'                => '12',
+    'DHCP-Parameter-Request-List'  => '55',
+    'DHCP-IP-Address-Lease-Time'   => '51',
+    'DHCP-Client-IP-Address'       => '50',
+    'DHCP-DHCP-Server-Identifier'  => '54',
 );
 
 Readonly my %dhcp_options_82 = (
@@ -397,11 +400,12 @@ sub format_from_radius_dhcp {
     foreach my $keys (keys $radius_request) {
         if (defined($dhcp_options{$keys})) {
             if ($radius_request->{$keys} =~ /^0x(.*)/) {
+                my $value = $1;
                 if ($keys ne "DHCP-Client-Identifier") {
-                     my $value  =~ s/([a-fA-F0-9][a-fA-F0-9])/pack("C",hex($1))/eg;
+                     $value  =~ s/([a-fA-F0-9][a-fA-F0-9])/pack("C",hex($1))/eg;
                     $options->{$dhcp_options{$keys}} = $value;
                 } else {
-                    my @value = map {hex($_)} $1 =~ /(..)/sg;
+                    my @value = map {hex($_)} $value =~ /(..)/sg;
                     $options->{$dhcp_options{$keys}} = \@value;
                 }
             } else {
