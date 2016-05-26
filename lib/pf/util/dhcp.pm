@@ -89,6 +89,7 @@ Readonly my %dhcp_options = (
     'DHCP-IP-Address-Lease-Time'   => '51',
     'DHCP-Client-IP-Address'       => '50',
     'DHCP-DHCP-Server-Identifier'  => '54',
+    'DHCP-Site-specific-0'         => '224',
 );
 
 Readonly my %dhcp_options_82 = (
@@ -431,6 +432,7 @@ sub format_from_radius_dhcp {
     $dhcp->{'ciaddr'} = $options->{'50'};
     $dhcp->{'options'} = $options;
     $dhcp->{'radius'} = $TRUE;
+    $dhcp->{'net_type'} = $options->{'224'};
     my %new_option = (
         '_subopts' => $sub_options,
     );
