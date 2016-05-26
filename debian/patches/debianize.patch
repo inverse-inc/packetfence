@@ -1,46 +1,100 @@
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 42ec516..653bc03 100644
+index ff0f2c6..10fbb44 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -572,7 +572,7 @@ haproxy_binary=/usr/sbin/haproxy
+@@ -432,7 +432,7 @@ radiusd_order=12
+ # services.radiusd_binary
+ # 
+ # Location of the named binary. Only necessary to change if you are not running the RPMed version.
+-radiusd_binary=/usr/sbin/radiusd
++radiusd_binary=/usr/sbin/freeradius
+ #
+ # services.iptables
+ #
+@@ -532,7 +532,7 @@ httpd_graphite_order=99
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 -httpd_binary=/usr/sbin/httpd
 +httpd_binary=/usr/sbin/apache2
  #
- # services.openssl_binary
+ # services.pfsetvlan
  #
-@@ -592,12 +592,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
- # services.radiusd_binary
- # 
- # Location of the named binary. Only necessary to change if you are not running the RPMed version.
--radiusd_binary=/usr/sbin/radiusd
-+radiusd_binary=/usr/sbin/freeradius
- # 
- # services.arp_binary
- # 
- # location of the arp binary. only necessary to change if you are not running the rpmed version.
--arp_binary=/sbin/arp
-+arp_binary=/usr/sbin/arp
- # 
- # services.carbon-cache_binary
- # 
-@@ -612,7 +612,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
+@@ -709,7 +709,7 @@ statsd_order=93
  # services.statsd_binary
  # 
  # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
 -statsd_binary=/usr/bin/node
 +statsd_binary=/usr/bin/nodejs
- # 
- # services.collectd_binary
- # 
-@@ -627,7 +627,7 @@ radsniff_binary=/usr/bin/radsniff
+ #
+ # services.radsniff
+ #
+@@ -739,7 +739,7 @@ p0f_order=81
  # services.p0f_binary
  # 
  # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
 -p0f_binary=/usr/local/bin/p0f
 +p0f_binary=/usr/sbin/p0f
+ #
+ # services.openssl_binary
+ #
+@@ -749,7 +749,7 @@ openssl_binary=/usr/bin/openssl
+ # services.arp_binary
  # 
- # services.iptables_binary
- # 
+ # location of the arp binary. only necessary to change if you are not running the rpmed version.
+-arp_binary=/sbin/arp
++arp_binary=/usr/sbin/arp
+ 
+ [vlan]
+ #
+diff --git a/debian/patches/debianize.patch b/debian/patches/debianize.patch
+index 54b3cc6..e69de29 100644
+--- a/debian/patches/debianize.patch
++++ b/debian/patches/debianize.patch
+@@ -1,46 +0,0 @@
+-diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
+-index 42ec516..653bc03 100644
+---- a/conf/pf.conf.defaults
+-+++ b/conf/pf.conf.defaults
+-@@ -572,7 +572,7 @@ haproxy_binary=/usr/sbin/haproxy
+- # services.httpd_binary
+- #
+- # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+--httpd_binary=/usr/sbin/httpd
+-+httpd_binary=/usr/sbin/apache2
+- #
+- # services.openssl_binary
+- #
+-@@ -592,12 +592,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+- # services.radiusd_binary
+- # 
+- # Location of the named binary. Only necessary to change if you are not running the RPMed version.
+--radiusd_binary=/usr/sbin/radiusd
+-+radiusd_binary=/usr/sbin/freeradius
+- # 
+- # services.arp_binary
+- # 
+- # location of the arp binary. only necessary to change if you are not running the rpmed version.
+--arp_binary=/sbin/arp
+-+arp_binary=/usr/sbin/arp
+- # 
+- # services.carbon-cache_binary
+- # 
+-@@ -612,7 +612,7 @@ carbon-relay_binary=/usr/bin/carbon-relay
+- # services.statsd_binary
+- # 
+- # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
+--statsd_binary=/usr/bin/node
+-+statsd_binary=/usr/bin/nodejs
+- # 
+- # services.collectd_binary
+- # 
+-@@ -627,7 +627,7 @@ radsniff_binary=/usr/bin/radsniff
+- # services.p0f_binary
+- # 
+- # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
+--p0f_binary=/usr/local/bin/p0f
+-+p0f_binary=/usr/sbin/p0f
+- # 
+- # services.iptables_binary
+- # 
