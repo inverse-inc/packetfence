@@ -516,8 +516,10 @@ sub predefined_search :Local :AdminRole('REPORTS') {
          } @{$sg->readAllIds}];
 
     my $groupsModel = $c->model("Config::SwitchGroup");
+    my $switchs = pf::ConfigStore::Switch->new->readAllIds();
     $c->stash({
             'switch_groups' => $switch_groups,
+            'switchs' => $switchs,
             });
 }
 
