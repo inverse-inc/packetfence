@@ -134,7 +134,7 @@ sub _changeFilesToOwner {
 }
 
 sub _fingerbank {
-    fingerbank::Util::fix_permissions;
+    fingerbank::Util::fix_permissions();
 }
 
 =head1 AUTHOR
