@@ -41,7 +41,7 @@ BEGIN
     WHERE acctsessionid = p_acctsessionid
     AND username = p_username
     AND nasipaddress = p_nasipaddress
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
+    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
