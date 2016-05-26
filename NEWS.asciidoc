@@ -11,6 +11,27 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.0.2 released on 2016-05-26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed pfdns to prevent pid file deletion when a child dies (#1444)
+* PacketFence will now handle the case where a source in the session is not available anymore
+* Fixed missing PID when using device registration (#1447)
+* Fingerbank update will no longer sync all servers anymore 
+* VoIP detection flags default will now be undef in admin interface
+* Suricata renamed to suricata_event in violations.conf.example
+* The captive portal will now handle User Agent strings properly
+* PacketFence will now delete the user (not device) session after activating sponsor
+* Fixed incorrect MAC address formatting in the reporting section of the GUI
+* Fixed "reuse dot1x credentials" in captive portal
+* Fixed incorrect SNMP traps handling
+* Fixed incorrect MAC address handling in radius accounting
+* Added a check to database backup script for mariadb
+* Fixed unregistration date handling when using email registration
+
 Version 6.0.1 released on 2016-04-28
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
