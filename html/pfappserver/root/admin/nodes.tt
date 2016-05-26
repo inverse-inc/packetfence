@@ -190,11 +190,11 @@ form {
               </li>
 
               <li class="nav-header">[% l('Custom Predefined Search') %]</li>
-              <div id="accordion-SwithGroup">
+              <li class="" id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup">
                     SwitchGroups
                 </a>
-                <div id="collapseSwitchGroup" class="collapse">
+                <li id="collapseSwitchGroup" class="collapse">
                   [% FOREACH switch_group IN switch_groups %]
                     <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]</a>
                     <div id="collapse_[% switch_group.id %]" class="collapse">
@@ -208,58 +208,58 @@ form {
                       [% END %]
                     </div>
                   [% END %]
-                </div>
-              </div>
+                </li>
+              </li>
 
-              <div id="accordion-Role">
+              <li class="" id="accordion-Role">
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole">
                   Roles
                 </a>
-                <div id="collapseRole" class="collapse">
+                <li id="collapseRole" class="collapse">
                   [% FOREACH role IN roles %]
-                    <li>
+                    <div>
                       <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseRole">[% role.name %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="category"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
                           <input type="hidden" name="searches.0.value" value="[% role.name %]"/>
                         </form>
-                    </li>
+                    </div>
                   [% END %]
-                </div>
-              </div>
+                </li>
+              </li>
 
-			  <div id="accordion-OS">
+			  <li class="" id="accordion-OS">
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS">
                    OS
                 </a>
-                <div id="collapseOS" class="collapse">
-                  <li>
+                <li id="collapseOS" class="collapse">
+                  <div>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Windows"/>
                       </form>
-                  </li>
-				  <li>
+                  </div>
+				  <div>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Linux</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Linux"/>
                       </form>
-                  </li>
-				  <li>
+                  </div>
+				  <div>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">MacOS</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="dhcp_fingerprint"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
                         <input type="hidden" name="searches.0.value" value="Macintosh"/>
                       </form>
-                  </li>
-                </div>
-              </div>
+                  </div>
+                </li>
+              </li>
 
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
