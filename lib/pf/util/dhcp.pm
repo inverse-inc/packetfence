@@ -439,7 +439,6 @@ sub format_from_radius_dhcp {
     $args->{'interface'} = $options->{'225'};
     $args->{'interface_vlan'} = $options->{'226'};
     $args->{'interface_ip'} = $options->{'54'};
-
     my %new_option = (
         '_subopts' => $sub_options,
     );
