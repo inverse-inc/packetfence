@@ -196,10 +196,10 @@ form {
                 </a>
                 <li id="collapseSwitchGroup" class="collapse">
                   [% FOREACH switch_group IN switch_groups %]
-                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]</a>
+                    <a class="" data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]</a>
                     <div id="collapse_[% switch_group.id %]" class="collapse">
                       [% FOREACH member IN switch_group.members %]
-                        <a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
+                        <a class="" href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
                           <form>
                             <input type="hidden" name="searches.0.name" value="switch_id"/>
                             <input type="hidden" name="searches.0.op" value="is"/>
