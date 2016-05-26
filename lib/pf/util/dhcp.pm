@@ -418,7 +418,6 @@ sub format_from_radius_dhcp {
             }
         } else {
             if (defined($dhcp_attributes{$keys})) {
-                $logger->warn($radius_request->{$keys});
                 $dhcp->{$dhcp_attributes{$keys}} = $radius_request->{$keys};
             }
         }
