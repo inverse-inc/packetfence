@@ -193,10 +193,10 @@ form {
               <li class="" id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup">
                     SwitchGroups
-                </a>
+                <i class="icon-chevron-down pull-right"></i></a>
                 <li id="collapseSwitchGroup" class="collapse">
                   [% FOREACH switch_group IN switch_groups %]
-                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]</a>
+                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]<i class="icon-chevron-down pull-right"></i></a>
                     <div id="collapse_[% switch_group.id %]" class="collapse">
                       [% FOREACH member IN switch_group.members %]
                         <a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"data-target="advanced">[% member.id %]</a>
@@ -214,7 +214,7 @@ form {
               <li class="" id="accordion-Role">
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole">
                   Roles
-                </a>
+                <i class="icon-chevron-down pull-right"></i></a>
                 <li id="collapseRole" class="collapse">
                   [% FOREACH role IN roles %]
                     <div>
@@ -232,7 +232,7 @@ form {
               <li class="" id="accordion-OS">
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS">
                    OS
-                </a>
+                <i class="icon-chevron-down pull-right"></i></a>
                 <li id="collapseOS" class="collapse">
                   <div>
                     <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Windows</a>
