@@ -156,17 +156,24 @@ sub process_packet {
     my $success;
     try {
         $dhcp = decode_dhcp($self->{'udp_payload'});
+        $dhcp->{'radius'} =$FALSE;
         $success = 1;
     } catch {
         $logger->warn("Unable to parse DHCP packet: $_");
     };
     return if (!$success);
+    $self->process_packet_dhcp($dhcp);
+}
+
+
+sub process_packet_dhcp {
+    my ($self,$dhcp) = @_;
 
     # adding to dhcp hashref some frame information we care about
-    $dhcp->{'src_mac'} = $self->{'src_mac'};
-    $dhcp->{'dest_mac'} = $self->{'dest_mac'};
-    $dhcp->{'src_ip'} = $self->{'src_ip'};
-    $dhcp->{'dest_ip'} = $self->{'dest_ip'};
+    $dhcp->{'src_mac'} = $self->{'src_mac'} if (defined($self->{'src_mac'}));
+    $dhcp->{'dest_mac'} = $self->{'dest_mac'} if (defined($self->{'dst_mac'}));
+    $dhcp->{'src_ip'} = $self->{'src_ip'} if (defined($self->{'src_ip'}));
+    $dhcp->{'dest_ip'} = $self->{'dest_ip'} if (defined($self->{'dst_ip'}));
 
     if (!valid_mac($dhcp->{'src_mac'})) {
         $logger->debug("Source MAC is invalid. skipping");
@@ -179,7 +186,7 @@ sub process_packet {
         return;
     }
 
-    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) ) if !($dhcp->{'radius'});
     if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
         $logger->debug( sub {
             "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
@@ -324,9 +331,8 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( !$self->pf_is_dhcp($client_ip) && 
-        !isenabled($Config{network}{force_listener_update_on_ack}) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
+    if( (defined($client_ip) && defined($client_mac)) && (!$self->pf_is_dhcp($client_ip) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
+        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $dhcp->{'radius'});
     }
 
     # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
@@ -390,9 +396,8 @@ sub parse_dhcp_ack {
     # We check if we are running with the DHCPd process.
     # If yes, we are interested with the ACK
     # Packet also has to be valid
-    if( $self->pf_is_dhcp($client_ip) || 
-        isenabled $Config{network}{force_listener_update_on_ack} ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
+    if( (defined($client_ip) && defined($client_mac)) && ($self->pf_is_dhcp($client_ip) || isenabled($Config{network}{force_listener_update_on_ack})) ){
+        $self->handle_new_ip($client_mac, $client_ip, $lease_length, $dhcp->{'radius'});
     }
     else {
         $logger->debug("Not acting on DHCPACK");
@@ -430,10 +435,10 @@ Handle the tasks related to a device getting an IP address
 
 sub handle_new_ip {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($self, $client_mac, $client_ip, $lease_length) = @_;
+    my ($self, $client_mac, $client_ip, $lease_length, $radius) = @_;
     $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
-    $self->update_iplog( $client_mac, $client_ip, $lease_length );
-
+    $self->update_iplog( $client_mac, $client_ip, $lease_length ) if !($radius);
+ 
     $self->check_for_parking($client_mac, $client_ip);
 
     my %data = (

@@ -29,6 +29,7 @@ use Readonly;
 
 use pf::util qw(int2ip clean_mac);
 use pf::option82 qw(get_switch_from_option82);
+use pf::constants;
 
 our @ascii_options = (
     4, # Time Server (RFC2132)
@@ -426,8 +427,10 @@ sub format_from_radius_dhcp {
             }
         }
     }
+    $dhcp->{'src_mac'} = $dhcp->{'chaddr'};
+    $dhcp->{'ciaddr'} = $options->{'50'};
     $dhcp->{'options'} = $options;
-
+    $dhcp->{'radius'} = $TRUE;
     my %new_option = (
         '_subopts' => $sub_options,
     );
@@ -436,6 +439,7 @@ sub format_from_radius_dhcp {
     $dhcp->{'options'}{'82'} = \%new_option;
     _decode_dhcp_option82_suboption1(\%new_option, $sub_options->{'1'});
     _decode_dhcp_option82_suboption2(\%new_option, $sub_options->{'2'});
+
     return $dhcp;
 }
 
