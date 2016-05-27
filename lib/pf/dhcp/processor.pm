@@ -332,7 +332,7 @@ sub parse_dhcp_request {
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( (defined($client_ip) && defined($client_mac)) && (!$self->pf_is_dhcp($client_ip) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
+    if( (defined($client_ip) && defined($client_mac)) && ( (!$self->pf_is_dhcp($client_ip) || $dhcp->{'radius'}) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length, $dhcp->{'radius'});
     }
 

@@ -34,7 +34,6 @@ Services managed by PacketFence:
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
-  radiusd-dhcpd    | FreeRADIUS dhcpd daemon
   radsniff         | radsniff daemon
   redis_queue      | Redis for pfqueue
   snmptrapd        | SNMP trap receiver daemon
