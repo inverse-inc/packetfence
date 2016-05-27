@@ -214,16 +214,16 @@ form {
               </li>
 
               <li class="" id="accordion-Switches">
-                <a data-toggle="collapse" data-parent="#accrdion-Switches" href="#collapseSwitches">
+                <a data-toggle="collapse" data-parent="#accordion-Switches" href="#collapseSwitches">
                   Switches
                 <i class="icon-chevron-down pull-right"></i></a>
                   <ul id="collapseSwitches" class="collapse"> 
-                    [% FOREACH switch in switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitches" data-target="advanced">[% switches %]</a>
+                    [% FOREACH switch IN switches %]
+                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitches" data-target="advanced">[% switch %]</a>
                         <form>
                           <input type="hidden" name="searches.0.name" value="switch_id"/>
                           <input type="hidden" name="searches.0.op" value="is"/>
-                          <input type="hidden" name="searches.0.value" value="[% switches %]"/>
+                          <input type="hidden" name="searches.0.value" value="[% switch %]"/>
                         </form>
                       </li>
                     [% END %]
