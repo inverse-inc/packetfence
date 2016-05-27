@@ -25,7 +25,6 @@ use pf::log;
 use pf::file_paths qw(
     $pf_default_file
     $pf_config_file
-    $pf_omapi_key_file
     $log_dir
 );
 use pf::util;
@@ -133,12 +132,6 @@ sub build_child {
 
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
-
-    # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
-    if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
-        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);
-        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
-    }
 
     return \%Config;
 

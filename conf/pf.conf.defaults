@@ -1065,43 +1065,6 @@ timing_stats_level=5
 # Do not change unless you know what you are doing
 pfdhcplistener_packet_size=576
 
-[omapi]
-#
-# omapi.ip2mac_lookup
-#
-# Use OMAPI to query DHCPd for the MAC address of a given IP address
-ip2mac_lookup=enabled
-#
-# omapi.mac2ip_lookup
-#
-# Use OMAPI to query DHCPd for the IP address of a given MAC address
-mac2ip_lookup=enabled
-#
-# omapi.key_name
-#
-# The OMAPI key name for signing messages
-key_name=pf_omapi_key
-#
-# omapi.key_base64
-#
-# The OMAPI base64 key for signing messages
-key_base64=
-#
-# omapi.port
-#
-# The OMAPI port number
-port=7911
-#
-# omapi.host
-#
-# The OMAPI host
-host=localhost
-#
-# omapi.timeout
-#
-# The timeout on the OMAPI socket
-timeout=0.5
-
 [provisioning]
 #
 # provisioning.autoconfig

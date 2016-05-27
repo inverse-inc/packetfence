@@ -150,7 +150,6 @@ sub sanity_check {
     billing();
 
     database();
-    omapi();
     authentication();
     network();
     fingerbank();
@@ -365,6 +364,49 @@ Validation related to the OMAPI configuration
 sub omapi {
     if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
         add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
+    }
+}
+
+=item scan
+
+Validation related to the vulnerability scanning engine option.
+
+=cut
+
+sub scan_legacy {
+
+    # Check if the configuration provided scan engine is instanciable
+    my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
+    $scan_engine = untaint_chain($scan_engine);
+    try {
+        eval "$scan_engine->require()";
+        die($@) if ($@);
+        my $scan = $scan_engine->new(
+            host => $Config{'scan'}{'host'},
+            user => $Config{'scan'}{'user'},
+            pass => $Config{'scan'}{'pass'},
+        );
+    } catch {
+        chomp($_);
+        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
+    };
+}
+
+=item scan_openvas
+
+Validation related to the OpenVAS vulnerability scanning engine usage.
+
+=cut
+
+sub scan_openvas {
+    # Check if the mandatory informations are provided in the config file
+    if ( !$Config{'scan'}{'openvas_configid'} ) {
+        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
+                "scan.openvas_configid field in pf.conf" );
+    }
+    if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
+        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
+                "scan.openvas_reportformatid field in pf.conf");
     }
 }
 
