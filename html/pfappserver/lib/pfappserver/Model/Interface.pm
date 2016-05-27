@@ -83,7 +83,6 @@ sub create_bond {
     use Data::Dumper;
     my ($status, $status_msg);
 
-    $logger->info('ma super interface' . Dumper($interface));
     # This method does not handle the 'all' interface neither the 'lo' one
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
@@ -96,13 +95,16 @@ sub create_bond {
     }
 
     # Check if interfaces exists
-    my $interfaces = $data->{interfaces};
-    $logger->info('my interfaces' . Dumper($interfaces));
-    ($status, $status_msg) = $self->exists($interfaces);
-    if ( is_error($status) ) {
-        $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$interfaces];
-        $logger->warn($status_msg);
-        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    my @interfaces_bond = $data->{interfaces};
+    $logger->info('interfaces' . Dumper(@interfaces_bond));
+    foreach my $bond_interface (@interfaces_bond) {
+        $logger->info('tbond' . Dumper($bond_interface));
+        ($status, $status_msg) = $self->exists($bond_interface);
+        if ( is_error($status) ) {
+            $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$bond_interface];
+            $logger->warn($status_msg);
+            return ($STATUS::PRECONDITION_FAILED, $status_msg);
+        }
     }
 
     # Create requested bond interface
@@ -126,7 +128,7 @@ sub create_bond {
 
     # Might want to move this one in the controller... create doesn't invoke up...
     # Enable the newly created bond interface
-    $self->up($interfaces, $interface);
+    $self->up(@interfaces_bond, $interface);
 
     return ($STATUS::CREATED, ["Interface Bond [_1] successfully created",$interface]);
 }
