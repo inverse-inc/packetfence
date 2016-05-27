@@ -29,7 +29,6 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         freeradius_populate_dhcpd_config
-<<<<<<< ba36c296304cddc23008d752e1e10e91ab38b882
         freeradius_update_dhcpd_lease
         freeradius_delete_dhcpd_lease
         ping_dhcpd
@@ -103,6 +102,18 @@ sub dhcpd_db_prepare {
             ) VALUES (
                 ?, ?, ?
             )
+        ]);
+
+        $dhcpd_statements->{'freeradius_insert_dhcpd_lease'} = $dbh->prepare(qq[
+            UPDATE radippool
+                SET lease_time = ?
+            WHERE callingstationid = ?
+        ]);
+
+        $dhcpd_statements->{'freeradius_delete_dhcpd_lease'} = $dbh->prepare(qq[
+            UPDATE radippool
+                SET lease_time = NULL
+            WHERE callingstationid = ?
         ]);
 
         $dhcpd_db_prepared = 1;

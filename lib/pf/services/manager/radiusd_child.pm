@@ -583,7 +583,6 @@ EOT
                  }
                  $tags{'config'} .= <<"EOT";
 
-
 			update {
 				&reply:DHCP-Domain-Name-Server = $net{'dns'}
 				&reply:DHCP-Subnet-Mask = $net{'netmask'}
