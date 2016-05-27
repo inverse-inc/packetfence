@@ -117,10 +117,10 @@ sub create_bond {
 
     # Creating requested slave bond interfaces
     foreach my $bond_interface (@$interfaces_bond) {
-        my $cmd_slave = "sudo nmcli con add type bond-slave con-name $bond_interface ifname $bond_interface master $interface";
+        my $cmd_slave = "sudo nmcli con add type bond-slave con-name $bond_interface-slave ifname $bond_interface-slave master $interface";
         eval { $status = pf_run($cmd_slave) };
         if ( $@ || !$status ) {
-            $status_msg = ["Error in creating interface Bond Slave [_1]",$bond_interface];
+            $status_msg = ["Error in creating interface Bond Slave [_1]",$bond_interface . "-slave"];
             $logger->error($status_msg);
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
@@ -129,7 +129,7 @@ sub create_bond {
     # Might want to move this one in the controller... create doesn't invoke up...
     # Enable the newly created bond-slave interface
     foreach my $bond_interface (@$interfaces_bond) {
-        $self->($bond_interface);
+        $self->up($bond_interface);
         return ($STATUS::CREATED, ["Interface Bond Slave [_1] successfully created",$bond_interface]);
     }
     # Enable the newly created bond interface
