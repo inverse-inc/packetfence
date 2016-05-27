@@ -43,24 +43,22 @@ has_field 'mode' =>
    default => 'active-backup',
   );
 
-use pf::log;
-use Data::Dumper;
-my $logger = get_logger();
-
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    my @interfaces = grep {!defined $_->{master}} $c->model('Interface')->_listInterfaces('all');
-    $logger->info('my int' . Dumper(@interfaces));
+    my $inter_list = $c->model('Interface')->get('all');
+    my @interfaces = grep {!defined $_->{'vlan'}} values %{$inter_list};
     my $types = $c->model('Enforcement')->getAvailableTypes('all');
-    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => @interfaces,  types => $types, @args);
+    return $self->SUPER::ACCEPT_CONTEXT($c, interfaces => \@interfaces,  types => $types, @args);
 }
 
 sub options_interfaces {
     my $self = shift;
-    my $interfaces_list = [ #$self->form->interfaces->{name} ];
-        values %{$self->form->interfaces->{name}} ];
-    $logger->info('test2' . Dumper($interfaces_list));
-    return sort ( $interfaces_list );
+    my $interfaces_list = [
+    map { 
+        { value => $_->{name},
+          label => $_->{name}}
+        } @{$self->form->interfaces}];
+    return $interfaces_list;
 }
 
 =head1 COPYRIGHT
