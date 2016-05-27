@@ -570,14 +570,14 @@ EOT
                         &reply:DHCP-Domain-Name-Server = $net{'dns'}
                         &reply:DHCP-Subnet-Mask = $net{'netmask'}
                         &reply:DHCP-Router-Address = $net{'gateway'}
-                        &reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
                         &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &reply:DHCP-Domain-Name = $net{'domain-name'}
                         &control:Pool-Name := "$network"
                         &request:DHCP-Domain-Name-Server = $net{'dns'}
                         &request:DHCP-Subnet-Mask = $net{'netmask'}
                         &request:DHCP-Router-Address = $net{'gateway'}
-                        &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
                         &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &request:DHCP-Domain-Name = $net{'domain-name'}
                         &request:DHCP-Site-specific-0 = $enforcement
@@ -634,14 +634,14 @@ EOT
                         &reply:DHCP-Domain-Name-Server = $net{'dns'}
                         &reply:DHCP-Subnet-Mask = $net{'netmask'}
                         &reply:DHCP-Router-Address = $net{'gateway'}
-                        &reply:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
                         &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &reply:DHCP-Domain-Name = $net{'domain-name'}
                         &control:Pool-Name := "$network"
                         &request:DHCP-Domain-Name-Server = $net{'dns'}
                         &request:DHCP-Subnet-Mask = $net{'netmask'}
                         &request:DHCP-Router-Address = $net{'gateway'}
-                        &request:DHCP-IP-Address-Lease-Time = $net{'dhcp_default_lease_time'}
+                        &request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
                         &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &request:DHCP-Domain-Name = $net{'domain-name'}
                         &request:DHCP-Site-specific-0 = $enforcement

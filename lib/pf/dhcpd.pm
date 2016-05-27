@@ -26,6 +26,8 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         freeradius_populate_dhcpd_config
+        freeradius_update_dhcpd_lease
+        freeradius_delete_dhcpd_lease
     );
 }
 
@@ -63,6 +65,18 @@ sub dhcpd_db_prepare {
             ) VALUES (
                 ?, ?
             ) ON DUPLICATE KEY  UPDATE id=id
+        ]);
+
+        $dhcpd_statements->{'freeradius_insert_dhcpd_lease'} = $dbh->prepare(qq[
+            UPDATE radippool
+                SET lease_time = ?
+            WHERE callingstationid = ?
+        ]);
+
+        $dhcpd_statements->{'freeradius_delete_dhcpd_lease'} = $dbh->prepare(qq[
+            UPDATE radippool
+                SET lease_time = NULL
+            WHERE callingstationid = ?
         ]);
 
         $dhcpd_db_prepared = 1;
@@ -115,6 +129,39 @@ sub freeradius_populate_dhcpd_config {
             }
         }
     }
+}
+
+=item freeradius_update_dhcpd_lease
+
+Update dhcpd lease in radippool table
+
+=cut
+
+sub freeradius_update_dhcpd_lease {
+    my ( $mac , $lease_time) = @_;
+
+    return unless db_ping;
+    db_query_execute(
+        DHCPD, $dhcpd_statements, 'freeradius_insert_dhcpd_lease', $lease_time, $mac
+    ) || return 0;
+    return 1;
+}
+
+
+=item freeradius_delete_dhcpd_leas
+
+Delete dhcp lease in radippool table
+
+=cut
+
+sub freeradius_delete_dhcpd_lease {
+    my ( $mac , $lease_time) = @_;
+
+    return unless db_ping;
+    db_query_execute(
+        DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_lease', $lease_time, $mac
+    ) || return 0;
+    return 1;
 }
 
 =back
