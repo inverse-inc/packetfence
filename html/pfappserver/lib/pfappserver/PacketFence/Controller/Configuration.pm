@@ -63,7 +63,6 @@ our %ALLOWED_SECTIONS = (
     webservices => undef,
     active_active => undef,
     monitoring => undef,
-    omapi => undef,
     pki => undef,
     metadefender => undef,
     mse_tab => undef,
