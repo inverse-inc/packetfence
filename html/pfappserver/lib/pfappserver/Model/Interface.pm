@@ -95,10 +95,8 @@ sub create_bond {
     }
 
     # Check if interfaces exists
-    my @interfaces_bond = $data->{interfaces};
-    $logger->info('interfaces' . Dumper(@interfaces_bond));
-    foreach my $bond_interface (@interfaces_bond) {
-        $logger->info('tbond' . Dumper($bond_interface));
+    my $interfaces_bond = $data->{interfaces};
+    foreach my $bond_interface (@$interfaces_bond) {
         ($status, $status_msg) = $self->exists($bond_interface);
         if ( is_error($status) ) {
             $status_msg = ["Interfaces [_1] does not exists so can't create Bond on it",$bond_interface];
@@ -109,7 +107,7 @@ sub create_bond {
 
     # Create requested bond interface
     my $mode = $data->{mode};
-    my $cmd = "sudo nmcli con add type bond con-name $interface ifname $interface mode $mode";
+    my $cmd = "nmcli con add type bond con-name $interface ifname $interface mode $mode";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = ["Error in creating interface Bond [_1]",$interface];
@@ -128,7 +126,7 @@ sub create_bond {
 
     # Might want to move this one in the controller... create doesn't invoke up...
     # Enable the newly created bond interface
-    $self->up(@interfaces_bond, $interface);
+    $self->up($interfaces_bond, $interface);
 
     return ($STATUS::CREATED, ["Interface Bond [_1] successfully created",$interface]);
 }
