@@ -155,11 +155,11 @@ Delete dhcp lease in radippool table
 =cut
 
 sub freeradius_delete_dhcpd_lease {
-    my ( $mac , $lease_time) = @_;
+    my ( $mac) = @_;
 
     return unless db_ping;
     db_query_execute(
-        DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_lease', $lease_time, $mac
+        DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_lease', $mac
     ) || return 0;
     return 1;
 }
