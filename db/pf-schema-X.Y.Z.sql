@@ -577,6 +577,8 @@ CREATE TABLE radacct_log (
   KEY timestamp (timestamp)
 ) ENGINE=InnoDB;
 
+--- Adding RADIUS Updates Stored Procedure
+
 DROP PROCEDURE IF EXISTS remove_dups;
 DELIMITER /
 CREATE PROCEDURE remove_dups (p_acctuniqueid varchar(32))
