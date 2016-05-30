@@ -2,30 +2,6 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
-DROP PROCEDURE IF EXISTS remove_dups;
-DELIMITER /
-CREATE PROCEDURE remove_dups (p_acctuniqueid varchar(32))
-BEGIN
-  DECLARE Opened_Sessions int(12);
-  DECLARE Latest_acctstarttime datetime;
-  SELECT count(acctuniqueid), max(acctstarttime)
-  INTO Opened_Sessions, Latest_acctstarttime
-  FROM radacct
-  WHERE acctuniqueid = p_acctuniqueid
-  AND (acctstoptime IS NULL OR acctstoptime = 0);
-
-  IF (Opened_Sessions > 1) THEN
-      UPDATE radacct SET
-        acctstoptime = NOW(),
-        acctterminatecause = 'UNKNOWN'
-        WHERE acctuniqueid = p_acctuniqueid
-        AND acctstarttime < Latest_acctstarttime
-        AND (acctstoptime IS NULL OR acctstoptime = 0);
-  END IF;
-END /
-DELIMITER ;
-
-
 DROP PROCEDURE IF EXISTS acct_start;
 DELIMITER /
 CREATE PROCEDURE acct_start (
