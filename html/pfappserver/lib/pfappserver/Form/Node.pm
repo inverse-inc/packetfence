@@ -21,6 +21,7 @@ use pf::log;
 # Form select options
 has 'roles' => ( is => 'ro' );
 has 'status' => ( is => 'ro' );
+has 'readonly' => ( is => 'ro', lazy => 1, builder => '_build_readonly');
 
 # Form fields
 has_field 'mac' =>
@@ -196,24 +197,63 @@ sub validate {
 
 =head2 get_role_options
 
+Get role options
+
 =cut
 
 sub get_role_options {
-    my $logger  = get_logger();
     my ($self) = @_;
-    my $form = $self->form;
-    my $previous_role = $self->value // '';
-    my %allowed_node_roles = map { $_ => undef } $form->_get_allowed_options('allowed_node_roles');
+    my $logger = get_logger();
+    my $form   = $self->form;
+    my $name   = $self->name;
+    my $previous_role = $self->init_value // '';
+    $logger->trace(sub {"Previous role '$previous_role' for '$name'"});
+    my %allowed_node_roles = map {$_ => undef} $form->_get_allowed_options('allowed_node_roles');
     my @roles;
-    my @all_roles = @{ $form->roles // [] };
+    my @all_roles = @{$form->roles // []};
 
     if (keys %allowed_node_roles) {
-        @roles = map { $_->{category_id} => $_->{name} } grep { exists $allowed_node_roles{$_->{name}} || $previous_role eq $_->{category_id} } @all_roles;
+        @roles =
+          map {{value => $_->{category_id}, label => $_->{name}}}
+          grep {exists $allowed_node_roles{$_->{name}} || $previous_role eq $_->{category_id}} @all_roles;
     }
     else {
-        @roles = map { $_->{category_id} => $_->{name} } @all_roles;
+        @roles = map {{value => $_->{category_id}, label => $_->{name}}} @all_roles;
     }
-    return ('' => '', @roles);
+    return ({label => '', value => ''}, @roles);
+}
+
+=head2 build_update_subfields
+
+Mark fields as readonly when the user is allowed to deal with the role
+
+=cut
+
+sub build_update_subfields {
+    my ($self) = @_;
+    my $readonly = $self->readonly;
+    return {
+        all => { readonly => $readonly, disabled => $readonly },
+    };
+}
+
+=head2 _build_readonly
+
+Verify if the node is should be readonly
+
+=cut
+
+sub _build_readonly {
+    my ($self) = @_;
+    my $init_object = $self->init_object;
+    return undef unless defined $init_object;
+    my $role = $self->init_object->{category};
+    return undef unless defined $role;
+    my %allowed_node_roles = map {$_ => undef} $self->_get_allowed_options('allowed_node_roles');
+    return
+        keys %allowed_node_roles == 0     ? undef
+      : exists $allowed_node_roles{$role} ? undef
+      :                                     1;
 }
 
 =head1 COPYRIGHT
@@ -240,4 +280,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;
