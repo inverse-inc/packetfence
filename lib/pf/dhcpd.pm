@@ -60,7 +60,7 @@ sub dhcpd_db_prepare {
     if($dbh) {
 
         $dhcpd_statements->{'freeradius_insert_dhcpd'} = $dbh->prepare(qq[
-            REPLACE INTO radippool (
+            INSERT INTO radippool (
                 pool_name, framedipaddress
             ) VALUES (
                 ?, ?
@@ -84,7 +84,7 @@ sub dhcpd_db_prepare {
 }
 
 
-=item _insert_nas
+=item _insert_dhcpd
 
 Add a new IP in pool (FreeRADIUS dhcpd pool) record
 
@@ -102,7 +102,7 @@ sub _insert_dhcpd {
 
 =item freeradius_populate_dhcpd_config
 
-Populates the radius_nas table with switches in switches.conf.
+Populates the radippool us_nas table with switches in switches.conf.
 
 =cut
 
