@@ -103,8 +103,9 @@ server dynamic_clients {
 		#  Example 3: Look the clients up in SQL.
 		#
 		#  This requires the SQL and RAW modules to be configured, of course.
-        update {
-            &control:PacketFence-NasName := '0'
+        update control {
+            &PacketFence-NasName := '0'
+            &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
         }
 
         # Try to find the MAC in the database
@@ -132,11 +133,6 @@ server dynamic_clients {
         # Assign the following attributes and return OK if we did find a PacketFence-NasName
         if ( &control:PacketFence-NasName != "0" ) {
             update control {
-                #
-                # Echo the IP.
-                &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
-
-                #
                 # Do multiple SELECT statements to grab
                 # the various definitions.
                 &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
@@ -146,9 +142,14 @@ server dynamic_clients {
                 &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
             }
-            ok
         }
 
+    if ( &control:PacketFence-NasName != "" && &control:FreeRADIUS-Client-Shortname != "" && &control:FreeRADIUS-Client-Secret != "" && &control:FreeRADIUS-Client-NAS-Type != "" ) {
+        ok
+    } 
+    else { 
+        reject
+    }
 
     } # end authorize
 } # end server
