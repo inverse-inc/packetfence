@@ -15,6 +15,8 @@ use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use pf::constants qw($TRUE $FALSE);
+use pf::admin_roles;
 use namespace::autoclean;
 use POSIX;
 
@@ -264,9 +266,9 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     $c->stash->{switches} = $self->_get_switches_metadata($c);
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = $c->form("Node",
-                     init_object => $c->stash->{node},
-                     status => $nodeStatus,
-                     roles => $c->stash->{roles}
+        init_object => $c->stash->{node},
+        status => $nodeStatus,
+        roles => $c->stash->{roles}
     );
     $form->process();
     $c->stash->{form} = $form;
@@ -282,28 +284,40 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
 sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-
     my ($status, $message);
-    my ($form, $nodeStatus);
-
-    $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node",
-                     status => $nodeStatus,
-                     roles => $c->stash->{roles}
-    );
-    $form->process(params => { mac => $c->stash->{mac}, %{$c->request->params} });
-    if ($form->has_errors) {
-        $status = HTTP_BAD_REQUEST;
-        $message = $form->field_errors;
-    }
-    else {
-        ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $form->value);
-    }
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $message; # TODO: localize error message
-    }
     $c->stash->{current_view} = 'JSON';
+    my ($form, $nodeStatus);
+    my $model = $c->model('Node');
+    ($status, my $result) = $model->view($c->stash->{mac});
+    if (is_success($status)) {
+        if( $self->_is_role_allowed($c, $result->{category}) ) {
+            $nodeStatus = $model->availableStatus();
+            $form = $c->form("Node",
+                init_object => $result,
+                status => $nodeStatus,
+                roles => $c->stash->{roles},
+            );
+            $form->process(
+                params => {mac => $c->stash->{mac}, %{$c->request->params}},
+            );
+            if ($form->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form->field_errors;
+            }
+            else {
+                ($status, $result) = $c->model('Node')->update($c->stash->{mac}, $form->value);
+                $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+            }
+        }
+        else {
+            $status = HTTP_BAD_REQUEST;
+            $result = "Do not have permission to modify node";
+        }
+    }
+    $c->response->status($status);
+    if (is_error($status)) {
+        $c->stash->{status_msg} = $result; # TODO: localize error message
+    }
 }
 
 =head2 delete
@@ -431,6 +445,24 @@ sub _get_switches_metadata : Private {
         return \%switches;
     }
     return undef;
+}
+
+sub get_allowed_options {
+    my ($self, $c, $option) = @_;
+    return admin_allowed_options([$c->user->roles], $option);
+}
+
+=head2 _is_role_allowed
+
+=cut
+
+sub _is_role_allowed {
+    my ($self, $c, $role) = @_;
+    my %allowed_node_roles = map {$_ => undef} $self->get_allowed_options($c, 'allowed_node_roles');
+    return
+        keys %allowed_node_roles == 0     ? $TRUE
+      : exists $allowed_node_roles{$role} ? $TRUE
+      :                                     $FALSE;
 }
 
 =head1 AUTHOR
