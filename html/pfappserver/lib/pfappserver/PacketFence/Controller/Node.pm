@@ -155,10 +155,8 @@ sub create :Local : AdminRole('NODES_CREATE') {
     my ($roles, $node_status, $form_single, $form_import, $params, $type);
     my ($status, $result, $message);
 
-    ($status, $result) = $c->model('Roles')->list();
-    if (is_success($status)) {
-        $roles = $result;
-    }
+    $roles = $self->_get_roles_for_user($c);
+    my %allowed_roles = map { $_->{name} => undef } @$roles;
     $node_status = $c->model('Node')->availableStatus();
 
     $form_single = pfappserver::Form::Node->new(ctx => $c, status => $node_status, roles => $roles);
@@ -194,7 +192,7 @@ sub create :Local : AdminRole('NODES_CREATE') {
                 $message = $form_import->field_errors;
             }
             else {
-                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user);
+                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user, \%allowed_roles);
                 if (is_success($status)) {
                     $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
                 }
