@@ -37,7 +37,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -176,6 +176,23 @@ has_field 'preregistration' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have "Create local account" enabled.' },
+  );
+
+
+=head2 autoregister
+
+Controls whether or not this portal profile will autoregister users
+
+=cut
+
+has_field 'autoregister' =>
+  (
+   type => 'Toggle',
+   label => 'Automatically register devices',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
   );
 
 =head2 sources

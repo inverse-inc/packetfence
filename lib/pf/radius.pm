@@ -198,6 +198,20 @@ sub authorize {
 
     $args->{'isPhone'} = $isPhone;
 
+    #define the current connection value to instantiate the correct portal
+    my $options = {};
+
+    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
+    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
+    $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
+    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
+    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
+    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
+
+    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
+    $args->{'profile'} = $profile; 
+    
     $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     if ($role_obj->shouldAutoRegister($args)) {
@@ -209,13 +223,6 @@ sub authorize {
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node failed");
         }
-        # Commented out as it opens a locationlog even when sending a reject
-        # This shouldn't break anything in the flow as the entry is opened afterwards
-        # This also creates duplicate entries since the VLAN hasn't been computed yet
-        # Can be removed in PF6
-        # jsemaan@inverse.ca
-        #$switch->synchronize_locationlog($port, undef, $mac, $isPhone ? $VOIP : $NO_VOIP,
-        #    $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm);
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)

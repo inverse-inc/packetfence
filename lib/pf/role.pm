@@ -378,17 +378,8 @@ sub getRegisteredRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $options = {};
-    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
-    $options->{'last_port'}            = $args->{'ifIndex'} if (defined($args->{'ifIndex'}));
-    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
-    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
-
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
-
     my ($vlan, $role, $result, $person, $source, $portal);
+    my $profile = $args->{'profile'};
 
     if (defined($args->{'node_info'}->{'pid'})) {
         $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
@@ -546,19 +537,8 @@ sub getNodeInfoForAutoReg {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    #define the current connection value to instantiate the correct portal
-    my $options = {};
 
-    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
-    $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
-    $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
-    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
-    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
-
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
-
+    my $profile = $args->{'profile'};
     my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
@@ -648,6 +628,7 @@ sub shouldAutoRegister {
     #$args->{'connection'}_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+    #$args->{'profile'} is set to the portal profile for the connection.
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
@@ -677,6 +658,10 @@ sub shouldAutoRegister {
         } else {
             return $role;
         }
+    }
+    if ($args->{'profile'}->{'_autoregister'} eq "enabled") { 
+        $logger->debug("Autoregistration set on profile " . $args->{'profile'}->getName() );
+        return 1;
     }
 
     # custom example: auto-register 802.1x users
