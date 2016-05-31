@@ -20,6 +20,7 @@ has '+route_map' => (default => sub {
         '/billing.*' => \&check_billing_bypass,
         '/logout' => \&logout,
         '/access' => \&release,
+        '/record_destination_url' => \&record_destination_url,
     );
     return \%map;
 
@@ -298,6 +299,19 @@ sub show_preregistration_account {
     else {
         $self->app->error("Cannot find any created account.");
     }
+}
+
+=head2 record_destination_url
+
+Record the destination URL wanted by the user
+
+=cut
+
+sub record_destination_url {
+    my ($self) = @_;
+    $self->app->session->{user_destination_url} = $self->app->request->param('destination_url');
+    $self->app->response_code(200);
+    $self->app->template_output('');
 }
 
 =head1 AUTHOR

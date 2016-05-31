@@ -323,7 +323,7 @@ Will compute it using the following logic :
 
 sub process_destination_url {
     my ($self) = @_;
-    my $url = $self->request->parameters->{destination_url} || $self->session->{destination_url};
+    my $url = $self->session->{user_destination_url};
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
