@@ -553,37 +553,44 @@ EOT
                  my $prefix = $current_network2->network()->nprefix();
                  my $mask = $current_network2->masklen();
                  $prefix =~ s/\.$//;
+                     $tags{'config'} .= <<"EOT";
+        update control {
+                Tmp-Integer-0 = "%{%{sql: call lock_mac('%{request:DHCP-Client-Hardware-Address}')}:-0}"
+        }
+
+        if (&control:TMP-Integer-0 != 0) {
+EOT
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
 
-        if ( ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+		if ( ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-        if ( ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+	        if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
                  $tags{'config'} .= <<"EOT";
 
-                update {
-                        &reply:DHCP-Domain-Name-Server = $net{'dns'}
-                        &reply:DHCP-Subnet-Mask = $net{'netmask'}
-                        &reply:DHCP-Router-Address = $net{'gateway'}
-                        &reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
-                        &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-                        &reply:DHCP-Domain-Name = $net{'domain-name'}
-                        &control:Pool-Name := "$network"
-                        &request:DHCP-Domain-Name-Server = $net{'dns'}
-                        &request:DHCP-Subnet-Mask = $net{'netmask'}
-                        &request:DHCP-Router-Address = $net{'gateway'}
-                        &request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
-                        &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-                        &request:DHCP-Domain-Name = $net{'domain-name'}
-                        &request:DHCP-Site-specific-0 = $enforcement
-                }
 
-	}
+			update {
+				&reply:DHCP-Domain-Name-Server = $net{'dns'}
+				&reply:DHCP-Subnet-Mask = $net{'netmask'}
+				&reply:DHCP-Router-Address = $net{'gateway'}
+				&reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+				&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+				&reply:DHCP-Domain-Name = $net{'domain-name'}
+				&control:Pool-Name := "$network"
+				&request:DHCP-Domain-Name-Server = $net{'dns'}
+				&request:DHCP-Subnet-Mask = $net{'netmask'}
+				&request:DHCP-Router-Address = $net{'gateway'}
+				&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+				&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+				&request:DHCP-Domain-Name = $net{'domain-name'}
+				&request:DHCP-Site-specific-0 = $enforcement
+			}
+		}
 EOT
             }
         }
@@ -593,6 +600,13 @@ EOT
 	dhcp_sqlippool
         rest-dhcp
 	ok
+        update control {
+                Tmp-Integer-0 = "%{sql: DELETE FROM mac_dhcpd WHERE mac = '%{request:DHCP-Client-Hardware-Address}'}"
+        }
+	}
+	else {
+		noop
+	}
 }
 
 dhcp DHCP-Request {
@@ -618,26 +632,35 @@ EOT
                  my $prefix = $current_network2->network()->nprefix();
                  my $mask = $current_network2->masklen();
                  $prefix =~ s/\.$//;
+                     $tags{'config'} .= <<"EOT";
+        update control {
+                Tmp-Integer-0 = "%{%{sql: call lock_mac('%{request:DHCP-Client-Hardware-Address}')}:-0}"
+        }
+
+        if (&control:TMP-Integer-0 != 0) {
+EOT
+
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
+
         if (  ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-        if ( ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+        if (  (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
                 $tags{'config'} .= <<"EOT";
 
-                update {
-                        &reply:DHCP-Domain-Name-Server = $net{'dns'}
-                        &reply:DHCP-Subnet-Mask = $net{'netmask'}
-                        &reply:DHCP-Router-Address = $net{'gateway'}
-                        &reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
-                        &reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-                        &reply:DHCP-Domain-Name = $net{'domain-name'}
-                        &control:Pool-Name := "$network"
+		update {
+			&reply:DHCP-Domain-Name-Server = $net{'dns'}
+			&reply:DHCP-Subnet-Mask = $net{'netmask'}
+			&reply:DHCP-Router-Address = $net{'gateway'}
+			&reply:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&reply:DHCP-Domain-Name = $net{'domain-name'}
+			&control:Pool-Name := "$network"
                         &request:DHCP-Domain-Name-Server = $net{'dns'}
                         &request:DHCP-Subnet-Mask = $net{'netmask'}
                         &request:DHCP-Router-Address = $net{'gateway'}
@@ -645,20 +668,27 @@ EOT
                         &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
                         &request:DHCP-Domain-Name = $net{'domain-name'}
                         &request:DHCP-Site-specific-0 = $enforcement
-                }
-        }
+		}
+	}
 
 EOT
-
             }
         }
     }
 
  $tags{'config'} .= <<"EOT";
 	dhcp_sqlippool
-        rest-dhcp
+	rest-dhcp
 	ok
+        update control {
+                Tmp-Integer-0 = "%{sql: DELETE FROM mac_dhcpd WHERE mac = '%{request:DHCP-Client-Hardware-Address}'}"
+        }
+        }
+        else {
+                noop
+        }
 }
+
 
 dhcp DHCP-Decline {
 	update reply {
@@ -746,7 +776,6 @@ EOT
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
     return 1;
 }
-
 
 =head1 AUTHOR
 
