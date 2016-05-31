@@ -105,7 +105,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     (undef, $violations ) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
-        roles => $result,
+        roles => $self->_get_roles_for_user($c),
         violations => $violations,
         by => $by,
         direction => $direction,
@@ -457,6 +457,14 @@ sub _get_switches_metadata : Private {
 sub get_allowed_options {
     my ($self, $c, $option) = @_;
     return admin_allowed_options([$c->user->roles], $option);
+}
+
+sub _get_roles_for_user {
+    my ($self, $c) = @_;
+    my %allowed_roles = map { $_ => undef } $self->get_allowed_options($c, 'allowed_node_roles');
+    (undef, my $all_roles) = $c->model('Roles')->list();
+    return $all_roles if keys %allowed_roles == 0;
+    return [ grep { exists $allowed_roles{$_->{name}} } @$all_roles ];
 }
 
 =head2 _is_role_allowed
