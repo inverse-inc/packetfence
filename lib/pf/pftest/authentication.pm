@@ -19,6 +19,7 @@ use pf::cmd;
 use base qw(pf::cmd);
 use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
 
 sub parseArgs { $_[0]->args >= 2 }
 our $indent = "  ";
@@ -46,9 +47,13 @@ sub _run {
             print "Authenticating against " . $source->id . "\n";
             my ($result,$message) = $source->authenticate($user,$pass);
             $message = '' unless defined $message;
-            if ($result) {
+            if ($result == $LOGIN_SUCCESS) {
                 print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
                 print $indent,"Authentication SUCCEEDED against ",$source->id," ($message) \n";
+            }
+            elsif ($result == $LOGIN_CHALLENGE) {
+                print color $pf::config::Config{advanced}{pfcmd_warning_color} if $show_color;
+                print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message}) \n";
             } else {
                 print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
                 print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
