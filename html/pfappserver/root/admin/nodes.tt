@@ -188,8 +188,7 @@ form {
                     <input type="hidden" name="searches.0.value" value="on"/>
                 </form>
               </li>
-
-              <li class="nav-header">[% l('Custom Predefined Search') %]</li>
+              <li class="divider"></li>
               <li class="" id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup">
                     SwitchGroups
