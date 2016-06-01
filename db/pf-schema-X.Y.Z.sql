@@ -845,17 +845,6 @@ BEGIN
 
   END IF;
 
-  # Update record with new traffic
-  UPDATE radacct SET
-    framedipaddress = p_framedipaddress,
-    acctsessiontime = p_acctsessiontime,
-    acctinputoctets = p_acctinputoctets,
-    acctoutputoctets = p_acctoutputoctets,
-    acctupdatetime = p_timestamp,
-    acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
-    WHERE acctuniqueid = p_acctuniqueid 
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
-
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
