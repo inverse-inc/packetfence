@@ -52,6 +52,7 @@ use pf::CHI;
 use pf::locationlog;
 use DateTime::Format::MySQL;
 use pf::parking;
+use pf::cluster;
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -394,6 +395,11 @@ Verifies if PacketFence is the DHCP server for the network the IP is in
 
 sub pf_is_dhcp {
     my ($self, $client_ip) = @_;
+
+    if($cluster_enabled){
+        $logger->info("Cluster is enabled, so this server may not be the one offering the lease. Considering DHCP server as external.");
+        return $FALSE;
+    }
 
     foreach my $network_obj (@{$self->{dhcp_networks}}) {
         # We need to rebuild it everytime with the mask from the network as
