@@ -25,7 +25,6 @@ use pf::config qw(
     %Config
 );
 use pf::cluster;
-use pf::ConfigStore;
 use Sys::Hostname;
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
@@ -494,35 +493,6 @@ sub reports :Local :AdminRole('REPORTS') {
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 
-}
-
-=head2 predefined_search
-
-Data to use for the predefined search
-
-=cut
-
-sub predefined_search :Local :AdminRole('REPORTS') {
-    my ($self, $c, $start, $end) = @_;
-
-    $self->_saveRange($c, $REPORTS, $start, $end); 
-    my $sg = pf::ConfigStore::SwitchGroup->new;
-
-    my $switch_groups = [
-    map {
-        local $_ = $_;
-            my $id = $_;
-            {id => $id, members => [$sg->members($id, 'id')]}
-         } @{$sg->readAllIds}];
-
-    my $groupsModel = $c->model("Config::SwitchGroup");
-    my $switches_list = Switch->new->readAllIds();
-    my @switches = grep {!/^group/ && $_!='default'} @{$switches_list};
-
-    $c->stash({
-            'switch_groups' => $switch_groups,
-            'switches' => \@switches,
-            });
 }
 
 =head2 _rangeForHeader
