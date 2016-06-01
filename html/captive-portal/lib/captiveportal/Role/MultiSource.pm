@@ -85,14 +85,32 @@ sub _build_sources {
         my @source_ids = split(/\s*,\s*/, $source_id);
         push @sources, map { pf::authentication::getAuthenticationSource($_) } @source_ids;
     }
+    else {
+        my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
+        my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
+        my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
+        push @sources, (@sources_by_type, @sources_by_auth_class, @sources_by_object_class);
+        
+        @sources = uniq(@sources);
     
-    my @sources_by_type = map { $self->app->profile->getSourcesByType($_) } @{$self->multi_source_types};
-    my @sources_by_auth_class = map { $self->app->profile->getSourcesByClass($_) } @{$self->multi_source_auth_classes};
-    my @sources_by_object_class = map { $self->app->profile->getSourcesByObjectClass($_) } @{$self->multi_source_object_classes};
-    push @sources, (@sources_by_type, @sources_by_auth_class, @sources_by_object_class);
+        my %sources_map = map { $_->id => $_ } @sources;
     
-    @sources = uniq(@sources);
+        # we respect the order defined in the portal module, then the one in the portal profile for the sources that are in it.
+        my @ordered_sources;
+        foreach my $source_id (@{$self->app->profile->getSources()}){
+            if(defined($sources_map{$source_id})){
+                push @ordered_sources, $sources_map{$source_id};
+                delete $sources_map{$source_id};
+            }
+        }
     
+        # we push the remaining sources at the end
+        while(my ($source_id, $source) = each(%sources_map)){
+            push @ordered_sources, $source;
+        }
+        @sources = @ordered_sources;
+    }
+
     get_logger->debug(sub { "Module ".$self->id." is using sources : ".join(',', (map {$_->id} @sources)) });
     $self->sources(\@sources);
     return \@sources;
