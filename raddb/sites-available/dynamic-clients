@@ -103,12 +103,13 @@ server dynamic_clients {
 		#  Example 3: Look the clients up in SQL.
 		#
 		#  This requires the SQL and RAW modules to be configured, of course.
-        update {
-            &control:PacketFence-NasName := '0'
+        update control {
+            &PacketFence-NasName := '0'
+            &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
         }
 
         # Try to find the MAC in the database
-        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/) {
+        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
             update {
                 &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0 ) }"
             }
@@ -132,11 +133,6 @@ server dynamic_clients {
         # Assign the following attributes and return OK if we did find a PacketFence-NasName
         if ( &control:PacketFence-NasName != "0" ) {
             update control {
-                #
-                # Echo the IP.
-                &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
-
-                #
                 # Do multiple SELECT statements to grab
                 # the various definitions.
                 &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
@@ -146,9 +142,14 @@ server dynamic_clients {
                 &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
             }
-            ok
         }
 
+    if ( &control:PacketFence-NasName != "" && &control:FreeRADIUS-Client-Shortname != "" && &control:FreeRADIUS-Client-Secret != "" && &control:FreeRADIUS-Client-NAS-Type != "" ) {
+        ok
+    } 
+    else { 
+        reject
+    }
 
     } # end authorize
 } # end server
