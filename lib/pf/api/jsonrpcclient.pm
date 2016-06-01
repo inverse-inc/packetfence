@@ -183,7 +183,7 @@ sub curl {
             $curl->setopt(CURLOPT_PASSWORD, $self->password);
         }
 
-        $curl->setopt(CURLOPT_HTTPAUTH, CURLOPT_HTTPAUTH);
+        $curl->setopt(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         # Removed SSL verification
         $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
         $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
