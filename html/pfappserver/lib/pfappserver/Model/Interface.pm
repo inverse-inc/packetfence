@@ -107,10 +107,34 @@ sub create_bond {
 
     # Create requested bond interface
     my $mode = $data->{mode};
+    my $ipaddr = $data->{ipaddr};
+    my $netmask = $data->{netmask};
+    my $gateway = $data->{gateway};
     my $cmd = "sudo nmcli con add type bond con-name $interface ifname $interface mode $mode";
+    my $cmd_add_ip = "sudo nmcli con $interface ipv4.addresses $ipaddr $netmask";
+    my $cmd_gateway = "sudo nmcli con $interface ipv4.gateway $gateway";
+    my $cmd_static = "sudo nmcli con $interface ipv4.method manual";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = ["Error in creating interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_add_ip) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning an IP address or netmask to interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_gateway) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning a gateway to interface Bond [_1]",$interface];
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    eval { $status = pf_run($cmd_static) };
+    if ( $@ || !$status ) {
+        $status_msg = ["Error assigning the method manual as IP setting to interface Bond [_1]",$interface];
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
