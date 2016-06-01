@@ -1231,33 +1231,3 @@ CREATE TABLE radippool (
   KEY radippool_callingstationid_expiry (callingstationid, expiry_time),
   KEY radippool_framedipaddress_expiry (framedipaddress, expiry_time)
 ) ENGINE=InnoDB;
-
---
--- Create mac_dhcpd
---
-
-CREATE TABLE mac_dhcpd (
-  mac varchar(17) NOT NULL,
-  PRIMARY KEY (mac)
-) ENGINE=InnoDB;
-
---
--- Create procedure to lock the mac address for freeradius dhcp
---
-
-DROP PROCEDURE IF EXISTS lock_mac;
-DELIMITER /
-CREATE PROCEDURE lock_mac (
-    IN p_mac varchar(17)
-)
-BEGIN
-
-SELECT mac FROM mac_dhcpd WHERE mac = p_mac FOR UPDATE;
-
-REPLACE mac_dhcpd SET mac = p_mac;
-
-SELECT (1) FROM mac_dhcpd;
-COMMIT;
-
-END /
-DELIMITER ;
