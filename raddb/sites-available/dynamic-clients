@@ -109,7 +109,7 @@ server dynamic_clients {
         }
 
         # Try to find the MAC in the database
-        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/) {
+        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
             update {
                 &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0 ) }"
             }
