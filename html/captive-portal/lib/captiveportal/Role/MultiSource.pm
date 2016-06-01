@@ -81,7 +81,7 @@ sub _build_sources {
     my @sources;
     
     # First sources of the array are the ones we defined manually
-    if(defined($source_id)){
+    if(defined($source_id) && $source_id){
         my @source_ids = split(/\s*,\s*/, $source_id);
         push @sources, map { pf::authentication::getAuthenticationSource($_) } @source_ids;
     }
