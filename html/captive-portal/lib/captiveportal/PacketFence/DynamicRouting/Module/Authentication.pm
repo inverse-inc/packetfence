@@ -123,6 +123,10 @@ sub execute_actions {
     unless(defined($self->new_node_info->{category}) && defined($self->new_node_info->{unregdate})){
         get_logger->warn("Cannot find unregdate (".$self->new_node_info->{unregdate}.") or role(".$self->new_node_info->{unregdate}.") for user.");
         $self->app->flash->{error} = "You do not have permission to register a device with this username";
+
+        # Make sure the current source is not remembered since it failed...
+        $self->session->{source_id} = undef;
+
         return $FALSE;
     }
 
