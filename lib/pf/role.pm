@@ -638,12 +638,12 @@ sub shouldAutoRegister {
     # handling switch-config first because I think it's the most important to honor
     if (defined($switch->{switch_in_autoreg_mode}) && $switch->{switch_in_autoreg_mode}) {
         $logger->trace("returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
-        return 1;
+        return $TRUE;
 
     # if we have a violation action set to autoreg
     } elsif (defined($args->{'violation_autoreg'}) && $args->{'violation_autoreg'}) {
         $logger->trace("returned yes because it's from a violation with action autoreg");
-        return 1;
+        return $TRUE;
     }
 
     if ($args->{'isPhone'}) {
@@ -654,25 +654,25 @@ sub shouldAutoRegister {
     if ($role) {
         my $vlan = $switch->getVlanByName($role);
         if (defined($vlan) && $vlan eq "-1") {
-            return 0;
+            return $FALSE;
         } else {
             return $role;
         }
     }
-    if ($args->{'profile'}->{'_autoregister'} eq "enabled") { 
+    if (isenabled $args->{'profile'}->{'_autoregister'}) { 
         $logger->debug("Autoregistration set on profile " . $args->{'profile'}->getName() );
-        return 1;
+        return $TRUE;
     }
 
     # custom example: auto-register 802.1x users
     # Since they already have validated credentials through EAP to do 802.1X
     #if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
     #    $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
-    #    return 1;
+    #    return $TRUE;
     #}
 
     # otherwise don't autoreg
-    return 0;
+    return $FALSE;
 }
 
 =head2 isInlineTrigger
