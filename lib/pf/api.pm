@@ -1314,6 +1314,12 @@ sub handle_accounting_metadata : Public {
 
 }
 
+=head2 services_status
+
+Returns a hash of the managed services along with their status (0 means dead, otherwise it is the PID of the process)
+
+=cut
+
 sub services_status : Public {
     my ($class, $services) = @_;
     my @managers = pf::services::getManagers($services);
