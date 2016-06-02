@@ -51,7 +51,12 @@ sub build_child {
 
         $server->{host} = $section;
         # we add it to the servers list if it's not the shared CLUSTER config
-        push @servers, $server unless $section eq "CLUSTER";
+        if ($section eq "CLUSTER") {
+            $self->{_CLUSTER} = $server;
+        }
+        else {
+            push @servers, $server;
+        }
     }
 
     $self->{_servers} = \@servers;
