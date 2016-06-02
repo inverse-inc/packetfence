@@ -37,9 +37,21 @@ has_field 'url' =>
              help => 'The URL on which the user should be redirected.' },
   );
 
+=head2 child_definition
+
+Which fields defined the form
+
+=cut
+
 sub child_definition {
     return qw(url skipable);
 }
+
+=head2 BUILD
+
+Override BUILD method to set the default value of the skipable field
+
+=cut
 
 sub BUILD {
     my ($self) = @_;
