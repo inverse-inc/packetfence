@@ -566,7 +566,7 @@ sub bulkApplyViolation {
     my ($self, $violation_id, @macs) = @_;
     my $count = 0;
     foreach my $mac (@macs) {
-        my ($last_id) = violation_add( $mac, $violation_id);
+        my ($last_id) = violation_add( $mac, $violation_id, ('force' => $TRUE) );
         $count++ if $last_id > 0;;
     }
     return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
