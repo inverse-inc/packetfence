@@ -1239,6 +1239,26 @@ locationlog_cleanup_batch=100
 # How long a locationlog cleanup job can take before being killed
 locationlog_cleanup_timeout=10s
 #
+# maintenance.auth_log_cleanup_window
+#
+# How long to keep an auth_log entry before deleting it
+auth_log_cleanup_window=1W
+#
+# maintenance.auth_log_cleanup_interval
+#
+# At which interval to run the auth_log cleanup job
+auth_log_cleanup_interval=60s
+#
+# maintenance.auth_log_cleanup_batch
+#
+# How many auth_log entries to clean up in one job
+auth_log_cleanup_batch=100
+#
+# maintenance.auth_log_cleanup_timeout
+#
+# How long an auth_log cleanup job can take before being killed
+auth_log_cleanup_timeout=10s
+#
 # maintenance.traplog_cleanup_window
 #
 # How long to keep a traplog entry before deleting it

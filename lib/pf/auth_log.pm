@@ -79,6 +79,10 @@ sub auth_log_db_prepare {
         where process_name=? and source=? and mac=?
         order by attempted_at desc limit 1;
     ]);
+    
+    $auth_log_statements->{'auth_log_cleanup_sql'} = get_db_handle()->prepare(
+        qq [ delete from auth_log where attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?]);
+
 
     $auth_log_db_prepared = 1;
 }
@@ -133,6 +137,35 @@ sub record_auth {
 sub change_record_status {
     my ($source, $mac, $status) = @_;
     return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_change_status_sql', $status, process_name, $source, $mac));
+}
+
+=head2 cleanup
+
+Execute a cleanup job on the table
+
+=cut
+
+sub cleanup {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
+    my ($expire_seconds, $batch, $time_limit) = @_;
+    my $logger = get_logger();
+    $logger->debug("calling cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+    my $now = db_now();
+    my $start_time = time;
+    my $end_time;
+    my $rows_deleted = 0;
+    while (1) {
+        my $query = db_query_execute(AUTH_LOG, $auth_log_statements, 'auth_log_cleanup_sql', $now, $expire_seconds, $batch)
+        || return (0);
+        my $rows = $query->rows;
+        $query->finish;
+        $end_time = time;
+        $rows_deleted+=$rows if $rows > 0;
+        $logger->trace( sub { "deleted $rows_deleted entries from auth_log during auth_log cleanup ($start_time $end_time) " });
+        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+    }
+    $logger->trace( "deleted $rows_deleted entries from auth_log during auth_log cleanup ($start_time $end_time) " );
+    return (0);
 }
 
 1;
