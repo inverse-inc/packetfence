@@ -27,6 +27,12 @@ use pf::config qw(
 );
 use pf::cluster;
 
+=head2 vhosts
+
+The list of IP addresses on which the process should listen
+
+=cut
+
 sub vhosts {
     my ($self) = @_;
     my @vhosts;
