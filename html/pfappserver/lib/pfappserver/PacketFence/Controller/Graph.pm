@@ -296,7 +296,7 @@ sub _buildGraphiteURL :Private {
 
     my $options =
       {
-       graphite_host => $management_ip,
+       graphite_host => $Config{'general'}{'hostname'} . '.' .  $Config{'general'}{'domain'},
        graphite_port => '9000'
       };
 
@@ -340,7 +340,7 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('http://%s:%s/render?%s',
+    my $url = sprintf('https://%s:%s/render?%s',
                       $options->{graphite_host},
                       $options->{graphite_port},
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
