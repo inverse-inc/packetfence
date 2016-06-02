@@ -74,7 +74,9 @@ sub add_searches {
     if (@searches) {
         $builder->where('(');
         $builder->where($all_or_any)->where(@$_) for @searches;
-        $builder->where(')');
+        $builder->where(')')
+            ->where('AND')
+            ->where({table => 'r2', name => 'radacctid'},'IS NULL')
     }
 }
 
@@ -91,7 +93,7 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
-            L_("IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))", 'online'),
+            L_("IF(r1.acctstarttime IS NULL,'unknown',IF(r1.acctstoptime IS NULL, 'on', 'off'))", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
@@ -179,17 +181,80 @@ sub make_builder {
                 },
                 {
                     'table' => 'radacct',
+                    'as'    => 'r1',
                     'join'  => 'LEFT',
                     'on'    =>
                     [
                         [
                             {
-                                'table' => 'radacct',
-                                'name'  => 'radacctid',
+                                'table' => 'node',
+                                'name'  => 'mac',
                             },
                             '=',
-                            \"(select radacctid from radacct where callingstationid = node.mac ORDER BY acctstarttime DESC LIMIT 1)"
+                            {
+                                'table' => 'r1',
+                                'name'  => 'callingstationid',
+                            },
                         ],
+                    ],
+                },
+                {
+                    'table' => 'radacct',
+                    'as'    => 'r2',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'callingstationid',
+                            },
+                        ],
+                        ['AND'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'acctstarttime',
+                            },
+                            '<',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'acctstarttime',
+                            },
+                        ],
+                        ['OR'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'acctstarttime',
+                            },
+                            '=',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'acctstarttime',
+                            },
+                        ],
+                        ['AND'],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'radacctid',
+                            },
+                            '<',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'radacctid',
+                            },
+                        ],
+                        [')'],
+                        [')'],
                     ],
                 },
         );
@@ -197,9 +262,13 @@ sub make_builder {
 
 my %COLUMN_MAP = (
     person_name => 'pid',
-    online => {
-        'table' => 'locationlog',
-        'name'  => 'end_time',
+    unknown => {
+        'table' => 'r1',
+        'name'  => 'acctstarttime',
+    },
+    online_offline => {
+        'table' => 'r1',
+        'name'  => 'acctstoptime',
     },
     category => {
         table => 'node_category',
@@ -351,6 +420,10 @@ sub process_query {
     return unless defined $new_query;
     my $old_column = $new_query->[0];
     $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column} : $old_column;
+    if ($old_column eq 'online_offline') {
+        my $fragment = "(r1.acctstarttime IS NOT NULL AND $new_query->[0]->{table}.$new_query->[0]->{name} $new_query->[1])";
+        return [\$fragment];
+    }
     return $new_query;
 }
 
@@ -381,13 +454,15 @@ sub _pre_process_query {
     #Change the query for the online
     my $name = $query->{name};
     if ($name eq 'online') {
+        my $value = $query->{value};
         if($query->{op} eq 'equal') {
-            my $value = $query->{value};
-            if ($value eq 'on') {
-                $query->{value} = '0000-00-00 00:00:00';
-            } elsif($value eq 'off') {
+            $query->{value} = undef;
+            if ($value eq 'unknown' ) {
                 $query->{op} = 'is_null';
-                $query->{value} = undef;
+                $query->{name} = 'unknown';
+            } else {
+                $query->{name} = 'online_offline';
+                $query->{op} = $value eq 'on' ? 'is_null' : 'is_not_null';
             }
         }
     }
