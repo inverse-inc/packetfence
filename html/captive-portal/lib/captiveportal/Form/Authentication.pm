@@ -45,6 +45,19 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
+has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions');
+
+=head2 render_email_instructions
+
+Render the instructions for e-mail registration
+
+=cut
+
+sub render_email_instructions {
+    my ($self) = @_;
+    return "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you.")."</div>"
+}
+
 =head2 check_aup
 
 Check that the AUP has been properly accepted

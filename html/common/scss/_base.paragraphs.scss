@@ -4,3 +4,7 @@
   @include font-size($inuit-base-font-size * 0.8, none);
   color: $pf-input-caption;
 }
+
+.text-center {
+  text-align:center;
+}

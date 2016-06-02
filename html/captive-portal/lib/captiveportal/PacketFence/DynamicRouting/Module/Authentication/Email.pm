@@ -43,6 +43,8 @@ sub execute_child {
     }
 };
 
+sub required_fields_child {['email_instructions']}
+
 =head2 do_email_registration
 
 Perform the e-mail registration using the provided info
