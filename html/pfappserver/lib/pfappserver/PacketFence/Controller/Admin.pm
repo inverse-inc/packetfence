@@ -141,6 +141,11 @@ sub login :Local :Args(0) {
     }
 }
 
+
+=head2 challenge
+
+=cut
+
 sub challenge :Local :Args(0) {
     my ($self, $c) = @_;
     my $req = $c->req;
