@@ -146,45 +146,47 @@ SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-R
 SSLHonorCipherOrder  on
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
-Listen [% vhost %]:[% ports.admin %]
-Listen [% vhost %]:[% ports.pf_status %]
-
 ServerAdmin [% server_admin %]
 
-NameVirtualHost [% vhost %]:[% ports.admin %]
-NameVirtualHost [% vhost %]:[% ports.pf_status %]
+[% FOREACH vhost IN vhosts %]
+  Listen [% vhost %]:[% ports.admin %]
+  Listen [% vhost %]:[% ports.pf_status %]
 
-<VirtualHost [% vhost %]:[% ports.admin %] >
-    ServerName [% server_name %]
-    DocumentRoot  [% install_dir %]/html/pfappserver/lib
-    ErrorLog  [% install_dir %]/logs/[% name %].error
-    CustomLog   [% install_dir %]/logs/[% name %].access combined
-    AllowEncodedSlashes on
-    SSLEngine on
-    Include  [% var_dir %]/conf/ssl-certificates.conf
-    SSLProxyEngine on
-    PerlModule pf::web::admin
-    PerlTransHandler pf::web::admin->proxy_portal
-    ProxyRequests off
-    ProxyPreserveHost on
-    ProxyVia off
-    Alias /static [% install_dir %]/html/pfappserver/root/static
-    <Location / >
-         SetHandler modperl
-         PerlResponseHandler pfappserver
-    </Location>
-    <Location /static >
-         SetHandler default-handler
-    </Location>
-</VirtualHost>
+  NameVirtualHost [% vhost %]:[% ports.admin %]
+  NameVirtualHost [% vhost %]:[% ports.pf_status %]
 
-<VirtualHost [% vhost %]:[% ports.pf_status %] >
-    ServerName [% server_name %]
-    DocumentRoot  [% install_dir %]/html/pfappserver/lib
-    ErrorLog      [% install_dir %]/logs/[% name %].error
-    CustomLog     [% install_dir %]/logs/[% name %].access combined
-    AllowEncodedSlashes on
-    PerlModule pf::clustermgmt
-    PerlTransHandler pf::clustermgmt
-</VirtualHost>
+  <VirtualHost [% vhost %]:[% ports.admin %] >
+      ServerName [% server_name %]
+      DocumentRoot  [% install_dir %]/html/pfappserver/lib
+      ErrorLog  [% install_dir %]/logs/[% name %].error
+      CustomLog   [% install_dir %]/logs/[% name %].access combined
+      AllowEncodedSlashes on
+      SSLEngine on
+      Include  [% var_dir %]/conf/ssl-certificates.conf
+      SSLProxyEngine on
+      PerlModule pf::web::admin
+      PerlTransHandler pf::web::admin->proxy_portal
+      ProxyRequests off
+      ProxyPreserveHost on
+      ProxyVia off
+      Alias /static [% install_dir %]/html/pfappserver/root/static
+      <Location / >
+           SetHandler modperl
+           PerlResponseHandler pfappserver
+      </Location>
+      <Location /static >
+           SetHandler default-handler
+      </Location>
+  </VirtualHost>
 
+  <VirtualHost [% vhost %]:[% ports.pf_status %] >
+      ServerName [% server_name %]
+      DocumentRoot  [% install_dir %]/html/pfappserver/lib
+      ErrorLog      [% install_dir %]/logs/[% name %].error
+      CustomLog     [% install_dir %]/logs/[% name %].access combined
+      AllowEncodedSlashes on
+      PerlModule pf::clustermgmt
+      PerlTransHandler pf::clustermgmt
+  </VirtualHost>
+
+[% END %]

@@ -21,6 +21,37 @@ has '+name' => (default => sub { 'httpd.admin' } );
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
 
+use pf::config qw(
+    %Config
+    $management_network
+);
+use pf::cluster;
+
+=head2 vhosts
+
+The list of IP addresses on which the process should listen
+
+=cut
+
+sub vhosts {
+    my ($self) = @_;
+    my @vhosts;
+    if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+            push @vhosts, $management_network->{'Tvip'};
+        } elsif ( $cluster_enabled ){
+            push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'};
+            push @vhosts, pf::cluster::current_server->{management_ip};
+        } else {
+            push @vhosts, $management_network->{'Tip'};
+       }
+    } else {
+        push @vhosts, "0.0.0.0";
+    }
+    return \@vhosts;
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

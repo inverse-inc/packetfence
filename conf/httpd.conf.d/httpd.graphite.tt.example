@@ -119,18 +119,22 @@ MaxRequestsPerChild 1000
 
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
-Listen [% vhost %]:[% port %]
-
 ServerAdmin [% server_admin %]
 
-NameVirtualHost [% vhost %]:[% port %]
+[% FOREACH vhost IN vhosts %]
 
-<VirtualHost [% vhost %]:[% port %] >
-    ServerName [% server_name %]
-    DocumentRoot  [% install_dir %]/html/pfappserver/lib
-    ErrorLog      [% install_dir %]/logs/[% name %].error
-    CustomLog   [% install_dir %]/logs/[% name %].access combined
-    WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
-    WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
-    Header           set Access-Control-Allow-Origin "*"
-</VirtualHost>
+  Listen [% vhost %]:[% port %]
+
+  NameVirtualHost [% vhost %]:[% port %]
+
+  <VirtualHost [% vhost %]:[% port %] >
+      ServerName [% server_name %]
+      DocumentRoot  [% install_dir %]/html/pfappserver/lib
+      ErrorLog      [% install_dir %]/logs/[% name %].error
+      CustomLog   [% install_dir %]/logs/[% name %].access combined
+      WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
+      WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
+      Header           set Access-Control-Allow-Origin "*"
+  </VirtualHost>
+
+[% END %]
