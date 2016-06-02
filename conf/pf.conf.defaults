@@ -1222,7 +1222,7 @@ iplog_cleanup_timeout=10s
 # maintenance.locationlog_cleanup_window
 #
 # How long to keep a locationlog entry before deleting it
-locationlog_cleanup_window=0D
+locationlog_cleanup_window=1W
 #
 # maintenance.locationlog_cleanup_interval
 #
