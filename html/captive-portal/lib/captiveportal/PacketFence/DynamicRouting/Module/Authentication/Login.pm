@@ -43,7 +43,7 @@ Get the challenge data from the session cache
 
 sub _build_challenge_data {
     my ($self) = @_;
-    return $self->app->session->{challenge_data};
+    return $self->session->{challenge_data};
 }
 
 =head2 _trigger_challenge_data
@@ -54,7 +54,7 @@ Set the challenge data in the session cache
 
 sub _trigger_challenge_data {
     my ($self, $data, $old_data) = @_;
-    $self->app->session->{challenge_data} = $data;
+    $self->session->{challenge_data} = $data;
 }
 
 sub sources_classes {
