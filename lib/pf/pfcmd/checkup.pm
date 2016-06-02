@@ -1304,6 +1304,10 @@ sub cluster {
     require pf::ConfigStore::Interface;
     require pfconfig::namespaces::config::Cluster;
 
+    unless($pf::cluster::cluster_enabled){
+        return;
+    }
+
     my $int_cs = pf::ConfigStore::Interface->new;
     my @ints = @{$int_cs->readAll('name')};
     my @servers = @pf::cluster::cluster_servers;
@@ -1316,8 +1320,11 @@ sub cluster {
     # Check each member configuration
     foreach my $server (@servers){
         my $server_name = $server->{host};
-        unless(defined($server->{management_ip}) && valid_ip($server->{management_ip})){
-            add_problem($FATAL, "management_ip is not defined for $server_name");
+        if(!defined($server->{management_ip})){
+            add_problem($FATAL, "management_ip is not defined for $server_name")
+        }
+        elsif(!valid_ip($server->{management_ip})){
+            add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
         }
 
         foreach my $int (@ints) {
