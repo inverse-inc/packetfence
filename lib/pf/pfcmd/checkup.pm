@@ -1113,8 +1113,9 @@ sub portal_profiles {
             if ($key eq 'filter') {
                 foreach my $filter (@{$data->{filter}}) {
                     my ($rc, $message) = $validator->validate($filter);
-                    add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile': $message ")
-                        unless $rc;
+                    unless ($rc) {
+                        add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
+                    }
                 }
             }
         }
