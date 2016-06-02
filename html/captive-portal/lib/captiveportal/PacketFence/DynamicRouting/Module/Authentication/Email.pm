@@ -60,6 +60,7 @@ sub do_email_registration {
 
     my %info;
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
+    $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
