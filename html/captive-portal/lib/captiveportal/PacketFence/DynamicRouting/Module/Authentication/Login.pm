@@ -35,10 +35,22 @@ has 'challenge_template' => (is => 'ro', default => sub { "challenge.html" } );
 
 has 'challenge_data' => (is => 'rw', builder => '_build_challenge_data', lazy => 1, trigger => \&_trigger_challenge_data);
 
+=head2 _build_challenge_data
+
+Get the challenge data from the session cache
+
+=cut
+
 sub _build_challenge_data {
     my ($self) = @_;
     return $self->app->session->{challenge_data};
 }
+
+=head2 _trigger_challenge_data
+
+Set the challenge data in the session cache
+
+=cut
 
 sub _trigger_challenge_data {
     my ($self, $data, $old_data) = @_;
@@ -192,16 +204,22 @@ sub authenticate {
     $self->done();
 }
 
+=head2 challenge
+
+Handle the challenge request
+
+=cut
+
 sub challenge {
     my ($self) = @_;
     my $password = $self->request_fields->{password};
-    my ($results, $message) = $self->source->challenge($self->username, $password, $self->challenge_data);
-    if ($results == $LOGIN_FAILURE) {
+    my ($result, $message) = $self->source->challenge($self->username, $password, $self->challenge_data);
+    if ($result == $LOGIN_FAILURE) {
         $self->app->flash->{error} = $message;
         $self->display_challenge();
         return;
     }
-    if ($results == $LOGIN_CHALLENGE) {
+    if ($result == $LOGIN_CHALLENGE) {
         $self->challenge_data($message);
         $self->display_challenge();
         return;
@@ -210,6 +228,12 @@ sub challenge {
     $self->done();
 
 }
+
+=head2 display_challenge
+
+Display the challenge form
+
+=cut
 
 sub display_challenge {
     my ($self, $args) = @_;
@@ -222,6 +246,11 @@ sub display_challenge {
         %{$args},
     });
 }
+
+
+=head2 allowed_urls_auth_module
+
+=cut
 
 sub allowed_urls_auth_module { ['/challenge'] }
 
