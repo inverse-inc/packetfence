@@ -75,6 +75,12 @@ sub options_type {
       sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
 }
 
+=head2 validate
+
+Validate filter
+
+=cut
+
 sub validate {
     my ($self) = @_;
     my $validator = pf::validation::profile_filters->new;
