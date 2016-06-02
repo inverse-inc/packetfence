@@ -1283,6 +1283,12 @@ sub portal_modules {
     }
 }
 
+=head2 cluster
+
+Validate the configuration of the cluster
+
+=cut
+
 sub cluster {
     require pf::cluster;
     require pf::ConfigStore::Interface;
