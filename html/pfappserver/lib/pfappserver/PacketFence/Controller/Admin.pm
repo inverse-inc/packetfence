@@ -193,9 +193,6 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $sg = pf::ConfigStore::SwitchGroup->new;
-    use Data::Dumper;
-    use pf::log;
-    my $logger = get_logger();
  
     my $switch_groups = [
     map {
@@ -216,8 +213,6 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
         {id => $id} 
         } @switches_filtered];
 
-    $logger->info('tt' . Dumper($switches));
-    $logger->info('tt1' . Dumper($switch_groups));
     $c->stash(
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
