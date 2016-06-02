@@ -266,7 +266,6 @@ sub ping_dhcpd {
     }
 }
 
-
 =back
 
 =head1 AUTHOR
