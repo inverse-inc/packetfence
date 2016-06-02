@@ -13,6 +13,10 @@ use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 use pf::log;
 
+our $RADIUS_STATE = 'State';
+our $RADIUS_REPLY_MESSAGE = 'Reply-Message';
+our $RADIUS_ERROR_NONE = 'ENONE';
+
 use Authen::Radius;
 Authen::Radius->load_dictionary("/usr/share/freeradius/dictionary");
 
@@ -33,6 +37,12 @@ Which module to use for DynamicRouting
 
 sub dynamic_routing_module { 'Authentication::Login' }
 
+=head2 available_attributes
+
+Add additional available attributes
+
+=cut
+
 sub available_attributes {
   my $self = shift;
 
@@ -48,20 +58,14 @@ sub available_attributes {
 
 sub authenticate {
     my ($self, $username, $password) = @_;
-    my $logger = get_logger();
-
-    my $radius = Authen::Radius->new(
-        Host   => "$self->{'host'}:$self->{'port'}",
-        Secret => $self->{'secret'},
-    );
-
-    if (!defined $radius) {
-        $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
-        return ($FALSE, $COMMUNICATION_ERROR_MSG);
-    }
-    my $result = $self->check_radius_password($radius, $username, $password);
-    return $self->_handle_radius_request($radius, $result);
+    return $self->_send_radius_auth($username, $password);
 }
+
+=head2 challenge
+
+Send the a radius authentication with challenge state
+
+=cut
 
 sub challenge {
     my ($self, $username, $password, $challenge_data) = @_;
@@ -70,6 +74,16 @@ sub challenge {
         Value => $challenge_data->{state},
         Type  => 'string'
     };
+    return $self->_send_radius_auth($username, $password, $attribute);
+}
+
+
+=head2 _send_radius_auth
+
+=cut
+
+sub _send_radius_auth {
+    my ($self, $username, $password, @attributes) = @_;
     my $logger = get_logger();
 
     my $radius = Authen::Radius->new(
@@ -81,14 +95,19 @@ sub challenge {
         $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
         return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
-    my $result = $self->check_radius_password($radius, $username, $password, undef, $attribute);
+
+    my $result = $self->check_radius_password($radius, $username, $password, undef, @attributes);
     return $self->_handle_radius_request($radius, $result);
 }
+
+=head2 challenge_handle_radius_request
+
+=cut
 
 sub _handle_radius_request {
     my ($self, $radius, $result) = @_;
     my $logger = get_logger();
-    if ($radius->get_error() ne 'ENONE') {
+    if ($radius->get_error() ne $RADIUS_ERROR_NONE) {
         $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error());
         return ($FALSE, $COMMUNICATION_ERROR_MSG);
     }
@@ -101,11 +120,15 @@ sub _handle_radius_request {
     return ($FALSE, $AUTH_FAIL_MSG);
 }
 
+=head2 _make_challenge_data
+
+=cut
+
 sub _make_challenge_data {
     my ($self, $result, $radius) = @_;
     my @attributes = $radius->get_attributes;
-    my ($state_attribute) = grep { $_->{Name} eq 'State'} @attributes;
-    my ($message_attribute) = grep { $_->{Name} eq 'Reply-Message'} @attributes;
+    my ($state_attribute) = grep { $_->{Name} eq  $RADIUS_STATE} @attributes;
+    my ($message_attribute) = grep { $_->{Name} eq $RADIUS_REPLY_MESSAGE } @attributes;
     return {
         id         => $self->id,
         result     => $result,
@@ -115,6 +138,11 @@ sub _make_challenge_data {
         message    => $message_attribute->{Value},
     };
 }
+
+=head2 check_radius_password
+
+=cut
+
 sub check_radius_password {
     my ($self, $radius, $name, $pwd, $nas, @extra) = @_;
 
