@@ -191,7 +191,7 @@ form {
               <li class="divider"></li>
               <li class="" id="accordion-SwithGroup">
                 <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
-                    SwitchGroups
+                    [% l('Switch Groups')%]
                 <i class="icon-chevron-up pull-right"></i></a>
                 <ul id="collapseSwitchGroup" class="collapse">
                   <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
@@ -226,7 +226,7 @@ form {
 
               <li class="" id="accordion-Role">
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole" class="collapsed">
-                  Roles
+                  [% l('Roles') %]
                 <i class="icon-chevron-up pull-right"></i></a>
                 <ul id="collapseRole" class="collapse">
                   [% FOREACH role IN roles %]
@@ -244,7 +244,7 @@ form {
 
               <li class="" id="accordion-OS">
                 <a data-toggle="collapse" data-parent="#accordion-OS" href="#collapseOS" class="collapsed">
-                   OS
+                   [% l('OS') %]
                 <i class="icon-chevron-up pull-right"></i></a>
                 <ul id="collapseOS" class="collapse">
                   <li>
