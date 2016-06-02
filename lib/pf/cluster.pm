@@ -383,6 +383,19 @@ sub notify_each_server {
     }
 }
 
+=head2 call_server
+
+Call an API method on a cluster member
+
+=cut
+
+sub call_server {
+    my ($cluster_id, @args) = @_;
+    require pf::api::jsonrpcclient;
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $ConfigCluster{$cluster_id}->{management_ip});
+    return $apiclient->call(@args);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

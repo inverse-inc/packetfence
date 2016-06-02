@@ -27,6 +27,9 @@
               [%- IF can_access("SERVICES") %]
               <li><a href="#service">[% l('Services') %]</a></li>
               [%- END %]
+              [%- IF can_access("SERVICES") && cluster_enabled %]
+              <li><a href="#service/cluster_status">[% l('Cluster state') %]</a></li>
+              [%- END %]
               [%- IF can_access("SERVICES") %]
               <li><a href="#pfqueue">[% l('Queue') %]</a></li>
               [%- END %]

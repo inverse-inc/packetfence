@@ -72,11 +72,8 @@ use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);
-use constant {
-    JUST_MANAGED                => 0b0000001,
-    INCLUDE_START_DEPENDS_ON    => 0b0000010,
-    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
-};
+use pf::constants::services qw(JUST_MANAGED INCLUDE_START_DEPENDS_ON INCLUDE_STOP_DEPENDS_ON);
+
 my $logger = get_logger();
 
 our %ACTION_MAP = (
@@ -143,7 +140,7 @@ sub postPfStartService {
 sub startService {
     my ($service,@services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
+    my @managers = sort _byIndexOrder pf::services::getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
 
     if ( !@managers ) {
         print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
@@ -221,37 +218,6 @@ sub _doStart {
     print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
-sub getManagers {
-    my ($services,$flags) = @_;
-    $flags = 0 unless defined $flags;
-    my %seen;
-    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
-    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
-    my $justManaged      = $flags & JUST_MANAGED;
-    my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
-    my @serviceManagers;
-    foreach my $m (@temp) {
-        next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
-        my @managers;
-        #Get dependencies
-        if ( $includeStartDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices};
-        } elsif ( $includeStopDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->stopDependsOnServices};
-        }
-        if($m->isa("pf::services::manager::submanager")) {
-            push @managers,$m->managers;
-        } else {
-            push @managers,$m;
-        }
-        #filter out managers already seen
-        @managers = grep { !$seen{$_->name}++ } @managers;
-        $seen{$m->name}++;
-        push @serviceManagers,@managers;
-    }
-    return @serviceManagers;
-}
-
 sub getIptablesTechnique {
     require pf::inline::custom;
     my $iptables = pf::inline::custom->new();
@@ -260,7 +226,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = reverse sort _byIndexOrder getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
+    my @managers = reverse sort _byIndexOrder pf::services::getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
 
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
@@ -308,7 +274,7 @@ sub watchService {
     my ($service,@services) = @_;
     my @stoppedServiceManagers =
         grep { $_->status eq '0'  }
-        getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
+        pf::services::getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
         $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
@@ -335,7 +301,7 @@ sub watchService {
 
 sub statusOfService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
+    my @managers = pf::services::getManagers(\@services);
     print "service|shouldBeStarted|pid\n";
     my $notStarted = 0;
     foreach my $manager (@managers) {

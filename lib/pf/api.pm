@@ -46,6 +46,7 @@ use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
 use pf::access_filter::dhcp;
 use pf::metascan();
+use pf::services();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -1311,6 +1312,25 @@ sub handle_accounting_metadata : Public {
         }
     }
 
+}
+
+=head2 services_status
+
+Returns a hash of the managed services along with their status (0 means dead, otherwise it is the PID of the process)
+
+=cut
+
+sub services_status : Public {
+    my ($class, $services) = @_;
+    my @managers = pf::services::getManagers($services);
+
+    my $statuses = {};
+    foreach my $manager (@managers){
+        if($manager->isManaged) {
+            $statuses->{$manager->name} = $manager->status;
+        }
+    }
+    return $statuses;
 }
 
 =head1 AUTHOR
