@@ -3222,6 +3222,12 @@ sub setSession {
     return $session_id;
 }
 
+sub shouldUseCoA {
+    my ($self, $args) = @_;
+    # Roles are configured and the user should have one
+    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+}
+
 =back
 
 =head1 AUTHOR
