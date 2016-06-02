@@ -17,6 +17,7 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::validation::profile_filters;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::config qw(
@@ -1092,6 +1093,7 @@ sub portal_profiles {
         nbregpages|allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration)/x;
+    my $validator = pf::validation::profile_filters->new;
 
     foreach my $portal_profile ( keys %Profiles_Config ) {
         my $data = $Profiles_Config{$portal_profile};
@@ -1110,8 +1112,10 @@ sub portal_profiles {
                 if ( $key !~ /$profile_params/ );
             if ($key eq 'filter') {
                 foreach my $filter (@{$data->{filter}}) {
-                    add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile' please update to newer format 'type:data'" )
-                        unless $filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX;
+                    my ($rc, $message) = $validator->validate($filter);
+                    unless ($rc) {
+                        add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile': $message ");
+                    }
                 }
             }
         }
