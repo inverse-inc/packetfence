@@ -194,6 +194,18 @@ form {
                     SwitchGroups
                 <i class="icon-chevron-down pull-right"></i></a>
                 <ul id="collapseSwitchGroup" class="collapse">
+                  <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault">Default<i class="icon-chevron-down pull-right"></i></a>
+                    <li id="collapseSwitchGroupDefault" class="collapse">
+                      <ul>[% FOREACH switch IN switches %]
+                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault" data-target="advanced">[% switch.id %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="switch_id"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
+                        </form>
+                        </li>
+                      [% END %]</ul>
+                    </li>
                   [% FOREACH switch_group IN switch_groups %]
                     <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]">[% switch_group.id %]<i class="icon-chevron-down pull-right"></i></a>
                     <li id="collapse_[% switch_group.id %]" class="collapse">
@@ -211,23 +223,6 @@ form {
                   [% END %]
                 </ul>
               </li>
-
-              <li class="" id="accordion-Switches">
-                <a data-toggle="collapse" data-parent="#accordion-Switches" href="#collapseSwitches">
-                  Switches
-                <i class="icon-chevron-down pull-right"></i></a>
-                  <ul id="collapseSwitches" class="collapse"> 
-                    [% FOREACH switch IN switches %]
-                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitches" data-target="advanced">[% switch.id %]</a>
-                        <form>
-                          <input type="hidden" name="searches.0.name" value="switch_id"/>
-                          <input type="hidden" name="searches.0.op" value="is"/>
-                          <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
-                        </form>
-                      </li>
-                    [% END %]
-                  </ul>
-                </li>
 
               <li class="" id="accordion-Role">
                 <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole">
