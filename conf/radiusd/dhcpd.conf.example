@@ -5,6 +5,16 @@ $INCLUDE radiusd.conf
 %%listen%%
 
 listen {
+        type = dhcp
+        ipaddr = 0.0.0.0
+        src_ipaddr = 127.0.0.1
+        port = 67
+        interface = lo
+        broadcast = yes
+        virtual_server = dhcp.lo
+}
+
+listen {
     type = control
     socket = %%socket_file%%
     mode = rw
