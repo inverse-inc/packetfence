@@ -710,9 +710,13 @@ dhcp DHCP-Release {
 dhcp DHCP-Lease-Query {
 
 	# has MAC, asking for IP, etc.
-	if (&DHCP-Client-Hardware-Address) {
-		# look up MAC in database
-	}
+        if (&DHCP-Client-Hardware-Address) {
+                update reply {
+                    &DHCP-Message-Type = DHCP-Lease-Active
+                    &DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
+                }
+                # look up MAC in database
+        }
 
 	# has IP, asking for MAC, etc.
 	elsif (&DHCP-Your-IP-Address) {
