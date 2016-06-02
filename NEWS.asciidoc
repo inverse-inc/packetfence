@@ -11,6 +11,21 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.0.3 released on 2016-06-02
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed example in vlan filters showing incorrect operand for user_name
+* Fixed the display of the aup when printing a user
+* Fixed email_instructions blocking email registration
+* Fixed FreeRADIUS dynamic clients hanging the server when the database fails to respond (#1500)
+* Fixed violation_add when applying one through bulk actions (#1510)
+* Fixed sessions remembering failed authentication sources
+* Fixed to listen to DHCPREQUEST in registration  network when in cluster mode
+
+
 Version 6.0.2 released on 2016-05-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
