@@ -134,7 +134,7 @@ sub validate_switch {
 }
 
 
-=head2 validate_switch
+=head2 validate_switch_port
 
 Validate the switch port value of a profile filter
 
