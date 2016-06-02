@@ -28,6 +28,7 @@ BEGIN {
         freeradius_populate_dhcpd_config
         freeradius_update_dhcpd_lease
         freeradius_delete_dhcpd_lease
+        ping_dhcpd
     );
 }
 
@@ -162,6 +163,38 @@ sub freeradius_delete_dhcpd_lease {
         DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_lease', $mac
     ) || return 0;
     return 1;
+}
+
+
+=item ping_dhcpd
+
+ping each dhcpd server interface to see if they are alive
+
+=cut
+
+sub ping_dhcpd {
+    my $logger = get_logger();
+    foreach my $host (@cluster_servers) {
+        for my $interface (keys $host) {
+            next if ( ( $interface !~ /^interface/) || ($host->{$interface}->{type} ne 'internal') );
+            my $dhcpreq = new Net::DHCP::Packet(
+                Op => BOOTREQUEST(),
+                Htype => HTYPE_ETHER(),
+                Hops => '0',
+                Xid => '01101',
+                Flags => '0',
+                Ciaddr => '0.0.0.0',
+                Yiaddr => '0.0.0.0',
+                Siaddr => '0.0.0.0',
+                Giaddr => '0.0.0.0',
+                Chaddr => "001122334455",
+                DHO_DHCP_MESSAGE_TYPE() => DHCPLEASEQUERY()
+            );
+            my $sock_in = IO::Socket::INET->new(Type => SOCK_DGRAM, Reuse => 1, LocalPort => 68, Proto => 'udp',PeerAddr => $host->{$interface}->{ip}.':67');
+            # Send the packet to the network
+            $sock_in->send($dhcpreq->serialize());
+        }
+    }
 }
 
 =back
