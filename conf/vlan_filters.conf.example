@@ -75,7 +75,7 @@
 #value = Ethernet-EAP
 #
 #[machineauth]
-#filter = username
+#filter = user_name
 #operator = match
 #value = host/
 #
@@ -176,7 +176,7 @@
 #     ifIndex
 #     mac
 #     connection_type
-#     username
+#     user_name
 #     ssid
 #     time
 #     owner.pid
