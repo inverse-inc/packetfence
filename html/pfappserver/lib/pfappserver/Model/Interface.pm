@@ -110,10 +110,13 @@ sub create_bond {
     my $ipaddr = $data->{ipaddr};
     my $netmask = $data->{netmask};
     my $gateway = $data->{gateway};
+    my $block = Net::Netmask->new($ipaddr.':'.$netmask);
+    my $cidrmask = $block->bits();
+    $logger->info('tt' . Dumper($block, $cidrmask, $ipaddr. $data));
     my $cmd = "sudo nmcli con add type bond con-name $interface ifname $interface mode $mode";
-    my $cmd_add_ip = "sudo nmcli con $interface ipv4.addresses $ipaddr $netmask";
-    my $cmd_gateway = "sudo nmcli con $interface ipv4.gateway $gateway";
-    my $cmd_static = "sudo nmcli con $interface ipv4.method manual";
+    my $cmd_add_ip = "sudo nmcli con modify $interface ipv4.addresses $ipaddr/$cidrmask";
+    my $cmd_add_gateway = "sudo nmcli con modify $interface ipv4.gateway $gateway";
+    my $cmd_static = "sudo nmcli con modify $interface ipv4.method manual";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = ["Error in creating interface Bond [_1]",$interface];
@@ -126,7 +129,7 @@ sub create_bond {
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    eval { $status = pf_run($cmd_gateway) };
+    eval { $status = pf_run($cmd_add_gateway) };
     if ( $@ || !$status ) {
         $status_msg = ["Error assigning a gateway to interface Bond [_1]",$interface];
         $logger->error($status_msg);
@@ -313,7 +316,6 @@ sub get {
     my ( $self, $interface) = @_;
     my $logger = get_logger();
     my $models = $self->{models};
-    use Data::Dumper;
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
@@ -448,6 +450,100 @@ sub update {
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
 
+=head2 update_bond
+
+=cut
+
+sub update_bond {
+    my ($self, $interface, $data) = @_;
+    my $models = $self->{models};
+    my $logger = get_logger();
+
+    my ($ipaddress, $netmask, $status, $status_msg);
+
+    $data->{netmask} = '255.255.255.0' unless ($data->{netmask});
+    $ipaddress = $data->{ipaddress};
+    $netmask = $data->{netmask};
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
+        if ( ($interface eq 'all') || ($interface eq 'lo') );
+
+    # Check if requested interface exists
+    ($status, $status_msg) = $self->exists($interface);
+    if ( is_error($status) ) {
+        $status_msg = ["Interface [_1] does not exists",$interface];
+        $logger->warn("Interface $interface does not exists");
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+    }
+
+    my @result = $self->_listInterfaces($interface);
+    my $interface_before = pop @result;
+
+    # Check if the network has changed
+    my $network = $models->{network}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
+    my $new_network = $models->{network}->getNetworkAddress($ipaddress, $netmask);
+    if ($network && $new_network && $network ne $new_network) {
+        $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
+        $models->{network}->renameItem($network, $new_network);
+    }
+
+    if ( !defined($interface_before->{ipaddress})
+         || !defined($interface_before->{netmask})
+         || !defined($ipaddress)
+         || $ipaddress ne $interface_before->{ipaddress}
+         || $netmask ne $interface_before->{netmask}) {
+        my $gateway = $models->{'system'}->getDefaultGateway();
+        my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
+
+        # Delete previous IP address
+        my $cmd;
+        if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
+            $cmd = sprintf "sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
+                $logger->error("Can't delete previous IP address of interface $interface");
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+
+        # Add new IP address and netmask
+        if ($ipaddress && $ipaddress ne '') {
+            my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+            my $broadcast = $block->broadcast();
+            $netmask = $block->bits();
+
+            $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
+
+            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
+                $logger->error($status);
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+            elsif ($isDefaultRoute) {
+                # Restore gateway
+                $models->{'system'}->setDefaultRoute($ipaddress);
+            }
+            my $interfaces = $self->get('all');
+            #pf_run($self->create_bond->cmd_add_ip);
+            #pf_run($self->create_bond->cmd_add_gateway);
+        }
+
+        @result = $self->_listInterfaces('all');
+        $models->{network}->cleanupNetworks(\@result);
+    }
+
+    # Set type
+    $data->{network} = $new_network;
+    $self->setType($interface, $data);
+
+    return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
+}
 =head2 isActive
 
 =cut
@@ -509,7 +605,7 @@ sub getType {
 =cut
 
 sub setType {
-    my ($self, $interface, $interface_ref) = @_;
+    my ($self, $interface, $interface_ref, $data) = @_;
     my $logger = get_logger();
     my $models = $self->{models};
 
@@ -530,14 +626,23 @@ sub setType {
         # Update pf.conf
         $logger->debug("Updating or creating $interface interface");
 
+        if (defined $data) {
+            $models->{interface}->update_or_create($interface,
+                                    $self->_prepare_interface_for_pfconf($interface, $data, $type));
 
-        $models->{interface}->update_or_create($interface,
+        } else {
+            $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
+        }
 
         # Update networks.conf
         if ( $type =~ /management|portal/ ) {
             # management interfaces must not appear in networks.conf
-            $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+            if (defined $data) {
+                $models->{network}->remove($data->{network}) if ($data->{network});
+            } else {
+                $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+            }
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
