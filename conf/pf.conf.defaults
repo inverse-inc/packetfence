@@ -1289,6 +1289,12 @@ cluster_check_interval=1m
 #
 # Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
 option82_query_interval=23h
+#
+# maintenance.ping_dhcpd_interval
+#
+# Interval at which PacketFence will query dhcpd servers to know if there are alive
+#
+ping_dhcpd_interval=20s
 
 [active_active]
 #
