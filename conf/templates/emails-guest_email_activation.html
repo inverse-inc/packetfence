@@ -20,7 +20,7 @@
                     <p>Hi [% firstname %] [% lastname %], </p>
                     <p>Guest access to the network was requested using this email address.</p>
                     <a href="[% activation_uri %]" class="btn-primary">Activate your network access</a>
-                    <p>Failure to do so within 10 minutes will result in a termination of your network access.</p>
+                    <p>Failure to do so within [% activation_timeout / 60 %] minutes will result in a termination of your network access.</p>
                     <p>Thank you for your understanding</p>
                     <p>Please ignore this request if you have not requested network access.</p>
                   </td>
