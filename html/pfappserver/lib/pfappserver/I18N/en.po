@@ -7985,6 +7985,22 @@ msgid "maintenance.locationlog_cleanup_window"
 msgstr "Locationlog Cleanup Window"
 
 # conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_batch"
+msgstr "Authentication log Cleanup Batch"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_interval"
+msgstr "Authentication log Cleanup Interval"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_timeout"
+msgstr "Authentication log Cleanup Timeout"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_window"
+msgstr "Authentication log Cleanup Window"
+
+# conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
 msgstr "Node Cleanup Interval"
 
