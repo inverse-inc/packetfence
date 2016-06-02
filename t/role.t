@@ -93,21 +93,22 @@ my $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '',
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = pf::SwitchFactory->instantiate('10.0.0.2');
-$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes});
+my $profile = pf::Portal::ProfileFactory->instantiate('aa:bb:cc:dd:ee:ff'); # should return default profile
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile });
 is($role->{vlan}, '1', "determine vlan for registered user on custom switch");
 
 $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => '', nbopenviolations => ''};
 
-$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes});
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile});
 is($role->{role}, 'default', "determine role for registered user on custom switch");
 
 $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => '', nbopenviolations => '', bypass_role => 'normal'};
 
-$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes});
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch_vlan_override, ifIndex => '1001', node_info => $node_attributes, profile => $profile });
 is($role->{role}, 'normal', "determine bypass_role for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
@@ -115,7 +116,7 @@ $node_attributes = { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', re
         lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''};
 
-$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001', node_info => $node_attributes});
+$role = $role_obj->fetchRoleForNode({mac => 'aa:bb:cc:dd:ee:ff', switch => $switch, ifIndex => '1001', node_info => $node_attributes, profile => $profile});
 is($role->{role}, 'registration', "obtain registrationVlan for an unreg node");
 
 $node_attributes =  { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
