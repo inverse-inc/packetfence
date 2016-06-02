@@ -55,7 +55,9 @@ Render the instructions for e-mail registration
 
 sub render_email_instructions {
     my ($self) = @_;
-    return "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you.")."</div>"
+    return 
+        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
+        "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
 
 =head2 check_aup
