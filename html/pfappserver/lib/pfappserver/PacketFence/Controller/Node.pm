@@ -105,7 +105,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     (undef, $violations ) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
-        roles => $self->_get_roles_for_user($c),
+        roles => $self->get_allowed_node_roles($c),
         violations => $violations,
         by => $by,
         direction => $direction,
@@ -155,7 +155,7 @@ sub create :Local : AdminRole('NODES_CREATE') {
     my ($roles, $node_status, $form_single, $form_import, $params, $type);
     my ($status, $result, $message);
 
-    $roles = $self->_get_roles_for_user($c);
+    $roles = $self->get_allowed_node_roles($c);
     my %allowed_roles = map { $_->{name} => undef } @$roles;
     $node_status = $c->model('Node')->availableStatus();
 
@@ -445,12 +445,24 @@ sub _get_switches_metadata : Private {
     return undef;
 }
 
+=head2 get_allowed_options
+
+Get the allowed options for the user
+
+=cut
+
 sub get_allowed_options {
     my ($self, $c, $option) = @_;
     return admin_allowed_options([$c->user->roles], $option);
 }
 
-sub _get_roles_for_user {
+=head2 get_allowed_node_roles
+
+Get the allowed node roles for the current user
+
+=cut
+
+sub get_allowed_node_roles {
     my ($self, $c) = @_;
     my %allowed_roles = map { $_ => undef } $self->get_allowed_options($c, 'allowed_node_roles');
     (undef, my $all_roles) = $c->model('Roles')->list();
