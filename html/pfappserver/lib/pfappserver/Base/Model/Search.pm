@@ -39,7 +39,7 @@ my %OP_MAP = (
 =item process_query
 
 transform search queries from search form
-To create where arguements for the sql builder
+To create where arguments for the sql builder
 
 =cut
 

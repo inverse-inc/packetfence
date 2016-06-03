@@ -1,6 +1,6 @@
 # defaults PacketFence's rules for PacketFence
 
-# This rules are predefined in PacketFence and disconnect device that comming from a secure connection to an open one.
+# This rules are predefined in PacketFence and disconnect device that coming from a secure connection to an open one.
 
 [pf_wired_mac_auth]
 filter = connection_type

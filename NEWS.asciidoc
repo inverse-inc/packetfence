@@ -218,7 +218,7 @@ Enhancements
 * Added ability to e-mail device owner as a violation action
 * The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently
 * New ntlm_auth wrapper will log authentication latency to StatsD automatically
-* Handle Microsoft Windows based captive-portal detection mecanisms
+* Handle Microsoft Windows based captive-portal detection mechanisms
 * Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members
 * New portal profile filter (sub connection type)
 * Added switch IP and description in the available columns in the node list view

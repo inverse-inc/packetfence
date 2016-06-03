@@ -232,24 +232,24 @@ sub getcookie {
     }
 }
 
-=item build_captive_portal_detection_mecanisms_regex
+=item build_captive_portal_detection_mechanisms_regex
 
-Build a regex that detects if the request is a captive portal detection mecanism request.
+Build a regex that detects if the request is a captive portal detection mechanism request.
 
-Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+Such mechanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
 
 Using configuration values from 'captive_portal.detection_mecanism_urls'.
 
 =cut
 
-sub build_captive_portal_detection_mecanisms_regex {
-    my @captive_portal_detection_mecanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
+sub build_captive_portal_detection_mechanisms_regex {
+    my @captive_portal_detection_mechanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
 
-    foreach ( @captive_portal_detection_mecanism_urls ) { s{([^/])$}{$1\$} };
+    foreach ( @captive_portal_detection_mechanism_urls ) { s{([^/])$}{$1\$} };
 
-    my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
-    if ( defined($captive_portal_detection_mecanism_urls) ) {
-        return qr/ ^(?: $captive_portal_detection_mecanism_urls ) /x; # eXtended pattern
+    my $captive_portal_detection_mechanism_urls = join( '|', @captive_portal_detection_mechanism_urls ) if ( @captive_portal_detection_mechanism_urls ne '0' );
+    if ( defined($captive_portal_detection_mechanism_urls) ) {
+        return qr/ ^(?: $captive_portal_detection_mechanism_urls ) /x; # eXtended pattern
     } else {
         return '';
     }

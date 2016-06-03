@@ -83,15 +83,15 @@ sub handler {
         return proxy_redirect($r);
     }
 
-    # Captive-portal detection mecanism
-    # Ability to bypass captive-portal detection mecanism
-    my $captive_portal_detection_mecanism_urls = pf::web::util::build_captive_portal_detection_mecanisms_regex;
-    if ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
-        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mecanism bypass enabled. Proxying");
+    # Captive-portal detection mechanism
+    # Ability to bypass captive-portal detection mechanism
+    my $captive_portal_detection_mechanism_urls = pf::web::util::build_captive_portal_detection_mechanisms_regex;
+    if ( ($url =~ /$captive_portal_detection_mechanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s) && isenabled($Config{'captive_portal'}{'detection_mecanism_bypass'}) ) {
+        $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having captive-portal detection mechanism bypass enabled. Proxying");
         return proxy_redirect($r);
     }
-    # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mecanism and having a self-signed SSL certificate
-    elsif ( ($url =~ /$captive_portal_detection_mecanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s)
+    # Enforce HTTP instead of HTTPS when dealing with captive-portal detection mechanism and having a self-signed SSL certificate
+    elsif ( ($url =~ /$captive_portal_detection_mechanism_urls/o || $user_agent =~ /CaptiveNetworkSupport/s)
       && isenabled($Config{'captive_portal'}{'secure_redirect'}) && pf::web::util::is_certificate_self_signed ) {
         $logger->info("Dealing with a endpoint / browser with captive-portal detection capabilities while having a self-signed SSL certificate. Using HTTP instead of HTTPS");
         return html_redirect($r, { secure => $FALSE });
@@ -177,13 +177,13 @@ sub html_redirect {
     # Destination URL handling
     # We first must detect the destination URL for different use cases:
     # - We want to keep it so we can redirect the user to the originally requested URL once the registration completed
-    # - We want to be able to detect a potential captive-portal detection mecanism to disable HTTPS since it may cause issues
+    # - We want to be able to detect a potential captive-portal detection mechanism to disable HTTPS since it may cause issues
     my $destination_url = "";
     my $url = $r->construct_url;
 
     # Keeping destination URL unless it is the captive-portal itself or some sort of captive-portal detection URLs
-    my $captive_portal_detection_mecanism_urls = pf::web::util::build_captive_portal_detection_mecanisms_regex;
-    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$captive_portal_detection_mecanism_urls/o) && ($user_agent !~ /CaptiveNetworkSupport/s) ) {
+    my $captive_portal_detection_mechanism_urls = pf::web::util::build_captive_portal_detection_mechanisms_regex;
+    if ( ($url !~ m#://\Q$captive_portal_domain\E/#) && ($url !~ /$captive_portal_detection_mechanism_urls/o) && ($user_agent !~ /CaptiveNetworkSupport/s) ) {
         $destination_url = Apache2::Util::escape_path($url,$r->pool);
         $logger->debug("We set the destination URL to $destination_url for further usage");
         $r->pnotes(destination_url => $destination_url);

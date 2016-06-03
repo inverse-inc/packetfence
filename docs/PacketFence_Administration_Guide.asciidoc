@@ -821,7 +821,7 @@ Here are the different configuration parameters that can be set for each portal 
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
-* Filters under *Configuration -> Portal Profile -> Portal Name -> Fitlers*
+* Filters under *Configuration -> Portal Profile -> Portal Name -> Filters*
 
 PacketFence offers the following filters: Connection Type, Network, Node Role, Port, realm, SSID, Switch, Switch Port, URI, VLAN and Time period.
 
@@ -835,7 +835,7 @@ Example with the most common ones:
 
 CAUTION: Node role will take effect only with a 802.1X connection or if you use VLAN filters.
 
-PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
+PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
 In this directory you have three important files: `httpd.admin`, `httpd.portal`, `httpd.webservices`, `httpd.aaa`.
 
@@ -2788,7 +2788,7 @@ Since a security suite consists of multiple pieces of software tied together, yo
 PacketFence integration
 +++++++++++++++++++++++
 
-Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mecanisms.
+Once Security Onion is installed and minimally configured, integration with PacketFence is required to be able to raise violations based on sensor(s) alerts. syslog is used to forward sensor(s) alerts from Security Onion to the PacketFence detection mechanisms.
 
 The simplest way is as follow (based on https://github.com/Security-Onion-Solutions/security-onion/wiki/ThirdPartyIntegration);
 

@@ -423,7 +423,7 @@ sub generateConfig { 1 }
 
 =head2 launchService
 
-launch the service using the launcher and arguements passed
+launch the service using the launcher and arguments passed
 
 =cut
 
