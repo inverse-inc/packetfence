@@ -169,6 +169,12 @@ sub registerNode : Private {
     }
 }
 
+=head2 logout
+
+allow user to logout
+
+=cut
+
 sub logout : Local {
     my ( $self, $c ) = @_;
     $c->user_session({});

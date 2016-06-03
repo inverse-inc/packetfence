@@ -89,7 +89,7 @@ Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
-Readonly::Scalar our $URL_DEVICE_REGISTRATION_LOGOUT   => '/device-registration/logout';
+Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout';
 
 # External Captive Portal detection constant
 Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
