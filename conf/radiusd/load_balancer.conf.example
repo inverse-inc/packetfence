@@ -52,7 +52,7 @@ log {
 	#  If the server is running in debugging mode, this file is
 	#  NOT used.
 	#
-	file = ${logdir}/radius-load-balancer.log
+	file = ${logdir}/radius-load_balancer.log
 
 	#
 	#  If this configuration parameter is set, then log messages for
@@ -130,8 +130,8 @@ log {
 	#  this expansion can be slow, and can negatively impact server
 	#  performance.
 	#
-	msg_goodpass = "- Home: %{control:PacketFence-Proxied-To}"
-	msg_badpass = "- Home: %{control:PacketFence-Proxied-To}"
+	msg_goodpass = "- Proxied to: %{control:PacketFence-Proxied-To}"
+	msg_badpass = "- Proxied to: %{control:PacketFence-Proxied-To}"
 
 	#  The message when the user exceeds the Simultaneous-Use limit.
 	#
