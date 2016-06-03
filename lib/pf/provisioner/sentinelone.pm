@@ -23,6 +23,8 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use pf::log;
 use pf::constants::provisioning qw($SENTINEL_ONE_TOKEN_EXPIRY);
+use pf::node;
+use pf::enforcement;
 
 =head1 Atrributes
 
@@ -230,7 +232,21 @@ sub authorize {
         return $FALSE;
     }
     else {
-        return $info->{is_active} && !$info->{is_uninstalled};
+        if($info->{is_active} && !$info->{is_uninstalled}){
+            return $TRUE;
+        }
+        if($info->{is_uninstalled}) {
+            $logger->info("Agent is uninstalled on device");
+            return $FALSE;
+        }
+        elsif(!$info->{is_active}){
+            $logger->info("Agent is not active on device");
+            return $FALSE;
+        }
+        else {
+            $logger->info("Agent is installed and active");
+            return $TRUE;
+        }
     }
 }
 
@@ -245,6 +261,54 @@ sub _build_uri {
     return $self->protocol."://".$self->host.":".$self->port."/$path";
 }
 
+=head2 pollAndEnforce
+
+Get the uninstalled agents in the last X minutes and put them in pending to force them back into the provisioner
+
+  curl "https://packetfence.sentinelone.net/web/api/v1.6/activities?activity_type__in=51&created_at__gt=`perl -e 'print time*1000 - (3600*1000)'`&token=e015ac434d83f0de2f33839c214c2e542d3913f70d1bf965ed21d975365711b739ba44a6b54973b7"
+
+=cut
+
+sub pollAndEnforce {
+    my ($self, $timeframe) = @_;
+    $timeframe ||= 30;
+    my $logger = get_logger();
+    
+    my $uninstalled_devices = $self->uninstalled_devices($timeframe);
+
+    foreach my $device (@$uninstalled_devices) {
+        my $macs = $device->{data}->{mac_addresses};
+        foreach my $mac (@$macs){
+            $logger->info("$mac has uninstalled the SentinelOne agent. Verifying if it is handled of this provisioner.");
+            my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+            if(my $provisioner = $profile->findProvisioner($mac)){
+                if($provisioner->id eq $self->id){
+                    # We check via authorize that the agent is still uninstalled
+                    unless($self->authorize($mac)){
+                        $logger->info("$mac is part of the provisioner and has uninstalled its SentinelOne agent. Putting node in pending.");
+                        node_modify($mac, status => $pf::node::STATUS_PENDING);
+                        pf::enforcement::reevaluate_access($mac, 'redir.cgi');
+                    }
+                }
+            }
+        }
+    }
+}
+
+sub uninstalled_devices {
+    my ($self, $timeframe) = @_;
+
+    my $uri = $self->_build_uri("/web/api/v1.6/activities?activity_type__in=51&created_at__gt=".(time*1000 - ($timeframe*1000)));
+    my $req = HTTP::Request::Common::GET($uri);
+    my $res = $self->execute_request($req);
+    if($res == $pf::provisioner::COMMUNICATION_FAILED){
+        return $res;
+    }
+    else {
+        my $devices = decode_json($res->decoded_content()); 
+        return $devices;
+    }
+}
 
 =head1 AUTHOR
 
