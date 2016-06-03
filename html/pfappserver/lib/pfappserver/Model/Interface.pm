@@ -488,6 +488,11 @@ sub update_bond {
         $models->{network}->renameItem($network, $new_network);
     }
 
+    #initate variable
+    my $gateway = $data->{gateway};
+    my $cmd_add_ip = "sudo nmcli con modify $interface ipv4.addresses $ipaddress/$netmask";
+    my $cmd_add_gateway = "sudo nmcli con modify $interface ipv4.gateway $gateway";
+
     if ( !defined($interface_before->{ipaddress})
          || !defined($interface_before->{netmask})
          || !defined($ipaddress)
@@ -496,20 +501,7 @@ sub update_bond {
         my $gateway = $models->{'system'}->getDefaultGateway();
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
-        # Delete previous IP address
-        my $cmd;
-        if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
-            $cmd = sprintf "sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
-            eval { $status = pf_run($cmd) };
-            if ( $@ || $status ) {
-                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
-                $logger->error("Can't delete previous IP address of interface $interface");
-                $logger->error("$cmd: $status");
-                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-            }
-        }
-
-        # Add new IP address and netmask
+        # Replace IP address and netmask with new one
         if ($ipaddress && $ipaddress ne '') {
             my $block = Net::Netmask->new($ipaddress.':'.$netmask);
             my $broadcast = $block->broadcast();
@@ -517,21 +509,33 @@ sub update_bond {
 
             $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
-            $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
-            eval { $status = pf_run($cmd) };
+            #$cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            eval { $status = pf_run($cmd_add_ip) };
             if ( $@ || $status ) {
-                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
+                $status_msg = ["Can't assign IP address [_1] on interface [_2]", $ipaddress,$interface];
                 $logger->error($status);
-                $logger->error("$cmd: $status");
+                $logger->error("$cmd_add_ip: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
             elsif ($isDefaultRoute) {
                 # Restore gateway
                 $models->{'system'}->setDefaultRoute($ipaddress);
             }
+
+            eval { $status = pf_run($cmd_add_gateway) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't assign gateway [_1] on interface [_2]",$gateway,$interface];
+                $logger->error($status);
+                $logger->error("$cmd_add_gateway: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+            else {
+                $status_msg = ["Gateway [_1] successfully applied to interface [_2]",$gateway,$interface];
+                $logger->error($status);
+                $logger->error("$cmd_add_gateway: $status");
+                return ($STATUS::OK, $status_msg);
+            }
             my $interfaces = $self->get('all');
-            #pf_run($self->create_bond->cmd_add_ip);
-            #pf_run($self->create_bond->cmd_add_gateway);
         }
 
         @result = $self->_listInterfaces('all');
