@@ -28,7 +28,7 @@ has '+route_map' => (default => sub {
 
 use pf::log;
 use pf::node;
-use pf::config;
+use pf::config qw($default_pid);
 use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::violation;
@@ -235,13 +235,24 @@ Apply the new node info in the session to the node
 sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
+
+    # When device is pending, we take the role+unregdate from the computed node info. 
+    # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
+    if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
+        unless($self->username){
+            $self->username($self->node_info->{pid});
+        }
+        $self->new_node_info->{category} = $self->node_info->{category};
+        $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
+    }
+
     if(node_register($self->current_mac, $self->username, %{$self->new_node_info()})){
         $self->app->flash->{notice} = [ "Role %s has been assigned to your device with unregistration date : %s", $self->new_node_info->{category}, $self->new_node_info->{unregdate} ];
         return $TRUE;
     }
     else {
-        $self->app->flash->{error} = "Couldn't register your device. Please contact your local support staff.";
-        return $FALSE;
+        $self->app->error("Couldn't register your device. Please contact your local support staff.");
+        $self->detach()
     }
 }
 
