@@ -19,6 +19,9 @@ use Carp;
 use pf::log;
 use Readonly;
 use NetAddr::IP;
+use IO::Socket::INET;
+use Net::DHCP::Packet;
+use Net::DHCP::Constants;
 
 BEGIN {
     use Exporter ();
@@ -35,6 +38,7 @@ BEGIN {
 use pf::config qw (%ConfigNetworks);
 use pf::config::cached;
 use pf::db;
+use pf::cluster qw(@cluster_servers);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $dhcpd_db_prepared = 0;
@@ -56,7 +60,7 @@ Prepares all the SQL statements related to this module
 
 sub dhcpd_db_prepare {
     my $logger = get_logger();
-    $logger->debug("Preparing pf::freeradius database queries");
+    $logger->debug("Preparing pf::freeradius dhcpd database queries");
     my $dbh = get_db_handle();
     if($dbh) {
 
@@ -65,7 +69,7 @@ sub dhcpd_db_prepare {
                 pool_name, framedipaddress
             ) VALUES (
                 ?, ?
-            ) ON DUPLICATE KEY  UPDATE id=id
+            ) ON DUPLICATE KEY UPDATE id=id
         ]);
 
         $dhcpd_statements->{'freeradius_insert_dhcpd_lease'} = $dbh->prepare(qq[
@@ -76,8 +80,20 @@ sub dhcpd_db_prepare {
 
         $dhcpd_statements->{'freeradius_delete_dhcpd_lease'} = $dbh->prepare(qq[
             UPDATE radippool
-                SET lease_time = NULL
+                SET lease_time = 'NULL'
             WHERE callingstationid = ?
+        ]);
+
+        $dhcpd_statements->{'freeradius_insert_dhcpd_pool'} = $dbh->prepare(qq[
+            INSERT INTO dhcpd (
+                ip, interface, idx
+            ) VALUES (
+                ?, ?, ?
+            )
+        ]);
+
+        $dhcpd_statements->{'freeradius_delete_dhcpd_pool'} = $dbh->prepare(qq[
+            TRUNCATE dhcpd 
         ]);
 
         $dhcpd_db_prepared = 1;
@@ -87,7 +103,7 @@ sub dhcpd_db_prepare {
 
 =item _insert_dhcpd
 
-Add a new IP in pool (FreeRADIUS dhcpd pool) record
+Add a new NAS (FreeRADIUS client) record
 
 =cut
 
@@ -103,11 +119,10 @@ sub _insert_dhcpd {
 
 =item freeradius_populate_dhcpd_config
 
-Populates the radippool us_nas table with switches in switches.conf.
+Populates the radippool table with ip.
 
 =cut
 
-# First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_dhcpd_config {
     my $logger = get_logger();
     return unless db_ping;
@@ -152,7 +167,7 @@ sub freeradius_update_dhcpd_lease {
 =item freeradius_delete_dhcpd_leas
 
 Delete dhcp lease in radippool table
-
+ 
 =cut
 
 sub freeradius_delete_dhcpd_lease {
@@ -165,7 +180,6 @@ sub freeradius_delete_dhcpd_lease {
     return 1;
 }
 
-
 =item ping_dhcpd
 
 ping each dhcpd server interface to see if they are alive
@@ -174,9 +188,12 @@ ping each dhcpd server interface to see if they are alive
 
 sub ping_dhcpd {
     my $logger = get_logger();
+    my $answer;
+    my $i = 0;
     foreach my $host (@cluster_servers) {
         for my $interface (keys $host) {
-            next if ( ( $interface !~ /^interface/) || ($host->{$interface}->{type} ne 'internal') );
+            next if ( ( $interface !~ /^interface (.*)/) || ($host->{$interface}->{type} ne 'internal') );
+            my $eth = $1;
             my $dhcpreq = new Net::DHCP::Packet(
                 Op => BOOTREQUEST(),
                 Htype => HTYPE_ETHER(),
@@ -190,12 +207,42 @@ sub ping_dhcpd {
                 Chaddr => "001122334455",
                 DHO_DHCP_MESSAGE_TYPE() => DHCPLEASEQUERY()
             );
-            my $sock_in = IO::Socket::INET->new(Type => SOCK_DGRAM, Reuse => 1, LocalPort => 68, Proto => 'udp',PeerAddr => $host->{$interface}->{ip}.':67');
-            # Send the packet to the network
-            $sock_in->send($dhcpreq->serialize());
+            my $fromaddr;
+            undef $@;
+            eval {
+                local $SIG{ALRM} = sub { die 'Timed Out'; };
+                alarm 2;
+                my $sock_out = IO::Socket::INET->new(Type => SOCK_DGRAM, Reuse => 1, LocalPort => 68, Proto => 'udp',PeerAddr => $host->{$interface}->{ip}.':67');
+                # Send the packet to the network
+                my $data;
+                $sock_out->send($dhcpreq->serialize());
+                $fromaddr = $sock_out->recv($data, 4096);
+                alarm 0;
+            };
+            alarm 0;
+            next if ( $@ && $@ =~ /Timed Out/ );
+            next if (!defined($fromaddr));
+            my ($port,$addr) = unpack_sockaddr_in($fromaddr);
+            my $ipaddr = inet_ntoa($addr);
+            my %info = (
+                'interface' => $eth,
+                'index' => $i,
+            );
+            $i++;
+            $answer->{$host->{$interface}->{ip}} = \%info;
+        }
+    }
+    db_query_execute(
+            DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_pool');
+    if (defined($answer)) {
+        for my $server (keys $answer) {
+            db_query_execute(
+                DHCPD, $dhcpd_statements, 'freeradius_insert_dhcpd_pool', $server, $answer->{$server}{'interface'}, $answer->{$server}{'index'}
+            );
         }
     }
 }
+
 
 =back
 
@@ -231,4 +278,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-
