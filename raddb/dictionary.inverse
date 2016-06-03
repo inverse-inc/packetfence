@@ -38,6 +38,7 @@ ATTRIBUTE       PacketFence-Computer-Name             22       string
 ATTRIBUTE       PacketFence-Handled                   23       string   
 ATTRIBUTE       PacketFence-Request-Time              24       integer
 ATTRIBUTE       PacketFence-NasName                   25       string
+ATTRIBUTE       PacketFence-Proxied-To                26       string
 
 END-VENDOR      Inverse
 
