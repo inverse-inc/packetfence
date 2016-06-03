@@ -52,7 +52,8 @@ sub index : Path : Args(0) {
     } elsif ( $request->param('cancel') ) {
         $c->user_session({});
         $c->detach('login');
-    } elsif ( $request->param('device_mac') ) {
+    }
+    if ( $request->method eq 'POST' && $request->param('device_mac') ) {
         # User is authenticated and requesting to register a device
         my $device_mac = clean_mac($request->param('device_mac'));
         my $device_type;
@@ -64,9 +65,8 @@ sub index : Path : Args(0) {
                 $c->stash(status_msg  => [ "The MAC address %s has been successfully registered.", $device_mac ]);
                 $c->detach('landing');
             }
-        } else {
-            $c->stash(txt_auth_error => "Please verify the provided MAC address.");
         }
+    $c->stash(txt_auth_error => "Please verify the provided MAC address.");
     }
     # User is authenticated so display registration page
     $c->stash(title => "Registration", template => 'device-registration/registration.html');
@@ -167,6 +167,17 @@ sub registerNode : Private {
     }
 }
 
+=head2 logout
+
+allow user to logout
+
+=cut
+
+sub logout : Local {
+    my ( $self, $c ) = @_;
+    $c->user_session({});
+    $c->forward('index');
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

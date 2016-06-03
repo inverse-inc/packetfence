@@ -5,7 +5,7 @@
 </div>
 [% END %]
 
-<form name="registration" method="post" action="[% URL_DEVICE_REGISTRATION %]">
+<form name="registration" method="post" action="/device-registration">
 
   <div class="layout layout--center">
     <div class="layout__item u-2/3 u-1/1-palm">
@@ -39,3 +39,13 @@
     </div>
   </div>
 </form>
+<div class="layout layout--center">
+  <div class="layout__item u-2/3 u-1/1-palm">
+    <a href="/device-registration/logout" class="btn btn--full btn--light">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Logout") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
