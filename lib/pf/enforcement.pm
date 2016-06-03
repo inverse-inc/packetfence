@@ -241,6 +241,7 @@ sub _should_we_reassign_vlan {
         user_name => $user_name,
         ssid => $ssid,
         node_info => pf::node::node_attributes($mac),
+        profile => pf::Portal::ProfileFactory->instantiate($mac),
     };
 
     my $newRole = $role_obj->fetchRoleForNode( $args );
