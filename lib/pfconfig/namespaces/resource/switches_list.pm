@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::switches_group;
+package pfconfig::namespaces::resource::switches_list;
 
 =head1 NAME
 
@@ -23,19 +23,18 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{switches_group} = pf::ConfigStore::Switch->new()->readAllIds();
+    $self->{switches} = \%pf::SwitchFactory::SwitchConfig;
 }
 
 
 
 sub build {
     my ($self) = @_;
-    my @switches_group = map { my $a = $_; $a =~ s/group //;$a} grep { $_ =~ /group/} @{$self->{switches_group}};
-    my $switches_group;
-    foreach my $group (@switches_group) {
-        $switches_group->{$group} = $group;
+    my $switches;
+    foreach my $switch_id (keys $self->{switches}) {
+        $switches->{$switch_id} = $switch_id if ($switch_id ne 'default' && $switch_id ne '127.0.0.1' && $switch_id !~ /^group/);
     }
-    return $switches_group;
+    return $switches;
 }
 
 =head1 AUTHOR
@@ -68,5 +67,5 @@ USA.
 1;
 
 # vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
+# # vim: set expandtab:
+# # vim: set backspace=indent,eol,start:

@@ -19,9 +19,6 @@ use pf::Moose::Types;
 extends 'pf::condition';
 use pf::log;
 use pf::constants;
-use pf::config qw(
-    @ConfigSwitchesGroup
-);
 
 our $logger = get_logger();
 

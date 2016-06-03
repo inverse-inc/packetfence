@@ -20,7 +20,8 @@ use pf::file_paths qw($suricata_categories_file);
 use File::Slurp;
 use pf::SwitchFactory;
 use pf::config qw(
-    @ConfigSwitchesGroup
+    %ConfigSwitchesGroup
+    %ConfigSwitchesList
 );
 
 our @EXPORT_OK = qw(
@@ -56,22 +57,6 @@ Readonly::Scalar our $SURICATA_CATEGORIES => sub {
     return \%map;
 }->();
 
-Readonly::Scalar our $SWITCH_LIST => sub {
-    my %map;
-    foreach my $switch_id (keys %pf::SwitchFactory::SwitchConfig) {
-        $map{$switch_id} = $switch_id if ($switch_id ne 'default' && $switch_id ne '127.0.0.1' && $switch_id !~ /^group/);
-    }
-    return \%map;
-}->();
-
-Readonly::Scalar our $SWITCHES_GROUP => sub {
-    my %map;
-    foreach my $switch_group (@ConfigSwitchesGroup) {
-        $map{$switch_group} = $switch_group;
-    }
-    return \%map;
-}->();
-
 Readonly::Scalar our $TRIGGER_MAP => {
   $TRIGGER_TYPE_INTERNAL => {
     "1100010" => "Rogue DHCP detection",
@@ -84,8 +69,8 @@ Readonly::Scalar our $TRIGGER_MAP => {
   },
   $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
   $TRIGGER_TYPE_METASCAN => $pf::metascan::METASCAN_RESULT_IDS,
-  $TRIGGER_TYPE_SWITCH => $SWITCH_LIST,
-  $TRIGGER_TYPE_SWITCH_GROUP => $SWITCHES_GROUP
+  $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
+  $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,
 };
 
 =head1 AUTHOR
