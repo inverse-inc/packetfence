@@ -377,10 +377,6 @@ sub provisioner_compliance_poll {
     foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
         my $provisioner = pf::factory::provisioner->new($id);
         if($provisioner->supportsPolling){
-            #HACK alert! - FIXME
-            #Multiplying by two since pfmon doesn't calculate the time taken by jobs into the interval.
-            #Meaning if a job takes 15 seconds to accomplish and the interval is 300s then we will be missing the 15s since the next time will technically be in 315s
-            # jsemaan@inverse.ca
             $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval}*2);
         }
     }
