@@ -18,9 +18,12 @@ use namespace::autoclean;
 use Moose;
 use pfappserver::Form::SavedSearch;
 use pf::admin_roles;
+use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(none);
 use pf::pfcmd::checkup;
 use pf::cluster;
+use pf::authentication;
+use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -38,14 +41,28 @@ sub auto :Private {
     # Make sure the 'enforcements' session variable doesn't exist as it affects the Interface controller
     delete $c->session->{'enforcements'};
 
-    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_in_realm('admin')) {
+    my $action = $c->action->name;
+    # login and logout actions have no checks
+    if ($action eq 'login' || $action eq 'logout') {
+        return 1;
+    }
+
+    # If user is not logged in then send him to the login page
+    unless ($c->user_in_realm('admin')) {
         $c->stash->{'template'} = 'admin/login.tt';
-        unless ($c->action->name eq 'index') {
+        unless ($action eq 'index') {
             $c->stash->{status_msg} = $c->loc("Your session has expired.");
             $c->stash->{'redirect_action'} = $c->uri_for($c->action, @args);
         }
         $c->delete_session();
         $c->detach();
+        return 0;
+    }
+
+    # If there is currently a challenge go to the challenge page
+    if ($c->session->{user_challenge}) {
+        $c->stash->{'template'} = 'admin/challenge.tt';
+        $c->detach('challenge');
         return 0;
     }
 
@@ -73,16 +90,19 @@ Upon successful authentication, redirect the user to the status page.
 
 sub login :Local :Args(0) {
     my ( $self, $c ) = @_;
-
-    if (exists($c->req->params->{'username'}) && exists($c->req->params->{'password'})) {
+    my $req = $c->req;
+    if (exists($req->params->{'username'}) && exists($req->params->{'password'})) {
         $c->stash->{current_view} = 'JSON';
         eval {
-            if ($c->authenticate( { username => $c->req->params->{'username'}, password => $c->req->params->{'password'} } )) {
-                my $roles = [$c->user->roles];
+            if ($c->authenticate( { username => $req->params->{'username'}, password => $req->params->{'password'} } )) {
+                my $user = $c->user;
+                my $roles = [$user->roles];
                 if (admin_can_do_any_in_group($roles, 'LOGIN_GROUP')) {
+                    my $challenge = $user->_challenge;
 
                     # Save the roles to the session
                     $c->session->{user_roles} = $roles;
+                    $c->session->{user_challenge} = $challenge;
 
                     # Save the updated roles data
                     $c->persist_user();
@@ -90,10 +110,12 @@ sub login :Local :Args(0) {
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
                     $c->response->status(HTTP_ACCEPTED);
-                    if ($c->req->params->{'redirect_url'}) {
-                        $c->stash->{success} = $c->req->params->{'redirect_url'};
+                    if ($challenge) {
+                        $c->stash->{success} = $c->uri_for($self->action_for('challenge'))->as_string;
+                    } elsif ($req->params->{'redirect_url'}) {
+                        $c->stash->{success} = $req->params->{'redirect_url'};
                     } else {
-                        $c->stash->{success} = $c->uri_for($c->controller()->action_for('index'));
+                        $c->stash->{success} = $c->uri_for($self->action_for('index'))->as_string;
                     }
                 } else {
                     $c->response->status(HTTP_UNAUTHORIZED);
@@ -112,10 +134,53 @@ sub login :Local :Args(0) {
             $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
     } elsif ($c->user_in_realm( 'admin' )) {
-        $c->response->redirect($c->uri_for($c->controller->action_for('index')));
+        $c->response->redirect($c->uri_for($self->action_for('index')));
         $c->detach();
-    } elsif ($c->req->params->{'redirect_action'}) {
-        $c->stash->{redirect_action} = $c->req->params->{'redirect_action'};
+    } elsif ($req->params->{'redirect_action'}) {
+        $c->stash->{redirect_action} = $req->params->{'redirect_action'};
+    }
+}
+
+
+=head2 challenge
+
+=cut
+
+sub challenge :Local :Args(0) {
+    my ($self, $c) = @_;
+    my $req = $c->req;
+    my $user_challenge = $c->session->{user_challenge};
+    unless (defined $user_challenge) {
+        $c->response->redirect($c->uri_for($self->action_for('index')));
+        $c->detach();
+    }
+
+    $c->stash({
+        challenge_message => ($user_challenge->{message} // "Admin Login Challenge")
+    });
+
+    if (exists($req->params->{'challenge'})) {
+        my $source = getAuthenticationSource($user_challenge->{id});
+        my ($results, $message) = $source->challenge($c->user->id, $req->params->{'challenge'}, $user_challenge);
+        $c->log->info("results : $results");
+        if ($results == $FALSE) {
+            $c->stash->{status_msg} = $c->loc("Invalid challenge.");
+            $c->detach;
+        }
+        if ($results == $LOGIN_CHALLENGE) {
+            $c->stash->{status_msg} = $c->loc("Another challenge.");
+            $c->session->{user_challenge} = $message;
+            $c->detach;
+        }
+        #If we are here then it was successful
+        delete $c->session->{user_challenge};
+        if ($req->params->{'redirect_action'}) {
+            $c->response->redirect($req->params->{'redirect_action'});
+        }
+        else {
+            $c->response->redirect($c->uri_for($self->action_for('index')));
+        }
+        $c->detach();
     }
 }
 
