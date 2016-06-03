@@ -96,6 +96,14 @@ sub _token_cache_key {
     return $self->id."-token";
 }
 
+=head2 supportsPolling
+
+This provisioner supports polling at a regular interval
+
+=cut
+
+sub supportsPolling {$TRUE}
+
 =head2 token
 
 Get the authentication token from the cache or fetch it using the API
@@ -271,8 +279,8 @@ Get the uninstalled agents in the last X minutes and put them in pending to forc
 
 sub pollAndEnforce {
     my ($self, $timeframe) = @_;
-    $timeframe ||= 30;
     my $logger = get_logger();
+    $logger->info("Fetching list of uninstalled devices since $timeframe on ".$self->id);
     
     my $uninstalled_devices = $self->uninstalled_devices($timeframe);
 
