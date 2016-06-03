@@ -278,7 +278,7 @@ home_server pf$i.cli.cluster {
         type = auth
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
-        port = 1814
+        port = 1815
         secret = testing1234
         response_window = 6
         status_check = status-server
