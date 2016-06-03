@@ -20,6 +20,7 @@
      cssFiles = [
         'app/bootstrap-timepicker',
         'admin/reports'
+        'css/bootstrap'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]
               <li[% IF section == action %] class="active"[% END %]>

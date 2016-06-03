@@ -315,7 +315,7 @@ $(function () { // DOM ready
     });
 
     /* Register links in the sidebar list */
-    $('.sidebar-nav .nav-list a').click(function(event) {
+    $('.sidebar-nav .nav-list a:not([data-toggle])').click(function(event) {
         var item = $(this).parent();
         $('.sidebar-nav .nav-list .active').removeClass('active');
         item.addClass('active');

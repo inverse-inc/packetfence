@@ -97,3 +97,11 @@ form .uneditable {
     color: transparent;
     text-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
+.collapsed > .icon-chevron-up {
+    transform: rotate(180deg);
+    transition: transform 240ms;
+}
+.nav li a:hover, .nav li a:focus {
+    text-decoration: none;
+    background-color: #eeeeee;
+}
