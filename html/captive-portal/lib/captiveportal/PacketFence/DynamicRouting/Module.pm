@@ -41,6 +41,12 @@ has renderer => (is => 'rw');
 
 has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{}});
 
+=head2 BUILD
+
+Override BUILD method to validate the actions for the module
+
+=cut
+
 sub BUILD {
     my ($self) = @_;
     my %available_actions = map { $_ => 1 } @{$self->available_actions};
