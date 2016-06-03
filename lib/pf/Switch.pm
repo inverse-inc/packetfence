@@ -328,6 +328,7 @@ sub new {
         '_roles'                    => undef,
         '_inlineTrigger'            => undef,
         '_deauthMethod'             => undef,
+        '_useCoA'                   => 'enabled',
         '_switchIp'                 => undef,
         '_ip'                       => undef,
         '_switchMac'                => undef,
@@ -3219,6 +3220,12 @@ sub setSession {
     });
     pf::locationlog::locationlog_set_session($mac, $session_id);
     return $session_id;
+}
+
+sub shouldUseCoA {
+    my ($self, $args) = @_;
+    # Roles are configured and the user should have one
+    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
 }
 
 =back

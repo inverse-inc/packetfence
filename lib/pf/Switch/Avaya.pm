@@ -589,8 +589,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one
-        if (defined($role) && (defined($node_info->{'status'}) ) ) {
+        if ( $self->shouldUseCoA({role => $role}) ) {
 
             $attributes_ref = {
                 %$attributes_ref,

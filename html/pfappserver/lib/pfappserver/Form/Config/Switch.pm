@@ -76,6 +76,16 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+  
+has_field 'useCoA' =>
+  (
+   type => 'Toggle',
+   label => 'Use CoA',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
+  );
+
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
@@ -282,7 +292,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp controllerPort) ],
   );
 has_field 'SNMPVersion' =>
   (
