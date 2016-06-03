@@ -399,6 +399,7 @@ the task to is ran in a loop until it is finished
 sub _runtask {
     my ($id,$parameter,$task) = @_;
     $0 = "pfmon - $id";
+    my $time_taken = 0;
     while ($running) {
         pf::config::cached::ReloadConfigs();
         my $interval = $Config{'maintenance'}{$parameter};
@@ -408,18 +409,24 @@ sub _runtask {
             pause;
             next;
         }
+        my $final_interval = $time_taken > 0 ? $interval - int($time_taken+1) : $interval;
+        if($final_interval < 0) {
+            $final_interval = 0;
+        }
         # run these functions every $maintenance_interval
-        $logger->trace("$id is sleeping for $interval");
-        alarm $interval;
+        $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
+        alarm $final_interval;
         pause;
         last unless $running;
         $logger->trace("$id is running");
         eval {
-            #reload all cached configs before running the task
+            my $start = Time::HiRes::gettimeofday;
             $task->();
+            $time_taken = Time::HiRes::gettimeofday - $start;
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
+            $time_taken = 0;
         }
         #Stop running if parent is no longer alive
         unless(is_parent_alive()) {
