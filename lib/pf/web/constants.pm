@@ -79,6 +79,7 @@ Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
 Readonly::Scalar our $URL_SPONSOR_CHECK         => '/sponsor/check';
 Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
 Readonly::Scalar our $URL_RECORD_DESTINATION    => '/record_destination_url';
+Readonly::Scalar our $URL_CHALLENGE             => '/challenge';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
