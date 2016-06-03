@@ -74,6 +74,9 @@ server pfcli.cluster {
         }
 
         post-proxy {
+                update control {
+                        Proxy-To-Realm := "packetfence-cli"
+                }
         }
 
         authorize {
