@@ -488,11 +488,12 @@ sub generate_radiusd_dhcpd {
     $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
 
+    my $cluster_ip = pf::cluster::management_cluster_ip();
+    $tags{'cluster_ip'} = $cluster_ip;
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         my $enforcement = $cfg->{'enforcement'};
-        my $members = pf::cluster::dhcpd_peer($interface);
         my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
             $tags{'listen'} .= <<"EOT";
 
@@ -513,7 +514,11 @@ EOT
 server dhcp\.$interface {
 dhcp DHCP-Discover {
 	convert_to_int
-	if ("%{expr: %{Tmp-Integer-1} %% 2}" == '1') {
+	update {
+		&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+		&request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
+        }
+	if ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") {
 
 		update reply {
 		       DHCP-Message-Type = DHCP-Offer
@@ -583,7 +588,11 @@ EOT
 
 dhcp DHCP-Request {
         convert_to_int
-	if ("%{expr: %{Tmp-Integer-1} %% 2}" == '1') {
+        update {
+                &request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+                &request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
+        }
+        if ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") {
 
 		update reply {
 		       &DHCP-Message-Type = DHCP-Ack
@@ -690,14 +699,12 @@ dhcp DHCP-Release {
 
 dhcp DHCP-Lease-Query {
 
-	# has MAC, asking for IP, etc.
         if (&DHCP-Client-Hardware-Address) {
                 update reply {
                     &DHCP-Message-Type = DHCP-Lease-Active
                     &DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
                 }
-                # look up MAC in database
-        }
+	}
 
 	# has IP, asking for MAC, etc.
 	elsif (&DHCP-Your-IP-Address) {

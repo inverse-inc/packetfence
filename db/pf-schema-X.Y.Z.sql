@@ -1231,3 +1231,14 @@ CREATE TABLE radippool (
   KEY radippool_callingstationid_expiry (callingstationid, expiry_time),
   KEY radippool_framedipaddress_expiry (framedipaddress, expiry_time)
 ) ENGINE=InnoDB;
+
+--
+-- Creating dhcpd table
+--
+
+CREATE TABLE dhcpd (
+  ip varchar(45) NOT NULL,
+  interface varchar(45) NOT NULL,
+  idx int(2) NOT NULL,
+  PRIMARY KEY (ip)
+) ENGINE=InnoDB;
