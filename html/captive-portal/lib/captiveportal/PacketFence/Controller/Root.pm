@@ -118,7 +118,15 @@ sub default : Path {
 sub dynamic_application :Private {
     my ($self, $c) = @_;
     my $application = $c->stash->{application};
-    $application->execute();
+    eval {
+        $application->execute();
+    };
+    if($@) {
+        # Die unless it is a detaching
+        if(ref($@) ne "captiveportal::DynamicRouting::Detach") {
+            die $@;
+        }
+    }
 
     if($application->response_code =~ /^(301|302)$/){
         $c->response->redirect($application->template_output, $application->response_code);

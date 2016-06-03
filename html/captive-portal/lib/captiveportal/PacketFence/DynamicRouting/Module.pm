@@ -22,6 +22,7 @@ use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
 use captiveportal::Base::Actions;
+use captiveportal::DynamicRouting::Detach;
 
 has id => (is => 'ro', required => 1);
 
@@ -348,6 +349,16 @@ Allows to redirect to the root page of the captive portal to recalculate where t
 sub redirect_root {
     my ($self) = @_;
     $self->app->redirect("/captive-portal");
+}
+
+=head2 detach
+
+Stop the execution of the request
+
+=cut
+
+sub detach {
+    die captiveportal::DynamicRouting::Detach->new;
 }
 
 =head1 AUTHOR
