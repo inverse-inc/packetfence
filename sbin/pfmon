@@ -377,7 +377,7 @@ sub provisioner_compliance_poll {
     foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
         my $provisioner = pf::factory::provisioner->new($id);
         if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval}*2);
+            $provisioner->pollAndEnforce($Config{maintenance}{provisioning_compliance_poll_interval});
         }
     }
 }
