@@ -44,6 +44,30 @@ has_field 'description' =>
              help => 'The description that will be displayed to users' },
   );
 
+has_field 'actions' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+     inflate_default_method => sub {
+         [
+          map { pfappserver::Form::Field::PortalModuleAction->action_inflate($_) }
+          @{$_[1]}
+         ]
+     },
+     tags => { 
+       when_empty => 'If none are specified, the default ones of the module will be used.' 
+     },
+  );
+
+has_field 'actions.contains' =>
+  (
+    label => 'Action',
+    type => '+PortalModuleAction',
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+
 has_block definition =>
   (
    # Generated via the BUILD method
@@ -52,6 +76,7 @@ has_block definition =>
 
 sub BUILD {
     my ($self) = @_;
+    $self->field('actions.contains')->field('type')->options([$self->options_actions]);
     $self->block('definition')->add_to_render_list(qw(id type description), $self->child_definition());
     $self->setup();
 }
@@ -83,6 +108,39 @@ sub remove_field {
             $self->add_field($field);
         }
     }
+}
+
+=head2 options_actions
+
+Options available for the actions
+
+=cut
+
+sub options_actions {
+    my ($self) = @_;
+    return map { 
+        {
+            value => $_,
+            label => $_,
+        }
+    } ("Select an option", @{$self->for_module->available_actions});
+}
+
+=head2 dynamic_tables
+
+Get all the DynamicTable fields of this form
+
+=cut
+
+sub dynamic_tables {
+    my ($self) = @_;
+    my @fields;
+    foreach my $field ($self->all_fields){
+        if($field->type eq "DynamicTable") {
+            push @fields, $field->name;
+        }
+    }
+    return @fields;
 }
 
 =over

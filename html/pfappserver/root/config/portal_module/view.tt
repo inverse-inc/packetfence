@@ -1,3 +1,17 @@
+  <div class="hidden" id="actions_templates">
+     <input type="hidden" name="default_action_match" id="default_action_match" />
+     <select name="set_role_action_match" id="set_role_action_match" data-required="required">
+       [% FOREACH node_role IN node_roles %]
+          <option value="[% node_role.name %]"> [% node_role.name %] </option>
+       [% END %]
+     </select>
+     <select name="set_access_duration_action_match" id="set_access_duration_action_match" data-required="required">
+       [% FOREACH access_duration IN access_durations %]
+          <option value="[% access_duration %]"> [% access_duration %] </option>
+       [% END %]
+     </select>
+     <input data-required="1" id="set_unregdate_action_match" name="set_unregdate_action_match" value="" class="datepicker input-small" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd" type="text">
+  </div>
 
 <ul class="breadcrumb">
   <li><a href="[% c.pf_hash_for(c.controller.action_for('index')) %]">[% l('Portal Modules') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
@@ -20,21 +34,27 @@
     [% form.block('definition').render | none %]
   </div>
 
-  [% IF form.field('modules') %]
-  <div class="control-group">
-    <label class="control-label" for="modules">[% l('Modules') %]</label>
-    <div class="controls">
-      [% form.field('modules').render | none %]
-      <div id="modulesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('modules').index > 1 %]">
-        <p>
-          <i class="icon-cog icon-large"></i>
-          [% l('No modules selected') %]
-          <a href="#add">[% l('Add a module.') %]</a>
-        </p>
+  [% FOREACH field IN form.dynamic_tables %]
+    [% IF form.field(field) %]
+    <div id="[% field %]Container" class="control-group">
+      <label class="control-label" for="[% field %]">[% l(field) %]</label>
+      <div class="controls">
+        [% form.field(field).render | none %]
+        <div id="[% field %]Empty" class="unwell unwell-horizontal[% ' hidden' IF form.field(field).index > 1 %]">
+          <p>
+            <i class="icon-cog icon-large"></i>
+            [% l('No ' _ field _ ' selected') %]
+            <a href="#add">[% l('Add one.') %]</a>
+          </p>
+          <p>[% form.field(field).tags.when_empty %]</p>
+        </div>
       </div>
     </div>
-  </div>
+    [% END %]
   [% END %]
+  <script>
+    initActionMatchInput()
+  </script>
 
   [% IF form.block('multi_source_definition') %]
   <div class="control-group">

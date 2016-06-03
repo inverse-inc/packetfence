@@ -43,26 +43,64 @@ sub build_child {
         $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
 
         if(defined($tmp_cfg{$module_id}{actions})){
-            my @actions = @{$tmp_cfg{$module_id}{actions}};
-            if(@actions){
-                my $new_actions = {};
-                foreach my $action (@{$tmp_cfg{$module_id}{actions}}){
-                    if($action =~ /(.+)\((.*)\)/){
-                        my $action_name = $1;
-                        my $action_params = $2;
-                        $new_actions->{$action_name} = [split(/\s*,\s*/, $action_params)];
-                    }
-                }
-                $tmp_cfg{$module_id}{actions} = $new_actions;
+            if(@{$tmp_cfg{$module_id}{actions}}){
+                $tmp_cfg{$module_id}{actions} = inflate_actions($tmp_cfg{$module_id}{actions});
             }
             else {
-                $tmp_cfg{$module_id}{actions} = undef;
+                delete $tmp_cfg{$module_id}{actions};
             }
         }
 
     }
 
     return \%tmp_cfg;
+}
+
+=head2 inflate_actions
+
+Inflate an array ref of actions to a hash ref of the format :
+  {
+    "action_name_1" => [
+      "arg1",
+      "arg2",
+      "arg3"
+    ]
+    ...
+  }
+
+=cut
+
+sub inflate_actions {
+    my ($actions) = @_;
+    my $new_actions = {};
+    foreach my $action (@$actions){
+        my ($action_name, $action_args) = inflate_action($action);
+        $new_actions->{$action_name} = $action_args;
+    }
+    return $new_actions;
+}
+
+=head2 inflate_action
+
+Inflate an action of the format action_name_1(arg1,arg2,arg3) to the following :
+ (
+  "action_name_1",
+  [
+    "arg1",
+    "arg2",
+    "arg3"
+  ]
+ )
+
+=cut
+
+sub inflate_action {
+    my ($action) = @_;
+    if($action =~ /(.+)\((.*)\)/){
+        my $action_name = $1;
+        my $action_params = $2;
+        return ($action_name, [split(/\s*;\s*/, $action_params)]);
+    }
 }
 
 =head1 AUTHOR

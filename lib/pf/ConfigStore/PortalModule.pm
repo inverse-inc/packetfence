@@ -78,6 +78,7 @@ sub _fields_expanded {
     modules
     source_id
     custom_fields
+    actions
     );
 }
 
