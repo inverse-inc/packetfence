@@ -243,7 +243,12 @@ sub apply_new_node_info {
     # This way, if the role wasn't set during the portal process (like in provisioning agent re-install), then it will pick the role it had before
     if($self->node_info->{status} eq $pf::node::STATUS_PENDING) {
         unless($self->username){
-            $self->username($self->node_info->{pid});
+            if($self->new_node_info->{pid}){
+                $self->username($self->new_node_info->{pid});
+            }
+            else {
+                $self->username($default_pid);
+            }
         }
         $self->new_node_info->{category} = $self->node_info->{category};
         $self->new_node_info->{unregdate} = $self->node_info->{unregdate};
