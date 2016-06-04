@@ -205,8 +205,6 @@ ProxyHTMLLinks  script      src for
       SSLEngine on
       Include  [% var_dir %]/conf/ssl-certificates.conf
       SSLProxyEngine on
-      PerlModule pf::web::admin
-      PerlTransHandler pf::web::admin->proxy_portal
       ProxyRequests off
       ProxyPreserveHost on
       ProxyVia off
