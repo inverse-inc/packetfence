@@ -405,29 +405,29 @@ sub _runtask {
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
             $logger->trace("task $id is disabled");
+            $time_taken = 0;
             alarm 60;
             pause;
             next;
         }
         my $final_interval = $time_taken > 0 ? $interval - int($time_taken+1) : $interval;
-        if($final_interval < 0) {
-            $final_interval = 0;
-        }
-        # run these functions every $maintenance_interval
         $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
-        alarm $final_interval;
-        pause;
-        last unless $running;
+        # Only wait if the interval is positive
+        if($final_interval > 0) {
+            alarm $final_interval;
+            pause;
+            last unless $running;
+        }
+        
         $logger->trace("$id is running");
+        my $start = Time::HiRes::gettimeofday;
         eval {
-            my $start = Time::HiRes::gettimeofday;
             $task->();
-            $time_taken = Time::HiRes::gettimeofday - $start;
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
-            $time_taken = 0;
         }
+        $time_taken = Time::HiRes::gettimeofday - $start;
         #Stop running if parent is no longer alive
         unless(is_parent_alive()) {
             $logger->error("Parent is no longer running shutting down");
