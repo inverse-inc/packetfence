@@ -418,15 +418,14 @@ sub _runtask {
         }
         last unless $running;
         $logger->trace("$id is running");
+        my $start = Time::HiRes::gettimeofday;
         eval {
-            my $start = Time::HiRes::gettimeofday;
             $task->();
-            $time_taken = Time::HiRes::gettimeofday - $start;
         };
         if ($@) {
             $logger->error("Error running task $id: $@");
-            $time_taken = 0;
         }
+        $time_taken = Time::HiRes::gettimeofday - $start;
         #Stop running if parent is no longer alive
         unless(is_parent_alive()) {
             $logger->error("Parent is no longer running shutting down");
