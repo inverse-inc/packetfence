@@ -76,7 +76,7 @@ sub do_email_registration {
     utf8::decode($info{'subject'});
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
-    my ( $auth_return, $err, $errargs_ref ) =
+    my ( $auth_return, $err, $activation_code ) =
       pf::activation::create_and_send_activation_code(
         $self->current_mac,
         $pid, $email,
@@ -85,6 +85,8 @@ sub do_email_registration {
         $self->app->profile->getName,
         %info,
       );
+
+    $self->session->{activation_code} = $activation_code;
 
     pf::auth_log::record_guest_attempt($source->id, $self->current_mac, $pid);
 
@@ -111,7 +113,7 @@ after 'execute_actions' => sub {
     my ($self) = @_;
 
     # we record the unregdate to reuse it after
-    $self->app->session->{"email_unregdate"} = $self->new_node_info->{unregdate};
+    pf::activation::set_unregdate($self->session->{activation_code}, $self->new_node_info->{unregdate});
 
     get_logger->debug("Source ".$self->source->id." has an activation timeout of ".$self->source->{email_activation_timeout});
     # Use the activation timeout to set the unregistration date

@@ -2,6 +2,12 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
+--
+-- Add unregistration date to activation records
+--
+
+ALTER TABLE activation ADD COLUMN `unregdate` datetime DEFAULT NULL AFTER `expiration`;
+
 DROP PROCEDURE IF EXISTS acct_start;
 DELIMITER /
 CREATE PROCEDURE acct_start (
