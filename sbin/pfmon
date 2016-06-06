@@ -412,7 +412,7 @@ sub _runtask {
         my $final_interval = $time_taken > 0 ? $interval - int($time_taken+1) : $interval;
         $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
-        unless($final_interval < 0) {
+        if($final_interval > 0) {
             alarm $final_interval;
             pause;
         }
