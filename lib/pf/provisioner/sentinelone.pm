@@ -329,6 +329,12 @@ sub authorize_mdm_filters {
     return (any { $_ eq $NOT_COMPLIANT_FLAG} @flags) ? $FALSE : $TRUE;
 }
 
+=head2 uninstalled_devices
+
+Get the list of devices that have uninstalled the agent in the last X seconds
+
+=cut
+
 sub uninstalled_devices {
     my ($self, $timeframe) = @_;
 
