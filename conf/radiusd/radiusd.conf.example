@@ -255,11 +255,6 @@ max_requests = 20000
 #
 hostname_lookups = no
 
-#
-#  Logging section.  The various "log_*" configuration items
-#  will eventually be moved here.
-#
-
 #  The program to execute to do concurrency checks.
 checkrad = ${sbindir}/checkrad
 
