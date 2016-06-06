@@ -569,8 +569,7 @@ sub register_node : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
-    return;
+    return pf::node::node_register($postdata{'mac'}, $postdata{'pid'}, %postdata);
 }
 
 =head2 deregister_node
@@ -585,8 +584,43 @@ sub deregister_node : Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    pf::node::node_deregister($postdata{'mac'}, %postdata);
-    return;
+    return pf::node::node_deregister($postdata{'mac'}, %postdata);
+}
+
+=head2 register_node_ip
+
+Register a node by IP address
+
+=cut
+
+sub register_node_ip : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(ip pid);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
+
+    return pf::node::node_register($mac, $postdata{'pid'}, %postdata);
+}
+
+=head2 deregister_node_ip
+
+Deregister a node by IP address
+
+=cut
+
+sub deregister_node_ip : Public {
+    my ($class, %postdata )  = @_;
+    my @require = qw(ip);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $mac = pf::iplog::ip2mac($postdata{'ip'});
+    die "Cannot find host with IP address $postdata{'ip'}" unless $mac;
+
+    return pf::node::node_deregister($mac, %postdata);
 }
 
 =head2 node_information
