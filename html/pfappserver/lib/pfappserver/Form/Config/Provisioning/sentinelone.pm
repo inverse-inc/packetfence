@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Provisioning::sentinelone;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning - Web form for a switch
+pfappserver::Form::Config::Provisioning - Web form for a SentinelOne provisioner
 
 =head1 DESCRIPTION
 
