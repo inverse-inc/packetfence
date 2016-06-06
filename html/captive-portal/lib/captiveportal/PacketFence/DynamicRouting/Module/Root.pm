@@ -252,7 +252,7 @@ sub apply_new_node_info {
     }
     else {
         $self->app->error("Couldn't register your device. Please contact your local support staff.");
-        $self->detach()
+        $self->detach();
     }
 }
 
