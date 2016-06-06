@@ -1,18 +1,18 @@
-package pfappserver::Controller::RadiusLog;
+package pfappserver::Controller::Auditing::RadiusLog;
 
 =head1 NAME
 
-pfappserver::Controller::RadiusLog
+pfappserver::Controller::Auditing::RadiusLog
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::RadiusLog here
+Place all customization for Controller::Auditing::RadiusLog here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::RadiusLog'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Auditing::RadiusLog'; }
 
 =head1 AUTHOR
 

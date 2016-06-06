@@ -106,5 +106,5 @@
       </ul>
     </div>
   </div>
-[% INCLUDE radiuslog/search.tt %]
+[% INCLUDE auditing/radiuslog/search.tt %]
 </div>
