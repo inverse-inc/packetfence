@@ -1,8 +1,8 @@
-package pfappserver::Model::RadiusLog;
+package pfappserver::Model::Auditing::RadiusLog;
 
 =head1 NAME
 
-pfappserver::Model::RadiusLog - Catalyst Model
+pfappserver::Model::Auditing::RadiusLog - Catalyst Model
 
 =head1 DESCRIPTION
 

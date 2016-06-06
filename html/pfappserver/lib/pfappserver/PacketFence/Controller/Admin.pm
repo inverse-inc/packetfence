@@ -252,11 +252,11 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
     $c->forward('Controller::Graph', 'reports');
 }
 
-=head2 radiuslog
+=head2 auditing
 
 =cut
 
-sub radiuslog :Chained('object') :PathPart('radiuslog') :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);

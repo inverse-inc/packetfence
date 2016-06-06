@@ -75,6 +75,6 @@ function init() {
         });
     });
     /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/radiuslog/'));
+    $(window).hashchange(pfOnHashChange(updateSection,'/auditing/radiuslog/'));
     $(window).hashchange();
 }

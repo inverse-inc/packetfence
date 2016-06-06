@@ -1,41 +1,55 @@
 [%  jsFiles = [
+        'app/jquery-ui',
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
-        'app/jquery.ba-hashchange',
-        'admin/config/items',
         'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/raphael/raphael-min',
+        'app/raphael/g.raphael-min',
+        'app/raphael/g.bar-min',
+        'app/raphael/g.dot-min',
+        'app/raphael/g.line-min',
+        'app/raphael/g.pie-min',
+        'app/graphs',
+        'app/uri',
+        'admin/searches',
         'js/bootstrapSwitch',
+        'admin/config/items',
         'js/node',
         'js/user',
         'admin/nodes',
-        'admin/auditing',
+        'admin/radiuslog',
         ]
      cssFiles = [
         'app/bootstrap-timepicker',
         'admin/reports'
-        ] -%]
-
-[% MACRO list_entry(action,description) BLOCK %]
-    <li[% IF section == action %] class="active"[% END %]>
-      <a href="#[% action %]">[% l(description) %]</a>
-    </li>
-[% END -%]
-
-<div class="container-fluid">
-  <div class="row-fluid">
-    <div class="span2">
-      <div class="sidebar-nav well">
-        <ul class="nav nav-list">
-          <li class="nav-header">[% l('Auditing') %]</li>
-          [% list_entry('radiuslog', 'Radius Log') | none %]
-        </ul>
-      </div><!--/.well -->
-    </div><!--/span-->
-    <div class="span10">
-      <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-      <div id="section">
-      </div>
-    </div><!--/span -->
-
-  </div><!--/row -->
-</div><!--/.fluid-container-->
+        ] 
+-%]
+    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::RadiusLog" method="POST" %] 
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">[% l('Radius Log') %]</li>
+              <li class="nav-header">[% l('Saved Searches') %]</li>
+              [%FOR ss IN saved_searches%]
+                [% form = ss.form %]
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::RadiusLog').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <form>
+                  [%FOREACH input IN form.keys.sort%]
+                  <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>
+                  [%END%]
+                </form>
+              </li>
+              [%END%]
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+          <div id="section">
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->
