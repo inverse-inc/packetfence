@@ -38,6 +38,9 @@ server pf.cluster {
         }
 
         post-proxy {
+            update control {
+                PacketFence-Proxied-To := "%{home_server:ipaddr}"
+            }
         }
 
         authorize {
@@ -75,7 +78,7 @@ server pfcli.cluster {
 
         post-proxy {
                 update control {
-                        Proxy-To-Realm := "packetfence-cli"
+                        PacketFence-Proxied-To := "%{home_server:ipaddr}"
                 }
         }
 
