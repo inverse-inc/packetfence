@@ -19,7 +19,7 @@ listen {
 
 listen {
         ipaddr = %%virt_ip%%
-        port = 1814
+        port = 1815
         type = auth
         virtual_server = pfcli.cluster
 }
