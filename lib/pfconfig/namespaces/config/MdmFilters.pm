@@ -22,11 +22,23 @@ use pf::file_paths qw($mdm_filters_config_file);
 
 use base 'pfconfig::namespaces::config';
 
+=head2 init
+
+Initialize the namespace object with its child resources
+
+=cut
+
 sub init {
     my ($self) = @_;
     $self->{file} = $mdm_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::MdmScopes' ];
 }
+
+=head2 build_child
+
+Post configuration parsing manipulation
+
+=cut
 
 sub build_child {
     my ($self) = @_;
