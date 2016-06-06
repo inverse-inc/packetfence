@@ -1,40 +1,43 @@
-package pf::constants::provisioning;
+package pfconfig::namespaces::config::MdmFilters;
 
 =head1 NAME
 
-pf::constants::provisioning
+pfconfig::namespaces::config::MdmFilter
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::provisioning - Constants for provisioner modules
+pfconfig::namespaces::config::MdmFilters
+
+This module creates the configuration hash associated to mdm_filters.conf
 
 =cut
 
-use base qw(Exporter);
-our @EXPORT_OK = qw(
-    $SENTINEL_ONE_TOKEN_EXPIRY
-    $NOT_COMPLIANT_FLAG
-);
+use strict;
+use warnings;
 
-use Readonly;
+use pfconfig::namespaces::config;
+use pf::file_paths qw($mdm_filters_config_file);
 
-=item $SENTINEL_ONE_TOKEN_EXPIRY
+use base 'pfconfig::namespaces::config';
 
-Amount of seconds a Sentinel one token is valid (1 hour)
+sub init {
+    my ($self) = @_;
+    $self->{file} = $mdm_filters_config_file;
+    $self->{child_resources} = [ 'FilterEngine::MdmScopes' ];
+}
 
-=cut
+sub build_child {
+    my ($self) = @_;
 
-Readonly our $SENTINEL_ONE_TOKEN_EXPIRY => 60*60;
+    my %tmp_cfg = %{ $self->{cfg} };
 
-=item $NOT_COMPLIANT_FLAG
+    $self->cleanup_whitespaces( \%tmp_cfg );
 
-The flag that defines a non-compliant device as returned by the MDM filters
+    return \%tmp_cfg;
 
-=cut
-
-Readonly our $NOT_COMPLIANT_FLAG => "non-compliant";
+}
 
 =head1 AUTHOR
 
@@ -42,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -64,3 +67,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

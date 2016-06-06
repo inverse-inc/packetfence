@@ -1,40 +1,28 @@
-package pf::constants::provisioning;
-
+package pf::ConfigStore::MdmFilters;
 =head1 NAME
 
-pf::constants::provisioning
+pf::ConfigStore::MdmFilters
+Store mdm filter rules
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::provisioning - Constants for provisioner modules
+pf::ConfigStore::MdmFilters
 
 =cut
 
-use base qw(Exporter);
-our @EXPORT_OK = qw(
-    $SENTINEL_ONE_TOKEN_EXPIRY
-    $NOT_COMPLIANT_FLAG
-);
+use strict;
+use warnings;
+use Moo;
+use pf::file_paths;
+extends 'pf::ConfigStore';
 
-use Readonly;
+sub configFile { $pf::file_paths::mdm_filters_config_file };
 
-=item $SENTINEL_ONE_TOKEN_EXPIRY
+sub pfconfigNamespace {'config::MdmFilters'}
 
-Amount of seconds a Sentinel one token is valid (1 hour)
-
-=cut
-
-Readonly our $SENTINEL_ONE_TOKEN_EXPIRY => 60*60;
-
-=item $NOT_COMPLIANT_FLAG
-
-The flag that defines a non-compliant device as returned by the MDM filters
-
-=cut
-
-Readonly our $NOT_COMPLIANT_FLAG => "non-compliant";
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
@@ -42,7 +30,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
@@ -64,3 +52,4 @@ USA.
 =cut
 
 1;
+

@@ -1,40 +1,29 @@
-package pf::constants::provisioning;
+package pfconfig::namespaces::FilterEngine::MdmScopes;
 
 =head1 NAME
 
-pf::constants::provisioning
+pfconfig::namespaces::FilterEngine::MdmScopes
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::provisioning - Constants for provisioner modules
+pfconfig::namespaces::FilterEngine::MdmScopes
 
 =cut
 
-use base qw(Exporter);
-our @EXPORT_OK = qw(
-    $SENTINEL_ONE_TOKEN_EXPIRY
-    $NOT_COMPLIANT_FLAG
-);
+use strict;
+use warnings;
+use pf::log;
+use pfconfig::namespaces::config;
+use pfconfig::namespaces::config::MdmFilters;
 
-use Readonly;
+use base 'pfconfig::namespaces::FilterEngine::AccessScopes';
 
-=item $SENTINEL_ONE_TOKEN_EXPIRY
-
-Amount of seconds a Sentinel one token is valid (1 hour)
-
-=cut
-
-Readonly our $SENTINEL_ONE_TOKEN_EXPIRY => 60*60;
-
-=item $NOT_COMPLIANT_FLAG
-
-The flag that defines a non-compliant device as returned by the MDM filters
-
-=cut
-
-Readonly our $NOT_COMPLIANT_FLAG => "non-compliant";
+sub parentConfig {
+    my ($self) = @_;
+    return pfconfig::namespaces::config::MdmFilters->new($self->{cache});
+}
 
 =head1 AUTHOR
 
@@ -42,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2015 Inverse inc.
 
 =head1 LICENSE
 
