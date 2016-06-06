@@ -16,12 +16,12 @@ use strict;
 use warnings;
 
 use pf::log;
+use pf::OMAPI;
 use pf::violation;
 use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
-use pf::dhcpd;
 
 =head2 trigger_parking
 
@@ -48,7 +48,8 @@ sub park {
     my ($mac,$ip) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
-        freeradius_update_dhcpd_lease($mac, $Config{'parking'}{'lease_length'});
+        my $omapi = pf::OMAPI->get_client();
+        $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
     }
     if(isenabled($Config{parking}{show_parking_portal})){
         my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";

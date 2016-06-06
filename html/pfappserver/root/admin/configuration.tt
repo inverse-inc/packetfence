@@ -98,6 +98,7 @@ table.sources {
               [% pf_section_entry( 'servicewatch', 'Service watch') | none %]
               [% pf_section_entry( 'captive_portal', 'Captive portal') | none %]
               [% pf_section_entry( 'advanced', 'Advanced') | none %]
+              [% pf_section_entry( 'omapi', 'OMAPI') | none %]
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'active_active', 'Clustering') | none %]

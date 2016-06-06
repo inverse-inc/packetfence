@@ -7251,6 +7251,22 @@ msgid ""
 "entered without any space or separator (ex: 001122)."
 msgstr "L’OUI correspond au 6 premiers éléments d’une adresse MAC. Elle doivent êtres définies sans espaces ou caractères de séparation (ex: 001122)."
 
+# conf/documentation.conf (omapi.key_base64)
+msgid "The OMAPI base64 key for signing messages"
+msgstr "La clé de base64 OMAPI pour signer des messages"
+
+# conf/documentation.conf (omapi.host)
+msgid "The OMAPI host"
+msgstr "L'hôte OMAPI"
+
+# conf/documentation.conf (omapi.key_name)
+msgid "The OMAPI key name for signing messages"
+msgstr "Le nom de la clé OMAPI pour les messages de signature"
+
+# conf/documentation.conf (omapi.port)
+msgid "The OMAPI port number"
+msgstr "Le numéro du port OMAPI"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The Private Key for signing in pem format"
 msgstr "La clé privé permettant permettant de signer les certificats au format PEM"
@@ -7594,6 +7610,10 @@ msgid ""
 "at the time in seconds a device has been in the registration role and "
 "comparing it with this threshold."
 msgstr "Le seuil (en secondes) après lequel un appareil sera mis en parking. Un 0 désactive la detection pour le parking. Le procédé fonctionne en regardant le temps en secondes qu’un appareil a été dans le rôle d’enregistrement et en le comparant à ce seuil."
+
+# conf/documentation.conf (omapi.timeout)
+msgid "The timeout on the OMAPI socket"
+msgstr "Expiration sur le socket OMAPI"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Stripe.pm
 msgid ""
@@ -8081,7 +8101,6 @@ msgid ""
 "Disconnect will be used instead if it is available."
 msgstr "Utiliser le CoA quand celui-ci est disponible pour des enregistrer l’utilisateur. Si désactivé alors une requête RADIUS Disconnect sera utilisé si celle-ci est disponible."
 
-<<<<<<< adce2bd6ae38bd2f3a3c841f39e74f17f404bd75
 # conf/documentation.conf (omapi.mac2ip_lookup)
 msgid "Use OMAPI to query DHCPd for the IP address of a given MAC address"
 msgstr "Utilisez OMAPI pour interroger DHCPd pour l’adresse IP d’une adresse MAC donnée"
@@ -8090,8 +8109,6 @@ msgstr "Utilisez OMAPI pour interroger DHCPd pour l’adresse IP d’une adresse
 msgid "Use OMAPI to query DHCPd for the MAC address of a given IP address"
 msgstr "Utilisez OMAPI pour interroger DHCPd pour l’adresse MAC d’une adresse IP donnée"
 
-=======
->>>>>>> Removed OMAPI
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
 "Use a number above 1500000 if you want to be able to delete this violation "
@@ -9258,6 +9275,8 @@ msgstr "dhcplistener"
 # conf/documentation.conf (network.force_listener_update_on_ack options)
 # conf/documentation.conf (network.hostname_change_detection options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)
@@ -9379,6 +9398,8 @@ msgstr "Action utilisateur"
 # conf/documentation.conf (network.force_listener_update_on_ack options)
 # conf/documentation.conf (network.hostname_change_detection options)
 # conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (omapi.ip2mac_lookup options)
+# conf/documentation.conf (omapi.mac2ip_lookup options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)

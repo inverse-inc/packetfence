@@ -51,6 +51,11 @@ case "$1" in
 
         chown pf:pf $PACKETFENCE
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
+        if [ -e /etc/lsb-release ]; then
+            chown dhcpd:dhcpd $PACKETFENCE/var/dhcpd/dhcpd.leases
+        else
+            chown root:root $PACKETFENCE/var/dhcpd/dhcpd.leases
+        fi
 
         # link to latest SQL schema
         if [ -h "$PACKETFENCE/db/pf-schema.sql" ]; then
@@ -94,7 +99,6 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
-
 	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	    echo "Building default RADIUS certificates..."
 	    cd /usr/local/pf/raddb/certs
@@ -113,7 +117,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd; do
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd; do
             
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
