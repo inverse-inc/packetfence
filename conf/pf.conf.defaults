@@ -384,6 +384,11 @@ radiusd=enabled
 #
 # Order in which to start this service 
 radiusd_order=12
+#
+# services.radius-dhcpd
+#
+# Should radiusd be managed by PacketFence?
+radiusd-dhcpd=disabled
 # 
 # services.radiusd_binary
 # 
