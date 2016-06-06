@@ -11,7 +11,7 @@ var RadiusAuditLog = function() {
 
 RadiusAuditLog.prototype = new Items();
 
-RadiusAuditLog.prototype.id  = '#RadiusAuditLog';
+RadiusAuditLog.prototype.id  = '#radiusAuditLog';
 
 RadiusAuditLog.prototype.formName  = 'modalRadiusAuditLog';
 
