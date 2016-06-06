@@ -294,11 +294,14 @@ sub _buildGraphiteURL :Private {
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
 
-    my $options =
-      {
-       graphite_host => $c->req->uri->host,
-       graphite_port => '9000'
-      };
+    my $options = {
+        graphite_protocol =>
+          isenabled $Config{'monitoring'}{'graphite_tls'}
+        ? "https"
+        : "http",
+        graphite_host => $c->req->uri->host,
+        graphite_port => '9000'
+    };
 
     if (!$width) {
         $width = 1170;
@@ -340,7 +343,8 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('https://%s:%s/render?%s',
+    my $url = sprintf('%s://%s:%s/render?%s',
+                      $options->{graphite_protocol},
                       $options->{graphite_host},
                       $options->{graphite_port},
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
