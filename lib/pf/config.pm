@@ -140,6 +140,8 @@ our (
     %ConfigAdminRoles,
 #portal_modules.conf
     %ConfigPortalModules,
+#conf/local_secret
+    $local_secret,
 );
 
 BEGIN {
@@ -193,6 +195,7 @@ BEGIN {
         %ConfigBillingTiers
         %ConfigAdminRoles
         %ConfigPortalModules
+        $local_secret
     );
 }
 
@@ -264,6 +267,8 @@ tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
 tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 
 tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
+
+tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
 
 use pf::util::apache qw(url_parser);
 

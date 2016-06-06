@@ -55,6 +55,7 @@ use pf::file_paths qw(
     $server_key
     $server_pem
     $conf_dir
+    $local_secret_file
 );
 use pf::cluster;
 use fingerbank::FilePath;
@@ -100,7 +101,7 @@ foreach my $store (@tmp_stores){
     push @stores, $store;
 }
 
-my @files = ($server_cert, $server_key, $server_pem, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
+my @files = ($server_cert, $server_key, $server_pem, $local_secret_file, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
 
 if (-e '/usr/local/pf/conf/cluster-files.txt') {
     open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt')
