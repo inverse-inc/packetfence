@@ -25,7 +25,7 @@ Catalyst Controller.
 
 =cut
 
-sub begin : Private {
+sub auto : Private {
     my ( $self, $c ) = @_;
     if (isdisabled( $Config{'registration'}{'device_registration'} ) )
     {
@@ -33,6 +33,7 @@ sub begin : Private {
         $c->detach;
     }
     $c->stash->{console_types} = \@pf::web::device_registration::DEVICE_TYPES;
+    return 1;
 }
 
 =head2 index
