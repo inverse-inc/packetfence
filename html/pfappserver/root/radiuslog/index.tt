@@ -1,4 +1,4 @@
-  <div class="modal modal-large fade hide" id="modalItem">
+  <div class="modal modal-large fade hide" id="modalRadiusAuditLog">
   </div>
 
 [%- BLOCK search_options %]
