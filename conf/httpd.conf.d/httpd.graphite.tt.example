@@ -165,3 +165,5 @@ ServerAdmin [% server_admin %]
     WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
     Header           set Access-Control-Allow-Origin "*"
 </VirtualHost>
+
+[% END %]
