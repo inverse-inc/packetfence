@@ -18,6 +18,7 @@ Services managed by PacketFence:
   carbon-cache     | carbon-cache daemon
   carbon-relay     | carbon-relay daemon
   collectd         | collectd daemon
+  dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin

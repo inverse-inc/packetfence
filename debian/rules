@@ -84,6 +84,7 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/cache
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/redis_queue
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
@@ -150,6 +151,8 @@ endif
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/redis_cache
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
+	#Create our dhcpd.leases
+	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -201,6 +204,11 @@ endif
                 -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
 		-X$(NAME)sbin/pfarp_remote
 	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	# Nop, dhcpd won't exists on the build machine
+	# Maybe it should be done by the postinst script ?
+	# Or handled by the DHCP Server init script ?
+	#chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	#pfconfig
