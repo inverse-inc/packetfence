@@ -46,6 +46,9 @@ sub generateConfig {
 
 sub vhosts { [ "0.0.0.0" ] }
 sub port { 9000 }
+sub additionalVars {
+    return ( tls => $Config{'monitoring'}{'graphite_tls'} );
+}
 
 sub generate_local_settings {
     my %tags;
