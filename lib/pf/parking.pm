@@ -16,12 +16,12 @@ use strict;
 use warnings;
 
 use pf::log;
+use pf::OMAPI;
 use pf::violation;
 use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPSET_NAME);
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
-use pf::dhcpd;
 
 =head2 trigger_parking
 
