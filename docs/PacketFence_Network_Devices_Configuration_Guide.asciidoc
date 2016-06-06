@@ -551,27 +551,34 @@ PacketFence supports the AT8000GS switch using :
 
 * MAC Authentication (mac-only)
 * 802.1X
+* 802.1X + VOIP
 
-VoIP support is limited using 802.1X/MAC authentication.  We do have a limitation where the phone needs to be on the same VLAN as the PC (no voice VLAN concept).
+Assumptions
++++++++++++
+
+  PacketFence management IP: 192.168.1.5
+  Switch management IP: 10.0.0.14
+  Guest VLAN (Internet): VLAN 1
+
 
 MAC Authentication
 ++++++++++++++++++
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100               
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
    aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 In order to get mac authentication, you need to enable the guest VLAN globally: 
 
-   interface vlan 5
+   interface vlan 1
    name "Guest Vlan"
    dot1x guest-vlan
    exit
@@ -590,16 +597,16 @@ Finally, enable the necessary 802.1X settings for mac-only authentication:
 
 The settings are almost the same as the MAC Authentication with some small differences.
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
-   aaa authentication dot1x default radius
+   aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 Finally, enable the necessary 802.1X settings:
@@ -607,6 +614,45 @@ Finally, enable the necessary 802.1X settings:
    interface ethernet g1    
    dot1x radius-attributes vlan
    dot1x port-control auto
+
+802.1X + VOIP
++++++++++++++
+
+
+First, enable 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server configuration and AAA settings:
+
+
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+Then, LLDP configuration:
+
+   hostname switch-name
+   ip domain-name domain.local
+   lldp med network-policy 1 voice vlan 100 vlan-type tagged dscp 34
+   lldp med network-policy 2 voice-signaling vlan 100 vlan-type tagged dscp 34
+
+Finally, enable the necessary 802.1X and VOIP settings on each interface:
+
+   interface ethernet g1
+    dot1x port-control force-authorized
+    no dot1x guest-vlan enable
+    no dot1x mac-authentication
+    no dot1x radius-attributes vlan
+    no dot1x re-authentication
+    switchport mode trunk
+    switchport trunk native vlan 5
+    switchport trunk allowed vlan add 100
+    lldp med enable network-policy
+    lldp med network-policy add 1
+    lldp med network-policy add 2
 
 Amer 
 ~~~~
