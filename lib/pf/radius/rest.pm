@@ -43,7 +43,7 @@ sub format_response {
     $response = \%mapped_object;
 
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
-        die pf::api::error->new(status => Apache2::Const::HTTP_FORBIDDEN, response => $response);
+        die pf::api::error->new(status => Apache2::Const::HTTP_FORBIDDEN);
     }
 
     unless ($radius_return == $RADIUS::RLM_MODULE_OK) {

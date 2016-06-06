@@ -21,6 +21,17 @@ realm packetfence {
         acct_pool = pfacct_pool.cluster
 }
 
+realm packetfence-cli {
+        auth_pool = pfcli_pool.cluster
+}
+
+home_server_pool pfcli_pool.cluster {
+        type = keyed-balance
+
+%%home_server_cli%%
+
+}
+
 server pf.cluster {
         pre-proxy {
                 #  Insert pre-proxy rules here
@@ -60,3 +71,33 @@ server pf.cluster {
 
 }
 
+server pfcli.cluster {
+        pre-proxy {
+                #  Insert pre-proxy rules here
+        }
+
+        post-proxy {
+                update control {
+                        PacketFence-Proxied-To := "%{home_server:ipaddr}"
+                }
+        }
+
+        authorize {
+                update control {
+                        Load-Balance-Key := "%{NAS-IP-Address}"
+                        Proxy-To-Realm := "packetfence-cli"
+                }
+                if(!NAS-IP-Address){
+                        update request {
+                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                        }
+                }
+        }
+
+
+        authenticate {
+        }
+        accounting {
+        }
+
+}

@@ -140,8 +140,10 @@ sub send_response {
     $r->custom_response($status, '');
     $r->content_type($CONTENT_TYPE);
     $r->status($status);
-    my $response_content = encode_json($object);
-    $r->print($response_content);
+    if ($object) {
+        my $response_content = encode_json($object);
+        $r->print($response_content);
+    }
     $r->rflush;
     return Apache2::Const::OK;
 }

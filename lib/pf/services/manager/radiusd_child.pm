@@ -18,6 +18,7 @@ The first manager will create the config for all radiusd processes through the g
 use strict;
 use warnings;
 use Moo;
+use List::MoreUtils qw(any);
 use pf::file_paths qw(
     $conf_dir
     $install_dir
@@ -72,6 +73,7 @@ sub _generateConfig {
     $self->generate_radiusd_sitesconf();
     $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster();
+    $self->generate_radiusd_cliconf();
 }
 
 
@@ -106,6 +108,10 @@ sub generate_radiusd_sitesconf {
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+
+    %tags = ();
+    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
 
 }
 
@@ -166,6 +172,20 @@ sub generate_radiusd_acctconf {
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
 }
 
+sub generate_radiusd_cliconf {
+    my ($self) = @_;
+    my %tags;
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
+        $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
+        parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+    } else {
+        my $file = $install_dir."/raddb/cli.conf";
+        unlink($file);
+    }
+}
 
 =head2 generate_radiusd_eapconf
 Generates the eap.conf configuration file
@@ -256,9 +276,24 @@ home_server pf$i.cluster {
         check_interval = 30
         num_answers_to_alive = 3
 }
+home_server pf$i.cli.cluster {
+        type = auth
+        ipaddr = $radius_back
+        src_ipaddr = $cluster_ip
+        port = 1815
+        secret = testing1234
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
 EOT
             $tags{'home_server'} .= <<"EOT";
         home_server =  pf$i.cluster
+EOT
+            $tags{'home_server_cli'} .= <<"EOT";
+        home_server =  pf$i.cli.cluster
 EOT
             $i++;
         }

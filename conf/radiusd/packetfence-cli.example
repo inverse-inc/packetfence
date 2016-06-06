@@ -1,0 +1,412 @@
+server packetfence-cli {
+#
+#  Authorization. First preprocess (hints and huntgroups files),
+#  then realms, and finally look in the "users" file.
+#
+#  Any changes made here should also be made to the "inner-tunnel"
+#  virtual server.
+#
+#  The order of the realm modules will determine the order that
+#  we try to find a matching realm.
+#
+#  Make *sure* that 'preprocess' comes before any realm if you
+#  need to setup hints for the remote radius server
+authorize {
+
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+		&control:Tmp-Integer-0 := "%l"
+		&control:PacketFence-Request-Time := 0
+	}
+	#rewrite_calling_station_id
+	#rewrite_called_station_id
+	#
+	#  Take a User-Name, and perform some checks on it, for spaces and other
+	#  invalid characters.  If the User-Name appears invalid, reject the
+	#  request.
+	#
+	#  See policy.d/filter for the definition of the filter_username policy.
+	#
+	filter_username
+
+	#
+	#  Some broken equipment sends passwords with embedded zeros.
+	#  i.e. the debug output will show
+	#
+	#	User-Password = "password\000\000"
+	#
+	#  This policy will fix it to just be "password".
+	#
+	filter_password
+
+	#
+	#  The preprocess module takes care of sanitizing some bizarre
+	#  attributes in the request, and turning them into attributes
+	#  which are more standard.
+	#
+	#  It takes care of processing the 'raddb/hints' and the
+	#  'raddb/huntgroups' files.
+	preprocess
+
+	#
+	#  If you are using multiple kinds of realms, you probably
+	#  want to set "ignore_null = yes" for all of them.
+	#  Otherwise, when the first style of realm doesn't match,
+	#  the other styles won't be checked.
+	#
+	suffix
+	ntdomain
+
+	#
+	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
+	#  authentication.
+	#
+	#  It also sets the EAP-Type attribute in the request
+	#  attribute list to the EAP type from the packet.
+	#
+	#  The EAP module returns "ok" if it is not yet ready to
+	#  authenticate the user.  The configuration below checks for
+	#  that code, and stops processing the "authorize" section if
+	#  so.
+	#
+	#  Any LDAP and/or SQL servers will not be queried for the
+	#  initial set of packets that go back and forth to set up
+	#  TTLS or PEAP.
+	#
+	#eap {
+	#	ok = return
+	#}
+
+	#
+	#  Read the 'users' file.  In v3, this is located in
+	#  raddb/mods-config/files/authorize
+	#files
+
+	# Accept any non-eap request and send it to the packetfence module for authorization
+	#if ( !EAP-Message ) {
+	#	update {
+	#		&control:Auth-Type := Accept
+	#	}
+	#}
+	#packetfence-eap-mac-policy
+	#
+	#  Look in an SQL database.  The schema of the database
+	#  is meant to mirror the "users" file.
+	#
+	#  See "Authorization Queries" in mods-available/sql
+	#-sql
+
+	#
+	#  If no other module has claimed responsibility for
+	#  authentication, then try to use PAP.  This allows the
+	#  other modules listed above to add a "known good" password
+	#  to the request, and to do nothing else.  The PAP module
+	#  will then see that password, and use it to do PAP
+	#  authentication.
+	#
+	#  This module should be listed last, so that the other modules
+	#  get a chance to set Auth-Type for themselves.
+	#
+	#pap
+	rest-cli
+	if (updated || ok || noop) {
+		update {
+			&control:Auth-Type := Accept
+		}
+	}
+}
+
+
+#  Authentication.
+#
+#
+#  This section lists which modules are available for authentication.
+#  Note that it does NOT mean 'try each module in order'.  It means
+#  that a module from the 'authorize' section adds a configuration
+#  attribute 'Auth-Type := FOO'.  That authentication type is then
+#  used to pick the appropriate module from the list below.
+#
+
+#  In general, you SHOULD NOT set the Auth-Type attribute.  The server
+#  will figure it out on its own, and will do the right thing.  The
+#  most common side effect of erroneously setting the Auth-Type
+#  attribute is that one authentication method will work, but the
+#  others will not.
+#
+#  The common reasons to set the Auth-Type attribute by hand
+#  is to either forcibly reject the user (Auth-Type := Reject),
+#  or to or forcibly accept the user (Auth-Type := Accept).
+#
+#  Note that Auth-Type := Accept will NOT work with EAP.
+#
+#  Please do not put "unlang" configurations into the "authenticate"
+#  section.  Put them in the "post-auth" section instead.  That's what
+#  the post-auth section is for.
+#
+authenticate {
+	#
+	#  PAP authentication, when a back-end database listed
+	#  in the 'authorize' section supplies a password.  The
+	#  password can be clear-text, or encrypted.
+	Auth-Type PAP {
+		pap
+	}
+
+	#
+	#  Most people want CHAP authentication
+	#  A back-end database listed in the 'authorize' section
+	#  MUST supply a CLEAR TEXT password.  Encrypted passwords
+	#  won't work.
+	Auth-Type CHAP {
+		chap
+	}
+
+	#
+	#  MSCHAP authentication.
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+
+
+	#  Uncomment it if you want to use ldap for authentication
+	#
+	#  Note that this means "check plain-text password against
+	#  the ldap database", which means that EAP won't work,
+	#  as it does not supply a plain-text password.
+	#
+	#  We do NOT recommend using this.  LDAP servers are databases.
+	#  They are NOT authentication servers.  FreeRADIUS is an
+	#  authentication server, and knows what to do with authentication.
+	#  LDAP servers do not.
+	#
+	#Auth-Type LDAP {
+	#	ldap
+	#}
+
+	#
+	#  Allow EAP authentication.
+	#eap
+}
+
+
+#
+#  Pre-accounting.  Decide which accounting type to use.
+#
+preacct {
+	#preprocess
+	#rewrite_called_station_id
+
+	#
+	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
+	#  into a single 64bit counter Acct-[Input|Output]-Octets64.
+	#
+	#acct_counters64
+
+	#
+	#  Session start times are *implied* in RADIUS.
+	#  The NAS never sends a "start time".  Instead, it sends
+	#  a start packet, *possibly* with an Acct-Delay-Time.
+	#  The server is supposed to conclude that the start time
+	#  was "Acct-Delay-Time" seconds in the past.
+	#
+	#  The code below creates an explicit start time, which can
+	#  then be used in other modules.  It will be *mostly* correct.
+	#  Any errors are due to the 1-second resolution of RADIUS,
+	#  and the possibility that the time on the NAS may be off.
+	#
+	#  The start time is: NOW - delay - session_length
+	#
+
+	#	update request {
+	#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	#	}
+
+
+	#
+	#  Ensure that we have a semi-unique identifier for every
+	#  request, and many NAS boxes are broken.
+	#acct_unique
+
+	#
+	#  Look for IPASS-style 'realm/', and if not found, look for
+	#  '@realm', and decide whether or not to proxy, based on
+	#  that.
+	#
+	#  Accounting requests are generally proxied to the same
+	#  home server as authentication requests.
+	#	IPASS
+	#suffix
+	#ntdomain
+
+	#
+	#  Read the 'acct_users' file
+	#files
+}
+
+#
+#  Accounting.  Log the accounting data.
+#
+accounting {
+	#rewrite_calling_station_id
+	#rewrite_called_station_id
+	#
+	#  Log traffic to an SQL database.
+	#
+	#  See "Accounting queries" in mods-available/sql
+	#%%accounting_sql%%
+
+	#
+	#  If you receive stop packets with zero session length,
+	#  they will NOT be logged in the database.  The SQL module
+	#  will print a message (only in debugging mode), and will
+	#  return "noop".
+	#
+	#  You can ignore these packets by uncommenting the following
+	#  three lines.  Otherwise, the server will not respond to the
+	#  accounting request, and the NAS will retransmit.
+	#
+	#if (noop) {
+	#	ok
+	#}
+
+	#  Filter attributes from the accounting response.
+	#attr_filter.accounting_response
+    
+}
+
+
+#  Session database, used for checking Simultaneous-Use. Either the radutmp
+#  or rlm_sql module can handle this.
+#  The rlm_sql module is *much* faster
+session {
+	#	radutmp
+
+	#
+	#  See "Simultaneous Use Checking Queries" in mods-available/sql
+	#	sql
+}
+
+
+#  Post-Authentication
+#  Once we KNOW that the user has been authenticated, there are
+#  additional steps we can take.
+post-auth {
+
+	# Add in PacketFence configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
+	#
+	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
+	#  The "session-state" attributes are automatically cached when
+	#  an Access-Challenge is sent, and automatically retrieved
+	#  when an Access-Request is received.
+	#
+	#  The session-state attributes are automatically deleted after
+	#  an Access-Reject or Access-Accept is sent.
+	#
+	#update {
+	#	&reply: += &session-state:
+	#}
+
+	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+		request-timing
+		-sql
+	}
+
+	attr_filter.packetfence_post_auth
+	linelog
+	#
+	#  Access-Reject packets are sent through the REJECT sub-section of the
+	#  post-auth section.
+	#
+	#  Add the ldap module name (or instance) if you have set
+	#  'edir_account_policy_check = yes' in the ldap module configuration
+	#
+	#  The "session-state" attributes are not available here.
+	#
+	Post-Auth-Type REJECT {
+		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+			request-timing
+			# log failed authentications in SQL, too.
+			-sql_reject
+		}
+		attr_filter.access_reject
+		attr_filter.packetfence_post_auth
+
+		# Insert EAP-Failure message if the request was
+		# rejected by policy instead of because of an
+		# authentication failure
+		eap
+
+		#  Remove reply message if the response contains an EAP-Message
+		remove_reply_message_if_eap
+		linelog
+	}
+}
+
+#
+#  When the server decides to proxy a request to a home server,
+#  the proxied request is first passed through the pre-proxy
+#  stage.  This stage can re-write the request, or decide to
+#  cancel the proxy.
+#
+#  Only a few modules currently have this method.
+#
+pre-proxy {
+}
+
+#
+#  When the server receives a reply to a request it proxied
+#  to a home server, the request may be massaged here, in the
+#  post-proxy stage.
+#
+post-proxy {
+
+	#
+	#  If you are proxying LEAP, you MUST configure the EAP
+	#  module, and you MUST list it here, in the post-proxy
+	#  stage.
+	#
+	#  You MUST also use the 'nostrip' option in the 'realm'
+	#  configuration.  Otherwise, the User-Name attribute
+	#  in the proxied request will not match the user name
+	#  hidden inside of the EAP packet, and the end server will
+	#  reject the EAP request.
+	#
+	eap
+
+	#
+	#  If the server tries to proxy a request and fails, then the
+	#  request is processed through the modules in this section.
+	#
+	#  The main use of this section is to permit robust proxying
+	#  of accounting packets.  The server can be configured to
+	#  proxy accounting packets as part of normal processing.
+	#  Then, if the home server goes down, accounting packets can
+	#  be logged to a local "detail" file, for processing with
+	#  radrelay.  When the home server comes back up, radrelay
+	#  will read the detail file, and send the packets to the
+	#  home server.
+	#
+	#  With this configuration, the server always responds to
+	#  Accounting-Requests from the NAS, but only writes
+	#  accounting packets to disk if the home server is down.
+	#
+#	Post-Proxy-Type Fail-Accounting {
+#			detail
+#	}
+}
+}
