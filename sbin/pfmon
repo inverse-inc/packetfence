@@ -405,6 +405,7 @@ sub _runtask {
         my $interval = $Config{'maintenance'}{$parameter};
         unless ($interval) {
             $logger->trace("task $id is disabled");
+            $time_taken = 0;
             alarm 60;
             pause;
             next;
@@ -415,8 +416,9 @@ sub _runtask {
         if($final_interval > 0) {
             alarm $final_interval;
             pause;
+            last unless $running;
         }
-        last unless $running;
+        
         $logger->trace("$id is running");
         my $start = Time::HiRes::gettimeofday;
         eval {
