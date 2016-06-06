@@ -83,22 +83,21 @@ sub code : Path : Args(1) {
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ( $activation_record->{'type'} eq $GUEST_ACTIVATION ) {
 
-        # Guest activation should only be validated with the original device
-        if($node_mac ne $portalSession->clientMac){
-            $self->showError($c, "Please use the device you are registering to validate the e-mail link");
+        my $unregdate = $activation_record->{unregdate};
+        if($unregdate) {
+            get_logger->info("Extending duration to $unregdate");
+            node_modify($node_mac, unregdate => $unregdate);
+            pf::activation::set_status_verified($code);
+            $c->stash(
+                title => "Access granted",
+                template => "activation/email.html",
+                message => "Email activation code has been verified. Access granted until : $unregdate",
+            );
             $c->detach();
         }
-
-        my $unregdate = $c->_session->{"email_unregdate"};
-        get_logger->info("Extending duration to $unregdate");
-        node_modify($c->portalSession->clientMac, unregdate => $unregdate);
-        pf::activation::set_status_verified($code);
-        $c->stash(
-            title => "Access granted",
-            template => "activation/email.html",
-            message => "Email activation code has been verified. Access granted until : $unregdate",
-        );
-        $c->detach();
+        else {
+            $self->showError($c, "Could not find unregistration date for this activation code.");
+        }
     }
 
     #
