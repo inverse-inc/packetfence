@@ -1,0 +1,41 @@
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/jquery.ba-hashchange',
+        'admin/config/items',
+        'app/chosen.jquery.min',
+        'js/bootstrapSwitch',
+        'js/node',
+        'js/user',
+        'admin/nodes',
+        'admin/auditing',
+        ]
+     cssFiles = [
+        'app/bootstrap-timepicker',
+        'admin/reports'
+        ] -%]
+
+[% MACRO list_entry(action,description) BLOCK %]
+    <li[% IF section == action %] class="active"[% END %]>
+      <a href="#[% action %]">[% l(description) %]</a>
+    </li>
+[% END -%]
+
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span2">
+      <div class="sidebar-nav well">
+        <ul class="nav nav-list">
+          <li class="nav-header">[% l('Auditing') %]</li>
+          [% list_entry('radiuslog', 'Radius Log') | none %]
+        </ul>
+      </div><!--/.well -->
+    </div><!--/span-->
+    <div class="span10">
+      <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+      <div id="section">
+      </div>
+    </div><!--/span -->
+
+  </div><!--/row -->
+</div><!--/.fluid-container-->
