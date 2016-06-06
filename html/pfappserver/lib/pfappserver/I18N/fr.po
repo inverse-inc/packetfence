@@ -8966,6 +8966,10 @@ msgstr "URI"
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.switch_group"
+msgstr "Groupe du Switch"
+
 # conf/documentation.conf
 msgid "provisioning"
 msgstr "Approvisionner"
