@@ -1204,7 +1204,6 @@ Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 
 
 =cut
 
-
 sub getRelayAgentInfoOptRemoteIdSub {
     my ($self) = @_;
     my $oid_cdsRelayAgentInfoOptRemoteIdSub = '1.3.6.1.4.1.9.9.380.1.1.8.0';
