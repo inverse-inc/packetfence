@@ -246,7 +246,7 @@ sub authorize {
             $logger->info("Agent is installed and active");
             return $self->authorize_mdm_filters($mac, $info);
         }
-        if($info->{is_uninstalled}) {
+        elsif($info->{is_uninstalled}) {
             $logger->info("Agent is uninstalled on device");
             return $FALSE;
         }
