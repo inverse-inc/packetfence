@@ -8168,6 +8168,10 @@ msgid "monitoring.db_user"
 msgstr "DB User"
 
 # conf/documentation.conf
+msgid "monitoring.graphite_tls"
+msgstr "Query Graphite over HTTPS"
+
+# conf/documentation.conf
 msgid "monitoring.graphite_host"
 msgstr "Graphite Host"
 

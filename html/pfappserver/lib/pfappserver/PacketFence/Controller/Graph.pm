@@ -20,6 +20,7 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
+use pf::util;
 use pf::config qw(
     $management_network
     %Config
@@ -296,7 +297,7 @@ sub _buildGraphiteURL :Private {
 
     my $options = {
         graphite_protocol =>
-          isenabled $Config{'monitoring'}{'graphite_tls'}
+          isenabled($Config{'monitoring'}{'graphite_tls'})
         ? "https"
         : "http",
         graphite_host => $c->req->uri->host,
