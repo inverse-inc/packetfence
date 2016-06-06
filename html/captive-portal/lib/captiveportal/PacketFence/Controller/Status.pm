@@ -26,10 +26,11 @@ Catalyst Controller.
 
 =cut
 
-sub begin :Private {
+sub auto :Private {
     my ( $self, $c ) = @_;
     $c->session->{release_bypass} = $TRUE;
     $c->forward('setupCurrentNodeInfo');
+    return 1;
 }
 
 sub index : Path : Args(0) {
