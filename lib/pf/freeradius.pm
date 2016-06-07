@@ -169,7 +169,8 @@ sub freeradius_populate_nas_config {
 
     #Only switches with a secert except default and 127.0.0.1
     my @switches = grep {
-            !exists $skip{$_}
+            $_ !~ /^group /
+          && !exists $skip{$_}
           && defined( $radiusSecret = $switch_config->{$_}{radiusSecret} )
           && $radiusSecret =~ /\S/
     } keys %$switch_config;
