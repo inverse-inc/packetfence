@@ -37,7 +37,7 @@ sub set {
 
     # BDB doesn't write empty strings
     # We workaround it using a class that represents an empty string
-    if ( "$value" eq '' ) {
+    if ( defined($value) && "$value" eq '' ) {
         $value = pfconfig::empty_string->new;
     }
     $self->SUPER::set( $key, $value );
