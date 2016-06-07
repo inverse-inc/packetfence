@@ -118,6 +118,8 @@ sub build_child {
                 type => 'PacketFence',
                 mode => 'production',
                 radiusSecret => $self->{local_secret},
+                SNMPVersionTrap   => '1',
+                SNMPCommunityTrap => 'public'
             };
         }
     }
