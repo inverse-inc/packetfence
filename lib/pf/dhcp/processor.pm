@@ -55,6 +55,7 @@ use pf::locationlog;
 use DateTime::Format::MySQL;
 use pf::parking;
 use pf::cluster;
+use pf::node_option82 qw(node_option82_insert_or_update);
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -643,25 +644,19 @@ sub parse_dhcp_option82 {
     my ($self, $dhcp) = @_;
 
     # slicing the hash to retrive the stuff we are interested in
-    my ($switch_id, $switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch_id', 'switch', 'vlan', 'module', 'port'};
-    if ( defined($switch_id) && defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
-        my $pfswitch = pf::SwitchFactory->instantiate($switch_id);
+    my ($switch_id, $switch, $vlan, $mod, $port, $host, $circuit_id_string)  = @{$dhcp->{'options'}{'82'}}{'switch_id', 'switch', 'vlan', 'module', 'port', 'host', 'circuit_id_string'};
+    if ( defined($switch_id) || defined($switch) || defined($vlan) || defined($mod) || defined($port) || defined ($circuit_id_string) || defined ($host) ) {
         my $mac = clean_mac($dhcp->{'chaddr'});
-        my %locationlog_data = (
-            'mac'         => $mac,
+        node_option82_insert_or_update(
+            'mac'               => $mac,
+            'module'            => $mod,
+            'port'              => $port,
+            'circuit_id_string' => $circuit_id_string,
+            'vlan'              => $vlan,
+            'option82_switch'   => $switch,
+            'host'              => $host,
             'switch_id'   => $switch_id,
-            'switch_ip'   => $pfswitch->{_switchIp},
-            'switch_mac'  => $pfswitch->{_switchMac},
-            'port'        => "$mod/$port",
-            'vlan'        => $vlan,
-            'user_name'   => $mac,
-            'connection_type' => $DHCP,
-            'connection_sub_type' => $OPTION_82,
-            'ssid'        => '',
         );
-        # TODO port should be translated into ifIndex
-        # FIXME option82 stuff needs to be re-validated (#1340)
-        $self->{api_client}->notify('replace_close_locationlog',%locationlog_data);
     }
 }
 
