@@ -118,7 +118,7 @@ sub cleanupBeforeCommit {
         $switch->{inlineTrigger} = join( ',', @triggers );
     }
 
-    my $parent_config = $self->parentConfigRaw($id);
+    my $parent_config = $self->fullConfigRaw($switch->{$self->parentAttribute} ? $self->_formatGroup($switch->{$self->parentAttribute}) : $self->topLevelGroup);
     if($id ne $self->topLevelGroup) {
         # Put the elements to undef if they are the same as in the inheritance
         while (my ($key, $value) = each %$switch){
