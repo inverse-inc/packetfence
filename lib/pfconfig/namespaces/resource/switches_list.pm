@@ -31,7 +31,7 @@ sub init {
 sub build {
     my ($self) = @_;
     my $switches;
-    foreach my $switch_id (keys $self->{switches}) {
+    foreach my $switch_id (keys %{$self->{switches}}) {
         $switches->{$switch_id} = $switch_id if ($switch_id ne 'default' && $switch_id ne '127.0.0.1' && $switch_id !~ /^group/);
     }
     return $switches;
