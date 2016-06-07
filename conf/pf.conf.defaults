@@ -1387,6 +1387,10 @@ auth_on_management=enabled
 
 [monitoring]
 #
+# monitoring.graphite_tls
+#
+graphite_tls=enabled
+
 # monitoring.graphite_host
 #
 graphite_host=localhost

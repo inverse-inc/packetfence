@@ -159,8 +159,10 @@ ServerAdmin [% server_admin %]
     DocumentRoot  [% install_dir %]/html/pfappserver/lib
     ErrorLog      [% install_dir %]/logs/[% name %].error
     CustomLog   [% install_dir %]/logs/[% name %].access combined
+    [% IF tls == "enabled" %]
     SSLEngine on
     Include  [% var_dir %]/conf/ssl-certificates.conf
+    [% END %]
     WSGIScriptAlias  / [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi
     WSGIImportScript [% install_dir %]/conf/httpd.conf.d/graphite-web.wsgi process-group=%{GLOBAL} application-group=%{GLOBAL}
     Header           set Access-Control-Allow-Origin "*"
