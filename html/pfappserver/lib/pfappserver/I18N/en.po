@@ -3508,11 +3508,11 @@ msgstr ""
 msgid "OMAPI"
 msgstr ""
 
-# conf/documentation.conf (metascan.api_key)
+# conf/documentation.conf (metadefender.api_key)
 msgid "OPSWAT Metadefender Cloud Scanner API key"
 msgstr ""
 
-# conf/documentation.conf (metascan.query_url_hash)
+# conf/documentation.conf (metadefender.query_url_hash)
 msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
 msgstr ""
 
@@ -8116,15 +8116,15 @@ msgid "memberOf:1.2.840.113556.1.4.1941:"
 msgstr "nested group"
 
 # conf/documentation.conf
-msgid "metascan"
+msgid "metadefender"
 msgstr "OPSWAT Metadefender Cloud Scanner"
 
 # conf/documentation.conf
-msgid "metascan.api_key"
+msgid "metadefender.api_key"
 msgstr "API key"
 
 # conf/documentation.conf
-msgid "metascan.query_url_hash"
+msgid "metadefender.query_url_hash"
 msgstr "Query URL hash"
 
 # pf::config (SoH Status)

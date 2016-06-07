@@ -45,7 +45,7 @@ use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
 use pf::CHI;
 use pf::access_filter::dhcp;
-use pf::metascan();
+use pf::metadefender();
 use pf::services();
 
 use List::MoreUtils qw(uniq);
@@ -1259,18 +1259,18 @@ sub copy_directory : Public {
     return dircopy($source_dir, $dest_dir);
 }
 
-=head2 metascan_process
+=head2 metadefender_process
 
 =cut
 
-sub metascan_process : Public {
+sub metadefender_process : Public {
     my ( $class, $data ) = @_;
 
-    my $metascan_scan_result_id = pf::metascan->hash_lookup($data);
-    return if !defined($metascan_scan_result_id);
+    my $metadefender_scan_result_id = pf::metadefender->hash_lookup($data);
+    return if !defined($metadefender_scan_result_id);
 
     my $violation_note = "Filename: " . $data->{'filename'} . "\n From host: " . $data->{'http_host'};
-    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metascan_scan_result_id, 'type' => "metascan", 'notes' => $violation_note } );
+    pf::violation::violation_trigger( { 'mac' => $data->{'mac'}, 'tid' => $metadefender_scan_result_id, 'type' => "metadefender", 'notes' => $violation_note } );
 }
 
 sub rest_ping :Public :RestPath(/rest/ping){
