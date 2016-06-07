@@ -24,13 +24,15 @@ use pf::SwitchFactory;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         search_switch
+        get_switch_from_option_82
     );
 }
 
+our $OPTION82_PREFIX = 'option82:';
 
 =head2 search_switch
 
@@ -45,11 +47,21 @@ sub search_switch {
     foreach my $switch_id ( grep { $_ ne 'default' } keys %pf::SwitchFactory::SwitchConfig ) {
         my $switch = pf::SwitchFactory->instantiate($switch_id);
         my $switch_mac = $switch->getRelayAgentInfoOptRemoteIdSub() if defined($switch->{'_switchIp'});
-        $cache->set($switch_mac, $switch_id) if defined($switch_mac);
+        $cache->set("${OPTION82_PREFIX}${switch_mac}", $switch_id) if defined($switch_mac);
     }
 }
 
-=back
+=head2 get_switch_from_option_82
+
+find the switch from the option82
+
+=cut
+
+sub get_switch_from_option_82 {
+    my($mac) = @_;
+    my $cache = pf::CHI->new( namespace => 'switch' );
+    return $cache->get("${OPTION82_PREFIX}${mac}");
+}
 
 =head1 AUTHOR
 

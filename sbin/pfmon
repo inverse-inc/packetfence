@@ -60,7 +60,7 @@ use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
 use Time::HiRes qw(time);
-use pf::option82;
+use pf::option82 qw(search_switch);
 
 pf::SwitchFactory->preloadConfiguredModules();
 
