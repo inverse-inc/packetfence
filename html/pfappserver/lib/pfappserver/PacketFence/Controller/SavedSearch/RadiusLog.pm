@@ -2,7 +2,7 @@ package pfappserver::PacketFence::Controller::SavedSearch::RadiusLog;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::SavedSearch::RadiusLog add documentation
+pfappserver::PacketFence::Controller::SavedSearch::RadiusLog - Saved Search for RadiusLog
 
 =cut
 
