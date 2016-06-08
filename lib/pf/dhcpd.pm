@@ -189,7 +189,7 @@ ping each dhcpd server interface to see if they are alive
 sub ping_dhcpd {
     my $logger = get_logger();
     my $answer;
-    my $i = 0;
+    my %index;
     foreach my $host (@cluster_servers) {
         for my $interface (keys $host) {
             next if ( ( $interface !~ /^interface (.*)/) || ($host->{$interface}->{type} ne 'internal') );
@@ -224,9 +224,10 @@ sub ping_dhcpd {
             next if (!defined($fromaddr));
             my ($port,$addr) = unpack_sockaddr_in($fromaddr);
             my $ipaddr = inet_ntoa($addr);
+            $index{$eth} = ( defined($index{$eth}) ? $index{$eth} + 1 : 0);
             my %info = (
                 'interface' => $eth,
-                'index' => $i,
+                'index' => $index{$eth},
             );
             $i++;
             $answer->{$host->{$interface}->{ip}} = \%info;
