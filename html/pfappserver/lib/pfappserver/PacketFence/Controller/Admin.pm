@@ -256,7 +256,7 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 
 =cut
 
-sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
