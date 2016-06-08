@@ -111,9 +111,9 @@ sub _add_date_range {
     my $start = $params->{start};
     my $end = $params->{end};
     return unless defined $start;
-    my $start_date = "$start->{date} " . $start->{time} // "00:00";
+    my $start_date = "$start->{date} " . $start->{time} // "00:00:00";
     if (defined $end) {
-        my $end_date = "$end->{date} " . $end->{time} // "23:59";
+        my $end_date = "$end->{date} " . $end->{time} // "23:59:59";
         $where->{created_at} = {-between => [$start_date, $end_date]};
     } else {
         $where->{created_at} = { '>=' => $start_date};
