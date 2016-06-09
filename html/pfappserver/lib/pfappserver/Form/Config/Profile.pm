@@ -34,12 +34,6 @@ has_field 'filter' =>
    'num_when_empty' => 2,
    'do_label' => 0,
    'sortable' => 1,
-   inflate_default_method => sub {
-       [
-        map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
-        @{$_[1]}
-       ]
-   }
   );
 
 =head2 filter.conatains

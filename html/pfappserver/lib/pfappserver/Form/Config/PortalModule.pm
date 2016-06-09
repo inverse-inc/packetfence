@@ -49,12 +49,6 @@ has_field 'actions' =>
     'type' => 'DynamicTable',
     'sortable' => 1,
     'do_label' => 0,
-     inflate_default_method => sub {
-         [
-          map { pfappserver::Form::Field::PortalModuleAction->action_inflate($_) }
-          @{$_[1]}
-         ]
-     },
      tags => { 
        when_empty => 'If none are specified, the default ones of the module will be used.' 
      },
