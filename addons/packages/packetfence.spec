@@ -53,7 +53,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
+%global logfiles packetfence.log snmptrapd.log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd
@@ -628,7 +628,7 @@ echo "Adding PacketFence startup script"
 %endif
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log redis_cache.log
+for fic_log in packetfence.log redis_cache.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -1258,13 +1258,7 @@ fi
 %dir                    /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
-%ghost                  %logdir/catalyst.log
 %ghost                  %logdir/snmptrapd.log
-%ghost                  %logdir/access_log
-%ghost                  %logdir/error_log
-%ghost                  %logdir/admin_access_log
-%ghost                  %logdir/admin_error_log
-%ghost                  %logdir/admin_debug_log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
 %doc                    /usr/local/pf/NEWS.asciidoc
