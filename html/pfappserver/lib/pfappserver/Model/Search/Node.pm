@@ -17,7 +17,7 @@ use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
 use pf::log;
-use pf::util qw(calc_page_count clean_mac);
+use pf::util qw(calc_page_count clean_mac valid_mac);
 use pf::SearchBuilder;
 use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
@@ -476,7 +476,10 @@ sub _pre_process_query {
     elsif ( $name eq 'mac' || $name eq 'switch_mac' )  {
         my $op = $query->{op};
         if ($op eq 'equal' || $op eq 'not_equal' )  {
-            $query->{value} = clean_mac ($query->{value});
+            my $mac = $query->{value};
+            if (valid_mac ($mac) ) {
+                $query->{value} = clean_mac ($mac);
+            }
         }
     }
 }
