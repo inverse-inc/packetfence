@@ -80,7 +80,7 @@ sub dhcpd_db_prepare {
 
         $dhcpd_statements->{'freeradius_delete_dhcpd_lease'} = $dbh->prepare(qq[
             UPDATE radippool
-                SET lease_time = 'NULL'
+                SET lease_time = ''
             WHERE callingstationid = ?
         ]);
 

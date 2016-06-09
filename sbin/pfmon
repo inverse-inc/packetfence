@@ -305,7 +305,7 @@ sub registertasks  {
         'ping_dhcpd',
         'ping_dhcpd_interval',
         sub {
-            ping_dhcpd() if isenabled($cluster_enabled);
+            ping_dhcpd() if isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'});
         }
     );
 }
