@@ -56,9 +56,16 @@ sub do_query {
     $per_page ||= 25;
     $page_num ||= 1;
     my $itemsKey = $self->itemsKey;
-    $results{$itemsKey} = [node_custom_search($sql)];
+    my $items = [node_custom_search($sql)];
+    my $has_next_page;
+    if (@$items > $per_page) {
+        pop @$items;
+        $has_next_page = 1;
+    }
+    $results{$itemsKey} = $items;
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
+    $results{has_next_page} = $has_next_page;
     return \%results;
 }
 
@@ -472,6 +479,20 @@ sub _pre_process_query {
             $query->{value} = clean_mac ($query->{value});
         }
     }
+}
+
+=head2 add_limit
+
+add limits to the sql builder
+
+=cut
+
+sub add_limit {
+    my ($self, $builder, $params) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit  = $params->{per_page} || 25;
+    my $offset = (( $page_num - 1 ) * $limit);
+    $builder->limit($limit + 1, $offset);
 }
 
 __PACKAGE__->meta->make_immutable;
