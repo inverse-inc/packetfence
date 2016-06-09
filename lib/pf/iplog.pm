@@ -574,16 +574,17 @@ sub _view_by_ip {
 
     $logger->debug("Viewing an 'iplog' table entry for the following IP address '$ip'");
     my $query;
-
+    my $ref;
     if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
         $query = db_query_execute(IPLOG, $iplog_statements, 'radippool_view_by_ip_sql', $ip);
-        if (!$query->fetchrow_hashref) {
+        $ref = $query->fetchrow_hashref;
+        if (!$ref->{'mac'}) {
             $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_ip_sql', $ip) || return (0);
         }
     } else {
         $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_ip_sql', $ip) || return (0);
 
-    my $ref = $query->fetchrow_hashref();
+    $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
@@ -604,16 +605,17 @@ sub _view_by_mac {
     my $logger = pf::log::get_logger;
 
     $logger->debug("Viewing an 'iplog' table entry for the following MAC address '$mac'");
-
+    my $ref;
     if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
         $query = db_query_execute(IPLOG, $iplog_statements, 'radippool_view_by_mac_sql', $ip);
-        if (!$query->fetchrow_hashref) {
+        $ref = $query->fetchrow_hashref;
+        if (!$ref->{'ip'}) {
             $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $ip) || return (0);
         }
     } else {
         $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $ip) || return (0);
 
-    my $ref = $query->fetchrow_hashref();
+    $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
