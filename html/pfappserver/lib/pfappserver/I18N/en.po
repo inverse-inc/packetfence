@@ -9054,19 +9054,19 @@ msgstr "Restart"
 
 # pf::Authentication::constants (Actions)
 msgid "set_access_duration"
-msgstr ""
+msgstr "Access duration"
 
 # pf::Authentication::constants (Actions)
 msgid "set_access_level"
-msgstr ""
+msgstr "Access level"
 
 # pf::Authentication::constants (Actions)
 msgid "set_role"
-msgstr ""
+msgstr "Role"
 
 # pf::Authentication::constants (Actions)
 msgid "set_unreg_date"
-msgstr ""
+msgstr "Unregistration date"
 
 # conf/documentation.conf (vlan.trap_limit_action options)
 msgid "shut"
