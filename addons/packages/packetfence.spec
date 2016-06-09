@@ -477,6 +477,9 @@ cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
+%if 0%{?el7}
+mv -f addons/logrotate-c7 $RPM_BUILD_ROOT/usr/local/pf/addons/logrotate
+%else
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D -m0755 addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
