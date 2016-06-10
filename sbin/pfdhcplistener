@@ -30,6 +30,7 @@ BEGIN {
 }
 
 use pf::constants;
+use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
 use pf::clustermgmt;
 use pf::config qw(
     %Config
