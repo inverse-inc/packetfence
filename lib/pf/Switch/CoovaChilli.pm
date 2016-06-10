@@ -10,7 +10,7 @@ Implement object oriented module to handle CoovaChilli network equipment
 
 =head1 STATUS
 
-Tested and developped on a Ubiquiti NanoStation M2 running OpenWRT CHAOS CALMER (15.05.1,r48532)
+Tested and developed on a Ubiquiti NanoStation M2 running OpenWRT CHAOS CALMER (15.05.1,r48532)
 with coova-chilli 1.3.0+20141128-2
 
 =cut

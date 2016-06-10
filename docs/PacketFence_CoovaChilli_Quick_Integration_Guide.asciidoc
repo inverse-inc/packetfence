@@ -121,7 +121,7 @@ Step 2: Access Point and CoovaChilli Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now that we have a functionnal PacketFence installation, we will go ahead and start by configuring the access point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
 
-This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you Google around and make sure to find the appropriate way to do so since there's just to much vendor and network equipment that supports CoovaChilli to document this step here.
+This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you search relevant information on the Internet to install CoovaChilli as there are too many network equipment vendors that support CoovaChilli to accurately document this step here.
 
 The guide also assumes that you have an SSID configured on the access point.
 
@@ -129,18 +129,18 @@ You should also make sure to have a default route properly configured on the acc
 
 Also note that changes on the OpenWRT access point are done using SSH shell access.
 
-Please note that any interface name reference might be different from one hardware to another.
+Please note that any interface name reference might be different from one equipment vendor to an other.
 
 CoovaChilli requires some slight modifications to the way networking is working on the OpenWRT access point.
 
  * The LAN and WLAN interface are bridged
- * There is a DHCP server running on the LAN which can potentially wreak havoc
+ * There is a DHCP server running on the LAN which can potentially cause major problems on production networks
 
-The followings needs to be done:
+The following steps needs to be done:
 
  * Remove bridge between 'eth0' and 'wlan0' and assign device's IP to 'eth0'
  * Disable 'dnsmasq' service which act as DHCP and DNS servers
- * Configure chilli
+ * Configure 'chilli'
 
 Remove interfaces bridge
 ++++++++++++++++++++++++
