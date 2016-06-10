@@ -165,7 +165,7 @@ Execute the following to make sure 'dnsmasq' service is not started at boot
 
 Configure chilli
 ++++++++++++++++
-chilli configuration might differ from one hardware to another. Just make sure to follow theses configuration guidelines and you should be all-set.
+chilli configuration might differ from one equipment vendor to an other one. Just make sure to follow these configuration guidelines and you should be all-set.
 
 * Copy the default chilli configuration
 
@@ -185,7 +185,7 @@ chilli configuration might differ from one hardware to another. Just make sure t
 
     Take note of the HS_UAMLISTEN value, since this will be required in the PacketFence configuration step.
 
-A startup script maybe required depending on the hardware. Again, a quick search on Google might be the best solution to find the best one
+A startup script may be required depending on the equipment vendor. Again, a quick documentation search on the Internet might be the best solution to find the best one
 
 Once set up, you might want to activate chilli at boot (by using the startup script) and finally, reboot the AP.
 
