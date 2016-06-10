@@ -1,0 +1,173 @@
+# Portal filter configuration
+# 
+# Make a simple rule like this:
+#
+# [category]
+# filter = node_info.category
+# operator = is
+# value = default
+#
+# [1:category]
+# portal = nointernet
+#
+# It means that when PacketFence tries to get the portal for the node and if the category of the node is
+# the default one and the device is in registration state then we return the portal nointernet.
+#
+# Advanced rule:
+#
+# [2]
+# filter = node_info.category
+# operator = match
+# value = default
+#
+# [3]
+# filter = ssid
+# operator = is
+# value = OpenWrt-SECURE
+#
+# [4]
+# filter = time
+# operator = is
+# value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
+#
+# [2:2&3&4]
+# scope = registration
+#
+# It means that when PacketFence tries to get the portal for the node and if the category of the node is 
+# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday and the device is in registration
+#state then we return the portal "nointernet"
+#
+# Web API call:
+#
+# [3:3]
+# scope = registration
+# action = trigger_violation
+# action_param = mac = $mac, tid = 1100010, type = INTERNAL
+#
+# It means that if the SSID is OpenWrt-SECURE and in registration state then we send a API call to the function trigger_violation and
+# trigger the violation 1100010
+#
+# action_param is computed by PacketFence so you can set static and dynamic values
+#
+# filter can be:
+#
+#     node_info.autoreg
+#     node_info.status
+#     node_info.device_class
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_type
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     ifIndex
+#     mac
+#     connection_type
+#     user_name
+#     ssid
+#     time
+#     owner.pid
+#     owner.firstname
+#     owner.lastname
+#     owner.email
+#     owner.telephone
+#     owner.company
+#     owner.address
+#     owner.notes
+#     owner.sponsor
+#     owner.anniversary
+#     owner.birthday
+#     owner.gender
+#     owner.lang
+#     owner.nickname
+#     owner.cell_phone
+#     owner.work_phone
+#     owner.title
+#     owner.building_number
+#     owner.apartment_number
+#     owner.room_number
+#     owner.custom_field_1
+#     owner.custom_field_2
+#     owner.custom_field_3
+#     owner.custom_field_4
+#     owner.custom_field_5
+#     owner.custom_field_6
+#     owner.custom_field_7
+#     owner.custom_field_8
+#     owner.custom_field_9
+#     owner.portal
+#     owner.source
+#     owner.nodes
+#     owner.password
+#     owner.valid_from
+#     owner.expiration
+#     owner.access_duration
+#     owner.access_level
+#     owner.can_sponsor
+#     owner.unregdate
+#     owner.category
+#     radius_request
+#
+# operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#     not_defined
+#     regex
+#     date_is_before
+#     date_is_after
+#
+# attribute can be:
+#
+# - for connection_type
+#    Wireless-802.11-EAP
+#    Wireless-802.11-NoEAP
+#    Ethernet-EAP
+#    Ethernet-NoEAP
+#    SNMP-Traps
+#    Inline
+#    WIRED_MAC_AUTH
+#
+# - for the radius_request
+#    All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#
+# action can be:
+#
+#    deregister_node (require param => mac)
+#    register_node (require param => mac pid)
+#    modify_node (require param => mac)
+#    trigger_violation (require param => mac tid type)
+#
+# action_param can be:
+#    The require param and optional attributes like (for action = modify_node):
+#    action_param = mac = $mac, notes = $radius_request->{'Called-Station-Id'}
+#
+#
+# The value of a time is specific and follow this logic:
+# http://search.cpan.org/~pryan/Period-1.20/Period.pm
+# For example, if you want to allow access from Monday to Friday, 9am to 11am and from 2pm to 4pm:
+# wd {Mon Tue Wed Thu Fri} hr {9am-11am}, wd {Mon Tue Wed Thu Fri} hr {2pm-4am}
+
