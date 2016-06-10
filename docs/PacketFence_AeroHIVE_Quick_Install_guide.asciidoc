@@ -90,7 +90,7 @@ The choice(s) made on this step will influence the next step where you'll need t
 
 Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-For our customer scenario, we'll choose VLAN enforcement.
+For our customer scenario, you will choose VLAN enforcement.
 
 Step 2: Networks
 ++++++++++++++++
@@ -113,7 +113,7 @@ Required interface types for VLAN enforcement:
 
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
-In our customer scenario, we will create two new vlans on the wired interface (will be eth0 most of the time).
+In our customer scenario, you will create two new vlans on the wired interface (will be eth0 most of the time).
 To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
 
 Here's a sample configuration for both of them:
@@ -132,7 +132,7 @@ Isolation
 
 Don't forget to also edit the physical interface with the correct management network information by clicking the Edit button next to it.
 
-According to our customer scenario, we'll associate the correct type the each interfaces.
+According to our customer scenario, you will associate the correct type the each interfaces.
 
     eth0: Management
     eth0 VLAN 2: Registration
@@ -148,7 +148,7 @@ Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
 This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
 
-Since Debian based MySQL installations are not "secured", we'll need to go through it.
+Since Debian based MySQL installations are not "secured", you will need to go through it.
 That step is fairly simple to accomplish and is a one time deal.
 
 In the root account credentials section, enter root as Username and click Test. You'll be prompted for a new root password. Choose a password for the MySQL root user and click Save. You can now enter your newly setted password in the root account credentials section and click Test.
@@ -169,13 +169,13 @@ Click Continue once all the field are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
-This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
+This is the step where you create the administrative user to access the PacketFence Administration Web Interface.
 
 Simply provide the desired username and password, then click Create user.
 
 Step 6: Services - Confirmation
 +++++++++++++++++++++++++++++++
-The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
+The last but not the least. Here, you start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
 
 You'll be able to login to the PacketFence web administration interface with the credentials created in Step 4.
 
@@ -211,7 +211,7 @@ This section will discuss about the configuration of your AeroHIVE AP in order t
 
 Connect APs and Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-First thing to do is to connect the HiveManager. Like we saw in Step 2, make sure to connect the AP on the TRUNK port configured for it.
+First thing to do is to connect the HiveManager. Like you saw in Step 2, make sure to connect the AP on the TRUNK port configured for it.
 
 Provision the HiveManager
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -223,7 +223,7 @@ NOTE: Please refer to the following guide to learn more about the HiveManager: h
 
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
-For this guide, we will show you how to configure one open SSID with RADIUS mac filtering, and one secure SSID using WPA2-Enterprise.
+For this guide, you will show you how to configure one open SSID with RADIUS mac filtering, and one secure SSID using WPA2-Enterprise.
 
 Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
 
@@ -237,25 +237,17 @@ Click OK to save the server. You should see the RADIUS server in the list.
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and add the following information. If you do not see the line, it means that you should leave the setting to default value:
+On the left menu, click on SSIDs. Click the New button, and configure the SSID while following those information.
 
-   Profile Name/ESSID: DemoOpen
-   Decription: Open SSID for PoC
-   Enable MAC Authentication
-   Not Secure: Open
-   Authentication Protocol: CHAP
+image::docs/images/aerohive-ssid-public.png[scaledwidth="100%",alt="SSID open configuration"]
 
 Click OK to save the SSID.
 
 Configure the Secure SSID
 +++++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and add the following information. If you do not see the line it means that you should leave the setting to default value:
+On the left menu, click on SSIDs. Click the New button, and configure the SSID while following those inforamtion.
 
-   Profile Name/SSID: DemoSecure
-   Decription: Secure SSID for PoC
-   Secure: WPA/WPA2 802.1X (Enterprise)
-   Key Management: WPA2-(WPA2 Entreprise)-802.1X
-   Encryption Options: CCMP(AES)
+image::docs/images/aerohive-ssid-secure.png[scaledwidth="100%",alt="SSID secure configuration"]
 
 Click OK to save the SSID.
 
@@ -271,9 +263,17 @@ image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User p
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-Last step, we need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignements. Now click on New and follow this configuration.
+You now need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignements. Now click on New and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
+
+Configure RADIUS attribute
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so in the Configuration pane got to Networks, click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under User Profile configure now this section as follow:
+
+image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
+
 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
