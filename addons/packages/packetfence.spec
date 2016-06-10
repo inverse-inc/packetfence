@@ -936,6 +936,8 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
+%config(noreplace)      /usr/local/pf/conf/portal_filters.conf
+                        /usr/local/pf/conf/portal_filters.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_cache.conf
                         /usr/local/pf/conf/redis_cache.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_queue.conf

@@ -18,6 +18,9 @@
     <li [% IF tab == 'dns-filters' %]class="active"[% END %]>
       <a href="#config/filters/dns-filters">[% l('DNS filters') %]</a>
     </li>
+    <li [% IF tab == 'portal-filters' %]class="active"[% END %]>
+      <a href="#config/filters/portal-filters">[% l('PORTAL filters') %]</a>
+    </li>
   </ul>
 
   [%- IF can_access("FILTERS_UPDATE") %]

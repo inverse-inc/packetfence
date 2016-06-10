@@ -56,6 +56,7 @@
 /usr/local/pf/conf/iptables.conf
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/listener.msg
+/usr/local/pf/conf/portal_filters.conf
 /usr/local/pf/conf/radiusd/eap.conf
 /usr/local/pf/conf/radiusd/radiusd.conf
 /usr/local/pf/conf/radiusd/sql.conf

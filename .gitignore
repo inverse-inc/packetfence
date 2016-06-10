@@ -87,6 +87,7 @@ conf/listener.msg
 conf/provisioning.conf
 conf/portal_modules.conf
 conf/popup.msg
+conf/portal_filters.conf
 conf/profiles.conf
 conf/snmptrapd.conf
 conf/snort.conf

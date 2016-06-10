@@ -22,6 +22,7 @@ use pf::ConfigStore::RadiusFilters;
 use pf::ConfigStore::DhcpFilters;
 use pf::ConfigStore::ApacheFilters;
 use pf::ConfigStore::DNS_Filters;
+use pf::ConfigStore::PortalFilters;
 
 our @EXPORT_OK = qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 
@@ -31,6 +32,7 @@ our %FILTERS_IDENTIFIERS = (
     DHCP_FILTERS   => "dhcp-filters",
     APACHE_FILTERS => "apache-filters",
     DNS_FILTERS    => "dns-filters",
+    PORTAL_FILTERS => "portal-filters",
 );
 
 our %CONFIGSTORE_MAP = (
@@ -38,7 +40,8 @@ our %CONFIGSTORE_MAP = (
     $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => pf::ConfigStore::RadiusFilters->new,
     $FILTERS_IDENTIFIERS{DHCP_FILTERS}   => pf::ConfigStore::DhcpFilters->new,
     $FILTERS_IDENTIFIERS{APACHE_FILTERS} => pf::ConfigStore::ApacheFilters->new,
-    $FILTERS_IDENTIFIERS{DNS_FILTERS} => pf::ConfigStore::DNS_Filters->new,
+    $FILTERS_IDENTIFIERS{DNS_FILTERS}    => pf::ConfigStore::DNS_Filters->new,
+    $FILTERS_IDENTIFIERS{PORTAL_FILTERS} => pf::ConfigStore::PortalFilters->new,
 );
 
 our %ENGINE_MAP = (
@@ -46,7 +49,8 @@ our %ENGINE_MAP = (
     $FILTERS_IDENTIFIERS{RADIUS_FILTERS} => "FilterEngine::RadiusScopes",
     $FILTERS_IDENTIFIERS{DHCP_FILTERS}   => "FilterEngine::DhcpScopes",
     $FILTERS_IDENTIFIERS{APACHE_FILTERS} => $CONFIGSTORE_MAP{"apache-filters"}->pfconfigNamespace,
-    $FILTERS_IDENTIFIERS{DNS_FILTERS}   => "FilterEngine::DNS_Scopes",
+    $FILTERS_IDENTIFIERS{DNS_FILTERS}    => "FilterEngine::DNS_Scopes",
+    $FILTERS_IDENTIFIERS{PORTAL_FILTERS} => "FilterEngine::PortalScopes",
 );
 
 =head1 AUTHOR
