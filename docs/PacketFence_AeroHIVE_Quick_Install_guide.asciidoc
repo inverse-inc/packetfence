@@ -28,8 +28,8 @@ Assumptions
 * You will need a laptop or a PC from which the PacketFence Live USB key will run from;
 * You will deploy a VLAN enforcement environment according to the customer specifications;
 * Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup;
-* AeroHIVE AccessPoint is loaded with firmware 6+;
-* HiveManager with a version 6+.
+* AeroHIVE AccessPoint is loaded with firmware 6 or later;
+* HiveManager with a version 6 or later.
 
 Quick Deployment
 ----------------
@@ -52,7 +52,7 @@ Go to https://launchpad.net/win32-image-writer/0.6/0.6/+download/win32diskimager
 Write the PacketFence image to the USB key
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 First, make sure your USB key is plugged into the PC then open up the folder where you extracted the application and double-click the Win32DiskImager.exe file.
-Once done, simply choose the PacketFence USB image file (unzipped .img file), choose the device on which you want to write and click Write.
+Once done, simply choose the PacketFence USB image file (unzipped .img file), choose the device on which you want to write and click 'Write'.
 
 Step 2: Configure Network and PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -115,7 +115,7 @@ Required interface types for VLAN enforcement:
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
 In our customer scenario, you will create two new vlans on the wired interface (will be eth0 most of the time).
-To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
+To do so, click the 'Add VLAN' button besides the wired interface for each of the needed vlan:
 
 Here's a sample configuration for both of them:
 
@@ -131,7 +131,7 @@ Isolation
     IP Address: 192.168.3.1
     Netmask: 255.255.255.0
 
-Don't forget to also edit the physical interface with the correct management network information by clicking the Edit button next to it.
+Don't forget to also edit the physical interface with the correct management network information by clicking the 'Edit' button next to it.
 
 According to our customer scenario, you will associate the correct type the each interfaces.
 
@@ -143,7 +143,7 @@ Make sure that those three (3) interfaces are in an Enabled state for the persis
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-Once everything's set, click Continue to proceed with the next step.
+Once everything's set, click 'Continue' to proceed with the next step.
 
 Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
@@ -152,13 +152,13 @@ This step will configure the MySQL server needed by PacketFence. Database and sc
 Since Debian based MySQL installations are not "secured", you will need to go through it.
 That step is fairly simple to accomplish and is a one time deal.
 
-In the root account credentials section, enter root as Username and click Test. You'll be prompted for a new root password. Choose a password for the MySQL root user and click Save. You can now enter your newly setted password in the root account credentials section and click Test.
+In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly setted password in the root account credentials section and click 'Test'.
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click 'Create user'.
 
-Third section will create the database and load the correct schema on it. Simply leave the default and click Create tables and indexes.
+Third section will create the database and load the correct schema on it. Simply leave the default and click 'Create tables and indexes'.
 
-You should have Success beside these three section, click Continue.
+You should have 'Success' beside these three section, click 'Continue'.
 
 Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
@@ -166,13 +166,13 @@ This step will configure the general options of your PacketFence installation. T
 
 Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
-Click Continue once all the field are completed.
+Click Continue once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
 This is the step where you create the administrative user to access the PacketFence Administration Web Interface.
 
-Simply provide the desired username and password, then click Create user.
+Simply provide the desired username and password, then click 'Create user'.
 
 Step 6: Services - Confirmation
 +++++++++++++++++++++++++++++++
@@ -235,7 +235,7 @@ Make sure that this interface is in an Enabled state for the persistance to occu
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-Once everything's set, click Continue to proceed with the next step.
+Once everything's set, click 'Continue' to proceed with the next step.
 
 Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
@@ -244,13 +244,13 @@ This step will configure the MySQL server needed by PacketFence. Database and sc
 Since Debian based MySQL installations are not "secured", you will need to go through it.
 That step is fairly simple to accomplish and is a one time deal.
 
-In the root account credentials section, enter root as Username and click Test. You'll be prompted for a new root password. Choose a password for the MySQL root user and click Save. You can now enter your newly setted password in the root account credentials section and click Test.
+In the root account credentials section, enter root as Username and click 'Test'. You'll be prompted for a new root password. Choose a password for the MySQL root user and click 'Save'. You can now enter your newly setted password in the root account credentials section and click 'Test'.
 
-Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click 'Create user'.
 
-Third section will create the database and load the correct schema on it. Simply leave the default and click Create tables and indexes.
+Third section will create the database and load the correct schema on it. Simply leave the default and click 'Create tables and indexes'.
 
-You should have Success beside these three section, click Continue.
+You should have 'Success' beside these three section, click 'Continue'.
 
 Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
@@ -258,13 +258,13 @@ This step will configure the general options of your PacketFence installation. T
 
 Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
-Click Continue once all the field are completed.
+Click Continue once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
 This is the step where you create the administrative user to access the PacketFence Administration Web Interface.
 
-Simply provide the desired username and password, then click Create user.
+Simply provide the desired username and password, then click 'Create user'.
 
 Step 6: Services - Confirmation
 +++++++++++++++++++++++++++++++
@@ -292,7 +292,7 @@ image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP swit
 
 Modify your RADIUS secret.
 
-Click Add switch
+Click 'Add switch'
 
 The newly added acces point should show up in the list.
 
@@ -310,7 +310,7 @@ Provision the HiveManager
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 By default, the HiveManager might be empty, add your AP on it via its serial number. If necessary update the firmware of the HiveManager and the AP.
 
-NOTE: Please refer to the AeroHIVE Quick Devices Start Guide to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
+NOTE: Please refer to the 'AeroHIVE Quick Devices Start Guide' to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
 
 NOTE: Please refer to the following guide to learn more about the HiveManager: http://docs.aerohive.com/330000/docs/help/english/documentation/Aerohive_HiveManagerNG_GettingStartedGuide.pdf
 
@@ -318,7 +318,7 @@ Setup the SSIDs
 ^^^^^^^^^^^^^^^
 In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
 
-Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
+Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the 'Configure' pane, and follow the following steps.
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
@@ -330,7 +330,7 @@ Click Ok to save your changes.
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and configure the SSID like in the following screen capture:
+On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SSID like in the following screen capture:
 
 image::docs/images/aerohive-ssid-public.png[scaledwidth="100%",alt="SSID open configuration"]
 
@@ -338,7 +338,7 @@ Click OK to save the SSID.
 
 Configure the Secure SSID
 +++++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and configure the SSID like in the following screen capture:
+On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SSID like in the following screen capture:
 
 image::docs/images/aerohive-ssid-secure.png[scaledwidth="100%",alt="SSID secure configuration"]
 
