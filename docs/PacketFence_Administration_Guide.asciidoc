@@ -495,9 +495,9 @@ Moreover, PacketFence can also authenticate users defined in its own internal SQ
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
-Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one or more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging them around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one or more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
-When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied for any users that match in the authentication source.
+When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source.
 
 Once a source is defined, it can be used from *Configuration -> Portal Profiles*. Each portal profile has a list of authentication sources to use.
 
@@ -1499,7 +1499,7 @@ MAC Authentication and 802.1X
 Cisco hardware
 ++++++++++++++
 
-On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco VSA.  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
+On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco Vendor-Specific Attributes (VSA).  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
 
 Non-Cisco hardware
 ++++++++++++++++++
