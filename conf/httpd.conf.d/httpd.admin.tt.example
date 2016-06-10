@@ -223,6 +223,7 @@ ProxyHTMLLinks  script      src for
           RewriteCond %{QUERY_STRING} .*PORTAL=(.*)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
+          RequestHeader append X-Forwarded-For-PacketFence "[% vhost %]"
 
           ProxyPassReverse /
           ProxyHTMLEnable On

@@ -110,7 +110,7 @@ sub ACCEPT_CONTEXT {
     return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
     my $model;
     my $remoteAddress = $request->address;
-    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
+    imy $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'} ||  $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
