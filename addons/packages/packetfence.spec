@@ -891,7 +891,6 @@ fi
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
-                        /usr/local/pf/addons/logrotate
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/pfconfig
