@@ -34,7 +34,7 @@ has '+optional' => ( default => sub { 1 } );
 
 has '+launcher' => (
     default => sub {
-"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-cache.pid --logdir=$install_dir/logs start";
+"sudo %1\$s --config=$install_dir/var/conf/carbon.conf --pidfile=$install_dir/var/run/carbon-cache.pid --logdir=$install_dir/logs --umask=0113 start";
     }
 );
 
