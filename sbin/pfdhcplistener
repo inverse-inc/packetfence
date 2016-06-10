@@ -96,6 +96,7 @@ my $interface = $args{i};
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my $is_inline_vlan;
+my $inline_sub_connection_type;
 my $interface_ip;
 my $interface_vlan;
 my $pcap;
@@ -121,17 +122,9 @@ if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
         $interface_ip = $Config{"interface $interface"}{'ip'};
         $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
 
-        foreach my $network (keys %ConfigNetworks) {
-            my %net = %{$ConfigNetworks{$network}};
-            my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
-
-            # are we listening on an inline interface ?
-            next if (!pf::config::is_network_type_inline($network));
-            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
-            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 || (defined($net{'next_hop'}) && $net_addr->contains($ip))) {
-                $logger->warn("DHCP detector on an inline interface");
-                $is_inline_vlan = $TRUE;
-            }
+        if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
+            $logger->warn("DHCP detector on an inline interface");
+            $is_inline_vlan = $TRUE;
         }
         $logger->info("DHCP detector on $interface enabled");
         reload_config();
@@ -228,6 +221,7 @@ sub process_pkt {
                 interface_ip => $interface_ip,
                 interface_vlan => $interface_vlan,
                 net_type => $net_type,
+                inline_sub_connection_type => $inline_sub_connection_type,
             );
 
             my $statsd_interface = $interface;
@@ -236,6 +230,14 @@ sub process_pkt {
 
             # we send all IPv4 DHCPv4 codepath
             if ( $l2->{type} eq ETH_TYPE_IP ) {
+                if ($is_inline_vlan) {
+                    my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
+                    if ($net_addr->contains($ip)) {
+                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
+                    } else {
+                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
+                   }
+                }
                 my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
                 $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
             }
