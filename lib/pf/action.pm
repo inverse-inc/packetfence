@@ -237,7 +237,10 @@ sub action_execute {
 sub action_enforce_provisioning {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $options = (
+        scope => 'action_enforce_provisioning',
+    )
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac, $options);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
         unless ($provisioner->authorize($mac) == 1) {
             $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");

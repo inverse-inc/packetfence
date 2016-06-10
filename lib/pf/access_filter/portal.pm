@@ -72,37 +72,20 @@ sub evalParam {
     return $return;
 }
 
-=head2 test
+=head2 getEngineForScope
 
-Test all the rules
-
-=cut
-
-sub test {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    my $answer = $engine->match_first($args);
-    if (defined $answer) {
-        $logger->info("Match rule $answer->{_rule}");
-    }
-    else {
-        $logger->debug(sub {"No rule matched for scope $scope"});
-    }
-    return $answer;
-}
-
-
-=head2 filter
-
- Filter the arguements passed
+ gets the engine for the scope
 
 =cut
 
-sub filter {
-    my ($self, $args) = @_;
-    my $rule = $self->test($args);
-    return $self->filterRule($rule, $args);
+sub getEngineForScope {
+    my ($self, $scope) = @_;
+    if (exists $PortalFilterEngineScopes{$scope}) {
+        return $PortalFilterEngineScopes{$scope};
+    }
+    return undef;
 }
+
 
 =head1 AUTHOR
 

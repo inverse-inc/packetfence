@@ -1,22 +1,25 @@
 # Portal filter configuration
+#
+# you can trigger rule on specific scope (PortalSession, status_login, vlan_reassign, node_register, node_deregister, radius_authorize, run_scan, trigger_scan, dynamic_register_node, action_enforce_provisionning)
 # 
 # Make a simple rule like this:
 #
-# [category]
-# filter = node_info.category
+# [mac]
+# filter = mac
 # operator = is
-# value = default
+# value = 00:11:22:33:44:55
 #
-# [1:category]
-# portal = nointernet
+# [1:mac]
+# scope = PortalSession
+# portal = guest
 #
-# It means that when PacketFence tries to get the portal for the node and if the category of the node is
-# the default one and the device is in registration state then we return the portal nointernet.
+# It means that when PacketFence tries to instantiate the portal for the mac when it hit the captive portal
+# then we return the portal guest.
 #
 # Advanced rule:
 #
 # [2]
-# filter = node_info.category
+# filter = category
 # operator = match
 # value = default
 #
@@ -31,25 +34,76 @@
 # value = wd {Mon Tue Wed Thu Fri} hr {11am-2pm}
 #
 # [2:2&3&4]
-# scope = registration
+# scope = PortalSession
+# portal = deny
 #
 # It means that when PacketFence tries to get the portal for the node and if the category of the node is 
-# the default one and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday and the device is in registration
-#state then we return the portal "nointernet"
+# default and the ssid is OpenWrt-SECURE and the time is between 11am and 2pm from Monday to Friday and the device hit the portal
+# then we return the portal "deny"
 #
 # Web API call:
 #
 # [3:3]
-# scope = registration
+# scope = PortalSession
 # action = trigger_violation
 # action_param = mac = $mac, tid = 1100010, type = INTERNAL
 #
-# It means that if the SSID is OpenWrt-SECURE and in registration state then we send a API call to the function trigger_violation and
+# It means that if the SSID is OpenWrt-SECURE and the device hit the portal then we send a API call to the function trigger_violation and
 # trigger the violation 1100010
 #
 # action_param is computed by PacketFence so you can set static and dynamic values
 #
-# filter can be:
+# in the most case (except radius_authorize) filter can be:
+#
+#     autoreg
+#     last_port
+#     device_class
+#     bandwidth_balance
+#     bypass_role
+#     pid
+#     device_type
+#     dhcp6_enterprise
+#     dhcp6_fingerprint
+#     category
+#     mac
+#     scope
+#     lastskip
+#     last_dhcp
+#     user_agent
+#     computername
+#     dhcp_fingerprint
+#     detect_date
+#     last_connection_sub_type
+#     last_vlan
+#     bypass_role_id
+#     last_role
+#     dhcp_vendor
+#     unregdate
+#     last_switch
+#     status
+#     bypass_vlan
+#     regdate
+#     last_dot1x_username
+#     category_id
+#     last_connection_type
+#     machine_account
+#     realm
+#     last_ssid
+#     last_ip
+#     nbopenviolations
+#     last_arp
+#     unregdate_timestamp
+#     last_start_timestamp
+#     stripped_user_name
+#     voip
+#     time_balance,
+#     notes
+#     last_switch_mac
+#     sessionid
+#     last_start_time
+#     regdate_timestamp
+
+# filter can be for radius_authorize scope:
 #
 #     node_info.autoreg
 #     node_info.status
@@ -142,7 +196,7 @@
 #
 # attribute can be:
 #
-# - for connection_type
+# - for connection_type or last_connection_type
 #    Wireless-802.11-EAP
 #    Wireless-802.11-NoEAP
 #    Ethernet-EAP

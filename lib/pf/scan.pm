@@ -240,8 +240,10 @@ sub run_scan {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;
     }
-
-    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac);
+    my $options = (
+        scope => 'run_scan',
+    );
+    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac, $options);
     my $scanner = $profile->findScan($host_mac);
     # If no scan detected then we abort
     if (!$scanner) {

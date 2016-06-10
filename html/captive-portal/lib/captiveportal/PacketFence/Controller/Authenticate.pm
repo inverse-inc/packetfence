@@ -85,6 +85,7 @@ sub authenticationLogin : Private {
         my $options = {
             'portal' => exists($Profiles_Config{$person_info->{portal}}) ? $person_info->{portal} : $DEFAULT_PROFILE,
         };
+        $options->{'scope'} = 'status_login';
         $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );

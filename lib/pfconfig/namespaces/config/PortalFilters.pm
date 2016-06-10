@@ -26,11 +26,9 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $vlan_filters_config_file;
+    $self->{file} = $portal_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::PortalScopes'];
 
-    my $defaults = Config::IniFiles->new( -file => $portal_filters_config_default_file );
-    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {

@@ -208,6 +208,7 @@ sub authorize {
     $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
     $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
     $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'scope'}                = 'radius_authorize';
 
     my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 

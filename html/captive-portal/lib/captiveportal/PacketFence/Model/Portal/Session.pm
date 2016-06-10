@@ -230,6 +230,7 @@ sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
     $options->{'last_ip'} = $self->clientIp;
+    $options->{'scope'} = 'PortalSession';
     return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 

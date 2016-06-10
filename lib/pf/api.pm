@@ -954,7 +954,10 @@ sub trigger_scan : Public : Fork {
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
     }
     else {
-        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+        my $options = (
+            scope => 'trigger_scan',
+        );
+        my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'}, $options);
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'pre_registration'})) {
@@ -1019,7 +1022,10 @@ sub dynamic_register_node : Public {
     return unless pf::util::validate_argv(\@require,  \@found);
 
     my $logger = pf::log::get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'});
+    my $options = (
+            scope => 'dynamic_register_node',
+    );
+    my $profile = pf::Portal::ProfileFactory->instantiate($postdata{'mac'}, $options);
     my $node_info = pf::node::node_view($postdata{'mac'});
     # We try this although the realm is not mandatory in case it proves to be useful in the future
     my @sources = $profile->getUserSources($postdata{'username'}, $postdata{'realm'});

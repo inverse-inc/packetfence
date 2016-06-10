@@ -50,7 +50,7 @@ sub instantiate {
     my $node_info = node_view($mac) || {};
     $node_info = {%$node_info, %$options};
     my $filter = pf::access_filter::portal->new;
-    my $profile_name = $filter->filter($node_info);
+    my $profile_name = $filter->filter($options->{'scope'}, $node_info) if defined($options->{'scope'});
 
     $profile_name = $PROFILE_FILTER_ENGINE->match_first($node_info) unless $profile_name;
     my $instance = $self->_from_profile($profile_name);

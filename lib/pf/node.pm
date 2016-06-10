@@ -987,8 +987,9 @@ sub node_register {
         return (0);
     }
     $pf::StatsD::statsd->increment( called() . ".called" );
+    $info{'scope'} = 'node_register';
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac,%info);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user
@@ -1015,8 +1016,9 @@ sub node_deregister {
     $info{'regdate'}   = 0;
     $info{'unregdate'} = 0;
     $info{'lastskip'}  = 0;
+    $info{'scope'} = 'node_deregister';
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Portal::ProfileFactory->instantiate($mac,%info);
     if(my $provisioner = $profile->findProvisioner($mac)){
         if(my $pki_provider = $provisioner->getPkiProvider() ){
             if(isenabled($pki_provider->revoke_on_unregistration)){
