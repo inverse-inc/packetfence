@@ -252,6 +252,20 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
     $c->forward('Controller::Graph', 'reports');
 }
 
+=head2 auditing
+
+=cut
+
+sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDITING_READ') {
+    my ( $self, $c ) = @_;
+    my $id = $c->user->id;
+    my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
+    $c->stash({
+        saved_searches => $saved_searches,
+        saved_search_form => $c->form("SavedSearch"),
+    });
+}
+
 =head2 nodes
 
 =cut

@@ -85,6 +85,10 @@
                   <td>
                     <div class="btn-group">
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                          <li><a  data-toggle="modal" data-target="#savedSearch" >[% l('Save as...') %]</a></li>
+                      </ul>
                     </div>
                   </td>
                 </tr>
@@ -102,5 +106,5 @@
       </ul>
     </div>
   </div>
-[% INCLUDE radiuslog/search.tt %]
+[% INCLUDE auditing/radiuslog/search.tt %]
 </div>

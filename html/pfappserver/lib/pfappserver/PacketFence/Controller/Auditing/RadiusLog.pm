@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::RadiusLog;
+package pfappserver::PacketFence::Controller::Auditing::RadiusLog;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::RadiusLog - Catalyst Controller
+pfappserver::PacketFence::Controller::Auditing::RadiusLog - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -22,11 +22,11 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
     action_args => {
-        '*' => { model => 'RadiusLog' },
-        advanced_search => { model => 'RadiusLog', form => 'RadiusLogSearch' },
-        'simple_search' => { model => 'RadiusLog', form => 'RadiusLogSearch' },
-        search => { model => 'RadiusLog', form => 'RadiusLogSearch' },
-        'index' => { model => 'RadiusLog', form => 'RadiusLogSearch' },
+        '*' => { model => 'Auditing::RadiusLog' },
+        advanced_search => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
+        'simple_search' => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
+        search => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
+        'index' => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
     }
 );
 
@@ -44,7 +44,7 @@ sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
 
 =head2 search
 
-Perform an advanced search using the Search::RadiusLog model
+Perform an advanced search using the Search::Auditing::RadiusLog model
 
 =cut
 
@@ -78,7 +78,7 @@ sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
 
 =head2 simple_search
 
-Perform an advanced search using the Search::RadiusLog model
+Perform an advanced search using the Search::Auditing::RadiusLog model
 
 =cut
 
@@ -90,7 +90,7 @@ sub simple_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
 
 =head2 advanced_search
 
-Perform an advanced search using the Search::RadiusLog model
+Perform an advanced search using the Search::Auditing::RadiusLog model
 
 =cut
 
