@@ -189,19 +189,15 @@ To do so, login to the PacketFence web administration interface if it is not alr
 
 We'll use the clone function to add a new switch (the AeroHive AP) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
-The Adding new switch window will appear, in which, you'll enter the correct information for the integration. Use theses values to populate each of the fields; leave the others as is:
+Confirgure the switch like the following:
 
-    IP: This will be the IP of the AeroHIVE AP on the customer management network
-    Type: AreoHIVE AP new firmware
-    Mode: Production
-    Vlans: 2,3,10
-    Normal VLAN: 10
-    Registration VLAN: 2
-    Isolation VLAN: 3
-    SNMP Version: 2c
-    SNMP Read Community: areohiveRead
-    SNMP Write Community: areohiveWrite
-    RADIUS Secret: aSecurePassword
+image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
+
+image::docs/images/aerohive-pf-config-role.png[scaledwidth="100%",alt="Roles switch settings"]
+
+image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP switch settings"]
+
+Modify your RADIUS secret.
 
 Click Add switch
 
@@ -233,14 +229,9 @@ Login to your HiveManager using the admin credentials. You should see the Dashbo
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on Advanced Configuration, then Authentication, then AAA Client Settings. We need to add the PacketFence RADIUS server here. Click on the New button, and provide those information:
+On the left menu, click on Advanced Configuration, then Authentication, then AAA Client Settings. We need to add the PacketFence RADIUS server here. Click on the New button, and provide follow this configuration.
 
-   Name: pf_auth
-   Server Type: Auth/Acct
-   Server Role: Primary
-   IP Address: Management IP of PacketFence
-   Shared Secret: aSecurePassword
-   Confirm Secret: aSecurePassword 
+image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
 
 Click OK to save the server. You should see the RADIUS server in the list.
 
@@ -268,15 +259,21 @@ On the left menu, click on SSIDs. Click the New button, and add the following in
 
 Click OK to save the SSID.
 
+Configure User Profile
+^^^^^^^^^^^^^^^^^^^^^^
+You will now need to create user profile matching your VLAN assignements, the "Default VLAN" have been created before to match the desired VLAN number.
+
+Create user profile as follow:
+
+image::docs/images/aerohive-user-profile-reg.png[scaledwidth="100%",alt="User profile registration"]
+
+image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User profile production"]
+
 Configure SNMP
 ^^^^^^^^^^^^^^
-Last step, we need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on System. Expand the Network Management section, and look for the SNMPv2 Agent section.
+Last step, we need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignements. Now click on New and follow this configuration.
 
-   Select Enable SNMP Agent
-   System Contact: your@email.com
-   System Location: Customer Inc, Floor 2
-   SNMP RO community: ruckusRead
-   SNMP RW community: ruckusWrite
+image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
