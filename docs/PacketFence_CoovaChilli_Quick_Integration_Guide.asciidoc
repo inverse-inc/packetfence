@@ -18,15 +18,15 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help setting up a consumer grade access-point running CoovaChilli integration with PacketFence to use UAM capabilities along with PacketFence feature set. It can also help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer, or, provide guidelines to setup a proof of concept for a potential PacketFence deployment using CoovaChilli capable products.
+This guide has been created in order to help setting up a consumer grade access point running CoovaChilli integration with PacketFence to use UAM capabilities along with PacketFence feature set. It can also help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer, or, provide guidelines to setup a proof of concept for a potential PacketFence deployment using CoovaChilli capable products.
 
 The instructions are based on version {release_version} of the PacketFence Zero Effort NAC (ZEN) image.
 
 Assumptions
 -----------
-* You have a CoovaChilli capable access-point running OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
+* You have a CoovaChilli capable access point running OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
 * You have a virtual "host" on which it is possible to load the latest PacketFence ZEN image;
-* Network interconnection between the virtual "host" running the latest PacketFence ZEN image, the CoovaChilli capable access-point, and Internet is functional;
+* Network interconnection between the virtual "host" running the latest PacketFence ZEN image, the CoovaChilli capable access point, and Internet is functional;
 * A PacketFence webauth enforcement setup will be deployed;
 
 Quick Deployment
@@ -47,11 +47,11 @@ Network interconnectivity
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 For the scope of this guide, the following network setup will be configured. Please note that a more complex setup can easily be used but will not be covered in this guide.
 
-* 1 switch port configured as access onto a "management" VLAN to connect the CoovaChilli capable access-point
+* 1 switch port configured as access onto a "management" VLAN to connect the CoovaChilli capable access point
 * 1 switch port configured as access onto that same "management" VLAN mapped to the PacketFence ZEN virtual machine
 * Internet access through that same "management" VLAN
 
-The final design should allow PacketFence to communicate with the CoovaChilli capable access-point, the opposite, and a full access to the Internet for both using that "management" VLAN.
+The final design should allow PacketFence to communicate with the CoovaChilli capable access point, the opposite, and a full access to the Internet for both using that "management" VLAN.
 
 PacketFence basic configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -119,19 +119,19 @@ Services status will help you monitor if everything goes as expected. If not, yo
 
 Step 2: Access-point and CoovaChilli configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Now that we have a functionnal PacketFence installation, we will go ahead and start by configuring the access-point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
+Now that we have a functionnal PacketFence installation, we will go ahead and start by configuring the access point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
 
-This guide assume that CoovaChilli is installed on the access-point. If it's not, we suggest you Google around and make sure to find the appropriate way to do so since there's just to much vendor and network equipment that supports CoovaChilli to document this step here.
+This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you Google around and make sure to find the appropriate way to do so since there's just to much vendor and network equipment that supports CoovaChilli to document this step here.
 
-The guide also assume that you have an SSID configured on the access-point.
+The guide also assume that you have an SSID configured on the access point.
 
-You should also make sure to have a default route properly configured on the access-point (so that it can access the Internet) and that DNS resolution is working.
+You should also make sure to have a default route properly configured on the access point (so that it can access the Internet) and that DNS resolution is working.
 
-Also note that manipulation on the OpenWRT access-point are done using SSH shell access.
+Also note that manipulation on the OpenWRT access point are done using SSH shell access.
 
 Please note that any interface name reference might be different from one hardware to another.
 
-CoovaChilli requires some slight modifications to the way networking is working on the OpenWRT access-point.
+CoovaChilli requires some slight modifications to the way networking is working on the OpenWRT access point.
 
  * The LAN and WLAN interface are bridged
  * There is a DHCP server running on the LAN which can potentially wreak havoc
@@ -191,7 +191,7 @@ Once set up, you might want to activate chilli at boot (by using the startup scr
 
 Step 3: PacketFence configuration for CoovaChilli integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Having a working PacketFence installation and a configured OpenWRT access-point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
+Having a working PacketFence installation and a configured OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the 'Switches' menu option under the 'NETWORK' section on the left hand side.
 
