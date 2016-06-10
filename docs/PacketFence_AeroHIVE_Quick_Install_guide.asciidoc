@@ -381,7 +381,7 @@ Next, change connection settings. On Security tab, click 'Settings', uncheck Val
 On the same tab click 'Configure' and uncheck Automatically use my Windows logon name and password.
 Return on the Security tab and click on 'Advanced settings'. On 802.1X settings, click on 'Specify authentication mode' and select User authentication.
 On 802.11 settings uncheck Enable Pairwise Master Key (PMK) caching.
-Validate all the modifications and click on 'close'.
+Validate all the modifications and click on 'Close'.
 
 Step 5: Test and Demonstrate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
