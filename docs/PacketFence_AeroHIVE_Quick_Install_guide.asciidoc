@@ -192,7 +192,7 @@ We'll use the clone function to add a new switch (the AeroHive AP) to the Packet
 The Adding new switch window will appear, in which, you'll enter the correct information for the integration. Use theses values to populate each of the fields; leave the others as is:
 
     IP: This will be the IP of the AeroHIVE AP on the customer management network
-    Type: AreoHIVE AP new firemware
+    Type: AreoHIVE AP new firmware
     Mode: Production
     Vlans: 2,3,10
     Normal VLAN: 10
@@ -215,76 +215,58 @@ This section will discuss about the configuration of your AeroHIVE AP in order t
 
 Connect APs and Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-First thing to do is to connect the controller and the AP. Like we saw in Step 2, we should have 1 TRUNK port for the controller and 1 TRUNK port for the AP. Connect them appropriately.
+First thing to do is to connect the HiveManager. Like we saw in Step 2, make sure to connect the AP on the TRUNK port configured for it.
 
-Provision the controller
-^^^^^^^^^^^^^^^^^^^^^^^^
-By default, the controller will come with the management IP set to 192.168.0.2. You need to connect to it using the default credentials, and change its management IP accordingly. Make sure also the firmware is at least 9.3.1.0 build 9 for full PacketFence support.
+Provision the HiveManager
+^^^^^^^^^^^^^^^^^^^^^^^^^
+By default, the HiveManager might be empty, add your AP on it via it's serial number. If necessra update the firmware of the HiveManager and the AP.
 
-NOTE: Please refer to the AeroHIVE Quick Start Guide available at http://aerohive.com/guide-blahblah
+NOTE: Please refer to the AeroHIVE Quick Devices Start Guide to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
+
+NOTE: Please refer to the following guide to learn more about the HiveManager: http://docs.aerohive.com/330000/docs/help/english/documentation/Aerohive_HiveManagerNG_GettingStartedGuide.pdf
 
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
 For this guide, we will show you how to configure one open SSID with RADIUS mac filtering, and one secure SSID using WPA2-Enterprise.
 
-Login to your controller using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
+Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on AAA Servers. We need to add the PacketFence RADIUS server here. Click on the Create New button, and provide those information:
+On the left menu, click on Advanced Configuration, then Authentication, then AAA Client Settings. We need to add the PacketFence RADIUS server here. Click on the New button, and provide those information:
 
    Name: pf_auth
-   Type: RADIUS
-   Auth Method: PAP
+   Server Type: Auth/Acct
+   Server Role: Primary
    IP Address: Management IP of PacketFence
-   Port: 1812
    Shared Secret: aSecurePassword
    Confirm Secret: aSecurePassword 
 
-Click OK to save the server. Repeat the step to add the PacketFence RADIUS server as an accounting server. This step is *mandatory* otherwise RADIUS CoA will fail.
-
-   Name: pf_accounting
-   Type: RADIUS Accounting
-   IP Address: Management IP of the PacketFence
-   Port: 1813
-   Shared Secret: aSecurePassword
-   Confirm Secret: aSecurePassword
-
-Click OK to save the server. You should see both authentication and accounting RADIUS servers in the list.
+Click OK to save the server. You should see the RADIUS server in the list.
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on WLAN. Click the Create New button, and add the following information. If you do not see the line, it means that you should leave the setting to default value:
+On the left menu, click on SSIDs. Click the New button, and add the following information. If you do not see the line, it means that you should leave the setting to default value:
 
-   Name/ESSID: DemoOpen
+   Profile Name/ESSID: DemoOpen
    Decription: Open SSID for PoC
-   Type: Standard Usage
-   Authentication Method: MAC Address
-   Encryption Options: None
-   Authentication Server: pf_auth
-   
-   Expand Advanced Options:
-   Accounting Server: pf_accounting
-   Access VLAN: Select Enable Dynamic VLAN
+   Enable MAC Authentication
+   Not Secure: Open
+   Authentication Protocol: CHAP
 
-Click OK to save the WLAN.
+Click OK to save the SSID.
 
 Configure the Secure SSID
 +++++++++++++++++++++++++
-On the left menu, click on WLAN. Click the Create New button, and add the following information. If you do not see the line it means that you should leave the setting to default value:
+On the left menu, click on SSIDs. Click the New button, and add the following information. If you do not see the line it means that you should leave the setting to default value:
 
-   Name/ESSID: DemoSecure
+   Profile Name/SSID: DemoSecure
    Decription: Secure SSID for PoC
-   Type: Standard Usage
-   Authentication Method: 802.1X EAP
-   Encryption Options: WPA2/AES
-   Authentication Server: pf_auth
-   
-   Expand Advanced Options:
-   Accounting Server: pf_accounting                                 
-   Access VLAN: Select Enable Dynamic VLAN
+   Secure: WPA/WPA2 802.1X (Enterprise)
+   Key Management: WPA2-(WPA2 Entreprise)-802.1X
+   Encryption Options: CCMP(AES)
 
-Click OK to save the WLAN.
+Click OK to save the SSID.
 
 Configure SNMP
 ^^^^^^^^^^^^^^
