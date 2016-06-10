@@ -166,7 +166,7 @@ This step will configure the general options of your PacketFence installation. T
 
 Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
-Click Continue once all the fields are completed.
+Click 'Continue' once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
@@ -186,7 +186,7 @@ Configuring AeroHIVE access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct integration.
 
-To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the Switches section.
+To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
 We'll use the clone function to add a new switch (the AeroHive AP) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
@@ -258,7 +258,7 @@ This step will configure the general options of your PacketFence installation. T
 
 Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
-Click Continue once all the fields are completed.
+Click 'Continue' once all the fields are completed.
 
 Step 5: Administration
 ++++++++++++++++++++++
@@ -278,7 +278,7 @@ Configuring AeroHIVE access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct integration.
 
-To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the Switches section.
+To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
 We'll use the clone function to add a new switch (the AeroHive AP) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
@@ -371,7 +371,7 @@ image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In `Control Panel\Network and Internet\Manage Wireless Networks`, click on 'Add'.
-Click Manually create a network profile
+Click 'Manually create a network profile'
 
    Network name: DemoSecure
    Security type WPA2-Entreprise
@@ -385,7 +385,7 @@ Validate all the modifications and click on 'close'.
 
 Step 5: Test and Demonstrate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Congratulations, you have everything setup and ready!  If your setup is properly configured, you should be able to :
+Congratulations, you have everything setup and ready!  If your setup is properly configured, you should be able to:
 
 * reach (ping) the controller from the PacketFence environment
 * see the DemoOpen, and DemoSecure SSIDs
