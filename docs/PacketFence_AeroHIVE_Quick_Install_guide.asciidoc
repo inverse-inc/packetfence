@@ -84,13 +84,14 @@ Once powered, the PC will boot from the USB key and will automatically get to a 
 
 Step 1: Enforcement
 +++++++++++++++++++
-The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them.
+The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or WebAuth.
 
 The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
 
 Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-For our customer scenario, you will choose VLAN enforcement.
+VLAN enforcement
+^^^^^^^^^^^^^^^^
 
 Step 2: Networks
 ++++++++++++++++
@@ -183,13 +184,13 @@ Services status will help you monitor if everything goes as expected. If not, yo
 
 Configuring AeroHIVE controller in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct intergration.
+Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct integration.
 
-To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the switches section.
+To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the Switches section.
 
 We'll use the clone function to add a new switch (the AeroHive AP) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
-Confirgure the switch like the following:
+Configure the switch like the following:
 
 image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
 
@@ -201,13 +202,18 @@ Modify your RADIUS secret.
 
 Click Add switch
 
-The newly added controller should shows up in the list.
+The newly added controller should show up in the list.
 
 PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
 
+<<<
+
+WebAuth Enforcement
+^^^^^^^^^^^^^^^^^^^
+
 Step 3: Configure AeroHIVE
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-This section will discuss about the configuration of your AeroHIVE AP in order to use it with our configured PacketFence environment.
+This section will help you configure your AeroHIVE AP for integration with PacketFence using the VLAN-based enforcement.
 
 Connect APs and Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -215,7 +221,7 @@ First thing to do is to connect the HiveManager. Like you saw in Step 2, make su
 
 Provision the HiveManager
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-By default, the HiveManager might be empty, add your AP on it via it's serial number. If necessra update the firmware of the HiveManager and the AP.
+By default, the HiveManager might be empty, add your AP on it via its serial number. If necessary update the firmware of the HiveManager and the AP.
 
 NOTE: Please refer to the AeroHIVE Quick Devices Start Guide to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
 
@@ -223,7 +229,7 @@ NOTE: Please refer to the following guide to learn more about the HiveManager: h
 
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
-For this guide, you will show you how to configure one open SSID with RADIUS mac filtering, and one secure SSID using WPA2-Enterprise.
+In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
 
 Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
 
@@ -233,11 +239,11 @@ On the left menu, click on Advanced Configuration, then Authentication, then AAA
 
 image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
 
-Click OK to save the server. You should see the RADIUS server in the list.
+Click Ok to save your changes.
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and configure the SSID while following those information.
+On the left menu, click on SSIDs. Click the New button, and configure the SSID like in the following screen capture:
 
 image::docs/images/aerohive-ssid-public.png[scaledwidth="100%",alt="SSID open configuration"]
 
@@ -245,7 +251,7 @@ Click OK to save the SSID.
 
 Configure the Secure SSID
 +++++++++++++++++++++++++
-On the left menu, click on SSIDs. Click the New button, and configure the SSID while following those inforamtion.
+On the left menu, click on SSIDs. Click the New button, and configure the SSID like in the following screen capture:
 
 image::docs/images/aerohive-ssid-secure.png[scaledwidth="100%",alt="SSID secure configuration"]
 
@@ -263,14 +269,14 @@ image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User p
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-You now need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignements. Now click on New and follow this configuration.
+You now need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignments. Now click on New and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 
-Configure RADIUS attribute
+Configure RADIUS Attribute
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so in the Configuration pane got to Networks, click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under User Profile configure now this section as follow:
+To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the Configuration panel, click on Networks, then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under User Profile configure now this section as follow:
 
 image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
@@ -297,5 +303,5 @@ Congratulations, you have everything setup and ready!  If your setup is properly
 * reach (ping) the controller from the PacketFence environment
 * see the DemoOpen, and DemoSecure SSIDs
 * login the PacketFence administrative UI (https://management_IP:1443)
-* connects a client device on the DemoOpen SSID using demouser/demouser credentials on the captive-portal
+* connects a client device on the DemoOpen SSID using demouser/demouser credentials on the captive portal
 * connects a client device on the DemoSecure SSID using demouser/demouser credentials in the Windows network login dialog
