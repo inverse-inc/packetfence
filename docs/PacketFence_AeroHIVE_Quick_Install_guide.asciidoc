@@ -200,7 +200,7 @@ image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP swit
 
 Modify your RADIUS secret.
 
-Click Add switch
+Click 'Add switch'
 
 The newly added access point should show up in the list.
 
@@ -322,7 +322,7 @@ Login to your HiveManager using the admin credentials. You should see the Dashbo
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on Advanced Configuration, then Authentication, then AAA Client Settings. We need to add the PacketFence RADIUS server here. Click on the New button, and provide follow this configuration.
+On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
 
 image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
 
@@ -356,32 +356,32 @@ image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User p
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-You now need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on Advanced Configuration, then Management Policies, then SNMP Assignments. Now click on New and follow this configuration.
+You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Advanced Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 
 Configure RADIUS Attribute
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the Configuration panel, click on Networks, then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under User Profile configure now this section as follow:
+To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the 'Configuration' panel, click on 'Networks', then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under 'User Profile'. Configure it follow:
 
 image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In `Control Panel\Network and Internet\Manage Wireless Networks`, click on Add.
+In `Control Panel\Network and Internet\Manage Wireless Networks`, click on 'Add'.
 Click Manually create a network profile
 
    Network name: DemoSecure
    Security type WPA2-Entreprise
    Encryption AES
 
-Next, change connection settings. On Security tab, click Settings, uncheck Validate server certificate.
-On the same tab click Configure and uncheck Automatically use my Windows logon name and password.
-Return on the Security tab and click on Advanced settings. On 802.1X settings, click on Specify authentication mode and select User authentication.
+Next, change connection settings. On Security tab, click 'Settings', uncheck Validate server certificate.
+On the same tab click 'Configure' and uncheck Automatically use my Windows logon name and password.
+Return on the Security tab and click on 'Advanced settings'. On 802.1X settings, click on 'Specify authentication mode' and select User authentication.
 On 802.11 settings uncheck Enable Pairwise Master Key (PMK) caching.
-Validate all the modifications and click on close.
+Validate all the modifications and click on 'close'.
 
 Step 5: Test and Demonstrate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
