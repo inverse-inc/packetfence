@@ -27,7 +27,7 @@ Assumptions
 * You have a CoovaChilli capable access point running OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
 * You have a virtual "host" on which it is possible to load the latest PacketFence ZEN image;
 * Network interconnection between the virtual "host" running the latest PacketFence ZEN image, the CoovaChilli capable access point, and Internet is functional;
-* A PacketFence webauth enforcement setup will be deployed;
+* A PacketFence WebAuth enforcement setup will be deployed;
 
 Quick Deployment
 ----------------
@@ -45,7 +45,7 @@ This step again, is only required in the case you do not already have a working 
 
 Network interconnectivity
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-For the scope of this guide, the following network setup will be configured. Please note that a more complex setup can easily be used but will not be covered in this guide.
+For the scope of this guide, the following network setup will be configured. Please note that a more complex configuration can easily be used but will not be covered in this guide.
 
 * 1 switch port configured as access onto a "management" VLAN to connect the CoovaChilli capable access point
 * 1 switch port configured as access onto that same "management" VLAN mapped to the PacketFence ZEN virtual machine
@@ -55,7 +55,7 @@ The final design should allow PacketFence to communicate with the CoovaChilli ca
 
 PacketFence basic configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Assuming you are able to reach the configurator running from the ZEN image, follow theses quick guidelines to go through the configurator and have a PacketFence installation working in webauth enforcement mode. 
+Assuming you are able to reach the configurator running from the ZEN image, follow theses quick guidelines to go through the configurator and have a PacketFence installation working in WebAuth enforcement mode. 
 
 Step 1: Enforcement
 +++++++++++++++++++
@@ -117,17 +117,17 @@ You'll be able to login to the PacketFence web administration interface with the
 
 Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
-Step 2: Access-point and CoovaChilli configuration
+Step 2: Access Point and CoovaChilli Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Now that we have a functionnal PacketFence installation, we will go ahead and start by configuring the access point and CoovaChilli running on it. We will then use some of the configuration parameters to finish PacketFence integration in step 3.
 
 This guide assume that CoovaChilli is installed on the access point. If it's not, we suggest you Google around and make sure to find the appropriate way to do so since there's just to much vendor and network equipment that supports CoovaChilli to document this step here.
 
-The guide also assume that you have an SSID configured on the access point.
+The guide also assumes that you have an SSID configured on the access point.
 
 You should also make sure to have a default route properly configured on the access point (so that it can access the Internet) and that DNS resolution is working.
 
-Also note that manipulation on the OpenWRT access point are done using SSH shell access.
+Also note that changes on the OpenWRT access point are done using SSH shell access.
 
 Please note that any interface name reference might be different from one hardware to another.
 
