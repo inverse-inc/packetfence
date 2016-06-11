@@ -316,12 +316,13 @@ client $radius_back {
 EOT
         }
 
-        $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
-        parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
     }
+    # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
+    $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
+    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
 }
 
 =head1 AUTHOR
