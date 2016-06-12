@@ -1148,6 +1148,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/captiveportal.js
                         /usr/local/pf/html/common/package.json
                         /usr/local/pf/html/captive-portal/content/timerbar.js
+                        /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
 %dir                    /usr/local/pf/html/captive-portal/content/images
