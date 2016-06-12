@@ -11,19 +11,41 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 6.1.0 released on xxxx-xx-xx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+* Added support for CoovaChilli capable hardware
+* Added page to visualize the status of the services on all cluster members
+* Added Support for RADIUS Change of Authorization on Meraki
+* Added configurable actions to be executed at the end of a portal module
+* Automatic registration of devices is now configurable from the GUI on a per profile basis
+* Added switch and switch group in violation trigger
+* Added switch group as a portal profile filter
+* Moved radius audit log in it's own section
+* Saved searches for the Radius Audit Logo
+* The portal now supports RADIUS Challenge Response authentication
 
 Enhancements
 ++++++++++++
 
+* Added module to redirect to internal or external pages within the portal modules configuration
+* Added configuration checkup for cluster.conf
+* Added ability to limit the number of logins when creating a local account
+* Added choice of sending either RADIUS CoA or Disconnect when deauthenticating a device
+* Admin interface is now available on all members of the cluster without the need of being the master
+* FreeRADIUS now logs to a separate file per process (authentication,accounting,load-balancer)
+* Improved performance of the Online/Offline search
 
 Bug Fixes
 +++++++++
+
+* Fix profile filter saving incorrectly on jessie
+* Numerous improvements to i18n in the portal and administration GUI
+* Fixed e-mail registration not working when activating access through a proxy or firewall
+* Authentication log (auth_log) will now be cleaned automatically via pfmon (#1511)
 
 Version 6.0.3 released on 2016-06-02
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
