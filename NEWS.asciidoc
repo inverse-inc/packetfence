@@ -25,6 +25,60 @@ Enhancements
 Bug Fixes
 +++++++++
 
+Version 6.0.3 released on 2016-06-02
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed example in vlan filters showing incorrect operand for user_name
+* Fixed the display of the aup when printing a user
+* Fixed email_instructions blocking email registration
+* Fixed FreeRADIUS dynamic clients hanging the server when the database fails to respond (#1500)
+* Fixed violation_add when applying one through bulk actions (#1510)
+* Fixed sessions remembering failed authentication sources
+* Fixed to listen to DHCPREQUEST in registration  network when in cluster mode
+
+
+Version 6.0.2 released on 2016-05-26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed pfdns to prevent pid file deletion when a child dies (#1444)
+* PacketFence will now handle the case where a source in the session is not available anymore
+* Fixed missing PID when using device registration (#1447)
+* Fingerbank update will no longer sync all servers anymore 
+* VoIP detection flags default will now be undef in admin interface
+* Suricata renamed to suricata_event in violations.conf.example
+* The captive portal will now handle User Agent strings properly
+* PacketFence will now delete the user (not device) session after activating sponsor
+* Fixed incorrect MAC address formatting in the reporting section of the GUI
+* Fixed "reuse dot1x credentials" in captive portal
+* Fixed incorrect SNMP traps handling
+* Fixed incorrect MAC address handling in radius accounting
+* Added a check to database backup script for mariadb
+* Fixed unregistration date handling when using email registration
+
+Version 6.0.1 released on 2016-04-28
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Added back the option to set the logo in a portal profile
+* Fixed Blackhole and Null authentication portal modules (#1439)
+* Added missing username field in Debian maintenance crontab
+* Fixed web authentication web form release in captive portal 
+* Validate configuration identifiers so they don't contain invalid characters (#1417)
+* Fixed incorrect samba handling of "%h" in server name
+* Fixed registration ACL computing for Cisco WLC and 2960 in web authentication
+* Adjust pfdetect startup order to allow Snort / Suricata to start 
+* Fixed pfsetvlan compilation error
+* Fixed violations internationalization
+* Fix incorrect rogue dhcp detection
+
 Version 6.0.0 released on 2016-04-19
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
