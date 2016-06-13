@@ -316,6 +316,8 @@ NOTE: Please refer to the 'AeroHIVE Quick Devices Start Guide' to add devices: h
 
 NOTE: Please refer to the following guide to learn more about the HiveManager: http://docs.aerohive.com/330000/docs/help/english/documentation/Aerohive_HiveManagerNG_GettingStartedGuide.pdf
 
+VLAN Enforcement
+^^^^^^^^^^^^^^^^
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
 In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
@@ -369,6 +371,62 @@ To be able to use the "Roles by switch role" you will need to setup a specific R
 
 image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
+<<<
+
+WebAuth Enforcement
+^^^^^^^^^^^^^^^^^^^
+Setup the SSIDs
+^^^^^^^^^^^^^^^
+In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
+
+Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the 'Configure' pane, and follow the following steps.
+
+Configure the AAA Servers
++++++++++++++++++++++++++
+On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'AAA Client Settings'. We need to add the PacketFence RADIUS server here. Click on the 'New' button, and provide follow this configuration.
+
+image::docs/images/aerohive-radius-pf.png[scaledwidth="100%",alt="RADIUS server configuration"]
+
+Click Ok to save your changes.
+
+Configure the Open SSID
++++++++++++++++++++++++
+On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SSID like in the following screen capture:
+
+image::docs/images/aerohive-ssid-public.png[scaledwidth="100%",alt="SSID open configuration"]
+
+Click OK to save the SSID.
+
+Configure the Secure SSID
++++++++++++++++++++++++++
+On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SSID like in the following screen capture:
+
+image::docs/images/aerohive-ssid-secure.png[scaledwidth="100%",alt="SSID secure configuration"]
+
+Click OK to save the SSID.
+
+Configure User Profile
+^^^^^^^^^^^^^^^^^^^^^^
+You will now need to create user profile matching your VLAN assignements, the "Default VLAN" have been created before to match the desired VLAN number.
+
+Create user profile as follow:
+
+image::docs/images/aerohive-user-profile-reg.png[scaledwidth="100%",alt="User profile registration"]
+
+image::docs/images/aerohive-user-profile-prod.png[scaledwidth="100%",alt="User profile production"]
+
+Configure SNMP
+^^^^^^^^^^^^^^
+You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Advanced Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
+
+image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
+
+Configure RADIUS Attribute
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the 'Configuration' panel, click on 'Networks', then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under 'User Profile'. Configure it follow:
+
+image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
