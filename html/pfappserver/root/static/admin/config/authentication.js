@@ -178,6 +178,7 @@ $(function() { // DOM ready
                 modal.append(data);
                 modal.one('shown', function() {
                     $('#id').focus();
+                    $('#class').trigger("change");
                 });
                 modal.modal({ shown: true });
             })
@@ -237,17 +238,24 @@ $(function() { // DOM ready
         var that = $(this);
         var table = $('#ruleActions');
 
-        table.find('tr').siblings(':not(.hidden)').remove();
+        table.find('tr:not(.hidden)').remove();
 
         var row_model = table.children('tbody').children('.hidden').first();
         if (that.find(':selected').attr('value') == 'administration') {
             row_model.find('option[data-rule-class="administration"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="administration"]').removeAttr('disabled');
             row_model.find('option[data-rule-class="authentication"]').addClass('hidden');
+            row_model.find('option[data-rule-class="authentication"]').attr('disabled', 'disabled');
         } else if (that.find(':selected').attr('value') == 'authentication') {
             row_model.find('option[data-rule-class="authentication"]').removeClass('hidden');
+            row_model.find('option[data-rule-class="authentication"]').removeAttr('disabled');
             row_model.find('option[data-rule-class="administration"]').addClass('hidden');
+            row_model.find('option[data-rule-class="administration"]').attr('disabled', 'disabled');
         }
 
+        $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
+            updateAction($(this), false);
+        });
         table.trigger("addrow");
         table.find('tr').find('[href="#delete"]').addClass('hidden');
 
