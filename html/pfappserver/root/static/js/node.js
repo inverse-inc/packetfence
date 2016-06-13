@@ -461,6 +461,9 @@ NodeView.prototype.searchPagination = function(e) {
 NodeView.prototype.refreshPage = function() {
     var that = this;
     var pagination = $('.pagination').first();
+    if (pagination.attr('data-no-refresh') == "yes") {
+        return;
+    }
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
     var link = pagination.find('li.disabled a').first();
@@ -469,21 +472,27 @@ NodeView.prototype.refreshPage = function() {
     }
     var columns = $('#columns');
     var href = link.attr("href");
+    var section_id = pagination.attr('data-section') || "#section";
+    var refresh_section = $(section_id);
     var section = $('#section');
-    var status_container = $("#section").find('h2').first();
+    var status_container = section.find('h2').first();
     var loader = section.prev('.loader');
+    var form_data = form.serialize();
+    if (columns.length == 0) {
+        form_data += "&" + columns.serialize();
+    }
     loader.show();
     section.fadeTo('fast', 0.5);
     section.fadeTo('fast', 0.5, function() {
         that.nodes.post({
             url: href,
-            data: form.serialize() + "&" + columns.serialize(),
+            data: form_data,
             always: function() {
                 loader.hide();
                 section.fadeTo('fast', 1.0);
             },
             success: function(data) {
-                section.html(data);
+                refresh_section.html(data);
                 section.trigger('section.loaded');
             },
             errorSibling: status_container
