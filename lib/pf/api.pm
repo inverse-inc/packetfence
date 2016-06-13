@@ -250,16 +250,6 @@ sub synchronize_locationlog : Public {
     return (pf::locationlog::locationlog_synchronize($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role));
 }
 
-sub replace_close_locationlog : Public {
-    my ($class, %postdata) = @_;
-    my @require = qw(mac switch_id);
-    my @found = grep {exists $postdata{$_}} @require;
-    return unless pf::util::validate_argv(\@require,  \@found);
-
-    return(pf::locationlog::locationlog_replace_closed($postdata{'switch_id'}, $postdata{'switch_ip'}, $postdata{'switch_mac'}, $postdata{'port'}, $postdata{'vlan'}, $postdata{'mac'}, $postdata{'connection_type'}, $postdata{'connection_sub_type'}, $postdata{'user_name'}, $postdata{'ssid'}, $postdata{'stripped_user_name'}, $postdata{'realm'}, $postdata{'role'}));
-}
-
-
 sub open_iplog : Public {
     my ( $class, $mac, $ip, $lease_length ) = @_;
     my $logger = pf::log::get_logger();

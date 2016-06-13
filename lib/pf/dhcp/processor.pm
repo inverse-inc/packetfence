@@ -19,7 +19,6 @@ use Try::Tiny;
 use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
-use pf::constants::eap_type qw($OPTION_82);
 use pf::clustermgmt;
 use pf::config qw(
     $INLINE_API_LEVEL
@@ -30,7 +29,6 @@ use pf::config qw(
     $NO_PORT
     %connection_type_to_str
     $INLINE
-    $DHCP
 );
 use pf::config::cached;
 use pf::db;
