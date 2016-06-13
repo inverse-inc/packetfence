@@ -1,0 +1,22 @@
+# logrotate file for PacketFence
+#
+su pf pf
+
+/usr/local/pf/logs/*log {
+    daily
+    rotate 90
+    missingok
+    compress
+    create 640 pf pf
+    copytruncate
+}
+
+
+/usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
+    daily
+    rotate 90
+    missingok
+    compress
+    create 640 pf pf
+    copytruncate
+}
