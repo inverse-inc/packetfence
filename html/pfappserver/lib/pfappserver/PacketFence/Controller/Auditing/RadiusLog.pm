@@ -110,7 +110,7 @@ controller dispatcher
 sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
     my ( $self, $c, $id ) = @_;
 
-    my ($status, $item_data) = $c->model('RadiusLog')->view($id);
+    my ($status, $item_data) = $c->model('Auditing::RadiusLog')->view($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item_data;
