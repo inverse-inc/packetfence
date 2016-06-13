@@ -288,6 +288,8 @@ image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General swit
 
 image::docs/images/aerohive-pf-config-role-webauth.png[scaledwidth="100%",alt="Roles switch settings"]
 
+image::docs/images/aerohive-pf-config-role-webauth2.png[scaledwidth="100%",alt="WebAuth URL switch settings"]
+
 image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP switch settings"]
 
 Modify your RADIUS secret.
