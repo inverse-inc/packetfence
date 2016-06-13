@@ -286,6 +286,8 @@ Configure the switch like the following:
 
 image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
 
+NOTE: While using webauth change the switch module for AeroHIVE AP_http.
+
 image::docs/images/aerohive-pf-config-role-webauth.png[scaledwidth="100%",alt="Roles switch settings"]
 
 image::docs/images/aerohive-pf-config-role-webauth2.png[scaledwidth="100%",alt="WebAuth URL switch settings"]
@@ -320,7 +322,7 @@ VLAN Enforcement
 ^^^^^^^^^^^^^^^^
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
-In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
+In this guide, we will configure one open SSID using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
 
 Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the 'Configure' pane, and follow the following steps.
 
@@ -377,9 +379,16 @@ WebAuth Enforcement
 ^^^^^^^^^^^^^^^^^^^
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
-In this guide, we will configure one open SSI using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
+In this guide, we will configure one open SSID using RADIUS MAC-based filtering and one secured SSID using WPA2 Enterprise.
 
 Login to your HiveManager using the admin credentials. You should see the Dashboard. Click on the 'Configure' pane, and follow the following steps.
+
+Configure the External Captive Portal
++++++++++++++++++++++++++++++++++++++
+
+On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'Captive Web Portals'. Click on 'New' to create a Captive Portal, configure it as follow:
+
+image::docs/images/aerohive-captive-portal.png[scaledwidth="100%",alt="Captive Web Portal configuration"]
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
@@ -395,6 +404,8 @@ On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SS
 
 image::docs/images/aerohive-ssid-public.png[scaledwidth="100%",alt="SSID open configuration"]
 
+NOTE: Make sure to select 'Enable Captive Web Portal' when using Webauth.
+
 Click OK to save the SSID.
 
 Configure the Secure SSID
@@ -402,6 +413,8 @@ Configure the Secure SSID
 On the left menu, click on 'SSIDs'. Click the 'New' button, and configure the SSID like in the following screen capture:
 
 image::docs/images/aerohive-ssid-secure.png[scaledwidth="100%",alt="SSID secure configuration"]
+
+NOTE: Make sure to select 'Enable Captive Web Portal' when using Webauth.
 
 Click OK to save the SSID.
 
