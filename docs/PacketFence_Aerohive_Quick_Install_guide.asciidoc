@@ -1,4 +1,4 @@
-AeroHIVE Quick Installation Guide
+Aerohive Quick Installation Guide
 =================================
 :encoding: UTF-8
 :lang: en
@@ -9,7 +9,7 @@ AeroHIVE Quick Installation Guide
 
     This file is part of the PacketFence project.
 
-    See PacketFence_AeroHIVE_Quick_Installation_Guide-docinfo.xml for
+    See PacketFence_Aerohive_Quick_Installation_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
@@ -18,7 +18,7 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the AeroHIVE equipment.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Aerohive equipment.
 
 The instructions are based on version {release_version} of the PacketFence Live Image.
 
@@ -27,9 +27,9 @@ Assumptions
 * You will need a USB key with a capacity of at least 4GB;
 * You will need a laptop or a PC from which the PacketFence Live USB key will run from;
 * You will deploy a VLAN enforcement environment according to the customer specifications;
-* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup;
-* AeroHIVE AccessPoint is loaded with firmware 6 or later;
-* HiveManager with a version 6 or later.
+* Your customer will provide the network equipment (switch, cables, etc) to interconnect this PoC setup;
+* Aerohive Access Point is loaded with HiveOS 6 or later;
+* HiveManager with version 6 or later.
 
 Quick Deployment
 ----------------
@@ -182,9 +182,9 @@ You'll be able to login to the PacketFence web administration interface with the
 
 Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
-Configuring AeroHIVE access point in PacketFence
+Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct integration.
+Now that you have a fully functionnal PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
@@ -274,9 +274,9 @@ You'll be able to login to the PacketFence web administration interface with the
 
 Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
-Configuring AeroHIVE access point in PacketFence
+Configuring Aerohive access point in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Now that you have a fully functionnal PacketFence installation, you'll need to add the AeroHIVE AP to the PacketFence switches database for correct integration.
+Now that you have a fully functionnal PacketFence installation, you'll need to add the Aerohive AP to the PacketFence switches database for correct integration.
 
 To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the Switches section.
 
@@ -286,7 +286,7 @@ Configure the switch like the following:
 
 image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
 
-NOTE: While using webauth change the switch module for AeroHIVE AP_http.
+NOTE: While using webauth change the switch module for Aerohive AP_http.
 
 image::docs/images/aerohive-pf-config-role-webauth.png[scaledwidth="100%",alt="Roles switch settings"]
 
@@ -294,7 +294,7 @@ image::docs/images/aerohive-pf-config-role-webauth2.png[scaledwidth="100%",alt="
 
 image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP switch settings"]
 
-Modify your RADIUS secret.
+Under the tab RADIUS, please set your RADIUS secret.
 
 Click 'Add switch'
 
@@ -302,9 +302,9 @@ The newly added acces point should show up in the list.
 
 PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
 
-Step 3: Configure AeroHIVE
+Step 3: Configure Aerohive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-This section will help you configure your AeroHIVE AP for integration with PacketFence using the VLAN-based enforcement.
+This section will help you configure your Aerohive AP for integration with PacketFence using the VLAN-based enforcement.
 
 Connect APs and Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -312,9 +312,9 @@ First thing to do is to connect the HiveManager. Like you saw in Step 2, make su
 
 Provision the HiveManager
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-By default, the HiveManager might be empty, add your AP on it via its serial number. If necessary update the firmware of the HiveManager and the AP.
+By default, the HiveManager might be empty, add your AP via its serial number. If necessary update the firmware of the HiveManager and the AP.
 
-NOTE: Please refer to the 'AeroHIVE Quick Devices Start Guide' to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
+NOTE: Please refer to the 'Aerohive Quick Devices Start Guide' to add devices: http://docs.aerohive.com/330000/docs/help/english/documentation/AerohiveDevicesQuickStart.pdf
 
 NOTE: Please refer to the following guide to learn more about the HiveManager: http://docs.aerohive.com/330000/docs/help/english/documentation/Aerohive_HiveManagerNG_GettingStartedGuide.pdf
 
