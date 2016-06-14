@@ -577,7 +577,7 @@ CREATE TABLE radacct_log (
   KEY timestamp (timestamp)
 ) ENGINE=InnoDB;
 
---- Adding RADIUS Updates Stored Procedure
+-- Adding RADIUS Updates Stored Procedure
 
 DROP PROCEDURE IF EXISTS acct_start;
 DELIMITER /
