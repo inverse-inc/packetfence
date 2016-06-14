@@ -104,7 +104,7 @@ Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
 # External Captive Portal URL detection constant
 Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
 Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
-
+Readonly::Scalar our $EXT_URL_COOVACHILLI       => '^/CoovaChilli';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
