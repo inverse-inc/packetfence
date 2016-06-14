@@ -84,6 +84,8 @@ BuildArch: noarch
 AutoReqProv: 0
 
 Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch
+#for proper time management
+Requires: ntpd
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
@@ -733,6 +735,19 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
+#Fix to cleanly manage logical interfaces
+if [ -e /etc/sysconfig/ntpd ]; then
+sed 's/OPTIONS="-g"/OPTIONS="-g -L"/g' /etc/sysconfig/ntpd -i
+%if 0%{?el6}
+/sbin/chkconfig --add ntpd
+/sbin/service ntpd restart
+%endif
+%if 0%{?el7}
+/bin/systemctl enable ntpd
+/bin/systemctl start ntpd
+%endif
+fi
+
 # Getting rid of wrong ipv6 dns address
 sed -i 's/\%.*$//g' /etc/resolv.conf
 
@@ -1376,6 +1391,8 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Tue Apr 19 2016 Inverse <info@inverse.ca> - 6.0.0-2
+- tests so ntpd is installed and logical interfaces are supported at installation time.
 
 * Tue Apr 19 2016 Inverse <info@inverse.ca> - 6.0.0-1
 - New release 6.0.0
