@@ -281,7 +281,7 @@ home_server pf$i.cli.cluster {
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
         port = 1815
-        secret = testing1234
+        secret = $local_secret
         response_window = 6
         status_check = status-server
         revive_interval = 120
