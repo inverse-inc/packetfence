@@ -157,7 +157,7 @@ Global config settings:
  radius scheme packetfence
   server-type extended
   primary authentication 192.168.1.5
-  primary accounting 1192.168.1.5
+  primary accounting 192.168.1.5
   key authentication P@cketfence
   key accounting cipher P@cketfence
   user-name-format without-domain
@@ -4224,7 +4224,7 @@ image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius se
 
 image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
-* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could assigned
+* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could be assigned
 
 image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 

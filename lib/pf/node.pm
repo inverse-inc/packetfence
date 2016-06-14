@@ -733,7 +733,7 @@ sub node_custom_search {
     return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
 }
 
-=item * node_view_all - view all nodes based on several criterias
+=item * node_view_all - view all nodes based on several criteria
 
 Warning: The connection_type field is translated into its human form before return.
 
