@@ -71,7 +71,7 @@ Depends: ${misc:Depends}, vlan,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl, libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- liburi-escape-xs-perl, libsql-abstract-more-perl, libio-socket-timeout-perl, liblinux-distribution-perl,
+ liburi-escape-xs-perl, libsql-abstract-more-perl, libio-socket-timeout-perl, liblinux-distribution-perl, libscalar-list-utils-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
