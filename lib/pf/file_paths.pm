@@ -96,6 +96,7 @@ our (
     $control_dir,
     $switch_control_dir,
     $pfmon_config_file, $pfmon_default_config_file,
+    $switch_filters_config_file,
 );
 
 BEGIN {
@@ -166,6 +167,7 @@ BEGIN {
         $control_dir
         $switch_control_dir
         $pfmon_config_file $pfmon_default_config_file
+        $switch_filters_config_file
     );
 }
 
@@ -257,6 +259,7 @@ $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
 $pfmon_config_file = catfile($conf_dir,"pfmon.conf");
 $pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
+$switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -296,6 +299,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $roles_config_file,
     $dns_filters_config_file,
     $pfmon_config_file,
+    $switch_filters_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
