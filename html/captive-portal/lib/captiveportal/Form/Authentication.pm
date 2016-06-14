@@ -33,7 +33,7 @@ foreach my $field (@pf::person::FIELDS){
     has_field "fields[$field]" => (type => 'Text', label => ucfirst($field));
 }
 
-has_field 'fields[username]' => (type => 'Text', label => 'Username');
+has_field 'fields[username]' => (type => 'Text', label => 'Username', element_attr => { autocorrect => "off", autocapitalize => "off" });
 
 has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
