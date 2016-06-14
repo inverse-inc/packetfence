@@ -28,7 +28,6 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $username = $c->session->{username} || '';
     my $mac = $c->portalSession->clientMac;
     my $user_cache = $c->user_cache;
     my $pki_session = $user_cache->get("pki_session");
@@ -44,7 +43,7 @@ sub index : Path : Args(0) {
         template     => $profile_template,
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
-        username     => $username,
+        username     => $provisioner->for_username,
         cert_content => $pki_session->{b64_cert},
         cert_cn      => $pki_session->{certificate_cn},
         for_windows  => ($provisioner->{type} eq 'windows'),
