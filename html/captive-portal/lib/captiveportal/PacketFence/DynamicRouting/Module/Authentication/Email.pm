@@ -99,8 +99,7 @@ sub do_email_registration {
     $self->execute_actions();
     $self->new_node_info->{status} = "reg";
     $self->app->root_module->apply_new_node_info();
-    pf::enforcement::reevaluate_access( $self->current_mac, 'manage_register' );
-    $self->render("release.html", $self->_release_args());
+    $self->app->root_module->release();
 }
 
 =head2 execute_actions
