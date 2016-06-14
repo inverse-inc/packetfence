@@ -1391,7 +1391,7 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
-* Tue Apr 19 2016 Inverse <info@inverse.ca> - 6.0.0-2
+* Tue Jun 14 2016 Inverse <info@inverse.ca> - 6.0.0-2
 - tests so ntpd is installed and logical interfaces are supported at installation time.
 
 * Tue Apr 19 2016 Inverse <info@inverse.ca> - 6.0.0-1
