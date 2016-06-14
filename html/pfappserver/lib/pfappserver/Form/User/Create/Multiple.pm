@@ -14,6 +14,7 @@ Ex: guest[1-10]
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields
 has_field 'prefix' =>
