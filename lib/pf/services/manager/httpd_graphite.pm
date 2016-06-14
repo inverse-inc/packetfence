@@ -66,7 +66,8 @@ sub generate_local_settings {
     $tags{'db_port'}              = $Config{'monitoring'}{'db_port'} || $Config{'database'}{'port'};
     $tags{'db_user'}              = $Config{'monitoring'}{'db_user'} || $Config{'database'}{'user'};
     $tags{'db_password'}          = $Config{'monitoring'}{'db_pass'} || $Config{'database'}{'pass'};
-    $tags{'carbon_hosts'}         = get_cluster_destinations() // $tags{'graphite_host'} . ":9000, ";
+    $tags{'carbon_hosts'} = get_cluster_destinations()
+      // '"' . $tags{'graphite_host'} . ":9000" . '"';
 
     parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/local_settings.py" );
 }
@@ -79,9 +80,15 @@ sub generate_dashboard_settings {
 }
 
 sub get_cluster_destinations {
-    @cluster_hosts
-      ? join( ', ', map { $_->{management_ip} . ":9000" } @cluster_servers )
-      : undef;
+    my $carbon_hosts_string;
+    my @carbon_urls;
+    if ( @cluster_hosts > 1 and @cluster_servers > 1 ) {
+        for (@cluster_servers) {
+            push( @carbon_urls, '"' . $_->{management_ip} . ":9000" . '"' );
+        }
+        $carbon_hosts_string = join( ',', @carbon_urls );
+    }
+    return $carbon_hosts_string;
 }
 
 sub generate_secret {
