@@ -460,6 +460,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
+%{__install} -d -m2755 $RPM_BUILD_ROOT/usr/local/pf/var/graphite
 %{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
