@@ -178,7 +178,7 @@ chilli configuration might differ from one equipment vendor to an other one. Jus
     HS_RADIUS2      PacketFence management IP
     HS_RADSECRET    The RADIUS secret that will be used between chilli and PacketFence
     HS_UAMHOMEPAGE  Comment that line from the config file and the defaults file to speedup login page
-    HS_UAMFORMAT    http://PACKETFENCE_MANAGEMENT_IP
+    HS_UAMFORMAT    http://PACKETFENCE_MANAGEMENT_IP/CoovaChilli
     HS_SSID         SSID name
     HS_NASIP        Access-point IP address
     HS_COAPORT      3799
