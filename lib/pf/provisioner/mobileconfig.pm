@@ -202,7 +202,9 @@ always authorize
 sub authorize {
     my ($self, $mac) = @_;
     my $info = pf::node::node_view($mac);
-    $self->for_username($info->{pid});
+    unless($info->{pid} eq $default_pid) {
+        $self->for_username($info->{pid});
+    }
     return $FALSE;
 }
 
