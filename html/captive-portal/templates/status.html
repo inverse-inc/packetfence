@@ -86,6 +86,13 @@ $(document).ready(function() {
   <h4>[% i18n("Your Network Access Status") %]</h4>
 </div>
 
+[% IF txt_auth_error.defined %]
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">[% i18n(txt_auth_error) %]</p>
+</div>
+[% END %]
+
 <div class="media media--notice u-p u-mb">
   <div class="media__img">[% flashIcon(level='notice') %]</div>
   <p class="media__body">

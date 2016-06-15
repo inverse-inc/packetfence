@@ -97,6 +97,7 @@ sub userNotLoggedIn : Private {
     my $username = $request->param('username');
     my $password = $request->param('password');
     if ( all_defined( $username, $password ) ) {
+        $c->forward(Authenticate => 'verifyAup');
         $c->forward(Authenticate => 'authenticationLogin');
         if ($c->has_errors) {
             $c->detach('login');

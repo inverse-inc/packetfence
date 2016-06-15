@@ -59,6 +59,15 @@ sub setupMatchParams : Private {
     $c->stash->{matchParams} = $params;
 }
 
+sub verifyAup : Private {
+    my ( $self, $c ) = @_;
+    my $request = $c->request;
+    my $aup_status = $request->param("aup_signed");
+    if ( !defined $aup_status ) {
+        $c->error("The AUP was not signed"); 
+    }
+}
+
 sub authenticationLogin : Private {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
@@ -68,11 +77,6 @@ sub authenticationLogin : Private {
     my $mac           = $portalSession->clientMac;
     my ( $return, $message, $source_id );
     $logger->debug("authentication attempt");
-
-    my $aup_status = $request->param("aup_signed");
-    if ( !defined $aup_status ) {
-        $c->error("The AUP was not signed"); 
-    }
 
     if ($request->{'match'} eq "status/login") {
         use pf::person;

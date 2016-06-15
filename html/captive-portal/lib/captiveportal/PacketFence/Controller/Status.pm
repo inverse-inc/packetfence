@@ -36,6 +36,10 @@ sub auto :Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $pid     = $c->user_session->{"username"};
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     if ($pid) {
         $c->forward('userIsAuthenticated');
     } else {
@@ -100,6 +104,10 @@ sub login : Local {
     my $username = $request->param('username');
     my $password = $request->param('password');
     if ( all_defined( $username, $password ) ) {
+        $c->forward(Authenticate => 'verifyAup');
+        if ($c->has_errors) {
+            $c->detach('index');
+        }
         $c->forward(Authenticate => 'authenticationLogin');
     }
     $c->forward('index');
