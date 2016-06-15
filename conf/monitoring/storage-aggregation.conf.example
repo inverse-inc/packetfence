@@ -17,12 +17,12 @@ xFilesFactor = 0.1
 aggregationMethod = min
 
 [lower]
-pattern = \.lower$
+pattern = \.low(er)?$
 xFilesFactor = 0.1
 aggregationMethod = min
 
 [max]
-pattern = \.max$
+pattern = \.(max|high)$
 xFilesFactor = 0.1
 aggregationMethod = max
 
