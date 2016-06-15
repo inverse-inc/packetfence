@@ -460,7 +460,6 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/control
-%{__install} -d -m2755 $RPM_BUILD_ROOT/usr/local/pf/var/graphite
 %{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 touch $RPM_BUILD_ROOT/usr/local/pf/var/cache_control
 cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
@@ -731,6 +730,9 @@ ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.7/site-packages
 %endif
 chmod g+w /var/lib/carbon
 chmod g+w /var/lib/graphite-web
+
+mkdir -p /usr/local/pf/var/graphite
+chmod 2755 /usr/local/pf/var/graphite
 
 #Getting rid of SELinux
 echo "Disabling SELinux..."
