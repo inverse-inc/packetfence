@@ -1,6 +1,20 @@
 --
--- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
+-- PacketFence SQL schema upgrade from 6.0.0 to 6.1.0
 --
+
+--
+-- Setting the major/minor/sub-minor version of the DB
+--
+
+SET @MAJOR_VERSION = 6;
+SET @MINOR_VERSION = 1;
+SET @SUBMINOR_VERSION = 0;
+
+--
+-- The VERSION_INT to ensure proper ordering of the version in queries
+--
+
+SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
 -- Add unregistration date to activation records

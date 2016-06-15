@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 6.1.0 released on xxxx-xx-xx
+Version 6.1.0 released on 2016-06-20
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -46,6 +46,7 @@ Bug Fixes
 * Numerous improvements to i18n in the portal and administration GUI
 * Fixed e-mail registration not working when activating access through a proxy or firewall
 * Authentication log (auth_log) will now be cleaned automatically via pfmon (#1511)
+* Fixes incorrect graphite aggregation of metrics when data should not be averaged
 
 Version 6.0.3 released on 2016-06-02
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
