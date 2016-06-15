@@ -74,6 +74,7 @@ has_field 'source' =>
 sub options_domains {
     my $self = shift;
     my @domains = map { $_->{id} => $_->{id} } @{$self->form->domains} if ($self->form->domains);
+    unshift @domains, ("" => "");
     return @domains;
 }
 
