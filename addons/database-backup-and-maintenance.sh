@@ -61,7 +61,7 @@ fi
 if mysql -V | grep -q "MariaDB"; then
     SQL_ENGINE='mariadb'
 else
-    SQL_ENGINE="mysql"
+    SQL_ENGINE="mysqld"
 fi
 
 # is MySQL running? meaning we are the live packetfence
