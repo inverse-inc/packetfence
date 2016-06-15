@@ -229,12 +229,16 @@ sub _connect {
 
 =cut
 
+our @KEYS_FOR_MATCHING = qw(
+    SSID connection_type rule_class username
+);
+
 sub match {
     my ($self, $params) = @_;
     my $timer_stat_prefix = called() . "." .  $self->{'id'};
     my $timer = pf::StatsD::Timer->new({ 'stat' => "${timer_stat_prefix}"});
     if($self->is_match_cacheable) {
-        my $result = $self->cache->compute_with_undef([$self->id, $params], sub {
+        my $result = $self->cache->compute_with_undef([$self->id, @{$params}{@KEYS_FOR_MATCHING}], sub {
                 $pf::StatsD::statsd->increment(called() . "." . $self->id. ".cache_miss.count" );
                 my $result =   $self->SUPER::match($params);
                 return $result;
