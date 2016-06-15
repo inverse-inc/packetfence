@@ -65,6 +65,10 @@
                   <input type="radio" name="advanced.hash_passwords" value="bcrypt"[% IF config.${'advanced.hash_passwords'} == "bcrypt" %] checked[% END %]>
                     [% l("Bcrypt hashing") %]
                 </label>
+                <label class="radio">
+                  <input type="radio" name="advanced.hash_passwords" value="ntlm"[% IF config.${'advanced.hash_passwords'} == "ntlm" %] checked[% END %]>
+                    [% l("NTLM hashing") %]
+                </label>
               </div>
             </div>
             <fieldset>
