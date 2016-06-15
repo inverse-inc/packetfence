@@ -166,7 +166,7 @@ code (ex: fr) will be used for any locale matching the language code (ex: fr_FR 
 
 Readonly::Array our @LOCALES =>
   (
-   qw(de_DE en_US es_ES fr_FR fr_CA he_IL it_IT nl_NL pl_PL pt_BR)
+   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nl_NL pl_PL pt_BR)
   );
 
 =item ALLOWED_RESOURCES_PROFILE_FILTER
