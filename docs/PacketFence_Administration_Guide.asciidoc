@@ -2745,7 +2745,7 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/suricata_files.conf` by adding the following which will enable reception of Suricata MD5 file store log entries:
+Configure `/etc/rsyslog.d/suricata_files.conf` by adding the following block which will enable reception of Suricata MD5 file store log entries and instruct rsyslog to stop processing the current matched message:
 
   if $programname == 'suricata_files' then /usr/local/pf/var/suricata_files
   & ~
