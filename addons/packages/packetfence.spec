@@ -731,9 +731,6 @@ ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.7/site-packages
 chmod g+w /var/lib/carbon
 chmod g+w /var/lib/graphite-web
 
-mkdir -p /usr/local/pf/var/graphite
-chmod 2755 /usr/local/pf/var/graphite
-
 #Getting rid of SELinux
 echo "Disabling SELinux..."
 setenforce 0
