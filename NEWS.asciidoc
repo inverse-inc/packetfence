@@ -19,7 +19,7 @@ New Features
 
 * Added support for CoovaChilli capable equipment
 * Added page to visualize the status of the services on all cluster members
-* Added Support for RADIUS Change of Authorization on Meraki
+* Added support for RADIUS Change of Authorization on Meraki
 * Added configurable actions to be executed at the end of a portal module
 * Automatic registration of devices is now configurable from the GUI on a per profile basis
 * Added switch and switch group in violation trigger
