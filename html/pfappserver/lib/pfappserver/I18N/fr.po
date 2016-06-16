@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-04-19 17:24+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2016-06-06 17:23+0000\n"
+"Last-Translator: Antoine Amacher <aamacher@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -832,7 +832,7 @@ msgstr "VLAN de contournement"
 
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass)
 msgid ""
-"Bypass the captive-portal detection mechanism of some browsers / end-points "
+"Bypass the captive-portal detection mecanism of some browsers / end-points "
 "by proxying the detection request."
 msgstr "Contourne le mécanisme de détection du portail captif de certains navigateurs / appareils en proxyant la requête de détection"
 
@@ -1196,7 +1196,7 @@ msgstr "Liste séparée par des virgules des adresses MAC pour lequel l'isolemen
 # conf/documentation.conf (captive_portal.detection_mecanism_urls)
 msgid ""
 "Comma-delimited list of URLs known to be used by devices to detect the "
-"presence of a captive portal and trigger their captive portal mechanism."
+"presence of a captive portal and trigger their captive portal mecanism."
 msgstr "Liste, délimitée par des virgules, des URLs connues à utiliser par les appareils pour détecter la présence d'un portail captif et lancer leur mécanisme de portail captif."
 
 # conf/documentation.conf (trapping.passthroughs)
@@ -1855,7 +1855,7 @@ msgid ""
 ">high-availability</i> is for an interface between two PacketFence servers "
 "dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> "
 "interface have the captive-portal running on them without the need of having"
-" any enforcement mechanism.</li></ul>"
+" any enforcement mecanism.</li></ul>"
 msgstr "Décrit le type de l'interface nommée. <ul> <li>Interne<i> </i> décrit les interfaces où PacketFence donnera l'accès au réseau. </lii> <li> <i> gestion </i> les interfaces internes ont l'écoute de l'administration web, hôte pour les traps SNMP et le serveur RADIUS. </li> <li> <i> Moniteur </i> est l'interface de snort qui écoute. </li> <li> <i> dhcp -listener </i> est une interface où le trafic DHCP vient soit via un réseau configuration SPAN ou IP-Helpers. </li> <li> <i>haute disponibilité</i> est une interface entre deux serveurs PacketFence dédiés à la haute disponibilité (drbd, corosync). </li><li><i>portail</i> cette interface a le portail captif en écoute sans la nécessité d'avoir un mécanisme d'enregistrement</li> </ ul>"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
@@ -1944,7 +1944,7 @@ msgstr "Classe d'appareil"
 msgid "Devices"
 msgstr "Appareils"
 
-# conf/documentation.conf (advanced.hash_passwords)
+# conf/documentation.conf (advanced.disable_pf_domain_auth)
 msgid "Disable Active-Directory domain configuration from within PacketFence"
 msgstr "Désactive la configuration de domaine Active Directory dans PacketFence"
 
@@ -2508,6 +2508,10 @@ msgstr "Nom d'hôte ou IP"
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Hostname or IP Address"
 msgstr "Nom d'hôte ou Adresse IP"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.host)
+msgid "Hostname or IP address of the Redis server"
+msgstr "Nom d'hôte ou Adresse IP du serveur Redis"
 
 # html/pfappserver/root/config/wrix/view.tt
 msgid "Hours"
@@ -3788,11 +3792,11 @@ msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
 msgid "OMAPI"
 msgstr "OMAPI"
 
-# conf/documentation.conf (metadefender.api_key)
+# conf/documentation.conf (metascan.api_key)
 msgid "OPSWAT Metadefender Cloud Scanner API key"
 msgstr "Clé d'API de d'OPSWAT Metadefender Cloud Scanner"
 
-# conf/documentation.conf (metadefender.query_url_hash)
+# conf/documentation.conf (metascan.query_url_hash)
 msgid "OPSWAT Metadefender Cloud Scanner URL for hash queries"
 msgstr "URL pour les requêtes de hash de OPSWAT Metadefender Cloud Scanner"
 
@@ -4319,8 +4323,8 @@ msgid "Please specify a group name"
 msgstr "Veuillez s'il vous plaît spécifier un nom de groupe"
 
 # html/pfappserver/lib/pfappserver/Form/Role.pm
-msgid "Please specify a name for the category."
-msgstr "Veuillez spécifier un nom pour la catégorie."
+msgid "Please specify a name for the role."
+msgstr "Veuillez spécifier le nom du rôle."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
@@ -4501,6 +4505,10 @@ msgstr "Veuillez indiquer le \"Workgroup\""
 # html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Port"
 msgstr "Port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.port)
+msgid "Port of the Redis server"
+msgstr "Port du serveur Redis"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -5549,6 +5557,12 @@ msgstr "Réglez le mode inline si l'une des conditions suivantes sont remplies:"
 msgid "Set role"
 msgstr "Assigner un rôle"
 
+# conf/documentation.conf (advanced.pfdhcplistener_packet_size)
+msgid ""
+"Set the max size of DHCP packetsDo not change unless you know what you are "
+"doing"
+msgstr "Défini la taille maximal du packet DHCP.  Ne pas changer sauf si vous savez ce que vous faites"
+
 # conf/documentation.conf (active_active.dns_on_vip_only)
 msgid ""
 "Set the name server option in DHCP replies to point only to the VIP in "
@@ -5591,6 +5605,12 @@ msgstr "Est-ce que DHCPd doit être géré par PacketFence?"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy)
 msgid "Should Fingerbank interact with WWW using a proxy ?"
 msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis)
+msgid ""
+"Should Redis be used to match combinations ? Requires to have the Attribute "
+"map imported into the Redis instance"
+msgstr "Est-ce que Redis devrait être utilisé pour la correspondance des combinaisons? Nécessite d'avoir la corespondance des attributs importée dans l'instance Redis "
 
 # conf/documentation.conf (services.carbon-cache)
 msgid "Should carbon-cache be managed by PacketFence?"
@@ -6212,6 +6232,10 @@ msgstr "La clé privé permettant permettant de signer les certificats au format
 msgid "The Root Portal Module to use"
 msgstr "Le module racine du portail à utiliser"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
+msgid "The URL to download the attribute map."
+msgstr "L'URL où télécharger les correspondances d'attributs"
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 # (tcp_fingerprinting.p0f_map_url)
 msgid "The URL to download the p0f map from"
@@ -6224,6 +6248,12 @@ msgstr "La clé WiFi pour se connecter au SSID"
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The access duration of the devices that use this tier."
 msgstr "Durée d'accès du noeud utilisant ce plan"
+
+# conf/documentation.conf (advanced.hash_passwords)
+msgid ""
+"The algorithm used to hash the passwords in the database.This will only "
+"affect newly created or reset passwords."
+msgstr "L'algorithme utilisé pour hacher les mots de passe dans la base de données. Cela affectera uniquement les nouveaux mots de passe ou ceux mis à jour."
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_blocking_period)
 msgid ""
@@ -6281,6 +6311,12 @@ msgstr "La chaîne de certificat du certificat signant au format PEM"
 msgid "The certificate for signing profiles"
 msgstr "Le certificat pour signer les profiles"
 
+# conf/documentation.conf (advanced.hashing_cost)
+msgid ""
+"The cost factor to apply to the password hashing if applicable.Currently "
+"only applies to bcrypt."
+msgstr "Le facteur coût à appliquer au hachage de mot de passe le cas échéant. Actuellement cela s'applique uniquement aux bcrypt."
+
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 msgid "The description that will be displayed to users"
 msgstr "La description qui sera affiché aux usagers."
@@ -6328,12 +6364,6 @@ msgid ""
 "The hostname of the the database storing the Graphite dashboard settings. "
 "Will default to database.host if none is provided."
 msgstr "Le nom d'hôte de la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.host sera utilisé."
-
-# conf/documentation.conf (monitoring.db_pass)
-msgid ""
-"The password to access the database storing the Graphite dashboard settings."
-" Will default to database.pass if none is provided."
-msgstr "Le mot de passe pour accéder à la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.pass sera utilisé."
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
 msgid "The interval in seconds for the page count threshold."
@@ -6391,6 +6421,12 @@ msgstr "Le nœud sera automatiquement enregistré. Si la MAC correspond à un n�
 msgid "The parser to use for the alert pipe"
 msgstr "Le parseur à utiliser pour le canal d'alerte"
 
+# conf/documentation.conf (monitoring.db_pass)
+msgid ""
+"The password to access the database storing the Graphite dashboard settings."
+" Will default to database.pass if none is provided."
+msgstr "Le mot de passe pour accéder à la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.pass sera utilisé."
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The path to the Paypal certificate you downloaded."
 msgstr "Emplacement du certificat Paypal que vous avez téléchargé"
@@ -6434,12 +6470,6 @@ msgid ""
 "The port to connect to the database storing the Graphite dashboard settings."
 " Will default to database.port if none is provided."
 msgstr "Le port de la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.port sera utilisé."
-
-# conf/documentation.conf (monitoring.db_user)
-msgid ""
-"The username to access the database storing the Graphite dashboard settings."
-" Will default to database.user if none is provided."
-msgstr "Le nom de l'utilisateur pour accéder à la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.user sera utilisé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The price that will be charged to the customer"
@@ -6521,6 +6551,12 @@ msgstr "L'identifiant unique du fournisseur de certificats"
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "The url used to connect to the SCEP PKI service"
 msgstr "L'URL utilisée pour se connecter au service de certificats SCEP"
+
+# conf/documentation.conf (monitoring.db_user)
+msgid ""
+"The username to access the database storing the Graphite dashboard settings."
+" Will default to database.user if none is provided."
+msgstr "Le nom de l'utilisateur pour accéder à la base de données stockant les paramètres de Graphite. Si la valeur n'est pas spécifiée, le paramètre database.user sera utilisé."
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 msgid "The username to use for login to the captive portal."
@@ -7530,8 +7566,16 @@ msgid "advanced"
 msgstr "Avancé"
 
 # conf/documentation.conf
+msgid "advanced.disable_pf_domain_auth"
+msgstr "Désactiver l'authentification de PF sur le doamine"
+
+# conf/documentation.conf
 msgid "advanced.hash_passwords"
 msgstr " Méthode de hachage pour les mots de passe en base de données"
+
+# conf/documentation.conf
+msgid "advanced.hashing_cost"
+msgstr "Coût du hachage."
 
 # conf/documentation.conf
 msgid "advanced.ldap_attributes"
@@ -7539,7 +7583,7 @@ msgstr "Attributs LDAP"
 
 # conf/documentation.conf
 msgid "advanced.locationlog_close_on_accounting_stop"
-msgstr "Fermer le locationlog sur un \"accounting stop\""
+msgstr "Fermer le locationlog lors d'un arrêt de la comptabilisation "
 
 # conf/documentation.conf
 msgid "advanced.pfcmd_error_color"
@@ -7552,6 +7596,10 @@ msgstr "Couleur en cas de succès"
 # conf/documentation.conf
 msgid "advanced.pfcmd_warning_color"
 msgstr "Couleur en cas d'avertissement"
+
+# conf/documentation.conf
+msgid "advanced.pfdhcplistener_packet_size"
+msgstr "Taille du packet pour pfdhcplistener"
 
 # conf/documentation.conf
 msgid "advanced.pfdns_processes"
@@ -7567,7 +7615,7 @@ msgstr "Réévaluation d'accès"
 
 # conf/documentation.conf
 msgid "advanced.sso_on_access_reevaluation"
-msgstr "Single Sign On sur un réévaluation d'acces"
+msgstr "Utiliser le SSO lors de la réévaluation d'accès "
 
 # conf/documentation.conf
 msgid "advanced.timing_stats_level"
@@ -7662,6 +7710,10 @@ msgstr "Auto enregistrement"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Enregistrer le nœud"
+
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "bcrypt"
+msgstr "bcrypt"
 
 # html/pfappserver/root/admin/users.tt
 msgid "birthday"
@@ -7932,6 +7984,7 @@ msgstr "dhcplistener"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched
 # options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting
 # options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate
@@ -7939,7 +7992,7 @@ msgstr "dhcplistener"
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
@@ -8046,6 +8099,7 @@ msgstr "Action utilisateur "
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched
 # options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting
 # options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate
@@ -8053,7 +8107,7 @@ msgstr "Action utilisateur "
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
-# conf/documentation.conf (advanced.hash_passwords options)
+# conf/documentation.conf (advanced.disable_pf_domain_auth options)
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.record_accounting_in_sql options)
@@ -8596,18 +8650,18 @@ msgstr "memberOf"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "memberOf:1.2.840.113556.1.4.1941:"
-msgstr "groupe imbriqué (dn)"
+msgstr "Groupe imbriqué"
 
 # conf/documentation.conf
-msgid "metadefender"
+msgid "metascan"
 msgstr "OPSWAT Metadefender Cloud Scanner"
 
 # conf/documentation.conf
-msgid "metadefender.api_key"
+msgid "metascan.api_key"
 msgstr "Clé de l'API"
 
 # conf/documentation.conf
-msgid "metadefender.query_url_hash"
+msgid "metascan.query_url_hash"
 msgstr "Hash de l'url pour la requête "
 
 # pf::config (SoH Status)
@@ -8864,6 +8918,10 @@ msgstr "pfcmd_vlan"
 msgid "phonenumber"
 msgstr "Numéro de téléphone"
 
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "plaintext"
+msgstr "Visible en clair"
+
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -8966,10 +9024,6 @@ msgstr "URI"
 msgid "profile.filter.vlan"
 msgstr "VLAN"
 
-# profile.filter (Portal Profile Filters)
-msgid "profile.filter.switch_group"
-msgstr "Groupe du Switch"
-
 # conf/documentation.conf
 msgid "provisioning"
 msgstr "Approvisionner"
@@ -9023,6 +9077,10 @@ msgid "query.record_unmatched"
 msgstr "Enregistrer les paramètres sans correspondance"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "query.use_redis"
+msgstr "Utiliser Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
 msgstr "Utiliser le TCP fingerprinting"
 
@@ -9055,6 +9113,22 @@ msgstr "Rouge"
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "redir.cgi"
 msgstr "redir.cgi"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis"
+msgstr "Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.attribute_map_url"
+msgstr "URL de correspondance des attributs"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.host"
+msgstr "Hôte Redis"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "redis.port"
+msgstr "Port Redis"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"

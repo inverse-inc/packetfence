@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-01-13 18:57+0000\n"
+"PO-Revision-Date: 2016-06-01 19:38+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Polish (Poland) (http://www.transifex.com/inverse/packetfence/language/pl_PL/)\n"
 "MIME-Version: 1.0\n"
@@ -148,7 +148,8 @@ msgstr "Kliknij aby zainstalować Twój wygenerowany profil bezprzewodowy."
 msgid "Confirm"
 msgstr "Potwierdź"
 
-# html/captive-portal/templates/guest/sms_confirmation.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
 msgid "Confirm Mobile Phone Number"
 msgstr "Potwierdź numer telefonu komórkowego"
 
@@ -179,7 +180,8 @@ msgstr "Numer weryfikacyjny karty kredytowej"
 msgid "Device MAC address"
 msgstr ""
 
-# html/captive-portal/templates/device-landing.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Device Registration Landing"
 msgstr ""
 
@@ -230,7 +232,8 @@ msgstr ""
 msgid "Guest Registration"
 msgstr "Rejestracja Gościa"
 
-# html/captive-portal/templates/guest/sponsor_login.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Guest Sponsor Login"
 msgstr "Login sponsora gości"
 
@@ -336,6 +339,8 @@ msgstr ""
 # html/captive-portal/templates/guest/sponsor_login.html
 # html/captive-portal/templates/login.html
 # html/captive-portal/templates/status.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Login"
 msgstr "Login"
 
@@ -466,7 +471,8 @@ msgstr "System Rejestracji PacketFence"
 msgid "Password"
 msgstr "Hasło"
 
-# html/captive-portal/templates/login.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
 msgstr ""
 
@@ -584,8 +590,8 @@ msgstr "Zarejestruj się SMSem"
 msgid "Register through a Sponsor"
 msgstr "Zarejestruj przez sponsora"
 
-# html/captive-portal/templates/device-registration.html
-# html/captive-portal/templates/gaming-registration.html
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
 msgid "Registration"
 msgstr ""
 
@@ -629,7 +635,7 @@ msgstr "Przepraszam!"
 msgid "Sponsor's email"
 msgstr "Mejl sponsora"
 
-# html/captive-portal/templates/status.html
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "State - Network Access"
 msgstr ""
 
@@ -644,8 +650,8 @@ msgstr ""
 
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
-"To complete your network activation you need to install the OPSWAT Metadefender Endpoint API"
-"client."
+"To complete your network activation you need to install the OPSWAT "
+"Metadefender Endpoint client."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
@@ -855,11 +861,17 @@ msgstr "Ponieważ możemy potrzebować kontaktu z użytkownikami w sprawie indyw
 msgid "register: to complete"
 msgstr "Aby zakończyć proces rejestracji, trzeba się uwierzytelnić używając swojej nazwy użytkownika i hasła."
 
+msgid "register: not allowed to register"
+msgstr ""
+
+msgid "register: should be allowed"
+msgstr ""
+
 # html/captive-portal/templates/enabler.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/windows.html
-# html/captive-portal/templates/release.html
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
 msgstr "Włączanie dostepu do sieci"
 
@@ -867,8 +879,7 @@ msgstr "Włączanie dostepu do sieci"
 msgid "release: reopen browser"
 msgstr "Aby uzyskać dostęp do Internetu, może być niezbędne ponowne uruchomienie przeglądarki. Jeśli jesteś właczony do telefonu, będziesz musiał przeładować komputer, aby uzyskać dostęp do Internetu."
 
-# html/captive-portal/templates/scan-in-progress.html
-# html/captive-portal/templates/scan.html
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 msgid "scan: scan in progress"
 msgstr "Twój system jest skanowany"
 
@@ -876,6 +887,148 @@ msgstr "Twój system jest skanowany"
 msgid "system scan in progress"
 msgstr "Twój system jest skanowany - ten proces zajmie około %s sekund."
 
-# html/captive-portal/templates/remediation.html
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 msgid "violation: quarantine established"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Access granted"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
+msgid "Sponsor request accepted"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
+msgid "scan in progress contact support if too long"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
+msgid "An error occured"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "%s authentication"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "Authentication"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Tier confirmation"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
+msgid "%s OAuth authentication"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
+msgid "You must accept the terms and conditions"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
+msgid "OAuth2 Error: Failed to get the token"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/OAuth.pm
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SAML.pm
+msgid "SAML authentication"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
+msgid "Provisioning : %s"
+msgstr ""
+
+# html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
+msgid "Could not execute actions"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication.pm
+msgid "You do not have permission to register a device with this username"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Order was canceled"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Unable to process payment"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Your session has expired cannot access billing try again"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "An error occured while preparing the request to the external provider"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Invalid billing source for profile"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "No Tier selected"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
+msgid "Selected Tier is invalid"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Login.pm
+msgid "No authentication source found for this username"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
+msgid "No PIN provided"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
+msgid "Role %s has been assigned to your device with unregistration date : %s"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
+msgid "No Password given"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/TLSEnrollment.pm
+msgid "No e-mail given"
+msgstr ""
+
+# html/captive-
+# portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
+msgid ""
+"According to the provisioner %s, your device is not allowed to access the "
+"network. Please follow the instruction below."
 msgstr ""
