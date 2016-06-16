@@ -193,7 +193,11 @@ Step 3: PacketFence configuration for CoovaChilli integration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Having a working PacketFence installation and a configured OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
 
-To do so, login to the PacketFence web administration interface if it is not already done. Click on the 'Configuration' tab and select the 'Switches' menu option under the 'NETWORK' section on the left hand side.
+To do so, login to the PacketFence web administration interface if it is not already done.
+
+Switch configuration
+++++++++++++++++++++
+Click on the 'Configuration' tab and select the 'Switches' menu option under the 'NETWORK' section on the left hand side.
 
 On the bottom of the page, click the 'Add switch to group' button then select the 'default' to bring up the 'New Switch' configuration modal window.
 
@@ -209,3 +213,7 @@ On the bottom of the page, click the 'Add switch to group' button then select th
 * *Secret Passphrase*: The RADIUS secret configured in the previous step
 
 Click 'Save'
+
+Portal configuration
+++++++++++++++++++++
+It is required to disable HTTPS redirection by clicking the 'Configuration' tab and then the 'Captive portal' menu option on the left hand side. Make sure 'Secure redirect' is unchecked.
