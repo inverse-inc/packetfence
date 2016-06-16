@@ -241,9 +241,8 @@ sub doSponsorRegistration : Private {
     } else {
         $logger->warn( "No active sponsor source for profile "
               . $profile->getName
-              . ", redirecting to "
-              . $c->portalSession->destinationUrl );
-        $c->response->redirect( $c->portalSession->destinationUrl );
+        );
+        $self->showError("No active sponsor source for this Portal Profile.");
     }
 }
 
