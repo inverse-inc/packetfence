@@ -524,7 +524,7 @@ listen {
 	port = 67
 	interface = $interface
 	broadcast = yes
-        virtual_server = dhcp\.$interface
+	virtual_server = dhcp\.$interface
 }
 
 EOT
@@ -537,10 +537,10 @@ dhcp DHCP-Discover {
 	update {
 		&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
 		&request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
-        }
+	}
 	if ( ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
 		update reply {
-		       DHCP-Message-Type = DHCP-Offer
+			DHCP-Message-Type = DHCP-Offer
 		}
 
 EOT
@@ -566,7 +566,7 @@ EOT
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-	        if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+		if ( (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
@@ -597,23 +597,26 @@ EOT
 
  $tags{'config'} .= <<"EOT";
 	dhcp_sqlippool
-        rest-dhcp
+	rest-dhcp
 	ok
 	}
 	else {
-		noop
+		update reply {
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
+		}
+		reject
 	}
 }
 
 dhcp DHCP-Request {
-        convert_to_int
-        update {
-                &request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
-                &request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
-        }
-        if ( ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
+	convert_to_int
+	update {
+		&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+		&request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
+	}
+	if ( ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
 		update reply {
-		       &DHCP-Message-Type = DHCP-Ack
+			&DHCP-Message-Type = DHCP-Ack
 		}
 
 EOT
@@ -636,11 +639,11 @@ EOT
                  if (defined($net{'next_hop'})) {
                      $tags{'config'} .= <<"EOT";
 
-        if (  ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+	if (  ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
                  } else {
                      $tags{'config'} .= <<"EOT";
-        if (  (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
+	if (  (&request:DHCP-Gateway-IP-Address == 0.0.0.0)  || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 
 EOT
                  }
@@ -654,13 +657,13 @@ EOT
 			&reply:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
 			&reply:DHCP-Domain-Name = $net{'domain-name'}
 			&control:Pool-Name := "$network"
-                        &request:DHCP-Domain-Name-Server = $net{'dns'}
-                        &request:DHCP-Subnet-Mask = $net{'netmask'}
-                        &request:DHCP-Router-Address = $net{'gateway'}
-                        &request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
-                        &request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
-                        &request:DHCP-Domain-Name = $net{'domain-name'}
-                        &request:DHCP-Site-specific-0 = $enforcement
+			&request:DHCP-Domain-Name-Server = $net{'dns'}
+			&request:DHCP-Subnet-Mask = $net{'netmask'}
+			&request:DHCP-Router-Address = $net{'gateway'}
+			&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
+			&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
+			&request:DHCP-Domain-Name = $net{'domain-name'}
+			&request:DHCP-Site-specific-0 = $enforcement
 		}
 	}
 
@@ -673,23 +676,26 @@ EOT
 	dhcp_sqlippool
 	rest-dhcp
 	ok
-        }
-        else {
-                noop
-        }
+	}
+	else {
+		update reply {
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
+		}
+		reject
+	}
 }
 
 
 dhcp DHCP-Decline {
 	update reply {
-	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
 	}
 	reject
 }
 
 dhcp DHCP-Inform {
 	update reply {
-	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
 	}
 	reject
 }
@@ -709,7 +715,7 @@ dhcp DHCP-Inform {
 
 dhcp DHCP-Release {
 	update reply {
-	       &DHCP-Message-Type = DHCP-Do-Not-Respond
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
 	}
 	reject
 }
@@ -717,11 +723,11 @@ dhcp DHCP-Release {
 
 dhcp DHCP-Lease-Query {
 
-        if (&DHCP-Client-Hardware-Address) {
-                update reply {
-                    &DHCP-Message-Type = DHCP-Lease-Active
-                    &DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
-                }
+	if (&DHCP-Client-Hardware-Address) {
+		update reply {
+			&DHCP-Message-Type = DHCP-Lease-Active
+			&DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
+		}
 	}
 
 	# has IP, asking for MAC, etc.
@@ -737,7 +743,6 @@ dhcp DHCP-Lease-Query {
 		update reply {
 			&DHCP-Message-Type = DHCP-Lease-Unknown
 		}
-
 		ok
 
 		# stop processing
