@@ -64,6 +64,18 @@ sub parseUrl {
 }
 
 
+=item parseSwitchIdFromRequest
+
+Parse the switch identifier from the HTTP request
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my( $self, $req ) = @_;
+    return $$req->connection->remote_ip;
+}
+
+
 =item getAcceptForm
 
 Generates the HTML form embedded to web release captive-portal process to trigger a reauthentication.
