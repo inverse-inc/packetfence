@@ -2762,7 +2762,7 @@ At this point, Suricata should be able to extract MD5 checksum of downloaded fil
 
 A configuration of a new 'syslog parser' as well as some violations are the only remaining steps to make full usage of the OPSWAT Metadefender Cloud integration.
 
-Configuration of a new 'syslog parser' should use the followings:
+Configuration of a new 'syslog parser' (Configuration->Syslog Parsers) should use the followings:
 
   Type: suricata_http
   Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
