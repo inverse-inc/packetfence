@@ -43,9 +43,6 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
   </IfModule>
-  <IfModule !mod_headers.c>
-    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
-  </IfModule>
   <IfModule !mod_xml2enc.c>
     LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
   </IfModule>
@@ -57,6 +54,9 @@
   </IfModule>
   <IfModule !mod_rewrite.c>
       LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
 </IfDefine>
 
@@ -117,6 +117,9 @@
   </IfModule>
   <IfModule !mod_rewrite.c>
       LoadModule rewrite_module modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+      LoadModule headers_module modules/mod_headers.so
   </IfModule>
 
 </IfDefine>
@@ -222,6 +225,8 @@ ProxyHTMLLinks  script      src for
           RewriteEngine on
           RewriteCond %{QUERY_STRING} .*PORTAL=(.*)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
+          RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
+          RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
           RequestHeader append X-Forwarded-For-PacketFence "[% vhost %]"
 
@@ -237,6 +242,7 @@ ProxyHTMLLinks  script      src for
           ProxyHTMLURLMap ^([^\?]*)$ $1?PORTAL=${X_PORTAL} RVl
           ProxyHTMLURLMap / /portal_preview/
 
+          Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e" env=X_PORTAL
       </Location>
       Alias /static [% install_dir %]/html/pfappserver/root/static
       <Location / >
