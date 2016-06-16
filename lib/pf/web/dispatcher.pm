@@ -196,9 +196,8 @@ sub html_redirect {
     $wispr_url->query($r->args);
 
     # External captive-portal / Webauth handling
-    # - We want to use a different URL (the hostname to which the network equipment send the request, which is PacketFence but maybe not the configured hostname in pf.conf)
-    # - We also need to keep track of the CGI session by setting a cookie
-    # - We enforce HTTP rather than HTTPS
+    # In the case of an external captive-portal, we want to use a different URL (the hostname to which the network equipment send the request, which is PacketFence but maybe not the configured hostname in pf.conf)
+    # We also need to keep track of the CGI session by setting a cookie
     my $inline = pf::inline->new();
     if (!($inline->isInlineIP($ip))) {
         my $external_portal = pf::web::externalportal->new;
@@ -209,9 +208,9 @@ sub html_redirect {
             $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
 
             # Re-Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
-            $portal_url = APR::URI->parse($r->pool,"http://".$r->hostname."/captive-portal");
+            $portal_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
             $portal_url->query("destination_url=$destination_url&".$r->args);
-            $wispr_url = APR::URI->parse($r->pool,"http://".$r->hostname."/wispr");
+            $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
             $wispr_url->query($r->args);
         }
     }
