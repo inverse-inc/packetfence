@@ -34,6 +34,7 @@ our %ALLOWED_TYPES = (
     'realm' => 1,
     'ssid' => 1,
     'switch' => 1,
+    'switch_group' => 1,
     'switch_mac' => 1,
     'switch_port' => 1,
     'uri' => 1,
