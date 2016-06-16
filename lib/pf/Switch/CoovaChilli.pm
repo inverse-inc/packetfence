@@ -21,6 +21,9 @@ use warnings;
 
 use base ('pf::Switch');
 
+use pf::config qw(
+    $WIRELESS_MAC_AUTH
+);
 use pf::constants;
 use pf::node;
 use pf::util;
@@ -60,6 +63,9 @@ Parsed attributes:
 
 sub parseUrl {
     my ( $self, $req ) = @_;
+
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')), 0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid'));
+
     return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
 }
 
