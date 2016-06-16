@@ -163,6 +163,7 @@
                 <thead>
                   <tr>
                     <th>[% l('Switch/AP') %]</th>
+                    <th>[% l('Switch Mac') %]</th>
                     <th>[% l('Connection Type') %]</th>
                     <th>[% l('Connection Sub Type') %]</th>
                     <th>[% l('Username') %]</th>
@@ -187,6 +188,7 @@
                       [% END %]
                       [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
                     </td>
+                    <td>[% l(item.switch_mac) %]</td>
                     <td>[% l(item.connection_type) %]</td>
                     <td>
                     [% IF item.connection_sub_type.defined %]
