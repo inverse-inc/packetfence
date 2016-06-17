@@ -188,7 +188,7 @@ sub parse_mc {
         open(PM, $module);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["']\)/) {
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
