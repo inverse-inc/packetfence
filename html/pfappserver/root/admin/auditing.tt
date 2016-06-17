@@ -19,6 +19,7 @@
         'js/user',
         'admin/nodes',
         'admin/radiuslog',
+        'admin/radiusauditlog'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',
