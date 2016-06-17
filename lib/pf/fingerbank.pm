@@ -26,6 +26,7 @@ use fingerbank::Util;
 use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
+use pf::error qw(is_success);
 
 use pf::client;
 use pf::error qw(is_error);
@@ -287,6 +288,20 @@ sub _update_fingerbank_component {
 
 sub cache {
     return pf::CHI->new( namespace => 'fingerbank' );
+}
+
+sub device_name_to_device_id {
+    my ($device_name) = @_;
+    my $id = cache()->compute_with_undef("device_name_to_device_id-$device_name", sub {
+        my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $device_name}]);
+        if(is_success($status)) {
+            return $fbdevice->id;
+        }
+        else {
+            return undef;
+        }
+    });
+    return $id;
 }
 
 =head1 AUTHOR

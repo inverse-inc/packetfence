@@ -1339,11 +1339,10 @@ sub fingerbank_info {
 
     my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy-'.$node_info->{device_type}, sub {
         my $info = {};
-        # todo, cache the id fetching
-        my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+        my $device_id = pf::fingerbank::device_name_to_device_id($node_info->{device_type});
 
-        if(is_success($status)) {
-            my $device = fingerbank::Model::Device->read($fbdevice->id, $TRUE);
+        if(defined($device_id)) {
+            my $device = fingerbank::Model::Device->read($device_id, $TRUE);
             $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
             $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
             $info->{mobile} = $device->{mobile};
