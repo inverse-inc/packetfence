@@ -749,6 +749,85 @@ dhcp DHCP-Lease-Query {
 EOT
         }
 
+# Listener interface to replace pfdhcplistener for ipv4
+
+    foreach my $interface ( @dhcplistener_ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+            $tags{'listen'} .= <<"EOT";
+
+listen {
+	type = dhcp
+	ipaddr = 0.0.0.0
+	src_ipaddr = $cfg->{'ip'}
+	port = 67
+	interface = $interface
+	broadcast = yes
+	virtual_server = dhcp\.$interface
+}
+
+EOT
+
+        $tags{'config'} .= <<"EOT";
+
+server dhcp\.$interface {
+dhcp DHCP-Discover {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Request {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+}
+
+
+dhcp DHCP-Decline {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Inform {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Release {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	reject
+}
+
+dhcp DHCP-Ack {
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+	reject
+}
+
+dhcp DHCP-Lease-Query {
+
+	update reply {
+		&DHCP-Message-Type = DHCP-Do-Not-Respond
+	}
+	rest-dhcp
+	reject
+}
+
+}
+EOT
+}
+
 
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-dhcp", "$install_dir/raddb/sites-enabled/packetfence-dhcp" );
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/dhcpd.conf" );
