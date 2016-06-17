@@ -42,8 +42,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(category) );
-    $data->{oses} = [ split /\n/, $data->{oses} || '' ]
+    $self->expand_list( $data, qw(category oses) );
 }
 
 

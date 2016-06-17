@@ -18,6 +18,7 @@ use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
 use pf::log;
 use pf::constants;
+use fingerbank::Constant;
 
 use Moo;
 extends 'pf::provisioner';
@@ -39,7 +40,7 @@ The set the default OS to IOS
 =cut
 
 # Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
-has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] });
+has 'oses' => (is => 'ro', default => sub { [$fingerbank::Constant::PARENT_IDS{IOS}, $fingerbank::Constant::PARENT_IDS{MACOS}] }, coerce => sub { [$fingerbank::Constant::PARENT_IDS{IOS}, $fingerbank::Constant::PARENT_IDS{MACOS}] });
 
 =head2 broadcast
 

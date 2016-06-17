@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::provisioner::mobileconfig';
+use fingerbank::Constant;
 
 =head1 Atrributes
 
@@ -25,7 +26,7 @@ The set the default OS Andriod
 =cut
 
 # Will always ignore the oses parameter provided and use [Generic Android]
-has 'oses' => (is => 'ro', default => sub { ['Generic Android'] }, coerce => sub { ['Generic Android'] });
+has 'oses' => (is => 'ro', default => sub { [$fingerbank::Constant::PARENT_IDS{ANDROID}] }, coerce => sub { [$fingerbank::Constant::PARENT_IDS{ANDROID}] });
 
 =head1 AUTHOR
 
