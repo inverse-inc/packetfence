@@ -1368,6 +1368,19 @@ sub services_status : Public {
     return $statuses;
 }
 
+=head2 chi_cache_clear
+
+Clear a namespace in the CHI cache
+
+=cut
+
+sub chi_cache_clear : Public {
+    my ($class, $namespace) = @_;
+    my $cache = pf::CHI->new( namespace => $namespace );
+    pf::log::get_logger->info("Clearing CHI cache for namespace $namespace");
+    return $cache->clear();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
