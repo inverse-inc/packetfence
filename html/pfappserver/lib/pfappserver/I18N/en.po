@@ -150,6 +150,14 @@ msgstr ""
 msgid "API username (basic auth)"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "AUDITING"
+msgstr "Auditing"
+
+# pf::admin_roles (Actions)
+msgid "AUDITING_READ"
+msgstr "Auditing - Read"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Accept self-registration with email address from the local domain"
@@ -187,6 +195,7 @@ msgstr ""
 msgid "Accounting sessions created by pfbandwidthd that haven't been updated for more than this amount of seconds will be considered inactive. This should be higher than the interval at which pfmon runs Defaults to 300 - 5 minutes"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/admin/bulk_actions.inc
 # html/pfappserver/root/soh/index.tt
@@ -322,18 +331,14 @@ msgid "Add a billing tier."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "Add a condition."
 msgstr ""
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a language."
-msgstr ""
-
-# html/pfappserver/root/config/portal_module/view.tt
-msgid "Add a module."
 msgstr ""
 
 # html/pfappserver/root/config/profile/tab-content.tt
@@ -362,6 +367,10 @@ msgstr ""
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Add floating device"
+msgstr ""
+
+# html/pfappserver/root/config/portal_module/view.tt
+msgid "Add one."
 msgstr ""
 
 # html/pfappserver/root/config/profile/index.tt
@@ -533,6 +542,10 @@ msgstr ""
 msgid "Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
+msgid "Another challenge."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
@@ -591,6 +604,10 @@ msgstr ""
 msgid "Are you sure want to save your changes?"
 msgstr ""
 
+# conf/documentation.conf (maintenance.auth_log_cleanup_interval)
+msgid "At which interval to run the auth_log cleanup job"
+msgstr ""
+
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
 msgid "At which interval to run the iplog archive cleanup job"
 msgstr ""
@@ -613,6 +630,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SAML.pm
 msgid "Attribute of the username in the SAML response"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Auditing"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -665,6 +686,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Auto Enable"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "Automatically register devices"
 msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
@@ -878,6 +903,10 @@ msgstr ""
 msgid "Centralize the deauthentication to the management node of the cluster."
 msgstr ""
 
+# html/pfappserver/root/admin/challenge.tt
+msgid "Challenge"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 msgid "Change the default key if you have it"
 msgstr ""
@@ -988,6 +1017,7 @@ msgid "Clone"
 msgstr ""
 
 # html/pfappserver/root/admin/saved_search.inc
+# html/pfappserver/root/auditing/radiuslog/view.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/adminroles/view.tt
 # html/pfappserver/root/config/billingtiers/view.tt
@@ -1015,7 +1045,6 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/radiuslog/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1034,6 +1063,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Closed Violations"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "Cluster state"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -1467,6 +1500,7 @@ msgid "DOMAIN_UPDATE"
 msgstr "RADIUS Domains - Update"
 
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Daemon"
 msgstr ""
@@ -1831,8 +1865,8 @@ msgstr ""
 msgid "Dismiss Changes for "
 msgstr ""
 
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/per_page_select.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "Display [_1] entries per page"
 msgstr ""
 
@@ -2365,6 +2399,10 @@ msgstr ""
 msgid "How long a radius audit log cleanup job can take before being killed"
 msgstr ""
 
+# conf/documentation.conf (maintenance.auth_log_cleanup_timeout)
+msgid "How long an auth_log cleanup job can take before being killed"
+msgstr ""
+
 # conf/documentation.conf (maintenance.violation_maintenance_timeout)
 msgid "How long is the violation maintenance task is allowed to run"
 msgstr ""
@@ -2393,8 +2431,16 @@ msgstr ""
 msgid "How long to keep a traplog entry before deleting it"
 msgstr ""
 
+# conf/documentation.conf (maintenance.auth_log_cleanup_window)
+msgid "How long to keep an auth_log entry before deleting it"
+msgstr ""
+
 # conf/documentation.conf (maintenance.iplog_rotation_window)
 msgid "How long to keep iplog history entry before rotating it to iplog archive"
+msgstr ""
+
+# conf/documentation.conf (maintenance.auth_log_cleanup_batch)
+msgid "How many auth_log entries to clean up in one job"
 msgstr ""
 
 # conf/documentation.conf (maintenance.iplog_cleanup_batch)
@@ -2670,6 +2716,10 @@ msgstr ""
 msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
+msgid "Invalid challenge."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Is a device"
 msgstr ""
@@ -2708,23 +2758,23 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 1 hour"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 12 hours"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 24 hours"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 30 minutes"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Last 6 hours"
 msgstr ""
 
@@ -2745,6 +2795,11 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 msgid "Leave it empty if you want to generate a random password."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Leave it empty to allow unlimited logins."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -2918,6 +2973,7 @@ msgstr ""
 msgid "Log out"
 msgstr ""
 
+# html/pfappserver/root/admin/challenge.tt
 # html/pfappserver/root/admin/login.tt
 msgid "Logging in .."
 msgstr ""
@@ -2926,12 +2982,19 @@ msgstr ""
 msgid "Logical name"
 msgstr ""
 
+# html/pfappserver/root/admin/challenge.tt
 # html/pfappserver/root/admin/login.tt
 msgid "Login"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Login Attempt Limit"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Login remaining"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -3017,7 +3080,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
-# html/pfappserver/root/radiuslog/index.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -3083,10 +3146,6 @@ msgstr ""
 msgid "Modify the password"
 msgstr ""
 
-# html/pfappserver/root/config/portal_module/view.tt
-msgid "Modules"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Monitoring"
 msgstr ""
@@ -3122,6 +3181,10 @@ msgstr "Nodes - Read"
 # pf::admin_roles (Actions)
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "NTLM hashing"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
@@ -3324,6 +3387,10 @@ msgstr ""
 msgid "New portal module"
 msgstr ""
 
+# html/pfappserver/root/config/portal_module/view.tt
+msgid "No ' _ field _ ' selected"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
 msgid "No Device defined"
 msgstr ""
@@ -3362,10 +3429,6 @@ msgstr ""
 
 # html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "No matching mac addresses"
-msgstr ""
-
-# html/pfappserver/root/config/portal_module/view.tt
-msgid "No modules selected"
 msgstr ""
 
 # html/pfappserver/root/node/search.tt
@@ -3415,7 +3478,7 @@ msgstr ""
 msgid "Node IP"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/view.tt
+# html/pfappserver/root/auditing/radiuslog/view.tt
 msgid "Node Information"
 msgstr ""
 
@@ -3518,6 +3581,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/view.tt
 msgid "OS"
 msgstr ""
@@ -4390,14 +4454,9 @@ msgid "Queue"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
-# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/auditing/radiuslog/view.tt
 # html/pfappserver/root/config/switch/view.tt
-# html/pfappserver/root/radiuslog/view.tt
 msgid "RADIUS"
-msgstr ""
-
-# html/pfappserver/root/admin/reports.tt
-msgid "RADIUS Audit Log"
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -4440,6 +4499,10 @@ msgstr "RADIUS Realms - Update"
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
+
+# html/pfappserver/root/admin/auditing.tt
+msgid "Radius Log"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 msgid "Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it"
@@ -4810,6 +4873,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Roles"
 msgstr ""
@@ -5024,6 +5088,7 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 msgid "Save as..."
 msgstr ""
 
@@ -5031,6 +5096,7 @@ msgstr ""
 msgid "Save file"
 msgstr ""
 
+# html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 msgid "Saved Searches"
@@ -5121,8 +5187,8 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "Search"
 msgstr ""
 
@@ -5468,6 +5534,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "Skipable"
 msgstr ""
 
@@ -5561,6 +5628,7 @@ msgid "Start the services"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Started"
 msgstr ""
@@ -5614,6 +5682,7 @@ msgid "Stop Anyway"
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Stopped"
 msgstr ""
@@ -5673,8 +5742,12 @@ msgstr ""
 msgid "Switch ID"
 msgstr ""
 
-# html/pfappserver/root/radiuslog/view.tt
+# html/pfappserver/root/auditing/radiuslog/view.tt
 msgid "Switch Information"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Switch Mac"
 msgstr ""
 
 # html/pfappserver/root/config/switch/list.tt
@@ -5818,6 +5891,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "The Root Portal Module to use"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
+msgid "The URL on which the user should be redirected."
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
@@ -6147,6 +6224,10 @@ msgid "This IP is used as the webserver who hosts the common/network-access-dete
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have \"Create local account\" enabled."
 msgstr ""
 
@@ -6244,6 +6325,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "UID type"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
+msgid "URL"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
@@ -6374,7 +6459,12 @@ msgid "Unexpected error. See server-side logs for details."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/service/cluster_status.tt
 msgid "Unknown"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+msgid "Unlimited logins when empty."
 msgstr ""
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
@@ -6419,6 +6509,14 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Upload failed"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Use CoA"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available."
 msgstr ""
 
 # conf/documentation.conf (omapi.mac2ip_lookup)
@@ -6749,6 +6847,7 @@ msgstr "WRIX - Read"
 msgid "WRIX_UPDATE"
 msgstr "WRIX - Update"
 
+# html/pfappserver/root/admin/challenge.tt
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/config/pfdetect/index.tt
@@ -6809,6 +6908,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "Whether or not, this message can be skipped"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
+msgid "Whether or not, this redirection can be skipped."
 msgstr ""
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types)
@@ -7106,8 +7209,8 @@ msgstr "Subject prefix"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "all"
 msgstr "All"
 
@@ -7137,8 +7240,8 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "any"
 msgstr "Any"
 
@@ -7631,9 +7734,9 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "ends with"
 msgstr ""
 
@@ -7837,9 +7940,9 @@ msgstr "IP address"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -7858,9 +7961,9 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -7929,6 +8032,22 @@ msgid "maintenance.acct_maintenance_interval"
 msgstr "Acct Maintenance Interval"
 
 # conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_batch"
+msgstr "Authentication log Cleanup Batch"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_interval"
+msgstr "Authentication log Cleanup Interval"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_timeout"
+msgstr "Authentication log Cleanup Timeout"
+
+# conf/documentation.conf
+msgid "maintenance.auth_log_cleanup_window"
+msgstr "Authentication log Cleanup Window"
+
+# conf/documentation.conf
 msgid "maintenance.fingerbank_data_update_interval"
 msgstr "Fingerbank Data Update Interval"
 
@@ -7983,22 +8102,6 @@ msgstr "Locationlog Cleanup Timeout"
 # conf/documentation.conf
 msgid "maintenance.locationlog_cleanup_window"
 msgstr "Locationlog Cleanup Window"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_batch"
-msgstr "Authentication log Cleanup Batch"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_interval"
-msgstr "Authentication log Cleanup Interval"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_timeout"
-msgstr "Authentication log Cleanup Timeout"
-
-# conf/documentation.conf
-msgid "maintenance.auth_log_cleanup_window"
-msgstr "Authentication log Cleanup Window"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
@@ -8096,9 +8199,9 @@ msgstr "Mark as Sponsor"
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "matches"
 msgstr ""
 
@@ -8292,6 +8395,10 @@ msgstr ""
 msgid "notes"
 msgstr ""
 
+# conf/documentation.conf (advanced.hash_passwords options)
+msgid "ntlm"
+msgstr ""
+
 # pf::config (SoH Status)
 msgid "ok"
 msgstr ""
@@ -8468,6 +8575,10 @@ msgid "profile.filter.switch"
 msgstr "Switch"
 
 # profile.filter (Portal Profile Filters)
+msgid "profile.filter.switch_group"
+msgstr "Switch Group"
+
+# profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_mac"
 msgstr ""
 
@@ -8486,10 +8597,6 @@ msgstr "URI"
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.vlan"
 msgstr "VLAN"
-
-# profile.filter (Portal Profile Filters)
-msgid "profile.filter.switch_group"
-msgstr "Switch Group"
 
 # conf/documentation.conf
 msgid "provisioning"
@@ -9101,9 +9208,9 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/radiuslog/index.tt
 msgid "starts with"
 msgstr ""
 
