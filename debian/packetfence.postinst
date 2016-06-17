@@ -99,6 +99,7 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
+
 	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	    echo "Building default RADIUS certificates..."
 	    cd /usr/local/pf/raddb/certs
