@@ -46,7 +46,6 @@ our %ACTION_MAP = (
     "update-upstream-db" => sub {
         pf::fingerbank::_update_fingerbank_component("Upstream database", sub{
             my ($status, $status_msg) = fingerbank::DB::update_upstream();
-            pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
             return ($status, $status_msg);
         });
     },
@@ -235,10 +234,12 @@ sub sync_configuration {
 
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+    pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
 }
 
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+    pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
 }
 
 =head2 mac_vendor_from_mac
