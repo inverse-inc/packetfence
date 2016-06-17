@@ -13,9 +13,10 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config qw(%ConfigPKI_Provider);
+use fingerbank::Model::Device;
+use fingerbank::Constant;
 
 has roles => ( is => 'rw' );
-has oses => ( is => 'rw' );
 has violations => ( is => 'rw');
 
 ## Definition
@@ -59,7 +60,6 @@ has_field 'oses' =>
    type => 'Select',
    multiple => 1,
    label => 'OS',
-   options_method => \&options_oses,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
@@ -98,14 +98,6 @@ has_block definition =>
 sub options_pki_provider {
     return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
 }
-=head2 options_oses
-
-=cut
-
-sub options_oses {
-    my $self = shift;
-    return $self->form->oses;
-}
 
 =head2 options_roles
 
@@ -127,6 +119,19 @@ sub options_violations {
     return @violations;
 }
 
+sub update_fields {
+    my $self = shift;
+    my @base_oses = map {
+        { 
+            value => $fingerbank::Constant::PARENT_IDS{$_},
+            label => [ fingerbank::Model::Device->read($fingerbank::Constant::PARENT_IDS{$_}) ]->[1]->{name},
+        }
+    } keys %fingerbank::Constant::PARENT_IDS;
+#    pf::log::get_logger->info("oses value : ".$self->field('oses')->value);
+    $self->field('oses')->options([{value => 7939, label => 'otbm'}, @base_oses]);
+    $self->SUPER::update_fields();
+}
+
 =head2 ACCEPT_CONTEXT
 
 To automatically add the context to the Form
@@ -136,13 +141,8 @@ To automatically add the context to the Form
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my ($status, $roles) = $c->model('Roles')->list();
-    my @oses = ["Windows" => "Windows",
-                "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android",
-                "Apple iPod, iPhone or iPad" => "Apple iOS device"
-               ];
     my (undef, $violations) = $c->model('Config::Violations')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, violations => $violations, @args);
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, violations => $violations, @args);
 }
 
 =head1 COPYRIGHT
