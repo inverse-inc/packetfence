@@ -130,6 +130,8 @@ Depends: ${misc:Depends}, vlan,
  liblasso-perl,
 # PaloAlto syslog SSO
  libnet-syslogd-perl,
+# Freeradius-dhcpd
+ libnet-dhcp-perl,
 # for packaging
  dpkg-distribution,
 # Distribution specific
