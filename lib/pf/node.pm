@@ -1337,7 +1337,7 @@ sub fingerbank_info {
 
     my $cache = pf::fingerbank::cache();
 
-    my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy', sub {
+    my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy-'.$node_info->{device_type}, sub {
         my $info = {};
         # todo, cache the id fetching
         my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
