@@ -513,11 +513,18 @@ EOT
 server dhcp\.$interface {
 dhcp DHCP-Discover {
 	convert_to_int
-	update {
-		&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
-		&request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
+	update control {
+		Cache-Status-Only = 'yes'
 	}
-	if ( ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
+	cache_index
+	if (notfound) {
+		update {
+			&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+			&request:Tmp-Integer-3 := "%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}"
+		}
+	}
+	cache_index
+	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
 		update reply {
 			DHCP-Message-Type = DHCP-Offer
 		}
@@ -589,11 +596,18 @@ EOT
 
 dhcp DHCP-Request {
 	convert_to_int
-	update {
-		&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
-		&request:Tmp-Integer-3 := "%{%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}:-1}"
+	update control {
+		Cache-Status-Only = 'yes'
 	}
-	if ( ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
+	cache_index
+	if (notfound) {
+		update {
+			&request:Tmp-Integer-2 := "%{%{sql: SELECT idx FROM dhcpd WHERE ip = \'$cfg->{'ip'}\' AND interface = \'$interface\'}:-0}"
+			&request:Tmp-Integer-3 := "%{sql: SELECT count(*) FROM dhcpd WHERE interface = \'$interface\'}"
+		}
+	}
+	cache_index
+	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
 		update reply {
 			&DHCP-Message-Type = DHCP-Ack
 		}
