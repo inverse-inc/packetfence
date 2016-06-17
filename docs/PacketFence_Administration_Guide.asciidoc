@@ -2745,8 +2745,8 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/suricata_files.conf` by adding the following block which will enable reception of Suricata MD5 file store log entries and instruct rsyslog to stop processing the current matched message:
-
+Configure `/etc/rsyslog.d/suricata_files.conf` so it contains the following which will redirect Suricata MD5 file store log entries and stop further processing of current matched message:
+  
   if $programname == 'suricata_files' then /usr/local/pf/var/suricata_files
   & ~
 
@@ -2829,7 +2829,7 @@ Modify rsyslog configuration to allow incoming UDP packets by uncommenting the f
   $ModLoad imudp
   $UDPServerRun 514
 
-Configure `/etc/rsyslog.d/securityonion_ids.conf` by adding the followings which will enable reception of Security Onion sguild log entries:
+Configure `/etc/rsyslog.d/securityonion_ids.conf` so it contains the following which will redirect Security Onion sguild log entries and stop furter processing of current matched message:
 
   if $programname == 'securityonion_ids' then /usr/local/pf/var/securityonion_ids
   & ~
