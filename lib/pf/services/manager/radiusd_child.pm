@@ -855,36 +855,13 @@ EOT
 sub preStartSetup {
     my ($self,$quick) = @_;
     $self->SUPER::preStartSetup($quick);
-    manageStaticRoute(1) if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'}));
     return 1;
 }
 
 sub stop {
     my ($self,$quick) = @_;
     my $result = $self->SUPER::stop($quick);
-    manageStaticRoute() if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'}));
     return $result;
-}
-
-sub manageStaticRoute {
-    my $add_Route = @_;
-    my $logger = get_logger();
-
-    foreach my $network ( keys %ConfigNetworks ) {
-        # shorter, more convenient local accessor
-        my %net = %{$ConfigNetworks{$network}};
-
-
-        if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
-            my $add_del = $add_Route ? 'add' : 'del';
-            my $full_path = can_run('route')
-                or $logger->error("route is not installed! Can't add static routes to routed VLANs.");
-
-            my $cmd = "sudo $full_path $add_del -net $network netmask " . $net{'netmask'} . " gw " . $net{'next_hop'};
-            $cmd = untaint_chain($cmd);
-            my @out = pf_run($cmd);
-        }
-    }
 }
 
 =head1 AUTHOR
