@@ -318,6 +318,8 @@ Requires: %{real_name}-pfcmd-suid = %{version}
 Requires: haproxy >= 1.5, keepalived >= 1.2
 Requires: fingerbank >= 3.0.0
 Requires: perl(File::Tempdir)
+#For Freeradius-dhcpd
+Requires: perl(Net::DHCP::Packet)
 
 %description -n %{real_name}
 
