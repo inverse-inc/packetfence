@@ -567,7 +567,6 @@ sub _view_by_ip {
     $logger->debug("Viewing an 'iplog' table entry for the following IP address '$ip'");
 
     my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_ip_sql', $ip) || return (0);
-
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -590,8 +589,7 @@ sub _view_by_mac {
 
     $logger->debug("Viewing an 'iplog' table entry for the following MAC address '$mac'");
 
-    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $ip) || return (0);
-
+    my $query = db_query_execute(IPLOG, $iplog_statements, 'iplog_view_by_mac_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
