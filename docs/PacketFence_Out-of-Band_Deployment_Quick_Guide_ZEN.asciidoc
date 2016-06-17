@@ -232,10 +232,10 @@ Now paste the output in the Administration interface under 'Configuration/OMAPI/
 
 image::docs/images/omapi-config.png[scaledwidth="100%",alt="Network integration diagram"]
 
-Now restart the radius-dhcpd service using the following command in an SSH session.
+Now restart the dhcpd service using the following command in an SSH session.
 
 ----
-# /usr/local/pf/bin/pfcmd service radius-dhcpd restart
+# /usr/local/pf/bin/pfcmd service dhcpd restart
 ----
 
 
