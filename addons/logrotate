@@ -7,8 +7,8 @@
     compress
     create 640 pf pf
     copytruncate
+    su pf pf
 }
-
 
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
     daily
@@ -17,4 +17,5 @@
     compress
     create 640 pf pf
     copytruncate
+    su pf pf
 }
