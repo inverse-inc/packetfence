@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::provisioner::mobileconfig';
+use fingerbank::Constant;
 
 =head1 Atrributes
 
@@ -25,7 +26,7 @@ The set the default Windows OS
 =cut
 
 # Will always ignore the oses parameter provided and use [Windows]
-has 'oses' => (is => 'ro', default => sub { [qw(Windows)] }, coerce => sub { [qw(Windows)] });
+has 'oses' => (is => 'ro', default => sub { [$fingerbank::Constant::PARENT_IDS{WINDOWS}] }, coerce => sub { [$fingerbank::Constant::PARENT_IDS{WINDOWS}] });
 
 =head1 AUTHOR
 
