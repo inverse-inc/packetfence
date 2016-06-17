@@ -20,9 +20,7 @@ Sub-commands to interact with fingerbank via pfcmd.
 use strict;
 use warnings;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
-use fingerbank::Model::Device;
-use pf::error qw(is_success);
-use pf::log;
+use pf::fingerbank;
 use base qw(pf::base::cmd::action_cmd);
 
 =head2 action_expire 
@@ -34,13 +32,13 @@ Expire a pfconfig namespace
 sub action_find_device_id {
     my ($self) = @_;
     my ($device_name) = $self->action_args;
-    my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $device_name}]);
-    if(is_success($status)) {
-        print "Device ID of $device_name is : ".$fbdevice->id."\n"; 
+    my $device_id = pf::fingerbank::device_name_to_device_id($device_name);
+    if(defined($device_id)) {
+        print "Device ID of $device_name is : ".$device_id."\n"; 
         return $EXIT_SUCCESS;
     }
     else {
-        print "$fbdevice\n";
+        print "Couldn't find ID for device $device_name\n";
         return $EXIT_FAILURE;
     }
 }
