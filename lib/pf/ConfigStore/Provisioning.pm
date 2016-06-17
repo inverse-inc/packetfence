@@ -31,9 +31,6 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
     $self->expand_list($data, $self->_fields_expanded);
-    if(exists $data->{oses} && defined $data->{oses}) {
-        $data->{oses} = listify $data->{oses};
-    }
 }
 
 =head2 cleanupBeforeCommit
@@ -56,7 +53,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(category);
+    return qw(category oses);
 }
 
 =head1 AUTHOR
