@@ -44,7 +44,8 @@ Get the OAuth2 client
 sub get_client {
     my ($self) = @_;
     my $source = $self->source;
-    return Net::OAuth2::Profile::WebServer->new(
+
+    my %info = (
         client_id => $source->{'client_id'},
         client_secret => $source->{'client_secret'},
         site => $source->{'site'},
@@ -55,6 +56,10 @@ sub get_client {
         redirect_uri => $source->{'redirect_url'},
         token_scheme => $self->token_scheme, 
     );
+    if($source->{state}) {
+        $info{state} = $source->{state};
+    }
+    return Net::OAuth2::Profile::WebServer->new(%info);
 }
 
 =head2 landing

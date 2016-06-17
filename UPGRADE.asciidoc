@@ -70,6 +70,11 @@ Dynamically created local secret
 
 The management IP(s) of PacketFence are now defined as switches with a forced RADIUS secret defined in /usr/local/pf/conf/local_secret. Make sure you reconfigure the secret in the file if necessary and that this file is synchronized on all your cluster members if that applies. Note that this doesn't affect the RADIUS secret you have configured for wireless controllers and switches. It only affects RADIUS requests that originate from the management IP(s)
 
+Changes to LinkedIn source
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A change to the authorize URL of LinkedIn was made. Make sure to change the 'API Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
+
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
