@@ -542,6 +542,10 @@ msgstr ""
 msgid "Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/User.pm
+msgid "An email was sent to [_1] out of [_2] users."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Another challenge."
 msgstr ""
@@ -3611,6 +3615,10 @@ msgstr ""
 msgid "On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Model/User.pm
+msgid "Once authenticated the access will be valid for [_1] [_2]."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "One-level"
 msgstr ""
@@ -4683,6 +4691,10 @@ msgstr ""
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 msgid "Registration Window"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Model/User.pm
+msgid "Registration must happen before [_1]."
 msgstr ""
 
 # html/pfappserver/root/config/domain/list.tt
@@ -6259,6 +6271,10 @@ msgstr ""
 msgid "This step covers some basic configuration parameters required to have a functional PacketFence installation."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Model/User.pm
+msgid "This username and password will be valid starting [_1]."
+msgstr ""
+
 # conf/documentation.conf (network.force_listener_update_on_ack)
 msgid "This will only do the iplog update and other DHCP related task on a DHCPACK.You need to make sure the UDP reflector is in place so this works on the production network.This is implicitly activated on registration interfaces on which dhcpd runs."
 msgstr ""
@@ -7023,6 +7039,10 @@ msgid "You have successfully configured and launched PacketFence."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
+msgid "You must assign an interface to the following types: [_1]"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must choose at least one enforcement mechanism."
 msgstr ""
 
@@ -7067,6 +7087,14 @@ msgstr ""
 
 # html/pfappserver/root/admin/login.tt
 msgid "Your username or email address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Node.pm
+msgid "[_1] nodes imported, [_2] skipped"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Model/User.pm
+msgid "[_1]: Guest Network Access Information"
 msgstr ""
 
 # pf::config (SoH Actions)
