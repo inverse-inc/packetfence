@@ -477,7 +477,7 @@ cp -r addons/watchdog/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/AD/* $RPM_BUILD_ROOT/usr/local/pf/addons/AD/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
-%{__install} -D -m0644 addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
+%{__install} -D addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
@@ -870,7 +870,7 @@ fi
 %endif
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
-%config                 %{_sysconfdir}/logrotate.d/packetfence
+%config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
                         /usr/local/pf/Makefile
