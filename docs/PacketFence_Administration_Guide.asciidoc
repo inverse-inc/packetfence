@@ -2800,7 +2800,7 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
 
   ### PacketFence / IDS integration
   # This line specifies where the sguild.log file is located
-  # -> Make sure to configure the right patch along with the right filename (on a Security Onion setup, that should be pretty much standard)
+  # -> Make sure to configure the right path along with the right filename (on a Security Onion setup, that should be pretty much standard)
   source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
   # This line filters on the string “Alert Received”
   filter f_sguil { match("Alert Received"); };
