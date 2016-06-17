@@ -113,7 +113,8 @@ sub process {
             node_modify( $mac, (
                 'device_type'   => $query_result->{'device'}{'name'},
                 'device_class'  => $class,
-                'fingerbank_score' => $query_result->{'score'},
+                'device_version' => $query_result->{'version'},
+                'device_score' => $query_result->{'score'},
             ) );
 
             _trigger_violations($query_args, $query_result, $parents);
