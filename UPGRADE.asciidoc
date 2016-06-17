@@ -65,6 +65,11 @@ Once the additionnal steps are completed, restart packetfence-config and packetf
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Dynamically created local secret
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The management IP(s) of PacketFence are now defined as switches with a forced RADIUS secret defined in /usr/local/pf/conf/local_secret. Make sure you reconfigure the secret in the file if necessary and that this file is synchronized on all your cluster members if that applies. Note that this doesn't affect the RADIUS secret you have configured for wireless controllers and switches. It only affects RADIUS requests that originate from the management IP(s)
+
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
