@@ -45,7 +45,7 @@ sub _build_pfdhcplistenerManagers {
             forceManaged => $self->isManaged,
             orderIndex => $self->orderIndex,
         })
-    } uniq @dhcplistener_ints;
+    } uniq @listen_ints, @dhcplistener_ints if (isdisabled($pf::config::Config{'services'}{'radiusd-dhcpd'}));
     return \@managers;
 }
 

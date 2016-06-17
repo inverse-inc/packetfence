@@ -489,8 +489,6 @@ sub generate_radiusd_dhcpd {
     $tags{'pid_file'} = "$var_dir/run/radiusd-dhcpd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
 
-    my $cluster_ip = pf::cluster::management_cluster_ip();
-    $tags{'cluster_ip'} = $cluster_ip;
     foreach my $interface ( @listen_ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;

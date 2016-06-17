@@ -382,3 +382,23 @@ CREATE TABLE dhcpd (
 GRANT DROP ON pf.dhcpd TO 'pf'@'%';
 GRANT DROP ON pf.dhcpd TO 'pf'@'localhost';
 
+--
+-- Create trigger on radippool update
+--
+
+DROP TRIGGER IF EXISTS iplog_insert_in_iplog_before_radippool_update_trigger;
+DELIMITER /
+CREATE TRIGGER iplog_insert_in_iplog_before_radippool_update_trigger AFTER UPDATE ON radippool
+FOR EACH ROW
+BEGIN
+    REPLACE INTO iplog
+           ( mac, ip ,
+             start_time, end_time
+           )
+    VALUES
+           ( NEW.callingstationid, NEW.framedipaddress,
+             NEW.start_time, NEW.expiry_time
+           );
+END /
+DELIMITER ;
+
