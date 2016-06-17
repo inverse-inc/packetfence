@@ -53,19 +53,7 @@ after [qw(create update clone)] => sub {
     if ((is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
         pf::fingerbank::sync_local_db();
-        my $cache = pf::CHI->new( namespace => 'fingerbank');
-        my $model_name = $self->getModel($c)->fingerbankModel();
-        foreach my $key ($cache->get_keys()){
-            if($key =~ /^$model_name\_/){
-                $c->log->debug("Expiring $key since $model_name has changed.");
-                $cache->expire($key);
-            }
-            # special case, we need to expire results from the CombinationMatch view
-            elsif($model_name eq "Combination" && $key =~ /^CombinationMatch_/){
-                $c->log->debug("Expiring $key since $model_name has changed.");
-                $cache->expire($key);
-            }
-        }
+        pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
     }
 };
 
