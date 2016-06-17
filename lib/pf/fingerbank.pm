@@ -80,7 +80,6 @@ sub process {
     my $cache = cache();
     # Rate limit the fingerbank requests based on the partial query params (the ones that are passed)
     my $result = $cache->compute_with_undef("fingerbank::process-partial-query-".encode_json($query_args),  sub {
-
         if($query_args->{mac}){
             my $node_info = pf::node::node_view($query_args->{mac});
             if($node_info){
@@ -114,6 +113,7 @@ sub process {
             node_modify( $mac, (
                 'device_type'   => $query_result->{'device'}{'name'},
                 'device_class'  => $class,
+                'fingerbank_score' => $query_result->{'score'},
             ) );
 
             _trigger_violations($query_args, $query_result, $parents);

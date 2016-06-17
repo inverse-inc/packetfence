@@ -23,6 +23,7 @@ use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::error qw(is_success);
 
 use constant NODE => 'node';
 
@@ -141,7 +142,7 @@ sub node_db_prepare {
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?, bypass_role_id=?,
             detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
-            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?,
+            user_agent=?, computername=?, dhcp_fingerprint=?, dhcp_vendor=?, dhcp6_fingerprint=?, dhcp6_enterprise=?, device_type=?, device_class=?, fingerbank_score=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=?, sessionid=?, machine_account=?
         WHERE mac=?
@@ -154,7 +155,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role,
             detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
-            user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class,
+            user_agent, computername, dhcp_fingerprint, dhcp_vendor, dhcp6_fingerprint, dhcp6_enterprise, device_type, device_class, fingerbank_score,
             last_arp, last_dhcp,
             node.notes, autoreg, sessionid, machine_account
         FROM node
@@ -211,7 +212,7 @@ sub node_db_prepare {
             IF(ISNULL(nc.name), '', nc.name) as category,
             IF(ISNULL(nr.name), '', nr.name) as bypass_role ,
             node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
-            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class,
+            node.user_agent, node.computername, node.dhcp_fingerprint, node.dhcp_vendor, node.dhcp6_fingerprint, node.dhcp6_enterprise, node.device_type, node.device_class, node.fingerbank_score,
             node.last_arp, node.last_dhcp,
             node.notes, node.autoreg, node.sessionid, node.machine_account,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
@@ -915,9 +916,10 @@ sub node_modify {
         $existing->{dhcp_fingerprint},  $existing->{dhcp_vendor},
         $existing->{dhcp6_fingerprint}, $existing->{dhcp6_enterprise},
         $existing->{device_type},       $existing->{device_class},
-        $existing->{last_arp},          $existing->{last_dhcp},
-        $existing->{notes},             $existing->{autoreg},
-        $existing->{sessionid},         $existing->{machine_account},
+        $existing->{fingerbank_score},  $existing->{last_arp},
+        $existing->{last_dhcp},         $existing->{notes},
+        $existing->{autoreg},           $existing->{sessionid},
+        $existing->{machine_account},
         $mac
     );
     if($sth) {
@@ -1325,6 +1327,34 @@ sub _cleanup_attributes {
     my ($info) = @_;
     $info->{voip} ||= $NO_VOIP;
     $info->{'status'} = _cleanup_status_value($info->{'status'});
+}
+
+sub fingerbank_info {
+    my ($mac, $node_info) = @_;
+    $node_info ||= pf::node::node_view($mac);
+
+    my $info = {};
+
+    my $cache = pf::fingerbank::cache();
+
+    my $device_info = $cache->compute_with_undef('fingerbank_info::DeviceHierarchy', sub {
+        my $info = {};
+        # todo, cache the id fetching
+        my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $node_info->{device_type}}]);
+
+        if(is_success($status)) {
+            my $device = fingerbank::Model::Device->read($fbdevice->id, $TRUE);
+            $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
+            $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
+            $info->{mobile} = $device->{mobile};
+        }
+        return $info;
+    });
+    $info->{score} = $node_info->{fingerbank_score};
+
+    $info ={ (%$info, %$device_info) };
+
+    return $info;
 }
 
 =back
