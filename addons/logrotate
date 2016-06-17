@@ -7,6 +7,8 @@
     compress
     create 640 pf pf
     copytruncate
+
+    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
     su pf pf
 }
 
@@ -17,5 +19,7 @@
     compress
     create 640 pf pf
     copytruncate
+
+    # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
     su pf pf
 }
