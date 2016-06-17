@@ -78,12 +78,14 @@ sub add_searches {
     } else {
         $all_or_any = 'and';
     }
+    $builder->where('(')
+	    ->where({table => 'r2', name => 'radacctid'},'IS NULL')
+	    ->where(')');
     if (@searches) {
+	$builder->where('AND');
         $builder->where('(');
         $builder->where($all_or_any)->where(@$_) for @searches;
-        $builder->where(')')
-            ->where('AND')
-            ->where({table => 'r2', name => 'radacctid'},'IS NULL')
+        $builder->where(')');
     }
 }
 
