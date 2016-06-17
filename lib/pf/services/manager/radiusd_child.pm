@@ -720,43 +720,22 @@ dhcp DHCP-Release {
 
 
 dhcp DHCP-Lease-Query {
+	update {
+		&request:Tmp-Cast-Ethernet := "%{%{sql: SELECT interface FROM dhcpd WHERE ip = 'password'}:-0}"
+	}
 
-	if (&DHCP-Client-Hardware-Address) {
+
+	if (&DHCP-Client-Hardware-Address == &request:Tmp-Cast-Ethernet) {
 		update reply {
 			&DHCP-Message-Type = DHCP-Lease-Active
 			&DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
 		}
 	}
-
-	# has IP, asking for MAC, etc.
-	elsif (&DHCP-Your-IP-Address) {
-		# look up IP in database
-	}
-
-	# has host name, asking for IP, MAC, etc.
-	elsif (&DHCP-Client-Identifier) {
-		# look up identifier in database
-	}
 	else {
 		update reply {
-			&DHCP-Message-Type = DHCP-Lease-Unknown
+			&DHCP-Message-Type = DHCP-Do-Not-Respond
 		}
-		ok
-
-		# stop processing
-		return
-	}
-
-	if (notfound) {
-		update reply {
-			&DHCP-Message-Type = DHCP-Lease-Unknown
-		}
-		ok
-		return
-	}
-
-	update reply {
-		&DHCP-Message-Type = DHCP-Lease-Unassigned
+		reject
 	}
 
 }

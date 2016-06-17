@@ -96,6 +96,14 @@ sub dhcpd_db_prepare {
             TRUNCATE dhcpd 
         ]);
 
+        $dhcpd_statements->{'freeradius_replace_password'} = $dbh->prepare(qq[
+            REPLACE INTO dhcpd (
+                ip, interface, idx
+            ) VALUES (
+                ?, ?, ?
+            )
+        ]);
+
         $dhcpd_db_prepared = 1;
     }
 }
@@ -194,6 +202,7 @@ sub ping_dhcpd {
         for my $interface (keys $host) {
             next if ( ( $interface !~ /^interface (.*)/) || ($host->{$interface}->{type} ne 'internal') );
             my $eth = $1;
+            my $password = sprintf("%02x%02x%02x%02x%02x%02x",int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)));
             my $dhcpreq = new Net::DHCP::Packet(
                 Op => BOOTREQUEST(),
                 Htype => HTYPE_ETHER(),
@@ -204,9 +213,11 @@ sub ping_dhcpd {
                 Yiaddr => '0.0.0.0',
                 Siaddr => '0.0.0.0',
                 Giaddr => '0.0.0.0',
-                Chaddr => "001122334455",
+                Chaddr => $password,
                 DHO_DHCP_MESSAGE_TYPE() => DHCPLEASEQUERY()
             );
+            $password =~ s/([a-f0-9]{2})(?!$)/$1:/g;
+            db_query_execute(DHCPD, $dhcpd_statements, 'freeradius_replace_password', 'password', $password, '0');
             my $fromaddr;
             undef $@;
             eval {

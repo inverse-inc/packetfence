@@ -50,42 +50,13 @@ dhcp DHCP-Lease-Query {
                     &DHCP-Message-Type = DHCP-Lease-Active
                     &DHCP-Client-IP-Address = "%{Packet-Src-IP-Address}"
                 }
-                # look up MAC in database
 	}
-
-
-	# has IP, asking for MAC, etc.
-	elsif (&DHCP-Your-IP-Address) {
-		# look up IP in database
-	}
-
-	# has host name, asking for IP, MAC, etc.
-	elsif (&DHCP-Client-Identifier) {
-		# look up identifier in database
-	}
-	else {
-		update reply {
-			&DHCP-Message-Type = DHCP-Lease-Unknown
-		}
-
-		ok
-
-		# stop processing
-		return
-	}
-
-	if (notfound) {
-		update reply {
-			&DHCP-Message-Type = DHCP-Lease-Unknown
-		}
-		ok
-		return
-	}
-
-	update reply {
-		&DHCP-Message-Type = DHCP-Lease-Unassigned
-	}
-
+        else {
+                update reply {
+                        &DHCP-Message-Type = DHCP-Do-Not-Respond
+                }
+                reject
+        }
 }
 
 }
