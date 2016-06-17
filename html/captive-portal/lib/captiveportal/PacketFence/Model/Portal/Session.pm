@@ -128,13 +128,13 @@ sub ACCEPT_CONTEXT {
             'portal' => $data->{portal},
         };
     } elsif ( $forwardedFor && $mgmt_ip && ( $forwardedFor =~  $mgmt_ip) ) {
-        if (defined(my $cookie = $request->cookie("PF_PORTAL"))) {
-            $options = {
-                'portal' => $cookie->value,
-            };
-        } elsif (defined($request->param('PORTAL'))) {
+        if (defined($request->param('PORTAL'))) {
             $options = {
                 'portal' => $request->param('PORTAL'),
+            };
+        } elsif (defined(my $cookie = $request->cookie("PF_PORTAL"))) {
+            $options = {
+                'portal' => $cookie->value,
             };
         }
     }
