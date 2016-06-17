@@ -1358,13 +1358,12 @@ provisioning_compliance_poll_interval=300s
 # maintenance.fingerbank_data_update_interval
 #
 # Interval at which PacketFence updates the local Fingerbank data from the cloud API
-fingerbank_data_update_interval=6h
+fingerbank_data_update_interval=1d
 #
 # maintenance.cluster_check_interval
 #
 # Interval at which PacketFence updates the local Fingerbank data from the cloud API
 cluster_check_interval=1m
-
 
 [active_active]
 #
