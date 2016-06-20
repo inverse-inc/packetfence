@@ -13,9 +13,6 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config qw(%ConfigPKI_Provider);
-use fingerbank::Model::Device;
-use fingerbank::Constant;
-use List::MoreUtils qw(any uniq);
 
 has roles => ( is => 'rw' );
 has violations => ( is => 'rw');
@@ -65,6 +62,7 @@ has_field 'oses' =>
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
+   fingerbank_model => "fingerbank::Model::Device",
   );
 
 has_field 'non_compliance_violation' =>
@@ -119,33 +117,6 @@ sub options_violations {
     }
     return @violations;
 }
-
-before 'process' => sub {
-    my ($self) = @_;
-    # no need for pretty formatting, this is just for validation purposes
-    my @option_oses = map { 
-        {
-            value => $_->id,
-            label => $_->id,
-        }
-    } fingerbank::Model::Device->all();
-    $self->field('oses')->options(\@option_oses);
-};
-
-after 'process' => sub {
-    my ($self) = @_;
-
-    my @base_ids = map { $fingerbank::Constant::PARENT_IDS{$_} } keys %fingerbank::Constant::PARENT_IDS;
-
-    my @option_oses = map {
-        { 
-            value => $_,
-            label => [ fingerbank::Model::Device->read($_) ]->[1]->{name},
-        }
-    } uniq(@base_ids, @{$self->field('oses')->value});
-
-    $self->field('oses')->options(\@option_oses);
-};
 
 =head2 ACCEPT_CONTEXT
 
