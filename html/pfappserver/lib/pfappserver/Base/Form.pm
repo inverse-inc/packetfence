@@ -200,7 +200,7 @@ after 'process' => sub {
             my @options = map {
                 { 
                     value => $_,
-                    label => [ $field->fingerbank_model->read($_) ]->[1]->{$field->fingerbank_model->description_field},
+                    label => [ $field->fingerbank_model->read($_) ]->[1]->{$field->fingerbank_model->value_field},
                 }
             } uniq(@base_ids, @{$field->value});
 
