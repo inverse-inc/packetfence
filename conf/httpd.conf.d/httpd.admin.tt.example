@@ -227,7 +227,7 @@ ProxyHTMLLinks  script      src for
           RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
-          RequestHeader append X-Forwarded-For-PacketFence "[% vhost %]"
+          RequestHeader append X-Forwarded-For-PacketFence "[% vhosts.0 %]"
 
           ProxyPassReverse /
           ProxyHTMLEnable On
