@@ -15,6 +15,8 @@ use Moose::Role;
 use HTML::FormHandler::Render::Util ('process_attrs');
 with 'HTML::FormHandler::Widget::Field::Select';
 
+has 'fingerbank_model' => (isa => 'Str', is => 'rw');
+
 use namespace::autoclean;
 
 sub render_element {

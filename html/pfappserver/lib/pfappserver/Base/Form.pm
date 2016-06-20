@@ -21,6 +21,10 @@ has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
+use fingerbank::Model::Device;
+use fingerbank::Constant;
+use List::MoreUtils qw(any uniq);
+
 =head2 get_language_handle_from_ctx
 
 =cut
@@ -170,6 +174,40 @@ sub id_validator {
             "The $field_name is invalid. The $field_name can only contain alphanumeric characters, dashes, period and underscores."
    };   
 }
+
+before 'process' => sub {
+    my ($self) = @_;
+    foreach my $field (@{$self->fields}){
+        if($field->type eq "FingerbankSelect"){
+            # no need for pretty formatting, this is just for validation purposes
+            my @options = map { 
+                {
+                    value => $_->id,
+                    label => $_->id,
+                }
+            } $field->fingerbank_model->all();
+            $field->options(\@options);
+        }
+    }
+};
+
+after 'process' => sub {
+    my ($self) = @_;
+    foreach my $field (@{$self->fields}) {
+        if($field->type eq "FingerbankSelect"){
+
+            my @base_ids = $field->fingerbank_model->base_ids();
+            my @options = map {
+                { 
+                    value => $_,
+                    label => [ $field->fingerbank_model->read($_) ]->[1]->{$field->fingerbank_model->description_field},
+                }
+            } uniq(@base_ids, @{$field->value});
+
+            $field->options(\@options);
+        }
+    }
+};
 
 
 =head1 COPYRIGHT
