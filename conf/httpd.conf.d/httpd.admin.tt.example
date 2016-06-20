@@ -223,9 +223,8 @@ ProxyHTMLLinks  script      src for
       <Location /portal_preview >
           SetEnv X_PORTAL default
           RewriteEngine on
+          RewriteCond %{QUERY_STRING} .*PORTAL=(.*) [OR]
           RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
-          RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
-          RewriteCond %{QUERY_STRING} .*PORTAL=(.*)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           RequestHeader unset Accept-Encoding
           RequestHeader append X-Forwarded-For-PacketFence "[% vhost %]"
