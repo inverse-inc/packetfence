@@ -58,14 +58,13 @@ has_field 'category' =>
 
 has_field 'oses' =>
   (
-   type => 'Select',
+   type => 'FingerbankSelect',
    multiple => 1,
    label => 'OS',
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
-   no_option_validation => 1,
   );
 
 has_field 'non_compliance_violation' =>
