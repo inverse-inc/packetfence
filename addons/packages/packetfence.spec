@@ -1100,6 +1100,8 @@ fi
                         /usr/local/pf/conf/monitoring/statsd_config.js.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
                         /usr/local/pf/conf/monitoring/storage-schemas.conf.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/storage-aggregation.conf
+                        /usr/local/pf/conf/monitoring/storage-aggregation.conf.example
 %config(noreplace)      /usr/local/pf/conf/monitoring/types.db
                         /usr/local/pf/conf/monitoring/types.db.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
