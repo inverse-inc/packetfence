@@ -1,4 +1,4 @@
-package pf::Switch::AeroHIVE::AP_firmware6;
+package pf::Switch::AeroHIVE::AP_firmware_6;
 
 =head1 NAME
 
@@ -21,7 +21,7 @@ use warnings;
 use base ('pf::Switch::AeroHIVE');
 use pf::util;
 
-sub description { 'AeroHIVE AP firmware 6+' }
+sub description { 'AeroHIVE AP firmware 6' }
 
 sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
@@ -131,4 +131,3 @@ USA.
 =cut
 
 1;
-
