@@ -107,6 +107,34 @@ sub search : Chained('scope') : PathPart('search') : Args() {
     }
 }
 
+=head2 typeahead_search
+
+=cut
+
+sub typeahead_search : Local {
+    my ($self, $c) = @_;
+    my $model = $self->getModel($c);
+    $model->scope('All');
+    my $search_fields = $model->search_fields;
+    my $value = $c->request->param('query');
+    my $query = [ map { $_ => { -like => "%$value%"} } @$search_fields ];
+    my ($status, $result) = $model->search(
+        $query,
+        {
+            by        => 'value',
+            direction => 'asc',
+        }
+    );
+    if(is_success($status)) {
+        my $value_method = $model->fingerbankModel->value_field;
+        my @items = map { { display => $_->$value_method, id => $_->id } } @{$result->{items}};
+        $c->stash(items => \@items);
+    }
+    else {
+        $c->stash(items => []);
+    }
+}
+
 =head2 index
 
 Setup the scope and forwards

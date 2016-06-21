@@ -49,6 +49,7 @@ ProvisionerView.prototype.toggleInputs = function(e) {
     this.toggleWifiKey(e);
     this.toggleEapType(e);
     this.toggleServerCertificate(e);
+    FingerbankSearch.setup();
 };
 
 ProvisionerView.prototype.toggleWifiKey = function(e) {

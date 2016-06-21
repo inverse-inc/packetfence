@@ -23,11 +23,14 @@ sub render_element {
     my ( $self, $result ) = @_;
     $result ||= $self->result;
 
-    my $select = HTML::FormHandler::Widget::Field::Select::render_element($self,$result);
-    $select .= '<div>'.
-        '<input id="fingerbank-add-'.$self->id.'" placeholder="Add '.$self->label.' from Fingerbank" value="" type="text">'.
-        '<button>+</button>'.
+    my $select = '';
+    $select .= '<div style="padding-bottom:5px;">'.
+        '<input data-type-ahead-for="'.$self->fingerbank_model.'" data-add-to="'.$self->id.'"'.
+        ' class="fingerbank-type-ahead" name="fingerbank-add-'.$self->id.'" data-provide="typeahead"'.
+        ' id="fingerbank-add-'.$self->id.'" placeholder="Add '.$self->label.' from Fingerbank" value="" type="text">'.
+        '<a href="#" class="btn btn-primary" style="margin-left:3px;" id="btn-fingerbank-add-'.$self->id.'"'.$self->id.'><i class="icon-plus icon-white"></i></a>'.
         '</div>';
+    $select .= HTML::FormHandler::Widget::Field::Select::render_element($self,$result);
     return $select;
 }
 
