@@ -71,15 +71,15 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to 6.1.0
 ---------------------------------------
 
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
 Significant changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the 6.0 schema to 6.1.
 
 To upgrade the database schema, run the following command: 
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.0.0-6.1.0.sql
-
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.1.0).
-
 
 Dynamically created local secret
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -90,6 +90,8 @@ Changes to LinkedIn source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A change to the authorize URL of LinkedIn was made. Make sure to change the 'API Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.1.0).
 
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
