@@ -17,6 +17,7 @@ EXPR = OR
 OR   = CMP && CMP
 OR   = CMP
 CMP  = ID OP ID
+CMP  = ID OP STRING
 CMP  = FACT
 OP   = '==' | '!=' | '=~' | '!~'
 FACT = ! FACT
@@ -40,7 +41,7 @@ BEGIN {
 
 Parses a string to a structure for building filters and conditions
 
-    my ($array,$msg) = parse_condition_string('(a || b) && (c || d)');
+    my ($array, $msg) = parse_condition_string('(a || b) && (c || d)');
 
 On success
 
@@ -118,8 +119,8 @@ Handle an 'or' expression
 =cut
 
 sub _parse_or {
-    # OR   = FACT && FACT
-    # OR   = FACT
+    # OR   = CMP && CMP
+    # OR   = CMP
     my @expr;
     push @expr, _parse_cmp();
     while (/\G\s*\&{1,2}/gc) {
@@ -137,6 +138,7 @@ sub _parse_or {
 
 sub _parse_cmp {
     # CMP  = ID OP ID
+    # CMP  = ID OP STRING
     # CMP  = FACT
     my $old_pos = pos();
     if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
@@ -146,14 +148,14 @@ sub _parse_cmp {
             my $b;
             if (/\G\s*([a-zA-Z0-9_]+)/gc) {
                 $b = $1;
-            } elsif (/\G\s*"((?:[^"]|\"|\\)+)"/gc) {
+            } elsif (/\G\s*"((?:[^"]|\"|\\)*)"/gc) {
                 $b = $1;
                 $b =~ s/\\"/"/g;
                 $b =~ s/\\\\/\\/g;
+            } else {
+                die format_parse_error("Invalid format", $_, pos);
             }
-            if (defined $b) {
-                return [$op,$a,$b];
-            }
+            return [$op,$a,$b];
         }
     }
     pos() = $old_pos;
