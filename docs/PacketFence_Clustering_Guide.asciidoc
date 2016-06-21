@@ -27,9 +27,6 @@ Step 1: Install the replicated database
 
 NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
 
-Installing DRBD
-^^^^^^^^^^^^^^^
-
 Creation of the DRBD partition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -361,11 +358,31 @@ mysql> flush privileges;
 Installation on CentOS 7
 ------------------------
 
-First make sure that you system is correctly configured and up-to-date
+Step 1: Install the replicated database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
+
+
+Creation of the DRBD partition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later. This needs to be done on both servers.
+
+Partitioning
+^^^^^^^^^^^^
+
+After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step. This also needs tobe done on both servers.
+
+
+Clustering prerequisites
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure that you systems are correctly configured and up-to-date
 
   # yum update
 
-`/etc/hosts` must contain:
+`/etc/hosts` must contain the following two lines:
 
   ha_interface_ip_address_1 pf1_server_name
   ha_interface_ip_address_2 pf2_server_name
@@ -377,7 +394,7 @@ NOTE: An active NetworkManager will overwrite your DNS configuration if not expl
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
 
-Disable selinux
+Disable selinux on each server:
 
   # setenforce 0
 
@@ -385,24 +402,6 @@ Disable selinux
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
 * `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
 
-
-Step 1: Install the replicated database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
-
-Installing DRBD
-^^^^^^^^^^^^^^^
-
-Creation of the DRBD partition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
-
-Partitioning
-^^^^^^^^^^^^
-
-After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 Pacemaker and Corosync installation and configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
