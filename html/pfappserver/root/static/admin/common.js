@@ -791,3 +791,69 @@ $(function () { // DOM ready
     });
 
 });
+
+function FingerbankSearch() {
+
+}
+
+FingerbankSearch.prototype.search = function(query, process) {
+  var that = this;
+  var path = this.model.split('::Model::')[1].toLowerCase();
+  console.log(path);
+  $.ajax({
+      type: 'POST',
+      url: '/config/fingerbank/'+path+'/typeahead_search',
+      headers: {
+          Accept: 'application/json',
+      },
+      data: {
+          'json': 1,
+          'query': query,
+          'model': this.model,
+      },
+      success: function(data) {
+          var results = $.map(data.items, function(i) {
+              return i.display;
+          });
+          that.results = data.items;
+          var input = that.typeahead_field;
+          var control = input.closest('.control-group');
+          if (results.length == 0)
+              control.addClass('error');
+          else
+              control.removeClass('error');
+          process(results);
+      }
+  });
+}
+
+FingerbankSearch.setup = function() {
+  $('.fingerbank-type-ahead').each(function(){ 
+      var o = this;
+      // Creating a new scope since we are in a loop
+      (function() {
+        var search = new FingerbankSearch();
+        search.typeahead_field = $(o);
+        search.typeahead_btn = $('#btn-fingerbank-add-'+$(o).attr('data-add-to'));
+        search.model = $(o).attr('data-type-ahead-for');
+        search.add_to = $('#'+$(o).attr('data-add-to'));
+        $(o).typeahead({
+          source: $.proxy(search.search, search),
+          minLength: 2,
+          items: 11,
+          matcher: function(item) { return true; }
+        });
+        search.typeahead_btn.click(function(e) {
+          e.preventDefault()
+          $.each(search.results, function(){
+            if(this.display == search.typeahead_field.val()){
+              search.add_to.append('<option selected="selected" value="'+this.id+'">'+this.display+'</option>');
+              search.add_to.trigger("liszt:updated");
+            }
+          });
+          search.typeahead_field.val('');
+          return false;      
+        });
+      })()
+  });
+}

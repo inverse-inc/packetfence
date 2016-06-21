@@ -23,7 +23,7 @@ extends 'pfappserver::Base::Model::Config';
 
 has fingerbankModel => (is => 'ro' , required => 1);
 
-has scope => (is => 'ro', required => 1, default => sub { 'Upstream' } );
+has scope => (is => 'rw', required => 1, default => sub { 'Upstream' } );
 
 has search_fields => (is => 'rw', default => sub {[qw(value)]});
 
