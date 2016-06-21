@@ -146,9 +146,9 @@ sub _parse_cmp {
         if (/\G\s*(==|!=|=~|!~)/gc) {
             my $op = $1;
             my $b;
-            if (/\G\s*([a-zA-Z0-9_]+)/gc) {
+            if (/\G\s*([a-zA-Z0-9_\.]+)/gc) {
                 $b = $1;
-            } elsif (/\G\s*"((?:[^"]|\"|\\)*)"/gc) {
+            } elsif (/\G\s*"((?:[^"]|\"|\\)*?)"/gc) {
                 $b = $1;
                 $b =~ s/\\"/"/g;
                 $b =~ s/\\\\/\\/g;
@@ -191,7 +191,7 @@ sub _parse_fact {
     }
 
     #It is a simple id
-    return $1 if (/\G\s*([a-zA-Z0-9_]+)/gc);
+    return $1 if (/\G\s*([a-zA-Z0-9_\.]+)/gc);
     #Reduce whitespace
     /\G\s*/gc;
     die format_parse_error("Invalid character(s)", $_, pos() );
