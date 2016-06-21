@@ -24,6 +24,7 @@ has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 use fingerbank::Model::Device;
 use fingerbank::Constant;
 use List::MoreUtils qw(any uniq);
+use pf::error qw(is_success);
 
 =head2 get_language_handle_from_ctx
 
@@ -198,9 +199,15 @@ after 'process' => sub {
 
             my @base_ids = $field->fingerbank_model->base_ids();
             my @options = map {
-                { 
-                    value => $_,
-                    label => [ $field->fingerbank_model->read($_) ]->[1]->{$field->fingerbank_model->value_field},
+                my ($status, $result) = $field->fingerbank_model->read($_);
+                if(is_success($status)){
+                    { 
+                        value => $_,
+                        label => $result->{$field->fingerbank_model->value_field},
+                    }
+                }
+                else {
+                    ();
                 }
             } uniq(@base_ids, @{$field->value});
 
