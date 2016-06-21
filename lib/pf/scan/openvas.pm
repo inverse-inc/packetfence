@@ -236,6 +236,8 @@ sub new {
             '_reportId'         => undef,
             '_status'           => undef,
             '_type'             => undef,
+            '_oses'             => undef,
+            '_categories'         => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {

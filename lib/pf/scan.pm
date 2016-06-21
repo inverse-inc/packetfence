@@ -42,6 +42,7 @@ use pf::violation qw(violation_close violation_exist_open violation_trigger viol
 use pf::Portal::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
+use List::MoreUtils qw(any);
 
 # DATABASE HANDLING
 use constant SCAN       => 'scan';
@@ -340,6 +341,53 @@ sub getReport {
 sub toString {
     my ($self) = @_;
     return $self->{'_id'};
+}
+
+=head2 matchCategory
+
+=cut
+
+sub matchCategory {
+    my ($self, $node_attributes) = @_;
+    my $category = [split(/\s*,\s*/, $self->{_categories})];
+    my $node_cat = $node_attributes->{'category'};
+
+    get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
+    # validating that the node is under the proper category for provisioner
+    return @$category == 0 || any { $_ eq $node_cat } @$category;
+}
+
+=head2 matchOS
+
+=cut
+
+sub matchOS {
+    my ($self, $node_attributes) = @_;
+    my @oses = @{$self->{_oses} || []};
+
+    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
+
+    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
+    #if no oses are defined then it will match all the oses
+    return $TRUE if @oses == 0;
+    #if there is no device info then fail
+    return $FALSE if @{$fingerbank_info->{device_hierarchy_ids}} == 0;
+
+    foreach my $device_id (@{$fingerbank_info->{device_hierarchy_ids}}) {
+        if(any {$device_id eq $_} @oses){
+            return $TRUE;
+        }
+    }
+    return $FALSE;
+}
+
+=head2 match
+
+=cut
+
+sub match {
+    my ($self, $os, $node_attributes) = @_;
+    return $self->matchOS($node_attributes) && $self->matchCategory($node_attributes);
 }
 
 =back

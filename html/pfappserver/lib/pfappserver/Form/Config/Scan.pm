@@ -21,7 +21,6 @@ use File::Find qw(find);
 
 ## Definition
 has 'roles' => (is => 'ro', default => sub {[]});
-has oses => ( is => 'rw' );
 
 has_field 'id' =>
   (
@@ -103,24 +102,15 @@ has_field 'post_registration' =>
 
 has_field 'oses' =>
   (
-   type => 'Select',
+   type => 'FingerbankSelect',
    multiple => 1,
    label => 'OS',
-   options_method => \&options_oses,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
+   fingerbank_model => "fingerbank::Model::Device",
   );
-
-=head2 options_oses
-
-=cut
-
-sub options_oses {
-    my $self = shift;
-    return $self->form->oses;
-}
 
 =head2 options_type
 
@@ -172,23 +162,6 @@ sub options_categories {
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my @oses = ["Windows" => "Windows",
-                "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android",
-                "Apple iPod, iPhone or iPad" => "Apple iOS device"
-               ];
-    return $self->SUPER::ACCEPT_CONTEXT($c, oses => @oses, @args);
-}
-
 
 =over
 
