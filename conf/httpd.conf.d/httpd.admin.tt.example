@@ -237,8 +237,6 @@ ProxyHTMLLinks  script      src for
           ProxyHTMLURLMap https://[% server_name %]/ /portal_preview/ l
           ProxyHTMLURLMap http://[% server_name %]/ /portal_preview/ l
           ProxyHTMLURLMap /portal_preview/ / l
-          ProxyHTMLURLMap ^(.*\?.*)$ $1\&PORTAL=${X_PORTAL} RVl
-          ProxyHTMLURLMap ^([^\?]*)$ $1?PORTAL=${X_PORTAL} RVl
           ProxyHTMLURLMap / /portal_preview/
 
           Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e; Path=/portal_preview" env=X_PORTAL
