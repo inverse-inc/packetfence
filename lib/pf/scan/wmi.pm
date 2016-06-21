@@ -57,6 +57,8 @@ sub new {
             '_type'     => undef,
             '_status'   => undef,
             '_domain'   => undef,
+            '_oses'     => undef,
+            '_categories' => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {

@@ -34,7 +34,7 @@ sub new {
     $data->{id} = $name;
     if ($data) {
         my $subclass = $class->getModuleName($name,$data);
-        $object = $subclass->new($data);
+        $object = $subclass->new(%$data);
     }
     return $object;
 }
