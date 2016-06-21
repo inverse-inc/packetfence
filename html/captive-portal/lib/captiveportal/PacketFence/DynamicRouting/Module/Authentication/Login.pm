@@ -172,7 +172,7 @@ sub authenticate {
             rule_class => 'authentication',
         };
         my $source_id;
-        my $role = &pf::authentication::match([$source], $params, $Actions::SET_ROLE, \$source_id);
+        my $role = &pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
 
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
