@@ -747,6 +747,7 @@ $(function () { // DOM ready
     $('body').on('section.loaded', function(event) {
         updateExtendedDurationExample($('.extended-duration'));
         bindExportCSV();
+        FingerbankSearch.setup();
     });
 
     /* Update extended duration widget when changing parameters of the duration */
@@ -788,6 +789,10 @@ $(function () { // DOM ready
           }
         });
       }
+    });
+
+    $('#section').on('show', '.modal', function(e) {
+      FingerbankSearch.setup();
     });
 
 });
