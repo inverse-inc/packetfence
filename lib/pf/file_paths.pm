@@ -66,6 +66,7 @@ our (
     $vlan_filters_config_file, $vlan_filters_config_default_file,
     $pfcmd_binary,
     $realm_config_file,
+    $realm_default_config_file,
     $cluster_config_file,
     $server_cert, $server_key, $server_pem,
     $ssl_configuration_file,
@@ -124,6 +125,7 @@ BEGIN {
         $vlan_filters_config_file $vlan_filters_config_default_file
         $pfcmd_binary
         $realm_config_file
+        $realm_default_config_file
         $cluster_config_file
         $server_cert $server_key $server_pem
         $ssl_configuration_file
@@ -199,6 +201,7 @@ $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
 $pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
+$realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
 $server_key = catfile($conf_dir,"ssl/server.key");
 $server_cert = catfile($conf_dir,"ssl/server.crt");
