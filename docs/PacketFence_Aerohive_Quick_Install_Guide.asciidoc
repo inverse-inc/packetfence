@@ -194,7 +194,7 @@ Configure the switch like the following:
 
 image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
 
-image::docs/images/aerohive-pf-config-role.png[scaledwidth="100%",alt="Roles switch settings"]
+image::docs/images/aerohive-pf-config-vlan.png[scaledwidth="100%",alt="VLAN switch settings"]
 
 image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP switch settings"]
 
@@ -365,13 +365,6 @@ Configure SNMP
 You now need to configure the SNMP to add a valid read community string. Click on the 'Configure' pane, and on 'Advanced Configuration', then 'Management Policies', then 'SNMP Assignments'. Now click on 'New' and follow this configuration.
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
-
-Configure RADIUS Attribute
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the 'Configuration' panel, click on 'Networks', then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under 'User Profile'. Configure it follow:
-
-image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
 <<<
 
