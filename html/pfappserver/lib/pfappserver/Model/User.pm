@@ -434,8 +434,19 @@ sub createMultiple {
     my @users = ();
     my $count = 0;
 
+    my @skipped = ();
     for (my $i = 1; $i <= $quantity; $i++) {
         $pid = "$prefix$i";
+
+        # Check if PID already exists
+        if ( pf::person::person_exist($pid) ) {
+            $logger->warn("Tried to create existing user '$pid' while creating multiple. Skipping");
+            push @skipped, $pid;
+            # Incrementing quantity (number of user to create) since we were unable to create the current one
+            $quantity++;
+            next;
+        }
+
         # Create/modify person
         $result = person_modify($pid,
                                 (
@@ -466,7 +477,7 @@ sub createMultiple {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Unexpected error. See server-side logs for details.');
     }
 
-    return ($status, \@users);
+    return ($status, \@users, \@skipped);
 }
 
 =head2 import
@@ -518,11 +529,21 @@ sub importCSV {
     if (open (my $import_fh, "<", $tmpfilename)) {
         my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
         while (my $row = $csv->getline($import_fh)) {
+            my @skipped = ();
             my $pid = $row->[$index{'c_username'}];
             if ($pid !~ /$pf::person::PID_RE/) {
                 $skipped++;
                 next;
             }
+
+            # Check if PID already exists
+            if ( pf::person::person_exist($pid) ) {
+                $logger->warn("Tried to import an existing user with PID '$pid' from CSV file. Skipping it");
+                $skipped++;
+                push @skipped, $pid;
+                next;
+            }
+                
             # Create/modify person
             my %person =
               (
