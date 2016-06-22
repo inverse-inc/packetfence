@@ -371,7 +371,9 @@ First make sure that you system is correctly configured and up-to-date
   ha_interface_ip_address_2 pf2_server_name
 
 Set hostname on each server:
-
+  
+NOTE: An active NetworkManager will overwrite your DNS configuration if not explicitely instructed to not do so before executing the following commands. (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Bug Report]) (https://packetfence.org/doc/PacketFence_Administration_Guide.html#_os_installation[Corrective Measures])
+ 
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
 
