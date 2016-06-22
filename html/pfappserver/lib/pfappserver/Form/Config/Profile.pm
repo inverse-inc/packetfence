@@ -68,6 +68,10 @@ sub options_filter_match_style {
     return  map { { value => $_, label => $_ } } qw(all any);
 }
 
+has_field 'advanced_filter' => 
+(
+    type => 'TextArea',
+);
 
 =head1 METHODS
 
