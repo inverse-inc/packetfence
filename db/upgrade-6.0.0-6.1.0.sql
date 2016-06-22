@@ -15,6 +15,11 @@ SET @SUBMINOR_VERSION = 0;
 --
 
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
+--
+-- Updating to current version
+--
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
 --
 -- Add unregistration date to activation records
@@ -97,7 +102,8 @@ VALUES
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime);
-END /
+END 
+/
 DELIMITER ;
 
 -- Adding RADIUS Stop Stored Procedure
@@ -187,7 +193,8 @@ BEGIN
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
     (p_acctsessiontime - Previous_Session_Time));
-END /
+END
+/
 DELIMITER ;
 
 -- Adding RADIUS Updates Stored Procedure
@@ -296,6 +303,7 @@ BEGIN
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
     (p_acctsessiontime - Previous_Session_Time));
-END /
+END 
+/
 DELIMITER ;
 
