@@ -330,7 +330,15 @@ sub process_destination_url {
         $url = $self->profile->getRedirectURL;
     }
 
-    my $host = URI::URL->new($url)->host();
+    my $host;
+    eval {
+        $host = URI::URL->new($url)->host();
+    };
+    if($@) {
+        get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
+        return $self->profile->getRedirectURL;
+    }
+
 
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the portal profile
