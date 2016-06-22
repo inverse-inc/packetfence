@@ -285,7 +285,7 @@ has_field 'reuse_dot1x_credentials' =>
     unchecked_value => 'disabled',
     tags => {
         after_element   =>    \&help,
-        help            => 'As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part need to be configured as a realm under the RADIUS section and an authentication source need to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the DEFAULT realm will be match IF an authentication source is configured for it.'
+        help            => 'This option kind of act as a SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part need to be configured as a realm under the RADIUS section and an authentication source need to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the DEFAULT realm will be match IF an authentication source is configured for it.'
     },
   );
 
