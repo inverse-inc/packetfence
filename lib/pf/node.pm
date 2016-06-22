@@ -70,6 +70,7 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_custom_search
+        node_extended_data
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -1327,6 +1328,17 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
+=item node_extended_data
+
+Get the node extended data
+
+=cut
+
+sub node_extended_data {
+    my ($mac) = @_;
+    return undef;
+}
+
 =back
 
 =head1 AUTHOR
@@ -1363,4 +1375,3 @@ USA.
 =cut
 
 1;
-
