@@ -284,13 +284,9 @@ We'll use the clone function to add a new switch (the AeroHive AP) to the Packet
 
 Configure the switch like the following:
 
-image::docs/images/aerohive-pf-config-1.png[scaledwidth="100%",alt="General switch settings"]
+image::docs/images/aerohive-pf-config-webauth.png[scaledwidth="100%",alt="General switch settings"]
 
-NOTE: While using webauth change the switch module for Aerohive AP_http.
-
-image::docs/images/aerohive-pf-config-role-webauth.png[scaledwidth="100%",alt="Roles switch settings"]
-
-image::docs/images/aerohive-pf-config-role-webauth2.png[scaledwidth="100%",alt="WebAuth URL switch settings"]
+The section Roles should be empty while doing webauth.
 
 image::docs/images/aerohive-pf-config-snmp.png[scaledwidth="100%",alt="SNMP switch settings"]
 
@@ -381,7 +377,7 @@ Configure the External Captive Portal
 
 On the left menu, click on 'Advanced Configuration', then 'Authentication', then 'Captive Web Portals'. Click on 'New' to create a Captive Portal, configure it as follow:
 
-image::docs/images/aerohive-captive-portal.png[scaledwidth="100%",alt="Captive Web Portal configuration"]
+image::docs/images/aerohive-external-portal.png[scaledwidth="100%",alt="Captive Web Portal configuration"]
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
@@ -427,12 +423,6 @@ You now need to configure the SNMP to add a valid read community string. Click o
 
 image::docs/images/aerohive-add-snmp.png[scaledwidth="100%",alt="SNMP configuration"]
 
-Configure RADIUS Attribute
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To be able to use the "Roles by switch role" you will need to setup a specific RADIUS attribute. To do so, from the 'Configuration' panel, click on 'Networks', then click on the network you will use, that will bring you to the "Guided configuration" now choose your SSID and click 'Add/Remove' under 'User Profile'. Configure it follow:
-
-image::docs/images/aerohive-radius-attribute.png[scaledwidth="100%",alt="RADIUS attribute option"]
 
 Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
