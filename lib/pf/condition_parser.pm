@@ -23,7 +23,7 @@ OP   = '==' | '!=' | '=~' | '!~'
 FACT = ! FACT
 FACT = '(' EXPR ')'
 FACT = ID
-ID   = /a-zA-Z0-9_/+
+ID   = /a-zA-Z0-9_\./+
 
 =cut
 
