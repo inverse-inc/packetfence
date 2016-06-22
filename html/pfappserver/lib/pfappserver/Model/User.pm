@@ -351,8 +351,12 @@ sub createSingle {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
 
+    # Check if PID already exists
+    if ( pf::person::person_exist($pid) ) {
+        return ( $STATUS::INTERNAL_SERVER_ERROR, "User '$pid' already exists" );
+    }
 
-    # Adding person (using modify in case person already exists)
+    # Adding person
     $result = person_modify($pid,
                             (
                              'firstname' => $data->{firstname},
