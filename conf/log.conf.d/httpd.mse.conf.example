@@ -1,0 +1,19 @@
+### httpd.mse logger ###
+log4perl.rootLogger = INFO, HTTPD_MSE
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for httpd.mse
+log4perl.appender.HTTPD_MSE                              = Log::Log4perl::Appender::File
+log4perl.appender.HTTPD_MSE.filename                     = /usr/local/pf/logs/httpd.mse.log
+log4perl.appender.HTTPD_MSE.syswrite                     = 1
+log4perl.appender.HTTPD_MSE.mode                         = append
+log4perl.appender.HTTPD_MSE.layout                       = PatternLayout
+log4perl.appender.HTTPD_MSE.layout.ConversionPattern     = %d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
+log4perl.appender.HTTPD_MSE.umask                        = 0002
+log4perl.appender.HTTPD_MSE.user                         = pf
+log4perl.appender.HTTPD_MSE.group                        = pf
+log4perl.appender.HTTPD_MSE.binmode                      = utf8
+
