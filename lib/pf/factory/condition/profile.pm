@@ -17,6 +17,25 @@ use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , r
 our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
+use pf::condition_parser qw(parse_condition_string);
+
+our %UNARY_OPS = (
+    'NOT' => 'pf::condition::not',
+);
+
+our %LOGICAL_OPS = (
+    'AND' => 'pf::condition::all',
+    'OR'  => 'pf::condition::any',
+);
+
+our %CMP_OPS = (
+    '=='  => 'pf::condition::equals',
+    '!='  => 'pf::condition::not_equals',
+    '=~'  => 'pf::condition::regex',
+    '!~'  => 'pf::condition::regex_not',
+);
+
+our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS);
 
 our @MODULES;
 
@@ -87,6 +106,13 @@ sub instantiate {
     }
 }
 
+sub instantiate_advanced {
+    my ($class, $filter) = @_;
+    my ($condition, $msg) = parse_condition_string($filter);
+    die "$msg" unless defined $condition;
+    return build_conditions($class, $condition);
+}
+
 sub getModuleName {
     my ($class, $type) = @_;
     my $mainClass = $class->factory_for;
@@ -108,6 +134,46 @@ sub getData {
     my $condition_type = delete $args{type};
     $args{value} = $value;
     return $condition_type, \%args;
+}
+
+sub build_conditions {
+    my ($self, $condition) = @_;
+    die "Invalid Condition provided\n" unless ref $condition;
+    my ($op, @operands) = @$condition;
+    die "Operator '$op' is not valid\n" unless exists $OPS{$op};
+    my $class = $OPS{$op};
+    if (exists $UNARY_OPS{$op}) {
+        my $condition = build_conditions($self, $operands[0]);
+        return $class->new({condition => $condition});
+    }
+    if (exists $LOGICAL_OPS{$op}) {
+        my $conditions = [map { build_conditions($self, $_) } @operands];
+        return $class->new({conditions => $conditions});
+    }
+    my ($first, @keys) = split /\./, $operands[0];
+    my $sub_condition = $class->new({ value => $operands[1] });
+    if ($first eq 'extended' ) {
+        die "No sub fields provided for the extended key\n" unless @keys;
+        return pf::condition::node_extended->new({
+            key => $first,
+            condition => _build_parent_condition($sub_condition, @keys)
+        });
+    }
+    return _build_parent_condition($sub_condition, $first, @keys);
+}
+
+sub _build_parent_condition {
+    my ($child, $key, @parents) = @_;
+    if (@parents == 0) {
+        return pf::condition::key->new({
+            key       => $key,
+            condition => $child,
+        });
+    }
+    return pf::condition::key->new({
+        key       => $key,
+        condition => _build_parent_condition($child, @parents),
+    });
 }
 
 =head1 AUTHOR
