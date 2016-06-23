@@ -351,8 +351,8 @@ sub createSingle {
         return ($STATUS::INTERNAL_SERVER_ERROR, 'Do not have permission to add the ALL role to a user');
     }
 
-    # Check if PID already exists
-    if ( pf::person::person_exist($pid) ) {
+    # Check if PID already exists (only if not configured to overwrite existing PIDs)
+    if ( !$data->{'pid_overwrite'} && pf::person::person_exist($pid) ) {
         return ( $STATUS::INTERNAL_SERVER_ERROR, "User '$pid' already exists" );
     }
 
@@ -438,8 +438,8 @@ sub createMultiple {
     for (my $i = 1; $i <= $quantity; $i++) {
         $pid = "$prefix$i";
 
-        # Check if PID already exists
-        if ( pf::person::person_exist($pid) ) {
+        # Check if PID already exists (only if not configured to overwrite existing PIDs)
+        if ( !$data->{'pid_overwrite'} && pf::person::person_exist($pid) ) {
             $logger->warn("Tried to create existing user '$pid' while creating multiple. Skipping");
             push @skipped, $pid;
             # Incrementing quantity (number of user to create) since we were unable to create the current one
@@ -536,8 +536,8 @@ sub importCSV {
                 next;
             }
 
-            # Check if PID already exists
-            if ( pf::person::person_exist($pid) ) {
+            # Check if PID already exists (only if not configured to overwrite existing PIDs)
+            if ( !$data->{'pid_overwrite'} && pf::person::person_exist($pid) ) {
                 $logger->warn("Tried to import an existing user with PID '$pid' from CSV file. Skipping it");
                 $skipped++;
                 push @skipped, $pid;

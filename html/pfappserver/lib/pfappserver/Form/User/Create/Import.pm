@@ -35,6 +35,15 @@ has_field 'delimiter' =>
    ],
   );
 
+has_field 'pid_overwrite' => (
+    type    => 'Checkbox',
+    label   => 'Username (PID) overwrite',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Overwrite the username (PID) if it already exists',
+    },
+);
+
 has_field 'columns' =>
   (
    type => 'Repeatable',
