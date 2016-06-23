@@ -14,6 +14,7 @@ This guide has been created to give a quick start to install active/active clust
 Assumptions
 -----------
 * You have at least two servers with a fresh install of PacketFence 5+
+* Both servers pf managed services are stopped.
 * Both servers are identical copies for the network interfaces
 * Both servers are running CentOS 6 or 7
 * Both servers have access to the same layer 2 network on all their network interfaces
@@ -35,7 +36,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After the installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+After the installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You may have to reboot your server after this step if requested.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -397,6 +398,7 @@ NOTE: An active NetworkManager will overwrite your DNS configuration if not expl
 Disable selinux on each server:
 
   # setenforce 0
+  # sed 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
 [options="compact"]
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
