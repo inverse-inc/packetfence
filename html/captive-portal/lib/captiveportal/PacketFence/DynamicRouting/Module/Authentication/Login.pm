@@ -161,7 +161,8 @@ sub authenticate {
             get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
             $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
 
-            $self->done();
+            $self->prompt_fields();
+            return;
         }
 
         # Trying to match credentials with the source
@@ -183,7 +184,8 @@ sub authenticate {
             get_logger->error("Unable to find a match in the '$realm' realm authentication source for credentials '" . $node_info->{'last_dot1x_username'} . "' while using reuseDot1xCredentials");
             $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
 
-            $self->done();
+            $self->prompt_fields();
+            return;
         }
 
     }
