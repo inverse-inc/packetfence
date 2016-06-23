@@ -30,12 +30,20 @@ our $JSON = JSON::MaybeXS->new();
 sub handler {
     my $r = shift;
     my $content = get_all_content($r);
-    my $object = $JSON->decode($content);
+    my $object  = $JSON->decode($content);
     my @args;
     for my $notification (@{$object->{notifications}}) {
-        my $id = "association:" . $notification->{deviceId};
+        my $type = $notification->{notificationType};
+        my $id   = "extended:mse-${type}:$notification->{deviceId}";
         my $data = $JSON->encode($notification);
-        push @args, [$id, $data];
+        my @cmd_args;
+        if ($type eq 'inout' && $notification->{boundary} eq 'OUTSIDE') {
+            @cmd_args = ('del', $id);
+        }
+        else {
+            @cmd_args = ('set', $id, $data);
+        }
+        push @args, \@cmd_args;
     }
     $r->pool->cleanup_register(\&cleanup, \@args);
     $r->status(Apache2::Const::HTTP_NO_CONTENT);
@@ -43,10 +51,11 @@ sub handler {
 }
 
 sub cleanup {
-    my $args = shift;
+    my $commands = shift;
     my $redis = pf::Redis->new(server => '127.0.0.1:6379');
-    for my $arg (@$args) {
-        $redis->lpush(@$arg, sub {});
+    for my $command (@$commands) {
+        my ($cmd, @args) = @$command;
+        $redis->$cmd(@args, sub {});
     }
     $redis->wait_all_responses();
     return Apache2::Const::OK;
