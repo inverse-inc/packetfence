@@ -113,10 +113,11 @@ PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI::MSEHandler
-PerlLoadModule pf::WebAPI::MSEInitHandler
-PerlInitHandler pf::WebAPI::MSEInitHandler
-PerlChildInitHandler pf::WebAPI::MSEInitHandler->child_init
+PerlLoadModule pf::WebAPI::InitMSEHandler
+PerlInitHandler pf::WebAPI::InitMSEHandler
+PerlChildInitHandler pf::WebAPI::InitMSEHandler->child_init
 SetEnvIf User-Agent collectd is_collectd
+
 
 PidFile [% install_dir %]/var/run/[% name %].pid
 
@@ -142,7 +143,7 @@ SSLRandomSeed  startup file:/dev/urandom 1024
 SSLRandomSeed  connect builtin
 SSLRandomSeed  connect file:/dev/urandom 1024
 
-[% IF apache_version == "2.4" %]
+[% IF apache_version >= "2.4" %]
 SSLSessionCache shmcb:[% install_dir %]/var/ssl_acache(512000)
 Mutex file:[% install_dir %]/var/ssl_mutex ssl-cache
 SSLProtocol All -SSLv2 -SSLv3
