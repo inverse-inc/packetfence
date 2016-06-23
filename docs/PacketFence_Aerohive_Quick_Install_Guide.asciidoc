@@ -28,7 +28,7 @@ Assumptions
 * You will need a laptop or a PC from which the PacketFence Live USB key will run from;
 * You will deploy a VLAN enforcement environment according to the customer specifications;
 * Your customer will provide the network equipment (switch, cables, etc) to interconnect this PoC setup;
-* Aerohive Access Point is loaded with HiveOS 6 or later;
+* Aerohive Access Point is loaded with HiveOS with version 6 or later;
 * HiveManager with version 6 or later.
 
 Quick Deployment
