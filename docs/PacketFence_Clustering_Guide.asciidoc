@@ -398,7 +398,7 @@ NOTE: An active NetworkManager will overwrite your DNS configuration if not expl
 Disable selinux on each server:
 
   # setenforce 0
-  # sed 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+  # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
 [options="compact"]
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
