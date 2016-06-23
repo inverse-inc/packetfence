@@ -23,9 +23,11 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEME
 use pf::log;
 use pf::Redis;
 use JSON::MaybeXS;
+use Data::Dumper;
 
 use Apache2::Const -compile => 'OK';
 our $JSON = JSON::MaybeXS->new();
+my $logger = get_logger();
 
 sub handler {
     my $r = shift;
@@ -35,12 +37,12 @@ sub handler {
     for my $notification (@{$object->{notifications}}) {
         my $type = $notification->{notificationType};
         my $id   = "extended:mse_${type}:$notification->{deviceId}";
-        my $data = $JSON->encode($notification);
         my @cmd_args;
         if ($type eq 'inout' && $notification->{boundary} eq 'OUTSIDE') {
             @cmd_args = ('del', $id);
         }
         else {
+            my $data = $JSON->encode($notification);
             @cmd_args = ('set', $id, $data);
         }
         push @args, \@cmd_args;
