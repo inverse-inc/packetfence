@@ -1339,12 +1339,12 @@ Get the node extended data
 
 sub node_extended_data {
     my ($mac) = @_;
-    my @namespaces = qw(mse);
-    if (@{$Config{advanced}{extended_profile_filter_namespaces}}) {
+    my $namespaces = $Config{advanced}{extended_profile_filter_namespaces};
+    if (@$namespaces) {
         my %hash;
         my $redis = pf::Redis->new(server => 'localhost:6379');
         my $json = JSON::MaybeXS->new;
-        foreach my $namespace (@namespaces) {
+        foreach my $namespace (@$namespaces) {
             my ($data) = $redis->get("extended:${namespace}:${mac}");
             if (defined $data) {
                 $hash{$namespace} = $json->decode($data);
