@@ -3674,7 +3674,7 @@ And in the AeroHIVE configuration, you have :
 Last step is to allow the User Profile to be returned for a particular SSID.  Go to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic Management*, and select the User Profiles you will
 return for the devices.
 
-NOTE: The VLAN ID is *NOT* returned by PacketFence if a role is available for a given category.   The VLAN ID needs to be configured in the User Profile definition on the AeroHIVE side.
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* have. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
 [float]
 Caching and Roaming
@@ -3694,6 +3694,8 @@ Portal configuration
 * Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
 * Select Select *Registration Type* = *External Authentication*
 * Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/ and *Password Encryption* to *No Encryption*
+* Use the *User Profiles* to define your web authentication VLAN
+* In PacketFence configuration make sure to unselect every *Roles by* in the tab *Roles* while adding the switch, also please select the switch type *Aerohive AP with web auth*
 
 ////
 
