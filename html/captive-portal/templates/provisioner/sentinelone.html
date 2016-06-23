@@ -5,15 +5,15 @@
 
   <div class="layout__item u-1/2 u-2/3-lap u-1/1-palm">
     [% IF provisioner.win_agent_download_uri.defined %]
-    <a href="[% provisioner.agent_download_uri %]" class="btn btn--full" target="_blank">
+    <a href="[% provisioner.win_agent_download_uri %]" class="btn btn--full" target="_blank">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Download Windows Agent") %]</p>
       </div>
     </a>
     [% END %] 
-    [% IF provisioner.mac_agent_download_uri.defined %]
-    <a href="[% provisioner.agent_download_uri %]" class="btn btn--full" target="_blank">
+    [% IF provisioner.mac_osx_agent_download_uri.defined %]
+    <a href="[% provisioner.mac_osx_agent_download_uri %]" class="btn btn--full" target="_blank">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Download Mac OSX Agent") %]</p>
