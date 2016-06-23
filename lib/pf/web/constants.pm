@@ -94,8 +94,6 @@ Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout';
 
 # External Captive Portal detection constant
-Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
-Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 Readonly::Scalar our $REQ_RUCKUS                => 'sip';

@@ -347,25 +347,6 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req) = @_;
-    my $logger = $self->logger;
-    return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
-}
-
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
