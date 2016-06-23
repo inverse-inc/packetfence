@@ -361,18 +361,6 @@ sub detach {
     die captiveportal::DynamicRouting::Detach->new;
 }
 
-=head2 bailout
-
-Bail out
-
-=cut
-
-sub bailout {
-    my ( $self ) = @_;
-    $self->prompt_fields();
-    return;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
