@@ -34,7 +34,7 @@ sub handler {
     my @args;
     for my $notification (@{$object->{notifications}}) {
         my $type = $notification->{notificationType};
-        my $id   = "extended:mse-${type}:$notification->{deviceId}";
+        my $id   = "extended:mse_${type}:$notification->{deviceId}";
         my $data = $JSON->encode($notification);
         my @cmd_args;
         if ($type eq 'inout' && $notification->{boundary} eq 'OUTSIDE') {
