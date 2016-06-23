@@ -55,7 +55,7 @@ sub handle_callback {
     my $token = $self->get_token();
     return unless($token);
 
-    my $pid = $token->{username}.'@twitter';
+    my $pid = $token->{username}.'@instagram';
     $self->username($pid);
 
     get_logger->info("OAuth2 successfull for username ".$self->username);
