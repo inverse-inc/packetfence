@@ -150,7 +150,7 @@ sub authenticate {
         my $mac       = $self->current_mac;
         my $node_info = node_view($mac);
         ($username,$realm) = strip_username($node_info->{'last_dot1x_username'});
-        $realm = lc($pf::constants::realm::DEFAULT) unless(defined($realm));
+        $realm = lc($pf::constants::realm::NULL) unless(defined($realm));
         get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
 
         # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
