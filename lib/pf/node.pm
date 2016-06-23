@@ -24,6 +24,7 @@ use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::Redis;
+use pf::config qw(%Config);
 use JSON::MaybeXS;
 
 use constant NODE => 'node';
@@ -1339,7 +1340,7 @@ Get the node extended data
 sub node_extended_data {
     my ($mac) = @_;
     my @namespaces = qw(mse);
-    if (@namespaces) {
+    if (@{$Config{advanced}{extended_profile_filter_namespaces}}) {
         my %hash;
         my $redis = pf::Redis->new(server => 'localhost:6379');
         my $json = JSON::MaybeXS->new;
