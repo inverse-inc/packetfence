@@ -205,7 +205,7 @@ sub execute_request {
             }
         }
     }
-    return $res;
+    return $pf::provisioner::COMMUNICATION_FAILED;
 }
 
 =head2 _execute_request
