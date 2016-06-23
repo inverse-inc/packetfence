@@ -3674,7 +3674,7 @@ And in the AeroHIVE configuration, you have :
 Last step is to allow the User Profile to be returned for a particular SSID.  Go to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic Management*, and select the User Profiles you will
 return for the devices.
 
-In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* have. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
 [float]
 Caching and Roaming
