@@ -189,6 +189,19 @@ sub parseUrl {
     return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
 }
 
+
+=item parseSwitchIdFromRequest
+
+Parse the switch identifier from the HTTP request
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my( $self, $req ) = @_;
+    return $$req->param('sip');
+}
+
+
 =item getAcceptForm
 
 Creates the form that should be given to the client device to trigger a reauthentication.

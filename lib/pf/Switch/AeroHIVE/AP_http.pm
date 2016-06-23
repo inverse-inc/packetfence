@@ -55,6 +55,19 @@ sub parseUrl {
     return ($$req->param('Calling-Station-Id'),$$req->param('ssid'),$$req->param('STA-IP'),$$req->param('destination_url'),$$req->param('url'),"200");
 }
 
+
+=item parseSwitchIdFromRequest
+
+Parse the switch identifier from the HTTP request
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my( $self, $req ) = @_;
+    return $$req->param('RADIUS-NAS-IP');
+}
+
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.

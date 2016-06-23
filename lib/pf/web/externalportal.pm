@@ -151,20 +151,6 @@ sub handle {
         }
     }
 
-    foreach my $param ($req->param) {
-        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-            my $value;
-            $value = clean_mac($req->param($param)) if valid_mac($req->param($param));
-            $value = $req->param($param) if  valid_ip($req->param($param));
-            if (defined($value)) {
-                my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($value,$req,$r,undef);
-                if ($cgi_session_id ne '0') {
-                    return ($cgi_session_id, $redirect_url);
-                }
-            }
-        }
-    }
-
     # Try to fetch the parameters in the session
     if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
         my ($cgi_session_id, $redirect_url) = $self->external_captive_portal(undef,$req,$r,$1);

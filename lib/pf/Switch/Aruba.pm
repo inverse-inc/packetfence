@@ -559,6 +559,18 @@ sub parseUrl {
 }
 
 
+=item parseSwitchIdFromRequest
+
+Parse the switch identifier from the HTTP request
+
+=cut
+
+sub parseSwitchIdFromRequest {
+    my( $self, $req ) = @_;
+    return $$req->param('apname');
+}
+
+
 =item
 
 =cut

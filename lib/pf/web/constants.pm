@@ -94,15 +94,15 @@ Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
 Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout';
 
 # External Captive Portal detection constant
-Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
-Readonly::Scalar our $REQ_RUCKUS                => 'sip';
-Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
 
 # External Captive Portal URL detection constant
-Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
-Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
+Readonly::Scalar our $EXT_URL_AEROHIVE          => '^/AeroHIVE/AP_http';
+Readonly::Scalar our $EXT_URL_ARUBA             => '^/Aruba';
 Readonly::Scalar our $EXT_URL_COOVACHILLI       => '^/CoovaChilli';
+Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
+Readonly::Scalar our $EXT_URL_RUCKUS            => '^/Ruckus';
+Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
