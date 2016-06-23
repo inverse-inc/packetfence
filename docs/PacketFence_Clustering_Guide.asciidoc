@@ -539,10 +539,10 @@ resource mysql {
   verify-alg sha1;
  }
  on pf1 {
-  address  ha_interface_ip_address_1:7789;
+  address  ha_interface_ip_address_1:7788;
  }
  on pf2 {
-  address  ha_interface_ip_address_2:7789;
+  address  ha_interface_ip_address_2:7788;
  }
 }
 EOL
