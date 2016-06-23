@@ -707,12 +707,14 @@ dhcp DHCP-Inform {
 }
 
 dhcp DHCP-Release {
-	update reply {
-		&DHCP-Message-Type = DHCP-Do-Not-Respond
-	}
-	reject
-}
 
+        update reply {
+                &DHCP-Message-Type = DHCP-Do-Not-Respond
+                &Tmp-Integer-3  = "%{sql: UPDATE radippool SET nasipaddress = '', pool_key = 0, callingstationid = '', username = '', expiry_time = NOW(), lease_time = NULL  WHERE framedipaddress = '%{DHCP-Client-IP-Address}' and callingstationid = '%{DHCP-Client-Hardware-Address}'}"
+
+        }
+        reject
+}
 
 dhcp DHCP-Lease-Query {
 	update {
