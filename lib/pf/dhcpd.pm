@@ -240,7 +240,6 @@ sub ping_dhcpd {
                 'interface' => $eth,
                 'index' => $index{$eth},
             );
-            $i++;
             $answer->{$host->{$interface}->{ip}} = \%info;
         }
     }

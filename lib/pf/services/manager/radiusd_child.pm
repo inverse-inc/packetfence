@@ -42,6 +42,7 @@ use pf::config qw(
     $local_secret
     @listen_ints
     %ConfigNetworks
+    @dhcplistener_ints
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
