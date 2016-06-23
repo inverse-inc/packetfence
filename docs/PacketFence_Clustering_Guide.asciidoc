@@ -885,7 +885,7 @@ Do (and make sure it does it without any errors) :
   # /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
 
 Where : 
-^^^^^^^
+
 * '192.168.1.5' is the management IP of the other PacketFence node
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
