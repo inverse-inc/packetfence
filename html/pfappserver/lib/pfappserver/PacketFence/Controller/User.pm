@@ -260,6 +260,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
     $form_single->process(params => $params);
     $form_multiple->process(params => $params);
 
+    my $skipped;
     if ($c->request->method eq 'POST') {
         $type = $c->request->param('type');
         #check if they can do multiple actions
@@ -293,7 +294,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
             }
             else {
                 %data = (%{$form->value}, %{$form_multiple->value});
-                ($status, $message) = $self->getModel($c)->createMultiple(\%data, $c->user);
+                ($status, $message, $skipped) = $self->getModel($c)->createMultiple(\%data, $c->user);
                 $c->session->{'users_passwords'} = $message;
             }
         }
@@ -307,7 +308,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
             }
             else {
                 %data = (%{$form->value}, %{$form_import->value});
-                ($status, $message) = $self->getModel($c)->importCSV(\%data, $c->user);
+                ($status, $message, $skipped) = $self->getModel($c)->importCSV(\%data, $c->user);
                 @options = ('mail');
                 $c->session->{'users_passwords'} = $message;
             }
@@ -324,6 +325,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
             # List the created accounts
             my @pids = map { $_->{pid} } @{$message};
             $c->stash->{users} = $message;
+            $c->stash->{skipped} = $skipped if defined($skipped);
             $c->stash->{pids} = \@pids;
             $c->stash->{options} = \@options;
             $c->stash->{template} = 'user/list_password.tt';

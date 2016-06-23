@@ -23,6 +23,14 @@ has_field 'pid' =>
    tags => { after_element => \&help,
              help => 'The username to use for login to the captive portal.' },
   );
+has_field 'pid_overwrite' => (
+    type    => 'Checkbox',
+    label   => 'Username (PID) overwrite',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Overwrite the username (PID) if it already exists',
+    },
+);
 has_field 'password' =>
   (
    type => 'Password',
