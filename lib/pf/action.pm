@@ -26,6 +26,8 @@ use pf::node;
 use pf::person;
 use pf::util;
 use pf::violation_config;
+use pf::provisioner;
+use pf::constants;
 
 use constant ACTION => 'action';
 
@@ -236,13 +238,17 @@ sub action_enforce_provisioning {
     my $logger = get_logger();
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
-        unless ($provisioner->authorize($mac) == 1) {
+        my $result = $provisioner->authorize($mac);
+        if ($result == $TRUE) {
+            $logger->debug("$mac is still authorized with it's provisioner");
+        }
+        elsif($result == $pf::provisioner::COMMUNICATION_FAILED){
+            $logger->info("Not enforcing provisioning since communication failed...");
+        }
+        else{
             $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
             node_modify($mac, status => $pf::node::STATUS_PENDING);
             pf::enforcement::reevaluate_access($mac, "manage_vopen");
-        }
-        else{
-            $logger->debug("$mac is still authorized with it's provisioner");
         }
     }
     else{
