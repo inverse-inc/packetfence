@@ -585,17 +585,6 @@ When the sync is complete, create the filesystem on the primary node only:
 
   # mkfs.ext4 /dev/drbd0
 
-Make sure DRBD is started at boot time:
-
-  # systemctl enable drbd
-
-Restart both servers.
-
-When done, do `drbd-overview` and make sure you see:
-
-  ...
-    0:mysql/0  Connected Primary/Secondary UpToDate/UpToDate
-
 MariaDB Configuration
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -642,9 +631,9 @@ Execute the secure installation script in order to set the root password, remove
 
   # /usr/bin/mysql_secure_installation
 
-Make sure MariaDB does *not* start at boot time:
+Make sure to stop MariaDB:
 
-  # systemctl disable mariadb
+  # systemctl stop mariadb
 
 MariaDB network configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -761,6 +750,16 @@ Daemon Status:
 
   # pcs cluster unstandby pf1_server_name
 
+On reboot of one of the members
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the case of a reboot of one of the server you need to launch:
+
+ # pcs cluster start
+ 
+
+PacketFence Configuration Modification
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order for PacketFence to communicate properly with your MySQL cluster, you need to change the following.
 
@@ -783,9 +782,10 @@ host=127.0.0.1
 ....
 ----
 
-Make sure you restart MySQL, packetfence-config and packetfence
+Make sure you restart, packetfence-config and packetfence
 
-  # systemctl restart mariadb
+  # /usr/local/pf/bin/pfcmd configreload hard
+  # /usr/local/pf/bin/pfcmd pfconfig clear_backend
   # systemctl restart packetfence-config
   # systemctl restart packetfence
 
