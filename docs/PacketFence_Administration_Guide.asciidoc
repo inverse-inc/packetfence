@@ -850,6 +850,13 @@ The other files in this directory are managed by PacketFence using templates, so
 
 Upon PacketFence installation, self-signed certificates will be created in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
 
+Reuse 802.1x credentials
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Under certain circumstances, for example to show an AUP after a successful 802.1x connection, it might be interesting to have the ability to use an "SSO emulation" in the sense that the user does not need to re-enter his credentials on the portal after having entered them during the 802.1x EAP process. The 'Reuse 802.1x credentials' portal profile option will address this purpose. The same username as the one used during the 802.1x connection will be used against the different portal profile authentication sources to recompute the role from the portal.
+
+As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
+
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

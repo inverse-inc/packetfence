@@ -15,6 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 with 'captiveportal::Role::MultiSource';
 
+use pf::constants::realm;
 use pf::util;
 use pf::log;
 use pf::config::util;
@@ -145,11 +146,26 @@ sub authenticate {
         return;
     }
 
-    if(isenabled($self->app->profile->reuseDot1xCredentials)) {
+    if ( isenabled($self->app->profile->reuseDot1xCredentials) ) {
         my $mac       = $self->current_mac;
         my $node_info = node_view($mac);
         ($username,$realm) = strip_username($node_info->{'last_dot1x_username'});
-        get_logger->info("Reusing 802.1x credentials. Gave username ; $username");
+        $realm = lc($pf::constants::realm::NULL) unless(defined($realm));
+        get_logger->info("Reusing 802.1x credentials with username '$username' and realm '$realm'");
+
+        # Fetch appropriate source to use with 'reuseDot1xCredentials' feature
+        my $source = pf::config::util::get_realm_source($username, $realm);
+        
+        # No source found for specified realm
+        unless ( defined($source) ) {
+            get_logger->error("Unable to find an authentication source for the specified realm '$realm' while using reuseDot1xCredentials");
+            $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
+
+            $self->prompt_fields();
+            return;
+        }
+
+        # Trying to match credentials with the source
         my $params = {
             username => $node_info->{'last_dot1x_username'},
             connection_type => $node_info->{'last_connection_type'},
@@ -157,18 +173,24 @@ sub authenticate {
             stripped_user_name => $username,
             rule_class => 'authentication',
         };
-        # Test the source to find the matching source
         my $source_id;
-        my $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source_id);
+        my $role = &pf::authentication::match($source->id, $params, $Actions::SET_ROLE, \$source_id);
+
         if ( defined($role) ) {
             $self->source(pf::authentication::getAuthenticationSource($source_id));
-            #Update username
             $self->username($username);
-        } else {
-            get_logger->error("Reusing 802.1x credentials but not able to find the source for username $username");
-            $self->app->flash->{error} = "Reusing 802.1x credentials but not able to find the source for username $username, did you define the source on the portal ?";
         }
-    } else {
+        else {
+            get_logger->error("Unable to find a match in the '$realm' realm authentication source for credentials '" . $node_info->{'last_dot1x_username'} . "' while using reuseDot1xCredentials");
+            $self->app->flash->{error} = "Cannot find a valid authentication source for '" . $node_info->{'last_dot1x_username'} . "'";
+
+            $self->prompt_fields();
+            return;
+        }
+
+    }
+
+    else {
         # validate login and password
         my ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
@@ -177,6 +199,7 @@ sub authenticate {
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
+
         }
         $self->username($username);
         $self->source(pf::authentication::getAuthenticationSource($source_id));

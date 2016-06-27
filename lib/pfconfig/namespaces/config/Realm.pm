@@ -18,7 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($realm_config_file);
+use pf::file_paths qw(
+    $realm_default_config_file
+    $realm_config_file
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -26,6 +29,9 @@ sub init {
     my ($self) = @_;
     $self->{file}              = $realm_config_file;
     $self->{expandable_params} = qw(categories);
+
+    my $defaults = Config::IniFiles->new( -file => $realm_default_config_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
