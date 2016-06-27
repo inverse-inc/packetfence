@@ -34,6 +34,17 @@ around 'element_attr' => sub {
     return { 'data-type-ahead-for' => $self->fingerbank_model, %{$self->$orig()} };
 };
 
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    # Don't validate empty values
+    return if($value eq "");
+
+    unless(defined($self->_id_from_value($value))) {
+        $self->add_error("Could not find ".$self->label." with value $value");
+    }
+}
+
 sub fingerbank_inflate {
     my ($self, $value) = @_;
 
@@ -48,17 +59,22 @@ sub fingerbank_inflate {
     }
 }
 
-sub fingerbank_deflate {
+sub _id_from_value {
     my ($self, $value) = @_;
-
+    
     my ($status, $result) = $self->fingerbank_model->search([$self->fingerbank_model->value_field => $value]);
     
     if(is_success($status)){
         return $result->[0]->first->id;
     }
     else {
-        die "Cannot compute Fingerbank storable value from $value";
+        return undef;
     }
+}
+
+sub fingerbank_deflate {
+    my ($self, $value) = @_;
+    return $self->_id_from_value($value);
 }
 
 
