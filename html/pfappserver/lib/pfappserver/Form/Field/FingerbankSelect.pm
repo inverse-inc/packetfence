@@ -19,18 +19,6 @@ has '+widget' => ( default => 'FingerbankSelect' );
 use pf::util;
 use namespace::autoclean;
 
-our $class_messages = {
-    'mac' => 'Value must be a MAC address',
-};
-
-sub get_class_messages {
-    my $self = shift;
-    return {
-       %{ $self->next::method },
-       %$class_messages,
-    }
-}
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.
