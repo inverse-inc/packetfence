@@ -451,4 +451,9 @@ ViolationsView.prototype.append_trigger = function(value,value_pretty){
 
 }
 
+ViolationsView.prototype.add_fingerbank_trigger = function(search, id, display){
+  var that = this;
+  violationsView.append_trigger(search.model_stripped()+"::"+id, search.model_stripped() + " " + display);
+}
+
 var violationsView = new ViolationsView();
