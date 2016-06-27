@@ -2174,6 +2174,17 @@ Moreover, don't forget to add Facebook as a registration mode from your portal p
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
+GitHub
+^^^^^^
+To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
 Instagram
 ^^^^^^^^^
 To use Instagram, you also need an API code and a secret key.  To get one, go here: https://www.instagram.com/developer/clients/manage/.  When you create your App, make sure you specify the following as the Website URL:
@@ -2190,17 +2201,6 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add Instagram as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 CAUTION: By allowing OAuth through Instagram, you will give Instagram access to the users while they are sitting in the registration VLAN.
-
-GitHub
-^^^^^^
-To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
-
-Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 LinkedIn
 ^^^^^^^^
