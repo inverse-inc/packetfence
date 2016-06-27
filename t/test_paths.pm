@@ -37,6 +37,8 @@ BEGIN {
     $pf::file_paths::vlan_filters_config_file = catfile($test_dir,'data/vlan_filters.conf');
     $pf::file_paths::violations_config_file = catfile($test_dir,'data/violations.conf');
     $pf::file_paths::firewall_sso_config_file = catfile($test_dir,'data/firewall_sso.conf');
+    $pf::file_paths::scan_config_file = catfile($test_dir,'data/scan.conf');
+    $pf::file_paths::provisioning_config_file = catfile($test_dir,'data/provisioning.conf');
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
 
