@@ -11,26 +11,24 @@ to perform the OAuth flow since Net::OAuth2 lacks support for Instagram OAuth.
 
 =cut
 
-use Moose;
-use LWP;
+use pf::person;
 use pf::log;
-use Digest::HMAC_SHA1;
-use MIME::Base64;
-use CGI;
-
+use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'Instagram');
 has '+class' => (default => 'external');
 has '+unique' => (default => 1);
-has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => '<CONSUMER KEY>');
-has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => '<CONSUMER SECRET>';
+has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
+has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com');
-has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/authorize');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/access_token');
+has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
+#has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com/me?fields=id,name,email,first_name,last_name');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com/oauth/access_token');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.instagram.com,instagram.com');
+    has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.instagram.com,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
 
 =head2 dynamic_routing_module
 
@@ -40,148 +38,17 @@ Which module to use for DynamicRouting
 
 sub dynamic_routing_module { 'Authentication::OAuth::Instagram' }
 
+=head2 lookup_from_provider_info
 
-=head2 authorize
-
-Get the URL for authorization with Instagram
-
-=cut
-
-sub authorize {
-    my ($self) = @_;
-    return $self->{site}.$self->{authorize_path}."?client_id=$self->{client_id}&redirect_uri=$self->{redirect_url}&response_type=code";
-}
-
-=head2 generate_oauth_request_token
-
-Generates the OAuth request token for use in future 
-requests through a call to the Instagram API
+Lookup the person information from the authentication hash received during the OAuth process
 
 =cut
 
-sub generate_oauth_request_token {
-    my ($self) = @_;
-    my $request_token_url = $self->{site}.$self->{access_token_path};
+sub lookup_from_provider_info {
+    my ( $self, $pid, $info ) = @_;
 
-    my $params = {
-        oauth_consumer_key => $self->{client_id},
-        oauth_nonce => time,
-        oauth_signature_method => "HMAC-SHA1",
-        oauth_timestamp => time,
-        oauth_version => "1.0"
-    };
-
-    my $qs = $self->simple_sign($request_token_url, $params);
-
-    my $ua = LWP::UserAgent->new;
-    my $req = HTTP::Request->new(POST => $request_token_url);
-    $req->content_type('application/x-www-form-urlencoded');
-    $req->content($qs);
-    my $response = $ua->request($req);
-
-    unless ($response->is_success) {
-      get_logger->error("Couldn't execute request properly. Response is : ".$response->content);
-      return undef;
-    }
-
-    my $dummy_url = "http://localhost?".$response->content;
-
-    use URI;
-    my $url_object = new URI($dummy_url);
-
-    my %params = $url_object->query_form();
-
-    my $oauth_token = $params{'oauth_token'};
-    my $oauth_token_secret = $params{'oauth_token_secret'};
-
-    return $oauth_token;
+    person_modify( $pid, firstname => $info->{first_name}, lastname => $info->{last_name}, email => $info->{email} );
 }
-
-=head2 get_access_token
-
-Get the access token through the Instagram API using the
-oauth_token + oauth_verifier
-
-This will also return the username of the user.
-
-=cut
-
-sub get_access_token {
-    my ($self, $oauth_token, $oauth_verifier) = @_;
-    my $access_token_url = $self->{protected_resource_url};
-
-    my $params = {
-      oauth_consumer_key => $self->{client_id},
-      oauth_nonce => time,
-      oauth_signature_method => "HMAC-SHA1",
-      oauth_timestamp => time,
-      oauth_version => "1.0",
-      oauth_token => $oauth_token,
-      oauth_verifier => $oauth_verifier,
-    };
-
-    my $qs = $self->simple_sign($access_token_url, $params);
-
-    my $ua = LWP::UserAgent->new;
-    my $req = HTTP::Request->new(POST => $access_token_url);
-    $req->content_type('application/x-www-form-urlencoded');
-    $req->content($qs);
-    my $response = $ua->request($req);
-
-    unless ($response->is_success) {
-      die "Couldn't execute request properly. Response is : ".$response->content;
-    }
-
-    my $dummy_url = "http://localhost?".$response->content;
-    my $url_object = new URI($dummy_url);
-    my %params = $url_object->query_form();
-
-    return {access_token => $params{'access_token'}, username => $params{'screen_name'}};
-}
-
-=head2 build_sorted_query
-
-Will sort the parameters in a hash and put them in a
-string reprensenting the parameters (param1=value1&param2=value2&)
-
-=cut
-
-sub build_sorted_query {
-  my ($self, $input) = @_;
-  my $qs;
-  foreach (sort keys %$input) {
-      $qs .= $_."=".$input->{$_}."&";
-  }
-  return substr ($qs, 0, -1);
-}
-
-=head2 simple_sign
-
-Will sign a query so it can be sent to the Instagram API
-See : L<https://dev.twitter.com/oauth/overview/creating-signatures>
-
-=cut
-
-sub simple_sign {
-  my ($self, $url, $params) = @_;
-  my $IN = new CGI;
-
-  my $qs = $self->build_sorted_query($params);
-  my $signing_key = $IN->escape($self->{client_secret})."&";
-  my $signature_base = "POST&".$IN->escape($url)."&".$IN->escape($qs);
-
-  my $hmac = Digest::HMAC_SHA1->new($signing_key);
-  $hmac->add($signature_base);
-
-  $params->{oauth_signature} = $IN->escape(encode_base64($hmac->digest));
-
-  $qs = $self->build_sorted_query($params);
-
-  return $qs
-
-}
-
-
 
 =head1 AUTHOR
 

@@ -16,63 +16,71 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::InstagramSource;
 
-# Form fields
+#Form fields
 has_field 'client_id' =>
   (
    type => 'Text',
-   label => 'API ID',
+   label => 'App ID',
    required => 1,
-   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('client_id')->default,
-   element_attr => {'placeholder' => pf::Authentication::Source::InstagramSource->meta->get_attribute('client_id')->default},
-   element_class => ['input-xlarge'],
   );
 has_field 'client_secret' =>
   (
    type => 'Text',
-   label => 'API Secret',
+   label => 'App Secret',
    required => 1,
   );
 has_field 'site' =>
   (
    type => 'Text',
-   label => 'API URL',
+   label => 'Graph API URL',
    required => 1,
    default => pf::Authentication::Source::InstagramSource->meta->get_attribute('site')->default,
    element_class => ['input-xlarge'],
   );
-has_field 'authorize_path' =>
-  (
-   type => 'Text',
-   label => 'API Authorize Path',
-   required => 1,
-   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('authorize_path')->default,
-  );
 has_field 'access_token_path' =>
   (
    type => 'Text',
-   label => 'API Token Path',
+   label => 'Graph API Token Path',
    required => 1,
    default => pf::Authentication::Source::InstagramSource->meta->get_attribute('access_token_path')->default,
   );
-has_field 'protected_resource_url' =>
+has_field 'access_token_param' =>
   (
    type => 'Text',
-   label => 'API URL of logged user',
+   label => 'Access Token Parameter',
    required => 1,
-   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('protected_resource_url')->default,
-   element_class => ['input-xlarge'],
+   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('access_token_param')->default,
   );
+has_field 'scope' =>
+  (
+   type => 'Text',
+   label => 'Scope',
+   required => 1,
+   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('scope')->default,
+   tags => { after_element => \&help,
+             help => 'The permissions the application requests.' },
+  );
+#has_field 'protected_resource_url' =>
+#  (
+#   type => 'Text',
+#   label => 'Graph API URL of logged user',
+#   required => 1,
+#   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('protected_resource_url')->default,
+#   element_class => ['input-xlarge'],
+#  );
+
 has_field 'redirect_url' =>
   (
    type => 'Text',
    label => 'Portal URL',
    required => 1,
-   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('redirect_url')->default,,
-   element_attr => {'placeholder' => pf::Authentication::Source::InstagramSource->meta->get_attribute('redirect_url')->default,},
+   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('redirect_url')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::InstagramSource->meta->get_attribute('redirect_url')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'The hostname must be the one of your captive portal.' },
   );
+
 has_field 'domains' =>
   (
    type => 'Text',
@@ -84,6 +92,28 @@ has_field 'domains' =>
    tags => { after_element => \&help,
              help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
+
+has_field 'create_local_account' => (
+    type => 'Toggle',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+    label => 'Create Local Account',
+    default => pf::Authentication::Source::InstagramSource->meta->get_attribute('create_local_account')->default,
+    tags => {
+        after_element => \&help,
+        help => 'Create a local account on the PacketFence system based on the account email address provided.',
+    },
+);
+
+has_field 'local_account_logins' => (
+    type => 'PosInteger',
+    label => 'Amount of logins for the local account',
+    default => pf::Authentication::Source::InstagramSource->meta->get_attribute('local_account_logins')->default,
+    tags => {
+        after_element => \&help_list,
+        help => 'The amount of times, the local account can be used after its created. 0 means infinite.'
+    },
+);
 
 =head1 COPYRIGHT
 
