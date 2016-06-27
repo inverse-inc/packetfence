@@ -841,7 +841,7 @@ FingerbankSearch.setup = function() {
         search.typeahead_field = $(o);
         // We prevent the browser autocompletion
         search.typeahead_field.attr('autocomplete', "off");
-        search.typeahead_btn = $('#btn-fingerbank-add-'+$(o).attr('data-add-to'));
+        search.typeahead_btn = $($(o).attr('data-btn'));
         search.model = $(o).attr('data-type-ahead-for');
         search.add_to = $('#'+$(o).attr('data-add-to'));
         $(o).typeahead({
