@@ -34,7 +34,7 @@ has_field 'dhcp_vendor_id' => (
 
 has_field 'mac_vendor_id' => (
     type => 'FingerbankField',
-    label => 'MAC Vendor',
+    label => 'MAC Vendor (OUI)',
     fingerbank_model => "fingerbank::Model::MAC_Vendor",
 );
 
