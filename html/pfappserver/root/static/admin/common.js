@@ -801,9 +801,14 @@ function FingerbankSearch() {
 
 }
 
+FingerbankSearch.prototype.model_stripped = function() {
+  var that = this;
+  return this.model.split('::Model::')[1].toLowerCase();
+}
+
 FingerbankSearch.prototype.search = function(query, process) {
   var that = this;
-  var path = this.model.split('::Model::')[1].toLowerCase();
+  var path = this.model_stripped();
   console.log(path);
   $.ajax({
       type: 'POST',
@@ -832,9 +837,23 @@ FingerbankSearch.prototype.search = function(query, process) {
   });
 }
 
+var alreadySetup = {};
+
 FingerbankSearch.setup = function() {
   $('.fingerbank-type-ahead').each(function(){ 
       var o = this;
+
+      // Ensure we don't bind the search twice by recording which IDs we've already set it up on
+      // The ID is generated and assigned to a data tag to make sure duplicate HTML ids don't break this flow even though they aren't valid
+      if(!$(o).attr('data-fingerbank-search-id')) {
+        var gen_id = $("<a></a>").uniqueId().attr('id');
+        $(o).attr('data-fingerbank-search-id', gen_id);
+      }
+      if(alreadySetup[$(o).attr('data-fingerbank-search-id')]) return;
+      console.log(o);
+
+      alreadySetup[$(o).attr('data-fingerbank-search-id')] = true;
+
       // Creating a new scope since we are in a loop
       (function() {
         var search = new FingerbankSearch();
@@ -844,6 +863,7 @@ FingerbankSearch.setup = function() {
         search.typeahead_btn = $($(o).attr('data-btn'));
         search.model = $(o).attr('data-type-ahead-for');
         search.add_to = $('#'+$(o).attr('data-add-to'));
+        search.add_action = $(o).attr('data-add-action');
         $(o).typeahead({
           source: $.proxy(search.search, search),
           minLength: 2,
@@ -851,13 +871,23 @@ FingerbankSearch.setup = function() {
           matcher: function(item) { return true; }
         });
         search.typeahead_btn.click(function(e) {
-          e.preventDefault()
+          e.preventDefault();
+          var id;
+          var display;
+          console.log(search);
           $.each(search.results, function(){
             if(this.display == search.typeahead_field.val()){
-              search.add_to.append('<option selected="selected" value="'+this.id+'">'+this.display+'</option>');
-              search.add_to.trigger("liszt:updated");
+              id = this.id;
+              display = this.display;
             }
           });
+          if(search.add_action) {
+            eval(search.add_action + "(search,id,display)");
+          }
+          else {
+              search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
+              search.add_to.trigger("liszt:updated");
+          }
           search.typeahead_field.val('');
           return false;      
         });
