@@ -21,28 +21,33 @@ has_field 'id' => (
 );
 
 has_field 'dhcp_fingerprint_id' => (
-    type => 'Text',
-    label => 'DHCP Fingerprint ID',
+    type => 'FingerbankField',
+    label => 'DHCP Fingerprint',
+    fingerbank_model => "fingerbank::Model::DHCP_Fingerprint",
 );
 
 has_field 'dhcp_vendor_id' => (
-    type => 'Text',
-    label => 'DHCP Vendor ID',
+    type => 'FingerbankField',
+    label => 'DHCP Vendor',
+    fingerbank_model => "fingerbank::Model::DHCP_Vendor",
 );
 
 has_field 'mac_vendor_id' => (
-    type => 'Text',
-    label => 'MAC Vendor ID',
+    type => 'FingerbankField',
+    label => 'MAC Vendor',
+    fingerbank_model => "fingerbank::Model::MAC_Vendor",
 );
 
 has_field 'user_agent_id' => (
-    type => 'Text',
-    label => 'User Agent ID',
+    type => 'FingerbankField',
+    label => 'User Agent',
+    fingerbank_model => "fingerbank::Model::User_Agent",
 );
 
 has_field 'device_id' => (
-    type => 'Text',
-    label => 'Device ID',
+    type => 'FingerbankField',
+    label => 'Device',
+    fingerbank_model => "fingerbank::Model::Device",
 );
 
 has_field 'version' => (
@@ -51,7 +56,7 @@ has_field 'version' => (
 );
 
 has_field 'score' => (
-    type => 'Text',
+    type => 'PosInteger',
     label => 'Score',
 );
 
