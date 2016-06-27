@@ -31,12 +31,14 @@ sub vhosts {
     my ($self) = @_;
     my @vhosts;
     if ($management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        push @vhosts, $management_network->{'Tip'};
         if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
             push @vhosts, $management_network->{'Tvip'};
+        } else {
+            push @vhosts, $management_network->{'Tip'};
         }
         push @vhosts, $ConfigCluster{'CLUSTER'}{'management_ip'} if ($cluster_enabled);
     }
+
     return [uniq @vhosts];
 }
 
