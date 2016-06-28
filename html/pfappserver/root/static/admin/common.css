@@ -160,3 +160,8 @@ li.drop-row,
 .expandable {
   display:none;
 }
+
+.up { 
+  bottom:100% !important; 
+  top:auto !important; 
+}

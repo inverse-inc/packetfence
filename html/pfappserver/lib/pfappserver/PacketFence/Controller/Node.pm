@@ -114,6 +114,12 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     }
     $c->stash->{switches} = $self->_get_switches_metadata($c);
     $c->stash->{search_action} = $c->action;
+
+    if($c->request->param('export')) {
+        $c->stash->{current_view} = "CSV";
+        $c->stash->{columns} = [keys(%{$c->session->{'nodecolumns'}})];
+    }
+
     $c->response->status($status);
 }
 
