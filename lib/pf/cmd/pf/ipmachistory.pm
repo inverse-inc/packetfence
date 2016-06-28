@@ -23,6 +23,8 @@ use strict;
 use warnings;
 use base qw(pf::cmd::display);
 
+use Date::Parse;
+
 sub parseArgs {
     my ($self) = @_;
     my ($key,$start_time,$end_time) = $self->args;
