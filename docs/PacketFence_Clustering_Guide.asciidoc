@@ -373,7 +373,7 @@ During the OS installation, reduce the size of the main partition and create a n
 Partitioning
 ^^^^^^^^^^^^
 
-After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step. This also needs tobe done on both servers.
+After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step. This also needs to be done on both servers.
 
 
 Clustering prerequisites
