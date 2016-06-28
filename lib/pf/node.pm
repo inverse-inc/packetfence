@@ -1345,6 +1345,7 @@ sub fingerbank_info {
             my $device = fingerbank::Model::Device->read($device_id, $TRUE);
             $info->{device_hierarchy_names} = [$device->{name}, map {$_->{name}} @{$device->{parents}}];
             $info->{device_hierarchy_ids} = [$device->{id}, map {$_->{id}} @{$device->{parents}}];
+            $info->{device_fq} = join('/',reverse(@{$info->{device_hierarchy_names}}));
             $info->{mobile} = $device->{mobile};
         }
         return $info;

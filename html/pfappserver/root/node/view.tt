@@ -11,6 +11,7 @@
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#nodeInfo" data-toggle="tab">[% l('Info') %]</a></li>
+            <li><a href="#nodeFingerprinting" data-toggle="tab">[% l('Fingerbank') %]</a></li>
             <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
             <li><a href="#nodeLocationLog" data-toggle="tab">[% l('Location') %]</a></li>
             <li><a href="#nodeViolations" data-href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
@@ -49,9 +50,6 @@
                 </span></span></div>
             </div>
 
-            [% form.field('device_type').render | none %]
-            [% form.field('device_class').render | none %]
-            [% form.field('vendor').render | none %]
             [% form.field('computername').render | none IF node.computername -%]
             [% form.field('voip').render | none %]
             [% form.field('bypass_vlan').render | none %]
@@ -101,32 +99,21 @@
 
             [% END %]
 
-            [% IF node.user_agent -%]
-            <div class="control-group">
-              <div class="controls">
-                <h6>[% l('User-Agent Information') %]</h6>
-              </div>
-            </div>
-
-            [% form.field('user_agent').render | none %]
-
-            <div class="control-group">
-              <label class="control-label">[% l('Browser') %]</label>
-              <div class="controls"><span class="uneditable">[% node.useragent.browser | html %]</span></div>
-            </div>
-
-            <div class="control-group">
-              <label class="control-label">[% l('OS') %]</label>
-              <div class="controls"><span class="uneditable">[% node.useragent.os | html %]</span></div>
-            </div>
-
-            [% form.field('useragent.device').render | none %]
-
-            [% form.field('useragent.mobile').render | none %]
-
-            [%- END # user_agent %]
-
             </div><!--tab-pane-->
+
+            <div class="tab-pane fade in" id="nodeFingerprinting">
+              [% form.field('device_class').render | none %]
+              [% form.field('device_type').render | none %]
+              [% form.field('fingerbank_info.device_fq').render | none %]
+              [% form.field('fingerbank_info.version').render | none IF node.fingerbank_info.version %]
+              [% form.field('fingerbank_info.score').render | none %]
+              [% form.field('fingerbank_info.mobile').render | none %]
+
+              [% form.field('dhcp_fingerprint').render | none %]
+              [% form.field('dhcp_vendor').render | none %]
+              [% form.field('user_agent').render | none %]
+            </div><!--tab-pane-->
+            
             <div class="tab-pane fade" id="nodeIpLog">
 
               [%- IF node.iplog.history.size %]
