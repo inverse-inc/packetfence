@@ -439,9 +439,8 @@ sub format_from_radius_dhcp {
 
     # stripping option82 arrayref and pushing an hashref instead with raw = options 82 array ref
     $dhcp->{'options'}{'82'} = \%new_option;
-    _decode_dhcp_option82_suboption1(\%new_option, $sub_options->{'1'});
-    _decode_dhcp_option82_suboption2(\%new_option, $sub_options->{'2'});
-
+    _decode_dhcp_option82_suboption1(\%new_option, $sub_options->{'1'}) if defined($sub_options->{'1'});
+    _decode_dhcp_option82_suboption2(\%new_option, $sub_options->{'2'}) if defined($sub_options->{'2'});
     return $dhcp;
 }
 
