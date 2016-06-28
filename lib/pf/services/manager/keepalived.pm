@@ -115,7 +115,12 @@ sub stop {
 
 sub isManaged {
     my ($self) = @_;
-    return $cluster_enabled;
+    my $name = $self->name;
+    if (isenabled($pf::config::Config{'services'}{$name})) {
+        return $cluster_enabled;
+    } else {
+        return 0;
+    }
 }
 
 =head1 AUTHOR
