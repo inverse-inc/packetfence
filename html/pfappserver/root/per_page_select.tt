@@ -6,7 +6,7 @@
     [% FOREACH option IN per_page_options %]
     <option value="[%option%]" [% "selected=selected" IF per_page == option %]>[%option%]</option>
     [% END %]
-    <option value="18446744073709551615" [% "selected=selected" IF per_page == 18446744073709551615 %]>[% l('All') %]</option>
+    <option value="9007199254740992" [% "selected=selected" IF per_page == 9007199254740992 %]>[% l('All') %]</option>
   </select>
 [% END %]
 [% l('Display [_1] entries per page', [per_page_select]) | none %]
