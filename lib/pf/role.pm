@@ -606,6 +606,9 @@ sub getNodeInfoForAutoReg {
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         }
         my $unregdate = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        
+        # Trigger a person lookup for 802.1x users
+        pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
 
         if (defined $unregdate) {
             $node_info{'unregdate'} = $unregdate;
