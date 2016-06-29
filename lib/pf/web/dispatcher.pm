@@ -43,6 +43,9 @@ use pf::Portal::Session;
 use pf::web::externalportal;
 use pf::inline;
 
+use pfconfig::cached_scalar;
+tie our $portal_request_timeout, 'pfconfig::cached_scalar', 'resource::portal_request_timeout';
+
 =head1 SUBROUTINES
 
 =over
@@ -59,6 +62,13 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 =cut
 
 sub handler {
+    alarm $portal_request_timeout;
+    my $res = _handler(@_);
+    alarm 0;
+    return $res;
+}
+
+sub _handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = get_logger();
 
