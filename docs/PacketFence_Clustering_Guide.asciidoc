@@ -626,6 +626,10 @@ Mount the partition with:
 
   # mount /dev/drbd0 /var/lib/mysql
 
+Restore previous MariaDB data
+
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/
+
 Start MariaDB
 
   # systemctl start mariadb
@@ -667,24 +671,17 @@ Corosync configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 
   # pcs cluster start --all
-
   # pcs cluster cib clust_cfg
-
   # pcs -f clust_cfg property set stonith-enabled=false
-
   # pcs -f clust_cfg property set no-quorum-policy=ignore
-
   # pcs -f clust_cfg resource defaults resource-stickiness=200
-
   # pcs -f clust_cfg resource create DRBD ocf:linbit:drbd \
      drbd_resource=mysql \
      op monitor interval=30s
-
   # pcs -f clust_cfg resource master MySQLClone DRBD \
      master-max=1 master-node-max=1 \
      clone-max=2 clone-node-max=1 \
      notify=true
-
   # pcs -f clust_cfg resource create DRBD_fs Filesystem \
      device="/dev/drbd0" \
      directory="/var/lib/mysql" \
@@ -711,7 +708,6 @@ Corosync configuration
 
   # pcs cluster cib-push clust_cfg
 
-  # pcs status
 
 Check the status of the cluster:
 
