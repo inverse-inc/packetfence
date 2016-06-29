@@ -173,8 +173,8 @@ sub fetch_agent_info {
             return $device;
         }
         else {
-            $logger->error("Device $mac returned multiple results in Sentinel One. This is not normal. Acting as if communications failed.");
-            return $pf::provisioner::COMMUNICATION_FAILED;
+            $logger->error("Device $mac returned multiple results in Sentinel One. This is not normal. Will return the first result found.");
+            return $devices->[0];
         }
     }
 }
