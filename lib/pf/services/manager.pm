@@ -32,6 +32,7 @@ An example of a new service foo
 
 use strict;
 
+use pf::constants;
 use pf::file_paths qw($var_dir $install_dir);
 use pf::log;
 use pf::util;
@@ -543,8 +544,15 @@ sub isAlive {
     my ($self,$pid) = @_;
     my $result;
     $pid = $self->pid unless defined $pid;
-    $result = kill 0 , $pid if $pid;
-    return $result;
+    eval {
+        $result = pf_run("sudo kill -0 $pid >/dev/null 2>&1", (accepted_exit_status => [ 0 ]));
+    };
+    if($@ || !defined($result)){
+        return $FALSE;
+    }
+    else {
+        return $TRUE;
+    }
 }
 
 
