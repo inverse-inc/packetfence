@@ -43,8 +43,19 @@ use captiveportal::Role::Request;
 use pf::config::cached;
 use pf::CHI;
 use CHI::Driver::SubNamespace;
+use pfconfig::cached_scalar;
+
+tie our $portal_request_timeout, 'pfconfig::cached_scalar', 'resource::portal_request_timeout';
 
 extends 'Catalyst';
+
+around 'handle_request' => sub {
+    my ($orig, $self, @args) = @_;
+    # Request timeout handling
+    alarm $portal_request_timeout;
+    return $self->$orig(@args);
+    alarm 0;
+};
 
 Catalyst::Request->meta->make_mutable;
 

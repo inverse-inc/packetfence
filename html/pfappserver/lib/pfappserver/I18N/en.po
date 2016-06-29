@@ -7397,6 +7397,10 @@ msgid "captive_portal.image_path"
 msgstr "IMG path"
 
 # conf/documentation.conf
+msgid "captive_portal.request_timeout"
+msgstr "Request timeout"
+
+# conf/documentation.conf
 msgid "captive_portal.loadbalancers_ip"
 msgstr "Load balancers IP"
 
