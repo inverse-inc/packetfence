@@ -23,6 +23,7 @@ pf-maint.pl [options]
    -n --no-ask             Do not ask to patch
    -d --pf-dir             The PacketFence directory
    -p --patch-bin          The patch binary default /usr/bin/patch
+   -t --test               Test if PacketFence has to be patched
 
 =cut
 
@@ -45,6 +46,7 @@ our $BASE_COMMIT;
 our $NO_ASK;
 our $PATCH_BIN = '/usr/bin/patch';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
+our $test;
 
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
@@ -54,7 +56,8 @@ GetOptions(
     "patch-bin|p=s"   => \$PATCH_BIN,
     "base-commit|b=s" => \$BASE_COMMIT,
     "no-ask|n"        => \$NO_ASK,
-    "help|h"          => \$help
+    "help|h"          => \$help,
+    "test|t"          => \$test
 ) or podusage(2);
 
 pod2usage(1) if $help;
@@ -78,7 +81,12 @@ die "Cannot base commit\n" unless $base;
 print "Currently at $base\n";
 
 my $head = $COMMIT || get_head();
-die "Already up to date\n" if $base eq $head;
+if ($base eq $head) {
+    print "Already up to date\n";
+    exit 0;
+}
+exit 1 if defined($test);
+
 print "Latest maintenance version is $head\n";
 
 my $patch_data = get_patch_data( $base, $head );
