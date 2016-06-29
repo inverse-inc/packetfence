@@ -5,11 +5,10 @@
     rotate 90
     missingok
     compress
-    create 640 pf pf
     copytruncate
 
     # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
-    su pf pf
+    su root pf
 }
 
 /usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
@@ -17,9 +16,8 @@
     rotate 90
     missingok
     compress
-    create 640 pf pf
     copytruncate
 
     # This following line is required for RHEL / CentOS 7 but will be ignored on RHEL / CentOS 6
-    su pf pf
+    su root pf
 }
