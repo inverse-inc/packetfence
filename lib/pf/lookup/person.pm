@@ -23,6 +23,13 @@ use pf::log;
 use pf::person;
 use pf::util;
 use pf::authentication;
+use pf::pfqueue::producer::redis;
+
+=head2 lookup_person
+
+Lookup informations on a person
+
+=cut
 
 sub lookup_person {
     my ($pid,$source_id) = @_;
@@ -42,7 +49,21 @@ sub lookup_person {
        return "Cannot search attributes for user '$pid'!\n";
     }
 
+    $logger->info("Successfully did a person lookup for $pid");
+
     person_modify($pid, %$person);
+}
+
+=head2 async_lookup_person
+
+Lookup a person asynchronously using the queue
+
+=cut
+
+sub async_lookup_person {
+    my ($pid, $source_id) = @_;
+    my $client = pf::pfqueue::producer::redis->new();
+    $client->submit("general", person_lookup => {pid => $pid, source_id => $source_id});
 }
 
 =head1 AUTHOR

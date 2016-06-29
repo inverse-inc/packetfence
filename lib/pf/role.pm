@@ -458,6 +458,7 @@ sub getRegisteredRole {
             } else {
                 $logger->debug("person $args->{'user_name'} already exists");
             }
+            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
@@ -597,6 +598,9 @@ sub getNodeInfoForAutoReg {
             $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
         }
         my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        
+        # Trigger a person lookup
+        pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
 
         if (defined $value) {
             $node_info{'unregdate'} = $value;
