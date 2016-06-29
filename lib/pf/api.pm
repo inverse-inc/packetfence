@@ -1361,7 +1361,7 @@ sub services_status : Public {
     my $statuses = {};
     foreach my $manager (@managers){
         if($manager->isManaged) {
-            $statuses->{$manager->name} = $manager->status;
+            $statuses->{$manager->name} = $manager->status(1);
         }
     }
     return $statuses;
