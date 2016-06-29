@@ -17,7 +17,7 @@ use warnings;
 use Moose;
 use pfappserver::Base::Model::Search;
 use pf::log;
-use pf::util qw(calc_page_count);
+use pf::util qw(calc_page_count clean_mac valid_mac);
 use pf::SearchBuilder;
 use pf::SearchBuilder::Node;
 use pf::node qw(node_custom_search);
@@ -56,26 +56,36 @@ sub do_query {
     $per_page ||= 25;
     $page_num ||= 1;
     my $itemsKey = $self->itemsKey;
-    $results{$itemsKey} = [node_custom_search($sql)];
+    my $items = [node_custom_search($sql)];
+    my $has_next_page;
+    if (@$items > $per_page) {
+        pop @$items;
+        $has_next_page = 1;
+    }
+    $results{$itemsKey} = $items;
     $results{per_page} = $per_page;
     $results{page_num} = $page_num;
+    $results{has_next_page} = $has_next_page;
     return \%results;
 }
 
 sub add_searches {
-    my ($self,$builder,$params) = @_;
-    my @searches = map {$self->process_query($_)} @{$params->{searches}};
+    my ( $self, $builder, $params ) = @_;
+    my (@searches) = map {$self->process_query($_)} @{$params->{searches}};
     my $all_or_any = $params->{all_or_any} || 'all';
-    if ($all_or_any eq 'any' ) {
+    if ( $all_or_any eq 'any' ) {
         $all_or_any = 'or';
-    } else {
+    }
+    else {
         $all_or_any = 'and';
     }
     if (@searches) {
         $builder->where('(');
         $builder->where($all_or_any)->where(@$_) for @searches;
         $builder->where(')');
+        $builder->where('AND');
     }
+    $builder->where( { table => 'r2', name => 'radacctid' }, 'IS NULL' );
 }
 
 sub make_builder {
@@ -91,7 +101,7 @@ sub make_builder {
             L_("IFNULL(node_category.name, '')", 'category'),
             L_("IFNULL(node_category_bypass_role.name, '')", 'bypass_role'),
             L_("IFNULL(device_class, ' ')", 'dhcp_fingerprint'),
-            L_("IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))", 'online'),
+            L_("IF(r1.acctstarttime IS NULL,'unknown',IF(r1.acctstoptime IS NULL, 'on', 'off'))", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
             { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
@@ -179,17 +189,80 @@ sub make_builder {
                 },
                 {
                     'table' => 'radacct',
+                    'as'    => 'r1',
                     'join'  => 'LEFT',
                     'on'    =>
                     [
                         [
                             {
-                                'table' => 'radacct',
-                                'name'  => 'radacctid',
+                                'table' => 'node',
+                                'name'  => 'mac',
                             },
                             '=',
-                            \"(select radacctid from radacct where callingstationid = node.mac ORDER BY acctstarttime DESC LIMIT 1)"
+                            {
+                                'table' => 'r1',
+                                'name'  => 'callingstationid',
+                            },
                         ],
+                    ],
+                },
+                {
+                    'table' => 'radacct',
+                    'as'    => 'r2',
+                    'join'  => 'LEFT',
+                    'on'    =>
+                    [
+                        [
+                            {
+                                'table' => 'node',
+                                'name'  => 'mac',
+                            },
+                            '=',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'callingstationid',
+                            },
+                        ],
+                        ['AND'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'acctstarttime',
+                            },
+                            '<',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'acctstarttime',
+                            },
+                        ],
+                        ['OR'],
+                        ['('],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'acctstarttime',
+                            },
+                            '=',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'acctstarttime',
+                            },
+                        ],
+                        ['AND'],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'radacctid',
+                            },
+                            '<',
+                            {
+                                'table' => 'r2',
+                                'name'  => 'radacctid',
+                            },
+                        ],
+                        [')'],
+                        [')'],
                     ],
                 },
         );
@@ -197,9 +270,13 @@ sub make_builder {
 
 my %COLUMN_MAP = (
     person_name => 'pid',
-    online => {
-        'table' => 'locationlog',
-        'name'  => 'end_time',
+    unknown => {
+        'table' => 'r1',
+        'name'  => 'acctstarttime',
+    },
+    online_offline => {
+        'table' => 'r1',
+        'name'  => 'acctstoptime',
     },
     category => {
         table => 'node_category',
@@ -351,6 +428,10 @@ sub process_query {
     return unless defined $new_query;
     my $old_column = $new_query->[0];
     $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column} : $old_column;
+    if ($old_column eq 'online_offline') {
+        my $fragment = "(r1.acctstarttime IS NOT NULL AND $new_query->[0]->{table}.$new_query->[0]->{name} $new_query->[1])";
+        return [\$fragment];
+    }
     return $new_query;
 }
 
@@ -379,17 +460,43 @@ sub add_joins {
 sub _pre_process_query {
     my ($self, $query) = @_;
     #Change the query for the online
-    if ($query->{name} eq 'online') {
+    my $name = $query->{name};
+    if ($name eq 'online') {
+        my $value = $query->{value};
         if($query->{op} eq 'equal') {
-            my $value = $query->{value};
-            if ($value eq 'on') {
-                $query->{value} = '0000-00-00 00:00:00';
-            } elsif($value eq 'off') {
+            $query->{value} = undef;
+            if ($value eq 'unknown' ) {
                 $query->{op} = 'is_null';
-                $query->{value} = undef;
+                $query->{name} = 'unknown';
+            } else {
+                $query->{name} = 'online_offline';
+                $query->{op} = $value eq 'on' ? 'is_null' : 'is_not_null';
             }
         }
     }
+    elsif ( $name eq 'mac' || $name eq 'switch_mac' )  {
+        my $op = $query->{op};
+        if ($op eq 'equal' || $op eq 'not_equal' )  {
+            my $mac = $query->{value};
+            if (valid_mac ($mac) ) {
+                $query->{value} = clean_mac ($mac);
+            }
+        }
+    }
+}
+
+=head2 add_limit
+
+add limits to the sql builder
+
+=cut
+
+sub add_limit {
+    my ($self, $builder, $params) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit  = $params->{per_page} || 25;
+    my $offset = (( $page_num - 1 ) * $limit);
+    $builder->limit($limit + 1, $offset);
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -51,18 +51,24 @@
       <li class="disabled"><span>&hellip;</span></li>
     [%- END -%]
     [% currentPage = firstPage %]
-    [% WHILE currentPage <= lastPage %]
+    [% WHILE currentPage < lastPage %]
       [% params.page_num = currentPage %]
       [%IF currentPage == pageNumber %]
         <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [% ELSE  %]
         <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [%END%]
-    [%currentPage = currentPage + 1%]
+      [%currentPage = currentPage + 1%]
     [% END %]
-    <li class="disabled"><span>&hellip;</span></li>
-    [% params.page_num = pageNumber + 1 %]
-    <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+    [% IF has_next_page %]
+      <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
+      [% params.page_num = pageNumber + 1 %]
+      <li class="disabled"><span>&hellip;</span></li>
+      <li><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+    [% ELSE %]
+      <li class="disabled"><span>&hellip;</span></li>
+      <li class="disabled"><a href="[% c.uri_for(action, add_captures, params) %]">&rarr;</a></li>
+    [% END %]
   </ul>
 </div>
 [%- END -%]
