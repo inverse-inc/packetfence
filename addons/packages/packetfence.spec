@@ -1128,7 +1128,9 @@ fi
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
 %doc                    /usr/local/pf/docs/*.asciidoc
+%if %{builddoc} == 1
 %{?el6:%doc             /usr/local/pf/docs/*.pdf }
+%endif
 %doc                    /usr/local/pf/docs/*.xml
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/includes
