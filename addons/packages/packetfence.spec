@@ -399,6 +399,7 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
+if [ %{builddoc} -eq 1 ]; then
 # RHEL6 only: generating PDF guides
 %if 0%{?el6}
 # generating custom XSL for titlepage
@@ -416,6 +417,8 @@ fop -c docs/fonts/fop-config.xml \
     -pdf docs/$GUIDE.pdf
 done
 %endif
+fi
+
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
 # build ntlm_auth_wrapper
