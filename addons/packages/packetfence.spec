@@ -1023,7 +1023,8 @@ fi
                         /usr/local/pf/conf/radiusd/cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cli
                         /usr/local/pf/conf/radiusd/packetfence-cli.example
-%config(noreplace)      /usr/local/pf/conf/realm.conf
+%config(noreplace)      /usr/local/pf/conf/realm.conf.example
+                        /usr/local/pf/conf/realm.conf
 %config                 /usr/local/pf/conf/realm.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
