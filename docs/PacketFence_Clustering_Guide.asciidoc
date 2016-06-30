@@ -808,6 +808,9 @@ mysql> flush privileges;
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+NOTE: It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalive on your server using `/usr/local/pf/bin/pfcmd service keepalived restart`
+
+
 In order to create a new cluster, the only thing needed is to configure /usr/local/pf/conf/cluster.conf
 
 You will need to configure it with your server hostname. To get it use : *hostname* in a command line.
@@ -889,11 +892,6 @@ If done properly this should start two additionnal services : haproxy and keepal
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
 
-Additionnal steps
-^^^^^^^^^^^^^^^^^
-
-It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalive on your server using `/usr/local/pf/bin/pfcmd service keepalived restart`
-
 Step 4 : Connect a slave packetfence server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -918,8 +916,6 @@ Where :
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
 
-Edit /usr/local/pf/conf/cluster.conf and create the server's configuration using the other node as an example.
-
 Reload the configuation and start the webservices on the new server
 
   # service packetfence-config restart
@@ -936,6 +932,8 @@ Now replicate this server configuration to the other nodes in the cluster
   # /usr/local/pf/bin/cluster/sync --as-master
 
 Make sure at least /usr/local/pf/conf/cluster.conf was replicated to the other servers
+
+Make sure to join domains through 'Configuration/Domains' on each additional create node.
 
 Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
 
