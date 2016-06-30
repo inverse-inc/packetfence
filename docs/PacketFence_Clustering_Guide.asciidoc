@@ -13,13 +13,12 @@ This guide has been created to give a quick start to install active/active clust
 
 Assumptions
 -----------
-* You have at least two servers with a fresh install of PacketFence 5+
-* Both servers pf managed services are stopped.
-* Both servers are identical copies for the network interfaces
-* Both servers are running CentOS 6 or 7
-* Both servers have access to the same layer 2 network on all their network interfaces
-* Both servers have an empty, unformatted partition for the database
-* Both servers hostname must be resolvable via a DNS resolution
+* You have at least two (2) installed and configured PacketFence (v5+) servers;
+* Servers are running RHEL / Centos 6 or 7;
+* Servers have identical copies for network interfaces;
+* Servers network interfaces are on the same layer 2 network;
+* Servers hostnames must be resolvable via DNS resolution;
+* Servers have an empty, unformatted partition (same size) that will be used for the database replication;
 
 Installation on CentOS 6
 ------------------------
