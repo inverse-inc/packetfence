@@ -399,25 +399,25 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-if [ %{builddoc} -eq 1 ]; then
-# RHEL6 only: generating PDF guides
-%if 0%{?el6}
-# generating custom XSL for titlepage
-xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
-    /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
-    docs/docbook/xsl/titlepage-fo.xml
-# admin, network device config, devel and ZEN install guides
-for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
-asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/$GUIDE.docbook \
-    docs/$GUIDE.asciidoc
-fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/$GUIDE.docbook \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -pdf docs/$GUIDE.pdf
-done
+%if %{builddoc}
+    # RHEL6 only: generating PDF guides
+    %if 0%{?el6}
+    # generating custom XSL for titlepage
+    xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
+        /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
+        docs/docbook/xsl/titlepage-fo.xml
+    # admin, network device config, devel and ZEN install guides
+    for GUIDE in $(ls docs/PacketFence*.asciidoc | xargs -n1 -I'{}' basename '{}' .asciidoc) ;do
+    asciidoc -a docinfo2 -b docbook -d book \
+        -o docs/docbook/$GUIDE.docbook \
+        docs/$GUIDE.asciidoc
+    fop -c docs/fonts/fop-config.xml \
+        -xml docs/docbook/$GUIDE.docbook \
+        -xsl docs/docbook/xsl/packetfence-fo.xsl \
+        -pdf docs/$GUIDE.pdf
+    done
+    %endif
 %endif
-fi
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
