@@ -773,6 +773,15 @@ db_host=127.0.0.1
 ....
 ----
 
+While you are in that file, add "high-availibility" statement at the end of your management interface:
+
+----
+[interface eth0]
+....
+type=management,portal,high-availibility
+....
+----
+
 In `conf/pfconfig.conf` :
 
 ----
@@ -795,7 +804,6 @@ Next, you need to remove the empty users from your MySQL database
 mysql> delete from mysql.user where user = '' ;
 mysql> flush privileges;
 ----
-
 
 
 Step 3 : Create a new cluster
@@ -854,7 +862,29 @@ type=internal
 mask=255.255.255.0
 
 ----
+----
 
+[pf2.example.com]
+management_ip=192.168.1.6
+
+[pf1.example.com interface eth0]
+ip=192.168.1.6
+type=management,high-availability
+mask=255.255.255.0
+
+[pf1.example.com interface eth1.2]
+enforcement=vlan
+ip=192.168.2.6
+type=internal
+mask=255.255.255.0
+
+[pf1.example.com interface eth1.3]
+enforcement=vlan
+ip=192.168.3.6
+type=internal
+mask=255.255.255.0
+
+----
 Once this configuration is done, restart PacketFence to have it applied. 
 If done properly this should start two additionnal services : haproxy and keepalived
 
@@ -1028,9 +1058,10 @@ Then, rename the network script of your management interface (`eno16780032` in t
 
   # mv /etc/sysconfig/network-scripts/ifcfg-eno16780032 /etc/sysconfig/network-scripts/ifcfg-eth0
 
-And rename the name of the interface in the script (making sure you replace `eno16780032` and `eth0` by the appropriate values):
+And rename the name of the interface in the following files (making sure you replace `eno16780032` and `eth0` by the appropriate values):
 
   # sed -i.bak "s/eno16780032/eth0/g" /etc/sysconfig/network-scripts/ifcfg-eth0
+  # sed -i.bak "s/eno16780032/eth0/g" /usr/local/pf/conf/pf.conf
 
 Apply the last two steps for any other interface you have on your server. Keep in mind, you can use the PacketFence configurator to reconfigure them later as long as your management interface is correctly configured and is accessible on your network.
 
