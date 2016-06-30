@@ -399,7 +399,7 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-%if %{builddoc}
+%if %{builddoc} == 1
     # RHEL6 only: generating PDF guides
     %if 0%{?el6}
     # generating custom XSL for titlepage
