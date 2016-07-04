@@ -1351,6 +1351,7 @@ sub fingerbank_info {
         return $info;
     });
     $info->{score} = $node_info->{device_score};
+    $info->{version} = $node_info->{device_version};
 
     $info ={ (%$info, %$device_info) };
 
