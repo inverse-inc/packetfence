@@ -22,7 +22,7 @@ __PACKAGE__->config(
     action => {
         # Reconfigure the object and scope actions from
         __PACKAGE__->action_defaults,
-        scope  => { Chained => '/', PathPart => 'config/fingerbank/DHCP6_Fingerprint', CaptureArgs => 1 },
+        scope  => { Chained => '/', PathPart => 'config/fingerbank/dhcp6_fingerprint', CaptureArgs => 1 },
     },
     action_args => {
         # Setting the global model and form for all actions
