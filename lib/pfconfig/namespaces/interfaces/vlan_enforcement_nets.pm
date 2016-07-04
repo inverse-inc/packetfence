@@ -28,7 +28,6 @@ sub build {
     return $self->{_interfaces}->{vlan_enforcement_nets};
 }
 
-=back
 
 =head1 AUTHOR
 

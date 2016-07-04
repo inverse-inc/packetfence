@@ -28,7 +28,6 @@ sub build {
     return $self->{_interfaces}->{portal_ints};
 }
 
-=back
 
 =head1 AUTHOR
 

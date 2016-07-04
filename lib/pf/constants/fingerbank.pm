@@ -19,7 +19,7 @@ use Readonly;
 
 our @EXPORT_OK = qw($RATE_LIMIT);
 
-=item $RATE_LIMIT
+=head2 $RATE_LIMIT
 
 The amount of seconds between each fingerbank process based on the query parameters
 

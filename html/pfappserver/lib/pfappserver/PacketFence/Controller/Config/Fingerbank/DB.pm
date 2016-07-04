@@ -18,7 +18,7 @@ use pf::constants;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
-=head2
+=head2 update_upstream_db
 
 Update "local" upstream Fingerbank database from Fingerbank project
 

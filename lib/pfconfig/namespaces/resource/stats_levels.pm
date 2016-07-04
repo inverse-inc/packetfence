@@ -29,7 +29,6 @@ sub build {
     return { timing => $self->{config}->{advanced}->{timing_stats_level} };
 }
 
-=back
 
 =head1 AUTHOR
 

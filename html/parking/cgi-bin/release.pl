@@ -31,8 +31,6 @@ else {
     print redirect("/max-attempts.html");
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -61,4 +59,3 @@ USA.
 =cut
 
 1;
- 

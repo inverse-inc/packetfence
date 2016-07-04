@@ -28,7 +28,6 @@ sub build {
     return $self->{_interfaces}->{management_network};
 }
 
-=back
 
 =head1 AUTHOR
 

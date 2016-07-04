@@ -33,7 +33,6 @@ sub build {
     return $self->{cluster_resource}->{_servers};
 }
 
-=back
 
 =head1 AUTHOR
 

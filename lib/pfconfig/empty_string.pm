@@ -18,7 +18,6 @@ sub new {
     return $self;
 }
 
-=back
 
 =head1 AUTHOR
 

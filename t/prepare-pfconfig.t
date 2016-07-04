@@ -27,8 +27,6 @@ use pfconfig::manager;
 
 pfconfig::manager->new->expire_all;
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -49,7 +49,6 @@ sub build_child {
     return \%tmp_cfg;
 }
 
-=back
 
 =head1 AUTHOR
 

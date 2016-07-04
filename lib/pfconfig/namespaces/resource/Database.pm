@@ -29,7 +29,6 @@ sub build {
     return $Config{'database'};
 }
 
-=back
 
 =head1 AUTHOR
 

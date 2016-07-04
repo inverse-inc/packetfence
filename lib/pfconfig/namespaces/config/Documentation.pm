@@ -67,7 +67,6 @@ sub build_child {
 
 }
 
-=back
 
 =head1 AUTHOR
 

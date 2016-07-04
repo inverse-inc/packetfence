@@ -145,7 +145,7 @@ sub build_child {
 
 }
 
-=item newAuthenticationSource
+=head2 newAuthenticationSource
 
 Returns an instance of pf::Authentication::Source::* for the given type
 
@@ -164,7 +164,6 @@ sub newAuthenticationSource {
     return $source;
 }
 
-=back
 
 =head1 AUTHOR
 

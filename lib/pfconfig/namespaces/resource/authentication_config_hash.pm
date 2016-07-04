@@ -28,7 +28,6 @@ sub build {
     return $self->{_authentication_config}->{authentication_config_hash};
 }
 
-=back
 
 =head1 AUTHOR
 

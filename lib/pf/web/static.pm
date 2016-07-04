@@ -1,4 +1,5 @@
 package pf::web::static;
+
 =head1 static
 
 Serve static content
@@ -13,8 +14,6 @@ use Apache2::Const -compile => qw(DECLINED);
 sub handler {
     return Apache2::Const::DECLINED;
 }
-
-=back
 
 =head1 AUTHOR
 

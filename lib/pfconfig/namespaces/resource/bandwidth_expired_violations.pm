@@ -30,7 +30,6 @@ sub build {
     return $self->{_engine}->{bandwidth_expired_violations};
 }
 
-=back
 
 =head1 AUTHOR
 

@@ -31,7 +31,6 @@ sub build {
     return read_file($local_secret_file);
 }
 
-=back
 
 =head1 AUTHOR
 

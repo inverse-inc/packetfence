@@ -82,6 +82,7 @@ sub new {
 Seed fake data in the radacct table to test this script
 
 =cut
+
 sub seed_data {
     my ($self) = @_;
 

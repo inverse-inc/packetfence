@@ -33,7 +33,6 @@ sub build_child {
     return $self->{cfg};
 }
 
-=back
 
 =head1 AUTHOR
 

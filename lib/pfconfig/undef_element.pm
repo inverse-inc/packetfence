@@ -18,8 +18,6 @@ sub new {
     return $self;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

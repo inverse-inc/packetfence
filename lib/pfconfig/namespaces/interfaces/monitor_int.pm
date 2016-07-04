@@ -28,7 +28,6 @@ sub build {
     return $self->{_interfaces}->{monitor_int};
 }
 
-=back
 
 =head1 AUTHOR
 

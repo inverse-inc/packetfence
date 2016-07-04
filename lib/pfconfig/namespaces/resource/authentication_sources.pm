@@ -28,7 +28,6 @@ sub build {
     return $self->{_authentication_config}->{authentication_sources};
 }
 
-=back
 
 =head1 AUTHOR
 

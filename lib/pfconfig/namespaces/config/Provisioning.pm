@@ -46,7 +46,6 @@ sub cleanup_after_read {
     $data->{oses} = [ split /\n/, $data->{oses} || '' ]
 }
 
-=back
 
 =head1 AUTHOR
 

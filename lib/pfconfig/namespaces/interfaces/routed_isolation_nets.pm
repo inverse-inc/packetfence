@@ -37,7 +37,6 @@ sub build {
     return \@routed_isolation_nets;
 }
 
-=back
 
 =head1 AUTHOR
 

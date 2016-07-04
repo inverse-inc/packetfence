@@ -50,8 +50,6 @@ sub remove {
 
 __PACKAGE__->meta->make_immutable;
 
-=back
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.

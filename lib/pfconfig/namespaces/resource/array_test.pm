@@ -22,7 +22,6 @@ sub build {
     return [ "first", "second", "third" ];
 }
 
-=back
 
 =head1 AUTHOR
 

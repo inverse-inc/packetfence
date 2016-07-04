@@ -66,8 +66,6 @@ sub list {
     return keys %{ $self->{cache}->get_bulk() };
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

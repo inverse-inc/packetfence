@@ -44,7 +44,6 @@ sub init {
 sub build {
 }
 
-=back
 
 =head1 AUTHOR
 

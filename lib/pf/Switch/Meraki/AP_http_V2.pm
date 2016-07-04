@@ -50,7 +50,7 @@ sub getVersion {
     return '1';
 }
 
-=item returnRoleAttribute
+=head2 returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
 

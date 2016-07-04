@@ -36,6 +36,8 @@ package Rules;
 Readonly::Scalar our $ANY => 'any';
 Readonly::Scalar our $ALL => 'all';
 
+=over
+
 =item AUTH, ADMIN
 
 Available classes for a rule

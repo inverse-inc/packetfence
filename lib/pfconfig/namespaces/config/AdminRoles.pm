@@ -59,7 +59,6 @@ sub cleanup_after_read {
     #    $self->expand_list($item, qw(actions allowed_roles allowed_access_levels));
 }
 
-=back
 
 =head1 AUTHOR
 

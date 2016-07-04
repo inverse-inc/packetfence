@@ -34,7 +34,6 @@ sub build {
     return \@cluster_hosts;
 }
 
-=back
 
 =head1 AUTHOR
 

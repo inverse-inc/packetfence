@@ -37,7 +37,6 @@ sub build {
     return \%domain_dns_servers;
 }
 
-=back
 
 =head1 AUTHOR
 

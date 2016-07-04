@@ -25,8 +25,6 @@ Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
 
-=bac
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

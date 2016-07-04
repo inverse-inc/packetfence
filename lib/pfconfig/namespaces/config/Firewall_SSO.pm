@@ -47,7 +47,6 @@ sub cleanup_after_read {
     $self->expand_list( $data, qw(categories networks) );
 }
 
-=back
 
 =head1 AUTHOR
 

@@ -30,7 +30,6 @@ sub build {
     return $self->{_engine}->{accounting_triggers};
 }
 
-=back
 
 =head1 AUTHOR
 

@@ -68,8 +68,6 @@ sub read_decode {
   return $decoded_data;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

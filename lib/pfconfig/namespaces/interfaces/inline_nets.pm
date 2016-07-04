@@ -37,7 +37,6 @@ sub build {
     return \@inline_nets;
 }
 
-=back
 
 =head1 AUTHOR
 

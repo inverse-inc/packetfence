@@ -31,7 +31,6 @@ sub build {
     return $self->{switches}{default};
 }
 
-=back
 
 =head1 AUTHOR
 

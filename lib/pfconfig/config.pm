@@ -83,7 +83,6 @@ sub get_backend {
     $self->{cache} = $type->new();
 }
 
-=back
 
 =head1 AUTHOR
 

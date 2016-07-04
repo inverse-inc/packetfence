@@ -52,7 +52,6 @@ sub cleanup_after_read {
     $self->expand_list( $item, $self->{expandable_params} );
 }
 
-=back
 
 =head1 AUTHOR
 

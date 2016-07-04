@@ -34,7 +34,6 @@ sub build {
     return $fqdn;
 }
 
-=back
 
 =head1 AUTHOR
 
