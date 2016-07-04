@@ -23,9 +23,9 @@ use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::fingerbank;
 use base qw(pf::base::cmd::action_cmd);
 
-=head2 action_expire 
+=head2 action_find_device_id
 
-Expire a pfconfig namespace
+Find a device ID using its name
 
 =cut
 
