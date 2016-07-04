@@ -607,6 +607,8 @@ sub info_for_violation_engine {
     my $attr_map = {
         dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
         dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+        dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
+        dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
         user_agent => "fingerbank::Model::User_Agent",
     };
     my $results = {};
@@ -626,6 +628,8 @@ sub info_for_violation_engine {
       device_id => $devices,
       dhcp_fingerprint_id => $results->{dhcp_fingerprint},
       dhcp_vendor_id => $results->{dhcp_vendor},
+      dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
+      dhcp6_enterprise_id => $results->{dhcp6_enterprise},
       mac => $mac,
       mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
       user_agent_id => $results->{user_agent},

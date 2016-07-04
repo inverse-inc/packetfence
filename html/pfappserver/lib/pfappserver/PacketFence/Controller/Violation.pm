@@ -30,6 +30,8 @@ use Switch;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::DHCP6_Fingerprint;
+use fingerbank::Model::DHCP6_Enterprise;
 use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 
@@ -126,6 +128,14 @@ sub prettify_trigger {
       }
       case "dhcp_vendor" {
         my ($status, $elem) = fingerbank::Model::DHCP_Vendor->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "dhcp6_fingerprint" {
+        my ($status, $elem) = fingerbank::Model::DHCP6_Fingerprint->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+      }
+      case "dhcp6_enterprise" {
+        my ($status, $elem) = fingerbank::Model::DHCP6_Enterprise->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
       }
       case "mac_vendor" {
