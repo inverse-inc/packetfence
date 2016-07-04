@@ -90,6 +90,7 @@
         { name => 'switch_ip_address', label => l('Switch IP Address') },
         { name => 'switch_mac', label => l('Switch MAC Address') },
         { name => 'switch_description', label => l('Switch description') },
+        { name => 'last_ssid', label => l('SSID') },
         { name => 'bypass_vlan', label => l('Bypass VLAN') },
         { name => 'bypass_role', label => l('Bypass Role') },
         { name => 'notes', label => l('Notes') },
