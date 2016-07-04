@@ -22,7 +22,7 @@
           </tr>
           <tr>
             <th>[% l('DHCP Vendor ID') %]</th>
-            <th>[% l('Description') %]</th>
+            <th>[% l('Value') %]</th>
             <th>[% l('Actions') %]</th>
           </tr>
         </thead>
