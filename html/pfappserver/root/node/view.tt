@@ -111,6 +111,8 @@
 
               [% form.field('dhcp_fingerprint').render | none %]
               [% form.field('dhcp_vendor').render | none %]
+              [% form.field('dhcp6_fingerprint').render | none %]
+              [% form.field('dhcp6_enterprise').render | none %]
               [% form.field('user_agent').render | none %]
             </div><!--tab-pane-->
             
