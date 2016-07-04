@@ -5,7 +5,7 @@ pf::cmd::pf::fingerbank
 
 =head1 SYNOPSIS
 
- pfcmd pfconfig <command> <namespace>
+ pfcmd fingerbank <command>
 
   Commands:
 
