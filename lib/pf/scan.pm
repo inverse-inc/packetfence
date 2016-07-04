@@ -345,6 +345,8 @@ sub toString {
 
 =head2 matchCategory
 
+Check if the category matches the configuration of the scanner
+
 =cut
 
 sub matchCategory {
@@ -358,6 +360,8 @@ sub matchCategory {
 }
 
 =head2 matchOS
+
+Check if the OS matches the configuration of the scanner
 
 =cut
 
@@ -382,6 +386,8 @@ sub matchOS {
 }
 
 =head2 match
+
+Check if the device matches the configuration of the scanner
 
 =cut
 
