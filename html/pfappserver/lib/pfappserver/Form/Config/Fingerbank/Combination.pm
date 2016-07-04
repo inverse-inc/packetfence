@@ -32,6 +32,18 @@ has_field 'dhcp_vendor_id' => (
     fingerbank_model => "fingerbank::Model::DHCP_Vendor",
 );
 
+has_field 'dhcp6_fingerprint_id' => (
+    type => 'FingerbankField',
+    label => 'DHCPv6 Fingerprint',
+    fingerbank_model => "fingerbank::Model::DHCP6_Fingerprint",
+);
+
+has_field 'dhcp6_enterprise_id' => (
+    type => 'FingerbankField',
+    label => 'DHCPv6 Enterprise',
+    fingerbank_model => "fingerbank::Model::DHCP6_Enterprise",
+);
+
 has_field 'mac_vendor_id' => (
     type => 'FingerbankField',
     label => 'MAC Vendor (OUI)',
@@ -69,7 +81,7 @@ has_field updated_at => (
 );
 
 has_block definition => (
-    render_list => [qw(dhcp_fingerprint_id dhcp_vendor_id mac_vendor_id user_agent_id device_id version score created_at updated_at)],
+    render_list => [qw(dhcp_fingerprint_id dhcp_vendor_id dhcp6_fingerprint_id dhcp6_enterprise_id mac_vendor_id user_agent_id device_id version score created_at updated_at)],
 );
 
 =head1 COPYRIGHT
