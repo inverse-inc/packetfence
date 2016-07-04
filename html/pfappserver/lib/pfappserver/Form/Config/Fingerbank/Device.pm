@@ -29,6 +29,7 @@ has_field parent_id =>
 has_field name =>
   (
    type => 'Text',
+   required => 1,
   );
 
 has_field [qw(mobile tablet)] =>

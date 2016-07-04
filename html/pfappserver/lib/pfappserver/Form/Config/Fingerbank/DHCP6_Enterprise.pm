@@ -18,14 +18,15 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'DHCPv6 Enterprise ID',
+   label => 'ID',
    readonly => 1,
   );
 
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'DHCPv6 Enterprise',
+   label => 'Value',
+   required => 1,
   );
 
 has_field 'organization' =>

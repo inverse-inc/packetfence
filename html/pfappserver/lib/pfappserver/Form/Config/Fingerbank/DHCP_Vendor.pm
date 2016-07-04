@@ -17,14 +17,14 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'DHCP Vendor ID',
+   label => 'ID',
    readonly => 1,
   );
 
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'DHCP Vendor',
+   label => 'Value',
   );
 
 has_field created_at =>
