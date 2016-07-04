@@ -2,12 +2,11 @@ package pfappserver::Form::Field::FingerbankField;
 
 =head1 NAME
 
-pfappserver::Form::Field::MACAddress - MAC address input field
+pfappserver::Form::Field::FingerbankField
 
 =head1 DESCRIPTION
 
-This field extends the default Text field and checks if the input
-value is a MAC address.
+This field extends a text field to allow type ahead on the Fingerbank database and to translate the values to IDs
 
 =cut
 
@@ -24,15 +23,23 @@ has '+deflate_value_method'=> ( default => sub { \&fingerbank_deflate } );
 
 has 'fingerbank_model' => (isa => 'Str', is => 'rw');
 
+# Adding the fingerbank-type-ahead class to the element
 around 'element_class' => sub {
     my ($orig, $self) = @_;
     return [ "fingerbank-type-ahead", @{$self->$orig()} ];
 };
 
+# Adding the model inside a data attribute
 around 'element_attr' => sub {
     my ($orig, $self) = @_;
     return { 'data-type-ahead-for' => $self->fingerbank_model, %{$self->$orig()} };
 };
+
+=head2 validate
+
+Validate that the field value is a valid Fingerbank value
+
+=cut
 
 sub validate {
     my ($self) = @_;
@@ -44,6 +51,12 @@ sub validate {
         $self->add_error("Could not find ".$self->label." with value $value");
     }
 }
+
+=head2 fingerbank_inflate
+
+Inflate the value stored as an ID to the value
+
+=cut
 
 sub fingerbank_inflate {
     my ($self, $value) = @_;
@@ -59,6 +72,23 @@ sub fingerbank_inflate {
     }
 }
 
+=head2 fingerbank_deflate
+
+Deflate the value to the appropriate Fingerbank ID
+
+=cut
+
+sub fingerbank_deflate {
+    my ($self, $value) = @_;
+    return $self->_id_from_value($value);
+}
+
+=head2 _id_from_value
+
+Returns the appropriate ID for a given value
+
+=cut
+
 sub _id_from_value {
     my ($self, $value) = @_;
     
@@ -70,11 +100,6 @@ sub _id_from_value {
     else {
         return undef;
     }
-}
-
-sub fingerbank_deflate {
-    my ($self, $value) = @_;
-    return $self->_id_from_value($value);
 }
 
 
