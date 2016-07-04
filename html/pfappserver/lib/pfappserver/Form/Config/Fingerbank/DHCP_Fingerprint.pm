@@ -18,14 +18,14 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'DHCP Fingerprint ID',
+   label => 'ID',
    readonly => 1,
   );
 
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'DHCP Fingerprint',
+   label => 'Value',
   );
 
 has_field created_at =>

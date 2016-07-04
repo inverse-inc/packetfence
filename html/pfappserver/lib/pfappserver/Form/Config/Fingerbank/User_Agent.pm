@@ -17,14 +17,14 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'User Agent ID',
+   label => 'ID',
    readonly => 1,
   );
 
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'User Agent',
+   label => 'Value',
   );
 
 has_field created_at =>
