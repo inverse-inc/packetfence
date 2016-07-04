@@ -1,0 +1,1 @@
+[% INCLUDE config/fingerbank/dhcp6_enterprise/view.tt %]
