@@ -189,6 +189,8 @@ table.sources {
               [% list_entry('Config::Fingerbank::Device', 'index', 'Device') | none %]
               [% list_entry('Config::Fingerbank::DHCP_Fingerprint', 'index', 'DHCP Fingerprint') | none %]
               [% list_entry('Config::Fingerbank::DHCP_Vendor', 'index', 'DHCP Vendor') | none %]
+              [% list_entry('Config::Fingerbank::DHCP6_Fingerprint', 'index', 'DHCPv6 Fingerprint') | none %]
+              [% list_entry('Config::Fingerbank::DHCP6_Enterprise', 'index', 'DHCPv6 Enterprise') | none %]
               [% list_entry('Config::Fingerbank::MAC_Vendor', 'index', 'MAC Vendor') | none %]
               [% list_entry('Config::Fingerbank::User_Agent', 'index', 'User Agent') | none %]
               [%- END %]

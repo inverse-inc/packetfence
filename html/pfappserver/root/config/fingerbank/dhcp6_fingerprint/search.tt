@@ -1,0 +1,1 @@
+[% INCLUDE config/fingerbank/dhcp6_fingerprint/list.tt %]
