@@ -123,6 +123,16 @@ has_field 'dhcp_vendor' =>
    type => 'Uneditable',
    label => 'DHCP Vendor',
   );
+has_field 'dhcp6_fingerprint' =>
+  (
+   type => 'Uneditable',
+   label => 'DHCPv6 Fingerprint',
+  );
+has_field 'dhcp6_enterprise' =>
+  (
+   type => 'Uneditable',
+   label => 'DHCPv6 Enterprise',
+  );
 has_field 'device_type' =>
   (
    type => 'Uneditable',
