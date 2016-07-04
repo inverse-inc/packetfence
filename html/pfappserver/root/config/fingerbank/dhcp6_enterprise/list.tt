@@ -22,6 +22,9 @@
           </tr>
           <tr>
             <th>[% l('DHCPv6 Enterprise ID') %]</th>
+            [% IF scope == 'Upstream' %]
+            <th>[% l('Organization') %]</th>
+            [% END %]
             <th>[% l('Value') %]</th>
             <th>[% l('Actions') %]</th>
           </tr>
@@ -30,6 +33,9 @@
           [% FOREACH item IN items %]
           <tr>
             <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [scope, item.id ]) %]">[% item.id | html %]</a></td>
+            [% IF scope == 'Upstream' %]
+            <td>[% item.organization | html%]</td>
+            [% END %]
             <td>[% item.value | html%]</td>
             <td>
               [%- IF can_access("FINGERBANK_CREATE") %]
