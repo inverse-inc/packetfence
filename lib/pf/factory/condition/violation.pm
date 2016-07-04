@@ -31,6 +31,8 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'device'            => {type => 'includes',      key  => 'device_id'},
     'dhcp_fingerprint'  => {type => 'equals',        key  => 'dhcp_fingerprint_id'},
     'dhcp_vendor'       => {type => 'equals',        key  => 'dhcp_vendor_id'},
+    'dhcp6_fingerprint' => {type => 'equals',        key  => 'dhcp6_fingerprint_id'},
+    'dhcp6_enterprise'  => {type => 'equals',        key  => 'dhcp6_enterprise'},
     'internal'          => {type => 'equals',        key  => 'last_internal_id',        event => $TRUE},
     'mac'               => {type => 'regex',         key  => 'mac'},
     'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
