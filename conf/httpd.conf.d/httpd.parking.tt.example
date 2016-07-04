@@ -120,6 +120,8 @@ CustomLog [% install_dir %]/logs/[% name %].access combined
 
 ScriptAlias /cgi-bin/ [% install_dir %]/html/parking/cgi-bin/
 
+TraceEnable Off
+
 <Directory [% install_dir%]/html/parking/cgi-bin>
   [% IF apache_version == "2.4" %]
   Require all granted

@@ -121,6 +121,8 @@ ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
 
+TraceEnable Off
+
 [% FOREACH vhost IN vhosts %]
 
   Listen [% vhost %]:[% port %]

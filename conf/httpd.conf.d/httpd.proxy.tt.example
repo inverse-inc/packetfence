@@ -150,6 +150,8 @@ ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
 
+TraceEnable Off
+
 NameVirtualHost *:[% port %]
 Listen 127.0.0.1:[% port %]
 
