@@ -21,11 +21,12 @@ has_field 'id' =>
    readonly => 1,
   );
 
-has_field 'parent_id' => (
-    type => 'FingerbankField',
-    label => 'Parent device',
-    fingerbank_model => "fingerbank::Model::Device",
-);
+has_field 'parent_id' => 
+  (
+   type => 'FingerbankField',
+   label => 'Parent device',
+   fingerbank_model => "fingerbank::Model::Device",
+  );
 
 has_field name =>
   (
