@@ -19,11 +19,9 @@ use HTTP::Status qw(:constants :is);
 extends 'pfappserver::Base::Model::Config';
 
 
-=head2 Methods
+=head1 Methods
 
-=over
-
-=item _buildConfigStore
+=head2 _buildConfigStore
 
 =cut
 
@@ -52,9 +50,6 @@ sub remove {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-
-=back
 
 =head1 COPYRIGHT
 

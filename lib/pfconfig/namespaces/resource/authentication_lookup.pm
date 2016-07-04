@@ -4,8 +4,6 @@ package pfconfig::namespaces::resource::authentication_lookup;
 
 pfconfig::namespaces::resource::authentication_lookup
 
-=nfamous archivescut
-
 =head1 DESCRIPTION
 
 pfconfig::namespaces::resource::authentication_lookup
@@ -27,8 +25,6 @@ sub build {
 
     return $self->{_authentication_config}->{authentication_lookup};
 }
-
-=back
 
 =head1 AUTHOR
 

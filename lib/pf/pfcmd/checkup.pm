@@ -1294,7 +1294,7 @@ sub portal_modules {
     }
 }
 
-=head2 cluster
+=item cluster
 
 Validate the configuration of the cluster
 

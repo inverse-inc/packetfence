@@ -576,7 +576,7 @@ sub radiusDisconnect {
     return;
 }
 
-=head2 parseRequest
+=item parseRequest
 
 Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
 

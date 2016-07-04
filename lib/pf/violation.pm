@@ -960,7 +960,7 @@ sub _violation_run_delayed {
     pf::action::action_execute( $mac, $vid, $notes );
 }
 
-=head2 violation_post_open_action
+=item violation_post_open_action
 
 Execute an action that should occur after opening the violation if necessary
 
@@ -973,7 +973,7 @@ sub violation_post_open_action {
     }
 }
 
-=head2 violation_post_close_action
+=item violation_post_close_action
 
 Execute an action that should occur after closing the violation if necessary
 
