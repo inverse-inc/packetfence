@@ -40,6 +40,9 @@ is($profile->findScan("00:00:00:00:00:00", {device_type => "Playstation 4", cate
 is($profile->findScan("00:00:00:00:00:00", {device_type => "Playstation 4", category => "dummy"})->{_id}, "test4",
     "Matching scan properly when scan defines no OS nor category");
 
+is($profile->findScan("00:00:00:00:00:00", {device_type => undef, category => "guest"}), undef,
+    "Shouldn't find a scan when there is no OS defined.");
+
 is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Microsoft Windows Kernel 6.0", category => "guest"})->id, "deny1",
     "Matching provisioner properly when OS + category match");
 
@@ -51,6 +54,9 @@ is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Playstation 4
 
 is($profile->findProvisioner("00:00:00:00:00:00", {device_type => "Playstation 4", category => "dummy"})->id, "deny4",
     "Matching provisioner properly when provisioner defines no OS nor category");
+
+is($profile->findProvisioner("00:00:00:00:00:00", {device_type => undef, category => "guest"}), undef,
+    "Shouldn't find a provisioner when there is no OS defined.");
 
 done_testing();
 
