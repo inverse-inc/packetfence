@@ -60,6 +60,7 @@ has_field 'device_id' => (
     type => 'FingerbankField',
     label => 'Device',
     fingerbank_model => "fingerbank::Model::Device",
+    required => 1,
 );
 
 has_field 'version' => (
@@ -70,6 +71,7 @@ has_field 'version' => (
 has_field 'score' => (
     type => 'PosInteger',
     label => 'Score',
+    required => 1,
 );
 
 has_field created_at => (
