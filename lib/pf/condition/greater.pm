@@ -38,6 +38,7 @@ Match a numeric greater than
 sub match {
     my ($self,$arg) = @_;
     return $FALSE if(!defined($arg));
+    no warnings 'numeric';
     return $arg > $self->value;
 }
 
