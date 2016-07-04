@@ -16,7 +16,7 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 20;
+use Test::More tests => 26;
 
 BEGIN {
     #include test libs
@@ -70,6 +70,24 @@ is($violations[0], "1100011");
 
 # Can't match a part of a combined trigger
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({last_detect_id => 9, mac => "21:34:56:78:90:12"});
+is(@violations, 0);
+
+# Test a violation using DHCPv6 fingerprint
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 1});
+is(@violations, 1);
+is($violations[0], "1100012");
+
+# Test a violation using DHCPv6 fingerprint that shouldn't match
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 2});
+is(@violations, 0);
+
+# Test a violation using DHCPv6 enterprise
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 2});
+is(@violations, 1);
+is($violations[0], "1100012");
+
+# Test a violation using DHCPv6 enteprise that shouldn't match
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 1});
 is(@violations, 0);
 
 
