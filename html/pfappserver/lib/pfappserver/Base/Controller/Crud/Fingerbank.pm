@@ -109,6 +109,8 @@ sub search : Chained('scope') : PathPart('search') : Args() {
 
 =head2 typeahead_search
 
+Search method for use with a typeahead field
+
 =cut
 
 sub typeahead_search : Local {
