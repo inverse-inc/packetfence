@@ -15,7 +15,6 @@ extends 'HTML::FormHandler::Field::Select';
 
 has '+widget' => ( default => 'FingerbankSelect' );
 
-use pf::util;
 use namespace::autoclean;
 
 =head1 COPYRIGHT
