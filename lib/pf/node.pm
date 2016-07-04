@@ -1329,6 +1329,12 @@ sub _cleanup_attributes {
     $info->{'status'} = _cleanup_status_value($info->{'status'});
 }
 
+=head2 fingerbank_info
+
+Get a hash containing the fingerbank related informations for a node
+
+=cut
+
 sub fingerbank_info {
     my ($mac, $node_info) = @_;
     $node_info ||= pf::node::node_view($mac);
