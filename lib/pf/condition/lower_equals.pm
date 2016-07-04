@@ -39,7 +39,7 @@ Matches if the argument is less than
 sub match {
     my ($self,$arg) = @_;
     return $FALSE if(!defined($arg));
-    return $arg =< $self->value;
+    return $arg <= $self->value;
 }
 
 =head1 AUTHOR
