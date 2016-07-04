@@ -17,6 +17,7 @@ pfcmd <command> [options]
   class                       | view violation classes
   configfiles                 | push or pull configfiles into/from database
   configreload                | reload the configution
+  fingerbank                  | Fingerbank related commands
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   help                        | show help for pfcmd commands
   ifoctetshistorymac          | accounting history
