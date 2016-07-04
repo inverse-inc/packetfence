@@ -290,6 +290,13 @@ sub cache {
     return pf::CHI->new( namespace => 'fingerbank' );
 }
 
+=head2 device_name_to_device_id
+
+Find the device ID given its name
+Also makes use of the cache
+
+=cut
+
 sub device_name_to_device_id {
     my ($device_name) = @_;
     my $id = cache()->compute_with_undef("device_name_to_device_id-$device_name", sub {
