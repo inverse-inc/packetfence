@@ -176,9 +176,9 @@
 #
 # We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
 #
-# [autoreg_android:android_by_id&android_4_plus&minimum_score]
-# scope = AutoRegister
-# role = default
+#[autoreg_android:android_by_id&android_4_plus&minimum_score]
+#scope = AutoRegister
+#role = default
 #
 # filter can be:
 #
