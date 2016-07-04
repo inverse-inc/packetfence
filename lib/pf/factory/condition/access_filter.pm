@@ -33,6 +33,10 @@ our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'not_defined'       => 'pf::condition::not_defined',
     'date_is_before'    => 'pf::condition::date_before',
     'date_is_after'     => 'pf::condition::date_after',
+    'greater'           => 'pf::condition::greater',
+    'greater_equals'    => 'pf::condition::greater_equals',
+    'lower'             => 'pf::condition::lower',
+    'lower_equals'      => 'pf::condition::lower_equals',
 );
 
 sub modules {
