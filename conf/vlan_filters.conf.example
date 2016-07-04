@@ -161,7 +161,7 @@
 #
 # Next, lets add filtering on the Android operating system version using:
 # (CAUTION: the version is not always available, when not present, this condition will return false)
-#[android_4_plus]
+#[version_4_plus]
 #filter = fingerbank_info.version
 #operator = greater_equals
 #value = 4
@@ -176,7 +176,7 @@
 #
 # We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
 #
-#[autoreg_android:android_by_id&android_4_plus&minimum_score]
+#[autoreg_android:android_by_id&version_4_plus&minimum_score]
 #scope = AutoRegister
 #role = default
 #
