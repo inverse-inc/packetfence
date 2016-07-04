@@ -2,12 +2,11 @@ package pfappserver::Form::Field::FingerbankSelect;
 
 =head1 NAME
 
-pfappserver::Form::Field::MACAddress - MAC address input field
+pfappserver::Form::Field::FingerbankSelect
 
 =head1 DESCRIPTION
 
-This field extends the default Text field and checks if the input
-value is a MAC address.
+Extends the select field to add a typeahead above it
 
 =cut
 

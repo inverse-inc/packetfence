@@ -2,12 +2,11 @@ package pfappserver::Form::Widget::Field::FingerbankSelect;
 
 =head1 NAME
 
-pfappserver::Form::Widget::Field::ButtonGroup - radio buttons bootstrap-style
+pfappserver::Form::Widget::Field::FingerbankSelect
 
 =head1 DESCRIPTION
 
-This field extends the default RadioGroup and renders it as a series of links
-as possible in Bootstrap.
+A select field with a typeahead to add more options to it
 
 =cut
 
@@ -18,6 +17,12 @@ with 'HTML::FormHandler::Widget::Field::Select';
 has 'fingerbank_model' => (isa => 'Str', is => 'rw');
 
 use namespace::autoclean;
+
+=head2 render_element
+
+Create a select field with a text widget to add more options through a typeahead
+
+=cut
 
 sub render_element {
     my ( $self, $result ) = @_;

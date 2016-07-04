@@ -179,6 +179,7 @@ sub id_validator {
 before 'process' => sub {
     my ($self) = @_;
     foreach my $field (@{$self->fields}){
+        # Populate all the FingerbankSelect fields with the proper values extracted from the database.
         if($field->type eq "FingerbankSelect"){
             # no need for pretty formatting, this is just for validation purposes
             my @options = map { 
@@ -195,8 +196,8 @@ before 'process' => sub {
 after 'process' => sub {
     my ($self) = @_;
     foreach my $field (@{$self->fields}) {
+        # Populate all the FingerbankSelect fields with the proper values extracted from the database.
         if($field->type eq "FingerbankSelect"){
-
             my @base_ids = $field->fingerbank_model->base_ids();
             my @options = map {
                 my ($status, $result) = $field->fingerbank_model->read($_);
