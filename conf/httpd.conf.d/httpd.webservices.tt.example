@@ -157,6 +157,8 @@ SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-R
 
 SSLHonorCipherOrder  on
 
+TraceEnable Off
+
 ErrorLog  [% install_dir %]/logs/[% name %].error
 
 User pf

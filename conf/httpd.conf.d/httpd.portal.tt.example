@@ -203,6 +203,8 @@ ProxyRequests Off
 
 ServerAdmin [% server_admin %]
 
+TraceEnable Off
+
 ServerTokens Prod
 ServerSignature Off
 UseCanonicalName Off

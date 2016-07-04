@@ -176,6 +176,8 @@ ErrorLog  [% install_dir %]/logs/[% name %].error
 
 ServerAdmin [% server_admin %]
 
+TraceEnable Off
+
 ProxyHTMLLinks  a       href
 ProxyHTMLLinks  area        href
 ProxyHTMLLinks  link        href
