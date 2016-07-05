@@ -23,6 +23,17 @@ use pf::log;
 use pf::constants;
 use captiveportal::util;
 
+=head2 display
+
+Overriding here to check for sources AND modules to replace the MultiSource logic of checking only for sources
+
+=cut
+
+sub display { 
+    my ($self) = @_;
+    $self->count_modules > 0 
+}
+
 =head2 BUILD
 
 Create the dynamic modules based on the sources of the module
@@ -58,7 +69,7 @@ Validate there are sources and display a message if there are none. Otherwise, l
 sub execute_child {
     my ($self) = @_;
     
-    unless(@{$self->sources}){
+    unless($self->count_modules){
         $self->app->error("No authentication sources found in configuration. Select another option.");
         return;
     }
