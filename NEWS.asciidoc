@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.2.0 released on 2016-07-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Added missing index to radacct table (fixes #1586)
+* Fixed searching nodes for "all" devices (fixes #1584)
+* Fixed invalid destination URL parsing
+* Fixed handling of provisioner return code in violations
+* Fixed binding of IP addresses in Active/Active mode
+* Fixed cluster status page issues with pid files
+* Fixed missing person lookup when using 802.1x autoregistration
+* Fixed permission issue on logrotation
+* Fixed invalid i18n of MAC address in node location view (fixes #1591)
+* Fixed L2 cache write error of new switches namespaces
+
+
 Version 6.1.1 released on 2016-06-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
