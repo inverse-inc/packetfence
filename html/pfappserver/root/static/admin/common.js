@@ -837,22 +837,9 @@ FingerbankSearch.prototype.search = function(query, process) {
   });
 }
 
-var alreadySetup = {};
-
 FingerbankSearch.setup = function() {
-  $('.fingerbank-type-ahead').each(function(){ 
+  $('.fingerbank-type-ahead').doOnce('.fingerbank-type-ahead', function(){ 
       var o = this;
-
-      // Ensure we don't bind the search twice by recording which IDs we've already set it up on
-      // The ID is generated and assigned to a data tag to make sure duplicate HTML ids don't break this flow even though they aren't valid
-      if(!$(o).attr('data-fingerbank-search-id')) {
-        var gen_id = $("<a></a>").uniqueId().attr('id');
-        $(o).attr('data-fingerbank-search-id', gen_id);
-      }
-      if(alreadySetup[$(o).attr('data-fingerbank-search-id')]) return;
-      console.log(o);
-
-      alreadySetup[$(o).attr('data-fingerbank-search-id')] = true;
 
       // Creating a new scope since we are in a loop
       (function() {
@@ -885,8 +872,8 @@ FingerbankSearch.setup = function() {
             eval(search.add_action + "(search,id,display)");
           }
           else {
-              search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
-              search.add_to.trigger("liszt:updated");
+            search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
+            search.add_to.trigger("liszt:updated");
           }
           search.typeahead_field.val('');
           return false;      
