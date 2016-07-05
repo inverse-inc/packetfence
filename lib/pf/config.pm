@@ -213,6 +213,7 @@ if($cluster_enabled) {
     tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
+    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
 }
 else {
     tie %Config, 'pfconfig::cached_hash', "config::Pf";
@@ -228,6 +229,7 @@ else {
     tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets";
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets";
+    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain";
 }
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
@@ -246,8 +248,6 @@ tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
-
-tie %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
