@@ -79,11 +79,12 @@ has_field 'server_name' =>
   (
    type => 'Text',
    label => 'This server\'s name',
+   default => '%h',
    required => 1,
    maxlength => 14,
    messages => { required => 'Please specify the server\'s name' },
    tags => { after_element => \&help,
-             help => 'This server\'s name (account name) in your Active Directory.' },
+             help => 'This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname' },
   );
 
 has_field 'dns_name' =>
