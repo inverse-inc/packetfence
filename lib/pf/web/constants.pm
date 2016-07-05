@@ -97,7 +97,7 @@ Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout'
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
 # External Captive Portal URL detection constant
-Readonly::Scalar our $EXT_URL_AEROHIVE          => '^/AeroHIVE/AP_http';
+Readonly::Scalar our $EXT_URL_AEROHIVE          => '^/AeroHIVE::AP_http';
 Readonly::Scalar our $EXT_URL_ARUBA             => '^/Aruba';
 Readonly::Scalar our $EXT_URL_COOVACHILLI       => '^/CoovaChilli';
 Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
