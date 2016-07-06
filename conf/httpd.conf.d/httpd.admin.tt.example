@@ -21,6 +21,18 @@
     <IfModule !prefork.c>
       LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
     </IfModule>
+    <IfModule !mod_xml2enc.c>
+      LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
+    </IfModule>
+    <IfModule !mod_proxy_html.c>
+      LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
+    </IfModule>
+  [% ELSE %]
+    # Debian 7 does not include xml2enc_module so we have to work around it.
+    <IfModule !mod_proxy_html.c>
+      LoadFile libxml2.so.2
+      LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
+    </IfModule>
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
@@ -226,21 +238,12 @@ ProxyHTMLLinks  script      src for
           RequestHeader append X-Forwarded-For-PacketFence "[% vhosts.0 %]"
 
           ProxyPassReverse /
-          # Debian 7 does not include xml2enc_module so we have to work around it.
+          # Debian 7 has an older version of mod_proxy_html
           <IfDefine debian>
-            [% IF apache_version != "2.4" %]
-            <IfModule !mod_proxy_html.c>
-              LoadFile libxml2.so.2
-              LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
-            </IfModule>
-            [% ELSE %]
-            <IfModule !mod_xml2enc.c>
-              LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
-            </IfModule>
-            <IfModule !mod_proxy_html.c>
-              LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
-            </IfModule>
+            [% IF apache_version == "2.4" %]
             ProxyHTMLEnable On
+            [% ELSE %]
+            SetOutputFilter proxy-html
             [% END %]
           </IfDefine>
           <IfDefine rhel>
