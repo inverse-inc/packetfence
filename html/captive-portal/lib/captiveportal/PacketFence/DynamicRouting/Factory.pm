@@ -177,7 +177,7 @@ sub add_to_graph {
     foreach my $sub_module_id (@$modules){
         my $u_sub_module_id = generate_module_id($module_id, $sub_module_id);
         if(id_is_cyclic($u_sub_module_id)){
-            die "Modules are cyclic which is not allowed. Detected on ID : $u_sub_module_id";
+            die "Modules are cyclic which is not allowed. Detected on ID : $u_sub_module_id \n";
         }
         $self->graph->add_path($module_id, $u_sub_module_id);
         if($ConfigPortalModules{clean_id($u_sub_module_id)}{modules}){
