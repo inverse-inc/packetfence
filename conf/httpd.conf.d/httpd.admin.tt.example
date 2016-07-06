@@ -43,12 +43,6 @@
   <IfModule !mod_apreq2.c>
     LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
   </IfModule>
-  <IfModule !mod_xml2enc.c>
-    LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
-  </IfModule>
-  <IfModule !mod_proxy_html.c>
-    LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
-  </IfModule>
   <IfModule !mod_env.c>
       LoadModule env_module /usr/lib/apache2/modules/mod_env.so
   </IfModule>
@@ -232,7 +226,27 @@ ProxyHTMLLinks  script      src for
           RequestHeader append X-Forwarded-For-PacketFence "[% vhosts.0 %]"
 
           ProxyPassReverse /
-          ProxyHTMLEnable On
+          # Debian 7 does not include xml2enc_module so we have to work around it.
+          <IfDefine debian>
+            [% IF apache_version != "2.4" %]
+            <IfModule !mod_proxy_html.c>
+              LoadFile libxml2.so.2
+              LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
+            </IfModule>
+            [% ELSE %]
+            <IfModule !mod_xml2enc.c>
+              LoadModule xml2enc_module /usr/lib/apache2/modules/mod_xml2enc.so
+            </IfModule>
+            <IfModule !mod_proxy_html.c>
+              LoadModule proxy_html_module /usr/lib/apache2/modules/mod_proxy_html.so
+            </IfModule>
+            ProxyHTMLEnable On
+            [% END %]
+          </IfDefine>
+          <IfDefine rhel>
+            ProxyHTMLEnable On
+          </IfDefine>
+
           ProxyHTMLInterp On
           ProxyHTMLURLMap http://[% preview_ip %]/ /portal_preview/ l
           ProxyHTMLURLMap https://[% preview_ip %]/ /portal_preview/ l
