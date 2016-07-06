@@ -65,6 +65,7 @@ our %ALLOWED_SECTIONS = (
     monitoring => undef,
     omapi => undef,
     pki => undef,
+    metadefender => undef,
 );
 
 
