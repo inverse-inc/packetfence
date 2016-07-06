@@ -60,6 +60,40 @@ sub options_modules {
     } } keys(%$modules_by_type);
 }
 
+=head2 validate_modules
+
+Validates that there is no cycle in the portal module before saving it.
+
+=cut
+
+sub validate_modules {
+    my ($self, $field) = @_;
+    require captiveportal::DynamicRouting::Application;
+    require pf::Portal::ProfileFactory;
+    require captiveportal::DynamicRouting::Factory;
+    my $current_module_id = $self->field('id')->value;
+    my $app = captiveportal::DynamicRouting::Application->new(user_session => {}, session => {}, profile => pf::Portal::ProfileFactory->instantiate("00:11:22:33:44:55"), request => $self->ctx->request, root_module_id => undef);
+    my $factory = captiveportal::DynamicRouting::Factory->new(application => $app);
+
+    # Setting the new modules list in pfconfig proxied hash since we haven't commited yet...
+    $pf::config::ConfigPortalModules{$current_module_id}{modules} = $field->value;
+    
+    foreach my $id (@{$field->value}) {
+        if($id eq $current_module_id) {
+            $field->add_error("Module cannot have himself as a child");
+            return;
+        }
+        my ($ok, $error) = $factory->check_cyclic($id);
+        if(!$ok) {
+            $field->add_error("Cycle detected on child module $id : $error");
+            return;
+        }
+    }
+    
+    # Resetting the locally stored value to undef so it takes the one from pfconfig again
+    $pf::config::ConfigPortalModules{$current_module_id}{modules} = undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
