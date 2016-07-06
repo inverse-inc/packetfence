@@ -153,10 +153,14 @@ sub build_conditions {
     my ($first, @keys) = split /\./, $operands[0];
     my $sub_condition = $class->new({ value => $operands[1] });
     if ($first eq 'extended' ) {
-        die "No sub fields provided for the extended key\n" unless @keys;
+        die "No sub fields provided for the extended key\n" unless @keys > 1;
+        my $extened_namespace = shift @keys;
         return pf::condition::node_extended->new({
             key => $first,
-            condition => _build_parent_condition($sub_condition, @keys)
+            condition =>  pf::condition::node_extended_data->new({
+                key => $extened_namespace,
+                condition => _build_parent_condition($sub_condition, @keys),
+            })
         });
     }
     return _build_parent_condition($sub_condition, $first, @keys);
