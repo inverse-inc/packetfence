@@ -189,11 +189,7 @@ Listen [% vhost %]:[% port %]
     Include [% var_dir %]/conf/ssl-certificates.conf
     <Location / >
         SetHandler modperl
-        PerlResponseHandler pf::WebAPI
-        PerlAuthenHandler pf::WebAPI::AuthenHandler
-        AuthName PacketFence_Authentication
-        AuthType Basic
-        require valid-user
+        PerlResponseHandler pf::WebAPI::MSEHandler
     </Location>
 </VirtualHost>
 
@@ -206,8 +202,6 @@ Listen 127.0.0.1:[% port %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog [% install_dir %]/logs/[% name %].error
     CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
-    SetHandler modperl
-    PerlResponseHandler pf::WebAPI::MSEHandler
     <Location / >
         SetHandler modperl
         PerlResponseHandler pf::WebAPI::MSEHandler
