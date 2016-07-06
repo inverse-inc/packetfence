@@ -73,7 +73,6 @@ BEGIN {
         node_cleanup
         node_update_lastarp
         node_custom_search
-        node_extended_data
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
@@ -1329,32 +1328,6 @@ sub _cleanup_attributes {
     my ($info) = @_;
     $info->{voip} ||= $NO_VOIP;
     $info->{'status'} = _cleanup_status_value($info->{'status'});
-}
-
-=item node_extended_data
-
-Get the node extended data
-
-=cut
-
-sub node_extended_data {
-    my ($mac) = @_;
-    my $namespaces = $Config{advanced}{extended_profile_filter_namespaces};
-    if (@$namespaces) {
-        my %hash;
-        my $redis = pf::Redis->new(server => 'localhost:6379');
-        my $json = JSON::MaybeXS->new;
-        foreach my $namespace (@$namespaces) {
-            my ($data) = $redis->get("extended:${namespace}:${mac}");
-            if (defined $data) {
-                $hash{$namespace} = $json->decode($data);
-            }
-        }
-        if (keys %hash) {
-            return \%hash;
-        }
-    }
-    return undef;
 }
 
 =back
