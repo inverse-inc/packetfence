@@ -16,13 +16,12 @@ use strict;
 use warnings;
 use Moose;
 use pf::constants qw($TRUE $FALSE);
-use pf::node qw(node_extended_data);
 extends qw(pf::condition::key);
 use Scalar::Util qw(reftype);
 
 =head2 match
 
-Match a sub condition using the value in a hash
+The root condition for extended node data
 
 =cut
 
@@ -30,10 +29,11 @@ sub match {
     my ($self, $arg) = @_;
     return $FALSE unless defined $arg && reftype ($arg) eq 'HASH';
     return $FALSE unless exists $arg->{mac} && defined $arg->{mac};
-    unless (exists $arg->{extended}) {
-        $arg->{extended} = node_extended_data($arg->{mac});
+    my $key = $self->key;
+    unless (exists $arg->{$key}) {
+        $arg->{$key} = {};
     }
-    return $self->SUPER::match($arg);
+    return $self->condition->match($arg->{$key}, $arg->{mac});
 }
 
 =head1 AUTHOR
