@@ -71,6 +71,7 @@ use pf::config::util;
 use pf::services::util;
 use pf::violation;
 use pf::role::custom $ROLE_API_LEVEL;
+use pf::Portal::ProfileFactory;
 
 pf::SwitchFactory::preLoadModules();
 
@@ -1099,7 +1100,7 @@ sub handleTrap {
                     && ( $locationlog[0]->{'mac'} ne '' ) )
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
-                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), swicth => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS});
+                        my $role =  $role_obj->fetchRoleForNode({mac => $mac, node_info => node_attributes($mac), swicth => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($mac)});
                         my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
                         if (( $locationlog[0]->{'vlan'} == $vlan )
                             && ($vlan == $fetchedVlan)
@@ -1291,7 +1292,7 @@ sub handleTrap {
                 locationlog_update_end_mac($oldPC);
                 $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_id ifIndex $switch_port");
                 my $role = $role_obj->fetchRoleForNode({
-                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($trapMac)
                 });
                 my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 $switch->authorizeMAC( $switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port), $correctVlanForThisNode );
@@ -1319,7 +1320,7 @@ sub handleTrap {
                     }
                 }
                 my $role = $role_obj->fetchRoleForNode({
-                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS
+                    mac => $trapMac, node_info => node_attributes($trapMac), switch => $switch, ifIndex => $switch_port, connection_type => $WIRED_SNMP_TRAPS, profile => pf::Portal::ProfileFactory->instantiate($trapMac)
                 });
                 my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
                 if ( defined($old_mac_to_remove) ) {
@@ -1842,7 +1843,7 @@ sub node_determine_and_set_into_VLAN {
 
     my $role_obj = new pf::role::custom();
 
-    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type});
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Portal::ProfileFactory->instantiate($mac)});
     my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
 
     $switch->setVlan(
