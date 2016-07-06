@@ -102,6 +102,7 @@ table.sources {
               [% pf_section_entry( 'webservices', 'Web Services') | none %]
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'active_active', 'Clustering') | none %]
+              [% pf_section_entry( 'metadefender', 'Metadefender') | none %]
               [%- END %]
               [%- IF can_access("PORTAL_MODULE_READ") %]
               [% list_entry('Config::PortalModule', 'index', 'Portal Modules') | none %]
