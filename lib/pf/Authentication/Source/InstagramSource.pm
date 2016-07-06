@@ -26,7 +26,7 @@ has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com')
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/access_token');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
-#has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com/me?fields=id,name,email,first_name,last_name');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com/oauth/protected_resource');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
     has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.instagram.com,*.facebook.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
 

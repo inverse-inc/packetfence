@@ -3,6 +3,7 @@
 [% form.field('site').render | none %]
 [% form.field('access_token_path').render | none %]
 [% form.field('access_token_param').render | none %]
+[% form.field('protected_resource_url').render | none %]
 [% form.field('scope').render | none %]
 [% form.field('redirect_url').render | none %]
 [% form.field('domains').render | none %]

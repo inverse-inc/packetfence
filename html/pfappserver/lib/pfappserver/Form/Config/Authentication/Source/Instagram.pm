@@ -60,14 +60,14 @@ has_field 'scope' =>
    tags => { after_element => \&help,
              help => 'The permissions the application requests.' },
   );
-#has_field 'protected_resource_url' =>
-#  (
-#   type => 'Text',
-#   label => 'Graph API URL of logged user',
-#   required => 1,
-#   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('protected_resource_url')->default,
-#   element_class => ['input-xlarge'],
-#  );
+has_field 'protected_resource_url' =>
+  (
+   type => 'Text',
+   label => 'Graph API URL of logged user',
+   required => 1,
+   default => pf::Authentication::Source::InstagramSource->meta->get_attribute('protected_resource_url')->default,
+   element_class => ['input-xlarge'],
+  );
 
 has_field 'redirect_url' =>
   (
