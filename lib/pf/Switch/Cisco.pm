@@ -1373,11 +1373,11 @@ sub getPhonesCDPAtIfIndex {
                     && ($MACresult->{
                             "$oid_cdpCacheDeviceId.$ifIndex.$cacheDeviceIndex"
                         }
-                        =~ /^SEP([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
+                        =~ /^(SEP|SIP)([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
                     )
                     )
                 {
-                    push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    push @phones, lc("$2:$3:$4:$5:$6:$7");
                 }
             }
         }
