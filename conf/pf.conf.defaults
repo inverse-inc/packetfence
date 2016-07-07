@@ -247,10 +247,10 @@ admin=1443
 # Port of the soap interface listens on.
 soap=9090
 #
-# ports.mse
+# ports.collector
 #
-# Port of the mse interface listens on.
-mse=9292
+# Port of the collector interface listens on.
+collector=9292
 #
 # ports.aaa
 #
@@ -509,15 +509,15 @@ httpd_webservices=enabled
 # Order in which to start this service 
 httpd_webservices_order=22
 #
-# services.httpd_mse
+# services.httpd_collector
 #
-# Should httpd.mse be started?
-httpd_mse=enabled
+# Should httpd.collector be started?
+httpd_collector=disabled
 #
-# services.httpd_mse_order
+# services.httpd_collector_order
 #
 # Order in which to start this service
-httpd_mse_order=23
+httpd_collector_order=23
 #
 # services.httpd_aaa
 #

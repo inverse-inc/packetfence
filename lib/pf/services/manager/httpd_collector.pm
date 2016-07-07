@@ -1,14 +1,14 @@
-package pf::services::manager::httpd_mse;
+package pf::services::manager::httpd_collector;
 
 =head1 NAME
 
-pf::services::manager::httpd_mse
+pf::services::manager::httpd_collector
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::httpd_mse
+pf::services::manager::httpd_collector
 
 =cut
 
@@ -25,7 +25,7 @@ use List::MoreUtils qw(uniq);
 
 extends 'pf::services::manager::httpd';
 
-has '+name' => (default => sub { 'httpd.mse' } );
+has '+name' => (default => sub { 'httpd.collector' } );
 
 sub vhosts {
     my ($self) = @_;
@@ -41,7 +41,7 @@ sub vhosts {
 }
 
 sub port {
-    return $Config{ports}{mse};
+    return $Config{ports}{collector};
 }
 
 sub additionalVars {

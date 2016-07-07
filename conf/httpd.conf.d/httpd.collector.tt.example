@@ -113,9 +113,9 @@ PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
 PerlPostConfigRequire [% install_dir %]/lib/pf/web/[% name %]_modperl_require.pl
 PerlLoadModule pf::WebAPI::MSEHandler
-PerlLoadModule pf::WebAPI::InitMSEHandler
-PerlInitHandler pf::WebAPI::InitMSEHandler
-PerlChildInitHandler pf::WebAPI::InitMSEHandler->child_init
+PerlLoadModule pf::WebAPI::InitCollectorHandler
+PerlInitHandler pf::WebAPI::InitCollectorHandler
+PerlChildInitHandler pf::WebAPI::InitCollectorHandler->child_init
 SetEnvIf User-Agent collectd is_collectd
 
 
@@ -187,7 +187,7 @@ Listen [% vhost %]:[% port %]
     CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
     SSLEngine on
     Include [% var_dir %]/conf/ssl-certificates.conf
-    <Location / >
+    <Location /mse/ >
         SetHandler modperl
         PerlResponseHandler pf::WebAPI::MSEHandler
     </Location>
@@ -202,7 +202,7 @@ Listen 127.0.0.1:[% port %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog [% install_dir %]/logs/[% name %].error
     CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
-    <Location / >
+    <Location /mse/ >
         SetHandler modperl
         PerlResponseHandler pf::WebAPI::MSEHandler
     </Location>
