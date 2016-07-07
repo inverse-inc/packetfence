@@ -18,7 +18,7 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authenticat
 
 before 'setup' => sub {
     my ($self) = @_;
-    $self->remove_field($_) for (qw(pid_field with_aup signup_template));
+    $self->remove_field($_) for (qw(pid_field with_aup aup_template signup_template));
 };
 
 ## Definition

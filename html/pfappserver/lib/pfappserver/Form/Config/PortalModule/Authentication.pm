@@ -40,6 +40,15 @@ has_field 'with_aup' =>
              help => 'Require the user to accept the AUP' },
   );
 
+has_field 'aup_template' =>
+  (
+   type => 'Text',
+   label => 'AUP template',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'The template to use for the AUP' },
+  );
+
 has_field 'signup_template' =>
   (
    type => 'Text',
@@ -51,7 +60,7 @@ has_field 'signup_template' =>
 
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id pid_field custom_fields with_aup signup_template), $self->auth_module_definition());
+    return (qw(source_id pid_field custom_fields with_aup aup_template signup_template), $self->auth_module_definition());
 }
 
 sub BUILD {
@@ -61,6 +70,7 @@ sub BUILD {
         $self->field('pid_field')->default($pid_default_method->());
     }
     $self->field('with_aup')->default($self->for_module->meta->find_attribute_by_name('with_aup')->default->());
+    $self->field('aup_template')->default($self->for_module->meta->find_attribute_by_name('aup_template')->default->());
     $self->field('signup_template')->default($self->for_module->meta->find_attribute_by_name('signup_template')->default->());
 }
 
