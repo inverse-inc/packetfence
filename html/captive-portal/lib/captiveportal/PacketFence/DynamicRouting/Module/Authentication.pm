@@ -38,6 +38,8 @@ has 'pid_field' => ('is' => 'rw', default => sub {'email'});
 
 has 'with_aup' => ('is' => 'rw', default => sub {1});
 
+has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
+
 has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
