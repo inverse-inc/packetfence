@@ -23,11 +23,9 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEME
 use pf::log;
 use pf::Redis;
 use JSON::MaybeXS;
-use Data::Dumper;
 
 use Apache2::Const -compile => 'OK';
 our $JSON = JSON::MaybeXS->new();
-my $logger = get_logger();
 
 sub handler {
     my $r = shift;
