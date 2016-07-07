@@ -87,18 +87,20 @@ sub handle_callback {
     my $response_body = '';
     
     use Data::Dumper;
-    #$curl->setopt(CURLOPT_HTTPGET);
+    $curl->setopt(CURLOPT_HTTPGET, 1);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_HTTPHEADER(), ['Authorization: Bearer ' . $token]);
-    $curl->setopt(CURLOPT_URL, $info->{NOP_site});
+    $curl->setopt(CURLOPT_HTTPHEADER(), ['Content-Type: application/json', 'Authorization : Bearer ' . $token]);
+    $curl->setopt(CURLOPT_URL, "https://api.instagram.com/users?access_token=$token");#$info->{NOP_site});
 
     use pf::log;
     my $curl_return_code = $curl->perform;
+    get_logger->info('info' . Dumper($info));
 
     get_logger->info('token and stuff' . Dumper($token, $response_body, $curl_return_code));
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+    get_logger->info('code answer' . Dumper($response_code));
     my $json = JSON->new;
     my $jsond = $json->decode($response_body);
 
