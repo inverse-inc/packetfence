@@ -50,6 +50,8 @@ END %]
      svgIcon(id='instagram-icon',size=size);
    CASE ['module-authentication-oauth-linkedin', 'linkedin'];
      svgIcon(id='linkedin-icon',size=size);
+   CASE ['module-authentication-oauth-printerest', 'printerest'];
+     svgIcon(id='linkedin-icon',size=size);
    CASE ['module-authentication-oauth-twitter', 'twitter'];
      svgIcon(id='twitter-icon',size=size);
    CASE ['module-authentication-oauth-windowslive', 'windowslive'];
