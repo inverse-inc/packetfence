@@ -1220,7 +1220,7 @@ sub valid_certs {
 
     eval {
         if(cert_has_expired($httpd_crt)){
-            add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+            add_problem($WARN, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
     if($@){
@@ -1243,7 +1243,7 @@ sub valid_certs {
 
         eval {
             if(cert_has_expired($radius_crt)){
-                add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
+                add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
             }
         };
