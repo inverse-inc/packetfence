@@ -115,7 +115,7 @@ sub build_child {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
         }
     }
-    foreach my $val ("trapping.passthroughs", "advanced.extended_profile_filter_namespaces") {
+    foreach my $val ("trapping.passthroughs") {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
