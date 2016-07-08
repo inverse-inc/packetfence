@@ -64,7 +64,7 @@ sub get_token {
         $self->landing();
         return;
     }
-    return ($curl_return_code, $response_code, $jsond, $token);
+    return $token;
 
 }
 
@@ -86,33 +86,24 @@ sub handle_callback {
     my $curl = WWW::Curl::Easy->new;
     my $response_body = '';
     
-    use Data::Dumper;
     $curl->setopt(CURLOPT_HTTPGET, 1);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_HTTPHEADER(), ['Content-Type: application/json', 'Authorization : Bearer ' . $token]);
-    $curl->setopt(CURLOPT_URL, "https://api.instagram.com/users?access_token=$token");#$info->{NOP_site});
+    $curl->setopt(CURLOPT_URL, "https://api.instagram.com/v1/users/self/?access_token=$token");
 
-    use pf::log;
     my $curl_return_code = $curl->perform;
-    get_logger->info('info' . Dumper($info));
 
-    get_logger->info('token and stuff' . Dumper($token, $response_body, $curl_return_code));
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-    get_logger->info('code answer' . Dumper($response_code));
-    my $json = JSON->new;
-    my $jsond = $json->decode($response_body);
 
-
-    get_logger->info('json' . Dumper($jsond));
-    if ($curl_return_code->is_success) {
-        my $pid = $self->_extract_username_from_response($jsond); 
+    if ($curl_return_code == 0) {
+        my $info = $self->_decode_response($response_body); 
+        my $pid = $self->_extract_username_from_response($info); 
         
         $self->username($pid);
 
         get_logger->info("OAuth2 successfull for username ".$self->username);
-        $self->source->lookup_from_provider_info($self->username, $jsond);
+        $self->source->lookup_from_provider_info($self->username, $info);
         
         pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
 
@@ -127,6 +118,30 @@ sub handle_callback {
         return;
     }
 
+}
+
+=head2 _decode_response
+
+Decode the response from the provider
+
+=cut
+
+sub _decode_response {
+    my ($self, $response_body) = @_;
+    my $json = new JSON;
+    return $json->decode($response_body);
+}
+
+
+=head2 _extract_username_from_response
+
+Extract the username from the response of the provider
+
+=cut
+
+sub _extract_username_from_response {
+    my ($self, $info) = @_;
+    return $info->{data}{username};
 }
 
 =head1 AUTHOR
