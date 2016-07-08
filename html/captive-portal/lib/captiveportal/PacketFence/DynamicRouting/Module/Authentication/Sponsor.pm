@@ -112,7 +112,7 @@ sub do_sponsor_registration {
     get_logger->info( "Adding guest person " . $pid );
 
     $info{'cc'} = $source->{sponsorship_cc};
-
+    $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     # fetch more info for the activation email
     # this is meant to be overridden in pf::web::custom with customer specific needs
     foreach my $key (qw(firstname lastname telephone company sponsor)) {
