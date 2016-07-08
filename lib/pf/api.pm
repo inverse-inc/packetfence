@@ -464,6 +464,7 @@ sub _node_determine_and_set_into_VLAN {
         switch => $switch,
         ifIndex => $ifIndex,
         connection_type => $connection_type,
+        profile => pf::Portal::ProfileFactory->instantiate($mac),
     };
 
     my $role = $role_obj->fetchRoleForNode($args);
