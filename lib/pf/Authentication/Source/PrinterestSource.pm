@@ -25,7 +25,7 @@ has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token'
 has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.printerest.com/me?fields=id,name,email,first_name,last_name');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.printerest.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.printerest.com,*.api.printerest.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
 
 =head2 dynamic_routing_module
 
