@@ -441,7 +441,7 @@ sub returnRadiusAccessAccept {
                 # remove the role if any as we push the redirection ACL along with it's role
                 delete $radius_reply_ref->{$self->returnRoleAttribute()};
             }
-            $logger->info("Adding web authentication redirection to reply using role : ".$args->{'user_role'}." and URL : $redirect_url.");
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
             push @av_pairs, "url-redirect-acl=$role";
             push @av_pairs, "url-redirect=".$redirect_url;
         }
