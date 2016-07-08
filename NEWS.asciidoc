@@ -11,6 +11,25 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 6.2.1 released on 2016-07-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
++++++++++
+
+* Forbid trace mode in Apache default configuration
+* Improved validation of portal modules configuration
+
+Bug Fixes
++++++++++
+
+* Fixed Debian 7 failing to start httpd.admin
+* Fixed missing Metadefender configuration section
+* Fixed missing parameter for fetchVlanForNode in pfsetvlan
+* Fixed incorrect NAS-Port use for RADIUS CoA on Cisco WLCs
+* Fix incorrect domain handling in Active/Active
+
+
 Version 6.2.0 released on 2016-07-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
