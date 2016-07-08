@@ -83,28 +83,6 @@ sub getVersion {
     }
     return '';
 }
-=item parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    # example disassociate trap on MAC 00 1B B1 8B 82 13
-    # BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (865381) 2:24:13.81|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.388.14.5.1.7.1.6|.1.3.6.1.4.1.388.14.5.1.7.1.1 = Hex-STRING: 00 1B B1 8B 82 13 |.1.3.6.1.4.1.388.14.3.3.1.2.2.1.1 = Counter32: 1|.1.3.6.1.4.1.388.14.4.1.4.1.1.1 = INTEGER: 31|.1.3.6.1.4.1.388.14.4.1.4.1.1.2 = INTEGER: 4|.1.3.6.1.4.1.388.14.4.1.4.1.1.4 = STRING: "disassociated"|.1.3.6.1.4.1.388.14.4.1.4.1.1.5 = Hex-STRING: 07 DA 09 1B 09 25 0F 00 |.1.3.6.1.4.1.388.14.4.1.4.1.1.8 = INTEGER: 2 END VARIABLEBINDINGS
-
-    # example associate trap on MAC 00 1B B1 8B 82 13
-    # BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (875290) 2:25:52.90|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.388.14.5.1.7.1.4|.1.3.6.1.4.1.388.14.5.1.7.1.1 = Hex-STRING: 00 1B B1 8B 82 13 |.1.3.6.1.4.1.388.14.3.3.1.2.2.1.1 = Counter32: 1|.1.3.6.1.4.1.388.14.4.1.4.1.1.1 = INTEGER: 32|.1.3.6.1.4.1.388.14.4.1.4.1.1.2 = INTEGER: 4|.1.3.6.1.4.1.388.14.4.1.4.1.1.4 = STRING: "associated"|.1.3.6.1.4.1.388.14.4.1.4.1.1.5 = Hex-STRING: 07 DA 09 1B 09 26 36 00 |.1.3.6.1.4.1.388.14.4.1.4.1.1.8 = INTEGER: 2 END VARIABLEBINDINGS
-
-    $logger->debug("trap ignored, not useful for wireless controller");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
 
 =item deauthenticateMacDefault
 

@@ -91,23 +91,6 @@ sub getVersion {
     $logger->warn("unable to fetch version information");
 }
 
-=item parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled.  TrapString was: $trapString");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).

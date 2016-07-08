@@ -72,22 +72,6 @@ sub getVersion {
     # IMPLEMENT!
 }
 
-=item parseTrap
-
-=cut
-
-sub parseTrap {
-    # Optional for Wireless devices
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network (including 802.1x)
