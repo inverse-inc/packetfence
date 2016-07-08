@@ -12,6 +12,7 @@ Instagram OAuth module
 
 use WWW::Curl::Easy;
 use Moose;
+use pf::log;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::InstagramSource');
