@@ -25,7 +25,14 @@ after 'setup' => sub {
     else {
         $self->field('source_id')->options([$self->options_sources(multiple => 0)]);
     }
+};
 
+after 'process' => sub {
+    my ($self) = @_;
+
+    if(!$self->for_module->does('captiveportal::Role::MultiSource')) {
+        $self->field('source_id')->value($self->field('source_id')->value->[0]);
+    }
 };
 
 has_field 'source_id' =>
