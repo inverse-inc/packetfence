@@ -68,7 +68,6 @@ has_field 'protected_resource_url' =>
    default => pf::Authentication::Source::InstagramSource->meta->get_attribute('protected_resource_url')->default,
    element_class => ['input-xlarge'],
   );
-
 has_field 'redirect_url' =>
   (
    type => 'Text',

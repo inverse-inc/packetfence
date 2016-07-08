@@ -90,7 +90,7 @@ sub handle_callback {
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, "https://api.instagram.com/v1/users/self/?access_token=$token");
+    $curl->setopt(CURLOPT_URL, "https://api.instagram.com/v1/users/self/?access_token=$token" ); #$info->{NOP_protected_resource_url}.join $token);
 
     my $curl_return_code = $curl->perform;
 
