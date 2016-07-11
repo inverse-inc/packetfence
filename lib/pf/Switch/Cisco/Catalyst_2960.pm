@@ -136,7 +136,6 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 sub supportsAccessListBasedEnforcement { return $TRUE }
-sub supportsUrlBasedEnforcement { return $TRUE }
 sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 

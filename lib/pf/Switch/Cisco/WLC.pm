@@ -132,7 +132,6 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsUrlBasedEnforcement { return $TRUE; }
 
 # disabling special features supported by generic Cisco's but not on WLCs
 sub supportsSaveConfig { return $FALSE; }
