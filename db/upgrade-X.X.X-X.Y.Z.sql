@@ -24,12 +24,6 @@ SET @SUBMINOR_VERSION = 9;
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
 
 --
--- Add 'callingstationid' index to radacct table
---
-
-ALTER TABLE radacct ADD KEY `callingstationid` (`callingstationid`);
-
---
 -- Table structure for table `node_option82`
 --
 
