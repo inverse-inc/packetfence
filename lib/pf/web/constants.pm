@@ -97,12 +97,14 @@ Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout'
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
 # External Captive Portal URL detection constant
-Readonly::Scalar our $EXT_URL_AEROHIVE          => '^/AeroHIVE::AP_http';
-Readonly::Scalar our $EXT_URL_ARUBA             => '^/Aruba';
-Readonly::Scalar our $EXT_URL_COOVACHILLI       => '^/CoovaChilli';
-Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
-Readonly::Scalar our $EXT_URL_RUCKUS            => '^/Ruckus';
-Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
+Readonly::Scalar our $EXT_URL_AEROHIVE              => '^/AeroHIVE::AP_http';
+Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
+Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
+Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
+Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
+Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::AP_http';
+Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
+Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus::AP_http';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
