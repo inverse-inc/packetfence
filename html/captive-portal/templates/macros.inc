@@ -51,7 +51,7 @@ END %]
    CASE ['module-authentication-oauth-linkedin', 'linkedin'];
      svgIcon(id='linkedin-icon',size=size);
    CASE ['module-authentication-oauth-pinterest', 'pinterest'];
-     svgIcon(id='linkedin-icon',size=size);
+     svgIcon(id='pinterest-icon',size=size);
    CASE ['module-authentication-oauth-twitter', 'twitter'];
      svgIcon(id='twitter-icon',size=size);
    CASE ['module-authentication-oauth-windowslive', 'windowslive'];
