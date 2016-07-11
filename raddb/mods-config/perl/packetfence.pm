@@ -128,14 +128,14 @@ sub post_auth {
         my $port = $RAD_REQUEST{'NAS-Port'};
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
-        if ( length($mac) != 17 && !( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) || ( defined($RAD_REQUEST{'NAS-Port'}) && $RAD_REQUEST{'NAS-Port'} eq '1812') ) ) {
-            &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+        if ( length($mac) != 17 && !( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) ) ) {
+            &radiusd::radlog($RADIUS::L_INFO, "MAC address $mac is empty or invalid in this request. It could be normal on certain radius calls");
             $radius_return_code = $RADIUS::RLM_MODULE_OK;
             return;
         }
         my $config = _get_rpc_config();
         my $data;
-        if ( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) || ( defined($RAD_REQUEST{'NAS-Port'}) && $RAD_REQUEST{'NAS-Port'} eq '1812') ) {
+        if ( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) ) {
             $data = send_rpc_request($config, "radius_switch_access", \%RAD_REQUEST);
         } else {
             $data = send_rpc_request($config, "radius_authorize", \%RAD_REQUEST);
