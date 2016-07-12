@@ -202,6 +202,33 @@ sub parseSwitchIdFromRequest {
 }
 
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('sip'),
+        client_mac      => clean_mac($req->param('client_mac')),
+        client_ip       => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('url'),
+    );
+
+    return %params;
+}
+
+
 =item getAcceptForm
 
 Creates the form that should be given to the client device to trigger a reauthentication.

@@ -2973,6 +2973,19 @@ sub parseSwitchIdFromRequest {
     return "";
 }
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    return "";
+}
+
 =item deauth_source_ip
 
 Computes which IP should be used as source IP address for the deauthentication

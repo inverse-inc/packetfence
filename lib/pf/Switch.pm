@@ -3046,6 +3046,21 @@ sub getAcceptForm {
     return;
 }
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+    $logger->error("This function is not implemented.");
+    return;
+}
+
 =item parseSwitchIdFromRequest
 
 Extract the switch id from an http request (for the external portal).

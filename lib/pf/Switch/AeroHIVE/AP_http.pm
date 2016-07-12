@@ -68,6 +68,35 @@ sub parseSwitchIdFromRequest {
 }
 
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('RADIUS-NAS-IP'),
+        client_mac      => clean_mac($req->param('Calling-Station-Id')),
+        client_ip       => $req->param('STA-IP'),
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('destination_url'),
+        grant_url       => $req->param('url'),
+        status_code     => '200',
+    );
+
+    return %params;
+}
+
+
 =head2 returnRadiusAccessAccept
 
 Prepares the RADIUS Access-Accept reponse for the network device.

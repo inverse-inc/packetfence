@@ -571,6 +571,33 @@ sub parseSwitchIdFromRequest {
 }
 
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->param('apname'),
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $req->param('ip'),
+        ssid            => $req->param('essid'),
+        redirect_url    => $req->param('url'),
+    );
+
+    return %params;
+}
+
+
 =item
 
 =cut

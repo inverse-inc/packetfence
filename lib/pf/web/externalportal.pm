@@ -19,11 +19,14 @@ use Apache2::Const -compile => qw(:http);
 use Apache2::Request;
 use Apache2::RequestRec;
 use Apache2::Connection;
-use pf::log;
+use Hash::Merge qw(merge);
 use UNIVERSAL::require;
 
-use pf::config;
+use pf::config qw(
+    $WIRELESS_MAC_AUTH
+);
 use pf::iplog;
+use pf::log;
 use pf::locationlog qw(locationlog_view_open_mac locationlog_get_session);
 use pf::Portal::Session;
 use pf::util;
@@ -47,58 +50,83 @@ sub new {
    return $self;
 }
 
-=item external_captive_portal
 
-Instantiate the switch module and use a specific captive portal
+=item handle
+
+handle the detection of the external portal
 
 =cut
 
-sub external_captive_portal {
-    my ($self, $switchId, $req, $r, $session) = @_;
-    my $logger = get_logger();
+sub handle {
+    my ( $self, $r ) = @_;
+    my $logger = get_logger;
 
-    my $switch;
-    if (defined($switchId)) {
-        if (pf::SwitchFactory::hasId($switchId)) {
-            $switch =  pf::SwitchFactory->instantiate($switchId);
-        } else {
-            my $locationlog_entry = locationlog_view_open_mac($switchId);
-            $switch = pf::SwitchFactory->instantiate($locationlog_entry->{'switch'});
-        }
+    my $req = Apache2::Request->new($r);
+    my $uri = $r->uri;
 
-        if (defined($switch) && $switch ne '0' && $switch->supportsExternalPortal) {
-            my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req, $r);
-            my $portalSession = _setup_session($req, $client_mac, $client_ip, $redirect_url, $grant_url);
-            pf::iplog::open($client_ip,$client_mac,undef) if (defined ($client_ip) && defined ($client_mac));
-            return ($portalSession->session->id(), $redirect_url);
-        } else {
-            return 0;
-        }
+    # Discarding non external portal requests
+    unless ( $uri =~ /$WEB::EXTERNAL_PORTAL_URL/o ) {
+        $logger->debug("Tested URI '$uri' against external portal mechanism and does not appear to be one.");
+        return $FALSE;
     }
-    elsif (defined($session)) {
-        get_logger->info("Restoring from external portal session $session");
-        my $locationlog = locationlog_get_session($session);
-        my $switch = $locationlog->{switch};
-        $switch = pf::SwitchFactory->instantiate($switch);
-        my $mac = $locationlog->{mac};
-        my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
-        my $portalSession = _setup_session($req, $mac, $ip, undef, undef);
-        pf::iplog::open($ip,$mac,3600) if defined ($ip);
-        my $redirect_url = '';
-        if (defined($req->param('redirect'))) {
-            $redirect_url = $req->param('redirect');
-        } elsif (defined($r->headers_in->{'Referer'})) {
-            $redirect_url = $r->headers_in->{'Referer'};
-        }
-        return ($portalSession->session->id(), $redirect_url);
+
+    # Parsing external portal URL information for switch handling
+    # URI will usually be in the form (/Switch::Type/sid424242), where:
+    # - Switch::Type will be the switch type to instantiate (mandatory)
+    # - sid424242 is the optional PacketFence session ID to track the session when working by session ID and not by URI parameters
+    $logger->info("URI '$uri' is detected as an external captive portal URI");
+    $uri =~ /\/([^\/]*)/;
+    my $switch_type = $1;
+    $switch_type = "pf::Switch::$switch_type";
+    if ( !(eval "$switch_type->require()") ) {
+        $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
+        "See the following message for details: $@");
+        return $FALSE;
     }
-    else {
-        return 0;
+    # Making sure switch supports external portal
+    return $FALSE unless $switch_type->supportsExternalPortal;
+
+    my %params = (
+        session_id      => undef,   # External portal session ID when working by session ID flow
+        switch_id       => undef,   # Switch ID
+        client_mac      => undef,   # Client (endpoint) MAC address
+        client_ip       => undef,   # Client (endpoint) IP address
+        ssid            => undef,   # SSID connecting to
+        redirect_url    => undef,   # Redirect URL
+        grant_url       => undef,   # Grant URL
+        status_code     => undef,   # Status code
+    );
+
+    my %switch_params = $switch_type->parseExternalPortalRequest($r, $req);
+    %params = %{ merge(\%params, \%switch_params) };
+    
+    $logger->debug(sub { use Data::Dumper; "Handling external portal request using the following parameters: " . Dumper(%params) });
+
+    unless ( defined($params{'switch_id'}) ) {
+        $logger->error("Trying to handle external portal request without a valid switch ID.");
+        return $FALSE;
     }
+
+    unless ( (defined($params{'client_mac'})) && (defined($params{'client_ip'})) ) {
+        $logger->error("Trying to handle external portal request without a valid client mac / ip.");
+        return $FALSE;
+    }
+
+    my $switch = pf::SwitchFactory->instantiate($params{'switch_id'});
+
+    pf::iplog::open($params{'client_ip'}, $params{'client_mac'}, 3600);
+
+    # Updating locationlog unless there is a session ID parameter, which means a locationlog entry was already opened on session creation
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $WIRELESS_MAC_AUTH, $params{'client_mac'}, $params{'ssid'}) unless ( defined($params{'session_id'}) );
+
+    my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
+
+    return ( $portalSession->session->id(), $params{'redirect_url'} );
 }
 
+
 sub _setup_session {
-    my ($req, $client_mac, $client_ip, $redirect_url, $grant_url) = @_;
+    my ( $self, $req, $client_mac, $client_ip, $redirect_url, $grant_url ) = @_;
     my $logger = get_logger();
     $logger->trace(sub { use Data::Dumper ; "_setup_session params :".Dumper(\@_) });
     my %info = (
@@ -120,46 +148,6 @@ sub _setup_session {
 
 }
 
-=item handle
-
-handle the detection of the external portal
-
-=cut
-
-sub handle {
-    my ($self,$r) = @_;
-    my $req = Apache2::Request->new($r);
-    my $logger = get_logger();
-    my $is_external_portal;
-    my $url = $r->uri;
-
-    if ($url =~ /$WEB::EXTERNAL_PORTAL_URL/o) {
-        $logger->debug("The URL is detected as an external captive portal URL");
-        $url =~ s/\///g;
-        my $type = "pf::Switch::".$url;
-        if ( !(eval "$type->require()" ) ) {
-            $logger->error("Can not load perl module for switch type: $type. "
-                . "Either the type is unknown or the perl module has compilation errors. "
-                . "Read the following message for details: $@");
-        }
-        my $switchId = $type->parseSwitchIdFromRequest(\$req);
-        $logger->debug("Found switchId : $switchId");
-
-        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal($switchId,$req,$r,undef);
-        if ($cgi_session_id ne '0') {
-            return ($cgi_session_id, $redirect_url);
-        }
-    }
-
-    # Try to fetch the parameters in the session
-    if ($r->uri =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
-        my ($cgi_session_id, $redirect_url) = $self->external_captive_portal(undef,$req,$r,$1);
-            if ($cgi_session_id ne '0') {
-                return ($cgi_session_id, $redirect_url);
-            }
-    }
-    return 0;
-}
 
 =back
 

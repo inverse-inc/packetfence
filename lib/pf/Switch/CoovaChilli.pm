@@ -82,6 +82,34 @@ sub parseSwitchIdFromRequest {
 }
 
 
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id       => $req->connection->remote_ip,
+        client_mac      => clean_mac($req->param('mac')),
+        client_ip       => $req->param('ip'),
+        ssid            => $req->param('ssid'),
+        redirect_url    => $req->param('userurl'),
+        status_code     => $req->param('res'),
+    );
+
+    return %params;
+}
+
+
 =item getAcceptForm
 
 Generates the HTML form embedded to web release captive-portal process to trigger a reauthentication.
