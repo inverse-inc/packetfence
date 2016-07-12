@@ -1,0 +1,62 @@
+[% jsFiles = ['configurator/fingerbank'] -%]
+    <div class="container">
+      [% INCLUDE configurator/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>[% l('Step') %] [% step_index %]</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>[% l('Fingerbank') %]
+            <small>[% l('Fingerbank on-boarding') %]</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>[% l('Instructions') %]</H3>
+            <p>[% l('On this page, you can configure Fingerbank which is used for device fingerprinting.') %]</p>
+            <p>[% l('Note that these actions are optional and can be skipped.') %]</p>
+            <p>[% l('Configuring your Fingerbank API key will allow for more accurate fingerprinting while using MySQL for the storage improves performance greatly in large scale deployments.') %]</p>
+          </div>
+        </div>
+        <div class="span9">
+          <form name="admin" class="form-horizontal">
+            <h3>[% l('API Onboarding') %]</h3>
+            <p>Proceed here: <a href="https://fingerbank.inverse.ca/users/register" target="_blank">https://fingerbank.inverse.ca/users/register</a></p>
+
+            <p>Once done, you will be issued an API key that you need to enter in the following field</p>
+
+            <div class="control-group[% IF fingerbank_api_key %] success[% END %]">
+              <label class="control-label" for="api_key">[% l('API key') %]</label>
+              <div class="controls">
+                <input id="api_key" class="text" type="text" value="[% fingerbank_api_key %]"[% IF fingerbank_api_key %] disabled[% END %]>
+                <a id="configure_fingerbank_api_key" href="/config/fingerbank/settings/onboard" class="btn btn-primary"[% IF fingerbank_api_key %] disabled[% END %]>Get Aboard!</a>
+                [% IF fingerbank_api_key %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+
+            <h3>[% l('Activate MySQL') %]</h3>
+            <p>[% l('Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components.') | none %]</p>
+            <div class="control-group[% IF c.session.completed.fingerbank_mysql %] success[% END %]">
+              <div class="controls">
+                <button type="submit" id="adminPassword" class="btn btn-primary[% IF c.session.completed.fingerbank_mysql %] disabled[% END %]" href="[% c.uri_for('admin') %]">[% l('Activate MySQL as the Fingerbank backend.') %]</button>
+                [% IF c.session.completed.fingerbank_mysql %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+
+            <fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+            </div>
+            </fieldset>
+            </form>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2016</p>
+      </footer>
+    </div><!--/container-->

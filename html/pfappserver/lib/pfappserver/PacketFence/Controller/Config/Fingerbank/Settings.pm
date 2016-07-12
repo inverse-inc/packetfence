@@ -37,7 +37,7 @@ sub check_for_api_key :Private {
     }
 }
 
-sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+sub onboard :Local :Args(0) :AdminConfigurator {
     my ( $self, $c ) = @_;
     my $logger = get_logger();
 
@@ -61,8 +61,10 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             # Sync the config to the cluster if necessary
             pf::fingerbank::sync_configuration();
 
-            $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
-            $c->go('index');
+            if (defined($c->req->header('accept')) && $c->req->header('accept') ne 'application/json'){
+                $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
+                $c->go('index');
+            }
         }
     }
 
