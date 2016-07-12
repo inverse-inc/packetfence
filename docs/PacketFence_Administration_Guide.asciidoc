@@ -1858,7 +1858,6 @@ In order for PacketFence to allow eduroam authentication, the FreeRADIUS configu
 First, modify the /usr/local/pf/raddb/clients.conf file to allow the eduroam servers to connect to your PacketFence server. Add the eduroam servers as clients and make sure to add the proper RADIUS secret. Set a shortname to refer to these clients as you will later need it to exclude them from some parts of the PacketFence configuration.
 
 clients.conf example:
-
 ----
 client tlrs1.eduroam.us {
         secret = useStrongerSecret
@@ -1918,7 +1917,6 @@ the requests are processed entirely by FreeRADIUS. If the REALM sets a different
 home server pool, the requests are proxied to the servers defined within that pool. 
 
 proxy.conf example:
-
 ----
 # This realm is for requests which don't have an explicit realm
 # prefix or suffix.  User names like "bob" will match this one.
@@ -1955,7 +1953,6 @@ Thirdly, you must configure the packetfence FreeRADIUS virtual servers to treat 
 In /usr/local/pf/raddb/sites-enabled/packetfence, modify the authorize section like this:
 
 raddb/sites-enabled/packetfence example:
-
 ----
 authorize {
         # pay attention to the order of the modules. It matters.
@@ -1989,7 +1986,6 @@ If you omit this change the request will be sent to PacketFence where it will be
 eduroam servers are not part of your configured switches.
 
 raddb/sites-enabled/packetfence-tunnel example:
-
 ----
 post-auth {
         exec
@@ -2010,7 +2006,6 @@ post-auth {
 Finally, make sure that the realms module is configured this way ( see /usr/local/pf/raddb/modules/realm ): 
 
 raddb/modules/realm example:
-
 ----
 # 'username@realm'
 realm suffix {
