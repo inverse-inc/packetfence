@@ -90,7 +90,7 @@ PICKLE_RECEIVER_INTERFACE = %%management_ip%%
 PICKLE_RECEIVER_PORT = 2004
 
 # Set to false to disable logging of successful connections
-LOG_LISTENER_CONNECTIONS = True
+LOG_LISTENER_CONNECTIONS = False
 
 # Per security concerns outlined in Bug #817247 the pickle receiver
 # will use a more secure and slightly less efficient unpickler.
@@ -110,7 +110,7 @@ USE_FLOW_CONTROL = True
 # degrade performance if logging on the same volume as the whisper data is stored.
 LOG_UPDATES = False
 LOG_CACHE_HITS = False
-LOG_CACHE_QUEUE_SORTS = True
+LOG_CACHE_QUEUE_SORTS = False
 
 # The thread that writes metrics to disk can use on of the following strategies
 # determining the order in which metrics are removed from cache and flushed to
@@ -231,7 +231,7 @@ PICKLE_RECEIVER_PORT = 2014
 ENABLE_LOGROTATION = False
 
 # Set to false to disable logging of successful connections
-LOG_LISTENER_CONNECTIONS = True
+LOG_LISTENER_CONNECTIONS = False
 
 # Carbon-relay has several options for metric routing controlled by RELAY_METHOD
 #
@@ -304,7 +304,7 @@ PICKLE_RECEIVER_PORT = 2024
 ENABLE_LOGROTATION = False
 
 # Set to false to disable logging of successful connections
-LOG_LISTENER_CONNECTIONS = True
+LOG_LISTENER_CONNECTIONS = False
 
 # If set true, metric received will be forwarded to DESTINATIONS in addition to
 # the output of the aggregation rules. If set false the carbon-aggregator will
