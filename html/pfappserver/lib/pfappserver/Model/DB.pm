@@ -42,6 +42,7 @@ sub assign {
     my $status_msg;
 
     my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");
+    my $fingerbankdb = $dbHandler->quote_identifier($db . "_fingerbank");
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
@@ -71,22 +72,23 @@ sub assign {
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
     # Create pf_graphite database
-    $db = $graphitedb;
-    foreach my $host ("'%'","localhost") {
-        my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
+    foreach my $db ($graphitedb, $fingerbankdb) {
+        foreach my $host ("'%'","localhost") {
+            my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
+            $dbHandler->do($sql_query, undef, $user, $password);
+            if ( $DBI::errstr ) {
+                $status_msg = "Error creating the user $user on database $db";
+                $logger->warn("$DBI::errstr");
+                return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+            }
+        }
+        # Apply the new privileges
+        $dbHandler->do("FLUSH PRIVILEGES");
         if ( $DBI::errstr ) {
-            $status_msg = "Error creating the user $user on database $db";
+            $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
             $logger->warn("$DBI::errstr");
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
-    }
-    # Apply the new privileges
-    $dbHandler->do("FLUSH PRIVILEGES");
-    if ( $DBI::errstr ) {
-        $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
-        $logger->warn("$DBI::errstr");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     # return original status message
