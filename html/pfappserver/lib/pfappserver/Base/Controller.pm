@@ -64,7 +64,7 @@ Allow only authenticated users
 sub auto :Private {
     my ($self, $c) = @_;
 
-    unless ($c->user_in_realm('admin')) {
+    if (!$self->configurator_accessible($c) && !$c->user_in_realm('admin')) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);
         $c->stash->{template} = 'admin/unauthorized.tt';
@@ -78,6 +78,11 @@ sub auto :Private {
     }
 
     return 1;
+}
+
+sub configurator_accessible {
+    my ($self, $c) = @_;
+    return $c->action->attributes->{AdminConfigurator} && $c->user_in_realm('configurator');
 }
 
 =head2 valid_param
