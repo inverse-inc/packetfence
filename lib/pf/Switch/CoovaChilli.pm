@@ -41,47 +41,6 @@ sub supportsWebFormRegistration { return $TRUE }
 =over
 
 
-=item parseUrl
-
-Parse the URL when an external captive portal HTTP request is detected.
-
-Parsed attributes:
-
-- client mac address
-
-- SSID
-
-- client ip address
-
-- redirect url
-
-- grant url
-
-- status code
-
-=cut
-
-sub parseUrl {
-    my ( $self, $req ) = @_;
-
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')), 0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('mac')), $$req->param('ssid'));
-
-    return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
-}
-
-
-=item parseSwitchIdFromRequest
-
-Parse the switch identifier from the HTTP request
-
-=cut
-
-sub parseSwitchIdFromRequest {
-    my( $self, $req ) = @_;
-    return $$req->connection->remote_ip;
-}
-
-
 =item parseExternalPortalRequest
 
 Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters

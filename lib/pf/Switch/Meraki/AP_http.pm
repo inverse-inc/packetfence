@@ -59,35 +59,6 @@ sub getVersion {
     return '1';
 }
 
-=head2 parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req, $r) = @_;
-    my $logger = $self->logger;
-    my $connection = $r->connection;
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
-        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('client_mac')), "Unknown"
-    );
-
-    return (clean_mac($$req->param('client_mac')),"Unknown",$$req->param('client_ip'),$$req->param('continue_url'),undef,"200");
-}
-
-sub parseSwitchIdFromRequest {
-    my($class, $req) = @_;
-    return $$req->param('ap_mac');
-}
-
 
 =item parseExternalPortalRequest
 

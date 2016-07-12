@@ -45,28 +45,6 @@ sub description { 'AeroHIVE AP with web auth' }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
-sub parseUrl {
-    my($self, $req) = @_;
-    my $logger = $self->logger;
-    # need to synchronize the locationlog event if we'll reject
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('Calling-Station-Id')),
-        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('Calling-Station-Id')), $$req->param('ssid')
-    );
-    return ($$req->param('Calling-Station-Id'),$$req->param('ssid'),$$req->param('STA-IP'),$$req->param('destination_url'),$$req->param('url'),"200");
-}
-
-
-=item parseSwitchIdFromRequest
-
-Parse the switch identifier from the HTTP request
-
-=cut
-
-sub parseSwitchIdFromRequest {
-    my( $self, $req ) = @_;
-    return $$req->param('RADIUS-NAS-IP');
-}
-
 
 =item parseExternalPortalRequest
 

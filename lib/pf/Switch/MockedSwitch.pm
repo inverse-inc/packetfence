@@ -2950,26 +2950,8 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
 }
 
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger;
-    $logger->warn("Not implemented");
-    return;
-}
-
 sub getAcceptForm {
     my ( $self, $mac , $destination_url) = @_;
-    return "";
-}
-
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
     return "";
 }
 

@@ -47,36 +47,6 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
 
-=head2 parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req, $r) = @_;
-    my $logger = $self->logger;
-    my $connection = $r->connection;
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
-        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('mac')), $$req->param('ssid')
-    );
-
-    my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $connection->remote_ip;
-    return (clean_mac($$req->param('mac')),$$req->param('ssid'),$ip,$$req->param('userurl'),undef,"200");
-}
-
-sub parseSwitchIdFromRequest {
-    my($class, $req) = @_;
-    return $$req->param('nasid');
-}
-
 
 =item parseExternalPortalRequest
 

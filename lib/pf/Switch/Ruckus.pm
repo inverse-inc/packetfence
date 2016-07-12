@@ -170,37 +170,6 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req) = @_;
-    my $logger = $self->logger;
-    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
-}
-
-
-=item parseSwitchIdFromRequest
-
-Parse the switch identifier from the HTTP request
-
-=cut
-
-sub parseSwitchIdFromRequest {
-    my( $self, $req ) = @_;
-    return $$req->param('sip');
-}
-
 
 =item parseExternalPortalRequest
 

@@ -3020,19 +3020,6 @@ sub parseRequest {
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
 }
 
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger();
-    $logger->warn("Not implemented");
-    return;
-}
-
 =item getAcceptForm
 
 Get the accept form that will trigger the device registration on the switch
@@ -3057,20 +3044,6 @@ See L<pf::web::externalportal::handle>
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    $logger->error("This function is not implemented.");
-    return;
-}
-
-=item parseSwitchIdFromRequest
-
-Extract the switch id from an http request (for the external portal).
-The object isn't created at that point
-
-=cut
-
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
-    my $logger = $class->logger;
     $logger->error("This function is not implemented.");
     return;
 }
