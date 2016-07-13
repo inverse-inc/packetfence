@@ -37,7 +37,7 @@ sub check_for_api_key :Private {
     }
 }
 
-sub onboard :Local :Args(0) :AdminRole('FINGERBANK_READ') :AdminConfigurator {
+sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') :AdminConfigurator {
     my ( $self, $c ) = @_;
     my $logger = get_logger();
 
