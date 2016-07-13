@@ -56,6 +56,16 @@ sub supportsFloatingDevice { return $TRUE; }
 # special features
 sub supportsLldp { return $TRUE; }
 
+#
+# %TRAP_NORMALIZERS
+# A hash of nortel trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+   '.1.3.6.1.4.1.45.1.6.2.1.0.5' => 's5EtrSbsMacAccessViolationTrapNormalizer',
+);
+
 =back
 
 =head1 METHODS
@@ -874,6 +884,62 @@ sub setTaggedVlans {
     $self->removeAllTaggedVlans($ifIndex, $switch_locker_ref);
 
     return $self->setTagVlansByIfIndex($ifIndex, $TRUE, $switch_locker_ref, @vlans);
+}
+
+=item _findTrapNormalizer
+
+find trap normaliziers for pf::Switch::Nortel
+
+=cut
+
+sub _findTrapNormalizer {
+    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return undef;
+}
+
+=item s5EtrSbsMacAccessViolationTrapNormalizer
+
+normalizer for the s5EtrSbsMacAccessViolation trap
+
+=cut
+
+sub s5EtrSbsMacAccessViolationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my $logger = $self->logger;
+    my ($pdu, $variables) = @$trapInfo;
+    my ($variable) = $self->findTrapVarWithBase($variables, '.1.3.6.1.4.1.45.1.6.5.3.12.1.3.');
+    return undef unless $variable;
+    unless ($variable) {
+        $logger->error("Cannot find OID .1.3.6.1.4.1.45.1.6.5.3.12.1.3. in trap");
+        return undef;
+    }
+    my $trapMac = $self->extractMacFromVariable($variable);
+    unless ($trapMac) {
+        $logger->error("Cannot extract a mac address from OID .1.3.6.1.4.1.45.1.6.5.3.12.1.3.");
+        return undef;
+    }
+    unless ($variable->[0] =~ /^\Q.1.3.6.1.4.1.45.1.6.5.3.12.1.3.\E(\d+)\.(\d+)$/) {
+        $logger->error("Cannot extract the board and port index from $variable->[0]");
+        return undef;
+    }
+    my $boardIndex = $1;
+    my $portIndex = $2;
+    my $trapIfIndex = ( $boardIndex - $self->getFirstBoardIndex() ) * $self->getBoardIndexWidth() + $portIndex;
+    if ($trapIfIndex <= 0) {
+        $logger->warn(
+            "Trap ifIndex is invalid. Should this switch be factory-reset? "
+            . "See Nortel's BayStack Stacking issues in module documentation for more information."
+        );
+    }
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapIfIndex => $trapIfIndex,
+        trapVlan => $self->getVlan( $trapIfIndex ),
+        trapMac => $trapMac
+    };
 }
 
 =back
