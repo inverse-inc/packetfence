@@ -71,9 +71,6 @@ sub _build_radiusdManagers {
           launcher => $self->launcher . " -n cli"
         };
     }
-    $listens->{dhcpd} = {
-      launcher => $self->launcher . " -n dhcpd"
-    };
     if (isenabled($pf::config::Config{'services'}{'radiusd-dhcpd'})) {
         $listens->{dhcpd} = {
           launcher => $self->launcher . " -n dhcpd"
