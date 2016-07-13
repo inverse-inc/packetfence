@@ -28,9 +28,7 @@ sub parse {
     my ( $self, $line ) = @_;
     my $logger = pf::log::get_logger();
 
-    # Received line should be JSON encoded
-    $line =~ s/^.*?{/{/s;
-    my $data = decode_json($line);
+    my $data = $self->_parse($line);
 
     # Extracting basic information required to process any further
     # MD5 hash is mainly what we are working with
@@ -38,7 +36,6 @@ sub parse {
         $logger->debug("Trying to parse a Suricata md5 file line that does not contain a MD5 hash value. Nothing to do");
         return 0;   # Returning 0 to pfdetect indicates "job's done"
     }
-    my $md5_hash = $data->{'md5'};
     
     my $endpoint;
     #We want to know what is the protocol that was linked to the md5 file extraction. 
@@ -58,6 +55,7 @@ sub parse {
         $logger->debug("Trying to parse a Suricata md5 file line that does not contain a destination IP. Nothing to do");
         return 0;   # Returning 0 to pfdetect indicates "job's done"
     }
+
     my $mac = pf::iplog::ip2mac($data->{$endpoint});
     if ( !defined($mac) || !$mac ) {
         $logger->debug("Trying to parse a Suricata md5 file line without a valid client MAC address. Nothing to do");
@@ -67,10 +65,21 @@ sub parse {
 
     # We do the process async using API rather than going through pfdetect since it requires external resources evaluation that may take some time
     my $apiclient = pf::api::queue->new;
-    $apiclient->notify('trigger_violation', ( 'mac' => $mac, 'tid' => $md5_hash, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
+    $apiclient->notify('trigger_violation', ( 'mac' => $data->{mac}, 'tid' => $data->{md5}, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
     $apiclient->notify('metadefender_process', $data);  # Process Metadefender MD5 hash lookup
 
     return 0;   # Returning 0 to pfdetect indicates "job's done"
+}
+
+sub _parse { 
+    my ( $self, $line ) = @_;
+    my $logger = pf::log::get_logger();
+
+    # Received line should be JSON encoded
+    $line =~ s/^.*?{/{/s;
+    my $data = decode_json($line);
+
+    return $data;
 }
 
 =head1 AUTHOR

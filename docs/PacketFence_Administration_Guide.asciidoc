@@ -2714,6 +2714,31 @@ When running locally, PacketFence provides a basic `suricata.yaml` that can be m
 
 In the case that Suricata is running on a separate server, Suricata configuration will have to be handled separately, which is not the purpose of the present guide.
 
+The following section parameters are required under suricata.yaml to have proper md5 checksuming and filetype recognition:
+
+file-store:
+ 
+  force-magic: yes   # force logging magic on all stored files
+  force-md5: yes     # force logging of md5 checksums
+
+file-log:
+
+  enabled: yes
+  filename: files-json.log
+  append: yes
+
+stream:
+
+  reassembly:
+    depth: 0         # reassemble all files until memcap is fulled.
+
+libhtp:
+
+  default-config:
+     request-body-limit: 0
+     response-body-limit: 0
+
+
 OPSWAT Metadefender Cloud
 +++++++++++++++++++++++++
 
