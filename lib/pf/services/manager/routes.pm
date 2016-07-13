@@ -77,7 +77,7 @@ sub isAlive {
     my ($self,$pid) = @_;
     my $result;
     $pid = $self->pid;
-    my $route_exist;
+    my $route_exist = '';
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
