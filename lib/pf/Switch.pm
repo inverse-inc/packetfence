@@ -3434,9 +3434,19 @@ sub getMacFromTrapVariablesForOIDBase {
     my ($self, $variables, $base) = @_;
     my ($variable) = $self->findTrapVarWithBase($variables, $base);
     return undef unless $variable;
+    return $self->extractMacFromVariable($variable);
+}
+
+=item extractMacFromVariable
+
+extract the mac address from a trap variable
+
+=cut
+
+sub extractMacFromVariable {
+    my ($self, $variable) = @_;
     return undef unless $variable->[1] =~ /$SNMP::MAC_ADDRESS_FORMAT/;
     return parse_mac_from_trap($1);
-
 }
 
 =item TO_JSON
