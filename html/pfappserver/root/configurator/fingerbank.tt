@@ -30,12 +30,14 @@
 
             <p>Once done, you will be issued an API key that you need to enter in the following field</p>
 
-            <div class="control-group[% IF fingerbank_api_key %] success[% END %]">
+            <div class="control-group">
               <label class="control-label" for="api_key">[% l('API key') %]</label>
               <div class="controls">
                 <input id="api_key" class="text" type="text" value="[% fingerbank_api_key %]"[% IF fingerbank_api_key %] disabled[% END %]>
                 <a id="configure_fingerbank_api_key" href="/config/fingerbank/settings/onboard" class="btn btn-primary"[% IF fingerbank_api_key %] disabled[% END %]>Get Aboard!</a>
+                <span class="control-group[% IF fingerbank_api_key %] success[% END %]" style="display:inline-block">
                 [% IF fingerbank_api_key %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                </span>
               </div>
             </div>
 
