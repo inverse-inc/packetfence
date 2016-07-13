@@ -356,11 +356,19 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             }
             ( $status, $message ) = $pf_model->update('alerting' => {
                 'emailaddr'  => $alerting_emailaddr,
-                'smtpserver' => $alerting_smtpserver,
             });
             if (is_error($status)) {
                 $logger->error($message);
                 delete $c->session->{completed}->{$c->action->name};
+            }
+            if($alerting_smtpserver) {
+                ( $status, $message ) = $pf_model->update('smtpserver' => {
+                    'smtpserver'  => $alerting_emailaddr,
+                });
+                if (is_error($status)) {
+                    $logger->error($message);
+                    delete $c->session->{completed}->{$c->action->name};
+                }
             }
             ( $status, $message ) = $pf_model->update('advanced' => {
                 'hash_passwords'  => $advanced_hash_passwords

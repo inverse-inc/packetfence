@@ -30,5 +30,23 @@ function initStep() {
 
     return false;
   });
+  $('#configure_fingerbank_mysql').click(function(e) {
+    e.preventDefault();
+    var btn = $(e.target);
+    
+    $.ajax({
+        type: 'GET',
+        url: btn.attr('href'),
+    }).done(function(data) {
+        btn.addClass('disabled');
+        resetAlert(btn.closest('.control-group'));
+        showSuccess(btn.closest('.control-group'), data.status_msg);
+    }).fail(function(jqXHR) {
+        var obj = $.parseJSON(jqXHR.responseText);
+        showError(btn.closest('.control-group'), obj.status_msg);
+    });
+
+    return false;
+  });
 }
 

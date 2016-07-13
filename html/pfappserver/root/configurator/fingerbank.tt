@@ -41,10 +41,10 @@
 
             <h3>[% l('Activate MySQL') %]</h3>
             <p>[% l('Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components.') | none %]</p>
-            <div class="control-group[% IF c.session.completed.fingerbank_mysql %] success[% END %]">
+            <div class="control-group[% IF c.session.importing_fingerbank_mysql %] success[% END %]">
               <div class="controls">
-                <button type="submit" id="adminPassword" class="btn btn-primary[% IF c.session.completed.fingerbank_mysql %] disabled[% END %]" href="[% c.uri_for('admin') %]">[% l('Activate MySQL as the Fingerbank backend.') %]</button>
-                [% IF c.session.completed.fingerbank_mysql %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                <a id="configure_fingerbank_mysql" href="/config/fingerbank/db/initialize_mysql" class="btn btn-primary"[% IF c.session.importing_fingerbank_mysql %] disabled[% END %]>Activate MySQL as the Fingerbank backend.</a>
+                [% IF c.session.importing_fingerbank_mysql %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
 
