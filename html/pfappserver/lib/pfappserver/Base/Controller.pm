@@ -80,6 +80,12 @@ sub auto :Private {
     return 1;
 }
 
+=head2 configurator_accessible
+
+Check if the current action can be accessed within the configurator and if the current user is in the configurator realm
+
+=cut
+
 sub configurator_accessible {
     my ($self, $c) = @_;
     return $c->action->attributes->{AdminConfigurator} && $c->user_in_realm('configurator');
