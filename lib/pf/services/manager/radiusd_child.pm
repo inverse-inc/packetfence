@@ -502,6 +502,7 @@ EOT
 sub generate_radiusd_dhcpd {
     my %tags;
     my %direct_subnets;
+    my $routed_networks = '';
 
     freeradius_populate_dhcpd_config();
     $tags{'template'}    = "$conf_dir/radiusd/dhcpd.conf";
@@ -567,6 +568,7 @@ EOT
                  my $mask = $current_network2->masklen();
                  $prefix =~ s/\.$//;
                  if (defined($net{'next_hop'})) {
+                     $routed_networks .= "|| (&request:DHCP-Client-IP-Address < $prefix/$mask)";
                      $tags{'config'} .= <<"EOT";
 		if ( ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) && (&request:DHCP-Gateway-IP-Address < $prefix/$mask) ) || (&request:DHCP-Client-IP-Address < $prefix/$mask) ) {
 EOT
@@ -627,7 +629,7 @@ dhcp DHCP-Request {
 		}
 	}
 	cache_index
-	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || (&request:DHCP-Gateway-IP-Address != 0.0.0.0) ) {
+	if ( ( &request:Tmp-Integer-3 == 0 ) || ("%{expr: %{Tmp-Integer-1} %% %{Tmp-Integer-3}}" == "%{Tmp-Integer-2}") || ( (&request:DHCP-Gateway-IP-Address != 0.0.0.0) $routed_networks ) ) {
 		update reply {
 			&DHCP-Message-Type = DHCP-Ack
 		}
