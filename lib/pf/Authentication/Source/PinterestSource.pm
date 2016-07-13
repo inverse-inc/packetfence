@@ -20,12 +20,13 @@ has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.pinterest.com');
+has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/v1/oauth/token');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
-has 'scope' => (isa => 'Str', is => 'rw', default => 'read_public');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.pinterest.com/me?fields=id,name,email,first_name,last_name');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'read_public,write_public');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.pinterest.com/v1/me');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.pinterest.com,*.api.pinterest.com,*.fbcdn.net,*.akamaihd.net,*.akamaiedge.net,*.edgekey.net,*.akamai.net');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.pinterest.com,*.api.pinterest.com,*.akamaiedge.net,*.pinimg.com,*.fastlylb.net');
 
 =head2 dynamic_routing_module
 

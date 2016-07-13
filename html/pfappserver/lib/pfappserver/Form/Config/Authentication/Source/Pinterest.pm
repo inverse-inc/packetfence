@@ -37,6 +37,13 @@ has_field 'site' =>
    default => pf::Authentication::Source::PinterestSource->meta->get_attribute('site')->default,
    element_class => ['input-xlarge'],
   );
+has_field 'authorize_path' =>
+  (
+   type => 'Text',
+   label => 'API Authorize Path',
+   required => 1,
+   default => pf::Authentication::Source::PinterestSource->meta->get_attribute('authorize_path')->default,
+  );
 has_field 'access_token_path' =>
   (
    type => 'Text',

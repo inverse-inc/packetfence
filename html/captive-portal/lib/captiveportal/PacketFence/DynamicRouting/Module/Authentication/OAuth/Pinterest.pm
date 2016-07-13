@@ -11,9 +11,86 @@ Pinterest OAuth module
 =cut
 
 use Moose;
+use pf::log;
+use WWW::Curl::Easy;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::PinterestSource');
+
+=head2 handle_callback
+
+Handle the callback from the OAuth2 provider and fetch the protected resource
+
+=cut
+
+sub handle_callback {
+    my ($self) = @_;
+
+    my $token = $self->get_token();
+    return unless($token);
+    my $info = $self->get_client;
+
+    # request a JSON response
+
+    my $curl = WWW::Curl::Easy->new;
+    my $response_body = '';
+    
+    $curl->setopt(CURLOPT_HTTPGET, 1);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
+    $curl->setopt(CURLOPT_URL, join("/", $self->source->{'protected_resource_url'},"?access_token=$token->{NOA_access_token}" ));
+
+    my $curl_return_code = $curl->perform;
+
+    my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
+
+    if ($curl_return_code == 0) {
+        my $info = $self->_decode_response($response_body); 
+        my $pid = $self->_extract_username_from_response($info); 
+        
+        $self->username($pid);
+
+        get_logger->info("OAuth2 successfull for username ".$self->username);
+        $self->source->lookup_from_provider_info($self->username, $info);
+        
+        pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $pid, $pf::auth_log::COMPLETED);
+
+        $self->done();
+    }
+    else {
+        get_logger->info("OAuth2: failed to validate the token, redireting to login page.");
+        get_logger->debug(sub { use Data::Dumper; "OAuth2 failed response : ".Dumper($curl_return_code) });
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        $self->app->flash->{error} = "OAuth2 Error: Failed to validate the token, please retry";
+        $self->landing();
+        return;
+    }
+
+}
+
+=head2 _decode_response
+
+Decode the response from the provider
+
+=cut
+
+sub _decode_response {
+    my ($self, $response_body) = @_;
+    my $json = new JSON;
+    return $json->decode($response_body);
+}
+
+=head2 _extract_username_from_response
+
+Extract the username from the response of the provider
+
+=cut
+
+sub _extract_username_from_response {
+    my ($self, $info) = @_;
+    return $info->{data}{first_name};
+}
 
 =head1 AUTHOR
 
