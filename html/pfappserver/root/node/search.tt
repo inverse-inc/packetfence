@@ -26,7 +26,7 @@
         { name => 'dhcp_fingerprint', label => l('OS (DHCP)') },
         { name => 'category', label => l('Role') },
         { name => 'switch_id', label => l('Switch Identifier') },
-        { name => 'switch_ip_address', label => l('Switch IP Address') },
+        { name => 'switch_ip', label => l('Switch IP Address') },
         { name => 'switch_mac', label => l('Switch MAC Address') },
         { name => 'switch_description', label => l('Switch description') },
         { name => 'bypass_vlan', label => l('Bypass VLAN') },

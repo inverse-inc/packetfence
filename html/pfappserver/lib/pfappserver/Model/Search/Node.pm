@@ -98,7 +98,7 @@ sub make_builder {
             L_("IF(locationlog.end_time = '0000-00-00 00:00:00', 'on' ,'off')", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
-            { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
+            { table => 'locationlog', name => 'switch_ip', as => 'switch_ip' },
             { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
         )->from('node',
                 {
