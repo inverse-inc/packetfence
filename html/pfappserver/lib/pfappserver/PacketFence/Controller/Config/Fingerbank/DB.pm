@@ -108,11 +108,7 @@ sub initialize_mysql :Local :AdminRole('FINGERBANK_UPDATE') :AdminConfigurator {
 
         use POSIX();
         POSIX::setsid();
-        # MASSIVE HACK alert ! : we do the import through a bash script async but system will not return before this has ended...
-        # So, we put an alarm in 10 seconds to give time to the script to start and then we die
-        # If we don't, then this process will keep the bind on 1443 and prevent any httpd.admin restart
-        alarm 10;
-        `bash -c "/usr/local/pf/bin/mysql_fingerbank_import.sh &"`;
+        exec('bash -c "/usr/local/pf/bin/mysql_fingerbank_import.sh &"');
     }
 }
 
