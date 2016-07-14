@@ -117,39 +117,37 @@ sub prettify_trigger {
 
     my $pretty_type = $type;
     my $pretty_value;
-    switch($type){
-      case "device" {
+    if($type eq "device") {
         my ($status, $elem) = fingerbank::Model::Device->read($tid);
         $pretty_value = $elem->{name} if(is_success($status));
-      }
-      case "dhcp_fingerprint" {
+    }
+    elsif($type eq "dhcp_fingerprint") {
         my ($status, $elem) = fingerbank::Model::DHCP_Fingerprint->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "dhcp_vendor" {
+    }
+    elsif($type eq "dhcp_vendor"){
         my ($status, $elem) = fingerbank::Model::DHCP_Vendor->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "dhcp6_fingerprint" {
+    }
+    elsif($type eq "dhcp6_fingerprint"){
         my ($status, $elem) = fingerbank::Model::DHCP6_Fingerprint->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "dhcp6_enterprise" {
+    }
+    elsif("dhcp6_enterprise"){
         my ($status, $elem) = fingerbank::Model::DHCP6_Enterprise->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "mac_vendor" {
+    }
+    elsif("mac_vendor"){
         my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
         $pretty_value = $elem->{name} if(is_success($status));
-      }
-      case "user_agent" {
+    }
+    elsif("user_agent"){
         my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      else {
+    }
+    else {
         $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
-                          $TRIGGER_MAP->{$type}->{$tid} : undef;
-      }
+                        $TRIGGER_MAP->{$type}->{$tid} : undef;
     }
     $pretty_value = (defined($pretty_value)) ? $pretty_value : $parts[1];
 
