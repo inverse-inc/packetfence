@@ -20,6 +20,7 @@
     <option value="user_agent">[% l('User Agent') %]</option>
     <option value="violation">[% l('Violation Name') %]</option>
     <option value="violation_status">[% l('Violation Status') %]</option>
+    <option value="voip">[% l('VoIP') %]</option>
   </select>
   <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
     <option value="equal">[% l('is') %]</option>
@@ -100,6 +101,16 @@ form {
       </select>
 
       <select id="status_op" name="" class="span2" >
+        <option value="equal">[% l('is') %]</option>
+        <option value="not_equal">[% l('is not') %]</option>
+      </select>
+
+      <select id="voip_value" name="" class="span2" >
+        <option value="yes">[% l('yes') %]</option>
+        <option value="no">[% l('no') %]</option>
+      </select>
+
+      <select id="voip_op" name="" class="span2" >
         <option value="equal">[% l('is') %]</option>
         <option value="not_equal">[% l('is not') %]</option>
       </select>

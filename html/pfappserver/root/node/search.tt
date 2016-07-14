@@ -95,6 +95,7 @@
         { name => 'bypass_vlan', label => l('Bypass VLAN') },
         { name => 'bypass_role', label => l('Bypass Role') },
         { name => 'notes', label => l('Notes') },
+        { name => 'voip', label => l('VoIP') },
     ]
 
 %]
