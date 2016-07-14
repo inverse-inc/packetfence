@@ -104,7 +104,7 @@ sub make_builder {
             L_("IF(r1.acctstarttime IS NULL,'unknown',IF(r1.acctstoptime IS NULL, 'on', 'off'))", 'online'),
             { table => 'iplog', name => 'ip', as => 'last_ip' },
             { table => 'locationlog', name => 'switch', as => 'switch_id' },
-            { table => 'locationlog', name => 'switch_ip', as => 'switch_ip_address' },
+            { table => 'locationlog', name => 'switch_ip', as => 'switch_ip' },
             { table => 'locationlog', name => 'switch_mac', as => 'switch_mac' },
         )->from('node',
                 {
