@@ -12,6 +12,7 @@ Instagram OAuth module
 
 use WWW::Curl::Easy;
 use Moose;
+use JSON::MaybeXS;
 use pf::log;
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
@@ -35,9 +36,9 @@ sub get_token {
     my $response_body = '';
     my $formdata = WWW::Curl::Form->new;
     
-    $formdata->formadd("client_id", "$info->{NOP_id}");
-    $formdata->formadd("client_secret", "$info->{NOP_secret}");
-    $formdata->formadd("redirect_uri", "$info->{NOPW_redirect}");
+    $formdata->formadd("client_id", $info->{NOP_id});
+    $formdata->formadd("client_secret", $info->{NOP_secret});
+    $formdata->formadd("redirect_uri", $info->{NOPW_redirect});
     $formdata->formadd("grant_type", "authorization_code");
     $formdata->formadd("code", "$code");
 
@@ -52,13 +53,16 @@ sub get_token {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    use JSON;
+    if ($curl_return_code !=0 ) {
+                
+    }
+
     my $json = JSON->new;
     my $jsond = $json->decode($response_body);
 
     my $token = $jsond->{access_token};
 
-    if ($@) {
+    if (undef $token) {
         get_logger->warn("OAuth2: failed to receive the token from the provider: $@");
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
