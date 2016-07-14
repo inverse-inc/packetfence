@@ -40,7 +40,7 @@ has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 has '+name' => ( default => sub { 'radiusd' } );
 
 # NOTE: Under some unknown circumstances, FreeRADIUS acct will not start unless the process is started in /usr/local/pf and uses directory raddb/ (*not* absolute)
-has '+launcher' => ( default => sub { "cd $install_dir && sudo %1\$s -d raddb/"} );
+has '+launcher' => ( default => sub { "cd $install_dir && sudo setcap cap_net_admin=ei %1\$s && sudo %1\$s -d raddb/"} );
 
 sub _build_radiusdManagers {
     my ($self) = @_;
