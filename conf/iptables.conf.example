@@ -122,7 +122,6 @@
 -A input-highavailability-if --protocol tcp --match tcp --dport 2224 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 3121 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 21064 --jump ACCEPT
--A input-highavailability-if --protocol udp --match udp --dport 5405 --jump ACCEPT
 
 ### FORWARD ###
 :FORWARD DROP [0:0]

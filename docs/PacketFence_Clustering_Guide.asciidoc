@@ -13,12 +13,12 @@ This guide has been created to give a quick start to install active/active clust
 
 Assumptions
 -----------
-* You have at least two (2) installed and configured PacketFence (v5+) servers;
-* Servers are running RHEL / Centos 6 or 7;
-* Servers have identical copies for network interfaces;
-* Servers network interfaces are on the same layer 2 network;
-* Servers hostnames must be resolvable via DNS resolution;
-* Servers have an empty, unformatted partition (same size) that will be used for the database replication;
+* You have at least two (2) installed and configured PacketFence (v5+) servers
+* Servers are running RHEL / Centos 6 or 7
+* Servers have identical copies for network interfaces
+* Servers network interfaces are on the same layer 2 network
+* Servers hostnames must be resolvable via DNS resolution
+* Servers have an empty, unformatted partition (same size) that will be used for the database replication
 
 Installation on CentOS 6
 ------------------------
@@ -808,7 +808,7 @@ mysql> flush privileges;
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalive on your server using `/usr/local/pf/bin/pfcmd service keepalived restart`
+NOTE: It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalived on both your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 
 In order to create a new cluster, the only thing needed is to configure /usr/local/pf/conf/cluster.conf
@@ -869,18 +869,18 @@ mask=255.255.255.0
 [pf2.example.com]
 management_ip=192.168.1.6
 
-[pf1.example.com interface eth0]
+[pf2.example.com interface eth0]
 ip=192.168.1.6
 type=management,high-availability
 mask=255.255.255.0
 
-[pf1.example.com interface eth1.2]
+[pf2.example.com interface eth1.2]
 enforcement=vlan
 ip=192.168.2.6
 type=internal
 mask=255.255.255.0
 
-[pf1.example.com interface eth1.3]
+[pf2.example.com interface eth1.3]
 enforcement=vlan
 ip=192.168.3.6
 type=internal
