@@ -158,6 +158,10 @@ msgstr "Auditing"
 msgid "AUDITING_READ"
 msgstr "Auditing - Read"
 
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+msgid "AUP template"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Accept self-registration with email address from the local domain"
@@ -334,6 +338,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Add a condition."
 msgstr ""
 
@@ -484,6 +489,7 @@ msgid "Alerting"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/per_page_select.tt
 msgid "All"
@@ -551,6 +557,7 @@ msgid "Another challenge."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr ""
@@ -1049,6 +1056,7 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/nodeoption82/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1870,6 +1878,7 @@ msgid "Dismiss Changes for "
 msgstr ""
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
 msgid "Display [_1] entries per page"
 msgstr ""
@@ -2716,6 +2725,10 @@ msgstr ""
 msgid "Interval at which PacketFence updates the online node count"
 msgstr ""
 
+# conf/documentation.conf (maintenance.option_82_task_interval)
+msgid "Interval at which PacketFence will query compatibles switches for option 82 switch mac address"
+msgstr ""
+
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds"
 msgstr ""
@@ -3085,6 +3098,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -3135,6 +3149,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "Message"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Metadefender"
 msgstr ""
 
 # html/pfappserver/root/user/view.tt
@@ -3699,6 +3717,10 @@ msgstr "Open Wednesday"
 msgid "Operating Systems"
 msgstr ""
 
+# html/pfappserver/root/admin/auditing_option82.tt
+msgid "Option82"
+msgstr ""
+
 # conf/documentation.conf (services.carbon-cache_order)
 # conf/documentation.conf (services.carbon-relay_order)
 # conf/documentation.conf (services.collectd_order)
@@ -3748,6 +3770,12 @@ msgstr ""
 
 # html/pfappserver/root/admin/status.tt
 msgid "Overview"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Overwrite the username (PID) if it already exists"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -4508,6 +4536,10 @@ msgstr "RADIUS Realms - Update"
 msgid "REPORTS"
 msgstr "Reports"
 
+# html/pfappserver/root/admin/auditing_radius_log.tt
+msgid "Radius Audit Log"
+msgstr ""
+
 # html/pfappserver/root/admin/auditing.tt
 msgid "Radius Log"
 msgstr ""
@@ -4987,6 +5019,7 @@ msgstr "SoH Filters - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/wrix/view.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
@@ -5101,6 +5134,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Save as..."
 msgstr ""
 
@@ -5109,6 +5143,8 @@ msgid "Save file"
 msgstr ""
 
 # html/pfappserver/root/admin/auditing.tt
+# html/pfappserver/root/admin/auditing_option82.tt
+# html/pfappserver/root/admin/auditing_radius_log.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 msgid "Saved Searches"
@@ -5201,6 +5237,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "Search"
 msgstr ""
 
@@ -5997,6 +6034,10 @@ msgstr ""
 msgid "The following users have been created"
 msgstr ""
 
+# html/pfappserver/root/user/list_password.tt
+msgid "The following users have been skipped due to already existing users"
+msgstr ""
+
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_hash_table_size)
 msgid "The hash table size defines the number of top-level nodes for each child's hash table. Increasing this number will provide faster performance by decreasing the number of iterations required to get to the record, but consume more memory for table space. You should increase this if you have a busy web server."
 msgstr ""
@@ -6138,6 +6179,10 @@ msgid "The target role of the devices that use this tier."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
+msgid "The template to use for the AUP"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "The template to use for the signup"
 msgstr ""
 
@@ -6255,6 +6300,10 @@ msgstr ""
 msgid "This is the path where the gif is on the webserver to detect if the network accesshas been enabled."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
+msgid "This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it."
+msgstr ""
+
 # conf/documentation.conf (proxies)
 msgid "This section allows you to configure locally proxied content.  We typically use this to proxy tools like Stinger rather than having to continually download the latest version. Ex: tools/stinger.exe=<a href=\"http://download.nai.com/products/mcafee-avert/stinger.exe\">http://download.nai.com/products/mcafee-avert/stinger.exe</a> The Stinger utility could then be accessed at <a href=\"https://pfhostname/proxies/tools/stinger.exe.\">https://pfhostname/proxies/tools/stinger.exe.</a>"
 msgstr ""
@@ -6264,7 +6313,7 @@ msgid "This server's name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-msgid "This server's name (account name) in your Active Directory."
+msgid "This server's name (account name) in your Active Directory. Use '%h' to automatically use this server hostname"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -6634,6 +6683,12 @@ msgstr ""
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Username (PID) overwrite"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -7243,6 +7298,7 @@ msgstr "Subject prefix"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "all"
 msgstr "All"
 
@@ -7274,6 +7330,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "any"
 msgstr "Any"
 
@@ -7777,6 +7834,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "ends with"
 msgstr ""
 
@@ -7983,6 +8041,7 @@ msgstr "IP address"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -8004,6 +8063,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -8160,6 +8220,10 @@ msgid "maintenance.online_node_count_interval"
 msgstr "Online Node State Update Interval"
 
 # conf/documentation.conf
+msgid "maintenance.option_82_task_interval"
+msgstr "Option82 Task Interval"
+
+# conf/documentation.conf
 msgid "maintenance.person_cleanup"
 msgstr "Users Cleanup"
 
@@ -8246,6 +8310,7 @@ msgstr "Mark as Sponsor"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "matches"
 msgstr ""
 
@@ -9283,6 +9348,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/nodeoption82/index.tt
 msgid "starts with"
 msgstr ""
 
