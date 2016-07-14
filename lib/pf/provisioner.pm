@@ -172,11 +172,11 @@ sub matchOS {
     my ($self, $node_attributes) = @_;
     my @oses = @{$self->oses || []};
 
-    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
-
-    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
+
+    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
+    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
     #if there is no device info then fail
     return $FALSE if @{$fingerbank_info->{device_hierarchy_ids}} == 0;
 
@@ -194,7 +194,7 @@ sub matchOS {
 
 sub match {
     my ($self, $os, $node_attributes) = @_;
-    return $self->matchOS($node_attributes) && $self->matchCategory($node_attributes);
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes);
 }
 
 =head2 getPkiProvider
