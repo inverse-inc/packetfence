@@ -2187,15 +2187,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-You can keep the default configuration, modify the App ID & App Secret (Given by Instagram on the developper plateform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
-
-Also, add the following Authorized domains : *.instagram.com, *.fbcdn.net, *.akamaihd.net (May change)
-
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add Instagram as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
-
-CAUTION: By allowing OAuth through Instagram, you will give Instagram access to the users while they are sitting in the registration VLAN.
 
 LinkedIn
 ^^^^^^^^
