@@ -74,6 +74,12 @@ sub build_namespaces(){
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
         my $OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$domain";
         my $PIDDIRECTORY="$var_dir/run/$domain";
+        my $DOMAIN_IF="$domain-b";
+        my $DOMAIN_IFCFG_VIRT_INT="/etc/sysconfig/network-scripts/ifcfg-$DOMAIN_IF";
+        unless (-e $DOMAIN_IFCFG_VIRT_INT) {
+           my $cmd='echo -e "DEVICE='.$DOMAIN_IF.'\nNM_CONTROLLED=no" |sudo tee '.$DOMAIN_IFCFG_VIRT_INT;
+           pf_run("$cmd");
+        }
         pf_run("sudo mkdir -p $OUTERLOGDIRECTORY && sudo chown root.root $OUTERLOGDIRECTORY");
         pf_run("sudo mkdir -p $OUTERRUNDIRECTORY && sudo chown root.root $OUTERRUNDIRECTORY");
         pf_run("sudo mkdir -p $PIDDIRECTORY && sudo chown root.root $PIDDIRECTORY");

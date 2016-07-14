@@ -210,6 +210,12 @@ RedHat-based systems
 
 NOTE: Applies to CentOS and Scientific Linux but only the x86_64 architecture is supported.
 
+Explicitly instruct NetworkManager to never interact with your DNS configuration (https://bugzilla.redhat.com/show_bug.cgi?id=1344303[Source]):
+
+  echo "[main]
+  dns=none" > /etc/NetworkManager/conf.d/99-no-dns.conf
+  service NetworkManager restart
+
 RHEL 6.x
 ^^^^^^^^
 
