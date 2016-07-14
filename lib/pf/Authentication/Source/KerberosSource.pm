@@ -35,7 +35,7 @@ sub available_attributes {
 
 =cut
 
-sub authenticate_using_kerberos {
+sub authenticate {
 
   my ( $self, $username, $password ) = @_;
 
