@@ -22,7 +22,6 @@ DB_PWD=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}'
 DB_NAME=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{db}');
 DB_HOST=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}');
 PF_DIRECTORY='/usr/local/pf/'
-PF_DIRECTORY_EXCLUDED='/usr/local/pf/logs'
 BACKUP_DIRECTORY='/root/backup/'
 BACKUP_DB_FILENAME='packetfence-db-dump'
 BACKUP_PF_FILENAME='packetfence-files-dump'
