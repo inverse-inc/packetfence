@@ -1,50 +1,18 @@
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>RADIUS Audit Log Entry [% item.id %]</h3>
+    <h3>Option82 Entry [% item.id %]</h3>
   </div>
   <div class="modal-body">
-    <ul class="nav nav-tabs">
-      <li class="active"><a href="#nodeInformation" data-toggle="tab">[% l('Node Information') %]</a></li>
-      <li><a href="#switchInformation" data-toggle="tab">[% l('Switch Information') %]</a></li>
-      <li><a href="#radiusInformation" data-toggle="tab">[% l('RADIUS') %]</a></li>
-    </ul>
-    <div class="tab-content">
-        <div class="tab-pane fade in active" id="nodeInformation">
-          <table class="table table-condensed table-striped">
-              [% FOREACH field IN node_fields%]
-              <tr>
-                <td>[% l(field) %]</td>
-                [% IF field == "is_phone" || field == "auto_reg" %]
-                <td> [% IF item.$field == "Y" %] yes [% ELSE %] no [% END %] </td>
-                [% ELSE %]
-                <td>[% item.$field%]</td>
-                [% END %]
-              </tr>
-              [% END %]
-          </table>
-        </div>
-      <div class="tab-pane fade in" id="switchInformation">
-          <table class="table table-condensed table-striped">
-              [% FOREACH field IN switch_fields%]
-              <tr>
-                <td>[% l(field) %]</td>
-                <td>[% item.$field%]</td>
-              </tr>
-              [% END %]
-          </table>
-      </div>
-      <div class="tab-pane fade in" id="radiusInformation">
-          <table class="table table-condensed table-striped">
-              [% FOREACH field IN radius_fields%]
-              <tr>
-                <td style="white-space: pre;">[% l(field) %]</td>
-                <td style="white-space: pre;">[% item.$field%]</td>
-              </tr>
-              [% END %]
-          </table>
-      </div>
-    </div>
-
+      <table class="table table-condensed table-striped">
+        <tbody>
+          [% FOREACH column IN columns %]
+          <tr>
+            <td>[% l(column) %]</td>
+            <td>[% item.$column %]</td>
+          </tr>
+          [% END %]
+        </tbody>
+      </table>
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>

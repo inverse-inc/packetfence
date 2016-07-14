@@ -37,7 +37,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub index :Path :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
 #    $c->stash(template => 'radiuslog/search.tt', from_form => "#empty");
     $c->forward('search');
@@ -49,7 +49,7 @@ Perform an advanced search using the Search::NodeOption82 model
 
 =cut
 
-sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -85,7 +85,7 @@ Perform an advanced search using the Search::NodeOption82 model
 
 =cut
 
-sub simple_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
+sub simple_search :Local :Args() :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->forward('search');
     $c->stash(template => 'radiuslog/search.tt', from_form => "#simpleSearch");
@@ -97,7 +97,7 @@ Perform an advanced search using the Search::NodeOption82 model
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
+sub advanced_search :Local :Args() :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->forward('search');
     $c->stash(template => 'radiuslog/search.tt', from_form => "#advancedSearch");
@@ -130,17 +130,12 @@ sub object :Chained('/') :PathPart('node_option82') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->stash({
-        switch_fields => \@pf::node_option82::SWITCH_FIELDS,
-        node_fields => \@pf::node_option82::NODE_FIELDS,
-        radius_fields => \@pf::node_option82::RADIUS_FIELDS,
+        columns => [sort @pf::node_option82::FIELDS],
+        display_columns => [sort @pf::node_option82::FIELDS],
     });
-    for my $field (@pf::node_option82::RADIUS_FIELDS) {
-        $c->stash->{item}{$field} =~ s/=2C /"\n"/ge;
-        $c->stash->{item}{$field} =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
-    }
 }
 
 =head1 AUTHOR

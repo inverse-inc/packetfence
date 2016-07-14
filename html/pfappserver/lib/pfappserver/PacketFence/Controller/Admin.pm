@@ -258,8 +258,32 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS
 
 sub auditing :Chained('object') :PathPart('auditing') :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
+    $c->forward('auditing_radius_log');
+}
+
+=head2 auditing_radius_log
+
+=cut
+
+sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Args(0) :AdminRole('AUDITING_READ') {
+    my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::RadiusLog")->read_all($id);
+    $c->stash({
+        template => 'admin/auditing_radius_log.tt',
+        saved_searches => $saved_searches,
+        saved_search_form => $c->form("SavedSearch"),
+    });
+}
+
+=head2 auditing_option82
+
+=cut
+
+sub auditing_option82 :Chained('object') :PathPart('auditing/option82') :Args(0) :AdminRole('AUDITING_READ') {
+    my ( $self, $c ) = @_;
+    my $id = $c->user->id;
+    my ($status, $saved_searches) = $c->model("SavedSearch::NodeOption82")->read_all($id);
     $c->stash({
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),
