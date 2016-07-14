@@ -4,7 +4,7 @@
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
-          <h3><i>MAC</i> [% node.mac | html %]</h3>
+          <h3><i>MAC</i> [% node.mac | html %] [% IF form.readonly %] ([% l('Read Only') %])[% END %]</h3>
         </div>
 
         <div class="modal-body">
@@ -218,9 +218,9 @@
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          [% IF can_access("NODES_UPDATE") %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<a href="[% c.uri_for(c.controller('Node').action_for('reevaluate_access'), [ node.mac ]) %]" id="reevaluateNode" class="btn btn-warning pull-left"> [% l('Reevaluate access') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          [% IF can_access("NODES_UPDATE") %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+          [% IF can_access("NODES_UPDATE") && !form.readonly %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->
 
         </form>

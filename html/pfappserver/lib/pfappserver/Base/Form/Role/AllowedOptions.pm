@@ -1,54 +1,36 @@
-package pf::ConfigStore::AdminRoles;
+package pfappserver::Base::Form::Role::AllowedOptions;
 
 =head1 NAME
 
-pf::ConfigStore::AdminRoles add documentation
+pfappserver::Base::Form::Role::AllowedOptions -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::AdminRoles
+pfappserver::Base::Form::Role::AllowedOptions
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
-use Moo;
 use namespace::autoclean;
-use pf::file_paths qw($admin_roles_config_file);
-extends 'pf::ConfigStore';
+use HTML::FormHandler::Moose::Role;
 
-sub expandableParams { return (qw(actions allowed_roles allowed_access_levels allowed_node_roles)); }
+use pf::admin_roles;
 
-sub configFile { $admin_roles_config_file }
+=head2 _get_allowed_options
 
-sub pfconfigNamespace { 'config::AdminRoles' }
-
-=head2 cleanupAfterRead
-
-Expand list of actions
+Get the allowed options for the current user based off their role.
 
 =cut
 
-sub cleanupAfterRead {
-    my ($self, $id, $item) = @_;
-    $self->expand_list($item, $self->expandableParams);
+sub _get_allowed_options {
+    my ($self, $option) = @_;
+    return admin_allowed_options([$self->ctx->user->roles], $option);
 }
 
-=head2 cleanupBeforeCommit
+=head1 AUTHOR
 
-Flatten list of actions before updating or creating
-
-=cut
-
-sub cleanupBeforeCommit {
-    my ($self, $id, $item) = @_;
-    $self->flatten_list($item, $self->expandableParams);
-}
-
-
-
-__PACKAGE__->meta->make_immutable;
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 

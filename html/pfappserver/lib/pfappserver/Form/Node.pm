@@ -12,13 +12,16 @@ Form definition to create or update a node.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::AllowedOptions';
 
 use HTTP::Status qw(is_error);
 use pf::config qw(%Config);
+use pf::log;
 
 # Form select options
 has 'roles' => ( is => 'ro' );
 has 'status' => ( is => 'ro' );
+has 'readonly' => ( is => 'ro', lazy => 1, builder => '_build_readonly');
 
 # Form fields
 has_field 'mac' =>
@@ -44,6 +47,7 @@ has_field 'category_id' =>
   (
    type => 'Select',
    label => 'Role',
+   options_method => \&get_role_options,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
@@ -51,6 +55,7 @@ has_field 'bypass_role_id' =>
   (
    type => 'Select',
    label => 'Bypass Role',
+   options_method => \&get_role_options,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
@@ -190,6 +195,67 @@ sub validate {
     }
 }
 
+=head2 get_role_options
+
+Get role options
+
+=cut
+
+sub get_role_options {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $form   = $self->form;
+    my $name   = $self->name;
+    my $previous_role = $self->init_value // '';
+    $logger->trace(sub {"Previous role '$previous_role' for '$name'"});
+    my %allowed_node_roles = map {$_ => undef} $form->_get_allowed_options('allowed_node_roles');
+    my @roles;
+    my @all_roles = @{$form->roles // []};
+
+    if (keys %allowed_node_roles) {
+        @roles =
+          map {{value => $_->{category_id}, label => $_->{name}}}
+          grep {exists $allowed_node_roles{$_->{name}} || $previous_role eq $_->{category_id}} @all_roles;
+    }
+    else {
+        @roles = map {{value => $_->{category_id}, label => $_->{name}}} @all_roles;
+    }
+    return ({label => '', value => ''}, @roles);
+}
+
+=head2 build_update_subfields
+
+Mark fields as readonly when the user is allowed to deal with the role
+
+=cut
+
+sub build_update_subfields {
+    my ($self) = @_;
+    my $readonly = $self->readonly;
+    return {
+        all => { readonly => $readonly, disabled => $readonly },
+    };
+}
+
+=head2 _build_readonly
+
+Verify if the node is should be readonly
+
+=cut
+
+sub _build_readonly {
+    my ($self) = @_;
+    my $init_object = $self->init_object;
+    return undef unless defined $init_object;
+    my $role = $self->init_object->{category};
+    return undef unless defined $role;
+    my %allowed_node_roles = map {$_ => undef} $self->_get_allowed_options('allowed_node_roles');
+    return
+        keys %allowed_node_roles == 0     ? undef
+      : exists $allowed_node_roles{$role} ? undef
+      :                                     1;
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.
@@ -214,4 +280,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable;
+
 1;

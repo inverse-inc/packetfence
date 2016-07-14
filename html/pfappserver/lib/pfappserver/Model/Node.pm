@@ -299,8 +299,7 @@ See pf::import::nodes
 =cut
 
 sub importCSV {
-    my ($self, $data, $user) = @_;
-
+    my ($self, $data, $user, $allowed_roles) = @_;
     my $logger = get_logger();
     my ($status, $message);
     my $filename = $data->{nodes_file}->filename;
@@ -309,6 +308,7 @@ sub importCSV {
     my $default_node_pid = $data->{default_pid};
     my $default_category_id = $data->{default_category_id};
     my $default_voip = $data->{default_voip};
+    $allowed_roles //= {};
 
     $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -337,74 +337,86 @@ sub importCSV {
 
     # Read CSV file
     $count = 0;
+    my $import_fh;
     my $has_pid = exists $index{'pid'};
-    if (open (my $import_fh, "<", $tmpfilename)) {
-        my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
-        while (my $row = $csv->getline($import_fh)) {
-            my ($pid, $mac, $node, %data, $result);
+    unless (open ($import_fh, "<", $tmpfilename)) {
+        $logger->warn("Can't open CSV file $filename: $@");
+        return  ($STATUS::INTERNAL_SERVER_ERROR, "Can't read CSV file.");
+    }
+    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    while (my $row = $csv->getline($import_fh)) {
+        my ($pid, $mac, $node, %data, $result);
 
-            if($has_pid) {
-                $pid = $row->[$index{'pid'}] || undef;
-                if ( $pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
-                    $logger->debug("Ignored unknown PID ($pid)");
-                    $skipped++;
-                    next;
-                }
-            }
-
-            $mac = $row->[$index{'mac'}] || undef;
-            if (!$mac || !valid_mac($mac)) {
-                $logger->debug("Ignored invalid MAC ($mac)");
+        if($has_pid) {
+            $pid = $row->[$index{'pid'}] || undef;
+            if ( $pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
+                $logger->debug("Ignored unknown PID ($pid)");
                 $skipped++;
                 next;
             }
-            $mac = clean_mac($mac);
-            $pid ||= $default_node_pid || $default_pid;
-            $node = node_view($mac);
-            %data =
-              (
-               'mac'         => $mac,
-               'pid'         => $pid,
-               'category'    => $index{'category'}  ? $row->[$index{'category'}]  : undef,
-               'category_id' => $index{'category'}  ? undef                       : $default_category_id,
-               'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : undef,
-               'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
-               'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
-              );
-            if (exists $index{'bypass_vlan'}) {
-                    $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
-            }
-            if (exists $index{'bypass_role'}) {
-                $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
-            }
-            if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
-                $logger->debug("Register MAC $mac ($pid)");
-                $result = node_register($mac, $pid, %data);
-            }
-            else {
-                $logger->debug("Modify already registered MAC $mac ($pid)");
-                $result = node_modify($mac, %data);
-            }
-            if ($result) {
-                $count++;
-            }
-            else {
-                $skipped++;
-            }
         }
-        unless ($csv->eof) {
-            $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
-            ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, ["Problem with importation: [_1]" , $csv->error_diag()]);
+
+        $mac = $row->[$index{'mac'}] || undef;
+        if (!$mac || !valid_mac($mac)) {
+            $logger->debug("Ignored invalid MAC ($mac)");
+            $skipped++;
+            next;
+        }
+        $mac = clean_mac($mac);
+        $pid ||= $default_node_pid || $default_pid;
+        $node = node_view($mac);
+        %data =
+          (
+           'mac'         => $mac,
+           'pid'         => $pid,
+           'category'    => $index{'category'}  ? $row->[$index{'category'}]  : undef,
+           'category_id' => $index{'category'}  ? undef                       : $default_category_id,
+           'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : undef,
+           'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
+           'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
+          );
+        if (exists $index{'bypass_vlan'}) {
+                $data{'bypass_vlan'} = $row->[$index{'bypass_vlan'}];
+        }
+        if (exists $index{'bypass_role'}) {
+            $data{'bypass_role_id'} = nodecategory_lookup($row->[$index{'bypass_role'}]);
+        }
+        my $category = $data{category};
+        $logger->info("Category " . $category // "'undef'");
+        if ( (defined $category && !exists $allowed_roles->{$category} ) ) {
+            $logger->warn("Ignored $mac since category $category is not allowed for user");
+            $skipped++;
+            next;
+        }
+        my $bypass_vlan = $data{bypass_vlan};
+        if ( (defined $bypass_vlan && !exists $allowed_roles->{$bypass_vlan} ) ) {
+            $logger->warn("Ignored $mac since bypass_vlan $bypass_vlan is not allowed for user");
+            $skipped++;
+            next;
+        }
+        if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
+            $logger->debug("Register MAC $mac ($pid)");
+            $result = node_register($mac, $pid, %data);
         }
         else {
-            ($status, $message) = ($STATUS::CREATED, { count => $count, skipped => $skipped });
+            $logger->debug("Modify already registered MAC $mac ($pid)");
+            $result = node_modify($mac, %data);
         }
-        close $import_fh;
+        if ($result) {
+            $count++;
+        }
+        else {
+            $skipped++;
+        }
+    }
+    unless ($csv->eof) {
+        $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
+        ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, ["Problem with importation: [_1]" , $csv->error_diag()]);
     }
     else {
-        $logger->warn("Can't open CSV file $filename: $@");
-        ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, "Can't read CSV file.");
+        ($status, $message) = ($STATUS::CREATED, { count => $count, skipped => $skipped });
     }
+    close $import_fh;
 
     $logger->info("CSV file ($filename) import $count nodes, skip $skipped nodes");
 
