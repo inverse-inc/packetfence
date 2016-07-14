@@ -49,7 +49,7 @@ fi
 # Backup complete PacketFence installation except logs
 current_tgz=$BACKUP_DIRECTORY/$BACKUP_PF_FILENAME-`date +%F_%Hh%M`.tgz
 if [ ! -f $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ]; then
-    tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY_EXCLUDED --exclude=$PF_DIRECTORY\var
+    tar -czf $current_tgz $PF_DIRECTORY --exclude=$PF_DIRECTORY'logs/*' --exclude=$PF_DIRECTORY'var/*'
     echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
     find $BACKUP_DIRECTORY -name "packetfence-files-dump-*.tgz" -mtime +$NB_DAYS_TO_KEEP_FILES -print0 | xargs -0r rm -f
     echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP_FILES days have been removed. \n"
