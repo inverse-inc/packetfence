@@ -17,6 +17,53 @@ has '+widget' => ( default => 'FingerbankSelect' );
 
 use namespace::autoclean;
 
+use List::MoreUtils qw(any uniq);
+use pf::error qw(is_success);
+use pf::log;
+
+=head2 build_options
+
+Build the base options for validation (all of the rows in the Model mapped by ID)
+
+=cut
+
+sub build_options {
+    my ($self) = @_;
+    # no need for pretty formatting, this is just for validation purposes
+    my @options = map { 
+        {
+            value => $_->id,
+            label => $_->id,
+        }
+    } $self->fingerbank_model->all();
+    return \@options;
+};
+
+=head2 after value
+
+Modify the options to include only the base ones + the selected ones
+
+=cut
+
+after 'value' => sub {
+    my ($self) = @_;
+    my @base_ids = $self->fingerbank_model->base_ids();
+    my @options = map {
+        my ($status, $result) = $self->fingerbank_model->read($_);
+        if(is_success($status)){
+            { 
+                value => $_,
+                label => $result->{$self->fingerbank_model->value_field},
+            }
+        }
+        else {
+            ();
+        }
+    } uniq(@base_ids, @{$self->result->value()});
+    $self->options(\@options);
+};
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2016 Inverse inc.
