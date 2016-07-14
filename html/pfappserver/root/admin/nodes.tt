@@ -15,6 +15,7 @@
     <option value="switch_id">[% l('Source Switch Identifier') %]</option>
     <option value="switch_ip">[% l('Source Switch IP') %]</option>
     <option value="switch_mac">[% l('Source Switch MAC') %]</option>
+    <option value="switch_port">[% l('Source Switch Port') %]</option>
     <option value="ssid">[% l('SSID') %]</option>
     <option value="user_agent">[% l('User Agent') %]</option>
     <option value="violation">[% l('Violation Name') %]</option>
