@@ -97,8 +97,8 @@ sub handle {
         status_code     => undef,   # Status code
     );
 
-    my %switch_params = $switch_type->parseExternalPortalRequest($r, $req);
-    %params = %{ merge(\%params, \%switch_params) };
+    my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
+    %params = %{ merge(\%params, $switch_params) };
     
     $logger->debug(sub { use Data::Dumper; "Handling external portal request using the following parameters: " . Dumper(%params) });
 

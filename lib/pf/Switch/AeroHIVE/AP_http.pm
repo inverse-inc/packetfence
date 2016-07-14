@@ -48,7 +48,7 @@ sub supportsWebFormRegistration { return $TRUE }
 
 =item parseExternalPortalRequest
 
-Parse external portal request using URI and it's parameters then return a hash with the appropriate parameters
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
 
 See L<pf::web::externalportal::handle>
 
@@ -71,7 +71,7 @@ sub parseExternalPortalRequest {
         status_code     => '200',
     );
 
-    return %params;
+    return \%params;
 }
 
 
