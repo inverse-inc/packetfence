@@ -48,8 +48,6 @@ sub get_token {
     my $code = $self->app->request->parameters->{code};
     my $info = $self->get_client;
 
-    my $source = $self->source;
-
     my $formdata = WWW::Curl::Form->new;
     my $response_body = '';
     
@@ -68,21 +66,20 @@ sub get_token {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ( $curl_return_code != 0 ) {
+    if ( $curl_return_code != 0 && $response_code != 200) {
         get_logger->warn("OAuth2: failed to contact the provider, please try again.") ;
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = "OAuth2 Error: Failed to contact the provider";
         $self->landing();
         return;
-
     }
 
     my $jsond = $self->_decode_response($response_body);
 
     my $token = $jsond->{access_token};
 
-    if (undef $token) {
-        get_logger->warn("OAuth2: failed to receive the token from the provider: $@");
+    if (!defined($token)) {
+        get_logger->warn("OAuth2: failed to receive the token from the provider: ");
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
         $self->landing();
@@ -118,7 +115,7 @@ sub handle_callback {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ($curl_return_code == 0) {
+    if ($curl_return_code == 0 && $response_code == 200) {
         my $info = $self->_decode_response($response_body); 
         my $pid = $self->_extract_username_from_response($info); 
         
