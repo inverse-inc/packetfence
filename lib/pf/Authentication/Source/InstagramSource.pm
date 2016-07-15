@@ -51,8 +51,8 @@ sub lookup_from_provider_info {
 
     if (defined $full_name) {
         my @fullname = split(/ /, $full_name);
-        person_modify( $pid, firstname => @fullname[0] );
-        person_modify( $pid, lastname => @fullname[0] );
+        person_modify( $pid, firstname => $fullname[0] );
+        person_modify( $pid, lastname => $fullname[1] );
     }
 }
 
