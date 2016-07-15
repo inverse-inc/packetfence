@@ -30,7 +30,7 @@ NOTE: In this example, the database is replicated in active/passive across two s
 Creation of the DRBD partition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
+During the OS installation, reduce the size of the main partition of 30G. *Do not* create that partition during the install process, we will do it later.
 
 Partitioning
 ^^^^^^^^^^^^
@@ -59,7 +59,7 @@ Edit the repo file to disable ELRepo by default:
   protect=0
 ----
 
-Install now the package DRBD v8.4 enabling .
+Install DRBD v8.4:
 
   yum install kmod-drbd84 --enablerepo=elrepo
 
