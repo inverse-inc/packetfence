@@ -13,12 +13,12 @@ This guide has been created to give a quick start to install active/active clust
 
 Assumptions
 -----------
-* You have at least two servers with a fresh install of PacketFence 5+
-* Both servers are identical copies for the network interfaces
-* Both servers are running CentOS 6 or 7
-* Both servers have access to the same layer 2 network on all their network interfaces
-* Both servers have an empty, unformatted partition for the database
-* Both servers hostname must be resolvable via a DNS resolution
+* You have at least two (2) installed and configured PacketFence (v5+) servers
+* Servers are running RHEL / Centos 6 or 7
+* Servers have identical copies for network interfaces
+* Servers network interfaces are on the same layer 2 network
+* Servers hostnames must be resolvable via DNS resolution
+* Servers have an empty, unformatted partition (same size) that will be used for the database replication
 
 Installation on CentOS 6
 ------------------------
@@ -27,18 +27,15 @@ Step 1: Install the replicated database
 
 NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
 
-Installing DRBD
-^^^^^^^^^^^^^^^
-
 Creation of the DRBD partition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
+During the OS installation, reduce the size of the main partition by 30G. *Do not* create that partition during the install process, we will do it later.
 
 Partitioning
 ^^^^^^^^^^^^
 
-After the installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
+After the installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You may have to reboot your server after this step if requested.
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,7 +59,7 @@ Edit the repo file to disable ELRepo by default:
   protect=0
 ----
 
-Install now the package DRBD v8.4 enabling .
+Install DRBD v8.4:
 
   yum install kmod-drbd84 --enablerepo=elrepo
 
@@ -361,11 +358,31 @@ mysql> flush privileges;
 Installation on CentOS 7
 ------------------------
 
-First make sure that you system is correctly configured and up-to-date
+Step 1: Install the replicated database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
+
+
+Creation of the DRBD partition
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+During the OS installation, reduce the size of the main partition by 30G. *Do not* create that partition during the install process, we will do it later. This needs to be done on both servers.
+
+Partitioning
+^^^^^^^^^^^^
+
+After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step. This also needs to be done on both servers.
+
+
+Clustering prerequisites
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure that you systems are correctly configured and up-to-date
 
   # yum update
 
-`/etc/hosts` must contain:
+`/etc/hosts` must contain the following two lines:
 
   ha_interface_ip_address_1 pf1_server_name
   ha_interface_ip_address_2 pf2_server_name
@@ -377,32 +394,15 @@ NOTE: An active NetworkManager will overwrite your DNS configuration if not expl
   # hostnamectl set-hostname pf1_server_name
   # hostnamectl set-hostname pf2_server_name
 
-Disable selinux
+Disable selinux on each server:
 
   # setenforce 0
+  # sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
 [options="compact"]
 * `pf1_server_name` and `pf2_server_name` by the real server names (http://en.wikipedia.org/wiki/Fully_qualified_domain_name[FQDN])
 * `ha_interface_ip_address_1` and `ha_interface_ip_address_2` by the IP addresses of the management interface on both servers.
 
-
-Step 1: Install the replicated database
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-NOTE: In this example, the database is replicated in active/passive across two servers that are part of the PacketFence cluster. Active/active replication is also possible using MariaDB Galera cluster but this subject is not covered in this guide.
-
-Installing DRBD
-^^^^^^^^^^^^^^^
-
-Creation of the DRBD partition
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-During the OS installation, reduce the size of the main partition and create a new one (that will be used for the replicated MySQL database) of 30G. *Do not* create that partition during the install process, we will do it later.
-
-Partitioning
-^^^^^^^^^^^^
-
-After installation, you need to create the extra partition for DRBD. Using fdisk, create your new partition and save the table. You will probably need to reboot your server after this step.
 
 Pacemaker and Corosync installation and configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -625,6 +625,10 @@ Mount the partition with:
 
   # mount /dev/drbd0 /var/lib/mysql
 
+Restore previous MariaDB data
+
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/
+
 Start MariaDB
 
   # systemctl start mariadb
@@ -666,24 +670,17 @@ Corosync configuration
 ^^^^^^^^^^^^^^^^^^^^^^
 
   # pcs cluster start --all
-
   # pcs cluster cib clust_cfg
-
   # pcs -f clust_cfg property set stonith-enabled=false
-
   # pcs -f clust_cfg property set no-quorum-policy=ignore
-
   # pcs -f clust_cfg resource defaults resource-stickiness=200
-
   # pcs -f clust_cfg resource create DRBD ocf:linbit:drbd \
      drbd_resource=mysql \
      op monitor interval=30s
-
   # pcs -f clust_cfg resource master MySQLClone DRBD \
      master-max=1 master-node-max=1 \
      clone-max=2 clone-node-max=1 \
      notify=true
-
   # pcs -f clust_cfg resource create DRBD_fs Filesystem \
      device="/dev/drbd0" \
      directory="/var/lib/mysql" \
@@ -710,7 +707,6 @@ Corosync configuration
 
   # pcs cluster cib-push clust_cfg
 
-  # pcs status
 
 Check the status of the cluster:
 
@@ -776,6 +772,15 @@ db_host=127.0.0.1
 ....
 ----
 
+While you are in that file, add "high-availibility" statement at the end of your management interface:
+
+----
+[interface eth0]
+....
+type=management,portal,high-availibility
+....
+----
+
 In `conf/pfconfig.conf` :
 
 ----
@@ -800,9 +805,11 @@ mysql> flush privileges;
 ----
 
 
-
 Step 3 : Create a new cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalived on both your servers using `/usr/local/pf/bin/pfcmd service keepalived restart`
+
 
 In order to create a new cluster, the only thing needed is to configure /usr/local/pf/conf/cluster.conf
 
@@ -857,16 +864,33 @@ type=internal
 mask=255.255.255.0
 
 ----
+----
 
+[pf2.example.com]
+management_ip=192.168.1.6
+
+[pf2.example.com interface eth0]
+ip=192.168.1.6
+type=management,high-availability
+mask=255.255.255.0
+
+[pf2.example.com interface eth1.2]
+enforcement=vlan
+ip=192.168.2.6
+type=internal
+mask=255.255.255.0
+
+[pf2.example.com interface eth1.3]
+enforcement=vlan
+ip=192.168.3.6
+type=internal
+mask=255.255.255.0
+
+----
 Once this configuration is done, restart PacketFence to have it applied. 
 If done properly this should start two additionnal services : haproxy and keepalived
 
 You should now have service on the IP addresses defined in the 'CLUSTER' sections
-
-Additionnal steps
-^^^^^^^^^^^^^^^^^
-
-It is highly recommended to modify the keepalive shared secret in your cluster to prevent attacks. In the administration interface, go in 'Configuration/Clustering' and change the 'Shared KEY'. Make sure you restart keepalive on your server using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 Step 4 : Connect a slave packetfence server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -892,8 +916,6 @@ Where :
 * 'packet' is the webservices username on the master node
 * 'fence' is the webservices password on the master node
 
-Edit /usr/local/pf/conf/cluster.conf and create the server's configuration using the other node as an example.
-
 Reload the configuation and start the webservices on the new server
 
   # service packetfence-config restart
@@ -910,6 +932,8 @@ Now replicate this server configuration to the other nodes in the cluster
   # /usr/local/pf/bin/cluster/sync --as-master
 
 Make sure at least /usr/local/pf/conf/cluster.conf was replicated to the other servers
+
+Make sure to join domains through 'Configuration/Domains' on each additional create node.
 
 Now restart packetfence on each cluster server keeping the new node as the last one to be restarted.
 
@@ -1031,9 +1055,10 @@ Then, rename the network script of your management interface (`eno16780032` in t
 
   # mv /etc/sysconfig/network-scripts/ifcfg-eno16780032 /etc/sysconfig/network-scripts/ifcfg-eth0
 
-And rename the name of the interface in the script (making sure you replace `eno16780032` and `eth0` by the appropriate values):
+And rename the name of the interface in the following files (making sure you replace `eno16780032` and `eth0` by the appropriate values):
 
   # sed -i.bak "s/eno16780032/eth0/g" /etc/sysconfig/network-scripts/ifcfg-eth0
+  # sed -i.bak "s/eno16780032/eth0/g" /usr/local/pf/conf/pf.conf
 
 Apply the last two steps for any other interface you have on your server. Keep in mind, you can use the PacketFence configurator to reconfigure them later as long as your management interface is correctly configured and is accessible on your network.
 
