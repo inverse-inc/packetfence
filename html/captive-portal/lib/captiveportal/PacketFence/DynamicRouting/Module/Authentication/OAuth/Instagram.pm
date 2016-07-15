@@ -78,7 +78,7 @@ sub get_token {
 
     my $token = $jsond->{access_token};
 
-    if (!defined($token)) {
+    if (!defined $token) {
         get_logger->warn("OAuth2: failed to receive the token from the provider: ");
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = "OAuth2 Error: Failed to get the token";
