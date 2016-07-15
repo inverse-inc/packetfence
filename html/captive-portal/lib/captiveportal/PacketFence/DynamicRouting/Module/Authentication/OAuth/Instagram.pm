@@ -18,6 +18,23 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::InstagramSource');
 
+=head2 get_curl
+
+Instantiate curl
+
+=cut
+
+sub get_curl {
+    my ($self) = @_;
+    
+    my $curl = WWW::Curl::Easy->new;
+    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
+    $curl->setopt(CURLOPT_NOSIGNAL, 1);
+
+    return $curl; 
+
+}
+
 =head2 get_token
 
 Get the OAuth2 token
@@ -27,14 +44,14 @@ Get the OAuth2 token
 sub get_token {
     my ($self) = @_;
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = $self->get_curl;
     my $code = $self->app->request->parameters->{code};
     my $info = $self->get_client;
 
     my $source = $self->source;
 
-    my $response_body = '';
     my $formdata = WWW::Curl::Form->new;
+    my $response_body = '';
     
     $formdata->formadd("client_id", $info->{NOP_id});
     $formdata->formadd("client_secret", $info->{NOP_secret});
@@ -44,8 +61,6 @@ sub get_token {
 
     $curl->setopt(CURLOPT_HTTPPOST, $formdata);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
-    $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_HTTPHEADER(), ['Content-Type: multipart/form-data']);
     $curl->setopt(CURLOPT_URL, $info->{NOP_access_token_url});
 
@@ -53,12 +68,16 @@ sub get_token {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ($curl_return_code !=0 ) {
-                
+    if ( $curl_return_code != 0 ) {
+        get_logger->warn("OAuth2: failed to contact the provider, please try again.") ;
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        $self->app->flash->{error} = "OAuth2 Error: Failed to contact the provider";
+        $self->landing();
+        return;
+
     }
 
-    my $json = JSON->new;
-    my $jsond = $json->decode($response_body);
+    my $jsond = $self->_decode_response($response_body);
 
     my $token = $jsond->{access_token};
 
@@ -88,13 +107,11 @@ sub handle_callback {
 
     # request a JSON response
 
-    my $curl = WWW::Curl::Easy->new;
+    my $curl = $self->get_curl;
     my $response_body = '';
     
     $curl->setopt(CURLOPT_HTTPGET, 1);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
-    $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
-    $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, "https://api.instagram.com/v1/users/self/?access_token=$token" );
 
     my $curl_return_code = $curl->perform;
@@ -133,7 +150,7 @@ Decode the response from the provider
 
 sub _decode_response {
     my ($self, $response_body) = @_;
-    my $json = new JSON;
+    my $json = JSON->new;
     return $json->decode($response_body);
 }
 
