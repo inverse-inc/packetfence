@@ -129,7 +129,7 @@ sub handleTrap {
     }
 
     eval {
-        $TRAP_HANDLERS{$trapType}->($self, $switch, $trap);
+        $TRAP_HANDLERS{$trapType}->($self, $switch, $trap, $role_obj);
     };
     if($@) {
         $logger->error("Error occured while handling trap : $@");
@@ -271,7 +271,150 @@ handle a mac trap sent by a switch
 =cut
 
 sub handleMacTrap {
-    my ($self, $switch, $trap) = @_;
+    my ($self, $switch, $trap, $role_obj) = @_;
+    my $trapOperation = $trap->{trapOperation};
+    my $trapMac = $trap->{trapMac};
+    my $trapType = $trap->{trapType};
+    my $trapVlan = $trap->{trapVlan};
+    my $switch_id = $switch->{_id};
+    my $switch_port = $trap->{trapIfIndex};
+    my $mac  = lc($trapMac);
+    my $vlan = $trapVlan;
+    my $wasInline;
+
+    $logger->info("$trapOperation trap received on $switch_id ifIndex $switch_port for $mac in VLAN $vlan");
+
+    # test if port is still in current VLAN
+    if ($vlan ne $switch->getVlan($switch_port)) {
+        $logger->info("$switch_id ifIndex $switch_port is no longer in this VLAN -> Do nothing");
+        return;
+    }
+
+    # node_updatePF
+    my $isPhone = $switch->isPhoneAtIfIndex($mac, $switch_port);
+    node_update_PF($switch, $switch_port, $mac, $vlan, $isPhone, $switch->isRegistrationMode());
+
+    # trapOperation eq 'removed'
+    if ($trapOperation eq 'removed') {
+        locationlog_update_end_mac($mac);
+
+        #do nothing if it's a phone
+        if ($isPhone) {
+            $logger->info("MAC $mac is a VoIP phone -> Do nothing");
+            return;
+        }
+
+        #do we have an open entry in locationlog for switch/port ?
+        my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_id, $switch_port);
+        if (   (@locationlog)
+            && (scalar(@locationlog) > 0)
+            && (defined($locationlog[0]->{'mac'}))
+            && ($locationlog[0]->{'mac'} ne ''))
+        {
+            if ($switch->isMacInAddressTableAtIfIndex($mac, $switch_port)) {
+                $logger->info("Removed trap for MAC $mac: MAC "
+                      . $locationlog[0]->{'mac'}
+                      . " is still present in mac-address-table; has probably already been relearned -> DO NOTHING");
+            }
+            else {
+                $logger->info("Removed trap for MAC $mac: MAC "
+                      . $locationlog[0]->{'mac'}
+                      . " DEAD -> setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
+                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+            }
+        }
+        else {
+
+            #no open entry in locationlog for switch/port
+            $logger->info("no line opened for MAC $mac in locationlog.");
+
+            #try to determine if nothing is left on switch/port (VoIP phones dont' count)
+            my $nothingLeftOnSwitchPort = 0;
+            my @macArray                = $switch->_getMacAtIfIndex($switch_port);
+            if (!@macArray) {
+                $nothingLeftOnSwitchPort = 1;
+            }
+            elsif (scalar(@macArray) == 1) {
+                my $onlyMacLeft = $macArray[0];
+                $logger->debug("only MAC found is $onlyMacLeft");
+                if ($switch->isPhoneAtIfIndex($onlyMacLeft, $switch_port)) {
+                    $nothingLeftOnSwitchPort = 1;
+                }
+            }
+            else {
+                $logger->debug(scalar(@macArray) . " MACs found.");
+            }
+
+            if ($nothingLeftOnSwitchPort == 1) {
+                $logger->info("setting data VLAN on $switch_id ifIndex $switch_port to MAC detection VLAN");
+                $switch->setMacDetectionVlan($switch_port, \%switch_locker, 0);
+            }
+            else {
+                $logger->info("no line in locationlog and MACs ("
+                      . join(",", @macArray)
+                      . ") still present on this port -> Do nothing");
+            }
+        }
+
+        # trapOperation eq 'learnt'
+    }
+    elsif ($trapOperation eq 'learnt') {
+
+        # port security handling
+        do_port_security($mac, $switch, $switch_port, $trapType);
+
+        #do nothing if it's a phone
+        if ($isPhone) {
+            $logger->info("MAC $mac is a VoIP phone -> Do nothing besides updating locationlog");
+            locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port,
+                $switch->getVoiceVlan($switch_port),
+                $mac, $VOIP, $WIRED_SNMP_TRAPS);
+            return;
+        }
+
+        my $changeVlan = 0;
+
+        #do we have an open entry in locationlog for switch/port ?
+        my @locationlog = locationlog_view_open_switchport_no_VoIP($switch_id, $switch_port);
+        if (   (@locationlog)
+            && (scalar(@locationlog) > 0)
+            && (defined($locationlog[0]->{'mac'}))
+            && ($locationlog[0]->{'mac'} ne ''))
+        {
+            if ($locationlog[0]->{'mac'} =~ /^$mac$/i) {
+                my $role = $role_obj->fetchRoleForNode({
+                        mac             => $mac,
+                        node_info       => node_attributes($mac),
+                        swicth          => $switch,
+                        ifIndex         => $switch_port,
+                        connection_type => $WIRED_SNMP_TRAPS,
+                        profile         => pf::Portal::ProfileFactory->instantiate($mac)});
+                my $fetchedVlan = $role->{vlan} || $switch->getVlanByName($role->{role});
+                if (   ($locationlog[0]->{'vlan'} == $vlan)
+                    && ($vlan == $fetchedVlan))
+                {
+                    $logger->info("locationlog is already up2date. Do nothing");
+                }
+                else {
+                    $changeVlan = 1;
+                }
+            }
+            else {
+
+                $logger->info("Learnt trap received for $mac. Old MAC "
+                      . $locationlog[0]->{'mac'}
+                      . " already connected to the port according to locationlog !");
+                $changeVlan = 1;
+            }
+        }
+        else {
+            $changeVlan = 1;
+        }
+
+        if ($changeVlan == 1) {
+            node_determine_and_set_into_VLAN($mac, $switch, $switch_port, $WIRED_SNMP_TRAPS);
+        }
+    }
 }
 
 =head2 handleDownTrap
