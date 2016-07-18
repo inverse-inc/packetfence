@@ -436,8 +436,15 @@ sub get_config_version {
 sub get_all_config_version {
     my %results;
     foreach my $server (@cluster_hosts) {
-        $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
+        eval {
+            $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
+        };
+        if($@) {
+            get_logger->error("Failed to get the config version for $server");
+            $results{$server} = 0;
+        }
     }
+    $results{caca} = $results{'pf-julien.inverse'};
     return \%results;
 }
 
@@ -450,18 +457,45 @@ sub handle_config_conflict {
     }
     my $version = get_config_version();
 
+    local @cluster_hosts = @cluster_hosts;
+    push @cluster_hosts, "caca";
+
     if(keys(%$versions_map) > 1) {
-        get_logger->warn("Current version is not the same as the one on all the other cluster servers.");
+        get_logger->warn("Current version is not the same as the one on all the other cluster servers");
         
         # Can't quorum using 2 hosts
         if(scalar(@cluster_hosts) > 2) {
-            my $half = (scalar(@cluster_hosts) / 2)
+            my $half = (scalar(@cluster_hosts) / 2);
             my $quorum = int($half) == $half ? $half + 1 : ceil($half);
 
+            my $servers_count = 0;
+            my $top_version;
+
+            # Figure out which servers have the quorum on the version ID
+            while(my ($version, $servers) = each(%$versions_map)) {
+                if (scalar(@$servers) > $servers_count) {
+                    $servers_count = scalar(@$servers);
+                    $top_version = $version;
+                }
+            }
+
+            # Ensuring they have quorum and that its not the dead servers that have quorum (through the version not being 0)
+            if ($top_version == 0) {
+                get_logger->warn("There are more dead servers than alive ones with the same version. Most recent configuration will be selected.");   
+            }
+            elsif($servers_count >= $quorum) {
+                get_logger->info("Quorum found between servers : ".join(',', @{$versions_map->{$top_version}}));
+            }
+            else {
+                get_logger->warn("Failed to find quorum in the cluster. Most recent configuration will be selected.");
+            }
         }
         else {
-
+            get_logger->info("Quorum not possible in 2 servers clusters. Most recent configuration will be selected.");
         }
+    }
+    else {
+        get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
     }
 }
 
