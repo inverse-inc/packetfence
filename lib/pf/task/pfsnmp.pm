@@ -84,12 +84,8 @@ our %TRAP_HANDLERS = (
     down                          => \&handleDownTrap,
     roaming                       => \&handleRoamingTrap,
     wirelessIPS                   => \&handleWirelessIPS,
-    reAssignVlan                  => \&handleReAssignVlanTrap,
-    desAssociate                  => \&handleDesAssociateTrap,
-    firewallRequest               => \&handleFirewallRequestTrap,
     dot11Deauthentication         => \&handleDot11DeauthenticationTrap,
     secureMacAddrViolation        => \&handleSecureMacAddrViolationTrap,
-    secureDynamicMacAddrViolation => \&handleSecureDynamicMacAddrViolationTrap,
 );
 
 
@@ -325,35 +321,6 @@ sub handleRoamingTrap {
     locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $trap->{trapIfIndex}, $trap->{trapVlan}, $trap->{trapMac}, $NO_VOIP, $trap->{trapConnectionType}, undef, $trap->{trapClientUserName}, $trap->{trapSSID} );
 }
 
-=head2 handleReAssignVlanTrap
-
-=cut
-
-sub handleReAssignVlanTrap {
-    my ($self, $switch, $trap) = @_;
-}
-
-=head2 handleDesAssociateTrap
-
-=cut
-
-sub handleDesAssociateTrap {
-    my ($self, $switch, $trap) = @_;
-}
-
-=head2 handleFirewallRequestTrap
-
-=cut
-
-sub handleFirewallRequestTrap {
-    my ($self, $switch, $trap) = @_;
-    my $trapMac = $trap->{trapMac};
-    $logger->info("$trap->{trapType} trap received for inline client: $trapMac. Modifying firewall.");
-
-    # verify if firewall rule is ok
-    my $inline = new pf::inline::custom();
-    $inline->performInlineEnforcement($trapMac);
-}
 
 =head2 handleDot11DeauthenticationTrap
 
@@ -468,4 +435,3 @@ USA.
 =cut
 
 1;
-
