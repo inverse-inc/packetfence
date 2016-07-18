@@ -317,7 +317,7 @@ sub sync_storages {
     my $apiclient = pf::api::jsonrpcclient->new();
     foreach my $store (@$stores){
         eval {
-            print "Synching storage : $store\n";
+            get_logger->info("Synching storage : $store");
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
             my $config_file = $cs->configFile;
@@ -457,19 +457,27 @@ sub get_all_config_version {
 }
 
 sub handle_config_conflict {
+    my $quorum_version;
+
+    my $version = get_config_version();
     my $servers_map = get_all_config_version();
+
+    # We make sure we have the right version for this node (in case webservices is currently dead)
+    $servers_map->{$host_id} = $version;
+
     my $versions_map = {};
     while(my ($server, $version) = each(%$servers_map)){
         $versions_map->{$version} //= [];
         push @{$versions_map->{$version}}, $server;
     }
-    my $version = get_config_version();
 
     local @cluster_hosts = @cluster_hosts;
 #    push @cluster_hosts, "caca";
+        
 
-    if(keys(%$versions_map) == 2 && @{$versions_map->{0}} > 0) {
+    if(keys(%$versions_map) == 2 && (defined($versions_map->{0}) && @{$versions_map->{0}} > 0)) {
         get_logger->warn("Not all servers were checked for the configuration version but all alive ones are running the same version.");
+        return;
     }
     elsif(keys(%$versions_map) > 1) {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
@@ -480,34 +488,73 @@ sub handle_config_conflict {
             my $quorum = int($half) == $half ? $half + 1 : ceil($half);
 
             my $servers_count = 0;
-            my $top_version;
-
             # Figure out which servers have the quorum on the version ID
             while(my ($version, $servers) = each(%$versions_map)) {
                 if (scalar(@$servers) > $servers_count) {
                     $servers_count = scalar(@$servers);
-                    $top_version = $version;
+                    $quorum_version = $version;
                 }
             }
 
             # Ensuring they have quorum and that its not the dead servers that have quorum (through the version not being 0)
-            if ($top_version == 0) {
-                get_logger->warn("There are more dead servers than alive ones with the same version. Most recent configuration will be selected.");   
+            if ($quorum_version == 0) {
+                get_logger->warn("There are more dead servers than alive ones with the same version. Most recent configuration will be selected.");
+                goto SYNC_MOST_RECENT;
             }
             elsif($servers_count >= $quorum) {
-                get_logger->info("Quorum found between servers : ".join(',', @{$versions_map->{$top_version}}));
+                get_logger->info("Quorum found between servers : ".join(',', @{$versions_map->{$quorum_version}}));
+                goto SYNC_QUORUM;
             }
             else {
                 get_logger->warn("Failed to find quorum in the cluster. Most recent configuration will be selected.");
+                goto SYNC_MOST_RECENT;
             }
         }
         else {
+            # TODO : check if only one of the server is running. In that case, don't do anything since its not possible to take the right decision with only one node up
             get_logger->info("Quorum not possible in 2 servers clusters. Most recent configuration will be selected.");
+            goto SYNC_MOST_RECENT;
         }
     }
     else {
         get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
+        return;
     }
+
+    # If we're here, we should return as the gotos below should be called directly
+    return;
+
+    SYNC_MOST_RECENT:
+
+    my $latest = [sort(keys(%$versions_map))]->[-1];
+
+    if($latest == $version) {
+        get_logger->info("This server is part of the nodes that are at the latest version. Synching from this node as master.");
+        sync_config_as_master();
+    }
+    else {
+        # pick the first server of the ones that are at that version and remotely call the sync on it
+        my $server = $versions_map->{$latest}->[0];
+        get_logger->info("Using $server from the servers holding running the latest version to sync as the master.");
+        call_server($server, 'sync_config_as_master');
+    }
+
+    return;
+
+    SYNC_QUORUM:
+
+    if($quorum_version == $version) {
+        get_logger->info("This server is part of the servers that have the quorum. Synching from this node as master.");
+        sync_config_as_master();
+    }
+    else {
+        my $server = $versions_map->{$quorum_version}->[0];
+        get_logger->info("Using $server from the servers holding quorum to sync as the master.");
+        call_server($server, 'sync_config_as_master');
+    }
+
+    return;
+
 }
 
 sub stores_to_sync {

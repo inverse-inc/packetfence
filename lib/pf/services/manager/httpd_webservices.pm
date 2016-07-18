@@ -27,6 +27,8 @@ extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.webservices' } );
 
+has '+shouldCheckup' => ( default => sub { !$cluster_enabled }  );
+
 sub vhosts {
     my ($self) = @_;
     my @vhosts;

@@ -1400,6 +1400,11 @@ sub set_config_version :Public {
     return pf::cluster::set_config_version($postdata{version});
 }
 
+sub sync_config_as_master :Public {
+    my ($class) = @_;
+    pf::cluster::sync_config_as_master();
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
