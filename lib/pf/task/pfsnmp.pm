@@ -26,6 +26,7 @@ use pf::config qw(
     $WIRED_SNMP_TRAPS
     %Config
     $WIPS_VID
+    $VOIP
 );
 use pf::constants qw($TRUE $FALSE);
 use pf::violation;
