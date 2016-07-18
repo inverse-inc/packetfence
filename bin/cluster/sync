@@ -51,13 +51,9 @@ use pf::api::jsonrpcclient;
 use pf::config::cached;
 use pfconfig::constants;
 use pf::file_paths qw(
-    $server_cert
-    $server_key
-    $server_pem
-    $conf_dir
-    $local_secret_file
     $config_version_file
 );
+use pf::constants::cluster qw(@FILES_TO_SYNC);
 use pf::cluster;
 use fingerbank::FilePath;
 use Pod::Usage;
@@ -83,26 +79,10 @@ unless($master_server || $as_master){
     exit;
 }
 
+my @stores = @{pf::cluster::stores_to_sync()};
+my @files = @FILES_TO_SYNC;
+
 my $logger = get_logger();
-
-use Module::Pluggable
-  'search_path' => [qw(pf::ConfigStore)],
-  'sub_name'    => 'stores',
-  'require'     => 1,
-  ;
-
-our @tmp_stores = __PACKAGE__->stores();
-
-my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID pf::ConfigStore::Hierarchy);
-
-our @stores;
-
-foreach my $store (@tmp_stores){
-    next if ($store ~~ @ignored);
-    push @stores, $store;
-}
-
-my @files = ($server_cert, $server_key, $server_pem, $local_secret_file, $pfconfig::constants::CONFIG_FILE_PATH, "$conf_dir/iptables.conf", $fingerbank::FilePath::CONF_FILE, $fingerbank::FilePath::LOCAL_DB_FILE);
 
 if (-e '/usr/local/pf/conf/cluster-files.txt') {
     open(my $fh, '<', '/usr/local/pf/conf/cluster-files.txt')
@@ -131,8 +111,7 @@ if($as_master){
     }
     else {
         get_logger->info("Synching cluster with this node as the configuration master");
-        pf::cluster::sync_storages(\@stores);
-        pf::cluster::sync_files(\@files);
+        pf::cluster::sync_config_as_master();
         if($with_fingerbank_db) {
             pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE]);
         }

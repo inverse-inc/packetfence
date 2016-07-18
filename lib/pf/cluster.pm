@@ -30,10 +30,18 @@ use pf::file_paths qw(
 );
 use pf::util;
 use pf::constants;
+use pf::constants::cluster qw(@FILES_TO_SYNC);
 use Config::IniFiles;
 use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
+
+use Module::Pluggable
+  'search_path' => [qw(pf::ConfigStore)],
+  'sub_name'    => '_all_stores',
+  'require'     => 1,
+  ;
+
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -444,7 +452,7 @@ sub get_all_config_version {
             $results{$server} = 0;
         }
     }
-    $results{caca} = $results{'pf-julien.inverse'};
+#    $results{caca} = $results{'pf-julien.inverse'};
     return \%results;
 }
 
@@ -458,9 +466,12 @@ sub handle_config_conflict {
     my $version = get_config_version();
 
     local @cluster_hosts = @cluster_hosts;
-    push @cluster_hosts, "caca";
+#    push @cluster_hosts, "caca";
 
-    if(keys(%$versions_map) > 1) {
+    if(keys(%$versions_map) == 2 && @{$versions_map->{0}} > 0) {
+        get_logger->warn("Not all servers were checked for the configuration version but all alive ones are running the same version.");
+    }
+    elsif(keys(%$versions_map) > 1) {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
         
         # Can't quorum using 2 hosts
@@ -497,6 +508,26 @@ sub handle_config_conflict {
     else {
         get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
     }
+}
+
+sub stores_to_sync {
+    my @tmp_stores = __PACKAGE__->_all_stores();
+
+    my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID pf::ConfigStore::Hierarchy);
+
+    my @stores;
+
+    foreach my $store (@tmp_stores){
+        next if ($store ~~ @ignored);
+        push @stores, $store;
+    }
+
+    return \@stores;
+}
+
+sub sync_config_as_master {
+    pf::cluster::sync_storages(pf::cluster::stores_to_sync());
+    pf::cluster::sync_files(\@FILES_TO_SYNC);
 }
 
 =head1 AUTHOR
