@@ -32,6 +32,10 @@ use pf::constants qw($TRUE $FALSE);
 use pf::violation;
 use pf::node;
 use pf::util;
+use pf::Portal::ProfileFactory;
+our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
+# Initialize a new cache for the actions taken if the traps limit has been reached
+our $traps_email_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitEmail'} );
 
 my %switch_locker;
 
@@ -404,6 +408,204 @@ sub handleWirelessIPS {
     }
 
     return;
+}
+
+=head2 do_port_security
+
+=cut
+
+sub do_port_security {
+    my ( $mac, $switch, $switch_port, $trapType ) = @_;
+
+    #determine if $mac is authorized elsewhere
+    my $locationlog_mac = locationlog_view_open_mac($mac);
+    if ( defined($locationlog_mac) &&
+         ( exists(pf::SwitchFactory->config->{$locationlog_mac->{'switch'}}) )
+       ) {
+        my $old_switch = $locationlog_mac->{'switch'};
+        my $old_port   = $locationlog_mac->{'port'};
+        my $old_vlan   = $locationlog_mac->{'vlan'};
+        my $is_old_voip = is_node_voip($mac);
+
+    #we have to enter to 'if' always when trapType eq 'secureMacAddrViolation'
+        if (   ( $old_switch ne $switch->{_id} )
+            || ( $old_port != $switch_port )
+            || ( $trapType eq 'secureMacAddrViolation' ) )
+        {
+            my $oldSwitch;
+            $logger->debug(
+                "$mac has still open locationlog entry at $old_switch ifIndex $old_port"
+            );
+            if ( $old_switch eq $switch->{_id} ) {
+                $oldSwitch = $switch;
+            } else {
+                {
+                    $oldSwitch = pf::SwitchFactory->instantiate($old_switch);
+                }
+            }
+
+            if (!$oldSwitch) {
+                $logger->error("Can not instantiate switch $old_switch !");
+            } else {
+                $logger->info("Will try to check on this node's previous switch if secured entry needs to be removed. ".
+                    "Old Switch IP: $old_switch");
+                my $secureMacAddrHashRef = $oldSwitch->getSecureMacAddresses($old_port);
+                if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
+                    if (   ( $old_switch eq $switch->{_id} )
+                        && ( $old_port == $switch_port )
+                        && ( $trapType eq 'secureMacAddrViolation' ) )
+                    {
+                        return 'stopTrapHandling';
+                    }
+                    my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
+                    $logger->info("de-authorizing $mac (new entry $fakeMac) at old location $old_switch ifIndex $old_port");
+                    $oldSwitch->authorizeMAC( $old_port, $mac, $fakeMac,
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ),
+                        ( $is_old_voip ? $oldSwitch->getVoiceVlan($old_port) : $oldSwitch->getVlan($old_port) ) );
+                } else {
+                    $logger->info("MAC not found on node's previous switch secure table or switch inaccessible.");
+                }
+                locationlog_update_end_mac($mac);
+            }
+        }
+    }
+
+    # check if $mac is not already secured on another port (in case locationlog is outdated)
+    my $secureMacAddrHashRef = $switch->getAllSecureMacAddresses();
+    if ( exists( $secureMacAddrHashRef->{$mac} ) ) {
+        foreach my $ifIndex ( keys( %{ $secureMacAddrHashRef->{$mac} } ) ) {
+            if ( $ifIndex == $switch_port ) {
+                return 'stopTrapHandling';
+            } else {
+                foreach my $vlan (
+                    @{ $secureMacAddrHashRef->{$mac}->{$ifIndex} } )
+                {
+                    my $is_voice_vlan = ($vlan == $switch->getVoiceVlan($ifIndex));
+                    my $fakeMac = $switch->generateFakeMac($is_voice_vlan, $ifIndex);
+                    $logger->info( "$mac is a secure MAC address at "
+                            . $switch->{_id}
+                            . " ifIndex $ifIndex VLAN $vlan. De-authorizing (new entry $fakeMac)"
+                    );
+                    $switch->authorizeMAC( $ifIndex, $mac, $fakeMac, $vlan,
+                        $vlan );
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+# sub node_update_PF
+sub node_update_PF {
+    my ($switch, $switch_port, $mac, $vlan, $isPhone, $registrationMode) = @_;
+    my $role_obj = new pf::role::custom();
+
+    #lowercase MAC
+    $mac = lc($mac);
+
+    if ( $switch->isFakeMac($mac) ) {
+        $logger->info("MAC $mac is fake. Stopping node_update_PF");
+        return 0;
+    }
+
+    #add node if necessary
+    if ( !node_exist($mac) ) {
+        $logger->info(
+            "node $mac does not yet exist in PF database. Adding it now");
+        node_add_simple($mac);
+    }
+
+    #should we auto-register?
+    if ($role_obj->shouldAutoRegister({mac => $mac, switch => $switch, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS})) {
+        # auto-register
+        my %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg({ switch => $switch, ifIndex => $switch_port,
+            mac => $mac, vlan => $vlan, violation_autoreg => 0, isPhone => $isPhone, connection_type => $WIRED_SNMP_TRAPS});
+        $logger->debug("auto-registering node $mac");
+        if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
+            $logger->error("auto-registration of node $mac failed");
+            return 0;
+        }
+    }
+    return 1;
+}
+
+# sub node_determine_and_set_into_VLAN {{{1
+sub node_determine_and_set_into_VLAN {
+    my ( $mac, $switch, $ifIndex, $connection_type ) = @_;
+
+    my $role_obj = new pf::role::custom();
+
+    my $role = $role_obj->fetchRoleForNode({ mac => $mac, node_info => node_attributes($mac), switch => $switch, ifIndex => $ifIndex, connection_type => $connection_type, profile => pf::Portal::ProfileFactory->instantiate($mac)});
+    my $vlan = $role->{vlan} || $switch->getVlanByName($role->{role});
+
+    $switch->setVlan(
+        $ifIndex,
+        $vlan,
+        \%switch_locker,
+        $mac
+    );
+}
+
+# sub perform_trap_limiting {{{1
+sub perform_trap_limiting {
+    # skipping if feature is disabled
+    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+
+    my ( $switch, $switchIfIndex ) = @_;
+    # skipping if trapIfIndex is undef
+    return $FALSE if (!defined($switchIfIndex));
+
+    # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
+    my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
+    my $trapsLimitAction = $Config{'vlan'}{'trap_limit_action'};
+
+    my $switchId = $switch->{_id};
+    my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchId.$switchIfIndex);
+
+    # TODO: Use CHI and the append method
+    # Using Cache::Cache with the set method may cause the cache to never expire.
+    # Each time the cache is set, the expire is renewed and the cache may never expire completly.
+    # The new unified caching interface (CHI) provide an append method which solve the problem but CHI is
+    # currently not packaged.
+
+    # FileCache is threads safe
+    $traps_switchIfIndex_cache->set($switchId.$switchIfIndex, ++$cached_traps_switchIfIndex, "1 minute");
+
+    if ( !defined($cached_traps_switchIfIndex) || ($cached_traps_switchIfIndex < $trapsLimitThreshold) ) {
+        $logger->trace("Traps limit per switchIfIndex cache reached $cached_traps_switchIfIndex");
+        return $FALSE;
+    }
+
+    if ( is_in_list('email', $trapsLimitAction) || is_in_list('shut', $trapsLimitAction) ) {
+        my %email;
+
+        $email{'subject'} = "Too many traps coming from switch $switchId";
+        $email{'message'} = "Too many SNMP traps were received from a switchport according to the threshold.\n\n";
+        $email{'message'} .= "Switch: $switchId\n";
+        $email{'message'} .= "ifIndex: $switchIfIndex\n";
+        $email{'message'} .= "Threshold: maximum $trapsLimitThreshold SNMP traps per 1 minute.\n";
+
+        if ( is_in_list('shut', $trapsLimitAction) ) {
+            $email{'message'} .= "Action: PacketFence SHUTTED THE PORT";
+            $switch->setAdminStatus($switchIfIndex, $SNMP::DOWN);
+        }
+
+        my $cached_traps_email = $traps_email_cache->get($switchId.$switchIfIndex);
+        if ( !defined($cached_traps_email) || $cached_traps_email < 1 ) {
+            $traps_email_cache->set($switchId.$switchIfIndex, ++$cached_traps_email, "1 hour");
+            pfmailer(%email);
+        }
+    }
+
+    $logger->warn(
+        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        . "from ifIndex $switchIfIndex of switch $switch->{_id}"
+    );
+
+    # if there's no action configured then let's continue parsing the trap
+    return $FALSE if ( isempty($trapsLimitAction) );
+
+    return $TRUE;
 }
 
 
