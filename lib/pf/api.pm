@@ -778,6 +778,16 @@ sub expire_cluster : Public {
             push @failed, $server->{host};
             next;
         }
+
+        eval {
+            $apiclient->call('set_config_version', version => pf::cluster::get_config_version());
+        };
+
+        if($@){
+            $logger->error("An error occured while pushing the configuration version ID to $server->{management_ip}. $@");
+            push @failed, $server->{host};
+            next;
+        }
     }
 
     if(@failed){
@@ -1366,6 +1376,28 @@ sub services_status : Public {
         }
     }
     return $statuses;
+}
+
+=head2 get_config_version
+
+=cut
+
+sub get_config_version :Public {
+    my ($class) = @_;
+    return pf::cluster::get_config_version();
+}
+
+=head2 set_config_version
+
+=cut
+
+sub set_config_version :Public {
+    my ($class, %postdata) = @_;
+    my @require = qw(version);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,\@found);
+
+    return pf::cluster::set_config_version($postdata{version});
 }
 
 =head1 AUTHOR

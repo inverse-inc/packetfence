@@ -56,6 +56,7 @@ use pf::file_paths qw(
     $server_pem
     $conf_dir
     $local_secret_file
+    $config_version_file
 );
 use pf::cluster;
 use fingerbank::FilePath;
@@ -115,6 +116,7 @@ if (-e '/usr/local/pf/conf/cluster-files.txt') {
 }
 
 if($as_master){
+    pf::cluster::increment_config_version();
     if($file){
         unless($file =~ /^\//){
             get_logger->fatal("File path has to be absolute.");
@@ -148,6 +150,8 @@ if($master_server){
         my $config_file = $cs->configFile;
         push @files, $config_file;
     }
+
+    push @files, $config_version_file;
 
     foreach my $file (@files){
         eval {

@@ -62,6 +62,7 @@ our (
     $allowed_device_oui_file, $allowed_device_types_file,
     $apache_filters_config_file,
     $cache_control_file,
+    $config_version_file,
     $log_conf_dir,
     $vlan_filters_config_file, $vlan_filters_config_default_file,
     $pfcmd_binary,
@@ -121,6 +122,7 @@ BEGIN {
         $allowed_device_oui_file $allowed_device_types_file
         $apache_filters_config_file
         $cache_control_file
+        $config_version_file
         $log_conf_dir
         $vlan_filters_config_file $vlan_filters_config_default_file
         $pfcmd_binary
@@ -258,6 +260,8 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
 
 
 $cache_control_file = catfile($var_dir, "cache_control");
+
+$config_version_file = catfile($var_dir, "config_version");
 
 
 =head1 AUTHOR

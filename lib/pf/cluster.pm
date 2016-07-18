@@ -26,10 +26,13 @@ use NetAddr::IP;
 use Socket;
 use pf::file_paths qw(
     $cluster_config_file
+    $config_version_file
 );
 use pf::util;
 use pf::constants;
 use Config::IniFiles;
+use File::Slurp qw(read_file write_file);
+use Time::HiRes qw(time);
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -394,6 +397,39 @@ sub call_server {
     require pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $ConfigCluster{$cluster_id}->{management_ip});
     return $apiclient->call(@args);
+}
+
+=head2 increment_config_version
+
+=cut
+
+sub increment_config_version {
+    return set_config_version(time);
+}
+
+=head2 set_config_version
+
+=cut
+
+sub set_config_version {
+    my ($ver) = @_;
+    return write_file($config_version_file, $ver);
+}
+
+=head2 get_config_version
+
+=cut
+
+sub get_config_version {
+    my $result;
+    eval {
+        $result = read_file($config_version_file);
+    };
+    if($@) {
+        get_logger->error("Cannot read $config_version_file to get the current configuration version.");
+        return $FALSE;
+    }
+    return $result;
 }
 
 =head1 AUTHOR
