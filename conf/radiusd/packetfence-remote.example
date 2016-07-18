@@ -1,0 +1,180 @@
+
+%%members%%
+
+home_server degraded {
+        virtual_server = pf.degraded
+}
+
+#  Put all of the servers into a pool.
+home_server_pool pf_auth_pool {
+        type = fail-over
+
+%%home_server%%
+
+        home_server = degraded
+}
+
+home_server_pool pf_acct_pool {
+        type = fail-over
+
+%%home_server%%
+
+}
+
+realm remote {
+        auth_pool = pf_auth_pool
+        acct_pool = pf_acct_pool
+}
+
+server pf-remote {
+        pre-proxy {
+                #  Insert pre-proxy rules here
+        }
+
+
+        post-proxy {
+            update control {
+                PacketFence-Proxied-To := "%{home_server:ipaddr}"
+            }
+            if (&proxy-reply:Proxy-State) {
+                %{sql_degraded:DELETE FROM radreply where username="%{User-Name}"}
+                reply_in_db
+                %{sql_degraded:%{control:PacketFence-reply-insert}}
+            }
+            else {
+                noop
+            }
+        attr_filter.packetfence_post_auth
+
+        authorize {
+                update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "remote"
+                }
+                if(!NAS-IP-Address){
+                        update request {
+                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                        }
+                }
+        }
+
+
+        authenticate {
+        }
+        accounting {
+                update control {
+                        Proxy-To-Realm := "remote"
+                }
+                if(!NAS-IP-Address){
+                        update request {
+                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                        }
+                }
+        }
+
+}
+
+
+
+server pf.degraded {
+authorize {
+
+	filter_username
+
+	filter_password
+
+	preprocess
+
+	suffix
+
+	ntdomain
+
+	eap {
+		ok = return
+	}
+
+	if ( !EAP-Message ) {
+		update {
+			&control:Auth-Type := Accept
+		}
+	}
+	-sql_degraded
+	pap
+
+}
+
+
+authenticate {
+	Auth-Type PAP {
+		pap
+	}
+
+	Auth-Type CHAP {
+		chap
+	}
+
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+#	Auth-Type LDAP {
+#		ldap
+#	}
+
+	#
+	#  Allow EAP authentication.
+	eap
+}
+
+
+#
+#  Pre-accounting.  Decide which accounting type to use.
+#
+preacct {
+	preprocess
+
+}
+
+#
+#  Accounting.  Log the accounting data.
+#
+accounting {
+	if (noop) {
+		ok
+	}
+
+	attr_filter.accounting_response
+}
+
+
+session {
+}
+
+
+post-auth {
+	attr_filter.packetfence_post_auth
+	linelog
+	Post-Auth-Type REJECT {
+		attr_filter.access_reject
+		attr_filter.packetfence_post_auth
+
+		# Insert EAP-Failure message if the request was
+		# rejected by policy instead of because of an
+		# authentication failure
+		eap
+
+		#  Remove reply message if the response contains an EAP-Message
+		remove_reply_message_if_eap
+		linelog
+	}
+}
+
+pre-proxy {
+}
+
+post-proxy {
+
+	eap
+}
+}
+
