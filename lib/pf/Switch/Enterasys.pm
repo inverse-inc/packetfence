@@ -22,6 +22,17 @@ use Net::SNMP;
 use pf::Switch::constants;
 use pf::util;
 
+#
+# %TRAP_NORMALIZERS
+# A hash of Enterasys trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.4.1.5624.1.2.21.1.0.1' => 'etsysMACLockingMACViolationTrapNormalizer',
+    '.1.3.6.1.4.1.5624.1.2.21.1.1.1' => 'etsysMACLockingSystemEnableTrapNormalizer',
+);
+
 sub parseTrap {
     my ( $self, $trapString ) = @_;
     my $trapHashRef;
@@ -264,6 +275,40 @@ sub getSecureMacAddresses {
         }
     }
     return $secureMacAddrHashRef;
+}
+
+sub etsysMACLockingMACViolationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my $logger = $self->logger;
+    my $oid = '.1.3.6.1.4.1.5624.1.2.21.1.2.1.1.4.';
+    my ($variable) = $self->findTrapVarWithBase($variables, $oid);
+    return undef unless $variable;
+    unless ($variable) {
+        $logger->error("Cannot find OID $oid in trap");
+        return undef;
+    }
+    my $trapMac = $self->extractMacFromVariable($variable);
+    unless ($trapMac) {
+        $logger->error("Cannot extract a mac address from OID $oid");
+        return undef;
+    }
+    unless ($variable->[0] =~ /^\Q$oid\E(\d+)$/) {
+        $logger->error("Cannot extract the board and port index from $variable->[0]");
+        return undef;
+    }
+    my $trapIfIndex = $1;
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapMac => $trapMac,
+        trapIfIndex => $trapIfIndex,
+        trapVlan => $self->getVlan($trapIfIndex),
+    };
+}
+
+sub etsysMACLockingSystemEnableTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return $self->etsysMACLockingSystemEnableTrapNormalizer($trapInfo);
 }
 
 =head1 AUTHOR
