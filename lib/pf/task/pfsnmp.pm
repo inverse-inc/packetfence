@@ -485,18 +485,189 @@ sub handleDot11DeauthenticationTrap {
 
 =head2 handleSecureMacAddrViolationTrap
 
+handle a secureMacAddrViolation trap for a switch
+
 =cut
 
 sub handleSecureMacAddrViolationTrap {
-    my ($self, $switch, $trap) = @_;
-}
+    my ($self, $switch, $trap, $role_obj) = @_;
+    my $trapType = $trap->{trapType};
+    my $switch_port = $trap->{trapIfIndex};
+    my $trapMac = $trap->{trapMac};
+    my $switch_id = $switch->{_id};
+    $logger->info("$trapType trap received on $switch_id ifIndex $switch_port for $trapMac");
 
-=head2 handleSecureDynamicMacAddrViolationTrap
+    # floating network devices handling
+    if (exists($ConfigFloatingDevices{$trapMac})) {
+        $logger->info(
+"The floating network device $trapMac has just plugged into $switch_id  port $switch_port. Enabling floating network device configuration on the port."
+        );
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
 
-=cut
+        my $result = $floatingDeviceManager->enablePortConfig($trapMac, $switch, $switch_port, \%switch_locker);
+        if (!$result) {
+            $logger->info(
+"An error occured while enabling floating network device configuration on port $switch_port. It may not work!"
+            );
+        }
 
-sub handleSecureDynamicMacAddrViolationTrap {
-    my ($self, $switch, $trap) = @_;
+        return;
+    }
+
+    # generic port security handling
+    my $secureMacAddrHashRef;
+    if (do_port_security(lc($trapMac), $switch, $switch_port, $trapType) eq 'stopTrapHandling') {
+        $logger->info(
+"MAC $trapMac is already authorized on $switch_id ifIndex $switch_port. Stopping secureMacAddrViolation trap handling here"
+        );
+        return;
+    }
+
+    # node_update_PF
+    my $isPhone = $switch->isPhoneAtIfIndex($trapMac, $switch_port);
+    node_update_PF($switch, $switch_port, $trapMac, $trap->{trapVlan}, $isPhone, $switch->isRegistrationMode());
+
+    # synchronize locationlog with secure MAC addresses found on switchport
+    my $locationlog_phone = locationlog_view_open_switchport_only_VoIP($switch_id, $switch_port);
+    my @locationlog_pc = locationlog_view_open_switchport_no_VoIP($switch_id, $switch_port);
+
+    # close locationlog entries for MACs which are not present any more on the switch as secure MACs
+    $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+    if (defined($locationlog_phone)
+        && (!exists($secureMacAddrHashRef->{$locationlog_phone->{'mac'}})))
+    {
+        # TODO: not so sure about this behavior
+        $logger->debug($locationlog_phone->{'mac'}
+              . " (VoIP phone) has open locationlog entry at $switch_id ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry"
+        );
+        locationlog_update_end_switchport_only_VoIP($switch_id, $switch_port);
+        $locationlog_phone = undef;
+    }
+    if (   (@locationlog_pc)
+        && (scalar(@locationlog_pc) > 0)
+        && (defined($locationlog_pc[0]->{'mac'}))
+        && (!exists($secureMacAddrHashRef->{$locationlog_pc[0]->{'mac'}})))
+    {
+        $logger->debug($locationlog_pc[0]->{'mac'}
+              . " has open locationlog entry at $switch_id ifIndex $switch_port but is not a secure MAC address. Closing locationlog entry"
+        );
+        locationlog_update_end_mac($locationlog_pc[0]->{'mac'});
+        @locationlog_pc = ();
+    }
+
+    # if trap came from a VoIP phone
+    if ($isPhone) {
+        my $voiceVlan = $switch->getVoiceVlan($switch_port);
+        $logger->debug("$trapType trap comes from VoIP $trapMac");
+
+        #is another VoIP phone authorized here ?
+        if (defined($locationlog_phone)) {
+            my $oldVoIPPhone = $locationlog_phone->{'mac'};
+            $logger->debug("VoIP $oldVoIPPhone has still open locationlog entry at $switch_id ifIndex $switch_port");
+            if (exists($secureMacAddrHashRef->{$oldVoIPPhone})) {
+                $logger->info(
+"de-authorizing VoIP $oldVoIPPhone at old location $switch_id ifIndex $switch_port VLAN $voiceVlan"
+                );
+                my $fakeMac = $switch->generateFakeMac(1, $switch_port);
+                $switch->authorizeMAC($switch_port, $oldVoIPPhone, $fakeMac, $voiceVlan, $voiceVlan);
+            }
+            $logger->debug(
+                "closing VoIP $oldVoIPPhone locationlog entry at $switch_id ifIndex $switch_port VLAN $voiceVlan");
+            locationlog_update_end_switchport_only_VoIP($switch_id, $switch_port);
+        }
+
+        #authorize MAC
+        my $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+        my $old_mac_to_remove    = undef;
+        foreach my $old_mac (keys %$secureMacAddrHashRef) {
+            my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
+            if ((grep({$_ == $voiceVlan} @{$secureMacAddrHashRef->{$old_mac}}) >= 1)
+                || $old_isPhone)
+            {
+                $old_mac_to_remove = $old_mac;
+            }
+        }
+        if (defined($old_mac_to_remove)) {
+            $logger->info(
+"authorizing VoIP $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port VLAN $voiceVlan"
+            );
+            $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $voiceVlan, $voiceVlan);
+        }
+        else {
+            $logger->info(
+                "authorizing VoIP $trapMac at new location $switch_id ifIndex $switch_port VLAN $voiceVlan");
+            $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $voiceVlan);
+        }
+
+        locationlog_synchronize($switch->{_id}, $switch->{_ip}, $switch->{_switchMac}, $switch_port, $voiceVlan,
+            $trapMac, $VOIP, $WIRED_SNMP_TRAPS);
+
+        # if trap came from a PC
+    }
+    else {
+        $logger->debug("$trapType trap comes from PC $trapMac");
+        if (   (@locationlog_pc)
+            && (defined($locationlog_pc[0]->{'mac'})))
+        {
+            my $oldPC = $locationlog_pc[0]->{'mac'};
+            $logger->debug("$oldPC has still open locationlog entry at $switch_id ifIndex $switch_port. Closing it");
+            locationlog_update_end_mac($oldPC);
+            $logger->info("authorizing $trapMac (old entry $oldPC) at new location $switch_id ifIndex $switch_port");
+            my $role = $role_obj->fetchRoleForNode({
+                    mac             => $trapMac,
+                    node_info       => node_attributes($trapMac),
+                    switch          => $switch,
+                    ifIndex         => $switch_port,
+                    connection_type => $WIRED_SNMP_TRAPS,
+                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+            my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
+            $switch->authorizeMAC($switch_port, $oldPC, $trapMac, $switch->getVlan($switch_port),
+                $correctVlanForThisNode);
+
+            #set the right VLAN
+            $logger->debug("setting correct VLAN for $trapMac at new location $switch_id ifIndex $switch_port");
+            $switch->setVlan($switch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
+        }
+        else {
+
+            #authorize MAC
+            my $secureMacAddrHashRef = $switch->getSecureMacAddresses($switch_port);
+            my $voiceVlan            = $switch->getVoiceVlan($switch_port);
+            my $old_mac_to_remove    = undef;
+            foreach my $old_mac (keys %$secureMacAddrHashRef) {
+                my $old_isPhone = $switch->isPhoneAtIfIndex($old_mac, $switch_port);
+                if (   (grep({$_ == $voiceVlan} @{$secureMacAddrHashRef->{$old_mac}}) == 0)
+                    && (!$old_isPhone))
+                {
+                    $old_mac_to_remove = $old_mac;
+                }
+            }
+            my $role = $role_obj->fetchRoleForNode({
+                    mac             => $trapMac,
+                    node_info       => node_attributes($trapMac),
+                    switch          => $switch,
+                    ifIndex         => $switch_port,
+                    connection_type => $WIRED_SNMP_TRAPS,
+                    profile         => pf::Portal::ProfileFactory->instantiate($trapMac)});
+            my $correctVlanForThisNode = $role->{vlan} || $switch->getVlanByName($role->{role});
+            if (defined($old_mac_to_remove)) {
+                $logger->info(
+"authorizing $trapMac (old entry $old_mac_to_remove) at new location $switch_id ifIndex $switch_port"
+                );
+                $switch->authorizeMAC($switch_port, $old_mac_to_remove, $trapMac, $switch->getVlan($switch_port),
+                    $correctVlanForThisNode);
+            }
+            else {
+                $logger->info("authorizing $trapMac at new location $switch_id ifIndex $switch_port");
+                $switch->authorizeMAC($switch_port, 0, $trapMac, 0, $correctVlanForThisNode);
+            }
+
+            #set the right VLAN
+            $logger->debug("setting correct VLAN for $trapMac at new location $switch_id ifIndex $switch_port");
+            $switch->setVlan($switch_port, $correctVlanForThisNode, \%switch_locker, $trapMac);
+        }
+    }
+
 }
 
 =head2 handleWirelessIPS
