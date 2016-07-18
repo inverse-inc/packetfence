@@ -3462,6 +3462,15 @@ sub TO_JSON {
     return \%data;
 }
 
+=item handleTrap
+
+A hook for switch specific trap handling
+If a true value is returned then the trap will be handled using the default logic.
+
+=cut
+
+sub handleTrap { 1 }
+
 =back
 
 =head1 AUTHOR
