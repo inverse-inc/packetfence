@@ -33,6 +33,7 @@ use pf::violation;
 use pf::node;
 use pf::util;
 use pf::Portal::ProfileFactory;
+use Cache::FileCache;
 our $traps_switchIfIndex_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitSwitchIfIndex'} );
 # Initialize a new cache for the actions taken if the traps limit has been reached
 our $traps_email_cache = new Cache::FileCache( {'namespace'=>'pfSetVlan_TrapsLimitEmail'} );
