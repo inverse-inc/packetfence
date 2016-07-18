@@ -33,3 +33,6 @@ workers=4
 #
 [queue pfdetect]
 workers=1
+
+[queue pfsnmp]
+workers=1
