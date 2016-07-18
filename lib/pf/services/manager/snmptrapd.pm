@@ -69,11 +69,11 @@ sub generateConfig {
 
         # grabbing only the username portion of the key
         my (undef, $username) = split(/ /, $user_key);
-        $tags{'authLines'} .= "authUser log $username priv\n";
+        $tags{'authLines'} .= "authUser execute,log $username priv\n";
     }
 
     foreach my $community ( sort keys %$snmp_communities ) {
-        $tags{'authLines'} .= "authCommunity log $community\n";
+        $tags{'authLines'} .= "authCommunity execute,log $community\n";
     }
 
     $tags{'template'} = "$conf_dir/snmptrapd.conf";
