@@ -1384,7 +1384,7 @@ sub services_status : Public {
 
 sub get_config_version :Public {
     my ($class) = @_;
-    return pf::cluster::get_config_version();
+    return { version => pf::cluster::get_config_version() };
 }
 
 =head2 set_config_version

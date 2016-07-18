@@ -33,6 +33,7 @@ use pf::constants;
 use Config::IniFiles;
 use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
+use POSIX qw(ceil);
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -430,6 +431,38 @@ sub get_config_version {
         return $FALSE;
     }
     return $result;
+}
+
+sub get_all_config_version {
+    my %results;
+    foreach my $server (@cluster_hosts) {
+        $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
+    }
+    return \%results;
+}
+
+sub handle_config_conflict {
+    my $servers_map = get_all_config_version();
+    my $versions_map = {};
+    while(my ($server, $version) = each(%$servers_map)){
+        $versions_map->{$version} //= [];
+        push @{$versions_map->{$version}}, $server;
+    }
+    my $version = get_config_version();
+
+    if(keys(%$versions_map) > 1) {
+        get_logger->warn("Current version is not the same as the one on all the other cluster servers.");
+        
+        # Can't quorum using 2 hosts
+        if(scalar(@cluster_hosts) > 2) {
+            my $half = (scalar(@cluster_hosts) / 2)
+            my $quorum = int($half) == $half ? $half + 1 : ceil($half);
+
+        }
+        else {
+
+        }
+    }
 }
 
 =head1 AUTHOR
