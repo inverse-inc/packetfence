@@ -25,7 +25,7 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE);
+use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE $REJECT_ROLE);
 use pf::config qw(
     $ROLES_API_LEVEL
     $management_network
@@ -2882,7 +2882,7 @@ sub handleRadiusDeny {
     my ($self, $args) =@_;
     my $logger = $self->logger();
 
-    if (defined($args->{'vlan'}) && $args->{'vlan'} eq "-1") {
+    if (( defined($args->{'vlan'}) && $args->{'vlan'} eq "-1" ) || ( defined($args->{'user_role'}) && $args->{'user_role'} eq $REJECT_ROLE )) {
         $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
         $self->disconnectRead();
         $self->disconnectWrite();
