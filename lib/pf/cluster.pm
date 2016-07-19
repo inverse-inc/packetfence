@@ -511,7 +511,6 @@ sub handle_config_conflict {
             }
         }
         else {
-            # TODO : check if only one of the server is running. In that case, don't do anything since its not possible to take the right decision with only one node up
             get_logger->info("Quorum not possible in 2 servers clusters. Most recent configuration will be selected.");
             goto SYNC_MOST_RECENT;
         }
