@@ -162,7 +162,7 @@ sub startService {
     }
     # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
     
-    if($cluster_enabled) {
+    if($cluster_enabled && $service eq 'pf') {
         pf::cluster::handle_config_conflict();
     }
 
