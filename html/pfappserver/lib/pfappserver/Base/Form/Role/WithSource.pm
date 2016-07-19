@@ -31,7 +31,9 @@ after 'process' => sub {
     my ($self) = @_;
 
     if(!$self->for_module->does('captiveportal::Role::MultiSource')) {
-        $self->field('source_id')->value($self->field('source_id')->value->[0]);
+        if(defined($self->field('source_id')->value) && ref($self->field('source_id')->value) eq "ARRAY") {
+            $self->field('source_id')->value($self->field('source_id')->value->[0]);
+        }
     }
 };
 
