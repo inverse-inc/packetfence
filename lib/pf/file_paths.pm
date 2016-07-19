@@ -114,6 +114,7 @@ our (
     $fingerbank_doc_file,
     $api_i18n_dir,
     $iptable_config_file
+    $radius_remote_config_file,
 );
 
 BEGIN {
@@ -204,6 +205,7 @@ BEGIN {
         $fingerbank_doc_file
         $api_i18n_dir
         $iptable_config_file
+        $radius_remote_config_file
     );
 }
 
@@ -319,6 +321,7 @@ $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf");
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_config_file = catfile($conf_dir, "iptables.conf");
+$radius_remote_config_file = catfile($conf_dir,"radius_remote.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';

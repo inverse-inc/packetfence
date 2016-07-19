@@ -1,0 +1,29 @@
+      <div class="modal fade hide" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Radius') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this Radius Remote server ?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Realm')  %]</h2>
+      <div class="alert alert-warning">
+        <strong>[% l('Warning!') %]</strong> [% l('Adding or removing a remote radius server requires to restart the radiusd service to be effective.') %]
+      </div>
+
+      [% INCLUDE config/radiusremote/list.tt %]
+
+      [%- IF can_access("RADIUSREMOTE_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Radius server') %]</a>
+      </div>
+      [%- END %]

@@ -863,6 +863,8 @@ fi
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
                         /usr/local/pf/conf/I18N/api/*
+%config(noreplace)      /usr/local/pf/conf/radius_remote.conf
+                        /usr/local/pf/conf/radius_remote.conf.example
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES

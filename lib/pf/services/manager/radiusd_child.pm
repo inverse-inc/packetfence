@@ -1118,6 +1118,45 @@ sub generate_radiusd_mschap {
 
 }
 
+sub generate_radiusd_remote {
+    my ($self) = @_;
+    my %tags;
+
+$tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+
+    $tags{'members'} = '';
+    $tags{'config'} ='';
+
+    $tags{'members'} .= <<"EOT";
+home_server pf01.cluster {
+        type = auth+acct
+        ipaddr = $remote_radius_ip
+        src_ipaddr = $tags{'management_ip'}
+        port = $remote_radius_port
+        secret = $remote_radius_secret
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+EOT
+            $tags{'home_server'} .= <<"EOT";
+        home_server =  pf01.cluster
+EOT
+        parse_template( \%tags, "$conf_dir/radiusd/packetfence-remote", "$install_dir/raddb/sites-enabled/packetfence-remote" );
+
+        %tags = ();
+        $tags{'template'} = "$conf_dir/radiusd/remote.conf";
+        $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
+        $tags{'pid_file'} = "$var_dir/run/radiusd-remote.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-remote.sock";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/remote.conf");
+
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

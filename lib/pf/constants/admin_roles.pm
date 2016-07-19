@@ -205,6 +205,10 @@ our @ADMIN_ACTIONS = qw(
     SYSLOG_READ
     SYSLOG_UPDATE
 
+    RADIUSREMOTE_READ
+    RADIUSREMOTE_CREATE
+    RADIUSREMOTE_UPDATE
+    RADIUSREMOTE_DELETE
 );
 
 # Actions not allowed in readonly mode

@@ -36,6 +36,7 @@
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/portal_modules.conf.defaults
 /usr/local/pf/conf/rsyslog.conf.tt
+/usr/local/pf/conf/radius_remote.conf
 /usr/local/pf/conf/redis_queue.conf
 /usr/local/pf/conf/redis_ntlm_cache.conf
 /usr/local/pf/conf/domain.conf
