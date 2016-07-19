@@ -549,7 +549,7 @@ sub update_fingerbank_data {
 }
 
 sub cluster_check {
-    my $cache = pf::CHI->new(namespace => 'fingerbank');
+    my $cache = pf::CHI->new(namespace => 'clustering');
     my $last_conflict_at = $cache->get('last_config_healthy_timestamp');
     my $last_config_checked = $cache->get('last_config_checked_timestamp');
 
