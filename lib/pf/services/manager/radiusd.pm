@@ -50,7 +50,8 @@ sub _build_radiusdManagers {
     $listens->{acct} = {
       launcher => $self->launcher . " -n acct"
     };
-    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
+    my @switches = tied(%pf::SwitchFactory::SwitchConfig)->values();
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } @switches) {
         $listens->{cli} = {
           launcher => $self->launcher . " -n cli"
         };

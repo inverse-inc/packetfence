@@ -175,7 +175,8 @@ sub generate_radiusd_acctconf {
 sub generate_radiusd_cliconf {
     my ($self) = @_;
     my %tags;
-    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
+    my @switches = tied(%pf::SwitchFactory::SwitchConfig)->values();
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } @switches) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
         $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
