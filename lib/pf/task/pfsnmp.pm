@@ -272,12 +272,17 @@ handle a mac trap sent by a switch
 
 sub handleMacTrap {
     my ($self, $switch, $trap, $role_obj) = @_;
+    my $trapVlan = $trap->{trapVlan};
+    my $switch_port = $trap->{trapIfIndex};
     my $trapOperation = $trap->{trapOperation};
+    my $switch_id = $switch->{_id};
+    if( $trapVlan ne $switch->getVlan($switch_port) ) {
+        $logger->info( "$trapOperation trap for VLAN $trapVlan on $switch_id ifIndex $switch_port. This port is no longer in this VLAN. Flush the trap");
+        return;
+    }
+
     my $trapMac = $trap->{trapMac};
     my $trapType = $trap->{trapType};
-    my $trapVlan = $trap->{trapVlan};
-    my $switch_id = $switch->{_id};
-    my $switch_port = $trap->{trapIfIndex};
     my $mac  = lc($trapMac);
     my $vlan = $trapVlan;
     my $wasInline;
