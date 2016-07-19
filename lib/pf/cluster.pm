@@ -453,23 +453,26 @@ sub get_all_config_version {
         }
     }
 #    $results{caca} = $results{'pf-julien.inverse'};
-    return \%results;
-}
 
-sub handle_config_conflict {
-    my $quorum_version;
-
-    my $version = get_config_version();
-    my $servers_map = get_all_config_version();
-
-    # We make sure we have the right version for this node (in case webservices is currently dead)
-    $servers_map->{$host_id} = $version;
+    my $servers_map = \%results;
 
     my $versions_map = {};
     while(my ($server, $version) = each(%$servers_map)){
         $versions_map->{$version} //= [];
         push @{$versions_map->{$version}}, $server;
     }
+
+    return ($servers_map, $versions_map);
+}
+
+sub handle_config_conflict {
+    my $quorum_version;
+
+    my $version = get_config_version();
+    my ($servers_map, $versions_map) = get_all_config_version();
+
+    # We make sure we have the right version for this node (in case webservices is currently dead)
+    $servers_map->{$host_id} = $version;
 
     local @cluster_hosts = @cluster_hosts;
 #    push @cluster_hosts, "caca";
