@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::file_paths qw(
-    $radiusremote_config_file
+    $radius_remote_config_file
 );
 extends 'pf::ConfigStore';
 
