@@ -1380,6 +1380,8 @@ sub services_status : Public {
 
 =head2 get_config_version
 
+Get the configuration version
+
 =cut
 
 sub get_config_version :Public {
@@ -1388,6 +1390,8 @@ sub get_config_version :Public {
 }
 
 =head2 set_config_version
+
+Set the configuration version
 
 =cut
 
@@ -1399,6 +1403,12 @@ sub set_config_version :Public {
 
     return pf::cluster::set_config_version($postdata{version});
 }
+
+=head2 sync_config_as_master
+
+Sync the configuration to the cluster members using this server as the master
+
+=cut
 
 sub sync_config_as_master :Public {
     my ($class) = @_;
