@@ -1,31 +1,53 @@
-package pf::ConfigStore::RadiusRemote;
+package pfconfig::namespaces::config::RadiusRemote;
+
 =head1 NAME
 
-pf::ConfigStore::RadiusRemote
-Store RadiusRemote configuration
+pfconfig::namespaces::config::RadiusRemote
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::RadiusRemote
+pfconfig::namespaces::config::RadiusRemote
+
+This module creates the configuration hash associated to radius_remote.conf
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
+
+use pfconfig::namespaces::config;
 use pf::file_paths qw(
-    $radiusremote_config_file
+    $radius_remote_config_file
 );
-extends 'pf::ConfigStore';
 
-sub configFile { $radius_remote_config_file };
+use base 'pfconfig::namespaces::config';
 
-sub pfconfigNamespace {'config::RadiusRemote'}
+sub init {
+    my ($self) = @_;
+    $self->{file}              = $radius_remote_config_file;
 
+}
 
-__PACKAGE__->meta->make_immutable;
+sub build_child {
+    my ($self) = @_;
+
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    }
+
+    return \%tmp_cfg;
+
+}
+
+sub cleanup_after_read {
+    my ( $self, $id, $item ) = @_;
+    $self->expand_list( $item, $self->{expandable_params} );
+}
+
 
 =head1 AUTHOR
 
@@ -55,4 +77,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
 
