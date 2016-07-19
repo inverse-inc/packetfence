@@ -59,6 +59,11 @@ sub _build_radiusdManagers {
     if ( @cli_switches > 0 ) {
         $listens->{cli} = {};
     }
+    if (scalar keys %pf::config::ConfigRadiusRemote) {
+        $listens->{remote} = {
+          launcher => $self->launcher . " -n remote"
+        };
+    }
 
     my @managers = map {
         my $id       = $_;
