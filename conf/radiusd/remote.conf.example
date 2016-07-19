@@ -4,15 +4,8 @@ pidfile = %%pid_file%%
 $INCLUDE radiusd.conf
 
 listen {
-    ipaddr = 127.0.0.1
-    port = 18120
-    type = auth
-    virtual_server = pf-remote
-}
-
-listen {
     ipaddr = %%management_ip%%
-    port = 0
+    port = 1816
     type = auth
     virtual_server = pf-remote
 }
