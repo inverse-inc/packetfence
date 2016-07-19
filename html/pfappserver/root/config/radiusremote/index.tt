@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('Realm')  %]</h2>
+      <h2>[% l('Radius Remote')  %]</h2>
       <div class="alert alert-warning">
         <strong>[% l('Warning!') %]</strong> [% l('Adding or removing a remote radius server requires to restart the radiusd service to be effective.') %]
       </div>
