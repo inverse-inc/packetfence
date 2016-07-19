@@ -548,6 +548,12 @@ sub update_fingerbank_data {
 
 }
 
+=head2 cluster_check
+
+Check the health state of the cluster and manage any configuration conflict between members
+
+=cut
+
 sub cluster_check {
     my $cache = pf::CHI->new(namespace => 'clustering');
     my $last_conflict_at = $cache->get('last_config_healthy_timestamp');
