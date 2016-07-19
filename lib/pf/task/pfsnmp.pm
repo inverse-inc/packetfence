@@ -496,10 +496,17 @@ handle a secureMacAddrViolation trap for a switch
 
 sub handleSecureMacAddrViolationTrap {
     my ($self, $switch, $trap, $role_obj) = @_;
-    my $trapType = $trap->{trapType};
     my $switch_port = $trap->{trapIfIndex};
-    my $trapMac = $trap->{trapMac};
+    my $trapType = $trap->{trapType};
     my $switch_id = $switch->{_id};
+    # continue only if security traps are available on this port
+    if (!$switch->isPortSecurityEnabled($switch_port)) {
+        $logger->info("$trapType trap on $switch_id ifIndex $switch_port. Port Security is no " .
+                                          "longer configured on the port. Flush the trap");
+        return;
+    }
+
+    my $trapMac = $trap->{trapMac};
     $logger->info("$trapType trap received on $switch_id ifIndex $switch_port for $trapMac");
 
     # floating network devices handling
