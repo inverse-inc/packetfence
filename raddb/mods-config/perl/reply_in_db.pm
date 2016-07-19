@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_STATE, %RAD_CONFIG);
+our (%RAD_REQUEST, %RAD_REPLY, %RAD_CHECK, %RAD_STATE, %RAD_CONFIG, %RAD_REQUEST_PROXY_REPLY);
 
 use constant {
 	RLM_MODULE_REJECT   => 0, # immediately reject the request

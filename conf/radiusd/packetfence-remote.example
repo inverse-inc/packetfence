@@ -44,7 +44,8 @@ server pf-remote {
             else {
                 noop
             }
-        attr_filter.packetfence_post_auth
+            attr_filter.packetfence_post_auth
+        }
 
         authorize {
                 update control {
