@@ -35,19 +35,11 @@ sub build_child {
 
     my %tmp_cfg = %{ $self->{cfg} };
 
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
-    }
+    $self->cleanup_whitespaces( \%tmp_cfg );
 
     return \%tmp_cfg;
 
 }
-
-sub cleanup_after_read {
-    my ( $self, $id, $item ) = @_;
-    $self->expand_list( $item, $self->{expandable_params} );
-}
-
 
 =head1 AUTHOR
 
