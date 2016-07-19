@@ -559,7 +559,9 @@ sub cluster_check {
     my $last_conflict_at = $cache->get('last_config_healthy_timestamp');
     my $last_config_checked = $cache->get('last_config_checked_timestamp');
 
-    my $conflict_resolution_threshold = 300;
+    my $conflict_resolution_threshold = $Config{active_active}{conflict_resolution_threshold};
+
+    get_logger->info("Using $conflict_resolution_threshold resolution threshold");
     
     my $interval = $Config{'maintenance'}{'cluster_check_interval'};
     my ($servers_map, $version_map) = pf::cluster::get_all_config_version();

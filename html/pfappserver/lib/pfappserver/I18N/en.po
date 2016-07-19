@@ -7138,6 +7138,10 @@ msgstr "Shared KEY"
 msgid "active_active.virtual_router_id"
 msgstr "Virtual Router ID"
 
+# conf/documentation.conf
+msgid "active_active.conflict_resolution_threshold"
+msgstr "Conflict resolution threshold"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
 msgid "add"
@@ -8194,6 +8198,10 @@ msgstr "Violation Maintenance Interval"
 # conf/documentation.conf
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
+
+# conf/documentation.conf
+msgid "maintenance.cluster_check_interval"
+msgstr "Cluster Check Interval"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
