@@ -14,6 +14,7 @@ use WWW::Curl::Easy;
 use Moose;
 use JSON::MaybeXS;
 use pf::log;
+use pf::error qw(is_success is_error);
 extends 'captiveportal::DynamicRouting::Module::Authentication::OAuth';
 
 has '+source' => (isa => 'pf::Authentication::Source::InstagramSource');
@@ -66,7 +67,7 @@ sub get_token {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ( $curl_return_code != 0 && $response_code != 200) {
+    if ( $curl_return_code != 0 || is_error($response_code)) {
         get_logger->warn("OAuth2: failed to contact the provider, please try again.") ;
         pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
         $self->app->flash->{error} = "OAuth2 Error: Failed to contact the provider";
@@ -115,7 +116,7 @@ sub handle_callback {
 
     my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
 
-    if ($curl_return_code == 0 && $response_code == 200) {
+    if ($curl_return_code == 0 && is_success($response_code)) {
         my $info = $self->_decode_response($response_body); 
         my $pid = $self->_extract_username_from_response($info); 
         

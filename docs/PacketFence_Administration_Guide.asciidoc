@@ -489,7 +489,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Google (OAuth 2)
 * Instagram (OAuth 2)
 * Kerberos
-* Kickbox (OAuth 2)
+* Kickbox
 * LDAP
 * LinkedIn (OAuth 2)
 * Null
