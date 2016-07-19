@@ -418,6 +418,8 @@ sub increment_config_version {
 
 =head2 set_config_version
 
+Set the configuration version for this server
+
 =cut
 
 sub set_config_version {
@@ -426,6 +428,8 @@ sub set_config_version {
 }
 
 =head2 get_config_version
+
+Get the configuration version for this server
 
 =cut
 
@@ -441,6 +445,14 @@ sub get_config_version {
     return $result;
 }
 
+=head2 get_all_config_version
+
+Get the configuration version from all the cluster members
+
+Returns a map of the format {SERVER_NAME => VERSION, SERVER_NAME_2 => VERSION, ...} and one of the format {VERSION1 => [SERVER_NAME_1, SERVER_NAME_2], VERSION2 => [SERVER_NAME_3]}
+
+=cut
+
 sub get_all_config_version {
     my %results;
     foreach my $server (@cluster_hosts) {
@@ -452,7 +464,6 @@ sub get_all_config_version {
             $results{$server} = 0;
         }
     }
-#    $results{caca} = $results{'pf-julien.inverse'};
 
     my $servers_map = \%results;
 
@@ -465,6 +476,14 @@ sub get_all_config_version {
     return ($servers_map, $versions_map);
 }
 
+=head2 handle_config_conflict
+
+Detect and handle any configuration conflict between the cluster members
+
+See the Clustering guide for details on the algorithm
+
+=cut
+
 sub handle_config_conflict {
     my $quorum_version;
 
@@ -474,9 +493,6 @@ sub handle_config_conflict {
     # We make sure we have the right version for this node (in case webservices is currently dead)
     $servers_map->{$host_id} = $version;
 
-    local @cluster_hosts = @cluster_hosts;
-#    push @cluster_hosts, "caca";
-        
 
     if(keys(%$versions_map) == 2 && (defined($versions_map->{0}) && @{$versions_map->{0}} > 0)) {
         get_logger->warn("Not all servers were checked for the configuration version but all alive ones are running the same version.");
@@ -559,6 +575,12 @@ sub handle_config_conflict {
 
 }
 
+=head2 stores_to_sync
+
+Returns the list of ConfigStore to synchronize between cluster members
+
+=cut
+
 sub stores_to_sync {
     my @tmp_stores = __PACKAGE__->_all_stores();
 
@@ -573,6 +595,12 @@ sub stores_to_sync {
 
     return \@stores;
 }
+
+=head2 sync_config_as_master
+
+Synchronize the configuration to other cluster members using this server as the master
+
+=cut
 
 sub sync_config_as_master {
     pf::cluster::sync_storages(pf::cluster::stores_to_sync());
