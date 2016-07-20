@@ -15,7 +15,7 @@ Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
-The firmware allow only for VLAN enforcement at the moment. We cannot push the predfine policies from PacketFence.
+The firmware allow only for VLAN enforcement at the moment. We cannot push the predefined policies from PacketFence.
 
 =head2 Cannot reevaluate the access
 
