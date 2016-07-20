@@ -496,7 +496,6 @@ sub handle_config_conflict {
 
     if(keys(%$versions_map) == 2 && (defined($versions_map->{0}) && @{$versions_map->{0}} > 0)) {
         get_logger->warn("Not all servers were checked for the configuration version but all alive ones are running the same version.");
-        return;
     }
     elsif(keys(%$versions_map) > 1) {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
@@ -534,11 +533,8 @@ sub handle_config_conflict {
             goto SYNC_MOST_RECENT;
         }
     }
-    else {
-        get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
-        return;
-    }
 
+    get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
     # If we're here, we should return as the gotos below should be called directly
     return;
 
