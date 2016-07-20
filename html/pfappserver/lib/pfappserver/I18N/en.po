@@ -4505,13 +4505,23 @@ msgstr ""
 msgid "RADIUS"
 msgstr ""
 
+# html/pfappserver/root/admin/auditing.tt
+# html/pfappserver/root/admin/auditing_option82.tt
+# html/pfappserver/root/admin/auditing_radius_log.tt
+msgid "RADIUS Audit Log"
+msgstr "RADIUS Audit Log"
+
+# html/pfappserver/root/admin/auditing.tt
+msgid "RADIUS Log"
+msgstr "RADIUS Log"
+
 # html/pfappserver/root/config/filters/index.tt
 msgid "RADIUS filters"
-msgstr ""
+msgstr "RADIUS filters"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "RADIUS server certificate path"
-msgstr ""
+msgstr "RADIUS server certificate path"
 
 # pf::admin_roles (Actions groups)
 msgid "RADIUS_LOG"
@@ -4545,16 +4555,6 @@ msgstr "RADIUS Realms - Update"
 # pf::admin_roles (Actions)
 msgid "REPORTS"
 msgstr "Reports"
-
-# html/pfappserver/root/admin/auditing.tt
-# html/pfappserver/root/admin/auditing_option82.tt
-# html/pfappserver/root/admin/auditing_radius_log.tt
-msgid "Radius Audit Log"
-msgstr ""
-
-# html/pfappserver/root/admin/auditing.tt
-msgid "Radius Log"
-msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 msgid "Raise the non compliance violation the number of critical issues is greater or equal than this. 0 deactivates it"

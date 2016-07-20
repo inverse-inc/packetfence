@@ -30,8 +30,8 @@
       <div class="row-fluid">
         <div class="tab-content"> 
             <ul class="nav nav-tabs">
-                <li><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_radius_log')) %]">Radius Audit Log</a></li>
-                <li class="active"><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_option82')) %]">Node Option82</a></li>
+                <li><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_radius_log')) %]">[% l('RADIUS Audit Log') %]</a></li>
+                <li class="active"><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_option82')) %]">[% l('DHCP Option 82') %]</a></li>
             </ul>
         </div>
       </div>
