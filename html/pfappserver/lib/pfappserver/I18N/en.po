@@ -3717,9 +3717,13 @@ msgstr "Open Wednesday"
 msgid "Operating Systems"
 msgstr ""
 
+# pf::node_option82 (Node Options 82)
+msgid "Option 82 Vlan"
+msgstr "Node Options 82 VLAN"
+
 # html/pfappserver/root/admin/auditing_option82.tt
 msgid "Option82"
-msgstr ""
+msgstr "Option82"
 
 # conf/documentation.conf (services.carbon-cache_order)
 # conf/documentation.conf (services.carbon-relay_order)
@@ -7493,6 +7497,10 @@ msgstr "Request timeout"
 msgid "cell_phone"
 msgstr "cell phone"
 
+# pf::node_option82 (Node Options 82)
+msgid "circuit_id_string"
+msgstr "Circuit ID String"
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "close_action"
 msgstr "Close a violation"
@@ -7930,6 +7938,10 @@ msgstr ""
 msgid "higher or equals"
 msgstr ""
 
+# pf::node_option82 (Node Options 82)
+msgid "host"
+msgstr "Host"
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "hours"
 msgstr ""
@@ -8099,6 +8111,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source (common_attributes)
 # pf::config (Inline triggers)
+# pf::node_option82 (Node Options 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "mac"
 msgstr "MAC Address"
@@ -8355,6 +8368,10 @@ msgstr "Apple Devices"
 msgid "mobileiron"
 msgstr "MobileIron"
 
+# pf::node_option82 (Node Options 82)
+msgid "module"
+msgstr "Module"
+
 # conf/documentation.conf (interface.type options)
 msgid "monitor"
 msgstr ""
@@ -8552,6 +8569,10 @@ msgstr "OpenVAS"
 msgid "opswat"
 msgstr "OPSWAT"
 
+# pf::node_option82 (Node Options 82)
+msgid "option82_switch"
+msgstr "Option82 Switch"
+
 # html/pfappserver/root/admin/users.tt
 msgid "organization"
 msgstr ""
@@ -8603,6 +8624,7 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
+# pf::node_option82 (Node Options 82)
 msgid "port"
 msgstr "Port"
 
@@ -9365,6 +9387,7 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
+# pf::node_option82 (Node Options 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "switch_id"
 msgstr "Switch ID"
