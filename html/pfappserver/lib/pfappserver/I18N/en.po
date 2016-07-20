@@ -7424,6 +7424,10 @@ msgstr "Status URI only on production network"
 msgid "captive_portal.wispr_redirection"
 msgstr "WISPr redirection capabilities"
 
+# conf/documentation.conf
+msgid "captive_portal.request_timeout"
+msgstr "Request timeout"
+
 # html/pfappserver/root/admin/users.tt
 msgid "cell_phone"
 msgstr "cell phone"
