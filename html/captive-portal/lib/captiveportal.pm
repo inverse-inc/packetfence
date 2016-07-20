@@ -44,8 +44,7 @@ use pf::config::cached;
 use pf::CHI;
 use CHI::Driver::SubNamespace;
 
-use pfconfig::cached_scalar;
-tie our $portal_request_timeout, 'pfconfig::cached_scalar', 'resource::portal_request_timeout';
+use pf::config qw(%Config);
 
 extends 'Catalyst';
 
@@ -55,7 +54,8 @@ around 'handle_request' => sub {
     # Request timeout handling
     eval {
         local $SIG{ALRM} = sub { die "Timeout reached" };
-        alarm $portal_request_timeout;
+        alarm $Config{captive_portal}{request_timeout};
+        sleep 2;
         @res = $self->$orig(@args);
         alarm 0;
     };

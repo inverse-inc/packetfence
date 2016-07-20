@@ -43,9 +43,6 @@ use pf::Portal::Session;
 use pf::web::externalportal;
 use pf::inline;
 
-use pfconfig::cached_scalar;
-tie our $portal_request_timeout, 'pfconfig::cached_scalar', 'resource::portal_request_timeout';
-
 =head1 SUBROUTINES
 
 =over
@@ -65,7 +62,7 @@ sub handler {
     my $res;
     eval {
         local $SIG{ALRM} = sub { die "Timeout reached" };
-        alarm $portal_request_timeout;
+        alarm $Config{captive_portal}{request_timeout};
         $res = _handler(@_);
         alarm 0;
     };
