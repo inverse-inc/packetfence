@@ -59,6 +59,7 @@ use fingerbank::Config;
 use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
+use Time::HiRes qw(time);
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -556,6 +557,7 @@ Check the health state of the cluster and manage any configuration conflict betw
 
 sub cluster_check {
     my $cache = pf::CHI->new(namespace => 'clustering');
+    my $now = time;
     my $last_conflict_at = $cache->get('last_config_healthy_timestamp');
     my $last_config_checked = $cache->get('last_config_checked_timestamp');
 
@@ -568,13 +570,13 @@ sub cluster_check {
 
     # Making sure we have all available data for the decision and that there are multiple versions detected
     if(defined($last_conflict_at) && defined($last_config_checked) && keys(%$version_map) > 1) { 
-        my $last_conflict_interval = time - $last_conflict_at;
-        my $last_config_checked_interval = time - $last_config_checked;
+        my $last_conflict_interval = $now - $last_conflict_at;
+        my $last_config_checked_interval = $now - $last_config_checked;
         
         # If we haven't checked the state in the last 2 intervals, we'll ignore any conflicts and get the latest state
         if($last_config_checked_interval > 2*$interval) {
             get_logger->info("Cluster config state hasen't been checked for too long (last was : $last_config_checked_interval). Will consider config healthy for this iteration");
-            $cache->set('last_config_healthy_timestamp', time);
+            $cache->set('last_config_healthy_timestamp', $now);
         }
         elsif($last_conflict_at > $conflict_resolution_threshold) {
             get_logger->info("Configuration is unhealthy since $conflict_resolution_threshold seconds. Will attempt to resolve the conflict");
@@ -583,9 +585,9 @@ sub cluster_check {
     }
     else {
         get_logger->info("All cluster members are running the same configuration version");
-        $cache->set('last_config_healthy_timestamp', time);
+        $cache->set('last_config_healthy_timestamp', $now);
     }
-    $cache->set('last_config_checked_timestamp', time);
+    $cache->set('last_config_checked_timestamp', $now);
 }
 
 =head1 AUTHOR
