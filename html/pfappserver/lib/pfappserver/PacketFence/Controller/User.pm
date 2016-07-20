@@ -62,6 +62,9 @@ sub simple_search :Local :Args() :AdminRole('USERS_READ') {
     my ( $self, $c ) = @_;
     $c->stash($c->request->params);
     $self->_list_items( $c, 'User' );
+    if($c->request->param('export')) { 
+        $c->stash->{current_view} = "CSV";
+    }
 }
 
 =head2 after _list_items
@@ -383,6 +386,11 @@ sub advanced_search :Local :Args() :AdminRole('USERS_READ') {
         roles => $roles,
         violations => $violations,
     );
+
+    if($c->request->param('export')) { 
+        $c->stash->{current_view} = "CSV";
+    }
+
     $c->response->status($status);
 }
 

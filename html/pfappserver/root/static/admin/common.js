@@ -4,6 +4,7 @@
  * - config/authentication.js
  * - config/users.js
  */
+
 function updateAction(type, keep_value) {
     var action = type.val();
     var value = type.next();
@@ -213,6 +214,51 @@ function updateDynamicRowsAfterRemove(table) {
             tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
         }
     }
+}
+
+jQuery.fn.extend({
+  setBindId : function() {
+    return this.each(function() {
+      var o = this;
+      // Ensure we don't bind the search twice by recording which IDs we've already set it up on
+      // The ID is generated and assigned to a data tag to make sure duplicate HTML ids don't break this flow even though they aren't valid
+      if(!$(o).attr('data-do-bind-id')) {
+        var gen_id = $("<a></a>").uniqueId().attr('id');
+        $(o).attr('data-do-bind-id', gen_id);
+      } 
+    });
+  },
+  /* 
+   * Ensures that the function passes in parameter will only be executed once for an element of the DOM 
+   * Useful to bind click events when objects load without double affecting the event to existing elements
+   *
+   */
+  doOnce : function(eventId, func) {
+    if(!$.pfBindedEvents) $.pfBindedEvents = {};
+    if(!$.pfBindedEvents[eventId]) $.pfBindedEvents[eventId] = {};
+
+    return this.each(function() {
+      var o = this;
+      $(o).setBindId();
+      if($.pfBindedEvents[eventId][$(o).attr('data-do-bind-id')]) {
+        return;
+      }
+      else {
+        $.pfBindedEvents[eventId][$(o).attr('data-do-bind-id')] = true;
+        $.proxy(func, this)();
+      }
+    });
+  },
+});
+
+function bindExportCSV() {
+  var btnClass = '.exportCSVBtn';
+  $(btnClass).doOnce(btnClass, function(){
+    var o = this;
+    $(o).click(function() {
+      window.location = $(o).attr('data-export-url')+'?'+$($(o).attr('data-export-form')).serialize()+"&export=export";
+    });
+  });
 }
 
 function updateExtendedDurationExample(group) {
@@ -700,6 +746,7 @@ $(function () { // DOM ready
     /* Update any extended duration examples when loading section */
     $('body').on('section.loaded', function(event) {
         updateExtendedDurationExample($('.extended-duration'));
+        bindExportCSV();
     });
 
     /* Update extended duration widget when changing parameters of the duration */
