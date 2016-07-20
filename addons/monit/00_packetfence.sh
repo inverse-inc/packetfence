@@ -9,6 +9,15 @@ if [ -z "$ALERT_EMAIL" ] || [ -z "$SUBJECT_NAME" ]; then
     exit 1;
 fi
 
+
+# OS specific binaries declarations
+if [ -e "/etc/debian_version" ]; then
+    FREERADIUS_BIN=freeradius
+else
+    FREERADIUS_BIN=radiusd
+fi
+
+
 cat > /etc/monit.d/packetfence.monit << EOF
 set mailserver localhost
 set alert $ALERT_EMAIL
@@ -108,12 +117,12 @@ check process packetfence-pfqueue with pidfile /usr/local/pf/var/run/pfqueue.pid
 
 check process packetfence-radiusd-acct with pidfile /usr/local/pf/var/run/radiusd-acct.pid
     group PacketFence
-    start program = "/usr/sbin/radiusd -d /usr/local/pf/raddb -n acct" with timeout 60 seconds
+    start program = "/usr/sbin/$FREERADIUS_BIN -d /usr/local/pf/raddb -n acct" with timeout 60 seconds
     stop program  = "/bin/kill /usr/local/pf/var/run/radiusd-acct.pid"
 
 check process packetfence-radiusd with pidfile /usr/local/pf/var/run/radiusd.pid
     group PacketFence
-    start program = "/usr/sbin/radiusd -d /usr/local/pf/raddb -n auth" with timeout 60 seconds
+    start program = "/usr/sbin/$FREERADIUS_BIN -d /usr/local/pf/raddb -n auth" with timeout 60 seconds
     stop program  = "/bin/kill /usr/local/pf/var/run/radiusd.pid"
     if failed host 127.0.0.1 port 18120 type udp protocol radius
         secret testing123

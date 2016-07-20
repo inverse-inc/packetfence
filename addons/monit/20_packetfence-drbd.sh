@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# OS specific binaries declarations
+if [ -e "/etc/debian_version" ]; then
+    FREERADIUS_BIN=freeradius
+else
+    FREERADIUS_BIN=radiusd
+fi
+
+
 cat >> /etc/monit.d/packetfence.monit << EOF
 
 
