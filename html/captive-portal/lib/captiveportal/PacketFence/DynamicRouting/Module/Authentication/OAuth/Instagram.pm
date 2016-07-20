@@ -161,7 +161,7 @@ Extract the username from the response of the provider
 
 sub _extract_username_from_response {
     my ($self, $info) = @_;
-    return $info->{data}{username};
+    return $info->{data}{username} . '@Instagram';
 }
 
 =head1 AUTHOR
