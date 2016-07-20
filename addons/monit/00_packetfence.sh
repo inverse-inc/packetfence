@@ -64,6 +64,7 @@ check process packetfence-redis-cache with pidfile /usr/local/pf/var/run/redis_c
     group PacketFence
     start program = "/sbin/service packetfence-redis-cache start" with timeout 60 seconds
     stop program  = "/sbin/service packetfence-redis-cache stop"
+    if failed host 127.0.0.1 port 6379 protocol redis then alert
 
 check process packetfence-dhcpd with pidfile /usr/local/pf/var/run/dhcpd.pid
     group PacketFence
@@ -132,6 +133,7 @@ check process packetfence-redis_queue with pidfile /usr/local/pf/var/run/redis_q
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service redis_queue start" with timeout 60 seconds
     stop program = "/usr/local/pf/bin/pfcmd service redis_queue stop"
+    if failed host 127.0.0.1 port 6380 protocol redis then alert
 
 EOF
 

@@ -17,6 +17,7 @@ check process packetfence-haproxy with pidfile /usr/local/pf/var/run/haproxy.pid
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service haproxy start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service haproxy stop"
+    if failed host 127.0.0.1 port 3306 protocol mysql then alert
 
 check process packetfence-keepalived with pidfile /usr/local/pf/var/run/keepalived.pid
     group PacketFence
