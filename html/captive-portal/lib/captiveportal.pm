@@ -55,7 +55,6 @@ around 'handle_request' => sub {
     eval {
         local $SIG{ALRM} = sub { die "Timeout reached" };
         alarm $Config{captive_portal}{request_timeout};
-        sleep 2;
         @res = $self->$orig(@args);
         alarm 0;
     };
