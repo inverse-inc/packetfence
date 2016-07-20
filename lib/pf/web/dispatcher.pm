@@ -59,6 +59,19 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 =cut
 
 sub handler {
+    my $res;
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm $Config{captive_portal}{request_timeout};
+        $res = _handler(@_);
+        alarm 0;
+    };
+    die $@ if($@);
+
+    return $res;
+}
+
+sub _handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = get_logger();
 

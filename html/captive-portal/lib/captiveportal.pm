@@ -44,7 +44,24 @@ use pf::config::cached;
 use pf::CHI;
 use CHI::Driver::SubNamespace;
 
+use pf::config qw(%Config);
+
 extends 'Catalyst';
+
+around 'handle_request' => sub {
+    my ($orig, $self, @args) = @_;
+    my @res;
+    # Request timeout handling
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm $Config{captive_portal}{request_timeout};
+        @res = $self->$orig(@args);
+        alarm 0;
+    };
+    die $@ if($@);
+    
+    return @res;
+};
 
 Catalyst::Request->meta->make_mutable;
 

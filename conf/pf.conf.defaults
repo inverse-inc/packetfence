@@ -881,6 +881,11 @@ network_detection_ip = 192.95.20.194
 # has been enabled.
 image_path = /common/network-access-detection.gif
 #
+# captive_portal.request_timeout
+#
+# The amount of seconds before a request times out in the captive portal
+request_timeout = 15
+#
 # captive_portal.loadbalancers_ip
 #
 # If the captive portal is put behind load-balancer(s) that act at Layer 7 
