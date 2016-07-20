@@ -61,7 +61,7 @@ Edit the repo file to disable ELRepo by default:
 
 Install DRBD v8.4:
 
-  yum install kmod-drbd84 --enablerepo=elrepo
+  # yum install kmod-drbd84 --enablerepo=elrepo
 
 
 DRBD Configuration and setup
@@ -73,7 +73,7 @@ Here we assume the name of the partition is mysql.
 
 Load the DRBD kernel module:
 
-  modprobe drbd
+  # modprobe drbd
 
 Edit `/etc/drbd.d/global_common.conf` with the following content:
 
@@ -181,7 +181,7 @@ MySQL Configuration
 First you need to ensure it will not start on boot : 
 
 ```
-chkconfig mysql off
+# chkconfig mysql off
 ```
 
 NOTE: By default MySQL puts its data in `/var/lib/mysql`. In order to replicate data between the two servers, we mount the DRBD partition under `/var/lib/mysql`. 
@@ -485,7 +485,7 @@ Here we assume the name of the partition is mysql.
 
 Load the DRBD kernel module:
 
-  modprobe drbd
+  # modprobe drbd
 
 Create the file  `/etc/drbd.d/global_common.conf`:
 
@@ -594,7 +594,7 @@ First you need to ensure it will not start on boot :
 
 
 ```
-systemctl disable mariadb
+# systemctl disable mariadb
 ```
 
 NOTE: By default MariaDB puts its data in `/var/lib/mysql`. In order to replicate data between the two servers, we mount the DRBD partition under `/var/lib/mysql`. 
