@@ -18,7 +18,7 @@
              <tr>
                [% header('details', l('Details')) | none %]
                [% FOREACH display_column IN display_columns  %]
-                 [% header(display_column, l(display_column)) | none %]
+                 [% header(display_column, l(headings.$display_column)) | none %]
                [% END %]
              </tr>
            </thead>

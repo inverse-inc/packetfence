@@ -7,7 +7,7 @@
         <tbody>
           [% FOREACH column IN columns %]
           <tr>
-            <td>[% l(column) %]</td>
+            <td>[% l(headings.$column) %]</td>
             <td>[% item.$column %]</td>
           </tr>
           [% END %]

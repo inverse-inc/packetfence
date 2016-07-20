@@ -70,11 +70,11 @@ sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
             $c->stash($result);
 
         }
-        use Data::Dumper;$c->log->info(Dumper($result));
     }
     $c->stash({
         columns => [sort @pf::node_option82::FIELDS],
         display_columns => [sort @pf::node_option82::FIELDS],
+        headings => \%pf::node_option82::HEADINGS,
     });
     $c->response->status($status);
 }
@@ -135,6 +135,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('AUDITING_READ
     $c->stash({
         columns => [sort @pf::node_option82::FIELDS],
         display_columns => [sort @pf::node_option82::FIELDS],
+        headings => \%pf::node_option82::HEADINGS,
     });
 }
 
