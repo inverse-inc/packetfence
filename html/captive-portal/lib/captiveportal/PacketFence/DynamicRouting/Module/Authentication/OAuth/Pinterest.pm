@@ -28,7 +28,6 @@ sub handle_callback {
 
     my $token = $self->get_token();
     return unless($token);
-    my $info = $self->get_client;
 
     # request a JSON response
 
@@ -39,7 +38,7 @@ sub handle_callback {
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
-    $curl->setopt(CURLOPT_URL, join("/", $self->source->{'protected_resource_url'},"?access_token=$token->{NOA_access_token}" ));
+    $curl->setopt(CURLOPT_URL, $self->source->{'protected_resource_url'} . "/?access_token=$token->{NOA_access_token}" );
 
     my $curl_return_code = $curl->perform;
 
@@ -89,7 +88,7 @@ Extract the username from the response of the provider
 
 sub _extract_username_from_response {
     my ($self, $info) = @_;
-    return $info->{data}{first_name};
+    return $info->{data}{first_name} . '@Pinterest';
 }
 
 =head1 AUTHOR

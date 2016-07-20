@@ -2207,7 +2207,7 @@ Also, LinkedIn requires a 'state' parameter for the authorization URL. If you mo
 
 Pinterest
 ^^^^^^^^^
-To use Pinterest, you also need an API code and a secret key.  To get one, go here: https://developers.pinterest.com/apps.  When you create your App, make sure you specify the following as the Redirect URLs:
+To use Pinterest, you also need an API code and a secret key.  To get one, go here: https://developers.pinterest.com/apps.  When you create your App, make sure you specify the following as the Redirect URL:
 https://YOUR_PORTAL_HOSTNAME/oauth2/callback
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
