@@ -1008,7 +1008,7 @@ When modifying the configuration through the administration interface, the confi
 
 A scheduled check runs on the management server (controlled through maintenance.cluster_check_interval) in order to validate if all servers are running the same configuration version.
 When the failed node(s) will come back online, that scheduled check will ensure that the new configuration is pushed on the new node(s).
-You can disable this check by setting maintenance.cluster_check_interval to 0 and restarting pfmon. In that case, you will need to manually resolve the conflict when the node(s) come back online by running `# /usr/local/pf/bin/cluster/sync --as-master` on the node you want to keep the configuration of.
+You can disable this check by setting maintenance.cluster_check_interval to 0 and restarting pfmon. In that case, you will need to manually resolve the conflict when the node(s) come back online by running `/usr/local/pf/bin/cluster/sync --as-master` on the node you want to keep the configuration of.
 
 General facts about conflict resolution:
 
