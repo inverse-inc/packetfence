@@ -1002,7 +1002,7 @@ You should now be able to connect to the dashboard on the following URL : http:/
 Configuration conflict handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NOTE: It is not recommended to perform onfiguration while one or more node of the cluster is experiencing issues. Still, should that be the case, this section will explain the conflict resolution that will occur when the nodes will reattach together.
+NOTE: It is not recommended to perform configuration while one or more node of the cluster is experiencing issues. Still, should that be the case, this section will explain the conflict resolution that will occur when the nodes will reattach together.
 
 When modifying the configuration through the administration interface, the configuration will be automatically synchronized to all the nodes that are online. In the event that one or more nodes cannot be updated, an error message will be displayed with affected nodes.
 
