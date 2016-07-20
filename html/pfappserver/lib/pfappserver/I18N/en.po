@@ -1418,6 +1418,12 @@ msgstr ""
 msgid "DHCP Fingerprint ID"
 msgstr ""
 
+# html/pfappserver/root/admin/auditing.tt
+# html/pfappserver/root/admin/auditing_option82.tt
+# html/pfappserver/root/admin/auditing_radius_log.tt
+msgid "DHCP Option 82"
+msgstr "DHCP Option 82"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
@@ -4540,6 +4546,8 @@ msgstr "RADIUS Realms - Update"
 msgid "REPORTS"
 msgstr "Reports"
 
+# html/pfappserver/root/admin/auditing.tt
+# html/pfappserver/root/admin/auditing_option82.tt
 # html/pfappserver/root/admin/auditing_radius_log.tt
 msgid "Radius Audit Log"
 msgstr ""
