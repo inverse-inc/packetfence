@@ -62,9 +62,15 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 =cut
 
 sub handler {
-    alarm $portal_request_timeout;
-    my $res = _handler(@_);
-    alarm 0;
+    my $res;
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm $portal_request_timeout;
+        $res = _handler(@_);
+        alarm 0;
+    };
+    die $@ if($@);
+
     return $res;
 }
 

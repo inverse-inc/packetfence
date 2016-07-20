@@ -51,10 +51,16 @@ extends 'Catalyst';
 
 around 'handle_request' => sub {
     my ($orig, $self, @args) = @_;
+    my @res;
     # Request timeout handling
-    alarm $portal_request_timeout;
-    my @res = $self->$orig(@args);
-    alarm 0;
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm $portal_request_timeout;
+        @res = $self->$orig(@args);
+        alarm 0;
+    };
+    die $@ if($@);
+    
     return @res;
 };
 
