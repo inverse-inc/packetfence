@@ -78,6 +78,7 @@ our %OPTIONS_FILTER = (
     OPTION_LQ_RELAY_DATA() => \&_parse_lq_relay_data,
     OPTION_LQ_CLIENT_LINK() => \&_parse_ipv6_list,
     OPTION_PANA_AGENT()     => \&_parse_ipv6_list,
+    OPTION_V6_LOST()        => \&_parse_client_fqdn,
 
 );
 

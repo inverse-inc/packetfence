@@ -148,6 +148,8 @@ use constant OPTION_CLT_TIME => 46;
 use constant OPTION_LQ_RELAY_DATA => 47;
 use constant OPTION_LQ_CLIENT_LINK => 48;
 
+use constant OPTION_V6_LOST => 51;
+
 
 =head1 AUTHOR
 
