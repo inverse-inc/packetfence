@@ -313,6 +313,7 @@ sub new {
         '_controllerPort'           => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
+        '_ExternalPortalEnforcement'=> 'disabled',    
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
         '_inlineTrigger'            => undef,
