@@ -1070,6 +1070,8 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt.example
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt
+                        /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
