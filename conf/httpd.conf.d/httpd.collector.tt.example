@@ -149,7 +149,6 @@ Listen [% vhost %]:[% port %]
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog [% install_dir %]/logs/[% name %].error
-    CustomLog [% install_dir %]/logs/[% name %].access combined env=!is_collectd
     <Location /mse/ >
         SetHandler modperl
         PerlResponseHandler pf::WebAPI::MSEHandler
