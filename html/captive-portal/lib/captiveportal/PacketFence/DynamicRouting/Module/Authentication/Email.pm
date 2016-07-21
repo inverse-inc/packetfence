@@ -60,6 +60,13 @@ sub do_email_registration {
     my $pid = $self->request_fields->{$self->pid_field};
     my $email = $self->request_fields->{email};
 
+    my ( $status, $status_msg ) = $source->authenticate($pid);
+    unless ( $status ) {
+        $self->app->flash->{error} = $status_msg;
+        $self->prompt_fields();
+        return;
+    }
+
     my %info;
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
     $info{'activation_timeout'} = normalize_time($source->{email_activation_timeout});

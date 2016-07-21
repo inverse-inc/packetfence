@@ -9,7 +9,11 @@ pf::Authentication::Source::EmailSource
 =cut
 
 use pf::Authentication::constants;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
+use pf::log;
+use pf::util;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -92,6 +96,29 @@ List of mandatory fields for this source
 sub mandatoryFields {
     return qw(email);
 }
+
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+    my ( $self, $username, $password ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $localdomain = $Config{'general'}{'domain'};
+
+    # Verify if allowed to use local domain
+    unless ( isenabled($self->allow_localdomain) ) {
+        if ( $username =~ /[@.]$localdomain$/i ) {
+            $logger->warn("Tried to authenticate using EmailSource with PID '$username' matching local domain '$localdomain' while 'allow_localdomain' is disabled");
+            return ($FALSE, $pf::constants::authentication::messages::LOCALDOMAIN_EMAIL_UNAUTHORIZED);
+        }
+    }
+
+    return $TRUE;
+}
+
 
 =head1 AUTHOR
 
