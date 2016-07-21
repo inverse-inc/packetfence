@@ -1,13 +1,12 @@
-package pf::Switch::Meraki::AP_http;
+package pf::Switch::Meraki::MR;
 
 =head1 NAME
 
-pf::Switch::Meraki::AP_http
+pf::Switch::Meraki::MR
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http module implements an object oriented interface to
-manage the external captive portal on Meraki access points
+Implement object oriented module to interact with Meraki MR network equipment
 
 =head1 STATUS
 
@@ -111,25 +110,27 @@ sub returnRadiusAccessAccept {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
 
-    my $violation = pf::violation::violation_view_top($args->{'mac'});
-    # if user is unregistered or is in violation then we reject him to show him the captive portal
-    if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
-        $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-        my $radius_reply_ref = {
-            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-            'Tunnel-Type' => $RADIUS::VLAN,
-            'Tunnel-Private-Group-ID' => -1,
-        };
-        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$status, %$radius_reply_ref];
-
+    if ( $self->{_ExternalPortalEnforcement} == $TRUE ) {
+        my $violation = pf::violation::violation_view_top($args->{'mac'});
+        # if user is unregistered or is in violation then we reject him to show him the captive portal
+        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
+            $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
+            my $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => -1,
+            };
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
+        else{
+            $logger->info("Returning ACCEPT");
+            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+            return [$status, %$radius_reply_ref];
+        }
     }
-    else{
-        $logger->info("Returning ACCEPT");
-        ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-        return [$status, %$radius_reply_ref];
-    }
 
+    return $self->SUPER::returnRadiusAccessAccept($args);
 }
 
 sub getAcceptForm {

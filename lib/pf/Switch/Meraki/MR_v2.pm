@@ -1,13 +1,12 @@
-package pf::Switch::Meraki::AP_http_V2;
+package pf::Switch::Meraki::MR_v2;
 
 =head1 NAME
 
-pf::Switch::Meraki::AP_http_V2
+pf::Switch::Meraki::MR_v2
 
 =head1 SYNOPSIS
 
-The pf::Switch::Meraki::AP_http_V2 module implements an object oriented interface to
-manage the external captive portal on Meraki access points
+Implement object oriented module to interact with Meraki MR (v2) network equipment
 
 =head1 STATUS
 
