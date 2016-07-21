@@ -30,7 +30,7 @@ Get the node extended data
 
 sub extended_node_get_data {
     my ($mac, $namespace) = @_;
-    my $redis = pf::Redis->new(server => 'localhost:6379');
+    my $redis = pf::Redis->new(server => '127.0.0.1:6379');
     my $json = JSON::MaybeXS->new;
     my ($text) = $redis->get("extended:${namespace}:${mac}");
     if (defined $text) {
