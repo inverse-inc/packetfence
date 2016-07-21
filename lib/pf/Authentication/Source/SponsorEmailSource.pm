@@ -8,9 +8,15 @@ pf::Authentication::Source::SponsorEmailSource
 
 =cut
 
-use pf::Authentication::constants;
-
 use Moose;
+
+use pf::Authentication::constants;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
+use pf::constants::authentication::messages;
+use pf::log;
+use pf::util;
+
 extends 'pf::Authentication::Source';
 with 'pf::Authentication::CreateLocalAccountRole';
 
@@ -83,6 +89,29 @@ List of mandatory fields for this source
 sub mandatoryFields {
     return qw(email sponsor);
 }
+
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+    my ( $self, $username, $password ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $localdomain = $Config{'general'}{'domain'};
+
+    # Verify if allowed to use local domain
+    unless ( isenabled($self->allow_localdomain) ) {
+        if ( $username =~ /[@.]$localdomain$/i ) {
+            $logger->warn("Tried to authenticate using SponsorEmailSource with PID '$username' matching local domain '$localdomain' while 'allow_localdomain' is disabled");
+            return ($FALSE, $pf::constants::authentication::messages::LOCALDOMAIN_EMAIL_UNAUTHORIZED);
+        }
+    }
+
+    return $TRUE;
+}
+
 
 =head1 AUTHOR
 
