@@ -31,7 +31,6 @@ The filter container field
 has_field 'filter' =>
   (
    type => 'DynamicTable',
-   'num_when_empty' => 2,
    'do_label' => 0,
    'sortable' => 1,
   );
@@ -89,6 +88,20 @@ sub update_fields {
 
     # Call the theme implementation of the method
     $self->SUPER::update_fields();
+}
+
+=head2 validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    if (@{$value->{filter}} == 0 && !exists $value->{advanced_filter} ) {
+        $self->field('filter')->add_error("A filter or an advanced filter must be specified");
+        $self->field('advanced_filter')->add_error("A filter or an advanced filter must be specified");
+    }
+    return 1;
 }
 
 
