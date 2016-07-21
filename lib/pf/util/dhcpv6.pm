@@ -387,7 +387,7 @@ sub _parse_reconf_msg {
 
 sub _parse_domain_list {
     my ($data) = @_;
-    my (@domains) = unpack("Z*", $data);
+    my @domains = map { _parse_domainname($_) } unpack("Z*", $data);
     return { domains => \@domains};
 }
 
@@ -424,7 +424,20 @@ sub _parse_ia_prefix {
 sub _parse_client_fqdn {
     my ($data) = @_;
     my ($flags, $fqdn) = unpack("c a*", $data);
-    return {flags => $flags, fqdn => $fqdn};
+    my $full = 0;
+    if ($fqdn =~ s/\0$//) {
+        $full = 1;
+    }
+    return {flags => $flags, fqdn => _parse_domainname($fqdn), full => $full };
+}
+
+=head2 _parse_domainname
+
+=cut
+
+sub _parse_domainname {
+    my ($data) = @_;
+    return join('.', unpack("(c/a*)*", $data));
 }
 
 
