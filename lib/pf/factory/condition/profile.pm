@@ -18,6 +18,7 @@ our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
 use pf::condition_parser qw(parse_condition_string);
+use pf::log;
 
 our %UNARY_OPS = (
     'NOT' => 'pf::condition::not',
@@ -60,6 +61,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'connection_sub_type' => {type => 'equals',        key  => 'last_connection_sub_type'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
+    'advanced'            => {type => 'advanced'},
 );
 
 sub modules {
@@ -73,7 +75,7 @@ sub modules {
 sub instantiate {
     my ($class, @args) = @_;
     my $condition;
-    my ($type,$data) = $class->getData(@args);
+    my ($type, $data) = $class->getData(@args);
     if ($data) {
         if($type eq 'couple_equals'){
             my ($value1, $value2) = split(/-/, $data->{value});
@@ -98,7 +100,10 @@ sub instantiate {
             my $c = pf::condition::time_period->new({value => $data->{value}});
             return $c;
         }
-        else{
+        elsif ($type eq 'advanced') {
+            return $class->instantiate_advanced($data->{value});
+        }
+        else {
             my $subclass = $class->getModuleName($type);
             $condition = $subclass->new($data);
             return pf::condition::key->new(key => $data->{key}, condition => $condition);
