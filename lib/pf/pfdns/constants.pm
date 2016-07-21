@@ -41,7 +41,7 @@ sub sources_domains {
         if($source->class eq 'billing' && $source->can('domains')){
             push(@domains, split(',',$source->{'domains'}));
         }
-        elsif ( ($classname eq 'pf::Authentication::Source::GoogleSource') || ($classname eq 'pf::Authentication::Source::GithubSource') || ($classname eq 'pf::Authentication::Source::FacebookSource') || ($classname eq 'pf::Authentication::Source::LinkedInSource') || ($classname eq 'pf::Authentication::Source::WindowsLiveSource') || ($classname eq 'pf::Authentication::Source::TwitterSource')) {
+        elsif ( ($classname eq 'pf::Authentication::Source::GoogleSource') || ($classname eq 'pf::Authentication::Source::GithubSource') || ($classname eq 'pf::Authentication::Source::FacebookSource') || ($classname eq 'pf::Authentication::Source::LinkedInSource') || ($classname eq 'pf::Authentication::Source::WindowsLiveSource') || ($classname eq 'pf::Authentication::Source::TwitterSource') || ($classname eq 'pf::Authentication::Source::InstagramSource')) {
             push(@domains, split(',',$source->{'domains'}));
 
         }

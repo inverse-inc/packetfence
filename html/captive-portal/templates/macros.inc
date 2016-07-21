@@ -46,6 +46,8 @@ END %]
      svgIcon(id='github-icon',size=size);
    CASE ['module-authentication-oauth-google', 'google'];
      svgIcon(id='google-icon',size=size);
+   CASE ['module-authentication-oauth-instagram', 'instagram'];
+     svgIcon(id='instagram-icon',size=size);
    CASE ['module-authentication-oauth-linkedin', 'linkedin'];
      svgIcon(id='linkedin-icon',size=size);
    CASE ['module-authentication-oauth-twitter', 'twitter'];

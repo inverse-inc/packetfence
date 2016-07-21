@@ -487,7 +487,9 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Facebook (OAuth 2)
 * Github (OAuth 2)
 * Google (OAuth 2)
+* Instagram (OAuth 2)
 * Kerberos
+* Kickbox
 * LDAP
 * LinkedIn (OAuth 2)
 * Null
@@ -1870,8 +1872,6 @@ client tlrs2.eduroam.us {
 
 
 
-
-
 Secondly, modify the list of domains and proxy servers in /usr/local/pf/raddb/proxy.conf. You will need to define each of your domains as well as the DEFAULT domain. The DEFAULT realm will apply to any client that attempts to authenticate with a realm that is not otherwise defined in proxy.conf and will be proxied to the eduroam servers.
 
 Define one or more home servers (servers to which eduroam requests should be proxied).
@@ -2022,7 +2022,7 @@ realm ntdomain {
 ----
 
 Fingerbank integration
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger violations based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
 
@@ -2125,7 +2125,7 @@ OAuth2 Authentication
 
 NOTE: OAuth2 authentication does not work with Webauth enforcement
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -2179,6 +2179,17 @@ Of course, replace the hostname with the values from `general.hostname` and `gen
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
 Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
+
+Instagram
+^^^^^^^^^
+To use Instagram, you also need an API code and a secret key.  To get one, go here: https://www.instagram.com/developer/clients/manage/.  When you create your App, make sure you specify the following as the Website URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Instagram as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 LinkedIn
 ^^^^^^^^
