@@ -99,12 +99,19 @@ sub do_sponsor_registration {
     my %info;
     get_logger->info("registering  guest through a sponsor");
 
-    return unless($self->_validate_sponsor($self->request_fields->{sponsor}));
-
     my $source = $self->source;
     my $pid = $self->request_fields->{$self->pid_field};
     my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
+
+    my ( $status, $status_msg ) = $source->authenticate($pid);
+    unless ( $status ) {
+        $self->app->flash->{error} = $status_msg;
+        $self->prompt_fields();
+        return;
+    }
+
+    return unless($self->_validate_sponsor($self->request_fields->{sponsor}));
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
