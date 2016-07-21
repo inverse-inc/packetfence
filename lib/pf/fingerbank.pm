@@ -63,6 +63,9 @@ our %ACTION_MAP_CONDITION = (
     },
 );
 
+use fingerbank::Config;
+$fingerbank::Config::CACHE = cache();
+
 =head1 METHODS
 
 =head2 process
