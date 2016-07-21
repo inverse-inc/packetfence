@@ -25,7 +25,51 @@ Enhancements
 Bug Fixes
 +++++++++
 
+Version 6.2.1 released on 2016-07-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Enhancements
++++++++++
+
+* Forbid trace mode in Apache default configuration
+* Improved validation of portal modules configuration
+
+Bug Fixes
++++++++++
+
+* Fixed Debian 7 failing to start httpd.admin
+* Fixed missing Metadefender configuration section
+* Fixed missing parameter for fetchVlanForNode in pfsetvlan
+* Fixed incorrect NAS-Port use for RADIUS CoA on Cisco WLCs
+* Fix incorrect domain handling in Active/Active
+
+
+Version 6.2.0 released on 2016-07-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Added missing index to radacct table (fixes #1586)
+* Fixed searching nodes for "all" devices (fixes #1584)
+* Fixed invalid destination URL parsing
+* Fixed handling of provisioner return code in violations
+* Fixed binding of IP addresses in Active/Active mode
+* Fixed cluster status page issues with pid files
+* Fixed missing person lookup when using 802.1x autoregistration
+* Fixed permission issue on logrotation
+* Fixed invalid i18n of MAC address in node location view (fixes #1591)
+* Fixed L2 cache write error of new switches namespaces
+
+
+Version 6.1.1 released on 2016-06-22
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed missing schema version insert in database upgrade script
+* Fixed too short CA cert validity in raddb/certs/passwords.mk
 
 Version 6.1.0 released on 2016-06-21
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

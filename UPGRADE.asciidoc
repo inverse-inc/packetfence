@@ -68,11 +68,33 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
-Upgrading from a version prior to 6.1.0
+Upgrading from a version prior to 6.2.1
 ---------------------------------------
 
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
+Changes have been made to the httpd.admin configuration.
+Make sure you copy the conf/httpd.conf.d/httpd.admin.tt.example file over conf/httpd.conf.d/httpd.admin.tt.
+If you customized that file in any way, you will have to merge the changes.
+
+Restart the httpd.admin process once that is done by running 
+  /usr/local/pf/bin/pfcmd service httpd.admin restart
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.1).
+
+Upgrading from a version prior to 6.2.0
+---------------------------------------
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 6.1 schema to 6.2.
+
+To upgrade the database schema, run the following command: 
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.1.0-6.2.0.sql
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.0).
+
+
+Upgrading from a version prior to 6.1.0
+---------------------------------------
 
 Significant changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the 6.0 schema to 6.1.
@@ -80,6 +102,9 @@ An SQL upgrade script has been provided to upgrade the database from the 6.0 sch
 To upgrade the database schema, run the following command: 
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-6.0.0-6.1.0.sql
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.1.0).
+
 
 Dynamically created local secret
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -90,8 +115,6 @@ Changes to LinkedIn source
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A change to the authorize URL of LinkedIn was made. Make sure to change the 'API Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
-
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.1.0).
 
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
