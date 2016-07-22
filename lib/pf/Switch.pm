@@ -3220,6 +3220,23 @@ sub getRelayAgentInfoOptRemoteIdSub {
     return undef;
 }
 
+=item externalPortalEnforcement
+
+Evaluate wheter or not external portal enforcement is available on requested network equipment
+
+=cut
+
+sub externalPortalEnforcement {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return $TRUE if ( $self->supportsExternalPortal && isenabled($self->{_ExternalPortalEnforcement}) );
+
+    $logger->info("External portal enforcement either not supported '" . $self->supportsExternalPortal . "' or not configured '" . $self->{_ExternalPortalEnforcement} . "' on network equipment '" . $self->{_id} . "'");
+    return $FALSE;
+}
+
+
 =back
 
 =head1 AUTHOR
