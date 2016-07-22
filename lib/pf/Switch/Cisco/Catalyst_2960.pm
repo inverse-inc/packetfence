@@ -633,7 +633,7 @@ sub parseExternalPortalRequest {
 
     # Cisco Catalyst 2960 uses external portal session ID handling process
     my $uri = $r->uri;
-    $uri =~ /.*sid(.*[^\/])/;
+    return unless ($uri =~ /.*sid(.*[^\/])/);
     my $session_id = $1;
 
     my $locationlog = pf::locationlog::locationlog_get_session($session_id);
