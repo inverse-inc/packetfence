@@ -232,7 +232,7 @@ sub execute {
     my ($self) = @_;
     get_logger->trace(sub{"Executing ".$self->id});
     $self->app->current_module_id($self->id);
-    if($self->parent){
+    if($self->parent && $self->parent->can("current_module")){
         $self->parent->current_module($self->id);
     }
 
