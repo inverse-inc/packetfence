@@ -1025,6 +1025,38 @@ Now restart haproxy and iptables in order to complete the configuration
 
 You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
 
+Configuration conflict handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NOTE: It is not recommended to perform configuration while one or more node of the cluster is experiencing issues. Still, should that be the case, this section will explain the conflict resolution that will occur when the nodes will reattach together.
+
+When modifying the configuration through the administration interface, the configuration will be automatically synchronized to all the nodes that are online. In the event that one or more nodes cannot be updated, an error message will be displayed with affected nodes.
+
+A scheduled check runs on the management server (controlled through maintenance.cluster_check_interval) in order to validate if all servers are running the same configuration version.
+When the failed node(s) will come back online, that scheduled check will ensure that the new configuration is pushed on the new node(s).
+You can disable this check by setting maintenance.cluster_check_interval to 0 and restarting pfmon. In that case, you will need to manually resolve the conflict when the node(s) come back online by running `/usr/local/pf/bin/cluster/sync --as-master` on the node you want to keep the configuration of.
+
+General facts about conflict resolution:
+
+ * If the configuration is not pushed to at least half of the servers of your cluster, when the failed nodes will come back online, they will have quorum on the previous configuration and the one they are running will be pushed to all the servers.
+ * In a two node cluster, the most recent configuration is always selected when resolving a conflict.
+ * In a two node cluster, no decision is taken unless the peer server has its webservices available.
+
+Going deeper in the conflict handling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The section below will explain with more details, the steps that are taken in order to take the decision of which server should be declared as the master when one or more servers have conflicting configuration version.
+
+The first step is to get the configuration version from each server through a webservice call.
+
+The results are then organized by version identifier. Should all alive servers run the same version, the state is considered as healthy and nothing happens.
+
+Then, should there be more than one version identifier across the alive servers, the algorithm validates that there are at least 2 servers **configured** in the cluster. If there aren't, then the most recent version is pushed on the peer node.
+
+After that, the algorithm looks at which version is on the most servers. In the event that the dead servers are in higher number than the alive ones, the most recent version is taken. Otherwise, the version that is present on the most servers will be selected.
+
+When pushing a version to the other servers, if the current version has the most recent version or is part of the majority (depending on which push strategy was defined above), then he will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that he pushes its configuration to its peers.
+
 Unsupported features in active/active
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

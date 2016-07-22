@@ -9,6 +9,7 @@ pf::cmd::pf::cache add documentation
 
 Namespaces:
 
+  clustering
   configfilesdata
   configfiles
   httpd.admin

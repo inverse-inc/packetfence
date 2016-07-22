@@ -26,10 +26,22 @@ use NetAddr::IP;
 use Socket;
 use pf::file_paths qw(
     $cluster_config_file
+    $config_version_file
 );
 use pf::util;
 use pf::constants;
+use pf::constants::cluster qw(@FILES_TO_SYNC);
 use Config::IniFiles;
+use File::Slurp qw(read_file write_file);
+use Time::HiRes qw(time);
+use POSIX qw(ceil);
+
+use Module::Pluggable
+  'search_path' => [qw(pf::ConfigStore)],
+  'sub_name'    => '_all_stores',
+  'require'     => 1,
+  ;
+
 
 use Exporter;
 our ( @ISA, @EXPORT );
@@ -305,7 +317,7 @@ sub sync_storages {
     my $apiclient = pf::api::jsonrpcclient->new();
     foreach my $store (@$stores){
         eval {
-            print "Synching storage : $store\n";
+            get_logger->info("Synching storage : $store");
             my $cs = $store->new;
             my $pfconfig_namespace = $cs->pfconfigNamespace;
             my $config_file = $cs->configFile;
@@ -394,6 +406,201 @@ sub call_server {
     require pf::api::jsonrpcclient;
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $ConfigCluster{$cluster_id}->{management_ip});
     return $apiclient->call(@args);
+}
+
+=head2 increment_config_version
+
+=cut
+
+sub increment_config_version {
+    return set_config_version(time);
+}
+
+=head2 set_config_version
+
+Set the configuration version for this server
+
+=cut
+
+sub set_config_version {
+    my ($ver) = @_;
+    return write_file($config_version_file, $ver);
+}
+
+=head2 get_config_version
+
+Get the configuration version for this server
+
+=cut
+
+sub get_config_version {
+    my $result;
+    eval {
+        $result = read_file($config_version_file);
+    };
+    if($@) {
+        get_logger->error("Cannot read $config_version_file to get the current configuration version.");
+        return $FALSE;
+    }
+    return $result;
+}
+
+=head2 get_all_config_version
+
+Get the configuration version from all the cluster members
+
+Returns a map of the format {SERVER_NAME => VERSION, SERVER_NAME_2 => VERSION, ...} and one of the format {VERSION1 => [SERVER_NAME_1, SERVER_NAME_2], VERSION2 => [SERVER_NAME_3]}
+
+=cut
+
+sub get_all_config_version {
+    my %results;
+    foreach my $server (@cluster_hosts) {
+        eval {
+            $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
+        };
+        if($@) {
+            get_logger->error("Failed to get the config version for $server");
+            $results{$server} = 0;
+        }
+    }
+
+    my $servers_map = \%results;
+
+    my $versions_map = {};
+    while(my ($server, $version) = each(%$servers_map)){
+        $versions_map->{$version} //= [];
+        push @{$versions_map->{$version}}, $server;
+    }
+
+    return ($servers_map, $versions_map);
+}
+
+=head2 handle_config_conflict
+
+Detect and handle any configuration conflict between the cluster members
+
+See the Clustering guide for details on the algorithm
+
+=cut
+
+sub handle_config_conflict {
+    my $quorum_version;
+
+    my $version = get_config_version();
+    my ($servers_map, $versions_map) = get_all_config_version();
+
+    # We make sure we have the right version for this node (in case webservices is currently dead)
+    $servers_map->{$host_id} = $version;
+
+
+    if(keys(%$versions_map) == 2 && (defined($versions_map->{0}) && @{$versions_map->{0}} > 0)) {
+        get_logger->warn("Not all servers were checked for the configuration version but all alive ones are running the same version.");
+    }
+    elsif(keys(%$versions_map) > 1) {
+        get_logger->warn("Current version is not the same as the one on all the other cluster servers");
+        
+        # Can't quorum using 2 hosts
+        if(scalar(@cluster_hosts) > 2) {
+            my $half = (scalar(@cluster_hosts) / 2);
+            my $quorum = int($half) == $half ? $half + 1 : ceil($half);
+
+            my $servers_count = 0;
+            # Figure out which servers have the quorum on the version ID
+            while(my ($version, $servers) = each(%$versions_map)) {
+                if (scalar(@$servers) > $servers_count) {
+                    $servers_count = scalar(@$servers);
+                    $quorum_version = $version;
+                }
+            }
+
+            # Ensuring they have quorum and that its not the dead servers that have quorum (through the version not being 0)
+            if ($quorum_version == 0) {
+                get_logger->warn("There are more dead servers than alive ones with the same version. Most recent configuration will be selected.");
+                goto SYNC_MOST_RECENT;
+            }
+            elsif($servers_count >= $quorum) {
+                get_logger->info("Quorum found between servers : ".join(',', @{$versions_map->{$quorum_version}}));
+                goto SYNC_QUORUM;
+            }
+            else {
+                get_logger->warn("Failed to find quorum in the cluster. Most recent configuration will be selected.");
+                goto SYNC_MOST_RECENT;
+            }
+        }
+        else {
+            get_logger->info("Quorum not possible in 2 servers clusters. Most recent configuration will be selected.");
+            goto SYNC_MOST_RECENT;
+        }
+    }
+
+    get_logger->info("All servers running the same configuration version. (".join(',', keys(%$servers_map)).") have been checked.");
+    # If we're here, we should return as the gotos below should be called directly
+    return;
+
+    SYNC_MOST_RECENT:
+
+    my $latest = [sort(keys(%$versions_map))]->[-1];
+
+    if($latest == $version) {
+        get_logger->info("This server is part of the nodes that are at the latest version. Synching from this node as master.");
+        sync_config_as_master();
+    }
+    else {
+        # pick the first server of the ones that are at that version and remotely call the sync on it
+        my $server = $versions_map->{$latest}->[0];
+        get_logger->info("Using $server from the servers holding running the latest version to sync as the master.");
+        call_server($server, 'sync_config_as_master');
+    }
+
+    return;
+
+    SYNC_QUORUM:
+
+    if($quorum_version == $version) {
+        get_logger->info("This server is part of the servers that have the quorum. Synching from this node as master.");
+        sync_config_as_master();
+    }
+    else {
+        my $server = $versions_map->{$quorum_version}->[0];
+        get_logger->info("Using $server from the servers holding quorum to sync as the master.");
+        call_server($server, 'sync_config_as_master');
+    }
+
+    return;
+
+}
+
+=head2 stores_to_sync
+
+Returns the list of ConfigStore to synchronize between cluster members
+
+=cut
+
+sub stores_to_sync {
+    my @tmp_stores = __PACKAGE__->_all_stores();
+
+    my @ignored = qw(pf::ConfigStore::Group pf::ConfigStore::Wrix pf::ConfigStore::Interface pf::ConfigStore::Role::ValidGenericID pf::ConfigStore::Hierarchy);
+
+    my @stores;
+
+    foreach my $store (@tmp_stores){
+        next if ($store ~~ @ignored);
+        push @stores, $store;
+    }
+
+    return \@stores;
+}
+
+=head2 sync_config_as_master
+
+Synchronize the configuration to other cluster members using this server as the master
+
+=cut
+
+sub sync_config_as_master {
+    pf::cluster::sync_storages(pf::cluster::stores_to_sync());
+    pf::cluster::sync_files(\@FILES_TO_SYNC);
 }
 
 =head1 AUTHOR

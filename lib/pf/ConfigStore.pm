@@ -22,6 +22,7 @@ use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
+use pf::constants;
 
 =head1 FIELDS
 
@@ -422,13 +423,19 @@ sub commit {
         $error = $@;
         get_logger->error($error);
     }
-    unless($result) {
-        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
-        $self->rollback();
-    }
 
     if($result){
-        ($result,$error) = $self->commitPfconfig;
+        if(pf::cluster::increment_config_version()) {
+            ($result,$error) = $self->commitPfconfig;
+        }
+        else {
+            $result = $FALSE;
+            $error = "Can't increment configuration version.";
+        }
+    }
+    else {
+        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
+        $self->rollback();
     }
 
     return ($result, $error);

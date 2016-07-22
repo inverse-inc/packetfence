@@ -73,6 +73,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_S
 use pf::services;
 use List::MoreUtils qw(part any true all);
 use pf::constants::services qw(JUST_MANAGED INCLUDE_START_DEPENDS_ON INCLUDE_STOP_DEPENDS_ON);
+use pf::cluster;
 
 my $logger = get_logger();
 
@@ -159,6 +160,12 @@ sub startService {
             _doStart($manager);
         }
     }
+    # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
+    
+    if($cluster_enabled && $service eq 'pf') {
+        pf::cluster::handle_config_conflict();
+    }
+
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
