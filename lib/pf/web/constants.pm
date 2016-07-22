@@ -193,7 +193,7 @@ This URL should point to a module in pf::Switch that can extract the mac or ip o
 =cut
 
 my @components_url =  _clean_urls_match_ext_url();
-foreach (@components_url) { s{([^/])$}{$1} };
+foreach (@components_url) { s{([^/])$}{$1(?:\$|\/)} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
