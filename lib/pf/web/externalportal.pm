@@ -98,6 +98,10 @@ sub handle {
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
+    unless ( defined($switch_params) ) {
+        $logger->error("Error in parsing external portal request from switch module");
+        return $FALSE;
+    }
     %params = %{ merge(\%params, $switch_params) };
     
     $logger->debug(sub { use Data::Dumper; "Handling external portal request using the following parameters: " . Dumper(%params) });
