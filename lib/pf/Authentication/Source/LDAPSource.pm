@@ -201,15 +201,6 @@ sub _connect {
       next TRYSERVER;
     }
 
-    # try TLS if required, return undef if it fails
-    if ( $self->{'encryption'} eq TLS ) {
-      my $mesg = $connection->start_tls();
-      if ( $mesg->code() ) {
-          $logger->error("[$self->{'id'}] ".$mesg->error());
-          $pf::StatsD::statsd->increment("${timer_stat_prefix}.error.count" );
-          return undef;
-      }
-    }
 
     $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
     return ( $connection, $LDAPServer, $LDAPServerPort );
