@@ -17,7 +17,7 @@
 
       <h2>[% l('Syslog Parsers') %]</h2>
       <div class="alert alert-warning">
-        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect service.') %]
+        <strong>[% l('Warning!') %]</strong> [% l('Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service.') %]
       </div>
 
       [% INCLUDE config/pfdetect/list.tt %]

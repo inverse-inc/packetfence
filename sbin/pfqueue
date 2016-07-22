@@ -34,6 +34,7 @@ BEGIN {
 
 use pf::file_paths qw($var_dir);;
 use pf::util;
+use pf::constants qw($TRUE $FALSE);
 use pf::config::pfqueue;
 use pf::services::util;
 use pf::db;
@@ -45,6 +46,8 @@ use pf::client;
 pf::client::setClient("pf::api::can_fork");
 use threads;
 use pf::factory::task;
+use pf::services::manager::pfdetect;
+
 
 
 # initialization
@@ -116,6 +119,9 @@ Register all tasks
 sub register_tasks {
     foreach my $queue_config (@{$ConfigPfqueue{queues}} ) {
         my $name = $queue_config->{name};
+        if (skip_queue($name)) {
+            next;
+        }
         my $worker = $queue_config->{workers};
         foreach (1 .. $worker) {
             register_task("Queue:$name",\&process_queue, {  queue_name => "Queue:$name"});
@@ -385,6 +391,21 @@ sub get_consumer {
         $logger->error($@);
     }
     return $consumer;
+}
+
+=head2 skip_queue
+
+
+
+=cut
+
+sub skip_queue {
+    my ($name) = @_;
+    if ($name eq 'pfdetect') {
+        my $manger = pf::services::manager::pfdetect->new;        
+        return $manger->isManaged ? $FALSE : $TRUE;
+    }
+    return $FALSE;
 }
 
 =head1 AUTHOR
