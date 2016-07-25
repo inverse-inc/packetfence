@@ -36,6 +36,7 @@
                 </dl>
               </div>
             </div>
+            [% form.field('advanced_filter').render | none %]
           [% END -%]
           <div class="control-group">
             <label class="control-label" for="sources">[% l('Sources') %]</label>

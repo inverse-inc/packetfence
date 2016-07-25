@@ -23,6 +23,9 @@ use pf::log;
 use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::Redis;
+use pf::config qw(%Config);
+use JSON::MaybeXS;
 
 use constant NODE => 'node';
 
@@ -1363,4 +1366,3 @@ USA.
 =cut
 
 1;
-

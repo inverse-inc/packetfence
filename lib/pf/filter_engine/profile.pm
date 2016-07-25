@@ -34,6 +34,9 @@ sub BUILDARGS {
         next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
+        if ($profile->{'advanced_filter'} ) {
+            push @conditions, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});
+        }
         my $condition;
         #If there is only one condition no need to wrap it in an any or all condition
         if (@conditions == 1) {

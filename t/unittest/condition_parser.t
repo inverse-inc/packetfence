@@ -37,16 +37,24 @@ BEGIN {
         ['a | b | c',  ['OR',  'a', 'b', 'c']],
         ['a | b & c', ['OR', 'a', ['AND', 'b', 'c']]],
         ['(a | b & c) && (d | e)', ['AND', ['OR', 'a', ['AND', 'b', 'c']], ['OR', 'd', 'e']]],
-        ['a'   => 'a'],
-        ['(a)' => 'a'],
-        ['((a))'          => 'a'],
-        ['( ( a ) )     ' => 'a'],
-        ['!a' => ['NOT', 'a']],
-        ['!!a' => ['NOT', ['NOT', 'a']]],
-        ['!(a && b)'      => ['NOT', ['AND', 'a', 'b']]],
+        ['a', 'a'],
+        ['(a)', 'a'],
+        ['((a))', 'a'],
+        ['( ( a ) )     ', 'a'],
+        ['!a', ['NOT', 'a']],
+        ['!!a', ['NOT', ['NOT', 'a']]],
+        ['!(a && b)',  ['NOT', ['AND', 'a', 'b']]],
+        ['a == b', ['==', 'a', 'b']],
+        ['a.x == b', ['==', 'a.x', 'b']],
+        ['a.x == "b"', ['==', 'a.x', 'b']],
+        ['a.x == "b\""', ['==', 'a.x', 'b"']],
+        ['a.x == "b\\\\"', ['==', 'a.x', 'b\\']],
+        ['a == ""', ['==', 'a', '']],
+        ['a == b && c == d', ['AND', ['==', 'a', 'b'], ['==', 'c', 'd']]],
+        ['a == b && (c == d || c == e)', ['AND', ['==', 'a', 'b'], ['OR', ['==', 'c', 'd'],['==', 'c', 'e']]]],
     );
 
-    @INVALID_STRINGS = ('(a', '(a) b', '(a;) && b',);
+    @INVALID_STRINGS = ('(a', '(a) b', '(a;) && b', ' a == "');
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS);
 }
@@ -69,14 +77,14 @@ for my $test (@INVALID_STRINGS) {
 
 sub test_valid_string {
     my ($string, $expected) = @_;
-    my ($array,$msg) = parse_condition_string($string);
-    is_deeply($array, $expected, "Check if '$string' is valid");
+    my ($array, $msg) = parse_condition_string($string);
+    is_deeply($expected, $array, "Check if '$string' is valid");
 }
 
 sub test_invalid_string {
     my ($string) = @_;
     my ($array,$msg) = parse_condition_string($string);
-    is(undef,$array, "Check if '$string' invalid");
+    is(undef, $array, "Check if '$string' invalid");
 }
 
 =head1 AUTHOR
