@@ -30,9 +30,7 @@ use warnings;
 use base ('pf::Switch::Meraki');
 
 use pf::constants;
-use pf::config;
 use pf::util;
-use pf::node;
 
 =head1 SUBROUTINES
 
