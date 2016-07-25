@@ -394,6 +394,7 @@ Check if the device matches the configuration of the scanner
 
 sub match {
     my ($self, $os, $node_attributes) = @_;
+    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
     return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) ;
 }
 
