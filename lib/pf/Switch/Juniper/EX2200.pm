@@ -228,7 +228,7 @@ sub enableMABFloatingDevice{
         return;
     }
 
-    my $port = $self->getIfName($ifIndex);
+    my $port = $ifIndex;
 
     my $command_mac_limit = "set ethernet-switching-options secure-access-port interface $port mac-limit 16383";
     my $command_disconnect_flap = "delete protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
@@ -292,7 +292,7 @@ sub disableMABFloatingDevice{
         return;
     }
 
-    my $port = $self->getIfName($ifIndex);
+    my $port = $ifIndex;
 
     my $command_mac_limit = "delete ethernet-switching-options secure-access-port interface $port mac-limit";
     my $command_disconnect_flap = "set protocols dot1x authenticator interface $port mac-radius flap-on-disconnect";
