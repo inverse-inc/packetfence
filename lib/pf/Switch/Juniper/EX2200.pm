@@ -249,10 +249,14 @@ sub enableMABFloatingDevice{
 
     if ($@) {
         $logger->error("Unable to set mac limit for port $port: $@");
-        $session->close();
+        eval {
+            $session->close();
+        };
         return;
     }
-    $session->close();
+    eval {
+        $session->close();
+    };
     return 1;
 
 }
@@ -308,10 +312,14 @@ sub disableMABFloatingDevice{
 
     if ($@) {
         $logger->error("Unable to set mac limit for port $port: $@");
-        $session->close();
+        eval {
+            $session->close();
+        };
         return;
     }
-    $session->close();
+    eval {
+        $session->close();
+    };
 
     return 1;
 }
