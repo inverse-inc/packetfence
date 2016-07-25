@@ -5,7 +5,7 @@ log4perl.rootLogger = INFO, HTTPD_COLLECTOR
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
 
-### Logging for httpd.mse
+### Logging for httpd.collector
 log4perl.appender.HTTPD_COLLECTOR                              = Log::Log4perl::Appender::File
 log4perl.appender.HTTPD_COLLECTOR.filename                     = /usr/local/pf/logs/httpd.collector.log
 log4perl.appender.HTTPD_COLLECTOR.syswrite                     = 1
