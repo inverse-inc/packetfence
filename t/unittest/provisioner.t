@@ -26,7 +26,8 @@ use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $TEST_OS = 'Apple iPod, iPhone or iPad',
+our $TEST_OS = 'Apple iPod, iPhone or iPad';
+our $TEST_OS_FINGERBANK_ID = '193';
 
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
@@ -38,7 +39,7 @@ my $provisioner = new_ok(
         type     => 'autoconfig',
         category => [$TEST_CATEGORY],
         template => 'dummy',
-        oses     => [$TEST_OS],
+        oses     => [$TEST_OS_FINGERBANK_ID],
     }]
 );
 
@@ -48,7 +49,7 @@ ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't Match os 
 
 ok(!$provisioner->match(undef,$TEST_NODE_ATTRIBUTE),"Don't match undef os");
 
-ok(!$provisioner->match('Generic Android','not_matching'),"Don't Match os and category");
+ok(!$provisioner->match('Generic Android',{category => 'not_matching'}),"Don't Match os and category");
 
 $provisioner->category(['not_matching']);
 
