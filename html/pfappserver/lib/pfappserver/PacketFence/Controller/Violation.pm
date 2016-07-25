@@ -133,15 +133,15 @@ sub prettify_trigger {
         my ($status, $elem) = fingerbank::Model::DHCP6_Fingerprint->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
     }
-    elsif("dhcp6_enterprise"){
+    elsif($type eq "dhcp6_enterprise"){
         my ($status, $elem) = fingerbank::Model::DHCP6_Enterprise->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
     }
-    elsif("mac_vendor"){
+    elsif($type eq "mac_vendor"){
         my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
         $pretty_value = $elem->{name} if(is_success($status));
     }
-    elsif("user_agent"){
+    elsif($type eq "user_agent"){
         my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
     }
