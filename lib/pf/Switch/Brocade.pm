@@ -363,7 +363,7 @@ Return radius attributes to allow write access
 sub returnAuthorizeWrite {
    my ($self, $args) = @_;
    my $logger = $self->logger;
-   my $radius_reply_ref;
+   my $radius_reply_ref = {};
    my $status;
    $radius_reply_ref->{'Foundry-Privilege-Level'} = '0';
    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
@@ -384,7 +384,7 @@ Return radius attributes to allow read access
 sub returnAuthorizeRead {
    my ($self, $args) = @_;
    my $logger = $self->logger;
-   my $radius_reply_ref;
+   my $radius_reply_ref = {};
    my $status;
    $radius_reply_ref->{'Foundry-Privilege-Level'} = '5';
    $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
