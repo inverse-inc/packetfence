@@ -1,5 +1,5 @@
 OpenWrt CHAOS CALMER 15.05 with hostapd Quick Integration Guide
-=================================================================
+===============================================================
 :encoding: UTF-8
 :lang: en
 :doctype: book
@@ -128,7 +128,7 @@ config wifi-iface
         option ssid 'OpenWRT-Secure'
 ----
 
-In order to apply this configuration, when you are connected using SSH on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID. If you want to bug, you can use the command 'logread'.
+In order to apply this configuration, when you are connected using SSH on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID. If you want to debug, you can use the command 'logread'.
 
 NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
 
