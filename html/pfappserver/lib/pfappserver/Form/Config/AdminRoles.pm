@@ -18,6 +18,7 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
+use pf::Authentication::constants;
 
 has roles => ( is => 'rw', default => sub { [] } );
 
@@ -85,6 +86,18 @@ has_field 'allowed_access_levels' =>
              help => 'List of access levels available to the admin user. If none are provided then all access levels are available' },
   );
 
+has_field 'allowed_actions' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed actions',
+   options_method => \&options_allowed_actions,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add an action' },
+   tags => { after_element => \&help,
+             help => 'List of actions available to the admin user. If none are provided then all actions are available' },
+  );
+
 has_field 'allowed_unreg_date' =>
   (
    type => 'DatePicker',
@@ -142,6 +155,17 @@ sub options_roles {
     my $self = shift;
     my @roles = map { { label => $_->{name}, value => $_->{name} } } @{$self->form->roles || []};
     return \@roles;
+}
+
+=head2 options_allowed_actions
+
+TODO: documention
+
+=cut
+
+sub options_allowed_actions {
+    my ($self) = @_;
+    return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
 }
 
 =head2 ACCEPT_CONTEXT

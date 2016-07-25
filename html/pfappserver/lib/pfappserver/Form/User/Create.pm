@@ -16,6 +16,7 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 use List::Util qw(first);
 use List::MoreUtils qw(none);
 use pf::admin_roles;
+use pf::log;
 use DateTime;
 has '+source_type' => ( default => 'SQL' );
 
@@ -43,15 +44,23 @@ has_field 'expiration' =>
 #
 # The field substitution is made through JavaScript.
 
-has_block 'templates' =>
-  (
-   tag => 'div',
-   render_list => [
-                   map( { "${_}_action" } map( { @$_ } values %Actions::ACTIONS)), # the field are defined in the super class
-                  ],
-   attr => { id => 'templates' },
-   class => [ 'hidden' ],
-  );
+sub build_block_list {
+    my ($self) = @_;
+    my @options_actions = $self->_get_allowed_options('allowed_actions');
+    unless (@options_actions) {
+        @options_actions = map {@$_} values %Actions::ACTIONS;
+    }
+    return [{
+            name => 'templates',
+            tag         => 'div',
+            render_list => [
+                map({"${_}_action"} @options_actions),   # the field are defined in the super class
+            ],
+            attr  => {id => 'templates'},
+            class => ['hidden'],
+        }
+      ];
+}
 
 =head2 validate
 
@@ -95,6 +104,7 @@ sub validate {
     if (scalar @actions == 0) {
         $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
     }
+    $self->_check_allowed_actions("Action(s) provided is not an allowed action");
     $self->_check_allowed_unreg_date("Unregistration date provided is after the maximum allowed.");
     $self->_check_allowed_options($Actions::SET_ACCESS_DURATION,'allowed_access_durations',"Access Duration provided is not an allowed access duration");
     $self->_check_allowed_options($Actions::SET_ACCESS_LEVEL,'allowed_access_levels',"Access Level provided is not an allowed access level");
@@ -116,6 +126,16 @@ sub _check_allowed_unreg_date {
     }
 }
 
+sub _check_allowed_actions {
+    my ($self, $error_msg) = @_;
+    my %actions = map { $_ => undef } admin_allowed_options([$self->ctx->user->roles], 'allowed_actions');
+    if (keys %actions) {
+        foreach my $action (grep { !exists $actions{$_->{type}}} @{$self->value->{actions}}) {
+            $self->field('actions')->add_error($error_msg);
+        }
+    }
+}
+
 
 =head2 _check_allowed_options
 
@@ -124,10 +144,10 @@ check to see the passed action value is a valid value for the user role
 =cut
 
 sub _check_allowed_options {
-    my ($self,$action,$option,$error_msg) = @_;
-    if ( my $action = first { $_->{type} eq $action } @{$self->value->{actions}} ) {
-        my @options = admin_allowed_options([$self->ctx->user->roles],$error_msg);
-        if(@options && none { $_ eq $action->{value} } @options ) {
+    my ($self, $action, $option, $error_msg) = @_;
+    if (my $action = first {$_->{type} eq $action} @{$self->value->{actions}}) {
+        my @options = admin_allowed_options([$self->ctx->user->roles], $option);
+        if (@options && none {$_ eq $action->{value}} @options) {
             $self->field('actions')->add_error($error_msg);
         }
     }
