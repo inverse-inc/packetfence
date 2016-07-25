@@ -26,46 +26,7 @@ use NetPacket::Ethernet;
 use NetPacket::IPv6;
 use NetPacket::UDP;
 use bytes;
-
-use constant SOLICIT             => 1;
-use constant ADVERTISE           => 2;
-use constant REQUEST             => 3;
-use constant CONFIRM             => 4;
-use constant RENEW               => 5;
-use constant REBIND              => 6;
-use constant REPLY               => 7;
-use constant RELEASE             => 8;
-use constant DECLINE             => 9;
-use constant RECONFIGURE         => 10;
-use constant INFORMATION_REQUEST => 11;
-use constant RELAY_FORW          => 12;
-use constant RELAY_REPL          => 13;
-
-use constant OPTION_CLIENTID     => 1;
-use constant OPTION_SERVERID     => 2;
-use constant OPTION_IA_NA        => 3;
-use constant OPTION_IA_TA        => 4;
-use constant OPTION_IAADDR       => 5;
-use constant OPTION_ORO          => 6;
-use constant OPTION_PREFERENCE   => 7;
-use constant OPTION_ELAPSED_TIME => 8;
-use constant OPTION_RELAY_MSG    => 9;
-### 10 is unassigned
-use constant OPTION_AUTH          => 11;
-use constant OPTION_UNICAST       => 12;
-use constant OPTION_STATUS_CODE   => 13;
-use constant OPTION_RAPID_COMMIT  => 14;
-use constant OPTION_USER_CLASS    => 15;
-use constant OPTION_VENDOR_CLASS  => 16;
-use constant OPTION_VENDOR_OPTS   => 17;
-use constant OPTION_INTERFACE_ID  => 18;
-use constant OPTION_RECONF_MSG    => 19;
-use constant OPTION_RECONF_ACCEPT => 20;
-use constant OPTION_DNS_SERVERS   => 23;
-use constant OPTION_DOMAIN_LIST   => 24;
-use constant OPTION_IA_PD         => 25;
-use constant OPTION_IAPREFIX      => 26;
-use constant OPTION_CLIENT_FQDN   => 39;
+use pf::constants::dhcpv6 qw(:all);
 
 
 ## The parser maps for the options
@@ -90,11 +51,34 @@ our %OPTIONS_FILTER = (
     OPTION_INTERFACE_ID()  => \&_parse_interface_id,
     OPTION_RECONF_MSG()    => \&_parse_reconf_msg,
     OPTION_RECONF_ACCEPT() => \&_zero_length_option,
-    OPTION_DNS_SERVERS()   => \&_parse_dns_server,
+    OPTION_DNS_SERVERS()   => \&_parse_ipv6_list,
     OPTION_DOMAIN_LIST()   => \&_parse_domain_list,
     OPTION_IA_PD()         => \&_parse_ia_pd,
     OPTION_IAPREFIX()      => \&_parse_ia_prefix,
     OPTION_CLIENT_FQDN()   => \&_parse_client_fqdn,
+    OPTION_SIP_SERVER_D()  => \&_parse_domain_list,
+    OPTION_SIP_SERVER_A()  => \&_parse_ipv6_list,
+    OPTION_NIS_SERVERS()   => \&_parse_ipv6_list,
+    OPTION_NISP_SERVERS()  => \&_parse_ipv6_list,
+    OPTION_NIS_DOMAIN()    => \&_parse_client_fqdn,
+    OPTION_NISP_DOMAIN()   => \&_parse_client_fqdn,
+    OPTION_SNTP_SERVERS()  => \&_parse_ipv6_list,
+    OPTION_INFO_REFRESH_TIME() => \&_parse_option_info_refresh_time,
+    OPTION_BCMCS_SERVER_D()  => \&_parse_domain_list,
+    OPTION_BCMCS_SERVER_A()  => \&_parse_ipv6_list,
+    OPTION_GEOCONF_CIVIC()  => \&_parse_geoconf_civic,
+    OPTION_REMOTE_ID()      => \&_parse_remote_id,
+    OPTION_SUBSCRIBER_ID()  => \&_parse_subscriber_id,
+    OPTION_NEW_POSIX_TIMEZONE() => \&_parse_new_posix_timezone,
+    OPTION_NEW_TZDB_TIMEZONE() => \&_parse_new_tzdb_timezone,
+    OPTION_ERO() => \&_parse_ero,
+    OPTION_LQ_QUERY() => \&_parse_lq_query,
+    OPTION_CLIENT_DATA() => \&_parse_client_data,
+    OPTION_CLT_TIME() => \&_parse_clt_time,
+    OPTION_LQ_RELAY_DATA() => \&_parse_lq_relay_data,
+    OPTION_LQ_CLIENT_LINK() => \&_parse_ipv6_list,
+    OPTION_PANA_AGENT()     => \&_parse_ipv6_list,
+    OPTION_V6_LOST()        => \&_parse_client_fqdn,
 
 );
 
@@ -399,24 +383,13 @@ sub _parse_reconf_msg {
     return {type => unpack("C", $data)};
 }
 
-=head2 _parse_dns_server
-
-=cut
-
-sub _parse_dns_server {
-    my ($data) = @_;
-    my (@servers) = unpack("(a16)*", $data);
-    @servers = map { _parse_ipv6_addr($_) } @servers;
-    return {servers => \@servers};
-}
-
 =head2 _parse_domain_list
 
 =cut
 
 sub _parse_domain_list {
     my ($data) = @_;
-    my (@domains) = unpack("Z*", $data);
+    my @domains = map { _parse_domainname($_) } unpack("Z*", $data);
     return { domains => \@domains};
 }
 
@@ -453,8 +426,142 @@ sub _parse_ia_prefix {
 sub _parse_client_fqdn {
     my ($data) = @_;
     my ($flags, $fqdn) = unpack("c a*", $data);
-    return {flags => $flags, fqdn => $fqdn};
+    my $full = 0;
+    if ($fqdn =~ s/\0$//) {
+        $full = 1;
+    }
+    return {flags => $flags, fqdn => _parse_domainname($fqdn), full => $full };
 }
+
+=head2 _parse_domainname
+
+=cut
+
+sub _parse_domainname {
+    my ($data) = @_;
+    return join('.', unpack("(c/a*)*", $data));
+}
+
+
+=head2 _parse_ipv6_list
+
+=cut
+
+sub _parse_ipv6_list {
+    my ($data) = @_;
+    return { ipv6_addresses =>  [map { _parse_ipv6_addr($_) } unpack("(a16)*",$data) ] };
+}
+
+=head2 _parse_option_info_refresh_time
+
+=cut
+
+sub _parse_option_info_refresh_time {
+    my ($data) = @_;
+    return { information_refresh_time => unpack("N", $data) };
+}
+
+=head2 _parse_geoconf_civic
+
+=cut
+
+sub _parse_geoconf_civic {
+    my ($data) = @_;
+    my ($what,$cc,@elements) = unpack("C a2 (C C/a*)*");
+    return {what => $what, cc => $cc, elements => \@elements};
+}
+
+=head2 _parse_subscriber_id
+
+=cut
+
+sub _parse_subscriber_id {
+    my ($data) = @_;
+    return {subscriber_id => $data};
+}
+
+=head2 _parse_remote_id
+
+=cut
+
+sub _parse_remote_id {
+    my ($data) = @_;
+    my ($enterprise_number, $remote_id) = unpack("N a*",$data);
+    return {enterprise_number => $enterprise_number, remote_id => $remote_id};
+}
+
+=head2 _parse_new_posix_timezone
+
+=cut
+
+sub _parse_new_posix_timezone {
+    my ($data) = @_;
+    return { tz_posix => $data } ;
+}
+
+=head2 _parse_new_tzdb_timezone
+
+=cut
+
+sub _parse_new_tzdb_timezone {
+    my ($data) = @_;
+    return { tzname => $data };
+}
+
+=head2 _parse_ero
+
+=cut
+
+sub _parse_ero {
+    my ($data) = @_;
+    return { echo_options => [unpack("S*",$data)] } ;
+}
+
+=head2 _parse_lq_query
+
+=cut
+
+sub _parse_lq_query {
+    my ($data) = @_;
+    my ($type,$link, $options) = unpack("c a16 a*");
+    return {
+        query_type => $type,
+        link_addr  => _parse_ipv6_addr($link),
+        query_options    => decode_dhcpv6_options($options)
+    };
+}
+
+=head2 _parse_client_data
+
+=cut
+
+sub _parse_client_data {
+    my ($data) = @_;
+    return { client_options => decode_dhcpv6_options($data) };
+}
+
+=head2 _parse_clt_time
+
+=cut
+
+sub _parse_clt_time {
+    my ($data) = @_;
+    return { clt_time => unpack("N", $data) };
+}
+
+=head2 _parse_lq_relay_data
+
+=cut
+
+sub _parse_lq_relay_data {
+    my ($data) = @_;
+    my ($link, $relay_message) = unpack("c a16 a*");
+    return {
+        peer_address => _parse_ipv6_addr($link),
+        dhcp_relay_message => decode_dhcpv6($relay_message),
+    };
+}
+
 
 =head1 AUTHOR
 
