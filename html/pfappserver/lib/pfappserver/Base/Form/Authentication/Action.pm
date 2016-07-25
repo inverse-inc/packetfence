@@ -132,7 +132,12 @@ sub options_actions {
         unless (@allowed_actions) {
             @allowed_actions = @{$classname->available_actions()};
         }
-        @actions = map { { value => $_, label => $self->_localize($_), attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } } } @allowed_actions;
+        @actions = map { 
+          { value => $_, 
+            label => $self->_localize($_), 
+            attributes => { 'data-rule-class' => pf::Authentication::Action->getRuleClassForAction($_) } 
+          } 
+        } @allowed_actions;
     }
 
     return @actions;
