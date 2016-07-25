@@ -830,7 +830,7 @@ If you want to use the server PacketFence to authenticate users on the Brocade s
    
    aaa authentication login default radius local
 
-NOTE: Make sure to have a local account is case the switch can not reach the PacketFence server
+NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
 
 Cisco
 ~~~~~
