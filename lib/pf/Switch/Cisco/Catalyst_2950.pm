@@ -1209,14 +1209,15 @@ sub getRelayAgentInfoOptRemoteIdSub {
     my $oid_cdsRelayAgentInfoOptRemoteIdSub = '1.3.6.1.4.1.9.9.380.1.1.8.0';
     my $logger = $self->logger;
     if ( !$self->connectRead() ) {
-        return '';
+        return undef;
     }
     $logger->trace("SNMP get_request for cdsRelayAgentInfoOptRemoteIdSub: $oid_cdsRelayAgentInfoOptRemoteIdSub");
     my $result = $self->{_sessionRead}
         ->get_request( -varbindlist => [$oid_cdsRelayAgentInfoOptRemoteIdSub] );
     my $cdsRelayAgentInfoOptRemoteIdSub = $result->{$oid_cdsRelayAgentInfoOptRemoteIdSub};
     $cdsRelayAgentInfoOptRemoteIdSub =~ s/^0x//i;
-    return clean_mac($cdsRelayAgentInfoOptRemoteIdSub);
+    my $mac = clean_mac($cdsRelayAgentInfoOptRemoteIdSub);
+    return $mac if ($mac);
 }
 =back
 
