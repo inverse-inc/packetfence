@@ -1382,7 +1382,7 @@ cluster_check_interval=1m
 # maintenance.option_82_task_interval
 #
 # Interval at which PacketFence will query compatibles switches for option 82 switch mac address
-option_82_task_interval=6D
+option_82_task_interval=23h
 
 [active_active]
 #
