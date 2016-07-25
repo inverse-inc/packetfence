@@ -1,4 +1,4 @@
-### httpd.mse logger ###
+### httpd.collector logger ###
 log4perl.rootLogger = INFO, HTTPD_COLLECTOR
 
 ### Categories ###
