@@ -68,14 +68,14 @@ our @ON_DUPLICATE_FIELDS = qw(
 );
 
 our %HEADINGS = (
-	mac => 'mac',
-	option82_switch => 'option82_switch',
-	switch_id => 'switch_id',
-	port => 'port',
-	vlan => 'Option 82 Vlan',
-	circuit_id_string => 'circuit_id_string',
-	module => 'module',
-	host => 'host',
+    mac               => 'mac',
+    option82_switch   => 'option82_switch',
+    switch_id         => 'switch_id',
+    port              => 'port',
+    vlan              => 'Option 82 Vlan',
+    circuit_id_string => 'circuit_id_string',
+    module            => 'module',
+    host              => 'host',
 );
 
 our $FIELD_LIST = join(", ",@FIELDS);
