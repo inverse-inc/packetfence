@@ -54,6 +54,7 @@ our @FIELDS = qw(
   circuit_id_string
   module
   host
+  created_at
 );
 
 our @ON_DUPLICATE_FIELDS = qw(
@@ -76,6 +77,7 @@ our %HEADINGS = (
     circuit_id_string => 'circuit_id_string',
     module            => 'module',
     host              => 'host',
+    created_at        => 'created_at',
 );
 
 our $FIELD_LIST = join(", ",@FIELDS);
