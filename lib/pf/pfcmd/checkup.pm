@@ -148,7 +148,7 @@ sub sanity_check {
         #TODO Suricata check
     }
 
-    scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
+    scan_legacy() if ( lc($Config{'scan'}{'engine'}) ne "none" );
     scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
 
     billing();
@@ -175,6 +175,8 @@ sub sanity_check {
     valid_certs();
     portal_modules();
     cluster();
+    provisioning();
+    scan();
 
     return @problems;
 }
@@ -364,7 +366,7 @@ Validation related to the vulnerability scanning engine option.
 
 =cut
 
-sub scan {
+sub scan_legacy {
 
     # Check if the configuration provided scan engine is instanciable
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
@@ -1294,6 +1296,38 @@ sub portal_modules {
     }
 }
 
+=item provisioning
+
+Validate provisioning configuration
+
+=cut
+
+sub provisioning {
+    require pf::ConfigStore::Provisioning;
+    my $cs = pf::ConfigStore::Provisioning->new;
+    foreach my $provisioner (@{$cs->readAll("id")}) {
+        foreach my $device_id (@{$provisioner->{oses}}) {
+            add_problem($WARN, "Device ID $device_id is invalid in provisioner ".$provisioner->{id}) unless(valid_fingerbank_device_id($device_id));
+        }
+    }
+}
+
+=item scan
+
+Validate scan configuration
+
+=cut
+
+sub scan {
+    require pf::ConfigStore::Scan;
+    my $cs = pf::ConfigStore::Scan->new;
+    foreach my $scanner (@{$cs->readAll("id")}) {
+        foreach my $device_id (@{$scanner->{oses}}) {
+            add_problem($WARN, "Device ID $device_id is invalid in scanner ".$scanner->{id}) unless(valid_fingerbank_device_id($device_id));
+        }
+    }
+}
+
 =item cluster
 
 Validate the configuration of the cluster
@@ -1335,6 +1369,23 @@ sub cluster {
         }
     }
 
+}
+
+=item valid_fingerbank_device_id
+
+=cut
+
+sub valid_fingerbank_device_id {
+    require fingerbank::Model::Device;
+    require pf::error;
+    my ($device_id) = @_;
+    my ($status, $result) = fingerbank::Model::Device->read($device_id);
+    if($status == $STATUS::NOT_FOUND) {
+        return $FALSE;
+    }
+    else {
+        return $TRUE;
+    }
 }
 
 =item cert_has_expired
