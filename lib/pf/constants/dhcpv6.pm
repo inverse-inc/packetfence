@@ -78,6 +78,8 @@ BEGIN {
         OPTION_CLT_TIME
         OPTION_LQ_RELAY_DATA
         OPTION_LQ_CLIENT_LINK
+        OPTION_PANA_AGENT
+        OPTION_V6_LOST
     );
     %EXPORT_TAGS = (
         all => \@EXPORT_OK,
