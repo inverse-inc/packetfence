@@ -27,7 +27,7 @@ There is neither an API access or a RADIUS disconnect that can be sent either to
 use strict;
 use warnings;
 
-use base ('pf::Switch');
+use base ('pf::Switch::Meraki');
 
 use pf::constants;
 use pf::config;
