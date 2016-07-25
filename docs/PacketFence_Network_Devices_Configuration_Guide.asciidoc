@@ -4460,6 +4460,23 @@ In the configuration of PacketFence, use "Role mapping by Switch Role" instead o
 
 image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
+Switch MS220-8
+++++++++++++++
+
+NOTE: You should already have one port setup as Uplink, using a mode trunk, with at least your Registration and Production VLAN allowed on it.
+
+The Meraki switch offer configuration for VLAN enforcement only.
+
+You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a "MAC authentication bypass" or a "802.1X" policy. Depending if you want to authenticate user via dot1x or MAB. You cannot combine both neither use a fallback mode on the same port, each port with a policy applied will be exclusive to MAB or dot1x.
+
+To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the exemple below to create your policy.
+
+image::docs/images/Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
+
+You now need to apply one of your policies to ports. To do so, go to 'Switch->Switch ports' and chose your options. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to configure the port in "mode access", the default access VLAN is not important if your VLANs are properly configured on PacketFence.
+
+image::docs/images/Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
+
 Mikrotik
 ~~~~~~~~
 
