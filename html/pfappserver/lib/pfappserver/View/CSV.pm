@@ -12,7 +12,7 @@ Used to render CSV
 
 use base qw ( Catalyst::View::CSV );
 
-__PACKAGE__->config ( sep_char => ",", suffix => "csv" );
+__PACKAGE__->config ( sep_char => ",", suffix => "csv",);
 
 sub process {
     my ($self, $c) = @_;

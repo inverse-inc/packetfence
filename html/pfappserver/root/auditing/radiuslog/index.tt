@@ -87,6 +87,7 @@
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                       <ul class="dropdown-menu">
+                           <li><a href="#" data-export-url="[% c.uri_for(c.controller.action_for('search')) %]" data-export-form="#search" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
                           <li><a  data-toggle="modal" data-target="#savedSearch" >[% l('Save as...') %]</a></li>
                       </ul>
                     </div>

@@ -54,21 +54,27 @@ sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
     my ($status, $result);
-    $form->process(params => $c->request->params);
+    my $request = $c->request;
+    $form->process(params => $request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
-        $c->stash(
+        $c->stash({
             current_view => 'JSON',
             status_msg => $form->field_errors
-        );
+        });
     } else {
         my $query = $form->value;
         $c->stash($query);
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
-            $c->stash(form => $form);
+            $c->stash({form => $form});
             $c->stash($result);
 
+            if ($request->param('export')) {
+                $c->stash({
+                    current_view => 'CSV',
+                });
+            }
         }
     }
     $c->stash({

@@ -52,15 +52,17 @@ sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
     my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
+    my $request = $c->request;
     my ($status, $result);
-    $form->process(params => $c->request->params);
+    $form->process(params => $request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $c->stash(
             current_view => 'JSON',
             status_msg => $form->field_errors
         );
-    } else {
+    }
+    else {
         my $query = $form->value;
         $c->stash($query);
         ($status, $result) = $model->search($query);
@@ -69,10 +71,19 @@ sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
             $c->stash($result);
         }
     }
-    $c->stash({
-        columns => [sort @pf::radius_audit_log::FIELDS],
-        display_columns => [qw(mac node_status request_time user_name ip created_at nas_ip_address nas_port_type)],
-    });
+
+    if ($request->param('export')) {
+        $c->stash({
+            current_view => 'CSV',
+            columns      => [@pf::radius_audit_log::NODE_FIELDS,],
+        });
+    }
+    else {
+        $c->stash({
+            columns => [sort @pf::radius_audit_log::FIELDS],
+            display_columns => [qw(mac node_status request_time user_name ip created_at nas_ip_address nas_port_type)],
+        });
+    }
     $c->response->status($status);
 }
 
