@@ -2714,31 +2714,6 @@ When running locally, PacketFence provides a basic `suricata.yaml` that can be m
 
 In the case that Suricata is running on a separate server, Suricata configuration will have to be handled separately, which is not the purpose of the present guide.
 
-The following section parameters are required under suricata.yaml to have proper md5 checksuming and filetype recognition:
-
-file-store:
- 
-  force-magic: yes   # force logging magic on all stored files
-  force-md5: yes     # force logging of md5 checksums
-
-file-log:
-
-  enabled: yes
-  filename: files-json.log
-  append: yes
-
-stream:
-
-  reassembly:
-    depth: 0         # reassemble all files until memcap is fulled.
-
-libhtp:
-
-  default-config:
-     request-body-limit: 0
-     response-body-limit: 0
-
-
 OPSWAT Metadefender Cloud
 +++++++++++++++++++++++++
 
@@ -2764,7 +2739,7 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
   # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence_md5 { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+  destination d_packetfence_md5 { udp("PACKETFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence destination
   log { source(s_suricata_files); destination(d_packetfence_md5); };
 
@@ -2840,7 +2815,7 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   filter f_sguil { match("Alert Received"); };
   # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence_alerts { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+  destination d_packetfence_alerts { udp("PACKETFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence destination
   log { source(s_sguil); filter(f_sguil); destination(d_packetfence_alerts); };
 
