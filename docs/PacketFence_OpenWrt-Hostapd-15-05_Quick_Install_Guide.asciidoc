@@ -36,7 +36,7 @@ Then you will have to install the packages of Hostapd and wpad.
 
 Go to the tab 'Available packages' and then search for the package hostapd into the 'Filter:' field.
 
-Click Install the hostapd package, the actual version is 2015-03-25-1.
+Click Install the hostapd-common package, the actual version is 2015-03-25-1.
 
 Do the same process for the wpad package version 2015-03-25-1.
 
