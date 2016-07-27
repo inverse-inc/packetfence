@@ -13,7 +13,7 @@ This guide has been created in order to help sales engineers, product managers, 
 
 Introduction
 ------------
-This guide will provide an example for the configuration of an open SSID (not encrypted) and a secured SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
+This guide will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
 
 Assumptions
 -----------
@@ -159,7 +159,7 @@ Save this configuration by clicking the 'Save' button.
 Step 6: Troubleshoot
 ~~~~~~~~~~~~~~~~~~~~
 
-Here few things you can do/check to see if you configuration is working.
+There are few things you can do/check to see if your configuration is working.
 
 To check the wireless configuration: uci show wireless or cat /etc/config/wireless
 
