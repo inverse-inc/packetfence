@@ -182,6 +182,7 @@ sub action_api {
     $node_info = {%$node_info, 'last_ip' => $ip};
     # Replace parameters in the cli by the real one (for example: $last_ip will be changed to the value of $node_info->{last_ip})
     foreach my $param (@params) {
+        $param =~ s/\$vid/$vid/ge;
         $param =~ s/\$(.*)/$node_info->{$1}/ge;
         $return .= $param." ";
     }
