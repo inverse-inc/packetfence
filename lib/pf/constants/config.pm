@@ -42,6 +42,7 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_GITHUB
   $SELFREG_MODE_INSTAGRAM
   $SELFREG_MODE_LINKEDIN
+  $SELFREG_MODE_PINTEREST
   $SELFREG_MODE_WIN_LIVE
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
@@ -79,6 +80,7 @@ Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
 Readonly our $SELFREG_MODE_INSTAGRAM => 'instagram';
 Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
+Readonly our $SELFREG_MODE_PINTEREST   => 'pinterest';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_TWITTER   => 'twitter';
 Readonly our $SELFREG_MODE_NULL   => 'null';

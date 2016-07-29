@@ -501,6 +501,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * LDAP
 * LinkedIn (OAuth 2)
 * Null
+* Pinterest (OAuth 2)
 * RADIUS
 * SMS
 * Sponsored Email
@@ -2133,7 +2134,7 @@ OAuth2 Authentication
 
 NOTE: OAuth2 authentication does not work with Webauth enforcement
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -2211,6 +2212,17 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Moreover, don't forget to add LinkedIn as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Also, LinkedIn requires a 'state' parameter for the authorization URL. If you modify it, make sure to add it at the end of your URL.
+
+Pinterest
+^^^^^^^^^
+To use Pinterest, you also need an API code and a secret key.  To get one, go here: https://developers.pinterest.com/apps.  When you create your App, make sure you specify the following as the Redirect URL:
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from *Configuration -> Sources*.
+
+Moreover, don't forget to add Pinterest as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Twitter
 ^^^^^^^
