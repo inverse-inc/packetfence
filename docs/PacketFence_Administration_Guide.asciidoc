@@ -225,6 +225,14 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
 
   rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
+RHEL 7.x
+^^^^^^^^
+
+NOTE: These are extra steps are required for RHEL 7 systems only, excluding derivatives such as CentOS or Scientific Linux.
+
+RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
+
+  subscription-manager repos --enable rhel-7-server-optional-rpms
 
 Debian
 ^^^^^^
