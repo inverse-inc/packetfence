@@ -2744,6 +2744,8 @@ Along with the OPSWAT API key for Metadefender Cloud (they call it 'License Key'
 
 Assuming that all the steps for Suricata MD5 extraction have been followed, here's what to do next.
 
+On PacketFence, under Configuration->Metadefender, enter your 'Licence Key'.
+
 On the Suricata server (syslog-ng is preferred due to easier and more powerful configuration. If not installed, it might be an idea):
 
 Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable sending MD5 file store log entries to PacketFence:
@@ -2754,9 +2756,9 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   source s_suricata_files { file("/MY_SURICATA_LOG_FILES_PATH/files-json.log" program_override("suricata_files") flags(no-parse)); };
   # This line tells syslog-ng to send the data read to the PacketFence management interface IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence { udp("PACKETFENCE_MGMT_IP" port(514)); };
+  destination d_packetfence_md5 { udp("PACKETFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_suricata_files source and send it to the d_packetfence destination
-  log { source(s_suricata_files); destination(d_packetfence); };
+  log { source(s_suricata_files); destination(d_packetfence_md5); };
 
 A restart of the syslog-ng daemon is required
 
@@ -2788,7 +2790,7 @@ A configuration of a new 'syslog parser' as well as some violations are the only
 
 Configuration of a new 'syslog parser' (Configuration->Syslog Parsers) should use the followings:
 
-  Type: suricata_http
+  Type: suricata_md5
   Alert pipe: the previously created alert pipe (FIFO) which is, in this case, /usr/local/pf/var/suricata_files
 
 Configuration of a new violation can use the following trigger types:
@@ -2830,9 +2832,9 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   filter f_sguil { match("Alert Received"); };
   # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
-  destination d_packetfence { udp("PACKENTFENCE_MGMT_IP" port(514)); };
+  destination d_packetfence_alerts { udp("PACKETFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence destination
-  log { source(s_sguil); filter(f_sguil); destination(d_packetfence); };
+  log { source(s_sguil); filter(f_sguil); destination(d_packetfence_alerts); };
 
 Sending sguild alert output to syslog requires DEBUG to be changed from 1 to 2 under `/etc/sguild/sguild.conf`
   
