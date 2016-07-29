@@ -126,6 +126,18 @@ You can freely edit the `HTML` code in these files.
 
 Each template relies on `layout.html` for the common top and bottom portions of the page.
 
+Internationalized AUP
++++++++++++++++++++++
+
+In the event that you need an Acceptable Usage Policy that should be translated in different languages in the captive portal, you can create specially named templates that will be used for different languages.
+
+For example, if the browser locale is `es_ES`, creating a template named `aup_text.es.html` will display this AUP when it detects this locale.
+Same goes for a browser with locale `en_US`, where creating a template named `aup_text.en.html` will be used for English browsers.
+
+The template `aup_text.html` is used as the final fallback for all locales.
+
+Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
+
 CSS
 +++
 
