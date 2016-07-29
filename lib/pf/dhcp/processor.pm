@@ -473,6 +473,9 @@ sub check_for_parking {
             if($entry->{role} eq $locationlog->{role}){
                  $locationlog = $entry;
             }
+            else {
+                last;
+            }
         }
     }
 
@@ -483,9 +486,10 @@ sub check_for_parking {
 
     get_logger->info("Found locationlog entry with role : with start date ".$locationlog->{start_time});
     my $time = DateTime::Format::MySQL->parse_datetime($locationlog->{'start_time'});
-    my $now = time;
-    if (($now - $time->epoch) > $Config{parking}{threshold}) {
-        my $diff = $now - $time->epoch;
+    $time->set_time_zone("local");
+    my $now = DateTime->now(time_zone => "local");
+    if (($now->epoch - $time->epoch) > $Config{parking}{threshold}) {
+        my $diff = $now->epoch - $time->epoch;
         $logger->debug("Current connection type : ".$locationlog->{connection_type});
         my $connection = pf::Connection->new();
         $connection->_stringToAttributes($locationlog->{connection_type});
