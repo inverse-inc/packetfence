@@ -341,6 +341,13 @@ host=127.0.0.1
 ....
 ----
 
+In `/usr/local/fingerbank/conf/fingerbank.conf`
+
+----
+[mysql]
+host=127.0.0.1
+----
+
 Make sure you restart MySQL, packetfence-config and packetfence
 
   # service mysqld restart

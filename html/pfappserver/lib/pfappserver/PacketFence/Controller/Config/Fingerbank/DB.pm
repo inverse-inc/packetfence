@@ -15,6 +15,9 @@ Customizations can be made using L<pfappserver::Controller::Config::Fingerbank::
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::constants;
+use pf::util;
+use pf::config::util;
+use pf::error qw(is_success);
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -80,6 +83,33 @@ sub update_redis_db :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
     pf::cluster::notify_each_server('fingerbank_update_component', action => "update-redis-db", email_admin => $TRUE, fork_to_queue => $TRUE);
 
     $c->stash->{status_msg} = $c->loc("Successfully dispatched update request for the redis DB. An email will follow for status");
+}
+
+=head2 initialize_mysql
+
+Initialize the MySQL database
+
+=cut
+
+sub initialize_mysql :Local :AdminRole('FINGERBANK_UPDATE') :AdminConfigurator {
+    my ( $self, $c ) = @_;
+    # HACK alert !
+    # Need to launch this job through an async bash session since this can be executed in the context of the configurator which means our Apache process can be restarted at any time.
+    my $pid = fork();
+    if($pid) {
+        $c->session->{importing_fingerbank_mysql} = $TRUE;
+        $c->stash->{current_view} = 'JSON';
+        $c->stash->{status_msg} = $c->loc("Dispatched the import job to PID $pid. An e-mail will follow up for status.");
+    }
+    else {
+        close STDERR;
+        close STDIN;
+        close STDOUT;
+
+        use POSIX();
+        POSIX::setsid();
+        exec('bash -c "/usr/local/pf/bin/mysql_fingerbank_import.sh &"');
+    }
 }
 
 =head1 AUTHOR

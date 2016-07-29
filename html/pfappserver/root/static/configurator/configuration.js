@@ -17,7 +17,7 @@ function saveStep(href) {
         var e = $(this);
         var i = e.find('input, textarea').first();
         if (i.length) {
-            if ($.trim(i.val()).length == 0) {
+            if (!i.attr('placeholder') && $.trim(i.val()).length == 0) {
                 e.addClass('error');
                 valid = false;
             }
@@ -33,6 +33,7 @@ function saveStep(href) {
                    'general.hostname': $('#general_hostname').val(),
                    'general.dhcpservers': $('#general_dhcpservers').val(),
                    'alerting.emailaddr': $('#alerting_emailaddr').val(),
+                   'alerting.smtpserver': $('#alerting_smtpserver').val(),
                    'advanced.hash_passwords': $('input[name="advanced.hash_passwords"]:checked').val()}
         }).done (function(data) {
             window.location.href = href;

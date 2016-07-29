@@ -16,6 +16,7 @@ use Moose;
 
 use pf::config qw(%Config);
 use List::MoreUtils qw(all);
+use fingerbank::Config;
 #use namespace::autoclean;
 
 BEGIN { extends 'Catalyst::Controller'; }
@@ -38,6 +39,9 @@ my @steps = (
     { id          => 'admin',
       title       => 'Administration',
       description => 'Configure access to the admin interface' },
+    { id          => 'fingerbank',
+      title       => 'Fingerbank',
+      description => 'Configure Fingerbank' },
     { id          => 'services',
       title       => 'Confirmation',
       description => 'Start the services' }
@@ -290,6 +294,7 @@ PacketFence minimal configuration (step 4)
 
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c ) = @_;
+    my $logger = $c->log;
 
     my $pf_model = $c->model('Config::Pf');
     if ($c->request->method eq 'GET') {
@@ -305,6 +310,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
                                   general.hostname
                                   general.dhcpservers
                                   alerting.emailaddr
+                                  alerting.smtpserver
                                   advanced.hash_passwords
                              )} = (
                                    @$general_ref{qw(
@@ -312,7 +318,10 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
                                                        hostname
                                                        dhcpservers
                                                   )},
-                                   @$alerting_ref{emailaddr},
+                                   @$alerting_ref{qw(
+                                                       emailaddr
+                                                       smtpserver
+                                                  )},
                                    @$advanced_ref{hash_passwords}
                                   );
                     $c->stash->{'config'} = \%config;
@@ -327,6 +336,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
         my $general_hostname        = $c->request->params->{'general.hostname'};
         my $general_dhcpservers     = $c->request->params->{'general.dhcpservers'};
         my $alerting_emailaddr      = $c->request->params->{'alerting.emailaddr'};
+        my $alerting_smtpserver     = $c->request->params->{'alerting.smtpserver'};
         my $advanced_hash_passwords = $c->request->params->{'advanced.hash_passwords'};
 
         unless ($general_domain && $general_hostname && $general_dhcpservers &&
@@ -341,18 +351,30 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
                 'dhcpservers' => $general_dhcpservers,
             });
             if (is_error($status)) {
+                $logger->error($message);
                 delete $c->session->{completed}->{$c->action->name};
             }
             ( $status, $message ) = $pf_model->update('alerting' => {
-                'emailaddr'  => $alerting_emailaddr
+                'emailaddr'  => $alerting_emailaddr,
             });
             if (is_error($status)) {
+                $logger->error($message);
                 delete $c->session->{completed}->{$c->action->name};
+            }
+            if($alerting_smtpserver) {
+                ( $status, $message ) = $pf_model->update('smtpserver' => {
+                    'smtpserver'  => $alerting_emailaddr,
+                });
+                if (is_error($status)) {
+                    $logger->error($message);
+                    delete $c->session->{completed}->{$c->action->name};
+                }
             }
             ( $status, $message ) = $pf_model->update('advanced' => {
                 'hash_passwords'  => $advanced_hash_passwords
             });
             if (is_error($status)) {
+                $logger->error($message);
                 delete $c->session->{completed}->{$c->action->name};
             } else {
                 $pf_model->commit();
@@ -370,6 +392,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 
         }
         if (is_error($status)) {
+            $logger->error($message);
             $c->response->status($status);
             $c->stash->{status_msg} = $message;
         }
@@ -412,6 +435,19 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
         $c->stash->{status_msg} = $message;
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 fingerbank
+
+Fingerbank setup (step 6)
+
+=cut
+
+sub fingerbank :Chained('object') :PathPart('fingerbank') :Args(0) {
+    my ($self, $c) = @_;
+    $c->session->{completed}->{$c->action->name} = 1;
+    my $config = fingerbank::Config::get_config;
+    $c->stash->{fingerbank_api_key} = $config->{'upstream'}{'api_key'};
 }
 
 =head2 services

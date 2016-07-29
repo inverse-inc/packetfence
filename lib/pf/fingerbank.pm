@@ -23,6 +23,8 @@ use fingerbank::Query;
 use fingerbank::FilePath;
 use fingerbank::Model::Endpoint;
 use fingerbank::Util;
+use fingerbank::DB_Factory;
+use fingerbank::Constant qw($UPSTREAM_SCHEMA $MYSQL_DB_TYPE);
 use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
@@ -55,11 +57,23 @@ our %ACTION_MAP = (
             return ($status, $status_msg);
         });
     },
+    "update-mysql-db" => sub {
+        pf::fingerbank::_update_fingerbank_component("MySQL incremental", sub{
+            my ($status, $status_msg) = fingerbank::DB_Factory->instantiate(type => $MYSQL_DB_TYPE, schema => $UPSTREAM_SCHEMA)->update_from_incrementals();
+            return ($status, $status_msg);
+        });
+    },
 );
 
 our %ACTION_MAP_CONDITION = (
     "update-redis-db" => sub {
-        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('query', 'use_redis')) 
+        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('query', 'use_redis'));
+    },
+    "update-upstream-db" => sub {
+        return fingerbank::Util::is_disabled(fingerbank::Config::get_config('mysql', 'state'));
+    },
+    "update-mysql-db" => sub {
+        return fingerbank::Util::is_enabled(fingerbank::Config::get_config('mysql', 'state'));
     },
 );
 

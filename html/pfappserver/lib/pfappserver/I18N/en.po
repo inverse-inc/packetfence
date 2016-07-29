@@ -8748,6 +8748,34 @@ msgstr "Redis Host"
 msgid "redis.port"
 msgstr "Redis Port"
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.state"
+msgstr "MySQL state"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.host"
+msgstr "MySQL host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.port"
+msgstr "MySQL port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.username"
+msgstr "MySQL username"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.password"
+msgstr "MySQL password"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.database"
+msgstr "MySQL database name"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.incrementals_url"
+msgstr "MySQL incrementals URL"
+
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
 msgstr "Reevaluate Access Action"
