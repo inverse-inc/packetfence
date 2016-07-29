@@ -21,6 +21,7 @@ has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
 
 use pf::log;
 use pf::sms_carrier;
+use pf::util;
 
 has 'source' => (is => 'rw');
 
@@ -55,8 +56,14 @@ Render the instructions for e-mail registration
 
 sub render_email_instructions {
     my ($self) = @_;
+    my $current_module = $self->form->module;
+    my $email_timeout;
+    if(defined($current_module) && $current_module->isa("captiveportal::DynamicRouting::Module::Authentication") && $current_module->source->isa("pf::Authentication::Source::EmailSource")){
+        $email_timeout = normalize_time($current_module->source->email_activation_timeout);
+        $email_timeout = $email_timeout / 60 . " minutes";
+    }
     return 
-        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
+        "<div class='text-center'>".$self->app->i18n("After registering, you will be given temporary network access".(defined($email_timeout) ? " during $email_timeout" : "").". In order to complete your registration, you will need to click on the link emailed to you.")."</div>" .
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
 
