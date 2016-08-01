@@ -246,7 +246,7 @@ sub _build_dispatcherSession {
     my $logger = get_logger();
     foreach my $key ($session->param) {
         my $value = $session->param($key);
-        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . $value // 'undef' });
+        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . ($value // 'undef') });
         $session_data{$key} = $value;
     }
     $logger->info("External captive portal detected !") if($session_data{is_external_portal});
