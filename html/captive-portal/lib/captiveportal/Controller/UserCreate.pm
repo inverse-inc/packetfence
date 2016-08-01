@@ -31,13 +31,14 @@ Catalyst Controller.
 
 =cut
 
-sub begin : Private {
+sub auto : Private {
     my ($self, $c) = @_;
     if (exists $LdapAddConfig{allowed_profiles}) {
         my $name = $c->profile->name;
         $self->showError($c, "Not allowed to access this resource") unless any { $_ eq $name } @{$LdapAddConfig{allowed_profiles} // [] };
     }
     $c->session->{action_made} = 0;
+    return 1;
 }
 
 sub index : Path : Args(0) {
