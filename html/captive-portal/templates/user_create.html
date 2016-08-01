@@ -1,66 +1,54 @@
 [% title = i18n("User Create") %]
-[% INCLUDE header.html 
-    body_attributes = 'onload="$(\'#username\').focus();"';
-%]
-
-<div id="about" class="underlined">
-  <img src="/content/images/registration.png" alt="Registration" />
-  <h1>[% i18n("Guest Registration") %]</h1>
-  <p>[% i18n("guest network disclaimer") %]</p>
-  <hr/>
-</div>
 
 [%# Error %]
-[% IF txt_validation_error.defined %]<div class="error"><p>[% txt_validation_error %]</p></div>[% END %]
+
 <form method="post" action="[% post_uri %]">
-  <input type="hidden" name="destination_url" value="[% destination_url %]" />
-
-  <div class="input">
-    <span>[% i18n("Firstname") %]</span>
-    <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
-
-    <span>[% i18n("Lastname") %]</span>
-    <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
-  </div>
-  <div class="input">
-      <span>[% i18n("phone") %]</span>
-      <input class="field" name="phone" type="text" value="[% phone | html %]" /><br/>
-  </div>
-  <div class="input">
-      <span>[% i18n("email") %]</span>
-      <input class="field" name="email" type="text" value="[% email | html %]" /><br/>
-  </div>
-  <div class="input">
-      <span>[% i18n("Phone Provider") %]</span>
-      <select name="mobileprovider">
-        <option value="">[% i18n("Select your provider") %]</option>
-            [% FOREACH carrier IN sms_carriers %]
-                <option value="[% carrier.id %]"[% IF mobileprovider == carrier.id %] selected[% END %]>[% carrier.name %]</option>
-            [% END %]
-      </select>
-   </div>
-
-  [%# AUP %]
-  <div class="input">
-    <div>[% i18n("Acceptable Use Policy") %]</div>
-    <div id="aup">
-      <div class="notmobile">
-        [% INCLUDE aup_text.html %]
-      </div>
-      <div class="mobile">
-        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+  <div class="card">
+    <div class="box box--large-height box--tint">
+      [% INCLUDE aup_text.html %]
+    </div>
+    <div class="layout--center u-pt">
+      <div class="layout__item u-2/3 u-1/1-palm btn btn--light">
+        <input type="checkbox" name="aup_signed" id="aup" value="1" /><label for="aup_signed">I accept the terms</label>
       </div>
     </div>
-    <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
   </div>
+  <div class="card card--hidden card--disabled layout layout--center">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      <div class="input-container">
+        <div>
+          <label for="firstfield">[% i18n("Firstname") %]</label>
+          <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
 
-  [%# submit %]
-  <div class="input">
-    <input type="submit" class="btn" name="by_email" value="[% i18n("Register By Email") %]" /><br/>
-  </div>
-  <div class="input">
-    <input type="submit" class="btn" name="by_sms" value="[% i18n("Register By SMS") %]" /><br/>
+          <label for="lastname">[% i18n("Lastname") %]</label>
+          <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
+        </div>
+      </div>
+      <div class="input-container">
+        <div>
+          <label for="phone">[% i18n("phone") %]</label>
+          <input class="field" name="phone" type="text" value="[% phone | html %]" /><br/>
+        </div>
+      </div>
+      <div class="input-container">
+        <div>
+          <label for="email">[% i18n("email") %]</label>
+          <input class="field" name="email" type="text" value="[% email | html %]" /><br/>
+        </div>
+      </div>
+      <button type="submit" name="by_email" class="btn btn--full u-mt">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Register By Email") %]</p>
+        </div>
+      </button>
+      <button type="submit" name="by_sms" class="btn btn--full u-mt">
+        <div class="flag">
+          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
+          <p class="flag__body">[% i18n("Register By SMS") %]</p>
+        </div>
+      </button>
+    </div>
   </div>
 </form>
 
-[% INCLUDE footer.html %]
