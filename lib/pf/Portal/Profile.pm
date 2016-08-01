@@ -597,13 +597,13 @@ sub getRootModuleId {
     return $self->{_root_module} || $DEFAULT_ROOT_MODULE;
 }
 
-=item getAupTemplate 
+=item getLocalizedTemplate 
 
-Get the AUP template based on the current locale
+Get a template based on the current locale
 
 =cut
 
-sub getAupTemplate {
+sub getLocalizedTemplate {
     my ($self, $base_template) = @_;
     my $locale = setlocale(POSIX::LC_MESSAGES);
     my @parts = split(/\./, $base_template);
