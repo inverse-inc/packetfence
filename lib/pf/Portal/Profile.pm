@@ -609,7 +609,7 @@ sub getLocalizedTemplate {
     my @parts = split(/\./, $base_template);
     my $suffix = pop(@parts);
     my $prefix = join('.', @parts);
-    if(defined($locale) && $locale =~ /([a-zA-Z]+)[_]{0,1}/) {
+    if(defined($locale) && $locale =~ /([a-zA-Z]+)_?/) {
         my $short_locale = $1;
         my $localized_aup = "$prefix.$short_locale.$suffix";
         if(defined($self->getTemplatePath($localized_aup))) {
