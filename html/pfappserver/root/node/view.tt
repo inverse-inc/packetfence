@@ -216,10 +216,10 @@
                 </thead>
                 <tbody>
                   [% FOR item IN scan %]
-                  <tr[% IF item.type eq wmi %] class="muted"[% END %]>
+                  <tr[% IF item.type == wmi %] class="muted"[% END %]>
                     <td>[% item.mac | html %]</td>
-                    <td>[% item. | html %]</td>
-                    <td>[% item. | html %]</td>
+                    <td>[% item.id | html %]</td>
+                    <td>[% item.ip | html %]</td>
                   </tr>
                   [% END %]
                 </tbody>
