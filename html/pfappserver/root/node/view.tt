@@ -150,6 +150,32 @@
             </div><!--tab-pane-->
     
             <div class="tab-pane fade" id="nodeWmi">
+
+              [%- IF config_type_wmi_exists %]
+              <table class="table table-condensed table-hover">
+                <thead>
+                  <tr>
+                    <th>[% l('Target') %]</th>
+                    <th>[% l('Enabled') %]</th>
+                    <th>[% l('Details') %]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  [% FOR item IN scan %]
+                  <tr[% IF item.type eq wmi %] class="muted"[% END %]>
+                    <td>[% item.mac | html %]</td>
+                    <td>[% item. | html %]</td>
+                    <td>[% item. | html %]</td>
+                  </tr>
+                  [% END %]
+                </tbody>
+              </table>
+              [%- ELSE %]
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('WMI is not available for this device') %]</p>
+              </div>
+              [%- END %]
+
             </div><!--tab-pane-->
 
           </div><!--tab-content-->
