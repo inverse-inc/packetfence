@@ -6,7 +6,7 @@ use pf::constants::Portal::Profile qw($PENDING_POLICY);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
-use pf::config;
+use pf::config qw(%Config $fqdn);
 use pf::file_paths qw($conf_dir);
 use pf::log;
 use pf::util;
@@ -27,6 +27,8 @@ use captiveportal::DynamicRouting::Application;
 use pf::StatsD::Timer;
 use File::Slurp qw(read_file);
 use pf::error;
+use pf::parking;
+use pf::constants::parking qw($PARKING_VID);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -54,8 +56,26 @@ sub auto : Private {
     my ( $self, $c ) = @_;
     $c->forward('setupLanguage');
     $c->forward('setupDynamicRouting');
+    $c->forward('checkForParking');
 
     return 1;
+}
+
+=head2 checkForParking
+
+Check if the device is in parking and if it should be redirected to the parking portal
+
+=cut
+
+sub checkForParking :Private {
+    my ($self, $c) = @_;
+    if(violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID) && isenabled($Config{parking}{show_parking_portal})) {
+        get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
+        pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIp);
+        # Redirecting to an invalid URL so it is caught by the parking portal
+        $c->res->redirect("http://$fqdn/back-to-parking");
+        $c->detach();
+    }
 }
 
 sub setupDynamicRouting : Private {
