@@ -206,6 +206,7 @@
             <div class="tab-pane fade" id="nodeWmi">
 
               [%- IF config_type_wmi_exists %]
+              [% sccm_scan %]
               <table class="table table-condensed table-hover">
                 <thead>
                   <tr>
