@@ -914,6 +914,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
+%attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
                         /usr/local/pf/conf/*.example
