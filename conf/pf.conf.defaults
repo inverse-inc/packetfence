@@ -247,6 +247,11 @@ admin=1443
 # Port of the soap interface listens on.
 soap=9090
 #
+# ports.collector
+#
+# Port of the collector interface listens on.
+collector=9292
+#
 # ports.aaa
 #
 # Port of the aaa http interface listens on.
@@ -503,6 +508,16 @@ httpd_webservices=enabled
 #
 # Order in which to start this service 
 httpd_webservices_order=22
+#
+# services.httpd_collector
+#
+# Should httpd.collector be started?
+httpd_collector=disabled
+#
+# services.httpd_collector_order
+#
+# Order in which to start this service
+httpd_collector_order=23
 #
 # services.httpd_aaa
 #

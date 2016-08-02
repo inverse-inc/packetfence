@@ -122,6 +122,7 @@ sub iptables_generate {
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
     $tags{'status_port'} = $Config{'ports'}{'pf_status'};
     $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
+    $tags{'httpd_collector_port'} = $Config{'ports'}{'collector'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();

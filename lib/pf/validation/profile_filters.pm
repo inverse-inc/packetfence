@@ -23,6 +23,7 @@ use pf::SwitchFactory;
 use pf::nodecategory qw(nodecategory_lookup);
 use NetAddr::IP;
 use Time::Period qw(inPeriod);
+use pf::condition_parser qw(parse_condition_string);
 use Moo;
 
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
@@ -41,6 +42,7 @@ our %ALLOWED_TYPES = (
     'vlan' => 1,
     'connection_sub_type' => 1,
     'time' => 1,
+    'advanced' => 1,
 );
 
 our %TYPE_VALIDATOR = (
@@ -51,6 +53,7 @@ our %TYPE_VALIDATOR = (
     'switch_port' => \&validate_switch_port,
     'node_role' => \&validate_node_role,
     'time' => \&validate_time,
+    'advanced' => \&validate_advanced,
 );
 
 =head2 validate
@@ -176,6 +179,20 @@ sub validate_time {
     my ($self, $type, $value) = @_;
     if (inPeriod(1,$value) == -1 ) {
         return ($FALSE, "'$value' is an invalid $type spec");
+    }
+    return ($TRUE, undef);
+}
+
+
+=head2 validate_advanced
+
+=cut
+
+sub validate_advanced {
+    my ($self, $type, $value) = @_;
+    my ($array, $msg) = parse_condition_string($value);
+    unless (defined $array) {
+        return ($FALSE, $msg);
     }
     return ($TRUE, undef);
 }

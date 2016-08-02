@@ -115,8 +115,10 @@ sub build_child {
             $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
         }
     }
-
-    $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
+    foreach my $val ("trapping.passthroughs") {
+        my ( $group, $item ) = split( /\./, $val );
+        $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
+    }
 
     # We're looking for the merged_list configurations and we merge the default value with
     # the user defined value

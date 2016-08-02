@@ -28,14 +28,24 @@
           [% form.block('definition').render | none %]
           [% IF form.field('filter') %]
             <div class="control-group">
-              <label class="control-label" for="sources">[% l('Filters') %] <i class="icon-exclamation-sign"></i> </label>
+              <label class="control-label" for="sources">[% l('Filters') %]</label>
               <div class="controls">
                 <dl>
                   <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) | none %]</dt>
                   <dd><br/> [% form.field('filter').render | none %] </dd>
+                  <dd>
+                    <div id="filterEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('filter').index > 1 %]">
+                      <p>
+                        <i class="icon-group icon-large"></i>
+                        [% l('With no filter specified, an advanced filter must be specified.') %]
+                        <a href="#add">[% l('Add a filter.') %]</a>
+                      </p>
+                    </div>
+                  </dd>
                 </dl>
               </div>
             </div>
+            [% form.field('advanced_filter').render | none %]
           [% END -%]
           <div class="control-group">
             <label class="control-label" for="sources">[% l('Sources') %]</label>

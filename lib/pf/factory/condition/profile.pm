@@ -17,6 +17,26 @@ use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , r
 our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
+use pf::condition_parser qw(parse_condition_string);
+use pf::log;
+
+our %UNARY_OPS = (
+    'NOT' => 'pf::condition::not',
+);
+
+our %LOGICAL_OPS = (
+    'AND' => 'pf::condition::all',
+    'OR'  => 'pf::condition::any',
+);
+
+our %CMP_OPS = (
+    '=='  => 'pf::condition::equals',
+    '!='  => 'pf::condition::not_equals',
+    '=~'  => 'pf::condition::regex',
+    '!~'  => 'pf::condition::regex_not',
+);
+
+our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS);
 
 our @MODULES;
 
@@ -41,6 +61,7 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'connection_sub_type' => {type => 'equals',        key  => 'last_connection_sub_type'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
+    'advanced'            => {type => 'advanced'},
 );
 
 sub modules {
@@ -54,7 +75,7 @@ sub modules {
 sub instantiate {
     my ($class, @args) = @_;
     my $condition;
-    my ($type,$data) = $class->getData(@args);
+    my ($type, $data) = $class->getData(@args);
     if ($data) {
         if($type eq 'couple_equals'){
             my ($value1, $value2) = split(/-/, $data->{value});
@@ -79,12 +100,22 @@ sub instantiate {
             my $c = pf::condition::time_period->new({value => $data->{value}});
             return $c;
         }
-        else{
+        elsif ($type eq 'advanced') {
+            return $class->instantiate_advanced($data->{value});
+        }
+        else {
             my $subclass = $class->getModuleName($type);
             $condition = $subclass->new($data);
             return pf::condition::key->new(key => $data->{key}, condition => $condition);
         }
     }
+}
+
+sub instantiate_advanced {
+    my ($class, $filter) = @_;
+    my ($condition, $msg) = parse_condition_string($filter);
+    die "$msg" unless defined $condition;
+    return build_conditions($class, $condition);
 }
 
 sub getModuleName {
@@ -108,6 +139,50 @@ sub getData {
     my $condition_type = delete $args{type};
     $args{value} = $value;
     return $condition_type, \%args;
+}
+
+sub build_conditions {
+    my ($self, $condition) = @_;
+    die "Invalid Condition provided\n" unless ref $condition;
+    my ($op, @operands) = @$condition;
+    die "Operator '$op' is not valid\n" unless exists $OPS{$op};
+    my $class = $OPS{$op};
+    if (exists $UNARY_OPS{$op}) {
+        my $condition = build_conditions($self, $operands[0]);
+        return $class->new({condition => $condition});
+    }
+    if (exists $LOGICAL_OPS{$op}) {
+        my $conditions = [map { build_conditions($self, $_) } @operands];
+        return $class->new({conditions => $conditions});
+    }
+    my ($first, @keys) = split /\./, $operands[0];
+    my $sub_condition = $class->new({ value => $operands[1] });
+    if ($first eq 'extended' ) {
+        die "No sub fields provided for the extended key\n" unless @keys > 1;
+        my $extened_namespace = shift @keys;
+        return pf::condition::node_extended->new({
+            key => $first,
+            condition =>  pf::condition::node_extended_data->new({
+                key => $extened_namespace,
+                condition => _build_parent_condition($sub_condition, @keys),
+            })
+        });
+    }
+    return _build_parent_condition($sub_condition, $first, @keys);
+}
+
+sub _build_parent_condition {
+    my ($child, $key, @parents) = @_;
+    if (@parents == 0) {
+        return pf::condition::key->new({
+            key       => $key,
+            condition => $child,
+        });
+    }
+    return pf::condition::key->new({
+        key       => $key,
+        condition => _build_parent_condition($child, @parents),
+    });
 }
 
 =head1 AUTHOR
