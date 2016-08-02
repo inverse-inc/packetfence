@@ -94,6 +94,7 @@ sub generate_radiusd_sitesconf {
     }
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
 
     %tags = ();
@@ -113,6 +114,7 @@ sub generate_radiusd_sitesconf {
 
     %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
 
 }
@@ -158,7 +160,6 @@ sub generate_radiusd_authconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
@@ -168,7 +169,6 @@ sub generate_radiusd_acctconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
@@ -179,7 +179,6 @@ sub generate_radiusd_cliconf {
     my %tags;
     if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
