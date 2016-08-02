@@ -280,6 +280,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
     my $scan_config = $c->model('Config::Scan')->read('testscan');
     my $wmi_sccm = $c->model('Config::WMI')->read('SCCM');
+    my $res_req = pf::scan::wmi::rules::runWmi($wmi_sccm);
     #my $wmi_av = $c->model('Config::WMI')->read('AntiVirus');
     #my $wmi_fw = $c->model('Config::WMI')->read('FireWall');
     $c->stash(
@@ -288,6 +289,9 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         domain => $scan_config->{'domain'},
         sccm_scan => $wmi_sccm->{'request'},
     );
+    use Data::Dumper;
+    use pf::log;
+    get_logger()->info('scan' . Dumper($res_req));
 #    my @now = localtime;
 #    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
 #                         time => POSIX::strftime("%H:%M", @now) };
