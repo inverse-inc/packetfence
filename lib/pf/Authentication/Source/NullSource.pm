@@ -24,7 +24,6 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
-has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 authenticate

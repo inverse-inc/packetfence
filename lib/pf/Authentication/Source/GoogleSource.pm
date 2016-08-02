@@ -15,7 +15,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'Google');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://accounts.google.com');

@@ -32,8 +32,6 @@ has '+class' => (default => 'abstact');
 
 has '+type' => (default => 'Billing');
 
-has '+unique' => (default => 1);
-
 has 'currency' => (is => 'rw', default => 'USD');
 
 has 'test_mode' => (is => 'rw', isa => 'Bool');

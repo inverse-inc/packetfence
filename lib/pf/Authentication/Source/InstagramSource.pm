@@ -19,7 +19,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'Instagram');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.instagram.com');

@@ -19,11 +19,18 @@ use pf::Authentication::constants;
 use pf::Authentication::Action;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
+
+# 'unique' attribute indicates that only one authentication source of this type can be configured
 has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
+
 has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
+
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
+
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
+
 has 'dynamic_routing_module' => (is => 'rw', default => 'AuthModule');
+
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
 
 =head2 has_authentication_rules

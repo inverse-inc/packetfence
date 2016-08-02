@@ -15,7 +15,6 @@ with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'Github');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'scope' => (isa => 'Str', is => 'rw', default => 'user,user:email');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
