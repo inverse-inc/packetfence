@@ -288,8 +288,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     });
 
     my $scan_config = $c->model('Config::Scan')->read('testscan');
-    my $wmi_sccm = $c->model('Config::WMI')->read('SCCM');
-    my $res_sccm = pf::scan::wmi::rules::runWmi($wmi_sccm);
+    my $res_sccm = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('SCCM'));
     #my $wmi_av = $c->model('Config::WMI')->read('AntiVirus');
     #my $wmi_fw = $c->model('Config::WMI')->read('FireWall');
     $c->stash(
