@@ -75,11 +75,11 @@ sub authenticate {
             $self->prompt_fields();
             return;
         }
+        $self->update_person_from_fields();
     }
     else {
         $pid = $default_pid;
     }
-    $self->update_person_from_fields();
     $self->username($pid);
     $self->done();
 }
