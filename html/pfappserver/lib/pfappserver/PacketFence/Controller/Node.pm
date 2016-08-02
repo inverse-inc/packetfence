@@ -287,6 +287,14 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         tabs => \@tabs,
     });
 
+    $c->stash(
+        $wmi_user => "config::scan::username",
+        $wmi_pwd => "config::scan::password",
+        $domain => "config::scan::domain",
+    );
+#    my @now = localtime;
+#    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
+#                         time => POSIX::strftime("%H:%M", @now) };
 }
 
 =head2 update
