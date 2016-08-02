@@ -207,7 +207,7 @@
 
               [%- IF node.device_class == "Windows" %]
               [% IF sccm_scan %] 
-                <span class="label label-success"><i class="icon-signal"></i> [% sccm_scan | html %]</span>
+                <span class="label label-success"> [% sccm_scan | html %]</span>
               [% END %]
 
               [%- ELSE %]
