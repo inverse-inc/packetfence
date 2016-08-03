@@ -96,6 +96,27 @@ has_field 'voip' =>
    checkbox_value => 'yes',
    input_without_param => 'no',
   );
+has_field 'sccm' =>
+  (
+   type => 'Checkbox',
+   label => 'SCCM client',
+   checkbox_value => 'yes',
+   input_without_param => 'no',
+  );
+has_field 'antivirus' =>
+  (
+   type => 'Checkbox',
+   label => 'Antivirus installed',
+   checkbox_value => 'yes',
+   input_without_param => 'no',
+  );
+has_field 'firewall' =>
+  (
+   type => 'Checkbox',
+   label => 'Firewall installed',
+   checkbox_value => 'yes',
+   input_without_param => 'no',
+  );
 has_field 'last_dot1x_username' =>
   (
    type => 'Uneditable',
