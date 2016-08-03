@@ -287,22 +287,6 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         tabs => \@tabs,
     });
 
-    my $res_sccm = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('SCCM'));
-    if (is_success($res_sccm)) {
-        $res_sccm = $TRUE,
-    } else {
-        $res_sccm,
-    }
-    my $av_scan = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('AntiVirus'));
-    my $fw_scan = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('FireWall'));
-    $c->stash(
-        sccm_scan => $res_sccm,
-        av_scan => $av_scan,
-        fw_scan => $fw_scan,
-    );
-    use Data::Dumper;
-    use pf::log;
-    get_logger()->info('scan' . Dumper($res_sccm));
 #    my @now = localtime;
 #    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
 #                         time => POSIX::strftime("%H:%M", @now) };
@@ -380,6 +364,37 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 wmi
+
+test 
+
+=cut
+
+sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
+    my $runscan = pf::scan::wmi::rules::runWmi();
+    my ($status, $result) = $c->model('Config::Scan')->read('testscan');
+ 
+    if (is_success($status)) {
+        my $result_sccm = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('SCCM'));
+        my $result_av = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('AntiVirus'));
+        my $result_fw = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('FireWall'));
+        my $result_process = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('Process_running'));
+        $c->stash(
+            sccm_scan => $result_sccm,
+            av_scan => $result_av,
+            fw_scan => $result_fw,
+            running_process => $result_process,
+        );
+
+    }
+    else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
 }
 
 =head2 violations
