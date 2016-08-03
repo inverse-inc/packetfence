@@ -49,6 +49,7 @@ BEGIN {
         ['a.x == "b"', ['==', 'a.x', 'b']],
         ['a.x == "b\""', ['==', 'a.x', 'b"']],
         ['a.x == "b\\\\"', ['==', 'a.x', 'b\\']],
+        ['a == "b" && c == "d"', ['AND',['==', 'a', 'b'], ['==', 'c', 'd']]],
         ['a == ""', ['==', 'a', '']],
         ['a == b && c == d', ['AND', ['==', 'a', 'b'], ['==', 'c', 'd']]],
         ['a == b && (c == d || c == e)', ['AND', ['==', 'a', 'b'], ['OR', ['==', 'c', 'd'],['==', 'c', 'e']]]],
@@ -79,6 +80,9 @@ sub test_valid_string {
     my ($string, $expected) = @_;
     my ($array, $msg) = parse_condition_string($string);
     is_deeply($expected, $array, "Check if '$string' is valid");
+    unless ($array){
+        print "$msg\n";
+    }
 }
 
 sub test_invalid_string {
