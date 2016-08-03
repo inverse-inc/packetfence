@@ -64,7 +64,7 @@ Parsed attributes:
 sub parseUrl {
     my ( $self, $req ) = @_;
 
-    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')), 0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid'));
+    $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')), 0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('mac')), $$req->param('ssid'));
 
     return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
 }
