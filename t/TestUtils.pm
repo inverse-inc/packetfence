@@ -106,6 +106,7 @@ my @excluded_binaries = qw(
    /usr/local/pf/bin/pfcmd
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/bin/ntlm_auth_wrapper
+   /usr/local/pf/bin/mysql_fingerbank_import.sh
 );
 my %exclusions = map { $_ => 1 } @excluded_binaries;
 
