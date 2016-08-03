@@ -175,7 +175,8 @@ Return instances of pf::Authentication::Source for a given type
 
 sub getAuthenticationSourcesByType {
     my ( $type ) = @_;
-    return map { ($_->type eq $type) ? $_ : () } @authentication_sources;
+    my @sources = grep { $_->{'type'} eq $type } @authentication_sources;
+    return \@sources;
 }
 
 # =head2 source_for_user

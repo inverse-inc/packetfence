@@ -423,7 +423,7 @@ sub authentication {
 sub authentication_unique_sources {
     foreach my $authentication_source ( @pf::authentication::authentication_sources ) {
         if ( $authentication_source->unique ) {
-            my $count = pf::authentication::getAuthenticationSourcesByType($authentication_source->type);
+            my $count = @{pf::authentication::getAuthenticationSourcesByType($authentication_source->type)};
             if ( $count > 1 ) {
                 add_problem( $FATAL, "Tried to use an authentication source '" . $authentication_source->id . "' of type '" . $authentication_source->type . "' while this type being unique and an authentication source of this type already exists" );
             }
