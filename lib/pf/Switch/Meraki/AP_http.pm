@@ -77,7 +77,7 @@ sub parseUrl {
     my $logger = $self->logger;
     my $connection = $r->connection;
     $self->synchronize_locationlog("0", "0", clean_mac($$req->param('client_mac')),
-        0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('client_mac')), "Unknown"
+        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('client_mac')), "Unknown"
     );
 
     return (clean_mac($$req->param('client_mac')),"Unknown",$$req->param('client_ip'),$$req->param('continue_url'),undef,"200");

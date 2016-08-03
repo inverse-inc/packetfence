@@ -63,7 +63,7 @@ sub parseUrl {
     my $logger = $self->logger;
     my $connection = $r->connection;
     $self->synchronize_locationlog("0", "0", clean_mac($$req->param('mac')),
-        0, $WIRELESS_MAC_AUTH, clean_mac($$req->param('mac')), $$req->param('ssid')
+        0, $WIRELESS_MAC_AUTH, "", clean_mac($$req->param('mac')), $$req->param('ssid')
     );
 
     my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $connection->remote_ip;
