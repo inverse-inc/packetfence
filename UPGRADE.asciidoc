@@ -68,6 +68,34 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Fingerbank database moving to MySQL (optionnal)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Fingerbank database can now be hosted in the same MySQL database PacketFence uses.
+
+In order to do so, you need to collect the database credentials from the PacketFence configuration:
+
+```
+# /usr/local/pf/bin/pfcmd pfconfig show resource::Database
+$VAR1 = {
+          'pass' => 'fp',
+          'db' => 'pf',
+          'user' => 'pf',
+          'port' => '3306',
+          'host' => 'localhost'
+        };
+```
+
+Next, head to 'Configuration->Fingerbank Settings' in the web administration interface and configure the following parameters:
+
+ * MySQL host : set this to the value of `host` above.
+ * MySQL port : set this to the value of `port` above.
+ * MySQL username : set this to the value of `user` above.
+ * MySQL password : set this to the value of `pass` above.
+ * MySQL database : set this to `pf_fingerbank`.
+ 
+After saving those new parameters, at the top of the same page, click 'Initialize MySQL database' to start the import process. Once that is completed, you will receive an e-mail to the one configured for alerting and PacketFence will start using the MySQL backend for the Fingerbank database.
+
 Upgrading from a version prior to 6.2.1
 ---------------------------------------
 
