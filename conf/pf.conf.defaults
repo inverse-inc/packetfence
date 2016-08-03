@@ -917,8 +917,8 @@ detection_mecanism_bypass = disabled
 # captive_portal.detection_mecanism_urls
 #
 # Comma-delimited list of URLs known to be used by devices to detect the presence 
-# of a captive portal and trigger their captive portal mecanism.
-detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://www.msftncsi.com/ncsi.txt
+# of a captive portal and trigger their captive portal mechanism.
+detection_mecanism_urls = http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt
 #
 # captive_portal.wispr_redirection
 #
