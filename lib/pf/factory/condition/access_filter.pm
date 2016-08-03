@@ -24,6 +24,7 @@ sub factory_for {'pf::condition'}
 our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'is'                => 'pf::condition::equals',
     'is_not'            => 'pf::condition::not_equals',
+    'includes'          => 'pf::condition::includes',
     'match'             => 'pf::condition::matches',
     'regex'             => 'pf::condition::regex',
     'match_not'         => 'pf::condition::not_matches',
@@ -32,6 +33,10 @@ our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
     'not_defined'       => 'pf::condition::not_defined',
     'date_is_before'    => 'pf::condition::date_before',
     'date_is_after'     => 'pf::condition::date_after',
+    'greater'           => 'pf::condition::greater',
+    'greater_equals'    => 'pf::condition::greater_equals',
+    'lower'             => 'pf::condition::lower',
+    'lower_equals'      => 'pf::condition::lower_equals',
 );
 
 sub modules {

@@ -15,7 +15,6 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config qw(%ConfigPKI_Provider);
 
 has roles => ( is => 'rw' );
-has oses => ( is => 'rw' );
 has violations => ( is => 'rw');
 
 ## Definition
@@ -56,14 +55,14 @@ has_field 'category' =>
 
 has_field 'oses' =>
   (
-   type => 'Select',
+   type => 'FingerbankSelect',
    multiple => 1,
    label => 'OS',
-   options_method => \&options_oses,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
+   fingerbank_model => "fingerbank::Model::Device",
   );
 
 has_field 'non_compliance_violation' =>
@@ -98,14 +97,6 @@ has_block definition =>
 sub options_pki_provider {
     return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
 }
-=head2 options_oses
-
-=cut
-
-sub options_oses {
-    my $self = shift;
-    return $self->form->oses;
-}
 
 =head2 options_roles
 
@@ -136,13 +127,8 @@ To automatically add the context to the Form
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
     my ($status, $roles) = $c->model('Roles')->list();
-    my @oses = ["Windows" => "Windows",
-                "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android",
-                "Apple iPod, iPhone or iPad" => "Apple iOS device"
-               ];
     my (undef, $violations) = $c->model('Config::Violations')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, violations => $violations, @args);
+    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, violations => $violations, @args);
 }
 
 =head1 COPYRIGHT

@@ -747,6 +747,7 @@ $(function () { // DOM ready
     $('body').on('section.loaded', function(event) {
         updateExtendedDurationExample($('.extended-duration'));
         bindExportCSV();
+        FingerbankSearch.setup();
     });
 
     /* Update extended duration widget when changing parameters of the duration */
@@ -790,4 +791,93 @@ $(function () { // DOM ready
       }
     });
 
+    $('#section').on('show', '.modal', function(e) {
+      FingerbankSearch.setup();
+    });
+
 });
+
+function FingerbankSearch() {
+
+}
+
+FingerbankSearch.prototype.model_stripped = function() {
+  var that = this;
+  return this.model.split('::Model::')[1].toLowerCase();
+}
+
+FingerbankSearch.prototype.search = function(query, process) {
+  var that = this;
+  var path = this.model_stripped();
+  console.log(path);
+  $.ajax({
+      type: 'POST',
+      url: '/config/fingerbank/'+path+'/typeahead_search',
+      headers: {
+          Accept: 'application/json',
+      },
+      data: {
+          'json': 1,
+          'query': query,
+          'model': this.model,
+      },
+      success: function(data) {
+          var results = $.map(data.items, function(i) {
+              return i.display;
+          });
+          that.results = data.items;
+          var input = that.typeahead_field;
+          var control = input.closest('.control-group');
+          if (results.length == 0)
+              control.addClass('error');
+          else
+              control.removeClass('error');
+          process(results);
+      }
+  });
+}
+
+FingerbankSearch.setup = function() {
+  $('.fingerbank-type-ahead').doOnce('.fingerbank-type-ahead', function(){ 
+      var o = this;
+
+      // Creating a new scope since we are in a loop
+      (function() {
+        var search = new FingerbankSearch();
+        search.typeahead_field = $(o);
+        // We prevent the browser autocompletion
+        search.typeahead_field.attr('autocomplete', "off");
+        search.typeahead_btn = $($(o).attr('data-btn'));
+        search.model = $(o).attr('data-type-ahead-for');
+        search.add_to = $('#'+$(o).attr('data-add-to'));
+        search.add_action = $(o).attr('data-add-action');
+        $(o).typeahead({
+          source: $.proxy(search.search, search),
+          minLength: 2,
+          items: 11,
+          matcher: function(item) { return true; }
+        });
+        search.typeahead_btn.click(function(e) {
+          e.preventDefault();
+          var id;
+          var display;
+          console.log(search);
+          $.each(search.results, function(){
+            if(this.display == search.typeahead_field.val()){
+              id = this.id;
+              display = this.display;
+            }
+          });
+          if(search.add_action) {
+            eval(search.add_action + "(search,id,display)");
+          }
+          else {
+            search.add_to.append('<option selected="selected" value="'+id+'">'+display+'</option>');
+            search.add_to.trigger("liszt:updated");
+          }
+          search.typeahead_field.val('');
+          return false;      
+        });
+      })()
+  });
+}

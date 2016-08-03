@@ -106,11 +106,24 @@ violationsView.event_triggers = JSON.parse("[% json_event_triggers | js %]")
               </div>
             [% END %]
 
-            [% FOREACH type IN ['user_agent', 'dhcp_fingerprint', 'mac_vendor', 'dhcp_vendor', 'device'] %]
-              <div class="alert alert-info trigger_widget [% type %]_triggers">
-                <strong>Tip :</strong>
-                You can get the list of [% i18n(type) %] identifiers from the 
-                <a href="configuration#config/fingerbank/[% type %]" target="_blank">[% i18n(type) %] page</a>.
+            [% fingerbank_map = { 
+              'user_agent' => 'fingerbank::Model::User_Agent', 
+              'dhcp_fingerprint' => 'fingerbank::Model::DHCP_Fingerprint', 
+              'dhcp6_fingerprint' => 'fingerbank::Model::DHCP6_Fingerprint', 
+              'dhcp6_enterprise' => 'fingerbank::Model::DHCP6_Enterprise', 
+              'mac_vendor' => 'fingerbank::Model::MAC_Vendor', 
+              'dhcp_vendor' => 'fingerbank::Model::DHCP_Vendor', 
+              'device' => 'fingerbank::Model::Device'
+            } %]
+            [% FOREACH type IN fingerbank_map.keys %]
+              <div class="trigger_widget [% type %]_triggers">
+                <div class="control-group">
+                  <label class="control-label">Search Fingerbank :</label>
+                  <div class="controls">
+                    <input type="text" class="fingerbank-type-ahead" data-type-ahead-for="[% fingerbank_map.$type %]" data-btn="#fingerbank_trigger_add_[% type %]" data-add-action="violationsView.add_fingerbank_trigger">
+                    <button class="btn add_fingerbank_trigger" id="fingerbank_trigger_add_[% type %]" data-trigger-type="[% type %]">[% l('Add') %]</button>
+                  </div>
+                </div>
               </div>
             [% END %]
 

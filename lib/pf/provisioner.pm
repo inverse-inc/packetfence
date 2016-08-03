@@ -15,6 +15,7 @@ pf::provisioner
 use strict;
 use warnings;
 use Moo;
+use pf::constants;
 use pf::config;
 use pf::fingerbank;
 use Readonly;
@@ -168,20 +169,23 @@ sub matchCategory {
 =cut
 
 sub matchOS {
-    my ($self, $device_type) = @_;
+    my ($self, $node_attributes) = @_;
     my @oses = @{$self->oses || []};
 
-    # Get device type kind of device by querying Fingerbank
-    my $os = pf::fingerbank::is_a($device_type);
-
-    get_logger->trace( sub { "Tring to match the OS '$os' against " . join(",", @oses) });
     #if no oses are defined then it will match all the oses
-    return 1 if @oses == 0;
-    #if os is undef then fail
-    return 0 unless defined $os;
-    local $_;
-    #verify os matches list
-    return any { $os =~ /\Q$_\E/ } @oses;
+    return $TRUE if @oses == 0;
+
+    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
+    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
+    #if there is no device info then fail
+    return $FALSE if @{$fingerbank_info->{device_hierarchy_ids}} == 0;
+
+    foreach my $device_id (@{$fingerbank_info->{device_hierarchy_ids}}) {
+        if(any {$device_id eq $_} @oses){
+            return $TRUE;
+        }
+    }
+    return $FALSE;
 }
 
 =head2 match
@@ -190,7 +194,8 @@ sub matchOS {
 
 sub match {
     my ($self, $os, $node_attributes) = @_;
-    return $self->matchOS($os) && $self->matchCategory($node_attributes);
+    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes);
 }
 
 =head2 getPkiProvider

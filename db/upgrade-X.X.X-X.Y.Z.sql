@@ -2,6 +2,12 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
+--
+-- Additionnal fields for the Fingerbank integration
+--
+
+ALTER TABLE node ADD COLUMN `device_version` varchar(255) DEFAULT NULL AFTER `device_class`;
+ALTER TABLE node ADD COLUMN `device_score` varchar(255) DEFAULT NULL AFTER `device_version`;
 
 --
 -- Setting the major/minor/sub-minor version of the DB

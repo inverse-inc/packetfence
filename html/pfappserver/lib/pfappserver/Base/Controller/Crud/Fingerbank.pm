@@ -53,19 +53,6 @@ after [qw(create update clone)] => sub {
     if ((is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->log->info("Just changed a Fingerbank database object. Synching the local database.");
         pf::fingerbank::sync_local_db();
-        my $cache = pf::CHI->new( namespace => 'fingerbank');
-        my $model_name = $self->getModel($c)->fingerbankModel();
-        foreach my $key ($cache->get_keys()){
-            if($key =~ /^$model_name\_/){
-                $c->log->debug("Expiring $key since $model_name has changed.");
-                $cache->expire($key);
-            }
-            # special case, we need to expire results from the CombinationMatch view
-            elsif($model_name eq "Combination" && $key =~ /^CombinationMatch_/){
-                $c->log->debug("Expiring $key since $model_name has changed.");
-                $cache->expire($key);
-            }
-        }
     }
 };
 
@@ -117,6 +104,36 @@ sub search : Chained('scope') : PathPart('search') : Args() {
             status_msg   => $result,
         );
         $c->response->status($status);
+    }
+}
+
+=head2 typeahead_search
+
+Search method for use with a typeahead field
+
+=cut
+
+sub typeahead_search : Local {
+    my ($self, $c) = @_;
+    my $model = $self->getModel($c);
+    $model->scope('All');
+    my $search_fields = $model->search_fields;
+    my $value = $c->request->param('query');
+    my $query = [ map { $_ => { -like => "%$value%"} } @$search_fields ];
+    my ($status, $result) = $model->search(
+        $query,
+        {
+            by        => 'value',
+            direction => 'asc',
+        }
+    );
+    if(is_success($status)) {
+        my $value_method = $model->fingerbankModel->value_field;
+        my @items = map { { display => $_->$value_method, id => $_->id } } @{$result->{items}};
+        $c->stash(items => \@items);
+    }
+    else {
+        $c->stash(items => []);
     }
 }
 

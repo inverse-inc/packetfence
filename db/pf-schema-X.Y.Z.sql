@@ -159,6 +159,8 @@ CREATE TABLE node (
   dhcp6_enterprise varchar(255) default NULL,
   device_type varchar(255) default NULL,
   device_class varchar(255) default NULL,
+  device_version varchar(255) DEFAULT NULL,
+  device_score varchar(255) DEFAULT NULL,
   bypass_vlan varchar(50) default NULL,
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',

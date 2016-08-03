@@ -21,14 +21,17 @@ has_field 'id' =>
    readonly => 1,
   );
 
-has_field parent_id =>
+has_field 'parent_id' => 
   (
-   type => 'Text',
+   type => 'FingerbankField',
+   label => 'Parent device',
+   fingerbank_model => "fingerbank::Model::Device",
   );
 
 has_field name =>
   (
    type => 'Text',
+   required => 1,
   );
 
 has_field [qw(mobile tablet)] =>

@@ -84,26 +84,11 @@ has_field 'notes' =>
    type => 'TextArea',
    label => 'Notes',
   );
-has_field 'vendor' =>
-  (
-   type => 'Uneditable',
-   label => 'MAC Vendor',
-  );
 has_field 'computername' =>
   (
    type => 'Uneditable',
    label => 'Name',
   );
-has_field 'device_type' =>
-  (
-   type => 'Uneditable',
-   label => 'Device Type',
-  );
-has_field 'device_class' =>
- (
-   type => 'Uneditable',
-   label => 'Device class',
- );
 has_field 'voip' =>
   (
    type => 'Checkbox',
@@ -121,28 +106,70 @@ has_field 'bypass_vlan' =>
    type => 'Text',
    label => 'Bypass VLAN',
   );
+
+# Fingerprinting related fields
 has_field 'user_agent' =>
   (
    type => 'Uneditable',
    label => 'User Agent',
   );
-has_field 'useragent' =>
+has_field 'dhcp_fingerprint' =>
   (
-   type => 'Compound', # virtual field to access the 'useragent' hash
+   type => 'Uneditable',
+   label => 'DHCP fingerprint',
   );
-has_field 'useragent.mobile' =>
+has_field 'dhcp_vendor' =>
   (
+   type => 'Uneditable',
+   label => 'DHCP Vendor',
+  );
+has_field 'dhcp6_fingerprint' =>
+  (
+   type => 'Uneditable',
+   label => 'DHCPv6 Fingerprint',
+  );
+has_field 'dhcp6_enterprise' =>
+  (
+   type => 'Uneditable',
+   label => 'DHCPv6 Enterprise',
+  );
+has_field 'device_type' =>
+  (
+   type => 'Uneditable',
+   label => 'Device Type',
+  );
+has_field 'device_class' =>
+ (
+   type => 'Uneditable',
+   label => 'Device class',
+ );
+has_field 'fingerbank_info' =>
+  (
+   type => 'Compound', # virtual field to access the 'fingerbank_info' hash
+  );
+has_field 'fingerbank_info.device_fq' =>
+ (
+   type => 'Uneditable',
+   label => 'Fully qualified device name',
+ );
+has_field 'fingerbank_info.version' =>
+ (
+   type => 'Uneditable',
+   label => 'Version',
+ );
+has_field 'fingerbank_info.score' =>
+ (
+   type => 'Uneditable',
+   label => 'Score',
+ );
+has_field 'fingerbank_info.mobile' =>
+ (
    type => 'Toggle',
-   label => 'Is a mobile',
+   label => 'Mobile',
    element_attr => {disabled => 1},
-  );
-has_field 'useragent.device' =>
-  (
-   type => 'Toggle',
-   label => 'Is a device',
-   element_attr => {disabled => 1},
-  );
-
+ );
+#/ END fingerprinting related fields
+ 
 =head2 options_status
 
 =cut

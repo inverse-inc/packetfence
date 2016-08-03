@@ -60,6 +60,8 @@ sub new {
             '_status'      => undef,
             '_scannername' => undef,
             '_format'      => 'csv',
+            '_oses'        => undef,
+            '_categories'  => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {

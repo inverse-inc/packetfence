@@ -28,6 +28,7 @@ use fingerbank::Constant qw($UPSTREAM_SCHEMA $MYSQL_DB_TYPE);
 use pf::cluster;
 use pf::constants;
 use pf::constants::fingerbank qw($RATE_LIMIT);
+use pf::error qw(is_success);
 
 use pf::client;
 use pf::error qw(is_error);
@@ -94,7 +95,6 @@ sub process {
     my $cache = cache();
     # Rate limit the fingerbank requests based on the partial query params (the ones that are passed)
     my $result = $cache->compute_with_undef("fingerbank::process-partial-query-".encode_json($query_args),  sub {
-
         if($query_args->{mac}){
             my $node_info = pf::node::node_view($query_args->{mac});
             if($node_info){
@@ -128,6 +128,8 @@ sub process {
             node_modify( $mac, (
                 'device_type'   => $query_result->{'device'}{'name'},
                 'device_class'  => $class,
+                'device_version' => $query_result->{'version'},
+                'device_score' => $query_result->{'score'},
             ) );
 
             _trigger_violations($query_args, $query_result, $parents);
@@ -250,10 +252,12 @@ sub sync_configuration {
 
 sub sync_local_db {
     pf::cluster::sync_files([$fingerbank::FilePath::LOCAL_DB_FILE]);
+    pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
 }
 
 sub sync_upstream_db {
     pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE], async => $TRUE);
+    pf::cluster::notify_each_server('chi_cache_clear', 'fingerbank');
 }
 
 =head2 mac_vendor_from_mac
@@ -301,6 +305,27 @@ sub _update_fingerbank_component {
 
 sub cache {
     return pf::CHI->new( namespace => 'fingerbank' );
+}
+
+=head2 device_name_to_device_id
+
+Find the device ID given its name
+Also makes use of the cache
+
+=cut
+
+sub device_name_to_device_id {
+    my ($device_name) = @_;
+    my $id = cache()->compute_with_undef("device_name_to_device_id-$device_name", sub {
+        my ($status, $fbdevice) = fingerbank::Model::Device->find([{name => $device_name}]);
+        if(is_success($status)) {
+            return $fbdevice->id;
+        }
+        else {
+            return undef;
+        }
+    });
+    return $id;
 }
 
 =head1 AUTHOR

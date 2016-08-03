@@ -27,6 +27,7 @@ use pf::config::util;
 use pf::log;
 use pf::node;
 use pf::factory::provisioner;
+use pf::factory::scan;
 use pf::ConfigStore::Scan;
 use pf::StatsD::Timer;
 use pf::config qw(
@@ -523,7 +524,7 @@ The scanObjects
 
 sub scanObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ $self->getScans || [] };
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ [split(/\s*,\s*/, $self->getScans)] || [] };
 }
 
 =item findScan
@@ -535,49 +536,21 @@ return the first scan that match the device
 sub findScan {
     my $timer = pf::StatsD::Timer->new({level => 7});
     my ($self, $mac, $node_attributes) = @_;
-    my $scanners = $self->getScans;
-    return undef unless defined $scanners;
     my $logger = get_logger();
-    foreach my $scan (split(',', $scanners)) {
-        my $scan_config = $pf::config::ConfigScan{$scan};
-        my @categories  = split(',', $scan_config->{'categories'});
-        my $oses        = $scan_config->{'oses'};
-
-        # if there are no oses and no categories defined for the scan then select it
-        if (!scalar(@$oses) && !scalar(@categories)) {
-            return $scan_config;
-        }
-        $node_attributes ||= node_attributes($mac);
-
-        # if there are an os and a category defined
-        if (scalar(@$oses) && scalar(@categories)) {
-            my $device_type = $node_attributes->{'device_type'} || '';
-            my $fingerprint = pf::fingerbank::is_a($device_type);
-            if ((grep {$fingerprint =~ $_} @$oses) && (grep {$_ eq $node_attributes->{'category'}} @categories)) {
-                return $scan_config;
-            }
-            # Check next scan config
-            next;
-        }
-
-        # if there is only an os
-        if (scalar(@$oses)) {
-            my $device_type = $node_attributes->{'device_type'} || '';
-            my $fingerprint = pf::fingerbank::is_a($device_type);
-            if (grep {$fingerprint =~ $_} @$oses) {
-                return $scan_config;
-            }
-            # Check next scan config
-            next;
-        }
-
-        # if there is only a category
-        if (grep {$_ eq $node_attributes->{'category'}} @categories) {
-            return $scan_config;
-        }
+    my @scanners = $self->scanObjects;
+    unless(@scanners){
+        $logger->trace("No scan engine configured for portal profile");
+        return;
     }
 
-    return undef;
+    $node_attributes ||= node_attributes($mac);
+    my $os = $node_attributes->{'device_type'};
+    unless(defined $os){
+        $logger->warn("Can't find scan engine for $mac since we don't have it's OS");
+        return;
+    }
+
+    return first { $_->match($os,$node_attributes) } @scanners;
 }
 
 sub getUserSources {

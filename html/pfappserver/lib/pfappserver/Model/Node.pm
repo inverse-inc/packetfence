@@ -143,7 +143,6 @@ sub view {
     my $node = {};
     eval {
         $node = node_view($mac);
-        $node->{vendor} = oui_to_vendor($mac);
         for my $date (qw(regdate unregdate)) {
             my $timestamp = "${date}_timestamp";
             if ($node->{$timestamp}) {
@@ -192,10 +191,7 @@ sub view {
             $node->{locationlog}->{history} = \@locationlog_history;
         }
 
-        # Fetch user-agent information
-        if ($node->{user_agent}) {
-            $node->{useragent} = node_useragent_view($mac);
-        }
+        $node->{fingerbank_info} = pf::node::fingerbank_info($mac);
 
         #    my $node_accounting = node_accounting_view($mac);
         #    if (defined($node_accounting->{'mac'})) {
