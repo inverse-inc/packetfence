@@ -1,0 +1,13 @@
+[%- IF node.device_class == "Windows" %]
+    [% form.field('sccm').render | none %] <span class="label label-failure">Issue: [% sccm_scan | html %]</span>
+    [% form.field('antivirus').render | none %] <span class="label label-failure"> AntiVirus: [% av_scan | html %]</span>
+    [% form.field('firewall').render | none %]<span class="label label-failure"> Firewall: [% fw_scan | html %]</span>
+    [% running_process | html %]
+            
+[%- ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('WMI is not available for this device') %]</p>
+  </div>
+[%- END %]
+
+
