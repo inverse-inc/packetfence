@@ -33,6 +33,15 @@ sub update {
     unless ($source_id) {
         # Add a new source
         my $type = $source_obj->{type};
+
+        # Validate uniqueness of an authentication source if conditional
+        my $source_module = $pf::authentication::TYPE_TO_SOURCE{lc($type)};
+        if ( ($source_module->meta->find_attribute_by_name('unique')->default) && (pf::authentication::getAuthenticationSourcesByType($type)) ) {
+            my $status_msg = "Tried to create an authentication source of type '$type' while this type being unique and an authentication source of this type already exists";
+            $logger->error($status_msg);
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
+
         $source_obj = newAuthenticationSource($type, $def_ref->{id}, $def_ref);
         unless ($source_obj) {
             $logger->error("Authentication source of type $type is not supported.");
