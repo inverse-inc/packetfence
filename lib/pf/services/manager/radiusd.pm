@@ -14,17 +14,19 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
+
 use List::MoreUtils qw(any);
+use Moo;
+
+use pf::cluster;
 use pf::file_paths qw(
     $var_dir
     $conf_dir
     $install_dir
 );
-use pf::util;
-use Moo;
-use pf::cluster;
 use pf::services::manager::radiusd_child;
 use pf::SwitchFactory;
+use pf::util;
 
 use pfconfig::cached_array;
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
