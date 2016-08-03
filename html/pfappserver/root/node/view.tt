@@ -207,9 +207,12 @@
 
               [%- IF node.device_class == "Windows" %]
               [% IF sccm_scan %] 
-                <span class="label label-success"> [% sccm_scan | html %]</span>
-                <span class="label label-success"> [% av_scan | html %]</span>
-                <span class="label label-success"> [% fw_scan | html %]</span>
+                [% form.field('sccm').render | none %]
+                [% form.field('antivirus').render | none %]
+                [% form.field('firewall').render | none %]
+                <span class="label label-success"> SCCM: [% sccm_scan | html %]</span><br/>
+                <span class="label label-success"> AntiVirus: [% av_scan | html %]</span><br/>
+                <span class="label label-success"> Firewall: [% fw_scan | html %]</span><br/>
               [% END %]
 
               [%- ELSE %]
