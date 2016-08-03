@@ -90,6 +90,8 @@ Readonly my %dhcp_options = (
     'DHCP-Client-IP-Address'       => '50',
     'DHCP-DHCP-Server-Identifier'  => '54',
     'DHCP-Site-specific-0'         => '224',
+    'DHCP-Site-specific-1'         => '225',
+    'DHCP-Site-specific-2'         => '226',
 );
 
 Readonly my %dhcp_options_82 = (
@@ -397,6 +399,7 @@ format radius dhcp attributes to dhcp object
 sub format_from_radius_dhcp {
     my ($radius_request) = @_;
     my $dhcp = {};
+    my $args = {};
     my $options;
     my $sub_options;
     foreach my $keys (keys $radius_request) {
@@ -431,8 +434,11 @@ sub format_from_radius_dhcp {
     $dhcp->{'src_mac'} = $dhcp->{'chaddr'};
     $dhcp->{'ciaddr'} = $options->{'50'};
     $dhcp->{'options'} = $options;
-    $dhcp->{'radius'} = $TRUE;
-    $dhcp->{'net_type'} = $options->{'224'};
+    $args->{'radius'} = $TRUE;
+    $args->{'net_type'} = $options->{'224'};
+    $args->{'interface'} = $options->{'225'};
+    $args->{'interface_vlan'} = $options->{'226'};
+    $args->{'interface_ip'} = $options->{'54'};
     my %new_option = (
         '_subopts' => $sub_options,
     );
@@ -441,7 +447,7 @@ sub format_from_radius_dhcp {
     $dhcp->{'options'}{'82'} = \%new_option;
     _decode_dhcp_option82_suboption1(\%new_option, $sub_options->{'1'}) if defined($sub_options->{'1'});
     _decode_dhcp_option82_suboption2(\%new_option, $sub_options->{'2'}) if defined($sub_options->{'2'});
-    return $dhcp;
+    return ($dhcp,$args);
 }
 
 =back

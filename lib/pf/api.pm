@@ -1586,9 +1586,9 @@ sub radius_rest_dhcp :Public :RestPath(/radius/rest/dhcp) {
     my $timer = pf::StatsD::Timer->new();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
-    my $dhcp = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
+    my ($dhcp, $args) = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
     my $client = pf::api::queue->new(queue => 'pfdhcplistener');
-    $client->notify( 'process_dhcp_packet', $dhcp );
+    $client->notify( 'process_dhcp_packet', $dhcp, $args );
     return;
 }
 
@@ -1599,8 +1599,8 @@ Process dhcp object packet in pfqueue
 =cut
 
 sub process_dhcp_packet {
-    my ($class, $dhcp) = @_;
-    pf::dhcp::processor->new()->process_packet_dhcp($dhcp);
+    my ($class, $dhcp, $args) = @_;
+    pf::dhcp::processor->new(%{$args})->process_packet_dhcp($dhcp);
 }
 
 =head1 AUTHOR
