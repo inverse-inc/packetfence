@@ -70,7 +70,7 @@ sub prepare_payment {
     my @infos = split(':', $crypt->decrypt3(pack('H*', $self->form_id), $self->des_key));
     my $template_id = $infos[2];
 
-    $hash->{world_pay_checkout_url} = $self->base_uri . "?formid=" . uc(unpack('H*', $crypt->encrypt3(join(':', ($infos[0], $infos[1], $template_id, $amount, '')), $self->des_key))) . "&sessionid=".$self->session_id;
+    $hash->{world_pay_checkout_url} = $self->base_uri . "?formid=" . uc(unpack('H*', $crypt->encrypt3(join(':', ($infos[0], $infos[1], $template_id, $amount, $self->des_key)), $self->des_key))) . "&sessionid=".$self->session_id;
 
     return $hash;
 }
@@ -92,6 +92,18 @@ sub verify {
         die "Payment validation failed.";
     }
     return {};
+}
+
+sub handle_hook {
+    my ($self, $headers, $content) = @_;
+    use Data::Dumper;
+    get_logger->info(Dumper($headers, $content));
+    
+    my $crypt = Crypt::TripleDES->new;
+    
+    my $data = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $content) };
+    get_logger->info(Dumper($data));
+    get_logger->info($crypt->decrypt3(pack('H*', $data->{postbackurl}), $self->des_key));
 }
 
 =head2 cancel
