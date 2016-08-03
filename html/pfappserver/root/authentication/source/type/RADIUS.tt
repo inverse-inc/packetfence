@@ -4,5 +4,6 @@
             [% form.field('host').render_element | none %]:[% form.field('port').render_element | none %]
           </div>
         </div>
+[% form.field('timeout').render | none %]
 [% form.field('secret').render | none %]
 [% form.field('stripped_user_name').render | none %]
