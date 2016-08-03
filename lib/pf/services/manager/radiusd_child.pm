@@ -22,13 +22,13 @@ use List::MoreUtils qw(any);
 use Moo;
 use NetAddr::IP;
 
+use pf::cluster;
 use pf::config qw(
     %Config
     $management_network
     %ConfigDomain
     $local_secret
 );
-use pf::cluster;
 use pfconfig::cached_array;
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 use Template;
