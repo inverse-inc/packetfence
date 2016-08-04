@@ -50,45 +50,55 @@ my $file_suffix = ".new";
 
 my $cfg = Config::IniFiles->new( -file => $provisioning_config_file);
 
-foreach my $prov ($cfg->Sections()) {
-    next unless($cfg->val($prov, 'oses'));
-    print "=" x 25 . "\n";
-    my @new_oses;
-    foreach my $os ($cfg->val($prov, 'oses')){
-        my $id = id_from_name($os);
-        if(defined($id)){
-            push @new_oses, $id if(defined($id));
+if(defined($cfg)) {
+    foreach my $prov ($cfg->Sections()) {
+        next unless($cfg->val($prov, 'oses'));
+        print "=" x 25 . "\n";
+        my @new_oses;
+        foreach my $os ($cfg->val($prov, 'oses')){
+            my $id = id_from_name($os);
+            if(defined($id)){
+                push @new_oses, $id if(defined($id));
+            }
+            else {
+                print STDERR "!!!!!! - Couldn't match OS $os in section $prov, please adjust the configuration manually... \n";
+            }
         }
-        else {
-            print STDERR "!!!!!! - Couldn't match OS $os in section $prov, please adjust the configuration manually... \n";
-        }
+        print "Replacing : " . join(',', "'".$cfg->val($prov, 'oses')."'") . " by : " . join(',',@new_oses)." in section $prov \n";
+        $cfg->setval($prov, 'oses', join(',',@new_oses));
     }
-    print "Replacing : " . join(',', "'".$cfg->val($prov, 'oses')."'") . " by : " . join(',',@new_oses)." in section $prov \n";
-    $cfg->setval($prov, 'oses', join(',',@new_oses));
-}
 
-$cfg->WriteConfig($provisioning_config_file.$file_suffix) or die("!!!!!! - Can't write '$provisioning_config_file$file_suffix'. Please validate the permissions and run this again");
+    $cfg->WriteConfig($provisioning_config_file.$file_suffix) or die("!!!!!! - Can't write '$provisioning_config_file$file_suffix'. Please validate the permissions and run this again");
+}
+else {
+    `touch $provisioning_config_file$file_suffix`;
+}
 
 $cfg = Config::IniFiles->new( -file => $scan_config_file);
 
-foreach my $scan ($cfg->Sections()) {
-    next unless($cfg->val($scan, 'oses'));
-    print "=" x 25 . "\n";
-    my @new_oses;
-    foreach my $os (split(/\s*,\s*/, $cfg->val($scan, 'oses'))){
-        my $id = id_from_name($os);
-        if(defined($id)){
-            push @new_oses, $id if(defined($id));
+if(defined($cfg)) {
+    foreach my $scan ($cfg->Sections()) {
+        next unless($cfg->val($scan, 'oses'));
+        print "=" x 25 . "\n";
+        my @new_oses;
+        foreach my $os (split(/\s*,\s*/, $cfg->val($scan, 'oses'))){
+            my $id = id_from_name($os);
+            if(defined($id)){
+                push @new_oses, $id if(defined($id));
+            }
+            else {
+                print STDERR "!!!!!! - Couldn't match OS $os in section $scan, please adjust the configuration manually... \n";
+            }
         }
-        else {
-            print STDERR "!!!!!! - Couldn't match OS $os in section $scan, please adjust the configuration manually... \n";
-        }
+        print "Replacing : " . join(',', "'".$cfg->val($scan, 'oses')."'") . " by : " . join(',',@new_oses)." in section $scan \n";
+        $cfg->setval($scan, 'oses', join(',',@new_oses));
     }
-    print "Replacing : " . join(',', "'".$cfg->val($scan, 'oses')."'") . " by : " . join(',',@new_oses)." in section $scan \n";
-    $cfg->setval($scan, 'oses', join(',',@new_oses));
+    
+    $cfg->WriteConfig($scan_config_file.$file_suffix) or die("!!!!!! - Can't write '$scan_config_file$file_suffix'. Please validate the permissions and run this again");
 }
-
-$cfg->WriteConfig($scan_config_file.$file_suffix) or die("!!!!!! - Can't write '$scan_config_file$file_suffix'. Please validate the permissions and run this again");
+else {
+    `touch $scan_config_file$file_suffix`;
+}
 
 print "=" x 25 . "\n";
 print "Done, now is time to validate the files content and copy them over the original configuration.\n";
