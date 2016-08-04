@@ -35,6 +35,15 @@ has_field 'request' =>
    messages => { required => 'Please specify the sql request like "select * from Win32_Product"' },
   );
 
+has_field 'namespace' =>
+  (
+   type => 'Text',
+   label => 'Namespace',
+   required => 1,
+   default => 'ROOT\cimv2',
+   messages => { required => 'Please specify the namespace you want to use "ROOT\cimv2"' },
+  );
+
 
 has_field 'action' =>
   (
@@ -49,7 +58,7 @@ has_field 'action' =>
 
 has_block definition =>
   (
-   render_list => [ qw(request action) ],
+   render_list => [ qw(namespace request action) ],
   );
 
 sub filter_inflate {
