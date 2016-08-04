@@ -11,6 +11,24 @@ server packetfence {
 #
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
+listen {
+    ipaddr = 127.0.0.1
+    port = 18120
+    type = auth
+}
+
+listen {
+    ipaddr = %%management_ip%%
+    port = 0
+    type = auth
+}
+
+listen {
+    ipaddr = %%management_ip%%
+    port = 0
+    type = acct
+}
+
 authorize {
 
 	# Add in PacketFence specific configuration
