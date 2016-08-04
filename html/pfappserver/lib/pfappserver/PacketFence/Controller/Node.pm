@@ -425,8 +425,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         if ($result_process =~ /0x80041010/) {
             $c->stash->{running_process} = 'No';
         }else {
-            my $process_res = $result_process->[0];
-            $c->stash->{running_process} = keys $process_res;
+            $c->stash->{running_process} = $result_process;
         }
 
     }
