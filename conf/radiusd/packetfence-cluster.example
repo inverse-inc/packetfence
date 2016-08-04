@@ -33,6 +33,18 @@ home_server_pool pfcli_pool.cluster {
 }
 
 server pf.cluster {
+	listen {
+		ipaddr = %%virt_ip%%
+		port = 0
+		type = auth
+	}
+
+	listen {
+		ipaddr = %%virt_ip%%
+		port = 0
+		type = acct
+	}
+
         pre-proxy {
                 #  Insert pre-proxy rules here
         }
