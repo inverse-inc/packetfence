@@ -1,8 +1,14 @@
+
+<div class="media media--error u-p u-mb" style="display:none">
+  <div class="media__img">[% flashIcon(level=error) %]</div>
+  <p class="media__body" id="addMessage"></p>
+</div>
+  
 <div class="layout layout--center">
   <p>[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID.") %]</p>
 
   <div class="layout__item u-2/3 u-1/1-palm">
-    <a href="/wireless-profile.mobileconfig" class="btn btn--full" target="_blank">
+    <a href="/wireless-profile.mobileconfig" class="btn btn--full">
       <div class="flag">
         <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
         <p class="flag__body">[% i18n("Install wireless profile") %]</p>
@@ -19,3 +25,10 @@
     [% END %]
   </div>
 </div>
+
+<script>
+  if(!navigator.userAgent.match('Safari') && navigator.userAgent.match('Macintosh')) {
+    $('#addMessage').html('We have detected that you aren\'t using the Safari browser. Please make sure you use Safari to complete this step.');
+    $('#addMessage').closest('div.media').show();
+  }
+</script>
