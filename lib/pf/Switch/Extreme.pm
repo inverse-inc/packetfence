@@ -681,10 +681,8 @@ sub _setVlan {
     # create a portlist that will map to affected port only
     my $portList = $self->createPortListWithOneItem($dot1dPort);
 
-    $logger->trace("locking - trying to lock \$switch_locker{".$self->{_ip}."} in _setVlan");
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
-        $logger->trace("locking - \$switch_locker{".$self->{_ip}."} locked in _setVlan");
+        my $lock = $self->getExclusiveLock();
 
         # set all values
         if ( !$self->connectWrite() ) {

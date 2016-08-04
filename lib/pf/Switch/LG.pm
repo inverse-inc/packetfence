@@ -262,8 +262,7 @@ sub _setVlan {
     }
 
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{" . $self->{_ip} . "} locked in _setVlan" );
+        my $lock = $self->getExclusiveLock();
 
         # Get current egress and untagged ports
         $logger->trace(
