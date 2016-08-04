@@ -514,7 +514,6 @@ sub generate_radiusd_dhcpd {
         my $vlan = get_vlan_from_int($interface);
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        my $enforcement = $cfg->{'enforcement'};
         my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
             $tags{'listen'} .= <<"EOT";
 
@@ -596,7 +595,7 @@ EOT
 				&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
 				&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
 				&request:DHCP-Domain-Name = $net{'domain-name'}
-				&request:DHCP-Site-specific-0 = $enforcement
+				&request:DHCP-Site-specific-0 = $net{'type'}
 				&request:DHCP-Site-specific-1 = $interface
 				&request:DHCP-Site-specific-2 = $vlan
 			}
@@ -681,7 +680,7 @@ EOT
 			&request:DHCP-IP-Address-Lease-Time = "%{%{sql: SELECT lease_time FROM radippool WHERE callingstationid = '%{request:DHCP-Client-Hardware-Address}'}:-$net{'dhcp_default_lease_time'}}"
 			&request:DHCP-DHCP-Server-Identifier = $cfg->{'ip'}
 			&request:DHCP-Domain-Name = $net{'domain-name'}
-			&request:DHCP-Site-specific-0 = $enforcement
+			&request:DHCP-Site-specific-0 = $net{'type'}
 			&request:DHCP-Site-specific-1 = $interface
 			&request:DHCP-Site-specific-2 = $vlan
 		}
