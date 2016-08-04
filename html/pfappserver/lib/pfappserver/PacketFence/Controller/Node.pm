@@ -374,21 +374,35 @@ test
 
 sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    my $runscan = pf::scan::wmi::rules::runWmi();
-    my ($status, $result) = $c->model('Config::Scan')->read('testscan');
- 
+    #my $runscan = pf::scan::wmi::rules::runWmi();
+    use Data::Dumper;
+
+    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
-        my $result_sccm = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('SCCM'));
-        my $result_av = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('AntiVirus'));
-        my $result_fw = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('FireWall'));
-        my $result_process = pf::scan::wmi::rules::runWmi($c->model('Config::WMI')->read('Process_running'));
+        $c->stash->{node} = $result;
+    }
+
+    ($status, $result) = $c->model('Config::Scan')->read('testscan');
+    
+    my $config_sccm = $c->model('Config::WMI')->read('SCCM');
+    my $config_av = $c->model('Config::WMI')->read('Antivirus');
+    my $config_fw = $c->model('Config::WMI')->read('FireWall');
+    my $config_process = $c->model('Config::WMI')->read('Process_running');
+ 
+    $c->log->info('super WMI' . Dumper($config_sccm, $config_av, $config_fw, $config_process));
+    $c->log->info(Dumper($status));
+    if (is_success($status)) {
+        my $result_sccm = pf::scan::wmi::rules::runWmi($config_sccm);
+        my $result_av = pf::scan::wmi::rules::runWmi($config_av);
+        my $result_fw = pf::scan::wmi::rules::runWmi($config_fw);
+        my $result_process = pf::scan::wmi::rules::runWmi($config_process);
         $c->stash(
             sccm_scan => $result_sccm,
             av_scan => $result_av,
             fw_scan => $result_fw,
             running_process => $result_process,
         );
-
+    $c->log->info('super WMI' . Dumper($result_sccm, $result_av, $result_fw, $result_process));
     }
     else {
         $c->response->status($status);
@@ -396,6 +410,19 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{current_view} = 'JSON';
     }
 }
+
+#=head2 runWmi
+
+#=cut
+
+#sub runWmi :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
+    #my ($self, $c, $id) = @_;
+    #my ($status, $result) = $c->model('Node')->runViolation($id);
+    #$self->audit_current_action($c, status => $status, mac => $id);
+    #$c->response->status($status);
+    #$c->stash->{status_msg} = $result;
+    #$c->stash->{current_view} = 'JSON';
+#}
 
 =head2 violations
 
