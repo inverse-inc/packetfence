@@ -204,7 +204,7 @@ sql {
 
 	# Set to 'yes' to read radius clients from the database ('nas' table)
 	# Clients will ONLY be read on server startup.
-#	read_clients = yes
+	read_clients = yes
 
 	# Table to keep radius client info
 	client_table = "radius_nas"
