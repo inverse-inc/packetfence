@@ -1,8 +1,8 @@
 [%- IF node.device_class == "Windows" %]
-    [% form.field('sccm').render | none %] <span class="label label-failure">Issue: [% sccm_scan | html %]</span>
-    [% form.field('antivirus').render | none %] <span class="label label-failure"> AntiVirus: [% av_scan | html %]</span>
-    [% form.field('firewall').render | none %]<span class="label label-failure"> Firewall: [% fw_scan | html %]</span>
-    [% running_process | html %]
+    [% form.field('sccm').render | none %] <span class="label label-failure">Issue: [% sccm_scan | html %]</span><br/>
+    [% form.field('antivirus').render | none %] <span class="label label-failure"> AntiVirus: [% av_scan | html %]</span><br/>
+    [% form.field('firewall').render | none %]<span class="label label-failure"> Firewall: [% fw_scan | html %]</span><br/>
+    [% running_process | html %]<br/>
             
 [%- ELSE %]
   <div id="noResult" class="unwell">

@@ -374,7 +374,6 @@ test
 
 sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    #my $runscan = pf::scan::wmi::rules::runWmi();
     use Data::Dumper;
 
     my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
@@ -384,7 +383,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 
     my $host = $result->{iplog}->{ip};
 
-    ($status, $result) = $c->model('Config::Scan')->read('testscan');
+    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read('testscan');
 
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
     my $config_av = $c->model('Config::WMI')->read('AntiVirus');
@@ -393,47 +392,50 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     
     my $scan = pf::scan::wmi::rules->new();
     
-    foreach my $value ( keys %{$result} ) {
-        $result->{'_' . $value} = $result->{$value};
+    foreach my $value ( keys %{$scan_config} ) {
+        $scan_config->{'_' . $value} = $scan_config->{$value};
     }
  
-    $result->{_scanIp} = $host;
+    $scan_config->{_scanIp} = $host;
 
-    if (is_success($status)) {
-        my $result_sccm = $scan->runWmi($result, $config_sccm);
-        my $result_av = $scan->runWmi($result, $config_av);
-        my $result_fw = $scan->runWmi($result, $config_fw);
-        my $result_process = $scan->runWmi($result, $config_process);
+    if (is_success($scan_exist)) {
+        my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
+        my $result_av = $scan->runWmi($scan_config, $config_av);
+        my $result_fw = $scan->runWmi($scan_config, $config_fw);
+        my $result_process = $scan->runWmi($scan_config, $config_process);
 
-        $c->log->info('config' . Dumper($config_sccm, $config_av, $config_fw, $config_process));
-        $c->log->info('result' . Dumper($result_sccm, $result_av, $result_fw, $result_process));
+        if ($result_sccm =~ /0x80041010/) {
+            $c->stash->{sccm_scan} = 'No';
+        }else {
+            my $sccm_res = $result_sccm->[0];
+            $c->stash->{sccm_scan} = 'Yes';
+        }
+        if ($result_av =~ /0x80041010/) {
+            $c->stash->{av_scan} = 'No';
+        }else {
+            my $av_res = $result_av->[0];
+            $c->stash->{av_scan} = 'Yes';
+        }
+        if ($result_fw =~ /0x80041010/) {
+            $c->stash->{fw_scan} = 'No';
+        }else {
+            my $fw_res = $result_fw->[0];
+            $c->stash->{fw_scan} = 'Yes';
+        }
+        if ($result_process =~ /0x80041010/) {
+            $c->stash->{running_process} = 'No';
+        }else {
+            my $process_res = $result_process->[0];
+            $c->stash->{running_process} = keys $process_res;
+        }
 
-        $c->stash(
-            sccm_scan => $result_sccm,
-            av_scan => $result_av,
-            fw_scan => $result_fw,
-            running_process => $result_process,
-        );
     }
     else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($scan_exist);
+        $c->stash->{status_msg} = $scan_config;
         $c->stash->{current_view} = 'JSON';
     }
 }
-
-#=head2 runWmi
-
-#=cut
-
-#sub runWmi :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
-    #my ($self, $c, $id) = @_;
-    #my ($status, $result) = $c->model('Node')->runViolation($id);
-    #$self->audit_current_action($c, status => $status, mac => $id);
-    #$c->response->status($status);
-    #$c->stash->{status_msg} = $result;
-    #$c->stash->{current_view} = 'JSON';
-#}
 
 =head2 violations
 
