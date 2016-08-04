@@ -20,7 +20,10 @@
     [% IF result_process == "No" %]
         <span> Error while getting running process. [% running_process | html %]</span><br/>
     [% ELSE %]
-        <span> Running process: [% running_process | html %]</span><br/>
+        <span> Running process:</span><br/> 
+        [% FOREACH process IN running_process %]
+            [% process.Name %]<br/>
+        [% END %]
     [% END %]
             
 [%- ELSE %]
