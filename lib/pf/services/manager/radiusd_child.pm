@@ -22,6 +22,7 @@ use List::MoreUtils qw(any);
 use Moo;
 use NetAddr::IP;
 
+use pf::authentication;
 use pf::cluster;
 use pf::config qw(
     %Config
@@ -81,6 +82,7 @@ sub _generateConfig {
     $self->generate_radiusd_proxy();
     $self->generate_radiusd_cluster();
     $self->generate_radiusd_cliconf();
+    $self->generate_radiusd_eduroamconf();
 }
 
 
@@ -115,6 +117,17 @@ sub generate_radiusd_sitesconf {
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+
+    # Eduroam configuration
+    %tags = ();
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
+        parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
+        symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam")
+    } else {
+        unlink("$install_dir/raddb/sites-enabled/eduroam");
+        unlink("$install_dir/raddb/sites-available/eduroam");
+    }
 
     %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
@@ -177,6 +190,24 @@ sub generate_radiusd_acctconf {
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
+}
+
+sub generate_radiusd_eduroamconf {
+    my ($self) = @_;
+
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        my %tags;
+        $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
+        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+        $tags{'eduroam_auth_listening_port'} = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        $tags{'eduroam_acct_listening_port'} = $eduroam_authentication_source[0]{'acct_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
+        $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
+        parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );
+    } else {
+        unlink("$install_dir/raddb/eduroam.conf");
+    }
 }
 
 sub generate_radiusd_cliconf {
@@ -249,6 +280,42 @@ $options
 }
 EOT
     }
+
+    # Eduroam configuration
+    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        my $tlrs1_server_address = $eduroam_authentication_source[0]{'tlrs1_server_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $tlrs2_server_address = $eduroam_authentication_source[0]{'tlrs2_server_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $tlrs_radius_secret = $eduroam_authentication_source[0]{'tlrs_radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+
+        $tags{'eduroam'} = <<"EOT";
+# Eduroam integration
+
+realm eduroam {
+    auth_pool = eduroam_auth_pool
+    nostrip
+}
+home_server_pool eduroam_auth_pool {
+    home_server = eduroam_tlrs1
+    home_server = eduroam_tlrs2
+}
+home_server eduroam_tlrs1 {
+    type = auth
+    ipaddr = $tlrs1_server_address
+    port = 1812
+    secret = '$tlrs_radius_secret'
+}
+home_server eduroam_tlrs2 {
+    type = auth
+    ipaddr = $tlrs2_server_address
+    port = 1812
+    secret = '$tlrs_radius_secret'
+}
+EOT
+    } else {
+        $tags{'eduroam'} = "# Eduroam integration is not configured";
+    }
+
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
 }
 
