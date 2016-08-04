@@ -17,11 +17,14 @@ use warnings;
 
 use Carp;
 use pf::log;
+use pf::nodecategory qw(nodecategory_view_all);
+use pf::util;
 use Readonly;
 use NetAddr::IP;
 use IO::Socket::INET;
 use Net::DHCP::Packet;
 use Net::DHCP::Constants;
+use IPC::Cmd qw[can_run run];
 
 BEGIN {
     use Exporter ();
@@ -35,7 +38,12 @@ BEGIN {
     );
 }
 
-use pf::config qw (%ConfigNetworks);
+use pf::config qw (
+    %ConfigNetworks
+    %Config
+    @listen_ints
+);
+
 use pf::config::cached;
 use pf::db;
 use pf::cluster qw(@cluster_servers);
@@ -147,21 +155,72 @@ sub freeradius_populate_dhcpd_config {
     my $logger = get_logger();
     return unless db_ping;
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        # shorter, more convenient local accessor
-        my %net = %{$ConfigNetworks{$network}};
-        if ( $net{'dhcpd'} eq 'enabled' ) {
+    my $full_path = can_run('ip');
+
+    foreach my $interface ( @listen_ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+        my $current_interface = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
+
+        foreach my $network ( keys %ConfigNetworks ) {
+            # shorter, more convenient local accessor
+            my %net = %{$ConfigNetworks{$network}};
             my $current_network = NetAddr::IP->new( $network, $net{'netmask'} );
-            my $network = $current_network->network();
-            my $lower = NetAddr::IP->new( $net{'dhcp_start'}, $net{'netmask'});
-            my $upper = NetAddr::IP->new( $net{'dhcp_end'}, $net{'netmask'});
-            while ($current_network <= $upper) {
-                if ($current_network < $lower ) {
-                    $current_network ++;
-                } else {
-                    _insert_dhcpd($network,$current_network->addr());
-                    $current_network ++;
+            my $ip = NetAddr::IP::Lite->new(clean_ip($net{'gateway'}));
+            if (defined($net{'next_hop'})) {
+                $ip = NetAddr::IP::Lite->new(clean_ip($net{'next_hop'}));
+            }
+            if ($current_interface->contains($ip)) {
+                if ( $net{'dhcpd'} eq 'enabled' ) {
+                    if (isenabled($net{'split_network'})) {
+                        my @categories = nodecategory_view_all();
+                        my $count = @categories;
+                        my $add = int((($count+1)/2)+.5);
+                        my $cidr = $add + $current_network->masklen;
+                        if ($cidr > 30) {
+                            $logger->error("Can't split network");
+                            return;
+                        }
+                        my @sub_net = $current_network->split($cidr);
+                        foreach my $net (@sub_net) {
+                            my $role = pop @categories;
+                            next unless $role->{'name'};
+                            my $pool = $role->{'name'}.$interface;
+                            my $pf_ip = $net + 1;
+                            my $cmd = "sudo $full_path addr del ".$pf_ip->addr."/32 dev $interface";
+                            $cmd = untaint_chain($cmd);
+                            my @out = pf_run($cmd);
+                            $cmd = "sudo $full_path addr add ".$pf_ip->addr."/32 dev $interface";
+                            @out = pf_run($cmd);
+                            my $first = $net + 2;
+                            my $last = $net->broadcast - 1;
+                            while ($net <= $last) {
+                                if ($net < $first ) {
+                                    $net ++;
+                                } else {
+                                    _insert_dhcpd($pool,$net->addr());
+                                    $net ++;
+                                }
+                            }
+
+                        }
+                        $logger->warn($add);
+                    } else {
+                        my $network = $current_network->network();
+                        my $lower = NetAddr::IP->new( $net{'dhcp_start'}, $net{'netmask'});
+                        my $upper = NetAddr::IP->new( $net{'dhcp_end'}, $net{'netmask'});
+                        while ($current_network <= $upper) {
+                            if ($current_network < $lower ) {
+                                $current_network ++;
+                            } else {
+                                _insert_dhcpd($network,$current_network->addr());
+                                $current_network ++;
+                            }
+                        }
+                    }
                 }
+            } else {
+                next;
             }
         }
     }
