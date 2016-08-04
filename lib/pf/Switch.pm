@@ -36,6 +36,10 @@ use pf::config qw(
     $WIRED_MAC_AUTH
     $NO_VOIP
 );
+use Errno qw(EINTR);
+use pf::file_paths qw(
+    $control_dir
+);
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -53,7 +57,8 @@ use pf::StatsD;
 use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
-
+use File::Spec::Functions;
+use File::FcntlLock;
 
 #
 # %TRAP_NORMALIZERS
@@ -3470,6 +3475,37 @@ If a true value is returned then the trap will be handled using the default logi
 =cut
 
 sub handleTrap { 1 }
+
+
+=item getExclusiveLock
+
+Get an exclusive lock for a switch will block
+
+=cut
+
+sub getExclusiveLock {
+    my ($self, $nonblock) = @_;
+    my $fh;
+    my $filename = "$control_dir/switch:$self->{_id}";
+    unless (open($fh, ">", $filename)) {
+        $self->logger("Cannot open $filename: $!");
+        return undef;
+    }
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $type = $nonblock ? F_SETLK : F_SETLKW;
+    my $result;
+    1 while(!defined($result = $fs->lock($fh, $type)) && $! == EINTR);
+    unless (defined $result) {
+        $self->logger("Error getting lock on $filename: $!");
+        return undef;
+    }
+    return $fh;
+}
 
 =back
 
