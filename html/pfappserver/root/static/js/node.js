@@ -75,6 +75,8 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeWmi"]', this.readWmi);
+
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
 
@@ -213,6 +215,18 @@ NodeView.prototype.readViolations = function(e) {
     return true;
 };
 
+NodeView.prototype.readWmi = function(e) {
+    console.log('ello');
+    var btn = $(e.target);
+    var name = btn.attr("href");
+    var target = $(name.substr(name.indexOf('#')));
+    var url = btn.attr("data-href");
+    target.load(btn.attr("data-href"), function() {
+        target.find('.switch').bootstrapSwitch();
+    });
+    return true;
+};
+
 NodeView.prototype.createNode = function(e) {
     var form = $(e.target),
     btn = form.find('[type="submit"]').first(),
@@ -312,6 +326,25 @@ NodeView.prototype.deleteNode = function(e) {
         errorSibling: modal_body.children().first()
     });
 };
+
+/*NodeView.prototype.runWmi = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var row = btn.closest('tr');
+    var pane = $('#nodeWmi');
+    resetAlert(pane);
+    this.nodes.get({
+        url: btn.attr("href"),
+        success: function(data) {
+            showSuccess(pane.children().first(), data.status_msg);
+            btn.remove();
+            row.addClass('muted');
+        },
+        errorSibling: pane.children().first()
+    });
+};*/
 
 NodeView.prototype.closeViolation = function(e) {
     e.preventDefault();
