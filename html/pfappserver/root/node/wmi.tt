@@ -1,8 +1,27 @@
 [%- IF node.device_class == "Windows" %]
-    [% form.field('sccm').render | none %] <span class="label label-failure">Issue: [% sccm_scan | html %]</span><br/>
-    [% form.field('antivirus').render | none %] <span class="label label-failure"> AntiVirus: [% av_scan | html %]</span><br/>
-    [% form.field('firewall').render | none %]<span class="label label-failure"> Firewall: [% fw_scan | html %]</span><br/>
-    [% running_process | html %]<br/>
+    [% form.field('sccm').render | none %] 
+    [% IF sccm_scan == "No" %]
+        <span class="label label-failure">SCCM agent: [% sccm_scan | html %]</span><br/>
+    [% ELSE %]
+        <span class="label label-success">SCCM agent: [% sccm_scan | html %]</span><br/>
+    [% END %]
+    [% form.field('antivirus').render | none %] 
+    [% IF av_scan == "No" %]
+        <span class="label label-failure"> Antivirus: [% av_scan | html %]</span><br/>
+    [% ELSE %]
+        <span class="label label-success"> Antivirus: [% av_scan | html %]</span><br/>
+    [% END %]
+    [% form.field('firewall').render | none %]
+    [% IF fw_scan == "No" %]
+        <span class="label label-failure"> Firewall: [% fw_scan | html %]</span><br/>
+    [% ELSE %]
+        <span class="label label-success"> Firewall: [% fw_scan | html %]</span><br/>
+    [% END %]
+    [% IF result_process == "No" %]
+        <span> Error while getting running process. [% running_process | html %]</span><br/>
+    [% ELSE %]
+        <span> Running process: [% running_process | html %]</span><br/>
+    [% END %]
             
 [%- ELSE %]
   <div id="noResult" class="unwell">
