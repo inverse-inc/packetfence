@@ -499,6 +499,13 @@ sub handleSecureMacAddrViolationTrap {
     my $switch_port = $trap->{trapIfIndex};
     my $trapType = $trap->{trapType};
     my $switch_id = $switch->{_id};
+    my $trapMac = $trap->{trapMac};
+    #Get a non blocking lock
+    my $lock = $switch->getExclusiveLockForScope("$switch_port:$trapMac", 1);
+    unless ($lock) {
+        $logger->info("Skipping handling secureMacAddrViolation trap for switch $switch_id on device $trapMac for port $switch_port");
+        return;
+    }
     # continue only if security traps are available on this port
     if (!$switch->isPortSecurityEnabled($switch_port)) {
         $logger->info("$trapType trap on $switch_id ifIndex $switch_port. Port Security is no " .
@@ -506,7 +513,6 @@ sub handleSecureMacAddrViolationTrap {
         return;
     }
 
-    my $trapMac = $trap->{trapMac};
     $logger->info("$trapType trap received on $switch_id ifIndex $switch_port for $trapMac");
 
     # floating network devices handling
