@@ -30,7 +30,7 @@
     [% END %]
   </div>
   <div class="control-group">
-    <a href="scan_action" class="btn btn-mini">Scan process</a><br/>
+    <a href="[% c.uri_for(c.controller('Node').action_for('scan_process')) %]" id="scanProcess" class="btn btn-mini">Scan process</a><br/>
     [% IF running_process == "No" %]
         <span> Error while getting running process. [% running_process | html %]</span><br/>
     [% ELSIF running_process == "Request failed" %]
