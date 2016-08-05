@@ -397,24 +397,32 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
+        }elsif ($result_sccm =~ /TIMEOUT/ || $result_sccm =~ /UNREACHABLE/) {
+            $c->stash->{sccm_scan} = 'Request failed';
         }else {
             my $sccm_res = $result_sccm->[0];
             $c->stash->{sccm_scan} = 'Yes';
         }
         if ($result_av =~ /0x80041010/) {
             $c->stash->{av_scan} = 'No';
+        }elsif ($result_av =~ /TIMEOUT/ || $result_av =~ /UNREACHABLE/) {
+            $c->stash->{av_scan} = 'Request failed';
         }else {
             my $av_res = $result_av->[0];
             $c->stash->{av_scan} = 'Yes';
         }
         if ($result_fw =~ /0x80041010/) {
             $c->stash->{fw_scan} = 'No';
+        }elsif ($result_fw =~ /TIMEOUT/ || $result_fw =~ /UNREACHABLE/) {
+            $c->stash->{fw_scan} = 'Request failed';
         }else {
             my $fw_res = $result_fw->[0];
             $c->stash->{fw_scan} = 'Yes';
         }
         if ($result_process =~ /0x80041010/) {
             $c->stash->{running_process} = 'No';
+        }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
+            $c->stash->{running_process} = 'Request failed';
         }else {
             $c->stash->{running_process} = $result_process;
         }
