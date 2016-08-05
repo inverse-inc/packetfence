@@ -87,7 +87,7 @@ sub authorize {
     }
 
     # otherwise, we don't do a thing
-    return $RADIUS::RLM_MODULE_NOOP;
+    return $RADIUS::RLM_MODULE_OK;
 }
 
 =item * _get_rpc_config
@@ -305,7 +305,7 @@ sub authenticate {
     # &log_request_attributes;
     # We only increment a counter to know how often this has been called.
     $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
-    return $RADIUS::RLM_MODULE_NOOP;
+    return $RADIUS::RLM_MODULE_OK;
 
 }
 
