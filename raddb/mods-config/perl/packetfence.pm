@@ -322,7 +322,7 @@ sub accounting {
     my $radius_return_code = eval {
         my $rc = $RADIUS::RLM_MODULE_REJECT;
         my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-        my $port = $RAD_REQUEST{'NAS-Port'} // '';
+        my $port = $RAD_REQUEST{'NAS-Port'};
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 ) {

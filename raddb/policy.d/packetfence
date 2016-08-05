@@ -42,11 +42,11 @@ packetfence-switch-access {
 }
 
 request-timing {
-    if (control:PacketFence-Request-Time != 0) {
-        update control {
-            &PacketFence-Request-Time := "%{expr: %{control:PacketFence-Request-Time} - %{control:Tmp-Integer-0}}"
-        }
-    }
+#    if (control:PacketFence-Request-Time != 0) {
+#        update control {
+#            &PacketFence-Request-Time := "%{expr: %{control:PacketFence-Request-Time} - %{control:Tmp-Integer-0}}"
+#        }
+#    }
 }
 
 

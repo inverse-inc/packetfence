@@ -13,8 +13,10 @@ linelog {
 	#
 	#  The file where the logs will go.
 	#
+	destination = 'file'
 	#  If the filename is "syslog", then the log messages will
 	#  go to syslog.
+	file {
 	filename = ${logdir}/radius.log
 	#filename = ${logdir}/linelog
 
@@ -32,6 +34,7 @@ linelog {
 	#  private information about users.  Keep the file permissions as
 	#  restrictive as possible.
 	permissions = 0600
+	}
 
 	#  The Unix group which owns the log file.
 	#
@@ -134,12 +137,15 @@ linelog log_accounting {
 	#
 	#  Used if the expansion of "reference" fails.
 	#
-	format = ""
-
+	destination = 'file'
+	file {
 	filename = ${logdir}/linelog-accounting
 
-	permissions = 0600
 
+	permissions = 0600
+	}
+
+	format = ""
 	reference = "Accounting-Request.%{%{Acct-Status-Type}:-unknown}"
 
 	#

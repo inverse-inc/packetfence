@@ -70,7 +70,8 @@
 # entry so that no DEFAULT entry will be used, and the user will NOT
 # get any attributes in addition to the ones listed here.
 #
-#steve	Cleartext-Password := "testing"
+joetester	Cleartext-Password := "test1234"
+switches	Cleartext-Password := "switches"
 #	Service-Type = Framed-User,
 #	Framed-Protocol = PPP,
 #	Framed-IP-Address = 172.16.3.33,
@@ -218,3 +219,4 @@ DEFAULT	Hint == "SLIP"
 # See the example user "bob" above.                     #
 #########################################################
 
+switches       Cleartext-Password := "switches"
