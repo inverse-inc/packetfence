@@ -1,3 +1,6 @@
+# This file is generated from a template at /usr/local/pf/conf/radiusd/packetfence-tunnel
+# Any changes made to this file will be lost on restart
+
 # -*- text -*-
 ######################################################################
 #
@@ -29,6 +32,16 @@ authorize {
 	#
 	filter_username
 
+	#
+	#  Do checks on outer / inner User-Name, so that users
+	#  can't spoof us by using incompatible identities
+	#
+	filter_inner_identity
+
+	#
+	#  The chap module will set 'Auth-Type := CHAP' if we are
+	#  handling a CHAP request and Auth-Type has not already been set
+	chap
 
 	#
 	#  If the users are logging in with an MS-CHAP-Challenge
@@ -37,6 +50,20 @@ authorize {
 	#  to the request, which will cause the server to then use
 	#  the mschap module for authentication.
 	mschap
+
+	#
+	#  Pull crypt'd passwords from /etc/passwd or /etc/shadow,
+	#  using the system API's to get the password.  If you want
+	#  to read /etc/passwd or /etc/shadow directly, see the
+	#  passwd module, above.
+	#
+#	unix
+
+	#
+	#  Look for IPASS style 'realm/', and if not found, look for
+	#  '@realm', and decide whether or not to proxy, based on
+	#  that.
+#	IPASS
 
 	#
 	#  If you are using multiple kinds of realms, you probably
@@ -55,9 +82,8 @@ authorize {
 	#  it difficult to bill people for their network activity.
 	#
 	suffix
-	ntdomain
+#	ntdomain
 
-	%%multi_domain%%
 	#
 	#  The "suffix" module takes care of stripping the domain
 	#  (e.g. "@example.com") from the User-Name attribute, and the
@@ -90,20 +116,24 @@ authorize {
 	#  Read the 'users' file
 	#files
 
-	# Check if PacketFence local (SQL) authentication is enabled.
-	# Run the packetfence-local-auth policy if it is.
-	rewrite_called_station_id
-    
-	# Uncomment the following line to enable local PEAP authentication
-	# packetfence-local-auth
+  packetfence-local-auth
 
-
+	#
+	#  If you are using /etc/smbpasswd, and are also doing
+	#  mschap authentication, then un-comment this line, and
+	#  enable the "smbpasswd" module.
+#	smbpasswd
 
 	#
 	#  The ldap module reads passwords from the LDAP database.
-	#-ldap
+	-ldap
 
+	#
+	#  Enforce daily limits on time spent logged in.
+#	daily
 
+	expiration
+	logintime
 
 	#
 	#  If no other module has claimed responsibility for
@@ -118,7 +148,6 @@ authorize {
 	#
 	pap
 }
-
 
 #  Authentication.
 #
@@ -165,7 +194,7 @@ authenticate {
 			chrooted_mschap
 		}
 		else {
-			mschap
+			mschap 
 		}
 	}
 
@@ -251,15 +280,15 @@ post-auth {
 	#  this one commented out, WiFi WILL NOT WORK,
 	#  because the client will get two MS-MPPE-keys
 	#
-	update outer.session-state {
-		&MS-MPPE-Encryption-Policy !* ANY
-		&MS-MPPE-Encryption-Types !* ANY
-		&MS-MPPE-Send-Key !* ANY
-		&MS-MPPE-Recv-Key !* ANY
-		&Message-Authenticator !* ANY
-		&EAP-Message !* ANY
-		&Proxy-State !* ANY
-	}
+#	update outer.session-state {
+#		&MS-MPPE-Encryption-Policy !* ANY
+#		&MS-MPPE-Encryption-Types !* ANY
+#		&MS-MPPE-Send-Key !* ANY
+#		&MS-MPPE-Recv-Key !* ANY
+#		&Message-Authenticator !* ANY
+#		&EAP-Message !* ANY
+#		&Proxy-State !* ANY
+#	}
 
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the

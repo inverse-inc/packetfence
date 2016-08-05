@@ -41,7 +41,7 @@ rest {
 	# comment out the configuration item below.
 	connect_uri = "http://127.0.0.1:7070/"
     # uncomment the following line if you are using http authentication to the rest service
-	#connect_uri = "http://'':''@127.0.0.1:7070/"
+	#connect_uri = "http://admin:admin@127.0.0.1:7070/"
 
 	#
 	#  How long before new connection attempts timeout, defaults to 4.0 seconds.

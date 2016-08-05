@@ -1,8 +1,14 @@
+# This file is generated from a template at /usr/local/pf/conf/radiusd/eap.conf
+# Any changes made to this file will be lost on restart
+
+# This file is generated from a template at /usr/local/pf/conf/radiusd/eap.conf
+# Any changes made to this file will be lost on restart
+
 # -*- text -*-
 ##
 ##  eap.conf -- Configuration for EAP types (PEAP, TTLS, etc.)
 ##
-##	$Id: c35c7007794844bb380fc38785306a21397b51e9 $
+##	$Id: d431c714f539450936445e6401772dd3d66afc3d $
 
 #######################################################################
 #
@@ -80,7 +86,7 @@ eap {
 		#  by having a User-Name, but no User-Password, CHAP-Password,
 		#  EAP-Message, etc.
 		#
-#		virtual_server = "packetfence-tunnel"
+#		virtual_server = "inner-tunnel"
 #	}
 
 	## Cisco LEAP
@@ -155,7 +161,7 @@ eap {
 	#
 	tls-config tls-common {
 		private_key_password = whatever
-		private_key_file = ${certdir}/server.pem
+        private_key_file = /usr/local/pf/raddb/certs/server.key
 
 		#
 		#  If Private key & Certificate are located in the same file,
@@ -173,7 +179,7 @@ eap {
 		#  certificate_list
 		#  http://tools.ietf.org/html/rfc4346#section-7.4.2 )
 		#
-		certificate_file = ${certdir}/server.pem
+        certificate_file = /usr/local/pf/raddb/certs/server.crt
 
 		#
 		#  Server certificate may also be specified at runtime on a per
@@ -207,7 +213,7 @@ eap {
 		#  set to a certificate chain for your institution's CA
 		#  or a self signed Root CA.
 		#
-		ca_file = ${cadir}/ca.pem
+		ca_file = /usr/local/pf/raddb/certs/ca.pem
 
 		#
 	 	#  OpenSSL will automatically create certificate chains, unless
@@ -322,6 +328,7 @@ eap {
 		#  OpenSSL, or disable TLS 1.2 here.
 		#
 		disable_tlsv1_2 = yes
+
 
 		#
 		#  Elliptical cryptography configuration
@@ -916,7 +923,7 @@ eap {
 		#  The SoH reply will be turned into a request which can be sent
 		#  to a specific virtual server:
 		#
-#		soh_virtual_server = "soh-server"
+	#	soh_virtual_server = "packetfence-soh"
 
 		#
 		#  Unlike EAP-TLS, PEAP does not require a client certificate.
@@ -964,13 +971,13 @@ eap {
 #		identity = "FreeRADIUS"
 	}
 
-	## EAP-FAST
-	#
-	#  Note: To use EAP-FAST you must also configure an inner method in
-	#  mods-enabled/eap_inner.  You MUST also set "disable_tlsv1_2 = no".
-	#
-	#  The FAST module implements the EAP-FAST protocol.
-	#
+## EAP-FAST
+#
+#  Note: To use EAP-FAST you must also configure an inner method in
+#  mods-enabled/eap_inner.  You MUST also set "disable_tlsv1_2 = no".
+#
+#  The FAST module implements the EAP-FAST protocol.
+#
 	fast {
  	#  Point to the common TLS configuration
  	#

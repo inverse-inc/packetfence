@@ -1,6 +1,9 @@
 # This file is generated from a template at /usr/local/pf/conf/radiusd/sql.conf
 # Any changes made to this file will be lost on restart
 
+# This file is generated from a template at /usr/local/pf/conf/radiusd/sql.conf
+# Any changes made to this file will be lost on restart
+
 # -*- text -*-
 #
 #  Configuration for the SQL module

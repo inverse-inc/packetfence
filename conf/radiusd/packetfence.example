@@ -1,4 +1,16 @@
 server packetfence {
+listen {
+    ipaddr = 172.20.20.109
+    port = 0
+    type = auth
+}
+
+listen {
+    ipaddr = 172.20.20.109
+    port = 0
+    type = acct
+}
+
 #
 #  Authorization. First preprocess (hints and huntgroups files),
 #  then realms, and finally look in the "users" file.
@@ -95,6 +107,7 @@ authorize {
 		}
 	}
 	packetfence-eap-mac-policy
+	packetfence-local-auth
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
@@ -186,8 +199,19 @@ authenticate {
 #	}
 
 	#
-	#  Allow EAP authentication.
-	eap
+	#  Allow EAP authentication, and remove all attributes
+	#  from Access-Challenge
+	#
+	Auth-Type eap {
+		eap {
+			handled = 1
+		}
+		if (handled && (Response-Packet-Type == Access-Challenge)) {
+			attr_filter.access_challenge.post-auth
+			handled  # override the "updated" code from attr_filter
+		}
+	}
+
 }
 
 
