@@ -374,7 +374,6 @@ test
 
 sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
-    use Data::Dumper;
 
     my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -388,6 +387,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
     my $config_av = $c->model('Config::WMI')->read('AntiVirus');
     my $config_fw = $c->model('Config::WMI')->read('FireWall');
+    my $config_process = $c->model('Config::WMI')->read('Process_Running');
     
     my $scan = pf::scan::wmi::rules->new();
     
@@ -401,6 +401,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
         my $result_av = $scan->runWmi($scan_config, $config_av);
         my $result_fw = $scan->runWmi($scan_config, $config_fw);
+        my $result_process = $scan->runWmi($scan_config, $config_process);
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
@@ -425,7 +426,13 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         }else {
             my $fw_res = $result_fw->[0];
             $c->stash->{fw_scan} = 'Yes';
-        }
+        }#if ($result_process =~ /0x80041010/) {
+        #    $c->stash->{running_process} = 'No';
+        #}elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
+        #    $c->stash->{running_process} = 'Request failed';
+        #}else {
+        #    $c->stash->{running_process} = $result_process;
+        #}
     }
     else {
         $c->response->status($scan_exist);
@@ -446,7 +453,7 @@ sub scan_process :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') 
     my $scan = pf::scan::wmi::rules->new();
     my $config_process = $c->model('Config::WMI')->read('Process_Running');
     my $result_process = $scan->runWmi($scan_config, $config_process);
-    $c->log->info($result_process);
+    $c->log->info(Dumper($result_process));
     if ($result_process =~ /0x80041010/) {
         $c->stash->{running_process} = 'No';
     }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
