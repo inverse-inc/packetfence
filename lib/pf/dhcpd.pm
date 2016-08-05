@@ -35,6 +35,7 @@ BEGIN {
         freeradius_update_dhcpd_lease
         freeradius_delete_dhcpd_lease
         ping_dhcpd
+        dhcprole
     );
 }
 
@@ -47,6 +48,8 @@ use pf::config qw (
 use pf::config::cached;
 use pf::db;
 use pf::cluster qw(@cluster_servers);
+use pf::radius::constants;
+use pf::node qw(node_attributes);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $dhcpd_db_prepared = 0;
@@ -112,16 +115,9 @@ sub dhcpd_db_prepare {
             )
         ]);
 
-        $dhcpd_statements->{'freeradius_insert_dhcpd_lease'} = $dbh->prepare(qq[
-            UPDATE radippool
-                SET lease_time = ?
-            WHERE callingstationid = ?
-        ]);
-
-        $dhcpd_statements->{'freeradius_delete_dhcpd_lease'} = $dbh->prepare(qq[
-            UPDATE radippool
-                SET lease_time = NULL
-            WHERE callingstationid = ?
+        $dhcpd_statements->{'freeradius_select_dhcpd_pool'} = $dbh->prepare(qq[
+            SELECT * FROM radippool
+            WHERE pool_name = ?
         ]);
 
         $dhcpd_db_prepared = 1;
@@ -193,6 +189,7 @@ sub freeradius_populate_dhcpd_config {
                             $cmd = "sudo $full_path addr add ".$pf_ip->addr."/32 dev $interface";
                             @out = pf_run($cmd);
                             my $first = $net + 2;
+                            _insert_dhcpd($pool."pf",$pf_ip->cidr());
                             my $last = $net->broadcast - 1;
                             while ($net <= $last) {
                                 if ($net < $first ) {
@@ -202,9 +199,7 @@ sub freeradius_populate_dhcpd_config {
                                     $net ++;
                                 }
                             }
-
                         }
-                        $logger->warn($add);
                     } else {
                         my $network = $current_network->network();
                         my $lower = NetAddr::IP->new( $net{'dhcp_start'}, $net{'netmask'});
@@ -250,7 +245,7 @@ Delete dhcp lease in radippool table
 =cut
 
 sub freeradius_delete_dhcpd_lease {
-    my ( $mac) = @_;
+    my ($mac) = @_;
 
     return unless db_ping;
     db_query_execute(
@@ -323,6 +318,44 @@ sub ping_dhcpd {
             );
         }
     }
+}
+
+=item dhcprole
+
+Return dhcp attributes based on the role of the device
+
+=cut
+
+sub dhcprole {
+    my ($dhcp) = @_;
+    my $logger = get_logger();
+    my $mac = $dhcp->{'chaddr'};
+    my $node_info = node_attributes($mac);
+
+    my $pf = dhcpd_pool_view_by_name($node_info->{category}.$dhcp->{'options'}->{225}."pf");
+    my $current_network = NetAddr::IP->new( $pf->{'framedipaddress'} );
+    my $radius_reply_ref = {
+        'control:Pool-Name' => $node_info->{category}.$dhcp->{'options'}->{225},
+        'DHCP-Subnet-Mask' => $current_network->mask(),
+        'DHCP-Router-Address' => $current_network->addr(),
+        'DHCP-DHCP-Server-Identifier' => $current_network->addr(),
+    };
+    my $status = $RADIUS::RLM_MODULE_OK;
+    return [$status, %$radius_reply_ref];
+}
+
+=item dhcpd_pool_view_by_name
+
+=cut
+
+sub dhcpd_pool_view_by_name {
+    my ($name) = @_;
+    my $query = db_query_execute(DHCPD, $dhcpd_statements, 'freeradius_select_dhcpd_pool', $name);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
 }
 
 =back

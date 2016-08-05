@@ -335,7 +335,7 @@ rest rest-dhcp {
         }
 }
 
-rest rest-dhcp {
+rest rest-dhcprole {
         tls {
                 #  ca_file      = ${certdir}/cacert.pem
                 #  ca_path      = ${certdir}
@@ -361,7 +361,7 @@ rest rest-dhcp {
                 #  The default is "yes"
                 #       check_cert_cn = yes
         }
-        connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/"
+                connect_uri = "%%rpc_proto%%://%%rpc_host%%:%%rpc_port%%/"
         authorize {
         }
         authenticate {
@@ -369,7 +369,7 @@ rest rest-dhcp {
         accounting {
         }
         post-auth {
-                uri = "${..connect_uri}/radius/rest/dhcp"
+                uri = "${..connect_uri}/radius/rest/dhcprole"
                 method = 'post'
                 body = 'json'
                 tls = ${..tls}

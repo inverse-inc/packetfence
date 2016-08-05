@@ -1,5 +1,17 @@
 pidfile = %%pid_file%%
 
+#override security in radiusd.conf
+
+security {
+        user = root
+        group = root
+        allow_core_dumps = no
+        max_attributes = 200
+        reject_delay = 1
+        status_server = yes
+        allow_vulnerable_openssl = yes
+}
+
 $INCLUDE radiusd.conf
 
 %%listen%%

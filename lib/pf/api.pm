@@ -64,6 +64,7 @@ use pf::web::guest();
 use pf::dhcp::processor();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
+use pf::dhcpd();
 
 sub event_add : Public {
     my ($class, %postdata) = @_;
@@ -1601,6 +1602,26 @@ Process dhcp object packet in pfqueue
 sub process_dhcp_packet {
     my ($class, $dhcp, $args) = @_;
     pf::dhcp::processor->new(%{$args})->process_packet_dhcp($dhcp);
+}
+
+=head2 radius_rest_dhcprole
+
+Return dhcp reply attributes based on the device role
+
+=cut
+
+sub radius_rest_dhcprole :Public :RestPath(/radius/rest/dhcprole) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return = pf::dhcpd::dhcprole(%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+    return $return;
 }
 
 =head1 AUTHOR
