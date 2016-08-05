@@ -3479,14 +3479,25 @@ sub handleTrap { 1 }
 
 =item getExclusiveLock
 
-Get an exclusive lock for a switch will block
+Get an exclusive lock for the switch
 
 =cut
 
 sub getExclusiveLock {
     my ($self, $nonblock) = @_;
+    return $self->getExclusiveLockForScope('', $nonblock);
+}
+
+=item getExclusiveLockForScope
+
+Get an exclusive lock for the switch for a particular scope
+
+=cut
+
+sub getExclusiveLockForScope {
+    my ($self, $scope, $nonblock) = @_;
     my $fh;
-    my $filename = "$control_dir/switch:$self->{_id}";
+    my $filename = "$control_dir/switch:$self->{_id}:$scope";
     unless (open($fh, ">", $filename)) {
         $self->logger("Cannot open $filename: $!");
         return undef;
