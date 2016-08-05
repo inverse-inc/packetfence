@@ -1,43 +1,60 @@
-[%- IF node.device_class == "Windows" %]
-    [% form.field('sccm').render | none %] 
+[% IF node.device_class == "Windows" %]
+  <div class="control-group">
+    <label class="control-label">SCCM agent:</label>
     [% IF sccm_scan == "No" %]
-        <span class="label label-failure">SCCM agent: [% sccm_scan | html %]</span><br/>
+        <span class="label label-failure">[% sccm_scan | html %]</span><br/>
     [% ELSIF sccm_scan == "Request failed" %]
        <span>[% sccm_scan | html %]</span><br/>
     [% ELSE %]
-        <span class="label label-success">SCCM agent: [% sccm_scan | html %]</span><br/>
+        <span class="label label-success">[% sccm_scan | html %]</span><br/>
     [% END %]
-    [% form.field('antivirus').render | none %] 
+  </div>
+  <div class="control-group">
+    <label class="control-label">Antivirus:</label>
     [% IF av_scan == "No" %]
-        <span class="label label-failure"> Antivirus: [% av_scan | html %]</span><br/>
+        <span class="label label-failure">[% av_scan | html %]</span><br/>
     [% ELSIF av_scan == "Request failed" %]
        <span>[% av_scan | html %]</span><br/>
     [% ELSE %]
-        <span class="label label-success"> Antivirus: [% av_scan | html %]</span><br/>
+        <span class="label label-success"> [% av_scan | html %]</span><br/>
     [% END %]
-    [% form.field('firewall').render | none %]
+  </div>
+  <div class="control-group">
+    <label class="control-label">Firewall</label>
     [% IF fw_scan == "No" %]
-        <span class="label label-failure"> Firewall: [% fw_scan | html %]</span><br/>
+        <span class="label label-failure">[% fw_scan | html %]</span><br/>
     [% ELSIF fw_scan == "Request failed" %]
        <span>[% fw_scan | html %]</span><br/>
     [% ELSE %]
-        <span class="label label-success"> Firewall: [% fw_scan | html %]</span><br/>
+        <span class="label label-success">[% fw_scan | html %]</span><br/>
     [% END %]
-    [% IF result_process == "No" %]
+  </div>
+  <div class="control-group">
+    <a href="scan_action" class="btn btn-mini">Scan process</a><br/>
+    [% IF running_process == "No" %]
         <span> Error while getting running process. [% running_process | html %]</span><br/>
-    [% ELSIF result_process == "Request failed" %]
+    [% ELSIF running_process == "Request failed" %]
        <span>[% running_process | html %]</span><br/>
     [% ELSE %]
-        <span> Running process:</span><br/> 
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>Process running</th>
+        </tr>
+      </thead>
+      <tbody>
         [% FOREACH process IN running_process %]
-            [% process.Name %]<br/>
+          <tr>
+            <td>[% process.Name | html %]</td>
+          </tr>
         [% END %]
+      </tbody>
+    </table>
     [% END %]
+  </div>
             
-[%- ELSE %]
+[% ELSE %]
   <div id="noResult" class="unwell">
     <i class="icon-search icon-large"></i><p>[% l('WMI is not available for this device') %]</p>
   </div>
-[%- END %]
-
-
+[% END %]
