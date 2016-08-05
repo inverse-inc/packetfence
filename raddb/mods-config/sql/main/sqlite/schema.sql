@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
--- $Id: aa2c8ecaa40e22410f80d7b8ff179b79471beb6c $                 	   --
+-- $Id: 89da8d13eafff25e622ac72558802cfcd11981dd $                 	   --
 --                                                                         --
 --  schema.sql                       rlm_sql - FreeRADIUS SQLite Module    --
 --                                                                         --
@@ -47,6 +47,9 @@ CREATE INDEX acctstarttime ON radacct(acctstarttime);
 CREATE INDEX acctinterval ON radacct(acctinterval);
 CREATE INDEX acctstoptime ON radacct(acctstoptime);
 CREATE INDEX nasipaddress ON radacct(nasipaddress);
+
+-- For use by onoff query
+CREATE INDEX radacct_bulk_close ON radacct(acctstoptime, nasipaddress, acctstarttime);
 
 --
 -- Table structure for table 'radcheck'

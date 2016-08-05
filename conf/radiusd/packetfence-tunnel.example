@@ -1,6 +1,9 @@
 # This file is generated from a template at /usr/local/pf/conf/radiusd/packetfence-tunnel
 # Any changes made to this file will be lost on restart
 
+# This file is generated from a template at /usr/local/pf/conf/radiusd/packetfence-tunnel
+# Any changes made to this file will be lost on restart
+
 # -*- text -*-
 ######################################################################
 #
@@ -254,7 +257,8 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	#
-	rest
+	#rest
+  packetfence
 	if (updated || ok || noop) {
 		request-timing
 		-sql

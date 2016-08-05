@@ -208,6 +208,8 @@ sub post_auth {
         return server_error_handler();
     }
 
+    delete $RAD_REPLY{'User-Name'};
+
     return $radius_return_code;
 }
 

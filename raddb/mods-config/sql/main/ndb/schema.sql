@@ -1,5 +1,5 @@
 ###########################################################################
-# $Id: a7f4c3121ded2b6557294de8bcab832c5715d038 $                 #
+# $Id: e6abab52fac80b76a850137bff36259446dd02b2 $                 #
 #                                                                         #
 #  schema.sql                       rlm_sql - FreeRADIUS SQL Module       #
 #                                                                         #
@@ -50,7 +50,8 @@ CREATE TABLE radacct (
   KEY acctsessiontime (acctsessiontime),
   KEY acctstarttime (acctstarttime),
   KEY acctstoptime (acctstoptime),
-  KEY nasipaddress (nasipaddress)
+  KEY nasipaddress (nasipaddress),
+  INDEX bulk_close (acctstoptime, nasipaddress, acctstarttime)
 ) ENGINE=ndbcluster;
 
 #

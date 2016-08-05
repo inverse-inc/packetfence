@@ -1,5 +1,5 @@
 ###########################################################################
-# $Id: ca5ac77aa03dbb86ef714d1a1af647f7e63fda00 $                 #
+# $Id: d2ce4d22825a50197548f2100c49810ea86a0616 $                 #
 #                                                                         #
 #  schema.sql                       rlm_sql - FreeRADIUS SQL Module       #
 #                                                                         #
@@ -22,7 +22,7 @@ CREATE TABLE radacct (
   groupname varchar(64) NOT NULL default '',
   realm varchar(64) default '',
   nasipaddress varchar(15) NOT NULL default '',
-  nasportid varchar(15) default NULL,
+  nasportid varchar(50) default NULL,
   nasporttype varchar(32) default NULL,
   acctstarttime datetime NULL default NULL,
   acctupdatetime datetime NULL default NULL,
@@ -49,7 +49,8 @@ CREATE TABLE radacct (
   KEY acctstarttime (acctstarttime),
   KEY acctinterval (acctinterval),
   KEY acctstoptime (acctstoptime),
-  KEY nasipaddress (nasipaddress)
+  KEY nasipaddress (nasipaddress),
+  INDEX bulk_close (acctstoptime, nasipaddress, acctstarttime)
 ) ENGINE = INNODB;
 
 #
