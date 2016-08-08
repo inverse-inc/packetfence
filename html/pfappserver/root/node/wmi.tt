@@ -11,22 +11,32 @@
   </div>
   <div class="control-group">
     <label class="control-label">Antivirus:</label>
-    [% IF av_scan == "No" %]
-        <span class="label label-failure">[% av_scan | html %]</span><br/>
-    [% ELSIF av_scan == "Request failed" %]
-       <span>[% av_scan | html %]</span><br/>
+    [% IF antivirus_scan == "No" %]
+        <span class="label label-failure">[% antivirus_scan | html %]</span><br/>
+    [% ELSIF antivirus_scan == "Request failed" %]
+       <span>[% antivirus_scan | html %]</span><br/>
     [% ELSE %]
-        <span class="label label-success"> [% av_scan | html %]</span><br/>
+        <span class="label label-success"> [% antivirus_scan | html %]</span><br/>
     [% END %]
   </div>
   <div class="control-group">
     <label class="control-label">Firewall</label>
-    [% IF fw_scan == "No" %]
-        <span class="label label-failure">[% fw_scan | html %]</span><br/>
-    [% ELSIF fw_scan == "Request failed" %]
-       <span>[% fw_scan | html %]</span><br/>
+    [% IF firewall_scan == "No" %]
+        <span class="label label-failure">[% firewall_scan | html %]</span><br/>
+    [% ELSIF firewall_scan == "Request failed" %]
+       <span>[% firewall_scan | html %]</span><br/>
     [% ELSE %]
-        <span class="label label-success">[% fw_scan | html %]</span><br/>
+        <span class="label label-success">[% firewall_scan | html %]</span><br/>
+    [% END %]
+  </div>
+  <div class="control-group">
+    <label class="control-label">Antipyware:</label>
+    [% IF antispyware_scan == "No" %]
+        <span class="label label-failure">[% antispyware_scan | html %]</span><br/>
+    [% ELSIF antispyware_scan == "Request failed" %]
+       <span>[% antispyware_scan | html %]</span><br/>
+    [% ELSE %]
+        <span class="label label-success"> [% antispyware_scan | html %]</span><br/>
     [% END %]
   </div>
   <div class="control-group">
