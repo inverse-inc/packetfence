@@ -357,6 +357,26 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 wmiConfig
+
+=cut
+
+sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ'){
+    my ($self, $c, $result) = @_;
+
+    my $scan = pf::scan::wmi::rules->new();
+    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read('testscan');
+
+    my $host = $result->{iplog}->{ip};
+    
+    foreach my $value ( keys %{$scan_config} ) {
+        $scan_config->{'_' . $value} = $scan_config->{$value};
+    }
+ 
+    $scan_config->{_scanIp} = $host;
+    return $scan, $scan_config, $scan_exist;
+}
+
 =head2 wmi
 
 test 
@@ -371,28 +391,17 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{node} = $result;
     }
 
-    my $host = $result->{iplog}->{ip};
-
-    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read('testscan');
+    my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
 
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
     my $config_av = $c->model('Config::WMI')->read('AntiVirus');
     my $config_fw = $c->model('Config::WMI')->read('FireWall');
-    my $config_process = $c->model('Config::WMI')->read('Process_Running');
     
-    my $scan = pf::scan::wmi::rules->new();
-    
-    foreach my $value ( keys %{$scan_config} ) {
-        $scan_config->{'_' . $value} = $scan_config->{$value};
-    }
- 
-    $scan_config->{_scanIp} = $host;
 
     if (is_success($scan_exist)) {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
         my $result_av = $scan->runWmi($scan_config, $config_av);
         my $result_fw = $scan->runWmi($scan_config, $config_fw);
-        my $result_process = $scan->runWmi($scan_config, $config_process);
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
@@ -417,13 +426,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         }else {
             my $fw_res = $result_fw->[0];
             $c->stash->{fw_scan} = 'Yes';
-        }#if ($result_process =~ /0x80041010/) {
-        #    $c->stash->{running_process} = 'No';
-        #}elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
-        #    $c->stash->{running_process} = 'Request failed';
-        #}else {
-        #    $c->stash->{running_process} = $result_process;
-        #}
+        }
     }
     else {
         $c->response->status($scan_exist);
@@ -432,19 +435,19 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     }
 }
 
-=head2 scan_process
+=head2 scanProcess
 
 =cut
 
-sub scan_process :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
-    my ($self, $c, $scan_config) = @_;
+sub scanProcess :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+    my ($self, $c) = @_;
 
-    use Data::Dumper;
+    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
 
-    my $scan = pf::scan::wmi::rules->new();
+    my ($scan, $scan_config) = wmiConfig($self, $c, $result);
+
     my $config_process = $c->model('Config::WMI')->read('Process_Running');
     my $result_process = $scan->runWmi($scan_config, $config_process);
-    $c->log->info(Dumper($result_process));
     if ($result_process =~ /0x80041010/) {
         $c->stash->{running_process} = 'No';
     }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {

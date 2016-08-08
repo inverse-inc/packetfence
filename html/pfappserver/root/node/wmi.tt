@@ -30,27 +30,9 @@
     [% END %]
   </div>
   <div class="control-group">
-    <a href="[% c.uri_for(c.controller('Node').action_for('scan_process')) %]" id="scanProcess" class="btn btn-mini">Scan process</a><br/>
-    [% IF running_process == "No" %]
-        <span> Error while getting running process. [% running_process | html %]</span><br/>
-    [% ELSIF running_process == "Request failed" %]
-       <span>[% running_process | html %]</span><br/>
-    [% ELSE %]
-    <table class="table table-condensed">
-      <thead>
-        <tr>
-          <th>Process running</th>
-        </tr>
-      </thead>
-      <tbody>
-        [% FOREACH process IN running_process %]
-          <tr>
-            <td>[% process.Name | html %]</td>
-          </tr>
-        [% END %]
-      </tbody>
-    </table>
-    [% END %]
+    <a href="[% c.uri_for(c.controller('Node').action_for('scanProcess'), [mac]) %]" id="scanProcess" class="btn btn-mini">[% l('Scan process') %]</a><br/>
+  </div>
+  <div id="scanProcessInfo">
   </div>
             
 [% ELSE %]

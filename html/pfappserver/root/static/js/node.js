@@ -409,11 +409,11 @@ NodeView.prototype.scanProcessus = function(e) {
     e.preventDefault();
 
     var btn = $(e.target);
-    var pane = $('#nodeWmi');
+    var pane = $('#scanProcessInfo');
     this.nodes.get({
         url: btn.attr("href"),
         success: function(data) {
-            showSuccess(pane.children().first(), data.status_msg);
+            pane.html(data);
         },
         errorSibling: pane.children().first()
     });
