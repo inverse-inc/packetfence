@@ -224,6 +224,9 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+    update {
+        &request: += &outer.request:[*]
+    }
 	#
 	rest
 	if (updated || ok || noop) {
@@ -234,6 +237,9 @@ post-auth {
 		-sql_reject
 	}
 
+	update {
+		&outer.session-state: += &reply:
+	}
 	#
 	#  Un-comment the following if you have set
 	#  'edir_account_policy_check = yes' in the ldap module sub-section of
