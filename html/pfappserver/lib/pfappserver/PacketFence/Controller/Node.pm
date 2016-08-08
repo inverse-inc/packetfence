@@ -403,14 +403,16 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
 
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
-    my $config_av = $c->model('Config::WMI')->read('AntiVirus');
-    my $config_fw = $c->model('Config::WMI')->read('FireWall');
+    my $config_antivirus = $c->model('Config::WMI')->read('AntiVirus');
+    my $config_firewall = $c->model('Config::WMI')->read('Firewall');
+    my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
     
 
     if (is_success($scan_exist)) {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
-        my $result_av = $scan->runWmi($scan_config, $config_av);
-        my $result_fw = $scan->runWmi($scan_config, $config_fw);
+        my $result_antivirus = $scan->runWmi($scan_config, $config_antivirus);
+        my $result_firewall = $scan->runWmi($scan_config, $config_firewall);
+        my $result_antispyware = $scan->runWmi($scan_config, $config_antispyware);
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
@@ -420,21 +422,29 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
             my $sccm_res = $result_sccm->[0];
             $c->stash->{sccm_scan} = 'Yes';
         }
-        if ($result_av =~ /0x80041010/) {
-            $c->stash->{av_scan} = 'No';
-        }elsif ($result_av =~ /TIMEOUT/ || $result_av =~ /UNREACHABLE/) {
-            $c->stash->{av_scan} = 'Request failed';
+        if ($result_antivirus =~ /0x80041010/) {
+            $c->stash->{antivirus_scan} = 'No';
+        }elsif ($result_antivirus =~ /TIMEOUT/ || $result_antivirus =~ /UNREACHABLE/) {
+            $c->stash->{antivirus_scan} = 'Request failed';
         }else {
-            my $av_res = $result_av->[0];
-            $c->stash->{av_scan} = 'Yes';
+            my $antivirus_res = $result_antivirus->[0];
+            $c->stash->{antivirus_scan} = 'Yes';
         }
-        if ($result_fw =~ /0x80041010/) {
-            $c->stash->{fw_scan} = 'No';
-        }elsif ($result_fw =~ /TIMEOUT/ || $result_fw =~ /UNREACHABLE/) {
-            $c->stash->{fw_scan} = 'Request failed';
+        if ($result_firewall =~ /0x80041010/) {
+            $c->stash->{firewall_scan} = 'No';
+        }elsif ($result_firewall =~ /TIMEOUT/ || $result_firewall =~ /UNREACHABLE/) {
+            $c->stash->{firewall_scan} = 'Request failed';
         }else {
-            my $fw_res = $result_fw->[0];
-            $c->stash->{fw_scan} = 'Yes';
+            my $firewall_res = $result_firewall->[0];
+            $c->stash->{firewall_scan} = 'Yes';
+        }
+        if ($result_antispyware =~ /0x80041010/) {
+            $c->stash->{antispyware_scan} = 'No';
+        }elsif ($result_antispyware =~ /TIMEOUT/ || $result_antispyware =~ /UNREACHABLE/) {
+            $c->stash->{antispyware_scan} = 'Request failed';
+        }else {
+            my $antispyware_res = $result_antispyware->[0];
+            $c->stash->{antispyware_scan} = 'Yes';
         }
     }
     else {
