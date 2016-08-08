@@ -374,7 +374,8 @@ sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ'){
     my ($self, $c, $result) = @_;
 
     my $scan = pf::scan::wmi::rules->new();
-    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read('testscan');
+    my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
+    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
 
     my $host = $result->{iplog}->{ip};
     
