@@ -403,8 +403,8 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
 
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
-    my $config_antivirus = $c->model('Config::WMI')->read('AntiVirus');
-    my $config_firewall = $c->model('Config::WMI')->read('Firewall');
+    my $config_antivirus = $c->model('Config::WMI')->read('Antivirus');
+    my $config_firewall = $c->model('Config::WMI')->read('FireWall');
     my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
     
 
