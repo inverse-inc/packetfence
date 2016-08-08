@@ -87,7 +87,7 @@ sub authorize {
     }
 
     # otherwise, we don't do a thing
-    return $RADIUS::RLM_MODULE_NOOP;
+    return $RADIUS::RLM_MODULE_OK;
 }
 
 =item * _get_rpc_config
@@ -208,6 +208,7 @@ sub post_auth {
         return server_error_handler();
     }
 
+
     return $radius_return_code;
 }
 
@@ -305,7 +306,7 @@ sub authenticate {
     # &log_request_attributes;
     # We only increment a counter to know how often this has been called.
     $pf::StatsD::statsd->increment("freeradius::" . called() . ".count" );
-    return $RADIUS::RLM_MODULE_NOOP;
+    return $RADIUS::RLM_MODULE_OK;
 
 }
 
@@ -322,7 +323,7 @@ sub accounting {
     my $radius_return_code = eval {
         my $rc = $RADIUS::RLM_MODULE_REJECT;
         my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-        my $port = $RAD_REQUEST{'NAS-Port'} // '';
+        my $port = $RAD_REQUEST{'NAS-Port'};
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 ) {
