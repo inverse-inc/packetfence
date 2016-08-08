@@ -30,7 +30,7 @@
     [% END %]
   </div>
   <div class="control-group">
-    <label class="control-label">Antipyware:</label>
+    <label class="control-label">AntiSpyware:</label>
     [% IF antispyware_scan == "No" %]
         <span class="label label-failure">[% antispyware_scan | html %]</span><br/>
     [% ELSIF antispyware_scan == "Request failed" %]
