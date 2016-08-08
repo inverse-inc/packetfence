@@ -4429,6 +4429,20 @@ image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page 
 
 NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
 
+Once you have configured the Meraki, you will need to configure it in the PacketFence switches. You will need to create an entry for the public IP address of your cloud controller and one for the MAC address of your AP. Here is the resulting configuration for switches.conf.
+
+  [1.1.1.1]
+  description=Meraki Cloud controller
+  type=Meraki::AP_http
+  radiusSecret=useStrongerSecret
+  mode=production
+
+  [00:11:22:33:44:55]
+  description=Meraki local access point
+  type=Meraki::AP_http
+  radiusSecret=useStrongerSecret
+  mode=production
+
 RFC 5176
 ^^^^^^^^
 
