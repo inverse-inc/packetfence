@@ -4,7 +4,6 @@ listen {
     ipaddr = %%management_ip%%
     port = 1815
     type = auth
-    virtual_server = packetfence-cli
 }
 #
 #  Authorization. First preprocess (hints and huntgroups files),
