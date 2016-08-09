@@ -1929,7 +1929,7 @@ In order to be able to debug the Identity Networking Policy you can launch the f
 DHCP Option 82
 ++++++++++++++
 
-In order to enable the DHCP option 82, you need to add the followings parameters.
+In order to enable the DHCP Option 82, you need to add the following parameters.
 Let's say you want to enable it for the vlan 1 to 1024:
 
  ip dhcp snooping
