@@ -2731,7 +2731,7 @@ msgstr ""
 msgid "Interval at which PacketFence updates the online node count"
 msgstr ""
 
-# conf/documentation.conf (maintenance.option_82_task_interval)
+# conf/documentation.conf (maintenance.option82_query_interval)
 msgid "Interval at which PacketFence will query compatibles switches for option 82 switch mac address"
 msgstr ""
 
@@ -8241,8 +8241,8 @@ msgid "maintenance.online_node_count_interval"
 msgstr "Online Node State Update Interval"
 
 # conf/documentation.conf
-msgid "maintenance.option_82_task_interval"
-msgstr "Option82 Task Interval"
+msgid "maintenance.option82_query_interval"
+msgstr "Option82 Query Interval"
 
 # conf/documentation.conf
 msgid "maintenance.person_cleanup"

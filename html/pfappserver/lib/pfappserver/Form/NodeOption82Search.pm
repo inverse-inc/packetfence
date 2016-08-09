@@ -2,12 +2,11 @@ package pfappserver::Form::NodeOption82Search;
 
 =head1 NAME
 
-pfappserver::Form::Node - Web form for a node
-pfappserver::Form::Search::Node - Web form for searching Nodes
+pfappserver::Form::NodeOption82Search - Web form for a node/endpiont option 82 entries
 
 =head1 DESCRIPTION
 
-Form definition to create or update a node.
+Form for searching 
 
 =cut
 

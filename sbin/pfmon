@@ -274,8 +274,8 @@ sub registertasks  {
         \&cluster_check
     );
     register_task(
-        'option 82 task',
-        'option_82_task_interval',
+        'option82 task',
+        'option82_query_interval',
         sub {
             search_switch() if isenabled($Config{'network'}{'dhcpoption82logger'});
         }
