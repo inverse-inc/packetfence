@@ -562,7 +562,7 @@ pfsetvlan=disabled
 # services.pfsetvlan_order
 #
 # Order in which to start this service 
-pfsetvlan_order=13
+pfsetvlan_order=14
 #
 # services.snmptrapd
 #
@@ -572,7 +572,7 @@ snmptrapd=disabled
 # services.snmptrapd_order
 #
 # Order in which to start this service 
-snmptrapd_order=14
+snmptrapd_order=13
 #
 # services.snmptrapd_binary
 #
