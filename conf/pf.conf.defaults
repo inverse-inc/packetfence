@@ -1381,7 +1381,7 @@ fingerbank_data_update_interval=1D
 cluster_check_interval=1m
 # maintenance.option82_query_interval
 #
-# Interval at which PacketFence will query compatibles switches for option 82 switch mac address
+# Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
 option82_query_interval=23h
 
 [active_active]

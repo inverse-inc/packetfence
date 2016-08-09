@@ -2732,7 +2732,7 @@ msgid "Interval at which PacketFence updates the online node count"
 msgstr ""
 
 # conf/documentation.conf (maintenance.option82_query_interval)
-msgid "Interval at which PacketFence will query compatibles switches for option 82 switch mac address"
+msgid "Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address"
 msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
