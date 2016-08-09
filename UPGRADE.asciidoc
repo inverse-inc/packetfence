@@ -203,7 +203,7 @@ Changes to OAuth2 sources callback URL
 
 All the OAuth2 sources you have configured (Facebook, Github, Google, LinkedIn ,Twitter, Windows Live) need to be adjusted as the redirect URL is now the same for all the types.
 
-In the admin interface change `Portal URL` from `https://YOUR_HOSTNAME/oauth/SOURCE_TYPE` to `https://YOUR_HOSTNAME/oauth/callback` (where `SOURCE_TYPE` would be the lower case name of the source type). Note that this parameter is named `redirect_url` in the configuration file.
+In the admin interface change `Portal URL` from `https://YOUR_HOSTNAME/oauth2/SOURCE_TYPE` to `https://YOUR_HOSTNAME/oauth/callback` (where `SOURCE_TYPE` would be the lower case name of the source type). Note that this parameter is named `redirect_url` in the configuration file.
 
 Changes to Cisco Web auth
 ^^^^^^^^^^^^^^^^^^^^^^^^^
