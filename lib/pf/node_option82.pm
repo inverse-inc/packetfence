@@ -10,6 +10,8 @@ pf::node_option82 -
 
 pf::node_option82
 
+CRUD operations for node_option82 table
+
 =cut
 
 use strict;
