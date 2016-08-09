@@ -2,7 +2,7 @@ package pfappserver::Form::NodeOption82Search;
 
 =head1 NAME
 
-pfappserver::Form::NodeOption82Search - Web form for a node/endpiont option 82 entries
+pfappserver::Form::NodeOption82Search - Web form for DHCP Option 82 entries
 
 =head1 DESCRIPTION
 

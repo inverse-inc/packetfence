@@ -8,7 +8,7 @@ pf::option82 - module for option82 management.
 
 =head1 DESCRIPTION
 
-pf::option82 contains task to be able to use the dhcp option 82.
+pf::option82 - Search switches if DHCP Option 82 is supported
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
