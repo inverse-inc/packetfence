@@ -88,6 +88,7 @@ msgstr "Admin Roles - Update"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API Authorize Path"
@@ -106,6 +107,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Onboard.pm
 msgid "API Key"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "API Onboarding"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
@@ -136,6 +141,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "API URL of logged user"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "API key"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
@@ -186,7 +195,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Access Token Parameter"
 msgstr ""
@@ -218,6 +229,8 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
@@ -226,6 +239,10 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Activate MySQL"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -267,6 +284,14 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "Add DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+msgid "Add DHCPv6 Enterprise"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+msgid "Add DHCPv6 Fingerprint"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/list.tt
@@ -340,6 +365,10 @@ msgstr ""
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/nodeoption82/index.tt
 msgid "Add a condition."
+msgstr ""
+
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "Add a filter."
 msgstr ""
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
@@ -513,11 +542,27 @@ msgid "Allow this switch to use PacketFence as a radius server for CLI access"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed actions"
+msgstr ""
+
+# html/pfappserver/root/config/adminroles/view.tt
+msgid "Allowed node options"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Allowed node roles"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access durations"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access levels"
+msgstr ""
+
+# html/pfappserver/root/config/adminroles/view.tt
+msgid "Allowed user options"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
@@ -529,7 +574,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -563,7 +610,7 @@ msgid "Any"
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
-msgid "Any change to the syslog parsers requires a restart of the pfdetect service."
+msgid "Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service."
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -572,11 +619,15 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App ID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App Secret"
 msgstr ""
 
@@ -687,8 +738,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Stripe.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -786,10 +839,6 @@ msgstr ""
 msgid "Broadcast network"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
-msgid "Browser"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Button Text"
 msgstr ""
@@ -867,6 +916,8 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
@@ -962,6 +1013,10 @@ msgstr ""
 msgid "Choose your enforcement mechanisms"
 msgstr ""
 
+# pf::node_option82 (DHCP Option 82)
+msgid "Circuit ID String"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 msgid "Class"
@@ -1008,6 +1063,8 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/children.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/children.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
@@ -1038,6 +1095,8 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
@@ -1143,8 +1202,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Stripe.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -1239,6 +1300,14 @@ msgstr ""
 msgid "Configuration Wizard"
 msgstr ""
 
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components."
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Configuring your Fingerbank API key will allow for more accurate fingerprinting while using MySQL for the storage improves performance greatly in large scale deployments."
+msgstr ""
+
 # html/pfappserver/root/configurator/services.tt
 msgid "Congratulations!"
 msgstr ""
@@ -1271,6 +1340,7 @@ msgstr ""
 # html/pfappserver/root/configurator/configuration.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/fingerbank.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "Continue"
 msgstr ""
@@ -1324,7 +1394,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -1351,7 +1423,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Create a local account on the PacketFence system based on the account email address provided."
 msgstr ""
@@ -1405,15 +1479,13 @@ msgstr ""
 msgid "Custom Fields"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "DHCP Fingerprint"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 msgid "DHCP Fingerprint ID"
 msgstr ""
@@ -1424,21 +1496,28 @@ msgstr ""
 msgid "DHCP Option 82"
 msgstr "DHCP Option 82"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
+# pf::node_option82 (DHCP Option 82)
+msgid "DHCP Option 82 Vlan"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "DHCP Vendor"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "DHCP Vendor ID"
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "DHCP filters"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "DHCP fingerprint"
 msgstr ""
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types options)
@@ -1471,6 +1550,34 @@ msgstr ""
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPREQUEST"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
+msgid "DHCPv6 Enterprise"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+msgid "DHCPv6 Enterprise ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Enterprise.pm
+msgid "DHCPv6 Enterprise Organization"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
+msgid "DHCPv6 Fingerprint"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+msgid "DHCPv6 Fingerprint ID"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -1592,6 +1699,10 @@ msgstr ""
 msgid "Define the roles which will apply to all devices on your network."
 msgstr ""
 
+# conf/documentation.conf (active_active.conflict_resolution_threshold)
+msgid "Defines the amount of seconds after which pfmon attempts to resolve a configuration version conflict between cluster members.For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Defines what attribute of the node to use as the common name during the certificate generation"
 msgstr ""
@@ -1630,6 +1741,10 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/children.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
@@ -1684,6 +1799,14 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 msgid "Delete DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
+msgid "Delete DHCPv6 Enterprise"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
+msgid "Delete DHCPv6 Fingerprint"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/index.tt
@@ -1798,12 +1921,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/adminroles/list.tt
 # html/pfappserver/root/config/authentication.tt
-# html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
-# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
-# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
-# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
-# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
@@ -1844,6 +1962,7 @@ msgstr ""
 msgid "Detector"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/combination/list.tt
 # html/pfappserver/root/config/fingerbank/device/index.tt
@@ -1853,7 +1972,6 @@ msgstr ""
 msgid "Device"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
 msgid "Device ID"
@@ -1881,6 +1999,10 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Dismiss Changes for "
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
+msgid "Dispatched the import job to PID $pid. An e-mail will follow up for status."
 msgstr ""
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
@@ -2136,6 +2258,13 @@ msgstr ""
 msgid "Export All"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/nodeoption82/index.tt
+msgid "Export to CSV"
+msgstr ""
+
 # html/pfappserver/root/config/authentication.tt
 msgid "External"
 msgstr ""
@@ -2251,6 +2380,8 @@ msgid "Filters"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/configurator/fingerbank.tt
+# html/pfappserver/root/node/view.tt
 msgid "Fingerbank"
 msgstr ""
 
@@ -2260,6 +2391,10 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/settings/index.tt
 msgid "Fingerbank Settings"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Fingerbank on-boarding"
 msgstr ""
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
@@ -2304,6 +2439,10 @@ msgstr ""
 msgid "FortiGate"
 msgstr "FortiGate Firewall"
 
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Fully qualified device name"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
@@ -2314,14 +2453,20 @@ msgid "Grace"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "Graph API Token Path"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "Graph API URL"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "Graph API URL of logged user"
 msgstr ""
 
@@ -2486,6 +2631,15 @@ msgstr ""
 msgid "How many violations does pfmon batches"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Enterprise.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Fingerprint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+msgid "ID"
+msgstr ""
+
 # conf/documentation.conf (scan.openvas_reportformatid)
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "ID of the .NBE report format on the OpenVAS server"
@@ -2542,6 +2696,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "IP address of the router to reach this network"
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "IP address of your SMTP server for e-mail relaying. Leaving empty to use the localy running SMTP server."
 msgstr ""
 
 # pf::firewallsso (Firewall SSO)
@@ -2657,6 +2815,10 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+# html/pfappserver/root/config/fingerbank/header.tt
+msgid "Initialize MySQL database"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "Inline"
@@ -2674,6 +2836,7 @@ msgstr ""
 # html/pfappserver/root/configurator/configuration.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/fingerbank.tt
 # html/pfappserver/root/configurator/networks.tt
 # html/pfappserver/root/configurator/services.tt
 msgid "Instructions"
@@ -2693,6 +2856,10 @@ msgstr ""
 
 # html/pfappserver/root/config/authentication.tt
 msgid "Internal Sources"
+msgstr ""
+
+# conf/documentation.conf (maintenance.cluster_check_interval)
+msgid "Interval at which PacketFence checks the health state of the cluster and attempts to resolve any detected conflicts"
 msgstr ""
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
@@ -2741,14 +2908,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
 msgid "Invalid challenge."
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Node.pm
-msgid "Is a device"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Node.pm
-msgid "Is a mobile"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
@@ -2849,6 +3008,10 @@ msgstr ""
 msgid "List of access levels available to the admin user. If none are provided then all access levels are available"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "List of actions available to the admin user. If none are provided then all actions are available"
+msgstr ""
+
 # conf/documentation.conf (guests_admin_registration.access_duration_choices)
 msgid "List of all the choices offered in the access duration action of an authentication source."
 msgstr ""
@@ -2858,7 +3021,11 @@ msgid "List of phone carriers available to the user"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
-msgid "List of roles available to the admin user. If none are provided then all roles are available"
+msgid "List of roles available to the admin user to assign to a node. If none are provided then all roles are available"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "List of roles available to the admin user to assign to a user. If none are provided then all roles are available"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -3036,7 +3203,6 @@ msgstr ""
 msgid "Longitude/Latitude"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/user/nodes.tt
@@ -3059,7 +3225,6 @@ msgstr ""
 msgid "MAC OUI"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
@@ -3067,7 +3232,9 @@ msgid "MAC Vendor"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+msgid "MAC Vendor (OUI)"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 msgid "MAC Vendor ID"
 msgstr ""
@@ -3165,6 +3332,10 @@ msgstr ""
 msgid "Miscellaneous"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Mobile"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/root/config/switch/list.tt
 msgid "Mode"
@@ -3225,6 +3396,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/config/authentication.tt
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/scan/list.tt
@@ -3319,6 +3492,14 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "New DHCP Vendor"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
+msgid "New DHCPv6 Enterprise"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
+msgid "New DHCPv6 Fingerprint"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
@@ -3570,6 +3751,10 @@ msgstr ""
 msgid "Note that adding / modifying a network requires a restart of the dhcpd and pfdns services for the changes to take place"
 msgstr ""
 
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Note that these actions are optional and can be skipped."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -3610,7 +3795,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/node/view.tt
 msgid "OS"
 msgstr ""
 
@@ -3619,12 +3803,20 @@ msgstr ""
 msgid "OS (DHCP)"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+msgid "OUI"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 msgid "Offline"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Offline Nodes"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "On this page, you can configure Fingerbank which is used for device fingerprinting."
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -3723,10 +3915,6 @@ msgstr "Open Wednesday"
 msgid "Operating Systems"
 msgstr ""
 
-# pf::node_option82 (Node Options 82)
-msgid "Option 82 Vlan"
-msgstr "Node Options 82 VLAN"
-
 # html/pfappserver/root/admin/auditing_option82.tt
 msgid "Option82"
 msgstr "Option82"
@@ -3765,7 +3953,12 @@ msgstr "Option82"
 msgid "Order in which the service should be started. Lower order services start first and stop last."
 msgstr "Order in which the service should be started. Lower order services start first and stop last."
 
+# conf/documentation.conf (services.httpd_collector_order)
+msgid "Order in which the service should be started.Lower order services start first and stop last."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
 msgid "Organization"
 msgstr ""
 
@@ -3950,6 +4143,10 @@ msgstr ""
 # pf::firewallsso (Firewall SSO)
 msgid "PaloAlto"
 msgstr "PaloAlto Networks"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Device.pm
+msgid "Parent device"
+msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Parking"
@@ -4313,6 +4510,10 @@ msgstr ""
 msgid "Port of the Redis server"
 msgstr ""
 
+# conf/documentation.conf (ports.collector)
+msgid "Port of the collector webservice."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
@@ -4371,7 +4572,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Portal URL"
@@ -4564,6 +4767,10 @@ msgstr ""
 msgid "Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one."
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "Read Only"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 msgid "Really delete this Combination?"
 msgstr ""
@@ -4574,6 +4781,14 @@ msgstr ""
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 msgid "Really delete this DHCP Vendor?"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
+msgid "Really delete this DHCPv6 Enterprise?"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
+msgid "Really delete this DHCPv6 Fingerprint?"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/device/index.tt
@@ -5103,6 +5318,8 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
@@ -5170,6 +5387,8 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/view.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/view.tt
@@ -5236,12 +5455,15 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "Scope"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Score"
 msgstr ""
 
@@ -5394,6 +5616,10 @@ msgstr ""
 msgid "Should Fingerbank interact with WWW using a proxy ?"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state)
+msgid "Should Fingerbank use MySQL instead of the SQLite3 database ?"
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis)
 msgid "Should Redis be used to match combinations ? Requires to have the Attribute map imported into the Redis instance"
 msgstr ""
@@ -5424,6 +5650,10 @@ msgstr ""
 
 # conf/documentation.conf (services.httpd_admin)
 msgid "Should httpd.admin be started ? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_collector)
+msgid "Should httpd.collector be started ? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_graphite)
@@ -5623,6 +5853,10 @@ msgstr ""
 msgid "Source Switch MAC"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Source Switch Port"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Sources"
@@ -5725,6 +5959,7 @@ msgstr ""
 # html/pfappserver/root/configurator/configuration.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/fingerbank.tt
 # html/pfappserver/root/configurator/networks.tt
 # html/pfappserver/root/configurator/services.tt
 msgid "Step"
@@ -5770,6 +6005,7 @@ msgstr ""
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/fingerbank.tt
 # html/pfappserver/root/configurator/wrapper.tt
 msgid "Success!"
 msgstr ""
@@ -5946,6 +6182,10 @@ msgstr ""
 msgid "The OMAPI port number"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+msgid "The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122)."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The Private Key for signing in pem format"
 msgstr ""
@@ -5956,6 +6196,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "The URL on which the user should be redirected."
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.incrementals_url)
+msgid "The URL to download the SQL incremental scripts"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
@@ -5978,6 +6222,10 @@ msgstr ""
 msgid "The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords."
 msgstr ""
 
+# conf/documentation.conf (captive_portal.request_timeout)
+msgid "The amount of seconds before a request times out in the captive portal"
+msgstr ""
+
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_blocking_period)
 msgid "The amount of time (in seconds) that a client will be blocked for if they are added to the blocking list. During this time, all subsequent requests from the client will result in a 403 (Forbidden) and the timer being reset (e.g. another 10 seconds). Since the timer is reset for every subsequent request, it is not necessary to have a long blocking period; in the event of a DoS attack, this timer will keep getting reset."
 msgstr ""
@@ -5991,7 +6239,9 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SMS.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
@@ -6026,6 +6276,10 @@ msgstr ""
 msgid "The cost factor to apply to the password hashing if applicable.Currently only applies to bcrypt."
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.database)
+msgid "The database name in MySQL"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 msgid "The description that will be displayed to users"
 msgstr ""
@@ -6058,10 +6312,16 @@ msgstr ""
 msgid "The hidden SSID where the user should connect to after registration"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.host)
+msgid "The host to connect to the MySQL database"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LinkedIn.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Twitter.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The hostname must be the one of your captive portal."
@@ -6119,6 +6379,10 @@ msgstr ""
 msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.password)
+msgid "The password to connect to the MySQL database"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The path to the Paypal certificate you downloaded."
 msgstr ""
@@ -6146,12 +6410,18 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/WindowsLive.pm
 msgid "The permissions the application requests."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid "The port must be configured as a muti-vlan port"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.port)
+msgid "The port to connect to the MySQL database"
 msgstr ""
 
 # conf/documentation.conf (monitoring.db_port)
@@ -6237,6 +6507,10 @@ msgstr ""
 
 # conf/documentation.conf (monitoring.db_user)
 msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.username)
+msgid "The username to connect to the MySQL database"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -6638,7 +6912,7 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
@@ -6646,8 +6920,6 @@ msgstr ""
 msgid "User Agent"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
 # html/pfappserver/root/config/fingerbank/user_agent/list.tt
 msgid "User Agent ID"
 msgstr ""
@@ -6670,10 +6942,6 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
 msgid "User Sources"
-msgstr ""
-
-# html/pfappserver/root/node/view.tt
-msgid "User-Agent Information"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
@@ -6773,12 +7041,26 @@ msgstr ""
 msgid "VLAN in which PacketFence should put the port"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Enterprise.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP6_Fingerprint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Fingerprint.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Value"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 msgid "Vendor"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Version"
 msgstr ""
 
@@ -6827,6 +7109,7 @@ msgid "Visit Administration Interface Now!"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/root/admin/nodes.tt
 msgid "VoIP"
 msgstr ""
 
@@ -7057,6 +7340,10 @@ msgstr ""
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
+# html/pfappserver/root/config/profile/tab-content.tt
+msgid "With no filter specified, an advanced filter must be specified."
+msgstr ""
+
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "With no language specified, all supported locales will be available."
 msgstr ""
@@ -7194,6 +7481,10 @@ msgid "active_active.centralized_deauth"
 msgstr "Centralized access reevaluation"
 
 # conf/documentation.conf
+msgid "active_active.conflict_resolution_threshold"
+msgstr "Conflict resolution threshold"
+
+# conf/documentation.conf
 msgid "active_active.dns_on_vip_only"
 msgstr "pfdns on VIP only"
 
@@ -7204,10 +7495,6 @@ msgstr "Shared KEY"
 # conf/documentation.conf
 msgid "active_active.virtual_router_id"
 msgstr "Virtual Router ID"
-
-# conf/documentation.conf
-msgid "active_active.conflict_resolution_threshold"
-msgstr "Conflict resolution threshold"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # pfappserver::Form::Field::Duration (Operators)
@@ -7470,10 +7757,6 @@ msgid "captive_portal.image_path"
 msgstr "IMG path"
 
 # conf/documentation.conf
-msgid "captive_portal.request_timeout"
-msgstr "Request timeout"
-
-# conf/documentation.conf
 msgid "captive_portal.loadbalancers_ip"
 msgstr "Load balancers IP"
 
@@ -7484,6 +7767,10 @@ msgstr "Network detection"
 # conf/documentation.conf
 msgid "captive_portal.network_detection_ip"
 msgstr "IP"
+
+# conf/documentation.conf
+msgid "captive_portal.request_timeout"
+msgstr "Request timeout"
 
 # conf/documentation.conf
 msgid "captive_portal.secure_redirect"
@@ -7497,17 +7784,9 @@ msgstr "Status URI only on production network"
 msgid "captive_portal.wispr_redirection"
 msgstr "WISPr redirection capabilities"
 
-# conf/documentation.conf
-msgid "captive_portal.request_timeout"
-msgstr "Request timeout"
-
 # html/pfappserver/root/admin/users.tt
 msgid "cell_phone"
 msgstr "cell phone"
-
-# pf::node_option82 (Node Options 82)
-msgid "circuit_id_string"
-msgstr "Circuit ID String"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "close_action"
@@ -7539,6 +7818,10 @@ msgstr ""
 
 # pfappserver::PacketFence::Controller::Graph (os fields)
 msgid "count"
+msgstr ""
+
+# pf::node_option82 (DHCP Option 82)
+msgid "created_at"
 msgstr ""
 
 # pf::Authentication::Source (common_attributes)
@@ -7651,6 +7934,7 @@ msgstr "DHCP Fingerprint"
 msgid "dhcplistener"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
@@ -7694,6 +7978,7 @@ msgstr ""
 # conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_parking options)
 # conf/documentation.conf (services.httpd_portal options)
@@ -7762,6 +8047,7 @@ msgstr ""
 msgid "email_user_action"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
@@ -7805,6 +8091,7 @@ msgstr ""
 # conf/documentation.conf (services.haproxy options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
+# conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_parking options)
 # conf/documentation.conf (services.httpd_portal options)
@@ -7946,7 +8233,7 @@ msgstr ""
 msgid "higher or equals"
 msgstr ""
 
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 msgid "host"
 msgstr "Host"
 
@@ -8119,7 +8406,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source (common_attributes)
 # pf::config (Inline triggers)
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "mac"
 msgstr "MAC Address"
@@ -8167,6 +8454,10 @@ msgstr "Authentication log Cleanup Timeout"
 # conf/documentation.conf
 msgid "maintenance.auth_log_cleanup_window"
 msgstr "Authentication log Cleanup Window"
+
+# conf/documentation.conf
+msgid "maintenance.cluster_check_interval"
+msgstr "Cluster Check Interval"
 
 # conf/documentation.conf
 msgid "maintenance.fingerbank_data_update_interval"
@@ -8292,10 +8583,6 @@ msgstr "Violation Maintenance Interval"
 msgid "maintenance.violation_maintenance_timeout"
 msgstr "Violation Maintenance Timeout"
 
-# conf/documentation.conf
-msgid "maintenance.cluster_check_interval"
-msgstr "Cluster Check Interval"
-
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "manage_deregister"
 msgstr ""
@@ -8376,7 +8663,7 @@ msgstr "Apple Devices"
 msgid "mobileiron"
 msgstr "MobileIron"
 
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 msgid "module"
 msgstr "Module"
 
@@ -8415,6 +8702,38 @@ msgstr "Graphite Port"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
 msgstr "Months"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.database"
+msgstr "MySQL database name"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.host"
+msgstr "MySQL host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.incrementals_url"
+msgstr "MySQL incrementals URL"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.password"
+msgstr "MySQL password"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.port"
+msgstr "MySQL port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.state"
+msgstr "MySQL state"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "mysql.username"
+msgstr "MySQL username"
 
 # html/pfappserver/root/admin/users.tt
 msgid "name"
@@ -8485,6 +8804,7 @@ msgid "nickname"
 msgstr ""
 
 # conf/documentation.conf (node_import.voip options)
+# html/pfappserver/root/admin/nodes.tt
 msgid "no"
 msgstr ""
 
@@ -8577,7 +8897,7 @@ msgstr "OpenVAS"
 msgid "opswat"
 msgstr "OPSWAT"
 
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 msgid "option82_switch"
 msgstr "Option82 Switch"
 
@@ -8632,7 +8952,7 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 msgid "port"
 msgstr "Port"
 
@@ -8651,6 +8971,10 @@ msgstr "AAA"
 # conf/documentation.conf
 msgid "ports.admin"
 msgstr "Admin"
+
+# conf/documentation.conf
+msgid "ports.collector"
+msgstr ""
 
 # conf/documentation.conf
 msgid "ports.httpd_portal_modstatus"
@@ -8679,6 +9003,10 @@ msgstr "Profile"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 msgid "profile.filter.$_"
+msgstr ""
+
+# profile.filter (Portal Profile Filters)
+msgid "profile.filter.advanced"
 msgstr ""
 
 # profile.filter (Portal Profile Filters)
@@ -8842,34 +9170,6 @@ msgstr "Redis Host"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "redis.port"
 msgstr "Redis Port"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.state"
-msgstr "MySQL state"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.host"
-msgstr "MySQL host"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.port"
-msgstr "MySQL port"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.username"
-msgstr "MySQL username"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.password"
-msgstr "MySQL password"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.database"
-msgstr "MySQL database name"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.incrementals_url"
-msgstr "MySQL incrementals URL"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "reevaluate_access_action"
@@ -9077,6 +9377,14 @@ msgstr "httpd.admin service ordering"
 # conf/documentation.conf
 msgid "services.httpd_binary"
 msgstr "httpd path"
+
+# conf/documentation.conf
+msgid "services.httpd_collector"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.httpd_collector_order"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.httpd_graphite"
@@ -9395,7 +9703,7 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
-# pf::node_option82 (Node Options 82)
+# pf::node_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "switch_id"
 msgstr "Switch ID"
@@ -9564,6 +9872,7 @@ msgstr "User Name"
 # pf::Authentication::Source::GoogleSource (available_attributes)
 # pf::Authentication::Source::HTTPSource (available_attributes)
 # pf::Authentication::Source::HtpasswdSource (available_attributes)
+# pf::Authentication::Source::InstagramSource (available_attributes)
 # pf::Authentication::Source::KerberosSource (available_attributes)
 # pf::Authentication::Source::KickboxSource (available_attributes)
 # pf::Authentication::Source::LinkedInSource (available_attributes)
@@ -9571,6 +9880,7 @@ msgstr "User Name"
 # pf::Authentication::Source::NullSource (available_attributes)
 # pf::Authentication::Source::OAuthSource (available_attributes)
 # pf::Authentication::Source::PaypalSource (available_attributes)
+# pf::Authentication::Source::PinterestSource (available_attributes)
 # pf::Authentication::Source::RADIUSSource (available_attributes)
 # pf::Authentication::Source::StripeSource (available_attributes)
 # pf::Authentication::Source::TwitterSource (available_attributes)
@@ -9689,6 +9999,7 @@ msgid "yellow"
 msgstr ""
 
 # conf/documentation.conf (node_import.voip options)
+# html/pfappserver/root/admin/nodes.tt
 msgid "yes"
 msgstr ""
 
