@@ -28,7 +28,7 @@ use NetPacket::UDP;
 use Readonly;
 
 use pf::util qw(int2ip clean_mac);
-use pf::option82 qw(get_switch_from_option_82);
+use pf::option82 qw(get_switch_from_option82);
 
 our @ascii_options = (
     4, # Time Server (RFC2132)
@@ -324,7 +324,7 @@ sub _decode_dhcp_option82_suboption2 {
     my $data = pack("C*", @chars);
     if ($type == 0) {
         $option->{switch} = clean_mac(unpack("H*", $data));
-        $option->{switch_id} =  get_switch_from_option_82($option->{switch});
+        $option->{switch_id} =  get_switch_from_option82($option->{switch});
     }
     else {
         $option->{host} = $data;

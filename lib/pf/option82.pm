@@ -28,7 +28,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT_OK = qw(
         search_switch
-        get_switch_from_option_82
+        get_switch_from_option82
     );
 }
 
@@ -51,13 +51,13 @@ sub search_switch {
     }
 }
 
-=head2 get_switch_from_option_82
+=head2 get_switch_from_option82
 
 find the switch from the option82
 
 =cut
 
-sub get_switch_from_option_82 {
+sub get_switch_from_option82 {
     my($mac) = @_;
     my $cache = pf::CHI->new( namespace => 'switch' );
     return $cache->get("${OPTION82_PREFIX}${mac}");
