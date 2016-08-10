@@ -11,19 +11,43 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version X.Y.Z released on xxxx-xx-xx
+Version 6.3.0 released on xxxx-xx-xx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 ++++++++++++
 
+* Support for OpenWRT Chaos Calmer 15.05 with Hostapd
+* MySQL is now supported as the Fingerbank database backend
+* Integration with Cisco MSE notifications in PacketFence
+* Added the ability to locate a device based on DHCP option 82
+* Added support for Meraki wired switches
 
 Enhancements
 ++++++++++++
 
+* Added support for Brocade CLI RADIUS authentication
+* Added configuration conflict handling for active/active clusters
+* Fingerbank configuration is now cached
+* Removed the pf/var directory from the backups to make them smaller
+* Fingerbank is now configurable from the configurator
+* Added support for Xirrus switches CLI RADIUS authentication
+* Pinterest and Instagram are now supported as OAuth authentication sources
+* Support for Suricata md5 extraction over SMTP protocol 
+* Added sample monit helper scripts under pf/addons
+* Added support for custom AUP template per portal module
+* Several improvements to Fingerbank to make it more user-friendly
+* Added option to export nodes and users within the web administration interface
+* Third parties can now extend what can be matched in profile filters
+* PacketFence created interfaces will now be excluded from Red Hat's NetworkManager
+* Added the ability to restrict the modification of node roles by a user
+
 
 Bug Fixes
 +++++++++
+
+* Added timeout to captive portal to prevent long running requests (#1570)
+* Do not start pfqueue processes for pfdetect if it's not running (#1593)
 
 Version 6.2.1 released on 2016-07-08
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
