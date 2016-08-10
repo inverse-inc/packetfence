@@ -44,6 +44,8 @@ has pfconfigNamespace => ( is => 'ro', default => sub {undef});
 
 has default_section => ( is => 'ro');
 
+has importConfigFile => ( is => 'rw');
+
 
 =head1 METHODS
 
@@ -72,7 +74,12 @@ Build the pf::config::cached object
 sub _buildCachedConfig {
     my ($self) = @_;
     my @args = (-file => $self->configFile, -allowempty => 1);
-    push @args, -default => $self->default_section if defined $self->default_section;
+    my $default_section = $self->default_section;
+    push @args, -default => $default_section if defined $default_section;
+    my $importConfigFile = $self->importConfigFile;
+    if (defined $importConfigFile ) {
+        push @args, -import => pf::config::cached->new(-file => $importConfigFile, -allowempty => 1 );
+    }
     return pf::config::cached->new(@args);
 }
 
