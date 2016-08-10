@@ -59,6 +59,7 @@ our (
     $firewall_sso_config_file,
     $pfdetect_config_file,
     $pfqueue_config_file,
+    $pfqueue_default_config_file,
     $allowed_device_oui_file, $allowed_device_types_file,
     $apache_filters_config_file,
     $cache_control_file,
@@ -122,6 +123,7 @@ BEGIN {
         $firewall_sso_config_file
         $pfdetect_config_file
         $pfqueue_config_file
+        $pfqueue_default_config_file
         $allowed_device_oui_file $allowed_device_types_file
         $apache_filters_config_file
         $cache_control_file
@@ -211,6 +213,7 @@ $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
 $pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
 $report_config_file = catfile($conf_dir,"report.conf");
+$pfqueue_default_config_file =  catfile($conf_dir,"pfqueue.conf.defaults");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");
