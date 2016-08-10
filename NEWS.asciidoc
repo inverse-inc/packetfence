@@ -17,10 +17,10 @@ Version 6.3.0 released on xxxx-xx-xx
 New Features
 ++++++++++++
 
-* Support for OpenWRT Chaos Calmer 15.05 with Hostapd
+* Support for OpenWrt Chaos Calmer 15.05 with hostapd
 * MySQL is now supported as the Fingerbank database backend
 * Integration with Cisco MSE notifications in PacketFence
-* Added the ability to locate a device based on DHCP option 82
+* Added the ability to locate a device based on DHCP Option 82
 * Added support for Meraki wired switches
 
 Enhancements
@@ -30,7 +30,7 @@ Enhancements
 * Added configuration conflict handling for active/active clusters
 * Fingerbank configuration is now cached
 * Removed the pf/var directory from the backups to make them smaller
-* Fingerbank is now configurable from the configurator
+* Fingerbank is now configurable from the initial PacketFence configurator
 * Added support for Xirrus switches CLI RADIUS authentication
 * Pinterest and Instagram are now supported as OAuth authentication sources
 * Support for Suricata md5 extraction over SMTP protocol 
