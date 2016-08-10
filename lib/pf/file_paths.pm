@@ -88,6 +88,7 @@ our (
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
+    $switches_default_config_file,
 );
 
 BEGIN {
@@ -150,6 +151,7 @@ BEGIN {
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
         $captiveportal_default_profile_templates_path
+        $switches_default_config_file
     );
 }
 
@@ -188,6 +190,7 @@ $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
+$switches_default_config_file   = catfile($conf_dir, "switches.conf.defaults");
 $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
 $violations_config_file = catfile($conf_dir, "violations.conf");

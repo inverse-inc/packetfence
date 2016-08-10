@@ -1,0 +1,92 @@
+#
+# Copyright (C) 2005-2016 Inverse inc.
+#
+# See the enclosed file COPYING for license information (GPL).
+# If you did not receive this file, see
+# http://www.fsf.org/licensing/licenses/gpl.html
+
+[default]
+type=Generic
+description=Switches Default Values
+vlans = 1,2,3,4,5
+normalVlan = 1
+registrationVlan = 2
+isolationVlan = 3
+macDetectionVlan = 4
+voiceVlan = 5
+inlineVlan = 6
+REJECTVlan = -1
+inlineTrigger = 
+normalRole = normal
+registrationRole = registration
+isolationRole = isolation
+macDetectionRole = macDetection
+voiceRole = voice
+inlineRole = inline
+VoIPEnabled = N
+cliAccess = N
+VlanMap = Y
+RoleMap = Y
+ExternalPortalEnforcement = N
+
+mode = testing
+macSearchesMaxNb = 30
+macSearchesSleepInterval = 2
+uplink = dynamic
+
+#
+# Command Line Interface 
+#
+# cliTransport could be: Telnet, SSH or Serial
+cliTransport = Telnet
+cliUser = 
+cliPwd = 
+cliEnablePwd = 
+
+#
+# SNMP section
+#
+
+# PacketFence -> Switch
+SNMPVersion = 1
+SNMPCommunityRead = public
+SNMPCommunityWrite = private
+#SNMPEngineID = 0000000000000
+#SNMPUserNameRead = readUser
+#SNMPAuthProtocolRead = MD5
+#SNMPAuthPasswordRead = authpwdread
+#SNMPPrivProtocolRead = DES 
+#SNMPPrivPasswordRead = privpwdread
+#SNMPUserNameWrite = writeUser
+#SNMPAuthProtocolWrite = MD5
+#SNMPAuthPasswordWrite = authpwdwrite
+#SNMPPrivProtocolWrite = DES 
+#SNMPPrivPasswordWrite = privpwdwrite
+
+# Switch -> PacketFence
+SNMPVersionTrap = 1
+SNMPCommunityTrap = public
+#SNMPAuthProtocolTrap = MD5
+#SNMPAuthPasswordTrap = authpwdread
+#SNMPPrivProtocolTrap = DES
+#SNMPPrivPasswordTrap = privpwdread
+
+#
+# Web Services Interface 
+#
+# wsTransport could be: http or https
+wsTransport = http
+wsUser = 
+wsPwd = 
+#
+# RADIUS NAS Client config
+#
+# RADIUS shared secret with switch
+radiusSecret=
+
+VoIPCDPDetect=N
+VoIPDHCPDetect=N
+AccessListMap=N
+UrlMap=N
+useCoA=Y
+VoIPLLDPDetect=N
