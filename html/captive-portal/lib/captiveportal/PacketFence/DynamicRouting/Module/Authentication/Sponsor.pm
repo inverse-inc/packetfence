@@ -12,6 +12,7 @@ Sponsoring module
 
 use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
+with 'captiveportal::Role::FieldValidation';
 
 use pf::log;
 use pf::constants qw($TRUE);
