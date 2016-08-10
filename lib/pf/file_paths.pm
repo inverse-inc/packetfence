@@ -90,6 +90,7 @@ our (
     $captiveportal_profile_templates_path,
     $captiveportal_default_profile_templates_path,
     $switches_default_config_file,
+    $violations_default_config_file,
 );
 
 BEGIN {
@@ -154,6 +155,7 @@ BEGIN {
         $captiveportal_profile_templates_path
         $captiveportal_default_profile_templates_path
         $switches_default_config_file
+        $violations_default_config_file
     );
 }
 
@@ -197,6 +199,7 @@ $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $profiles_default_config_file   = catfile($conf_dir, "profiles.conf.defaults");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
 $violations_config_file = catfile($conf_dir, "violations.conf");
+$violations_default_config_file = catfile($conf_dir, "violations.conf.defaults");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 

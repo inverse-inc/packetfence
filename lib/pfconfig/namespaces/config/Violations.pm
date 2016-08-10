@@ -18,13 +18,17 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($violations_config_file);
+use pf::file_paths qw(
+    $violations_config_file
+    $violations_default_config_file
+);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
     $self->{file}            = $violations_config_file;
+    $self->{added_params}{'-import'} = Config::IniFiles->new(-file => $violations_default_config_file);
     $self->{default_section} = "defaults";
     $self->{child_resources} = [ 'FilterEngine::Violation' ];
 }
