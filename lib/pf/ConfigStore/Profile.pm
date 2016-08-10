@@ -14,7 +14,7 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths qw($profiles_config_file);
+use pf::file_paths qw($profiles_config_file $profiles_default_config_file);
 
 use pf::ConfigStore;
 
@@ -26,6 +26,8 @@ with 'pf::ConfigStore::Role::ValidGenericID';
 =cut
 
 sub configFile { $profiles_config_file }
+
+sub importConfigFile { $profiles_default_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}
 

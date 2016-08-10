@@ -20,6 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
     $profiles_config_file
+    $profiles_default_config_file
     $captiveportal_default_profile_templates_path
     $captiveportal_templates_path
     $captiveportal_profile_templates_path
@@ -39,6 +40,7 @@ sub init {
     $self->{file}            = $profiles_config_file;
     $self->{default_section} = "default";
     $self->{child_resources} = [ 'FilterEngine::Profile', 'resource::URI_Filters' ];
+    $self->{added_params}{'-import'} = Config::IniFiles->new(-file => $profiles_default_config_file);
 }
 
 sub build_child {

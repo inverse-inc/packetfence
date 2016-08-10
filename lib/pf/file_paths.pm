@@ -47,7 +47,7 @@ our (
     # Local secret file for RADIUS
     $local_secret_file,
     #profiles.conf variables
-    $profiles_config_file, %Profiles_Config,
+    $profiles_config_file, $profiles_default_config_file,
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
@@ -110,7 +110,7 @@ BEGIN {
         $oui_file $oui_url
         $pf_omapi_key_file
         $local_secret_file
-        $profiles_config_file %Profiles_Config
+        $profiles_config_file $profiles_default_config_file
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         $chi_defaults_config_file
@@ -192,6 +192,7 @@ $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
 $switches_default_config_file   = catfile($conf_dir, "switches.conf.defaults");
 $profiles_config_file   = catfile($conf_dir, "profiles.conf");
+$profiles_default_config_file   = catfile($conf_dir, "profiles.conf.defaults");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
 $violations_config_file = catfile($conf_dir, "violations.conf");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
