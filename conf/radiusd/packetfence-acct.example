@@ -1,0 +1,194 @@
+server packetfence-acct {
+
+listen {
+    ipaddr = %%management_ip%%
+    port = 0
+    type = acct
+}
+
+authorize {
+}
+
+
+# The following are unused in the accounting virtual server 
+# but the config breaks if they are removed.
+authenticate {
+	Auth-Type PAP {
+		pap
+	}
+
+	Auth-Type CHAP {
+		chap
+	}
+
+	Auth-Type MS-CHAP {
+		mschap
+	}
+
+	eap
+}
+
+#
+#  Pre-accounting.  Decide which accounting type to use.
+#
+preacct {
+	preprocess
+	rewrite_called_station_id
+
+	#
+	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
+	#  into a single 64bit counter Acct-[Input|Output]-Octets64.
+	#
+#	acct_counters64
+
+	#
+	#  Session start times are *implied* in RADIUS.
+	#  The NAS never sends a "start time".  Instead, it sends
+	#  a start packet, *possibly* with an Acct-Delay-Time.
+	#  The server is supposed to conclude that the start time
+	#  was "Acct-Delay-Time" seconds in the past.
+	#
+	#  The code below creates an explicit start time, which can
+	#  then be used in other modules.  It will be *mostly* correct.
+	#  Any errors are due to the 1-second resolution of RADIUS,
+	#  and the possibility that the time on the NAS may be off.
+	#
+	#  The start time is: NOW - delay - session_length
+	#
+
+	#	update request {
+	#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	#	}
+
+
+	#
+	#  Ensure that we have a semi-unique identifier for every
+	#  request, and many NAS boxes are broken.
+	acct_unique
+
+	#
+	#  Look for IPASS-style 'realm/', and if not found, look for
+	#  '@realm', and decide whether or not to proxy, based on
+	#  that.
+	#
+	#  Accounting requests are generally proxied to the same
+	#  home server as authentication requests.
+	#	IPASS
+	suffix
+	ntdomain
+
+	#
+	#  Read the 'acct_users' file
+	files
+}
+
+#
+#  Accounting.  Log the accounting data.
+#
+accounting {
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
+	rewrite_calling_station_id
+	rewrite_called_station_id
+	#
+	#  Log traffic to an SQL database.
+	#
+	#  See "Accounting queries" in mods-available/sql
+	%%accounting_sql%%
+
+	#
+	#  If you receive stop packets with zero session length,
+	#  they will NOT be logged in the database.  The SQL module
+	#  will print a message (only in debugging mode), and will
+	#  return "noop".
+	#
+	#  You can ignore these packets by uncommenting the following
+	#  three lines.  Otherwise, the server will not respond to the
+	#  accounting request, and the NAS will retransmit.
+	#
+	if (noop) {
+		ok
+	}
+
+	#  Filter attributes from the accounting response.
+	attr_filter.accounting_response
+    
+	packetfence
+}
+
+
+#  Session database, used for checking Simultaneous-Use. Either the radutmp
+#  or rlm_sql module can handle this.
+#  The rlm_sql module is *much* faster
+session {
+	#	radutmp
+
+	#
+	#  See "Simultaneous Use Checking Queries" in mods-available/sql
+	#	sql
+}
+
+
+post-auth {
+}
+
+#
+#  When the server decides to proxy a request to a home server,
+#  the proxied request is first passed through the pre-proxy
+#  stage.  This stage can re-write the request, or decide to
+#  cancel the proxy.
+#
+#  Only a few modules currently have this method.
+#
+pre-proxy {
+}
+
+#
+#  When the server receives a reply to a request it proxied
+#  to a home server, the request may be massaged here, in the
+#  post-proxy stage.
+#
+post-proxy {
+
+	#
+	#  If you are proxying LEAP, you MUST configure the EAP
+	#  module, and you MUST list it here, in the post-proxy
+	#  stage.
+	#
+	#  You MUST also use the 'nostrip' option in the 'realm'
+	#  configuration.  Otherwise, the User-Name attribute
+	#  in the proxied request will not match the user name
+	#  hidden inside of the EAP packet, and the end server will
+	#  reject the EAP request.
+	#
+	eap
+
+	#
+	#  If the server tries to proxy a request and fails, then the
+	#  request is processed through the modules in this section.
+	#
+	#  The main use of this section is to permit robust proxying
+	#  of accounting packets.  The server can be configured to
+	#  proxy accounting packets as part of normal processing.
+	#  Then, if the home server goes down, accounting packets can
+	#  be logged to a local "detail" file, for processing with
+	#  radrelay.  When the home server comes back up, radrelay
+	#  will read the detail file, and send the packets to the
+	#  home server.
+	#
+	#  With this configuration, the server always responds to
+	#  Accounting-Requests from the NAS, but only writes
+	#  accounting packets to disk if the home server is down.
+	#
+#	Post-Proxy-Type Fail-Accounting {
+#			detail
+#	}
+}
+}
