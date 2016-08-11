@@ -1487,3 +1487,41 @@ place_in_dhcp_parking_group=enabled
 #
 # Show the parking portal to the device instead of the usual portal
 show_parking_portal=enabled
+
+[radius_authentication_methods]
+#
+# radius_authentication_methods.eap_fast_support
+#
+# Enable EAP-FAST support for Cisco NEAT in RADIUS
+eap_fast_support=disabled
+#
+# radius_authentication_methods.eap_fast_opaque_key
+#
+# EAP-FAST 32 bytes Opaque Key (if EAP-FAST is enabled)
+eap_fast_pac_opaque_key=0123456789abcdef0123456789ABCDEF
+#
+# radius_authentication_methods.eap_fast_authority_identity
+#
+# EAP-FAST authority ID (if EAP-FAST is enabled)
+eap_fast_authority_identity=1234
+#
+# radius_authentication_methods.eap_gtc_support
+#
+# Enable EAP-GTC support in RADIUS
+eap_gtc_support=enabled
+#
+# radius_authentication_methods.eap_md5_support
+#
+# Enable EAP-MD5 support in RADIUS
+eap_md5_support=enabled
+#
+# radius_authentication_methods.eap_mschapv2_support
+#
+# Enable EAP-MSCHAPv2 support in RADIUS
+eap_mschapv2_support=enabled
+#
+# radius_authentication_methods.eap_peap_support
+#
+# Enable EAP-PEAP support in RADIUS
+eap_peap_support=enabled
+
