@@ -15,6 +15,8 @@ use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use pf::constants qw($TRUE $FALSE);
+use pf::admin_roles;
 use namespace::autoclean;
 use POSIX;
 use pf::config qw(%Config);
@@ -105,7 +107,7 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     (undef, $violations ) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
-        roles => $result,
+        roles => $self->get_allowed_node_roles($c),
         violations => $violations,
         by => $by,
         direction => $direction,
@@ -116,6 +118,12 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     }
     $c->stash->{switches} = $self->_get_switches_metadata($c);
     $c->stash->{search_action} = $c->action;
+
+    if($c->request->param('export')) {
+        $c->stash->{current_view} = "CSV";
+        $c->stash->{columns} = [keys(%{$c->session->{'nodecolumns'}})];
+    }
+
     $c->response->status($status);
 }
 
@@ -155,10 +163,8 @@ sub create :Local : AdminRole('NODES_CREATE') {
     my ($roles, $node_status, $form_single, $form_import, $params, $type);
     my ($status, $result, $message);
 
-    ($status, $result) = $c->model('Roles')->list();
-    if (is_success($status)) {
-        $roles = $result;
-    }
+    $roles = $self->get_allowed_node_roles($c);
+    my %allowed_roles = map { $_->{name} => undef } @$roles;
     $node_status = $c->model('Node')->availableStatus();
 
     $form_single = pfappserver::Form::Node->new(ctx => $c, status => $node_status, roles => $roles);
@@ -194,7 +200,7 @@ sub create :Local : AdminRole('NODES_CREATE') {
                 $message = $form_import->field_errors;
             }
             else {
-                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user);
+                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user, \%allowed_roles);
                 if (is_success($status)) {
                     $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
                 }
@@ -271,9 +277,9 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     $c->stash->{switches} = $self->_get_switches_metadata($c);
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = $c->form("Node",
-                     init_object => $c->stash->{node},
-                     status => $nodeStatus,
-                     roles => $c->stash->{roles}
+        init_object => $c->stash->{node},
+        status => $nodeStatus,
+        roles => $c->stash->{roles}
     );
     $form->process();
     $c->stash({
@@ -292,29 +298,40 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
 sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-
     my ($status, $message);
-    my ($form, $nodeStatus);
-
-    $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node",
-                     status => $nodeStatus,
-                     roles => $c->stash->{roles}
-    );
-    $form->process(params => { mac => $c->stash->{mac}, %{$c->request->params} });
-    if ($form->has_errors) {
-        $status = HTTP_BAD_REQUEST;
-        $message = $form->field_errors;
-    }
-    else {
-        ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $form->value);
-        $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
-    }
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $message; # TODO: localize error message
-    }
     $c->stash->{current_view} = 'JSON';
+    my ($form, $nodeStatus);
+    my $model = $c->model('Node');
+    ($status, my $result) = $model->view($c->stash->{mac});
+    if (is_success($status)) {
+        if( $self->_is_role_allowed($c, $result->{category}) ) {
+            $nodeStatus = $model->availableStatus();
+            $form = $c->form("Node",
+                init_object => $result,
+                status => $nodeStatus,
+                roles => $c->stash->{roles},
+            );
+            $form->process(
+                params => {mac => $c->stash->{mac}, %{$c->request->params}},
+            );
+            if ($form->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form->field_errors;
+            }
+            else {
+                ($status, $result) = $c->model('Node')->update($c->stash->{mac}, $form->value);
+                $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+            }
+        }
+        else {
+            $status = HTTP_BAD_REQUEST;
+            $result = "Do not have permission to modify node";
+        }
+    }
+    $c->response->status($status);
+    if (is_error($status)) {
+        $c->stash->{status_msg} = $result; # TODO: localize error message
+    }
 }
 
 =head2 delete
@@ -370,31 +387,6 @@ sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ'){
     return $scan, $scan_config, $scan_exist;
 }
 
-=head2 parseWmi
-
-parsing answer
-
-=cut
-
-sub parseWmi {
-    my ($self, $c, $scan, $scan_config) = @_;
-    use Data::Dumper;
-    my $rule_config = $c->model('Config::WMI')->readAll();
-    $c->log->info(Dumper($rule_config));
-    if ($rule_config->{prefix} eq 'tab') {
-	my $config = $c->model('Config::WMI')->read($rule_config);
-	my $scan_result = $scan->runWmi($scan_config, $config);
-	if ($scan_result =~ /0x80041010/) {
-	    $c->stash->{item_exist} = 'No';
-	}elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
-	    $c->stash->{item_exist} = 'Request failed';
-	}else {
-	    $c->stash->{item_exist} = 'Yes';
-	}
-	return $scan_result;
-    }
-}
-
 =head2 wmi
 
 test 
@@ -415,18 +407,21 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my $config_antivirus = $c->model('Config::WMI')->read('Antivirus');
     my $config_firewall = $c->model('Config::WMI')->read('FireWall');
     my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
+    use Data::Dumper;
 
     if (is_success($scan_exist)) {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
         my $result_antivirus = $scan->runWmi($scan_config, $config_antivirus);
         my $result_firewall = $scan->runWmi($scan_config, $config_firewall);
         my $result_antispyware = $scan->runWmi($scan_config, $config_antispyware);
+        $c->log->info('results' . Dumper($result_sccm, $result_antivirus, $result_firewall, $result_antispyware));
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
         }elsif ($result_sccm =~ /TIMEOUT/ || $result_sccm =~ /UNREACHABLE/) {
             $c->stash->{sccm_scan} = 'Request failed';
         }else {
+            #my $sccm_res = $result_sccm->[0];
             $c->stash->{sccm_scan} = 'Yes';
         }
         if ($result_antivirus =~ /0x80041010/) {
@@ -434,30 +429,24 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         }elsif ($result_antivirus =~ /TIMEOUT/ || $result_antivirus =~ /UNREACHABLE/) {
             $c->stash->{antivirus_scan} = 'Request failed';
         }else {
-            my $antivirus_res = $result_antivirus->[0];
+            #my $antivirus_res = $result_antivirus->[0];
             $c->stash->{antivirus_scan} = 'Yes';
-            $c->stash->{antivirus_name} = $antivirus_res->{'displayName'};
-            $c->stash->{antivirus_version} = $antivirus_res->{'productState'};
         }
         if ($result_firewall =~ /0x80041010/) {
             $c->stash->{firewall_scan} = 'No';
         }elsif ($result_firewall =~ /TIMEOUT/ || $result_firewall =~ /UNREACHABLE/) {
             $c->stash->{firewall_scan} = 'Request failed';
         }else {
-            my $firewall_res = $result_firewall->[0];
+            #my $firewall_res = $result_firewall->[0];
             $c->stash->{firewall_scan} = 'Yes';
-            $c->stash->{firewall_name} = $firewall_res->{'displayName'};
-            $c->stash->{firewall_version} = $firewall_res->{'productState'};
         }
         if ($result_antispyware =~ /0x80041010/) {
             $c->stash->{antispyware_scan} = 'No';
         }elsif ($result_antispyware =~ /TIMEOUT/ || $result_antispyware =~ /UNREACHABLE/) {
             $c->stash->{antispyware_scan} = 'Request failed';
         }else {
-            my $antispyware_res = $result_antispyware->[0];
+            #my $antispyware_res = $result_antispyware->[0];
             $c->stash->{antispyware_scan} = 'Yes';
-            $c->stash->{antispyware_name} = $antispyware_res->{'displayName'};
-            $c->stash->{antispyware_version} = $antispyware_res->{'productState'};
         }
     }
     else {
@@ -618,6 +607,44 @@ sub _get_switches_metadata : Private {
         return \%switches;
     }
     return undef;
+}
+
+=head2 get_allowed_options
+
+Get the allowed options for the user
+
+=cut
+
+sub get_allowed_options {
+    my ($self, $c, $option) = @_;
+    return admin_allowed_options([$c->user->roles], $option);
+}
+
+=head2 get_allowed_node_roles
+
+Get the allowed node roles for the current user
+
+=cut
+
+sub get_allowed_node_roles {
+    my ($self, $c) = @_;
+    my %allowed_roles = map { $_ => undef } $self->get_allowed_options($c, 'allowed_node_roles');
+    (undef, my $all_roles) = $c->model('Roles')->list();
+    return $all_roles if keys %allowed_roles == 0;
+    return [ grep { exists $allowed_roles{$_->{name}} } @$all_roles ];
+}
+
+=head2 _is_role_allowed
+
+=cut
+
+sub _is_role_allowed {
+    my ($self, $c, $role) = @_;
+    my %allowed_node_roles = map {$_ => undef} $self->get_allowed_options($c, 'allowed_node_roles');
+    return
+        keys %allowed_node_roles == 0     ? $TRUE
+      : exists $allowed_node_roles{$role} ? $TRUE
+      :                                     $FALSE;
 }
 
 =head1 AUTHOR
