@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::NodeOption82;
+package pfappserver::PacketFence::Controller::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::NodeOption82 - Catalyst Controller
+pfappserver::PacketFence::Controller::DHCPOption82 - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -17,17 +17,17 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
-use pf::node_option82;
+use pf::dhcp_option82;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
     action_args => {
-        '*' => { model => 'NodeOption82' },
-        advanced_search => { model => 'NodeOption82', form => 'NodeOption82Search' },
-        'simple_search' => { model => 'NodeOption82', form => 'NodeOption82Search' },
-        search => { model => 'NodeOption82', form => 'NodeOption82Search' },
-        'index' => { model => 'NodeOption82', form => 'NodeOption82Search' },
+        '*' => { model => 'DHCPOption82' },
+        advanced_search => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        'simple_search' => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        search => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        'index' => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
     }
 );
 
@@ -45,7 +45,7 @@ sub index :Path :Args(0) :AdminRole('AUDITING_READ') {
 
 =head2 search
 
-Perform an advanced search using the Search::NodeOption82 model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
@@ -78,16 +78,16 @@ sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
         }
     }
     $c->stash({
-        columns => [sort @pf::node_option82::FIELDS],
-        display_columns => [sort @pf::node_option82::FIELDS],
-        headings => \%pf::node_option82::HEADINGS,
+        columns => [sort @pf::dhcp_option82::FIELDS],
+        display_columns => [sort @pf::dhcp_option82::FIELDS],
+        headings => \%pf::dhcp_option82::HEADINGS,
     });
     $c->response->status($status);
 }
 
 =head2 simple_search
 
-Perform an advanced search using the Search::NodeOption82 model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
@@ -99,7 +99,7 @@ sub simple_search :Local :Args() :AdminRole('AUDITING_READ') {
 
 =head2 advanced_search
 
-Perform an advanced search using the Search::NodeOption82 model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
@@ -116,10 +116,10 @@ controller dispatcher
 
 =cut
 
-sub object :Chained('/') :PathPart('node_option82') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('dhcp_option82') :CaptureArgs(1) {
     my ( $self, $c, $id ) = @_;
 
-    my ($status, $item_data) = $c->model('NodeOption82')->view($id);
+    my ($status, $item_data) = $c->model('DHCPOption82')->view($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item_data;
@@ -139,9 +139,9 @@ sub object :Chained('/') :PathPart('node_option82') :CaptureArgs(1) {
 sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->stash({
-        columns => [sort @pf::node_option82::FIELDS],
-        display_columns => [sort @pf::node_option82::FIELDS],
-        headings => \%pf::node_option82::HEADINGS,
+        columns => [sort @pf::dhcp_option82::FIELDS],
+        display_columns => [sort @pf::dhcp_option82::FIELDS],
+        headings => \%pf::dhcp_option82::HEADINGS,
     });
 }
 

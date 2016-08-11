@@ -1,22 +1,29 @@
-package pfappserver::Controller::NodeOption82;
+package pfappserver::Model::SavedSearch::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::Controller::NodeOption82
-
-=head1 DESCRIPTION
-
-Place all customization for Controller::NodeOption82 here
+package pfappserver::Model::SavedSearch::DHCPOption82
 
 =cut
 
+=head1 DESCRIPTION
+
+SavedSearch for Nodes
+
+=over
+
+=cut
+
+use strict;
+use warnings;
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::NodeOption82'; }
+extends 'pfappserver::Base::Model::SavedSearch';
 
-=head1 AUTHOR
 
-Inverse inc. <info@inverse.ca>
+__PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 COPYRIGHT
 
@@ -41,7 +48,5 @@ USA.
 
 =cut
 
-
-__PACKAGE__->meta->make_immutable;
-
 1;
+

@@ -1,8 +1,8 @@
-package pfappserver::Model::NodeOption82;
+package pfappserver::Model::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::Model::NodeOption82 - Catalyst Model
+pfappserver::Model::DHCPOption82 - Catalyst Model
 
 =head1 DESCRIPTION
 
@@ -15,7 +15,7 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
-use pf::node_option82;
+use pf::dhcp_option82;
 use pf::error qw(is_error is_success);
 use SQL::Abstract::More;
 use POSIX qw(ceil);
@@ -31,7 +31,7 @@ View a radius audit log entry
 
 sub view {
     my ($self, $id) = @_;
-    my $item = node_option82_view($id);
+    my $item = dhcp_option82_view($id);
     return ($STATUS::NOT_FOUND,["Item [_1] not found", $id]) unless defined $item;
     return ($STATUS::OK,$item);
 }
@@ -42,7 +42,7 @@ sub view_entries {
     $items_per_page ||= 25;
     my $offset = $page_number - 1;
     $offset = 0 if $offset < 0;
-    my @items = node_option82_view_all($offset, $items_per_page);
+    my @items = dhcp_option82_view_all($offset, $items_per_page);
     return ($STATUS::OK,\@items);
 }
 
@@ -59,13 +59,13 @@ sub search {
         @where_options,
         @additional_options
     );
-    my @items =  node_option82_custom($sql, @bind);
+    my @items =  dhcp_option82_custom($sql, @bind);
     ($sql, @bind) = $sqla->select(
         -from => $table,
         -columns => [qw(count(*)|count)],
         @where_options,
     );
-    my @count =  node_option82_custom($sql, @bind);
+    my @count =  dhcp_option82_custom($sql, @bind);
     my %results;
     my $count = 0;
     if($count[0]) {
@@ -103,7 +103,7 @@ sub _build_limit {
 
 sub _build_order_by {
     my ($self, $params) = @_;
-    return -order_by => [qw(-node_option82_id)];
+    return -order_by => [qw(-created_at)];
 }
 
 our %OP_MAP = (
@@ -149,7 +149,7 @@ sub _build_clause {
     return {$name => {$sql_op => $value}};
 }
 
-sub table { "node_option82" }
+sub table { "dhcp_option82" }
 
 =head1 AUTHOR
 

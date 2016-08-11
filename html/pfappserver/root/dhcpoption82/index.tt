@@ -93,5 +93,5 @@
       </div>
     </div>
   </div>
-[% INCLUDE nodeoption82/search.tt %]
+[% INCLUDE dhcpoption82/search.tt %]
 </div>

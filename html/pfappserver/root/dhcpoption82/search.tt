@@ -24,16 +24,15 @@
            </thead>
         [% FOREACH item IN items %]
             <tr>
-               <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.node_option82_id ]) %]">Details</a></td>
+               <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.mac ]) %]">Details</a></td>
                [% FOREACH display_column IN display_columns  %]
-                 [% IF display_column == 'mac' %]
-                 <td class="node">
-                  <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.$display_column ]) %]">[% item.$display_column %]</a>
-                 </td>
-                 [% ELSE %]
-                   <td> [%item.$display_column %] </td>
-                 [% END %]
-                </td>
+                  [% IF display_column == "mac" %]
+                   <td class="node">
+                      <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.mac ]) %]">[% item.mac %]</a>
+                   </td>
+                  [% ELSE %]
+                 <td> [%item.$display_column %] </td>
+                  [% END %]
                [% END %]
             </tr>
         [% END %]

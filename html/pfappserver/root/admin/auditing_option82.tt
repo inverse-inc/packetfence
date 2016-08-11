@@ -25,7 +25,7 @@
         'admin/reports'
         ] 
 -%]
-    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::NodeOption82" method="POST" %] 
+    [% INCLUDE admin/saved_search.inc savedSearchController="SavedSearch::DHCPOption82" method="POST" %] 
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="tab-content"> 
@@ -44,7 +44,7 @@
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::NodeOption82').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::DHCPOption82').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>

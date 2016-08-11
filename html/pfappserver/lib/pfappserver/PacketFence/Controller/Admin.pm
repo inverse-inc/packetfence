@@ -283,7 +283,7 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
 sub auditing_option82 :Chained('object') :PathPart('auditing/option82') :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
-    my ($status, $saved_searches) = $c->model("SavedSearch::NodeOption82")->read_all($id);
+    my ($status, $saved_searches) = $c->model("SavedSearch::DHCPOption82")->read_all($id);
     $c->stash({
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch"),

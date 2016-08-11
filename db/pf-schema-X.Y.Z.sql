@@ -1109,13 +1109,12 @@ CREATE TABLE radius_audit_log (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `node_option82`
+-- Table structure for table `dhcp_option82`
 --
 
-CREATE TABLE `node_option82` (
-  `node_option82_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE `dhcp_option82` (
+  `mac` varchar(17) NOT NULL PRIMARY KEY,
   `created_at` TIMESTAMP NOT NULL,
-  `mac` varchar(17) NOT NULL,
   `option82_switch` varchar(17) NULL,
   `switch_id` varchar(17) NULL,
   `port` varchar(8) NOT NULL default '',
@@ -1127,13 +1126,13 @@ CREATE TABLE `node_option82` (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `node_option82_history`
+-- Table structure for table `dhcp_option82_history`
 --
 
-CREATE TABLE `node_option82_history` (
-  `node_option82_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` TIMESTAMP NOT NULL,
+CREATE TABLE `dhcp_option82_history` (
+  `dhcp_option82_history_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL,
   `option82_switch` varchar(17) NULL,
   `switch_id` varchar(17) NULL,
   `port` varchar(8) NOT NULL default '',
@@ -1145,15 +1144,15 @@ CREATE TABLE `node_option82_history` (
 ) ENGINE=InnoDB;
 
 --
--- Trigger to archive node_option82 entries to the history table after an update
+-- Trigger to archive dhcp_option82 entries to the history table after an update
 --
 
-DROP TRIGGER IF EXISTS node_option82_after_update_trigger;
+DROP TRIGGER IF EXISTS dhcp_option82_after_update_trigger;
 DELIMITER /
-CREATE TRIGGER node_option82_after_update_trigger AFTER UPDATE ON node_option82
+CREATE TRIGGER dhcp_option82_after_update_trigger AFTER UPDATE ON dhcp_option82
 FOR EACH ROW
 BEGIN
-    INSERT INTO node_option82_history
+    INSERT INTO dhcp_option82_history
            (
             created_at,
             mac,

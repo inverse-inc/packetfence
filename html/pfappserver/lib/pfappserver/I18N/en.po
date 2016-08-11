@@ -363,7 +363,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "Add a condition."
 msgstr ""
 
@@ -518,7 +518,7 @@ msgid "Alerting"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
-# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/per_page_select.tt
 msgid "All"
@@ -604,7 +604,7 @@ msgid "Another challenge."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
-# html/pfappserver/lib/pfappserver/Form/NodeOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr ""
@@ -1013,7 +1013,7 @@ msgstr ""
 msgid "Choose your enforcement mechanisms"
 msgstr ""
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "Circuit ID String"
 msgstr ""
 
@@ -1115,7 +1115,7 @@ msgstr ""
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/nodeoption82/view.tt
+# html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1496,7 +1496,7 @@ msgstr ""
 msgid "DHCP Option 82"
 msgstr "DHCP Option 82"
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "DHCP Option 82 Vlan"
 msgstr ""
 
@@ -2006,7 +2006,7 @@ msgid "Dispatched the import job to PID $pid. An e-mail will follow up for statu
 msgstr ""
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
 msgid "Display [_1] entries per page"
 msgstr ""
@@ -2261,7 +2261,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "Export to CSV"
 msgstr ""
 
@@ -3271,7 +3271,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -5363,7 +5363,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "Save as..."
 msgstr ""
 
@@ -5471,7 +5471,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "Search"
 msgstr ""
 
@@ -7597,7 +7597,7 @@ msgstr "Subject prefix"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "all"
 msgstr "All"
 
@@ -7629,7 +7629,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "any"
 msgstr "Any"
 
@@ -7820,9 +7820,9 @@ msgstr ""
 msgid "count"
 msgstr ""
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "created_at"
-msgstr ""
+msgstr "Create at"
 
 # pf::Authentication::Source (common_attributes)
 msgid "current_time"
@@ -8137,7 +8137,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "ends with"
 msgstr ""
 
@@ -8233,7 +8233,7 @@ msgstr ""
 msgid "higher or equals"
 msgstr ""
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "host"
 msgstr "Host"
 
@@ -8348,7 +8348,7 @@ msgstr "IP address"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -8370,7 +8370,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -8406,7 +8406,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::Source (common_attributes)
 # pf::config (Inline triggers)
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "mac"
 msgstr "MAC Address"
@@ -8618,7 +8618,7 @@ msgstr "Mark as Sponsor"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "matches"
 msgstr ""
 
@@ -8663,7 +8663,7 @@ msgstr "Apple Devices"
 msgid "mobileiron"
 msgstr "MobileIron"
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "module"
 msgstr "Module"
 
@@ -8897,7 +8897,7 @@ msgstr "OpenVAS"
 msgid "opswat"
 msgstr "OPSWAT"
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "option82_switch"
 msgstr "Option82 Switch"
 
@@ -8952,7 +8952,7 @@ msgstr ""
 
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 msgid "port"
 msgstr "Port"
 
@@ -9686,7 +9686,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
-# html/pfappserver/root/nodeoption82/index.tt
+# html/pfappserver/root/dhcpoption82/index.tt
 msgid "starts with"
 msgstr ""
 
@@ -9703,7 +9703,7 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
-# pf::node_option82 (DHCP Option 82)
+# pf::dhcp_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "switch_id"
 msgstr "Switch ID"

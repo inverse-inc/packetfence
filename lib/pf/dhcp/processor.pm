@@ -53,7 +53,7 @@ use pf::locationlog;
 use DateTime::Format::MySQL;
 use pf::parking;
 use pf::cluster;
-use pf::node_option82 qw(node_option82_insert_or_update);
+use pf::dhcp_option82 qw(dhcp_option82_insert_or_update);
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
@@ -645,7 +645,7 @@ sub parse_dhcp_option82 {
     my ($switch_id, $switch, $vlan, $mod, $port, $host, $circuit_id_string)  = @{$dhcp->{'options'}{'82'}}{'switch_id', 'switch', 'vlan', 'module', 'port', 'host', 'circuit_id_string'};
     if ( defined($switch_id) || defined($switch) || defined($vlan) || defined($mod) || defined($port) || defined ($circuit_id_string) || defined ($host) ) {
         my $mac = clean_mac($dhcp->{'chaddr'});
-        node_option82_insert_or_update(
+        dhcp_option82_insert_or_update(
             'mac'               => $mac,
             'module'            => $mod,
             'port'              => $port,

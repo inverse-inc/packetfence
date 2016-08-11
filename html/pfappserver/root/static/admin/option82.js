@@ -51,6 +51,6 @@ function init() {
         });
     });
     /* Initialize datepickers */
-    $(window).hashchange(pfOnHashChange(updateSection,'/nodeoption82/'));
+    $(window).hashchange(pfOnHashChange(updateSection,'/dhcpoption82/'));
     $(window).hashchange();
 }

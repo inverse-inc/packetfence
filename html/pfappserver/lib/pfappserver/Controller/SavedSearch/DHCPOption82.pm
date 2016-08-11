@@ -1,18 +1,18 @@
-package pfappserver::Controller::SavedSearch::NodeOption82;
+package pfappserver::Controller::SavedSearch::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::Controller::SavedSearch::NodeOption82
+pfappserver::Controller::SavedSearch::DHCPOption82
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::SavedSearch::NodeOption82 here
+Place all customization for Controller::SavedSearch::DHCPOption82 here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::SavedSearch::NodeOption82'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::SavedSearch::DHCPOption82'; }
 
 =head1 AUTHOR
 

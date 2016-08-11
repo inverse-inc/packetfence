@@ -1,14 +1,14 @@
-package pfappserver::PacketFence::Controller::SavedSearch::NodeOption82;
+package pfappserver::PacketFence::Controller::SavedSearch::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::SavedSearch::NodeOption82 - Saved Search for NodeOption82
+pfappserver::PacketFence::Controller::SavedSearch::DHCPOption82 - Saved Search for DHCPOption82
 
 =cut
 
 =head1 DESCRIPTION
 
-NodeOption82
+DHCPOption82
 
 =cut
 
@@ -33,7 +33,7 @@ __PACKAGE__->config(
         remove => { AdminRole => 'AUDITING_READ' },
     },
     action_args => {
-        '*' => { model => 'SavedSearch::NodeOption82', form => 'SavedSearch'}
+        '*' => { model => 'SavedSearch::DHCPOption82', form => 'SavedSearch'}
     }
 );
 
