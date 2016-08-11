@@ -378,6 +378,31 @@ sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ'){
     return $scan, $scan_config, $scan_exist;
 }
 
+=head2 parseWmi
+
+parsing answer
+
+=cut
+
+sub parseWmi {
+    my ($self, $c, $scan, $scan_config) = @_;
+    use Data::Dumper;
+    my $rule_config = $c->model('Config::WMI')->readAll();
+    $c->log->info(Dumper($rule_config));
+    if ($rule_config->{prefix} eq 'tab') {
+    my $config = $c->model('Config::WMI')->read($rule_config);
+    my $scan_result = $scan->runWmi($scan_config, $config);
+    if ($scan_result =~ /0x80041010/) {
+        $c->stash->{item_exist} = 'No';
+    }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
+        $c->stash->{item_exist} = 'Request failed';
+    }else {
+        $c->stash->{item_exist} = 'Yes';
+    }
+    return $scan_result;
+    }
+}
+
 =head2 wmi
 
 test 
@@ -398,21 +423,18 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my $config_antivirus = $c->model('Config::WMI')->read('Antivirus');
     my $config_firewall = $c->model('Config::WMI')->read('FireWall');
     my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
-    use Data::Dumper;
 
     if (is_success($scan_exist)) {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
         my $result_antivirus = $scan->runWmi($scan_config, $config_antivirus);
         my $result_firewall = $scan->runWmi($scan_config, $config_firewall);
         my $result_antispyware = $scan->runWmi($scan_config, $config_antispyware);
-        $c->log->info('results' . Dumper($result_sccm, $result_antivirus, $result_firewall, $result_antispyware));
 
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
         }elsif ($result_sccm =~ /TIMEOUT/ || $result_sccm =~ /UNREACHABLE/) {
             $c->stash->{sccm_scan} = 'Request failed';
         }else {
-            #my $sccm_res = $result_sccm->[0];
             $c->stash->{sccm_scan} = 'Yes';
         }
         if ($result_antivirus =~ /0x80041010/) {
@@ -420,24 +442,30 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         }elsif ($result_antivirus =~ /TIMEOUT/ || $result_antivirus =~ /UNREACHABLE/) {
             $c->stash->{antivirus_scan} = 'Request failed';
         }else {
-            #my $antivirus_res = $result_antivirus->[0];
+            my $antivirus_res = $result_antivirus->[0];
             $c->stash->{antivirus_scan} = 'Yes';
+            $c->stash->{antivirus_name} = $antivirus_res->{'displayName'};
+            $c->stash->{antivirus_version} = $antivirus_res->{'productState'};
         }
         if ($result_firewall =~ /0x80041010/) {
             $c->stash->{firewall_scan} = 'No';
         }elsif ($result_firewall =~ /TIMEOUT/ || $result_firewall =~ /UNREACHABLE/) {
             $c->stash->{firewall_scan} = 'Request failed';
         }else {
-            #my $firewall_res = $result_firewall->[0];
+            my $firewall_res = $result_firewall->[0];
             $c->stash->{firewall_scan} = 'Yes';
+            $c->stash->{firewall_name} = $firewall_res->{'displayName'};
+            $c->stash->{firewall_version} = $firewall_res->{'productState'};
         }
         if ($result_antispyware =~ /0x80041010/) {
             $c->stash->{antispyware_scan} = 'No';
         }elsif ($result_antispyware =~ /TIMEOUT/ || $result_antispyware =~ /UNREACHABLE/) {
             $c->stash->{antispyware_scan} = 'Request failed';
         }else {
-            #my $antispyware_res = $result_antispyware->[0];
+            my $antispyware_res = $result_antispyware->[0];
             $c->stash->{antispyware_scan} = 'Yes';
+            $c->stash->{antispyware_name} = $antispyware_res->{'displayName'};
+            $c->stash->{antispyware_version} = $antispyware_res->{'productState'};
         }
     }
     else {
