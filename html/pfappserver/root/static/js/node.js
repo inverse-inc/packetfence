@@ -352,25 +352,6 @@ NodeView.prototype.deleteNode = function(e) {
     });
 };
 
-/*NodeView.prototype.runWmi = function(e) {
-    e.preventDefault();
-
-    var that = this;
-    var btn = $(e.target);
-    var row = btn.closest('tr');
-    var pane = $('#nodeWmi');
-    resetAlert(pane);
-    this.nodes.get({
-        url: btn.attr("href"),
-        success: function(data) {
-            showSuccess(pane.children().first(), data.status_msg);
-            btn.remove();
-            row.addClass('muted');
-        },
-        errorSibling: pane.children().first()
-    });
-};*/
-
 NodeView.prototype.closeViolation = function(e) {
     e.preventDefault();
 
