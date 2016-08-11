@@ -84,6 +84,12 @@ server pf.cluster {
 }
 
 server pfcli.cluster {
+        listen {
+                ipaddr = %%virt_ip%%
+                port = 1815
+                type = auth
+        }
+
         pre-proxy {
                 #  Insert pre-proxy rules here
         }
