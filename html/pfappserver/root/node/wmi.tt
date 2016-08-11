@@ -2,45 +2,51 @@
   <div class="control-group">
     <label class="control-label">SCCM agent:</label>
     [% IF sccm_scan == "No" %]
-        <span class="label label-failure">[% sccm_scan | html %]</span><br/>
+        <span class="label label-failure">[% sccm_scan | html %]</span>
     [% ELSIF sccm_scan == "Request failed" %]
-       <span>[% sccm_scan | html %]</span><br/>
+       <span>[% sccm_scan | html %]</span>
     [% ELSE %]
-        <span class="label label-success">[% sccm_scan | html %]</span><br/>
+        <span class="label label-success">[% sccm_scan | html %]</span>
     [% END %]
   </div>
   <div class="control-group">
     <label class="control-label">Antivirus:</label>
     [% IF antivirus_scan == "No" %]
-        <span class="label label-failure">[% antivirus_scan | html %]</span><br/>
+        <span class="label label-failure">[% antivirus_scan | html %]</span>
     [% ELSIF antivirus_scan == "Request failed" %]
-       <span>[% antivirus_scan | html %]</span><br/>
+       <span>[% antivirus_scan | html %]</span>
     [% ELSE %]
-        <span class="label label-success"> [% antivirus_scan | html %]</span><br/>
+        <span class="label label-success"> [% antivirus_scan | html %]</span>
+	<span class="label">[% antivirus_name  | html %]</span>
+	<span class="label">[% antivirus_version  | html %]</span>
     [% END %]
   </div>
   <div class="control-group">
     <label class="control-label">Firewall</label>
     [% IF firewall_scan == "No" %]
-        <span class="label label-failure">[% firewall_scan | html %]</span><br/>
+        <span class="label label-failure">[% firewall_scan | html %]</span>
     [% ELSIF firewall_scan == "Request failed" %]
-       <span>[% firewall_scan | html %]</span><br/>
+       <span>[% firewall_scan | html %]</span>
     [% ELSE %]
-        <span class="label label-success">[% firewall_scan | html %]</span><br/>
+        <span class="label label-success">[% firewall_scan | html %]</span>
+	<span class="label">[% firewall_name  | html %]</span>
+	<span class="label">[% firewall_version  | html %]</span>
     [% END %]
   </div>
   <div class="control-group">
     <label class="control-label">AntiSpyware:</label>
     [% IF antispyware_scan == "No" %]
-        <span class="label label-failure">[% antispyware_scan | html %]</span><br/>
+        <span class="label label-failure">[% antispyware_scan | html %]</span>
     [% ELSIF antispyware_scan == "Request failed" %]
-       <span>[% antispyware_scan | html %]</span><br/>
+       <span>[% antispyware_scan | html %]</span>
     [% ELSE %]
-        <span class="label label-success"> [% antispyware_scan | html %]</span><br/>
+        <span class="label label-success"> [% antispyware_scan | html %]</span>
+	<span class="label">[% antispyware_name  | html %]</span>
+	<span class="label">[% antispyware_version  | html %]</span>
     [% END %]
   </div>
   <div class="control-group">
-    <a href="[% c.uri_for(c.controller('Node').action_for('scanProcess'), [mac]) %]" id="scanProcess" class="btn btn-mini">[% l('Scan process') %]</a><br/>
+    <a href="[% c.uri_for(c.controller('Node').action_for('scanProcess'), [mac]) %]" id="scanProcess" class="btn btn-mini">[% l('Scan process') %]</a>
   </div>
   <div id="scanProcessInfo">
   </div>
