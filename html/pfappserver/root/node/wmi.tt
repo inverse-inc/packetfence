@@ -46,6 +46,28 @@
     [% END %]
   </div>
   <div class="control-group">
+    <table class="table table-condensed">
+    <thead>
+      <tr>
+        <th>Item scanned</th>
+        <th>Existing</th>
+        <th>Name</th>
+        <th>Version</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH item IN scan_result %]
+      <tr>
+        <td>[% item.Scan | html %]</td>
+        <td>[% item.Exist | html %]</td>
+        <td>[% item.Name | html %]</td>
+        <td>[% item.Version | html %]</td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+  <div class="control-group">
     <a href="[% c.uri_for(c.controller('Node').action_for('scanProcess'), [mac]) %]" id="scanProcess" class="btn btn-mini">[% l('Scan process') %]</a>
   </div>
   <div id="scanProcessInfo">
