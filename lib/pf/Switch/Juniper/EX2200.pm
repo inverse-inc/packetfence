@@ -206,7 +206,9 @@ Connects to the switch and configures the specified port to be RADIUS floating d
 sub enableMABFloatingDevice{
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
+    require pf::services::util;
 
+    pf::services::util::untie_std_outputs();
     my $session;
     eval {
         require Net::Appliance::Session;
@@ -225,6 +227,7 @@ sub enableMABFloatingDevice{
 
     if ($@) {
         $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
+        pf::log::trapper::tie_std_outputs();
         return;
     }
 
@@ -242,7 +245,7 @@ sub enableMABFloatingDevice{
 
         @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
         @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "configured floating device"', Timeout => '30');
+        @output = $session->cmd(String => 'commit comment "configured floating device on '.$port.'"', Timeout => '30');
 
         $session->in_privileged_mode(0);
     };
@@ -252,11 +255,15 @@ sub enableMABFloatingDevice{
         eval {
             $session->close();
         };
+        pf::log::trapper::tie_std_outputs();
         return;
     }
     eval {
         $session->close();
     };
+    $logger->debug(sub {use Data::Dumper ; Dumper(\@output)});
+    $logger->info("Successfully enable MAB floating device on $ifIndex");
+    pf::services::util::tie_std_outputs();
     return 1;
 
 }
@@ -271,6 +278,8 @@ sub disableMABFloatingDevice{
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
+    require pf::services::util;
+    pf::services::util::untie_std_outputs();
     my $session;
     eval {
         require Net::Appliance::Session;
@@ -289,6 +298,7 @@ sub disableMABFloatingDevice{
 
     if ($@) {
         $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
+        pf::services::util::tie_std_outputs();
         return;
     }
 
@@ -305,7 +315,7 @@ sub disableMABFloatingDevice{
 
         @output = $session->cmd(String => $command_mac_limit, Timeout => '5');
         @output = $session->cmd(String => $command_disconnect_flap, Timeout => '5');
-        @output = $session->cmd(String => 'commit comment "deconfigured floating device"', Timeout => '30');
+        @output = $session->cmd(String => 'commit comment "deconfigured floating device on '.$port.'"', Timeout => '30');
 
         $session->in_privileged_mode(0);
     };
@@ -315,12 +325,15 @@ sub disableMABFloatingDevice{
         eval {
             $session->close();
         };
+        pf::services::util::tie_std_outputs();
         return;
     }
     eval {
         $session->close();
     };
-
+    $logger->debug(sub {use Data::Dumper ; Dumper(\@output)});
+    $logger->info("Successfully disabled MAB floating device on $ifIndex");
+    pf::services::util::tie_std_outputs();
     return 1;
 }
 
