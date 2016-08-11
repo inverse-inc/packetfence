@@ -398,17 +398,17 @@ sub parseWmi {
     use Data::Dumper;
     my $rule_config = $c->model('Config::WMI')->readAll();
     $c->log->info(Dumper($rule_config));
-    if ($rule_config->{prefix} eq 'tab') {
-    my $config = $c->model('Config::WMI')->read($rule_config);
-    my $scan_result = $scan->runWmi($scan_config, $config);
-    if ($scan_result =~ /0x80041010/) {
-        $c->stash->{item_exist} = 'No';
-    }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
-        $c->stash->{item_exist} = 'Request failed';
-    }else {
-        $c->stash->{item_exist} = 'Yes';
-    }
-    return $scan_result;
+    if ($rule_config->{on_tab} eq 1 ) {
+        my $config = $c->model('Config::WMI')->read($rule_config);
+        my $scan_result = $scan->runWmi($scan_config, $config);
+        if ($scan_result =~ /0x80041010/) {
+            $c->stash->{item_exist} = 'No';
+        }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
+            $c->stash->{item_exist} = 'Request failed';
+        }else {
+            $c->stash->{item_exist} = 'Yes';
+        }
+        return $scan_result;
     }
 }
 

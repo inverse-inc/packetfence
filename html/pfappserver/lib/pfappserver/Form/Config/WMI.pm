@@ -27,6 +27,16 @@ has_field 'id' =>
    apply => [ pfappserver::Base::Form::id_validator('name') ]
   );
 
+has_field 'on_tab' =>
+  (
+   type => 'Checkbox',
+   label => 'On Node tab',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Scan this WMI element while editing a node' },
+  );
+
 has_field 'request' =>
   (
    type => 'Text',
@@ -58,7 +68,7 @@ has_field 'action' =>
 
 has_block definition =>
   (
-   render_list => [ qw(namespace request action) ],
+   render_list => [ qw( on_tab namespace request action) ],
   );
 
 sub filter_inflate {
