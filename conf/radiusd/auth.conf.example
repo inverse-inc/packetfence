@@ -2,6 +2,8 @@
 pidfile = %%pid_file%%
 
 $INCLUDE radiusd.conf
+$INCLUDE sites-included/packetfence
+$INCLUDE sites-included/packetfence-tunnel
 
 listen {
     type = control
