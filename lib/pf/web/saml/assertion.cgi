@@ -20,7 +20,6 @@ use JSON::MaybeXS;
 use pf::authentication;
 
 use Data::Dumper;
-print STDERR Dumper("SOURCE ID : ".param("source_id"));
 my $source_id = param("source_id");
 my $saml_response = param("SAMLResponse");
 my ($username, $msg) = getAuthenticationSource($source_id)->handle_response($saml_response);
