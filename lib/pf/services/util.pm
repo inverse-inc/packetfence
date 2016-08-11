@@ -43,8 +43,7 @@ sub daemonize {
         or $logger->logdie("Can't open /dev/null: $!");
     open STDERR, '>', '/dev/null'
         or $logger->logdie("Can't open /dev/null: $!");
-    tie *STDERR,'pf::log::trapper',$ERROR;
-    tie *STDOUT,'pf::log::trapper',$DEBUG;
+    tie_std_outputs();
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
@@ -54,6 +53,29 @@ sub daemonize {
         $logger->error("could not start a new session: $!");
     }
     createpid($service, $pidfile);
+}
+
+=head2 tie_std_outputs
+
+Tie stdout and stderr to the logger
+
+=cut
+
+sub tie_std_outputs {
+    my $logger = get_logger();
+    tie *STDERR,'pf::log::trapper',$ERROR;
+    tie *STDOUT,'pf::log::trapper',$DEBUG;
+}
+
+=head2 untie_std_outputs
+
+Untie stdout and stderr to the logger
+
+=cut
+
+sub untie_std_outputs {
+    untie *STDERR;
+    untie *STDOUT;
 }
 
 =head2 createpid
