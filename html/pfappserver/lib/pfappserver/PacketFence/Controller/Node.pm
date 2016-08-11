@@ -386,21 +386,22 @@ parsing answer
 
 sub parseWmi {
     my ($self, $c, $scan, $scan_config) = @_;
-    use Data::Dumper;
     my $rule_config = $c->model('Config::WMI')->readAll();
-    $c->log->info(Dumper($rule_config));
-    if ($rule_config->{on_tab} eq 1 ) {
-        my $config = $c->model('Config::WMI')->read($rule_config);
-        my $scan_result = $scan->runWmi($scan_config, $config);
-        if ($scan_result =~ /0x80041010/) {
-            $c->stash->{item_exist} = 'No';
+    my @rules = grep {$_->{on_tab}} @$rule_config;
+    foreach my $rule (@rules) { 
+        my $config = $c->model('Config::WMI')->read($rule);
+        my $config_rule = $config->[1];
+        my $scan_result = $scan->runWmi($scan_config, $config_rule);
+        if ($scan_result =~ /0x80041010/ || !@$scan_result) {
+            $rule->{item_exist} = 'No';
         }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
-            $c->stash->{item_exist} = 'Request failed';
+            $rule->{item_exist} = 'Request failed';
         }else {
-            $c->stash->{item_exist} = 'Yes';
+            $rule->{item_exist} = 'Yes';
         }
-        return $scan_result;
+        $rule->{scan_result} = $scan_result;
     }
+    return \@rules;
 }
 
 =head2 wmi
@@ -411,6 +412,7 @@ test
 
 sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
+    use Data::Dumper;
 
     my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -418,18 +420,25 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     }
 
     my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
+    my @scan_result = parseWmi($self, $c, $scan, $scan_config);
 
     my $config_sccm = $c->model('Config::WMI')->read('SCCM');
     my $config_antivirus = $c->model('Config::WMI')->read('Antivirus');
     my $config_firewall = $c->model('Config::WMI')->read('FireWall');
     my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
 
-    if (is_success($scan_exist)) {
+    if (is_success($scan_exist) && @scan_result) {
         my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
         my $result_antivirus = $scan->runWmi($scan_config, $config_antivirus);
         my $result_firewall = $scan->runWmi($scan_config, $config_firewall);
         my $result_antispyware = $scan->runWmi($scan_config, $config_antispyware);
-
+        
+        foreach my $scanresult (@scan_result) {
+            #my $item_scan = $scanresult->[$_];
+            $c->stash->{item_name} = $scanresult->{'displayName'};
+            $c->stash->{item_version} = $scanresult->{'productState'};
+            $c->log->info('test' . Dumper($scanresult));
+        }
         if ($result_sccm =~ /0x80041010/) {
             $c->stash->{sccm_scan} = 'No';
         }elsif ($result_sccm =~ /TIMEOUT/ || $result_sccm =~ /UNREACHABLE/) {
