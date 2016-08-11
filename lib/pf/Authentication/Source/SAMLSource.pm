@@ -10,6 +10,7 @@ Model for a SAML source
 
 =cut
 
+use pf::log;
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::constants;
@@ -99,11 +100,22 @@ sub lasso_server {
     require Lasso;
     Lasso->import();
 
-    Lasso::init();
-    my ($fh, $sp_metadata_path) = tempfile();
-    write_file($sp_metadata_path, $self->generate_sp_metadata());
-    my $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
-    $server->add_provider($pf::constants::saml::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
+    my $server;
+    eval {
+        Lasso::init();
+        my ($fh, $sp_metadata_path) = tempfile();
+        write_file($sp_metadata_path, $self->generate_sp_metadata());
+        $server = Lasso::Server->new($sp_metadata_path, $self->sp_key_path, undef, $self->sp_cert_path);
+        $server->add_provider($pf::constants::saml::PROVIDER_ROLE_IDP, $self->idp_metadata_path, $self->idp_cert_path, $self->idp_ca_cert_path);
+    };
+    if($@) {
+        if(ref($@) eq "Lasso::Error") {
+            die $@;
+        }
+        else {
+            die "Failed to instantiate server";
+        }
+    }
     return $server;
 }
 
@@ -151,7 +163,12 @@ sub sso_url {
         $url = $lassoLogin->msg_url;
     };
     if($@){
-        die "Can't create Single-Sign-On URL : ".$@->{message}."\n";
+        if(ref($@) eq "Lasso::Error") {
+            die "Can't create Single-Sign-On URL : ".$@->{message}."\n";
+        }
+        else {
+            die "Can't create Single-Sign-On URL. Check server side logs for details and validate the SAML configuration.";
+        }
     }
     return $url;
 }
