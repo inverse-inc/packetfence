@@ -155,7 +155,7 @@ eap {
 	#
 	tls-config tls-common {
 		private_key_password = whatever
-        private_key_file = %%install_dir%%/raddb/certs/server.key
+        private_key_file = [% install_dir %]/raddb/certs/server.key
 
 		#
 		#  If Private key & Certificate are located in the same file,
@@ -173,7 +173,7 @@ eap {
 		#  certificate_list
 		#  http://tools.ietf.org/html/rfc4346#section-7.4.2 )
 		#
-        certificate_file = %%install_dir%%/raddb/certs/server.crt
+        certificate_file = [% install_dir %]/raddb/certs/server.crt
 
 		#
 		#  Server certificate may also be specified at runtime on a per
@@ -207,7 +207,7 @@ eap {
 		#  set to a certificate chain for your institution's CA
 		#  or a self signed Root CA.
 		#
-		ca_file = %%install_dir%%/raddb/certs/ca.pem
+		ca_file = [% install_dir %]/raddb/certs/ca.pem
 
 		#
 	 	#  OpenSSL will automatically create certificate chains, unless
@@ -1006,7 +1006,7 @@ fast {
 }
 	tls-config tls-eap-fast {
 		private_key_password = whatever
-        private_key_file = %%install_dir%%/raddb/certs/server.key
+        private_key_file = [% install_dir %]/raddb/certs/server.key
 
 		#
 		#  If Private key & Certificate are located in the same file,
@@ -1024,7 +1024,7 @@ fast {
 		#  certificate_list
 		#  http://tools.ietf.org/html/rfc4346#section-7.4.2 )
 		#
-        certificate_file = %%install_dir%%/raddb/certs/server.crt
+        certificate_file = [% install_dir %]/raddb/certs/server.crt
 
 		#
 		#  Server certificate may also be specified at runtime on a per
@@ -1058,7 +1058,7 @@ fast {
 		#  set to a certificate chain for your institution's CA
 		#  or a self signed Root CA.
 		#
-		ca_file = %%install_dir%%/raddb/certs/ca.pem
+		ca_file = [% install_dir %]/raddb/certs/ca.pem
 
 		#
 	 	#  OpenSSL will automatically create certificate chains, unless
