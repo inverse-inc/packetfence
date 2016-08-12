@@ -1490,10 +1490,10 @@ show_parking_portal=enabled
 
 [radius_authentication_methods]
 #
-# radius_authentication_methods.eap_fast_support
+# radius_authentication_methods.eap_authentication_types
 #
-# EAP-FAST support for Cisco NEAT: Default is disabled.
-eap_fast_support=disabled
+# EAP Supported Methods. EAP-FAST is disabled by default.
+eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP
 #
 # radius_authentication_methods.eap_fast_opaque_key
 #
@@ -1504,24 +1504,3 @@ eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
 #
 # EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
 eap_fast_authority_identity=1234
-#
-# radius_authentication_methods.eap_gtc_support
-#
-# EAP-GTC support: Default is enabled.
-eap_gtc_support=enabled
-#
-# radius_authentication_methods.eap_md5_support
-#
-# EAP-MD5 support:Default is enabled.
-eap_md5_support=enabled
-#
-# radius_authentication_methods.eap_mschapv2_support
-#
-# EAP-MSCHAPv2 support: Default is enabled.
-eap_mschapv2_support=enabled
-#
-# radius_authentication_methods.eap_peap_support
-#
-# EAP-PEAP support:Default is enabled.
-eap_peap_support=enabled
-

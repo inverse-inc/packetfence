@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-08-12 09:46-0400\n"
+"PO-Revision-Date: 2016-08-12 11:12-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -23,10 +23,6 @@ msgstr ""
 # html/pfappserver/root/admin/reports-header.tt
 # html/pfappserver/root/graph/report.tt
 msgid "30 days"
-msgstr ""
-
-# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
-msgid "32 bytes random encryption key"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -713,12 +709,12 @@ msgstr ""
 msgid "Auth Protocol Write"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
-msgid "Authentication URL"
+# html/pfappserver/root/admin/configuration.tt
+msgid "Authentication Methods"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_fast_authority_identity)
-msgid "Authority ID of the server"
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
+msgid "Authentication URL"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
@@ -2018,24 +2014,12 @@ msgstr ""
 msgid "EAP type"
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_fast_support)
-msgid "EAP-Fast support in RADIUS"
+# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
+msgid "EAP-FAST Opaque Key (32 randomized bytes) "
 msgstr ""
 
-# conf/documentation.conf (radius_authentication_methods.eap_gtc_support)
-msgid "EAP-GTC support in RADIUS"
-msgstr ""
-
-# conf/documentation.conf (radius_authentication_methods.eap_md5_support)
-msgid "EAP-MD5 support in RADIUS"
-msgstr ""
-
-# conf/documentation.conf (radius_authentication_methods.eap_mschapv2_support)
-msgid "EAP-MSCHAPv2 support in RADIUS"
-msgstr ""
-
-# conf/documentation.conf (radius_authentication_methods.eap_peap_support)
-msgid "EAP-PEAP support in RADIUS"
+# conf/documentation.conf (radius_authentication_methods.eap_fast_authority_identity)
+msgid "EAP-FAST authority ID "
 msgstr ""
 
 # html/pfappserver/root/user/print.tt
@@ -2236,6 +2220,10 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "FAST"
+msgstr "EAP-FAST"
+
 # pf::admin_roles (Actions groups)
 msgid "FILTERS"
 msgstr "Filter Engines"
@@ -2396,6 +2384,10 @@ msgstr ""
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
 msgstr "FortiGate Firewall"
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "GTC"
+msgstr "EAP-GTC"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -3201,9 +3193,17 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "MD5"
+msgstr "EAP-MD5"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/AuthorizeNet.pm
 msgid "MD5 hash"
 msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "MSCHAPv2"
+msgstr "EAP-MSCHAPv2"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
@@ -3907,6 +3907,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
 msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "PEAP"
+msgstr "EAP-PEAP"
 
 # pf::admin_roles (Actions groups)
 msgid "PFDETECT"
@@ -4620,10 +4624,6 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/view.tt
 # html/pfappserver/root/config/switch/view.tt
 msgid "RADIUS"
-msgstr ""
-
-# html/pfappserver/root/admin/configuration.tt
-msgid "RADIUS authentication methods"
 msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
@@ -5915,6 +5915,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid "Successfully dispatched update request for the redis DB. An email will follow for status"
+msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types)
+msgid "Supported EAP Authentication Methods"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -7838,11 +7842,6 @@ msgstr ""
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (radius_authentication_methods.eap_fast_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_gtc_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_md5_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_mschapv2_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_peap_support options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.carbon-cache options)
@@ -7955,11 +7954,6 @@ msgstr ""
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (radius_authentication_methods.eap_fast_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_gtc_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_md5_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_mschapv2_support options)
-# conf/documentation.conf (radius_authentication_methods.eap_peap_support options)
 # conf/documentation.conf (registration.device_registration options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.carbon-cache options)
@@ -8977,32 +8971,16 @@ msgid "radius_authentication_methods"
 msgstr "RADIUS Authentication Methods"
 
 # conf/documentation.conf
+msgid "radius_authentication_methods.eap_authentication_types"
+msgstr "Supported EAP Authentication Types"
+
+# conf/documentation.conf
 msgid "radius_authentication_methods.eap_fast_authority_identity"
 msgstr "EAP-FAST Autority ID"
 
 # conf/documentation.conf
 msgid "radius_authentication_methods.eap_fast_opaque_key"
 msgstr "EAP-FAST Opaque Key"
-
-# conf/documentation.conf
-msgid "radius_authentication_methods.eap_fast_support"
-msgstr "EAP-FAST Support"
-
-# conf/documentation.conf
-msgid "radius_authentication_methods.eap_gtc_support"
-msgstr "EAP-GTC Support"
-
-# conf/documentation.conf
-msgid "radius_authentication_methods.eap_md5_support"
-msgstr "EAP-MD5 Support"
-
-# conf/documentation.conf
-msgid "radius_authentication_methods.eap_mschapv2_support"
-msgstr "EAP-MSCHAPv2 Support"
-
-# conf/documentation.conf
-msgid "radius_authentication_methods.eap_peap_support"
-msgstr "EAP-PEAP Support"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
