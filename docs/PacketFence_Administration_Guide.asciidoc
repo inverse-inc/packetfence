@@ -3730,7 +3730,7 @@ DHCP Option 82
 ~~~~~~~~~~~~~~
 
 PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
-To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option82 in Configuration -> Network.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network.
 Once enabled, restart the pfdhcplistener and pfmon services.
 pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
 pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
