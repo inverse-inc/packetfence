@@ -671,6 +671,7 @@ eap {
 		}
 	}
 
+    [% IF TLS %]
 	## EAP-TLS
 	#
 	#  As of Version 3.0, the TLS configuration for TLS-based
@@ -714,7 +715,9 @@ eap {
 		#
 #		virtual_server = check-eap-tls
 	}
+    [% END %]
 
+    [% IF TTLS %]
 	## EAP-TTLS
 	#
 	#  Note: To use EAP-TTLS you must also configure an inner method in
@@ -812,6 +815,7 @@ eap {
 		#
 #		require_client_cert = yes
 	}
+    [% END %]
 
 
 	## EAP-PEAP
