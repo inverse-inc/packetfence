@@ -429,64 +429,11 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     }
 
     my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
-    my @scan_result = parseWmi($self, $c, $scan, $scan_config);
+    my $rules = parseWmi($self, $c, $scan, $scan_config);
 
-    my $config_sccm = $c->model('Config::WMI')->read('SCCM');
-    my $config_antivirus = $c->model('Config::WMI')->read('Antivirus');
-    my $config_firewall = $c->model('Config::WMI')->read('FireWall');
-    my $config_antispyware = $c->model('Config::WMI')->read('AntiSpyware');
-
-    if (is_success($scan_exist) && @scan_result) {
-        my $result_sccm = $scan->runWmi($scan_config, $config_sccm);
-        my $result_antivirus = $scan->runWmi($scan_config, $config_antivirus);
-        my $result_firewall = $scan->runWmi($scan_config, $config_firewall);
-        my $result_antispyware = $scan->runWmi($scan_config, $config_antispyware);
-        
-        foreach my $scanresult (@scan_result) {
-            #my $item_scan = $scanresult->[$_];
-            $c->stash->{item_name} = $scanresult->{'displayName'};
-            $c->stash->{item_version} = $scanresult->{'productState'};
-            $c->log->info('test' . Dumper($scanresult));
-        }
-        if ($result_sccm =~ /0x80041010/) {
-            $c->stash->{sccm_scan} = 'No';
-        }elsif ($result_sccm =~ /TIMEOUT/ || $result_sccm =~ /UNREACHABLE/) {
-            $c->stash->{sccm_scan} = 'Request failed';
-        }else {
-            $c->stash->{sccm_scan} = 'Yes';
-        }
-        if ($result_antivirus =~ /0x80041010/) {
-            $c->stash->{antivirus_scan} = 'No';
-        }elsif ($result_antivirus =~ /TIMEOUT/ || $result_antivirus =~ /UNREACHABLE/) {
-            $c->stash->{antivirus_scan} = 'Request failed';
-        }else {
-            my $antivirus_res = $result_antivirus->[0];
-            $c->stash->{antivirus_scan} = 'Yes';
-            $c->stash->{antivirus_name} = $antivirus_res->{'displayName'};
-            $c->stash->{antivirus_version} = $antivirus_res->{'productState'};
-        }
-        if ($result_firewall =~ /0x80041010/) {
-            $c->stash->{firewall_scan} = 'No';
-        }elsif ($result_firewall =~ /TIMEOUT/ || $result_firewall =~ /UNREACHABLE/) {
-            $c->stash->{firewall_scan} = 'Request failed';
-        }else {
-            my $firewall_res = $result_firewall->[0];
-            $c->stash->{firewall_scan} = 'Yes';
-            $c->stash->{firewall_name} = $firewall_res->{'displayName'};
-            $c->stash->{firewall_version} = $firewall_res->{'productState'};
-        }
-        if ($result_antispyware =~ /0x80041010/) {
-            $c->stash->{antispyware_scan} = 'No';
-        }elsif ($result_antispyware =~ /TIMEOUT/ || $result_antispyware =~ /UNREACHABLE/) {
-            $c->stash->{antispyware_scan} = 'Request failed';
-        }else {
-            my $antispyware_res = $result_antispyware->[0];
-            $c->stash->{antispyware_scan} = 'Yes';
-            $c->stash->{antispyware_name} = $antispyware_res->{'displayName'};
-            $c->stash->{antispyware_version} = $antispyware_res->{'productState'};
-        }
-    }
-    else {
+    if (is_success($scan_exist) && $rules) {
+        $c->stash->{rules} = $rules;
+    }else {
         $c->response->status($scan_exist);
         $c->stash->{status_msg} = $scan_config;
         $c->stash->{current_view} = 'JSON';
