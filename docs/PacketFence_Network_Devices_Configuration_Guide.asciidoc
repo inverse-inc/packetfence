@@ -855,6 +855,59 @@ first. In other words, you should consider the following order:
 . Port-Security 
 . linkUp/linkDown 
 
+EAP-FAST authentication Support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports Cisco NEAT through EAP-MD5 and EAP-FAST authentication methods. This means that Cisco switches can be authenticated through RADIUS and as a result, have the port it is connected to be reconfigured dynamically to receive trunk access.
+
+Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
+
+More specifically, here is what is required to be configured on authenticator and supplicant switches to support EAP-FAST authentication against PacketProtector.
+
+Authenticator
++++++++++++++
+
+Global settings:
+
+ aaa group server radius packetfence
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+ aaa authentication dot1x default group packetfence
+ aaa authorization network default group packetfence 
+
+ cisp enable
+
+Uplink configuration:
+
+ interface FastEthernet0/20
+  switchport mode access
+  authentication port-control auto
+  dot1x pae authenticator
+
+Supplicant
+++++++++++
+
+Global settings (replace username and password): 
+  
+ cisp enable
+
+ eap profile EAP_PRO
+  method fast
+
+ dot1x credentials EAP_PRO
+  username switches
+  password 7 03174C02120C29495D
+ ! Password is switches
+ !
+ dot1x supplicant force-multicast
+
+Uplink settings:
+
+ interface GigabitEthernet1/0/24
+  switchport mode trunk
+  dot1x pae supplicant
+  dot1x credentials EAP_PRO
+  dot1x supplicant eap profile EAP_PRO  
+
 2900XL / 3500XL Series
 ^^^^^^^^^^^^^^^^^^^^^^
 
