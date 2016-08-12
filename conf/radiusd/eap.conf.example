@@ -58,8 +58,10 @@ eap {
 	#  connections.  It is insecure, and does not provide for dynamic WEP
 	#  keys or WPA enterprise.
 	#
+[% IF MD5 %]
 	md5 {
 	}
+[% END %]
 
 	## EAP-PWD (Secure password-based authentication)
 	#
@@ -95,8 +97,10 @@ eap {
 	#  or the NT-Password attributes. 'System' authentication is impossible
 	#  with LEAP.
 	#
+[% IF LEAP %]
 	leap {
 	}
+[% END %]
 
 	## Generic Token Card.
 	#
@@ -107,6 +111,7 @@ eap {
 	#  Proxying the tunneled EAP-GTC session is a bad idea, the users
 	#  password will go over the wire in plain-text, for anyone to see.
 	#
+[% IF GTC %]
 	gtc {
 		#  The default challenge, which many clients ignore..
 #		challenge = "Password: "
@@ -123,6 +128,7 @@ eap {
 		#
 		auth_type = PAP
 	}
+[% END %]
 
 	## Common TLS configuration for TLS-based EAP types
 	#
@@ -856,6 +862,7 @@ eap {
 	#  It is trivial to retrieve the user's credentials from these inner
 	#  methods, if the user connects to a rogue server.
 	#
+[% IF PEAP %]
 	peap {
 		#
 		#  Which tls-config section the TLS negotiation parameters are
@@ -929,6 +936,7 @@ eap {
 		#
 #		require_client_cert = yes
 	}
+[% END %]
 
 	#
 	#  This takes no configuration.
@@ -943,6 +951,7 @@ eap {
 	#  There is another (incompatible) implementation of MS-CHAPv2 in EAP by
 	#  Cisco, which FreeRADIUS does not currently support.
 	#
+[% IF MSCHAPv2 %]
 	mschapv2 {
 		#  Prior to version 2.1.11, the module never sent the
 		#  MS-CHAP-Error message to the client.  This worked, but it had
@@ -963,6 +972,7 @@ eap {
 		#  information to uniquely identify it.
 #		identity = "FreeRADIUS"
 	}
+[% END %]
 [% IF FAST %]
 
     ## EAP-FAST
