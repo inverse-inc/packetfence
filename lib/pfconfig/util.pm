@@ -46,6 +46,9 @@ sub fetch_socket {
     $payload .= "\n";
     my $bytes_sent = syswrite_all($socket,$payload);
     read_data_with_length($socket,my $sereal_buffer);
+    #Untaint the network traffic
+    $sereal_buffer =~ /^(.*)$/;
+    $sereal_buffer = $1;
     return $sereal_buffer;
 }
 
