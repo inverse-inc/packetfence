@@ -46,6 +46,7 @@ sub field_list {
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
+	    type => 'Text',
           };
         my $type = $doc_section->{type} || "text";
         #skip if hidden
@@ -98,6 +99,16 @@ sub field_list {
                             },
                         }];
                 }
+                last;
+            };
+            $type eq 'hex' && do {
+                    $field->{apply} = [{
+                            check   => sub {$_[0]  =~ /^[0-9a-fA-F]+$/},
+                            message => sub {
+                                my ($value, $field) = @_;
+                                return $field->name . " must be hexadecimal";
+                            },
+                        }];
                 last;
             };
             $type eq 'multi' && do {
@@ -168,7 +179,6 @@ sub field_list {
                 last;
             };
         }
-
         push(@$list, $name => $field);
     }
     return $list;
