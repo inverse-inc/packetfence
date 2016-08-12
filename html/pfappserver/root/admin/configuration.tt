@@ -157,6 +157,7 @@ table.sources {
               [%- END %]
               [%- IF can_access_any("REALM_READ", "DOMAIN_READ") %]
               <li class="nav-header">[% l('RADIUS') %]</li>
+              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
               [%- IF can_access("REALM_READ") %]
               [% list_entry( 'Config::Realm', 'index', 'Realms') | none %]
               [%- END %]

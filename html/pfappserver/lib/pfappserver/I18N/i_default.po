@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-08-11 17:52-0400\n"
+"PO-Revision-Date: 2016-08-12 09:46-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -718,7 +718,7 @@ msgid "Authentication URL"
 msgstr ""
 
 # conf/documentation.conf (radius_authentication_methods.eap_fast_authority_identity)
-msgid "EAP-FAST Authority ID that will be announced by RADIUS"
+msgid "Authority ID of the server"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
@@ -8982,7 +8982,7 @@ msgstr "EAP-FAST Autority ID"
 
 # conf/documentation.conf
 msgid "radius_authentication_methods.eap_fast_opaque_key"
-msgstr "32 bytes random encryption key required by EAP-FAST"
+msgstr "EAP-FAST Opaque Key"
 
 # conf/documentation.conf
 msgid "radius_authentication_methods.eap_fast_support"
