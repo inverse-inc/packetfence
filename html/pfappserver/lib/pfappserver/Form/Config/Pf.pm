@@ -179,6 +179,33 @@ sub field_list {
                 last;
             };
         }
+        if ($field->{type} eq 'Text') {
+            if (exists $doc_section->{minimum_length}) {
+                my $minimum_length = $doc_section->{minimum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) >= $minimum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $minimum_length";
+                        },
+                    });
+            }
+            if (exists $doc_section->{maximum_length}) {
+                my $maximum_length = $doc_section->{maximum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) <= $maximum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $maximum_length";
+
+                        },
+                    });
+            }
+        }
         push(@$list, $name => $field);
     }
     return $list;
