@@ -1,4 +1,7 @@
 [% IF node.device_class == "Windows" %]
+  <div class="control-group" id="scanSecuritySoftwares">
+    <a href="[% c.uri_for(c.controller('Node').action_for('wmi'), [mac]) %]" id="scanSecuritySoftware" class="btn btn-mini">[% l('Run scan') %]</a>
+  </div>
   <div class="control-group">
     <table class="table table-condensed">
     <thead>
