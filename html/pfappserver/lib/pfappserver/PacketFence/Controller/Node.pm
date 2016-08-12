@@ -412,7 +412,6 @@ test
 
 sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
     my ($self, $c) = @_;
-    use Data::Dumper;
 
     my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
