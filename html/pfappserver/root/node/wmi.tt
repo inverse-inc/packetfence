@@ -18,8 +18,12 @@
         [% ELSE %]
           <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
         [% END %]
-        <td>[% item.scan_result.displayName | html %]</td>
-        <td>[% item.scan_result.productState | html %]</td>
+        [% IF item.item_exist == 'Yes' %]
+          [% FOREACH scans IN item.scan_result %]
+            <td>[% scans.displayName | html %]</td>
+            <td>[% scans.productState | html %]</td>
+          [% END %]
+        [% END %]
       </tr>
     [% END %]
     </tbody>
