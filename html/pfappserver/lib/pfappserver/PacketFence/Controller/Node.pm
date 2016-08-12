@@ -361,7 +361,7 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
 
 =cut
 
-sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ'){
+sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
     my ($self, $c, $result) = @_;
 
     my $scan = pf::scan::wmi::rules->new();
@@ -384,7 +384,7 @@ parsing answer
 
 =cut
 
-sub parseWmi {
+sub parseWmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
     my ($self, $c, $scan, $scan_config) = @_;
     my $rule_config = $c->model('Config::WMI')->readAll();
     my @rules = grep {$_->{on_tab}} @$rule_config;
@@ -410,7 +410,7 @@ test
 
 =cut
 
-sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
     my ($self, $c) = @_;
     use Data::Dumper;
 
@@ -435,7 +435,7 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 
 =cut
 
-sub scanProcess :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub scanProcess :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
