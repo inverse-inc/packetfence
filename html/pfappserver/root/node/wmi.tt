@@ -1,67 +1,25 @@
 [% IF node.device_class == "Windows" %]
   <div class="control-group">
-    <label class="control-label">SCCM agent:</label>
-    [% IF sccm_scan == "No" %]
-        <span class="label label-failure">[% sccm_scan | html %]</span>
-    [% ELSIF sccm_scan == "Request failed" %]
-       <span>[% sccm_scan | html %]</span>
-    [% ELSE %]
-        <span class="label label-success">[% sccm_scan | html %]</span>
-    [% END %]
-  </div>
-  <div class="control-group">
-    <label class="control-label">Antivirus:</label>
-    [% IF antivirus_scan == "No" %]
-        <span class="label label-failure">[% antivirus_scan | html %]</span>
-    [% ELSIF antivirus_scan == "Request failed" %]
-       <span>[% antivirus_scan | html %]</span>
-    [% ELSE %]
-        <span class="label label-success"> [% antivirus_scan | html %]</span>
-	<span class="label">[% antivirus_name  | html %]</span>
-	<span class="label">[% antivirus_version  | html %]</span>
-    [% END %]
-  </div>
-  <div class="control-group">
-    <label class="control-label">Firewall</label>
-    [% IF firewall_scan == "No" %]
-        <span class="label label-failure">[% firewall_scan | html %]</span>
-    [% ELSIF firewall_scan == "Request failed" %]
-       <span>[% firewall_scan | html %]</span>
-    [% ELSE %]
-        <span class="label label-success">[% firewall_scan | html %]</span>
-	<span class="label">[% firewall_name  | html %]</span>
-	<span class="label">[% firewall_version  | html %]</span>
-    [% END %]
-  </div>
-  <div class="control-group">
-    <label class="control-label">AntiSpyware:</label>
-    [% IF antispyware_scan == "No" %]
-        <span class="label label-failure">[% antispyware_scan | html %]</span>
-    [% ELSIF antispyware_scan == "Request failed" %]
-       <span>[% antispyware_scan | html %]</span>
-    [% ELSE %]
-        <span class="label label-success"> [% antispyware_scan | html %]</span>
-	<span class="label">[% antispyware_name  | html %]</span>
-	<span class="label">[% antispyware_version  | html %]</span>
-    [% END %]
-  </div>
-  <div class="control-group">
     <table class="table table-condensed">
     <thead>
       <tr>
         <th>Item scanned</th>
-        <th>Existing</th>
+        <th>Is Present</th>
         <th>Name</th>
         <th>Version</th>
       </tr>
     </thead>
     <tbody>
-    [% FOREACH item IN scan_result %]
+    [% FOREACH item IN rules %]
       <tr>
-        <td>[% item.Scan | html %]</td>
-        <td>[% item.Exist | html %]</td>
-        <td>[% item.Name | html %]</td>
-        <td>[% item.Version | html %]</td>
+        <td>[% item.id | html %]</td>
+        [% IF item.item_exist == 'Yes' %]
+          <td><span class="label label-success">[% item.item_exist | html %]</span></td>
+        [% ELSE %]
+          <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
+        [% END %]
+        <td>[% item.scan_result.displayName | html %]</td>
+        <td>[% item.scan_result.productState | html %]</td>
       </tr>
     [% END %]
     </tbody>
