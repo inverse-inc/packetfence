@@ -2,13 +2,9 @@
 pidfile = %%pid_file%%
 
 $INCLUDE radiusd.conf
+$INCLUDE sites-included/packetfence-acct
+$INCLUDE sites-included/packetfence-tunnel
 
-listen {
-    ipaddr = %%management_ip%%
-    port = 0
-    type = acct
-    virtual_server = packetfence
-}
 
 listen {
     type = control

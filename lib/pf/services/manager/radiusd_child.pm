@@ -91,8 +91,10 @@ sub generate_radiusd_sitesconf {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
+    $tags{'template'}    = "$conf_dir/raddb/sites-included/packetfence";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-included/packetfence" );
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-acct", "$install_dir/raddb/sites-included/packetfence-acct" );
 
     %tags = ();
 
@@ -106,12 +108,13 @@ sub generate_radiusd_sitesconf {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
 
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
+    $tags{'template'}    = "$conf_dir/raddb/sites-included/packetfence-tunnel";
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-included/packetfence-tunnel" );
 
     %tags = ();
-    $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
+    $tags{'template'}    = "$conf_dir/raddb/sites-included/packetfence-cli";
+    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
+    parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-included/packetfence-cli" );
 
 }
 
@@ -156,7 +159,6 @@ sub generate_radiusd_authconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/auth.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/auth.conf" );
@@ -166,7 +168,6 @@ sub generate_radiusd_acctconf {
     my ($self) = @_;
     my %tags;
     $tags{'template'}    = "$conf_dir/radiusd/acct.conf";
-    $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     parse_template( \%tags, $tags{template}, "$install_dir/raddb/acct.conf" );
@@ -175,10 +176,8 @@ sub generate_radiusd_acctconf {
 sub generate_radiusd_cliconf {
     my ($self) = @_;
     my %tags;
-    my @switches = tied(%pf::SwitchFactory::SwitchConfig)->values();
-    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } @switches) {
+    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } values %pf::SwitchFactory::SwitchConfig) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
-        $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
@@ -298,7 +297,7 @@ EOT
 EOT
             $i++;
         }
-        parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
+        parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-included/packetfence-cluster" );
 
         %tags = ();
         $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
@@ -318,7 +317,7 @@ EOT
         }
 
     } else {
-        my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
+        my $file = $install_dir."/raddb/sites-included/packetfence-cluster";
         unlink($file);
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.

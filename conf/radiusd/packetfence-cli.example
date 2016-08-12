@@ -1,4 +1,10 @@
 server packetfence-cli {
+
+listen {
+    ipaddr = %%management_ip%%
+    port = 1815
+    type = auth
+}
 #
 #  Authorization. First preprocess (hints and huntgroups files),
 #  then realms, and finally look in the "users" file.

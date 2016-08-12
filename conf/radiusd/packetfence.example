@@ -11,6 +11,18 @@ server packetfence {
 #
 #  Make *sure* that 'preprocess' comes before any realm if you
 #  need to setup hints for the remote radius server
+listen {
+    ipaddr = 127.0.0.1
+    port = 18120
+    type = auth
+}
+
+listen {
+    ipaddr = %%management_ip%%
+    port = 0
+    type = auth
+}
+
 authorize {
 
 	# Add in PacketFence specific configuration
@@ -190,100 +202,13 @@ authenticate {
 	eap
 }
 
-
-#
-#  Pre-accounting.  Decide which accounting type to use.
-#
 preacct {
-	preprocess
-	rewrite_called_station_id
-
-	#
-	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
-	#  into a single 64bit counter Acct-[Input|Output]-Octets64.
-	#
-#	acct_counters64
-
-	#
-	#  Session start times are *implied* in RADIUS.
-	#  The NAS never sends a "start time".  Instead, it sends
-	#  a start packet, *possibly* with an Acct-Delay-Time.
-	#  The server is supposed to conclude that the start time
-	#  was "Acct-Delay-Time" seconds in the past.
-	#
-	#  The code below creates an explicit start time, which can
-	#  then be used in other modules.  It will be *mostly* correct.
-	#  Any errors are due to the 1-second resolution of RADIUS,
-	#  and the possibility that the time on the NAS may be off.
-	#
-	#  The start time is: NOW - delay - session_length
-	#
-
-	#	update request {
-	#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
-	#	}
-
-
-	#
-	#  Ensure that we have a semi-unique identifier for every
-	#  request, and many NAS boxes are broken.
-	acct_unique
-
-	#
-	#  Look for IPASS-style 'realm/', and if not found, look for
-	#  '@realm', and decide whether or not to proxy, based on
-	#  that.
-	#
-	#  Accounting requests are generally proxied to the same
-	#  home server as authentication requests.
-	#	IPASS
-	suffix
-	ntdomain
-
-	#
-	#  Read the 'acct_users' file
-	files
 }
 
 #
 #  Accounting.  Log the accounting data.
 #
 accounting {
-	# Add in PacketFence specific configuration
-	update {
-		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-		&control:PacketFence-RPC-Server = ${rpc_host}
-		&control:PacketFence-RPC-Port = ${rpc_port}
-		&control:PacketFence-RPC-User = ${rpc_user}
-		&control:PacketFence-RPC-Pass = ${rpc_pass}
-		&control:PacketFence-RPC-Proto = ${rpc_proto}
-	}
-	rewrite_calling_station_id
-	rewrite_called_station_id
-	#
-	#  Log traffic to an SQL database.
-	#
-	#  See "Accounting queries" in mods-available/sql
-	%%accounting_sql%%
-
-	#
-	#  If you receive stop packets with zero session length,
-	#  they will NOT be logged in the database.  The SQL module
-	#  will print a message (only in debugging mode), and will
-	#  return "noop".
-	#
-	#  You can ignore these packets by uncommenting the following
-	#  three lines.  Otherwise, the server will not respond to the
-	#  accounting request, and the NAS will retransmit.
-	#
-	if (noop) {
-		ok
-	}
-
-	#  Filter attributes from the accounting response.
-	attr_filter.accounting_response
-    
-	packetfence
 }
 
 
@@ -322,13 +247,13 @@ post-auth {
 	#  The session-state attributes are automatically deleted after
 	#  an Access-Reject or Access-Accept is sent.
 	#
-	#update {
-	#	&reply: += &session-state:
-	#}
+	update {
+		&reply: += &session-state:
+	}
 
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
-	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP && EAP-Type != FAST) ) {
 		packetfence
 		if (updated || ok || noop) {
 			request-timing
