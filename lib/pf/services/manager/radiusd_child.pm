@@ -35,6 +35,7 @@ use NetAddr::IP;
 use pf::cluster;
 use pfconfig::cached_array;
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+use Template;
 extends 'pf::services::manager';
 
 has options => (is => 'rw');
@@ -66,10 +67,11 @@ Generate the configuration files for radiusd processes
 
 sub _generateConfig {
     my ($self,$quick) = @_;
+    my $tt = Template->new(ABSOLUTE => 1);
     $self->generate_radiusd_mainconf();
     $self->generate_radiusd_authconf();
     $self->generate_radiusd_acctconf();
-    $self->generate_radiusd_eapconf();
+    $self->generate_radiusd_eapconf($tt);
     $self->generate_radiusd_restconf();
     $self->generate_radiusd_sqlconf();
     $self->generate_radiusd_sitesconf();
@@ -194,12 +196,10 @@ Generates the eap.conf configuration file
 =cut
 
 sub generate_radiusd_eapconf {
-   my %tags;
+    my ($self, $tt) = @_;
+    my %vars = (install_dir => $install_dir);
 
-   $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
-   $tags{'install_dir'} = $install_dir;
-
-   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/mods-enabled/eap" );
+    $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
 }
 
 =head2 generate_radiusd_sqlconf

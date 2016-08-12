@@ -171,7 +171,7 @@ eap {
 	#  authenticate via EAP-TLS!  This is likely not what you want.
 	tls-config tls-common {
 		#private_key_password = whatever
-        private_key_file = %%install_dir%%/raddb/certs/server.key
+        private_key_file = [% install_dir %]/raddb/certs/server.key
 
 		#  If Private key & Certificate are located in
 		#  the same file, then private_key_file &
@@ -183,7 +183,7 @@ eap {
 		#  only the server certificate, but ALSO all
 		#  of the CA certificates used to sign the
 		#  server certificate.
-        certificate_file = %%install_dir%%/raddb/certs/server.crt
+        certificate_file = [% install_dir %]/raddb/certs/server.crt
 
 		#  Trusted Root CA list
 		#
@@ -195,7 +195,7 @@ eap {
 		#  In that case, this CA file should contain
 		#  *one* CA certificate.
 		#
-		ca_file = %%install_dir%%/raddb/certs/ca.pem
+		ca_file = [% install_dir %]/raddb/certs/ca.pem
 
 	 	#  OpenSSL will automatically create certificate chains,
 	 	#  unless we tell it to not do that.  The problem is that
