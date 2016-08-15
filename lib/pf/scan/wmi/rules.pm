@@ -100,6 +100,8 @@ sub runWmi {
     $request->{'Host'} = $rules->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
     $request->{'Namespace'} = $rule->{'namespace'};
+    # because of a bug in Net::WMIClient
+    $request->{'NameSpace'} = $rule->{'namespace'};
     my ($rc, $ret_string) = wmiclient($request);
     if ($rc) {
         return ($rc, $self->parseResult($ret_string));
