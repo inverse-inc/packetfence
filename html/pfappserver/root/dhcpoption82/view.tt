@@ -1,0 +1,19 @@
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>Option82 Entry [% item.id %]</h3>
+  </div>
+  <div class="modal-body">
+      <table class="table table-condensed table-striped">
+        <tbody>
+          [% FOREACH column IN columns %]
+          <tr>
+            <td>[% l(headings.$column) %]</td>
+            <td>[% item.$column %]</td>
+          </tr>
+          [% END %]
+        </tbody>
+      </table>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+  <div>

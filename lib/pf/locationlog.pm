@@ -46,7 +46,6 @@ BEGIN {
         locationlog_cleanup
 
         locationlog_insert_start
-        locationlog_insert_closed
         locationlog_update_end
         locationlog_update_end_mac
         locationlog_update_end_mac_switch_port
@@ -410,19 +409,6 @@ sub locationlog_insert_start {
             $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
             || return (0);
     }
-    return (1);
-}
-
-sub locationlog_insert_closed {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role ) = @_;
-    my $logger = get_logger();
-
-    my $conn_type = connection_type_to_str($connection_type)
-        or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
-
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql',
-        lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
-        || return (0);
     return (1);
 }
 

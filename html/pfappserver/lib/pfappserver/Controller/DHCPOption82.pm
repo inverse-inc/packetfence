@@ -1,29 +1,18 @@
-package pfappserver::View::CSV;
+package pfappserver::Controller::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::View::CSV
+pfappserver::Controller::DHCPOption82
 
 =head1 DESCRIPTION
 
-Used to render CSV
+Place all customization for Controller::DHCPOption82 here
 
 =cut
 
-use base qw ( Catalyst::View::CSV );
+use Moose;
 
-__PACKAGE__->config ( sep_char => ",", suffix => "csv",);
-
-sub process {
-    my ($self, $c) = @_;
-    unless(defined($c->stash->{columns})){
-        if(defined($c->stash->{items}->[0])) {
-            $c->stash->{columns} = [keys(%{$c->stash->{items}->[0]})];
-        }
-    }
-    $c->stash->{data} = $c->stash->{items};
-    $self->SUPER::process($c);
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::DHCPOption82'; }
 
 =head1 AUTHOR
 
@@ -52,6 +41,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+
+__PACKAGE__->meta->make_immutable;
 
 1;

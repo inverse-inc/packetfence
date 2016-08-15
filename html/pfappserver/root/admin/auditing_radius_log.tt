@@ -31,8 +31,8 @@
       <div class="row-fluid">
         <div class="tab-content"> 
             <ul class="nav nav-tabs">
-                <li class="active"><a href="">[% l('RADIUS Audit Log') %]</a></li>
-                <li><a href="">[% l('DHCP Option 82') %]</a></li>
+                <li class="active"><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_radius_log')) %]">[% l('RADIUS Audit Log') %]</a></li>
+                <li><a href="[% c.uri_for(c.controller('Admin').action_for('auditing_option82')) %]">[% l('DHCP Option 82') %]</a></li>
             </ul>
         </div>
       </div>
@@ -40,12 +40,12 @@
         <div class="span2">
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
-              <li class="nav-header">[% l('RADIUS Log') %]</li>
+              <li class="nav-header">[% l('RADIUS Audit Log') %]</li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
               <li>
-                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::RadiusLog').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <a href="#" data-toggle="pf-search-form" data-target="#search" data-form-target="#search" >[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::DHCPOption82').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input | html %]" value="[%form.$input | html%]"/>

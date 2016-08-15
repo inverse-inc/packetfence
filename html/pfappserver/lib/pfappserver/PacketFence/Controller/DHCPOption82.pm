@@ -1,8 +1,8 @@
-package pfappserver::PacketFence::Controller::Auditing::RadiusLog;
+package pfappserver::PacketFence::Controller::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::PacketFence::Controller::Auditing::RadiusLog - Catalyst Controller
+pfappserver::PacketFence::Controller::DHCPOption82 - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -17,16 +17,17 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use pf::dhcp_option82;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
     action_args => {
-        '*' => { model => 'Auditing::RadiusLog' },
-        advanced_search => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
-        'simple_search' => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
-        search => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
-        'index' => { model => 'Auditing::RadiusLog', form => 'RadiusLogSearch' },
+        '*' => { model => 'DHCPOption82' },
+        advanced_search => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        'simple_search' => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        search => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
+        'index' => { model => 'DHCPOption82', form => 'DHCPOption82Search' },
     }
 );
 
@@ -36,7 +37,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub index :Path :Args(0) :AdminRole('AUDITING_READ') {
     my ( $self, $c ) = @_;
 #    $c->stash(template => 'radiuslog/search.tt', from_form => "#empty");
     $c->forward('search');
@@ -44,56 +45,53 @@ sub index :Path :Args(0) :AdminRole('RADIUS_LOG_READ') {
 
 =head2 search
 
-Perform an advanced search using the Search::Auditing::RadiusLog model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
-sub search :Local :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub search :Local :Args(0) :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
-    my $request = $c->request;
     my ($status, $result);
+    my $request = $c->request;
     $form->process(params => $request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
-        $c->stash(
+        $c->stash({
             current_view => 'JSON',
             status_msg => $form->field_errors
-        );
-    }
-    else {
+        });
+    } else {
         my $query = $form->value;
         $c->stash($query);
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
-            $c->stash(form => $form);
+            $c->stash({form => $form});
             $c->stash($result);
+
+            if ($request->param('export')) {
+                $c->stash({
+                    current_view => 'CSV',
+                });
+            }
         }
     }
-
-    if ($request->param('export')) {
-        $c->stash({
-            current_view => 'CSV',
-            columns      => [@pf::radius_audit_log::NODE_FIELDS,],
-        });
-    }
-    else {
-        $c->stash({
-            columns => [sort @pf::radius_audit_log::FIELDS],
-            display_columns => [qw(mac node_status request_time user_name ip created_at nas_ip_address nas_port_type)],
-        });
-    }
+    $c->stash({
+        columns => [sort @pf::dhcp_option82::FIELDS],
+        display_columns => [sort @pf::dhcp_option82::FIELDS],
+        headings => \%pf::dhcp_option82::HEADINGS,
+    });
     $c->response->status($status);
 }
 
 =head2 simple_search
 
-Perform an advanced search using the Search::Auditing::RadiusLog model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
-sub simple_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
+sub simple_search :Local :Args() :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->forward('search');
     $c->stash(template => 'radiuslog/search.tt', from_form => "#simpleSearch");
@@ -101,11 +99,11 @@ sub simple_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
 
 =head2 advanced_search
 
-Perform an advanced search using the Search::Auditing::RadiusLog model
+Perform an advanced search using the Search::DHCPOption82 model
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRole('RADIUS_LOG_READ') {
+sub advanced_search :Local :Args() :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->forward('search');
     $c->stash(template => 'radiuslog/search.tt', from_form => "#advancedSearch");
@@ -118,10 +116,10 @@ controller dispatcher
 
 =cut
 
-sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('dhcp_option82') :CaptureArgs(1) {
     my ( $self, $c, $id ) = @_;
 
-    my ($status, $item_data) = $c->model('Auditing::RadiusLog')->view($id);
+    my ($status, $item_data) = $c->model('DHCPOption82')->view($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item_data;
@@ -138,17 +136,13 @@ sub object :Chained('/') :PathPart('radiuslog') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('RADIUS_LOG_READ') {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('AUDITING_READ') {
     my ($self, $c) = @_;
     $c->stash({
-        switch_fields => \@pf::radius_audit_log::SWITCH_FIELDS,
-        node_fields => \@pf::radius_audit_log::NODE_FIELDS,
-        radius_fields => \@pf::radius_audit_log::RADIUS_FIELDS,
+        columns => [sort @pf::dhcp_option82::FIELDS],
+        display_columns => [sort keys %pf::dhcp_option82::HEADINGS],
+        headings => \%pf::dhcp_option82::HEADINGS,
     });
-    for my $field (@pf::radius_audit_log::RADIUS_FIELDS) {
-        $c->stash->{item}{$field} =~ s/=2C /"\n"/ge;
-        $c->stash->{item}{$field} =~ s/=([A-Z0-9]{2})/chr(hex($1))/ge;
-    }
 }
 
 =head1 AUTHOR

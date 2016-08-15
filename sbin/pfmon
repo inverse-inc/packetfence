@@ -60,6 +60,7 @@ use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
 use Time::HiRes qw(time);
+use pf::option82 qw(search_switch);
 
 pf::SwitchFactory->preloadConfiguredModules();
 
@@ -271,6 +272,13 @@ sub registertasks  {
         'cluster_check',
         'cluster_check_interval',
         \&cluster_check
+    );
+    register_task(
+        'option82 task',
+        'option82_query_interval',
+        sub {
+            search_switch() if isenabled($Config{'network'}{'dhcpoption82logger'});
+        }
     );
 }
 

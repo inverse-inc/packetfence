@@ -3726,6 +3726,16 @@ PacketFence is able to act as an authentication and authorization service on the
 PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
 From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
+DHCP Option 82
+~~~~~~~~~~~~~~
+
+PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network.
+Once enabled, restart the pfdhcplistener and pfmon services.
+pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
+pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
+
+
 Operating System Best Practices
 -------------------------------
 

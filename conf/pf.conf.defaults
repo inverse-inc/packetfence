@@ -1379,6 +1379,10 @@ fingerbank_data_update_interval=1D
 #
 # Interval at which PacketFence updates the local Fingerbank data from the cloud API
 cluster_check_interval=1m
+# maintenance.option82_query_interval
+#
+# Interval at which PacketFence will query compatible switches for DHCP Option 82 switch MAC address
+option82_query_interval=23h
 
 [active_active]
 #

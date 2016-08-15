@@ -1,33 +1,29 @@
-package pfappserver::View::CSV;
+package pfappserver::Model::SavedSearch::DHCPOption82;
 
 =head1 NAME
 
-pfappserver::View::CSV
-
-=head1 DESCRIPTION
-
-Used to render CSV
+package pfappserver::Model::SavedSearch::DHCPOption82
 
 =cut
 
-use base qw ( Catalyst::View::CSV );
+=head1 DESCRIPTION
 
-__PACKAGE__->config ( sep_char => ",", suffix => "csv",);
+SavedSearch for Nodes
 
-sub process {
-    my ($self, $c) = @_;
-    unless(defined($c->stash->{columns})){
-        if(defined($c->stash->{items}->[0])) {
-            $c->stash->{columns} = [keys(%{$c->stash->{items}->[0]})];
-        }
-    }
-    $c->stash->{data} = $c->stash->{items};
-    $self->SUPER::process($c);
-}
+=over
 
-=head1 AUTHOR
+=cut
 
-Inverse inc. <info@inverse.ca>
+use strict;
+use warnings;
+use Moose;
+
+extends 'pfappserver::Base::Model::SavedSearch';
+
+
+__PACKAGE__->meta->make_immutable;
+
+=back
 
 =head1 COPYRIGHT
 
@@ -52,6 +48,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable(inline_constructor => 0);
-
 1;
+
