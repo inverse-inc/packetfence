@@ -858,11 +858,11 @@ first. In other words, you should consider the following order:
 EAP-FAST authentication Support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence supports Cisco NEAT through EAP-MD5 and EAP-FAST authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
+PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
 
 Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
 
-The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketProtector.
+The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
 
 Authenticator
 +++++++++++++
