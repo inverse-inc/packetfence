@@ -1222,7 +1222,7 @@ iplog_rotation_timeout=10s
 # maintenance.iplog_cleanup_window
 #
 # How long to keep a iplog_archive entry before deleting it
-iplog_cleanup_window=0D
+iplog_cleanup_window=3M
 #
 # maintenance.iplog_cleanup_interval
 #
@@ -1282,7 +1282,7 @@ auth_log_cleanup_timeout=10s
 # maintenance.traplog_cleanup_window
 #
 # How long to keep a traplog entry before deleting it
-traplog_cleanup_window=0D
+traplog_cleanup_window=1W
 #
 # maintenance.traplog_cleanup_interval
 #
