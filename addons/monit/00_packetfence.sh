@@ -148,3 +148,16 @@ check process packetfence-`basename $i .pid` with pidfile /usr/local/pf/var/run/
 EOF
 
 done
+
+for domain in `perl -Ilib  -Mpf::config -e 'print join("\n", keys(%pf::config::ConfigDomain))'`;do
+
+PID_FILE=`perl -Ilib -Mpf::services::manager::winbindd_child -e "print pf::services::manager::winbindd_child->new(name => 'dummy', domain => '$domain')->pidFile"`
+cat >> /etc/monit.d/packetfence.monit << EOF
+check process packetfence-winbind-$domain with pidfile $PID_FILE
+    group PacketFence
+    start program = "/usr/sbin/winbindd -D -s /etc/samba/$domain.conf -l /var/log/samba$domain" with timeout 60 seconds
+    stop program  = "/bin/kill $PID_FILE
+
+EOF
+
+done
