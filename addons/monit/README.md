@@ -8,6 +8,6 @@ This folder contains helper scripts to put in place "Monit" monitoring system co
 
  * 30_packetfence-activeactive.sh: Will add some checks for active-active clustering related services
  
- * 40_OS-winbindd.sh: Will add a check for the Operating System winbindd process. Use it when a the winbind/samba configuration is made outside PacketFence.
+ * 40_OS-winbindd.sh: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence.
 
 Scripts will output result in /etc/monit.d/packetfence.monit
