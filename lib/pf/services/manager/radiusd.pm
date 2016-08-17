@@ -25,6 +25,9 @@ use Moo;
 use pf::cluster;
 use pf::services::manager::radiusd_child;
 
+use pfconfig::cached_array;
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+
 extends 'pf::services::manager::submanager';
 
 has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
@@ -50,8 +53,7 @@ sub _build_radiusdManagers {
     $listens->{acct} = {
       launcher => $self->launcher . " -n acct"
     };
-    my @switches = tied(%pf::SwitchFactory::SwitchConfig)->values();
-    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } @switches) {
+    if (@cli_switches > 0) {
         $listens->{cli} = {
           launcher => $self->launcher . " -n cli"
         };

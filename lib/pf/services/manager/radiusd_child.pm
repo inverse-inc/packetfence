@@ -33,6 +33,8 @@ use pf::config qw(
 );
 use NetAddr::IP;
 use pf::cluster;
+use pfconfig::cached_array;
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 extends 'pf::services::manager';
 
 has options => (is => 'rw');
@@ -175,8 +177,7 @@ sub generate_radiusd_acctconf {
 sub generate_radiusd_cliconf {
     my ($self) = @_;
     my %tags;
-    my @switches = tied(%pf::SwitchFactory::SwitchConfig)->values();
-    if (any { exists $_->{cliAccess} && isenabled($_->{cliAccess}) } @switches) {
+    if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
         $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
