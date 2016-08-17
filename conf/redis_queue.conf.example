@@ -38,7 +38,7 @@ daemonize yes
 
 # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
 # default. You can specify a custom pid file location here.
-pidfile %%install_dir%%/var/run/%%name%%.pid
+pidfile [% install_dir %]/var/run/[% name %].pid
 
 # If port 0 is specified Redis will not listen on a TCP socket.
 port 6380
@@ -67,7 +67,7 @@ tcp-backlog 511
 # incoming connections. There is no default, so Redis will not listen
 # on a unix socket when not specified.
 #
-unixsocket %%install_dir%%/var/run/%%name%%.sock
+unixsocket [% install_dir %]/var/run/[% name %].sock
 unixsocketperm 660
 
 # Close the connection after a client is idle for N seconds (0 to disable)
@@ -100,7 +100,7 @@ loglevel notice
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile %%install_dir%%/logs/%%name%%.log
+logfile [% install_dir %]/logs/[% name %].log
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -184,7 +184,7 @@ dbfilename dump.rdb
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir %%install_dir%%/var/%%name%%
+dir [% install_dir %]/var/[% name %]
 
 ################################# REPLICATION #################################
 

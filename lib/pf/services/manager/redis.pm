@@ -30,9 +30,9 @@ has '+launcher' => ( builder => 1, lazy => 1,);
 
 has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
 
-has 'redis_config_template' => (is => 'rw', builder => 1, lazy => 1);
+has configFilePath => (is => 'rw', builder => 1, lazy => 1);
 
-has 'redis_config_file' => (is => 'rw', builder => 1, lazy => 1);
+has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
 
 sub _build_launcher {
     my ($self) = @_;
@@ -42,29 +42,30 @@ sub _build_launcher {
 
 sub generateConfig {
     my ($self) = @_;
-    my $tags = $self->make_tags;
-    my $template = $self->redis_config_template;
-    parse_template($tags, $template, $self->redis_config_file);
+    my $vars = $self->createVars();
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
+    return 1;
 }
 
-sub make_tags {
+sub createVars {
     my ($self) = @_;
-    my %tags;
-    my $template = $self->redis_config_template;
-    $tags{'template'}    = $template;
-    $tags{'install_dir'} = $install_dir;
-    $tags{'name'} = $self->name;
-    return \%tags;
+    my %vars = (
+        install_dir => $install_dir,
+        name => $self->name,
+    );
+    return \%vars;
 }
 
-sub _build_redis_config_template {
+
+sub _build_configTemplateFilePath {
     my ($self) = @_;
     my $name = $self->name;
     return "$conf_dir/${name}.conf";
 
 }
 
-sub _build_redis_config_file {
+sub _build_configFilePath {
     my ($self) = @_;
     my $name = $self->name;
     return "$generated_conf_dir/${name}.conf";
