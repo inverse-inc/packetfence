@@ -2914,13 +2914,13 @@ Configuration of a new violation can use the following trigger types:
 ERSPAN
 ++++++
 
-ERSPAN comes handy when a switch port traffic (low bandwidth) needs to be monitored from a remote location, E.G: your Security Onion already deployed box. ERSPAN encapsulates the desired port traffic in GRE packets to one/multiple destination(s).
+ERSPAN comes handy when a switch port traffic (low bandwidth) needs to be monitored from a remote location, E.G: your Security Onion already deployed box. ERSPAN encapsulates the desired port traffic in GRE packets to one/multiple destination(s). ERSPAN is a Cisco technology which is available selected platforms, namely but not limited to Catalyst 6500, 7600, Nexus, and ASR 1000.
 
-One of the way of dealing easily with that GRE encapsulated traffic on the destination is through RCDCAP, which creates a virtual interface on which GRE traffic is already decapsultated. Security Onion can then feed on that interface like any other interface.
+One way of accessing encapsulated traffic at the destination is through RCDCAP software, which creates a virtual interface on which GRE and ERSPAN headers are decapsultated. Security Onion can then feed on that interface like any other.
+
 
 Example:
-The switch is at 10.10.10.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a seperate interface optimized for monitoring.
-
+The switch is at IP 10.10.10.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a seperate interface optimized for monitoring.
 
 On the Switch:
 
@@ -3001,7 +3001,6 @@ esac
   * Start service
 
    sudo /etc/init.d/rcdcap start
-
   
 
 Violations
