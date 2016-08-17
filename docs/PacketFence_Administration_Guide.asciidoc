@@ -2925,6 +2925,8 @@ The switch is at IP 10.10.10.1, the monitored switch port is GigabitEthernet10 a
 On Security Onion:
 
  * install RCDCAP from Inverse's SecurityOnion repository:
+  
+  REPOSITORY INFORMATION
 
  * Create the file /etc/init.d/rcdcap with a similar content:  
 
@@ -2982,28 +2984,29 @@ esac
 ----
   * Add executable flag on the file:
 
-   chmod +x /etc/init.d/rcdcap
+  chmod +x /etc/init.d/rcdcap
  
   * Enable rcdcap service
 
-   sudo update-rc.d rcdcap defaults 18 02
+  sudo update-rc.d rcdcap defaults 18 02
 
   * Start service
 
-   sudo /etc/init.d/rcdcap start
+  sudo /etc/init.d/rcdcap start
 
   * Rerun Security Onion wizard to configure tweak mon1 interface and include it to be monitored. Attention: network configuration file will be overwritten. Backup if needed, or skip that part in the wizard and adapt manually.
    
-   sudo sosetup
+  sudo sosetup
 
   * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU.
 
-   auto eth2
-   iface eth2 inet static
-   address 10.10.10.10
-   netmask 255.255.255.240
-   up ifconfig $IFACE arp up
-   up ip link set dev $IFACE mtu 1900
+  auto eth2
+  iface eth2 inet static
+  address 10.10.10.10
+  netmask 255.255.255.240
+  up ifconfig $IFACE arp up
+  up ip link set dev $IFACE mtu 1900
+
 
 On the Switch:
 
