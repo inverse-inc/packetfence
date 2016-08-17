@@ -37,7 +37,7 @@ sub index : Path : Args(0) {
     }
     my $stash = $c->stash;
     my $logger = $c->log;
-    my $provisioner = $c->profile->findProvisioner($mac);
+    my $provisioner = $c->profile->findProvisioner($mac, $c->stash->{application}->root_module->node_info);
     $provisioner->authorize($mac) if (defined($provisioner));
     my $profile_template = $provisioner->profile_template;
     $c->stash(
