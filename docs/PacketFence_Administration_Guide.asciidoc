@@ -2914,12 +2914,11 @@ Configuration of a new violation can use the following trigger types:
 ERSPAN
 ++++++
 
-ERSPAN comes handy when a switch port traffic (low bandwidth) needs to be monitored from a remote location, E.G: your Security Onion already deployed box. ERSPAN encapsulates the desired port traffic in GRE packets to one/multiple destination(s). ERSPAN is a Cisco technology which is available selected platforms, namely but not limited to Catalyst 6500, 7600, Nexus, and ASR 1000.
+ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic in GRE packets to one/multiple destination(s). ERSPAN is a Cisco technology which is available on some platforms which are namely but not limited to Catalyst 6500, 7600, Nexus, and ASR 1000.
 
-One way of accessing encapsulated traffic at the destination is through RCDCAP software, which creates a virtual interface on which GRE and ERSPAN headers are decapsultated. Security Onion can then feed on that interface like any other.
+One way of accessing encapsulated traffic at the destination host is through RCDCAP, which is a daemon that creates a virtual interface on which both GRE and ERSPAN headers are decapsultated prior to being injected on the specified interface. Security Onion can then feed on that interface like any other.
 
-
-Example:
+Example Scenario:
 The switch is at IP 10.10.10.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a seperate interface optimized for monitoring.
 
 On the Switch:
@@ -2935,7 +2934,8 @@ On the Switch:
 
 On Security Onion:
 
- * Download, compile and install RCDCAP.
+ * install RCDCAP from Inverse's SecurityOnion repository:
+
  * Create the file /etc/init.d/rcdcap with a similar content:  
 
 ----
@@ -3001,6 +3001,8 @@ esac
   * Start service
 
    sudo /etc/init.d/rcdcap start
+
+  * Rerun Security Onion wizard to configure mon1 interface and include it to be monitored.
   
 
 Violations
