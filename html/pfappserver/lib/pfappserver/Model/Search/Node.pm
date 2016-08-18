@@ -26,6 +26,8 @@ use pf::util qw(calc_page_count);
 
 extends 'pfappserver::Base::Model::Search';
 
+has 'added_joins' => (is => 'rw', default => sub { {} } );
+
 =head2 search
 
 =cut
@@ -269,6 +271,46 @@ sub make_builder {
         );
 }
 
+my @VIOLATION_JOINS = (
+    {
+        'table' => 'violation',
+        'join'  => 'LEFT',
+        'as'    => 'violation_status',
+        'on'    => [
+            [
+                {
+                    'table' => 'violation_status',
+                    'name'  => 'mac',
+                },
+                '=',
+                {
+                    'table' => 'node',
+                    'name'  => 'mac',
+                }
+            ],
+        ],
+    },
+    {
+        'table' => 'class',
+        'join'  => 'LEFT',
+        'as'    => 'violation_status_class',
+        'on'    => [
+            [
+                {
+                    'table' => 'violation_status',
+                    'name'  => 'vid',
+                },
+                '=',
+                {
+                    'table' => 'violation_status_class',
+                    'name'  => 'vid',
+                }
+            ]
+        ],
+    }
+
+);
+
 my %COLUMN_MAP = (
     person_name => 'pid',
     unknown => {
@@ -316,99 +358,16 @@ my %COLUMN_MAP = (
        name  => 'ip',
     }, # BUG : retrieves the last IP address, no mather if a period range is defined
     violation   => {
-        table => 'class',
+        table => 'violation_status_class',
         name  => 'description',
-        joins => [
-            {
-                'table'  => 'violation',
-                'join' => 'LEFT',
-                'on' =>
-                [
-                    [
-                        {
-                            'table' => 'violation',
-                            'name'  => 'mac',
-                        },
-                        '=',
-                        {
-                            'table' => 'node',
-                            'name'  => 'mac',
-                        }
-                    ],
-                    [ 'AND' ],
-                    [
-                        {
-                            'table' => 'violation',
-                            'name'  => 'status',
-                        },
-                        '=',
-                        'open',
-                     ],
-                ],
-            },
-            {
-                'table'  => 'class',
-                'join' => 'LEFT',
-                'on' =>
-                [
-                    [
-                        {
-                            'table' => 'violation',
-                            'name'  => 'vid',
-                        },
-                        '=',
-                        {
-                            'table' => 'class',
-                            'name'  => 'vid',
-                        }
-                    ]
-                ],
-            }
-        ]
+        joins_id => 'violation_joins',
+        joins => \@VIOLATION_JOINS
     },
     violation_status   => {
         table => 'violation_status',
         name  => 'status',
-        joins => [
-            {
-                'table'  => 'violation',
-                'join' => 'LEFT',
-                'as' => 'violation_status',
-                'on' =>
-                [
-                    [
-                        {
-                            'table' => 'violation_status',
-                            'name'  => 'mac',
-                        },
-                        '=',
-                        {
-                            'table' => 'node',
-                            'name'  => 'mac',
-                        }
-                    ],
-                ],
-            },
-            {
-                'table'  => 'class',
-                'join' => 'LEFT',
-                'as' => 'violation_status_class',
-                'on' =>
-                [
-                    [
-                        {
-                            'table' => 'violation_status',
-                            'name'  => 'vid',
-                        },
-                        '=',
-                        {
-                            'table' => 'violation_status_class',
-                            'name'  => 'vid',
-                        }
-                    ]
-                ],
-            }
-        ]
+        joins_id => 'violation_joins',
+        joins => \@VIOLATION_JOINS
     },
 );
 
@@ -449,12 +408,16 @@ sub add_joins {
     foreach my $search ( @{$params->{searches}}) {
         my $name = $search->{name};
         if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'}) {
-            $builder->from(@{$COLUMN_MAP{$name}{'joins'}});
-            if ($name eq 'violation_status') {
-                $builder->select(
-                    {table => 'violation_status', name => 'status', as => 'violation_status'},
-                    {table => 'violation_status_class', name => 'description', as => 'violation_name'}
-                );
+            my $joins_id = $COLUMN_MAP{$name}{joins_id};
+            unless ( exists $self->added_joins->{$joins_id} ) {
+                $builder->from(@{$COLUMN_MAP{$name}{'joins'}});
+                $self->added_joins->{$joins_id} = 1;
+                if ($name eq 'violation_status') {
+                    $builder->select(
+                        {table => 'violation_status', name => 'status', as => 'violation_status'},
+                        {table => 'violation_status_class', name => 'description', as => 'violation_name'}
+                    );
+                }
             }
         }
     }
