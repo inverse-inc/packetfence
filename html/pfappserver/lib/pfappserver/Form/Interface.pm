@@ -90,7 +90,7 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
-s_field 'split_network' => (
+has_field 'split_network' => (
     type => 'Toggle',
     checkbox_value => 1,
     unchecked_value => 0,

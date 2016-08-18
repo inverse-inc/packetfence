@@ -60,7 +60,7 @@ Readonly my %MESSAGE_TYPE => (
 
 Readonly my %MESSAGE_TYPE_TO_STRING => reverse %MESSAGE_TYPE;
 
-Readonly my %dhcp_attributes = (
+Readonly my %dhcp_attributes => (
     'DHCP-Server-IP-Address'       => 'dest_ip',
     'DHCP-Client-IP-Address'       => 'ciaddr',
     'DHCP-Hardware-Type'           => 'htype',
@@ -79,7 +79,7 @@ Readonly my %dhcp_attributes = (
     'DHCP-Opcode'                  => 'op',
 );
 
-Readonly my %dhcp_options = (
+Readonly my %dhcp_options => (
     'DHCP-Client-FQDN' => '81',
     'DHCP-Vendor-Class-Identifier' => '60',
     'DHCP-Message-Type'            => '53',
@@ -94,7 +94,7 @@ Readonly my %dhcp_options = (
     'DHCP-Site-specific-2'         => '226',
 );
 
-Readonly my %dhcp_options_82 = (
+Readonly my %dhcp_options_82 => (
     'DHCP-Relay-Remote-Id'  => '2',
     'DHCP-Relay-Circuit-Id' => '1',
 );
@@ -402,7 +402,7 @@ sub format_from_radius_dhcp {
     my $args = {};
     my $options;
     my $sub_options;
-    foreach my $keys (keys $radius_request) {
+    foreach my $keys (keys %{$radius_request}) {
         if (defined($dhcp_options{$keys})) {
             if ($radius_request->{$keys} =~ /^0x(.*)/) {
                 my $value = $1;

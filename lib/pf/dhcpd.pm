@@ -265,7 +265,7 @@ sub ping_dhcpd {
     my $answer;
     my %index;
     foreach my $host (@cluster_servers) {
-        for my $interface (keys $host) {
+        for my $interface (keys %{$host}) {
             next if ( ( $interface !~ /^interface (.*)/) || ($host->{$interface}->{type} ne 'internal') );
             my $eth = $1;
             my $password = sprintf("%02x%02x%02x%02x%02x%02x",int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)),int(rand(256)));
@@ -312,7 +312,7 @@ sub ping_dhcpd {
     db_query_execute(
             DHCPD, $dhcpd_statements, 'freeradius_delete_dhcpd_pool');
     if (defined($answer)) {
-        for my $server (keys $answer) {
+        for my $server (keys %{$answer}) {
             db_query_execute(
                 DHCPD, $dhcpd_statements, 'freeradius_insert_dhcpd_pool', $server, $answer->{$server}{'interface'}, $answer->{$server}{'index'}
             );

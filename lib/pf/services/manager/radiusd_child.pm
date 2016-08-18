@@ -513,7 +513,7 @@ sub generate_radiusd_dhcpd {
     $tags{'socket_file'} = "$var_dir/run/radiusd-dhcpd.sock";
 
     foreach my $interface ( @listen_ints ) {
-        my $vlan = get_vlan_from_int($interface);
+        my $vlan = get_vlan_from_int($interface) || '0';
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         my $current_network = NetAddr::IP->new( $cfg->{'ip'}, $cfg->{'mask'} );
