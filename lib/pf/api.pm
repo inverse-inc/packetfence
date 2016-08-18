@@ -68,47 +68,44 @@ sub event_add : Public {
     my ($class, %postdata) = @_;
     my $logger = pf::log::get_logger();
 
-    my ($type, $id) = each %{$postdata{'events'}};
-    $logger->info("violation: $id - IP SRC $postdata{'srcip'} - IP DST $postdata{'dstip'}") if (defined($postdata{'srcip'}) && defined($postdata{'dst'}));
-    if (defined ($pf::config::Config{'trapping'}{'range'}) && $pf::config::Config{'trapping'}{'range'} ne '') {
-        foreach my $net_addr (@TRAPPING_RANGE) {
-            if (defined $postdata{'srcip'}) {
-                my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'srcip'});
-                if ($net_addr->contains($ip)) {
-                    my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
-                    if ($srcmac) {
-                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-                        return (1);
-                    } else {
-                        $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+    while( my ($type, $id) = each %{$postdata{'events'}}) {
+        $logger->debug("Received event : $type, $id");
+        $logger->info("violation: $id - IP SRC $postdata{'srcip'} - IP DST $postdata{'dstip'}") if (defined($postdata{'srcip'}) && defined($postdata{'dst'}));
+        if (defined ($pf::config::Config{'trapping'}{'range'}) && $pf::config::Config{'trapping'}{'range'} ne '') {
+            foreach my $net_addr (@TRAPPING_RANGE) {
+                if (defined $postdata{'srcip'}) {
+                    my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'srcip'});
+                    if ($net_addr->contains($ip)) {
+                        my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
+                        if ($srcmac) {
+                            pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+                        } else {
+                            $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+                        }
+                    }
+                }
+                if (defined $postdata{'dstip'}) {
+                    my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'dstip'});
+                    if ($net_addr->contains($ip)) {
+                        my $srcmac = pf::iplog::ip2mac($postdata{'dstip'});
+                        if ($srcmac) {
+                            pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+                        } else {
+                            $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+                        }
                     }
                 }
             }
-            if (defined $postdata{'dstip'}) {
-                my $ip = new NetAddr::IP::Lite pf::util::clean_ip($postdata{'dstip'});
-                if ($net_addr->contains($ip)) {
-                    my $srcmac = pf::iplog::ip2mac($postdata{'dstip'});
-                    if ($srcmac) {
-                        pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-                        return (1);
-                    } else {
-                        $logger->info("violation on IP $ip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-                    }
-                }
-            }
-        }
-        return (0);
-    } else {
-        # fetch IP associated to MAC
-        my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
-        if ($srcmac) {
-
-            # trigger a violation
-            pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
-            return(1);
         } else {
-            $logger->info("violation on IP $postdata{'srcip'} with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
-            return(0);
+            # fetch IP associated to MAC
+            my $srcmac = pf::iplog::ip2mac($postdata{'srcip'});
+            if ($srcmac) {
+
+                # trigger a violation
+                pf::violation::violation_trigger( { 'mac' => $srcmac, 'tid' => $id, 'type' => $type } );
+            } else {
+                $logger->info("violation on IP $postdata{'srcip'} with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");
+            }
         }
     }
 }
