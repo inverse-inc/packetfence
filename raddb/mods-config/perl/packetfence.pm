@@ -125,7 +125,7 @@ sub post_auth {
         } else {
             $mac = _extract_mac_from_calling_station_id()
         }
-        my $port = $RAD_REQUEST{'NAS-Port'};
+        my $port = $RAD_REQUEST{'NAS-Port'} // '';
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 && !( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) ) ) {
