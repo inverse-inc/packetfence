@@ -42,7 +42,7 @@ has_field 'fields[email]' => (type => "Email", label => "Email");
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
-has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers);
+has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provider", options_method => \&sms_carriers, empty_select => '---Choose a Provider---');
 
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
