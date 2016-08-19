@@ -2926,9 +2926,9 @@ On Security Onion:
 
  * Enable Inverse repository for Security Onion:
 
-  sudo cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
+  sudo bash -c 'cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
   deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
-  EOL
+  EOL'
 
   gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
   gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
