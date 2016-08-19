@@ -173,7 +173,7 @@ sub freeradius_populate_dhcpd_config {
                         my @categories = nodecategory_view_all();
                         my $count = @categories;
                         my $len = $current_network->masklen;
-                        my $cidr = (ceil(log($count)/log(2)) + $len - 1);
+                        my $cidr = (ceil(log($count)/log(2)) + $len);
                         if ($cidr > 30) {
                             $logger->error("Can't split network");
                             return;
