@@ -16,6 +16,7 @@ use pf::Authentication::constants;
 use HTML::Entities;
 use List::MoreUtils qw(any uniq all);
 use pf::config;
+use pf::auth_log;
 use pf::person qw(person_modify);
 use Email::Valid;
 
@@ -86,8 +87,12 @@ sub authenticationLogin : Private {
             # Source is external, we have to use local source to authenticate
             $c->stash( use_local_source => 1 );
         }
+        my $portal = $person_info->{portal};
+        unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+            $portal = $DEFAULT_PROFILE;
+        }
         my $options = {
-            'portal' => exists($Profiles_Config{$person_info->{portal}}) ? $person_info->{portal} : $DEFAULT_PROFILE,
+            portal => $portal,
         };
         $profile = pf::Portal::ProfileFactory->instantiate( $mac, $options);
     }
