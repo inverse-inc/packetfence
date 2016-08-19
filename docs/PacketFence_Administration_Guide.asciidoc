@@ -2924,9 +2924,18 @@ The switch is at IP 10.10.10.1, the monitored switch port is GigabitEthernet10 a
 
 On Security Onion:
 
- * install RCDCAP from Inverse's SecurityOnion repository:
-  
-  REPOSITORY INFORMATION
+ * Enable Inverse repository for Security Onion:
+
+  sudo cat << EOL >/etc/apt/sources.list.d/securityonion-inverse.list
+  deb http://inverse.ca/downloads/PacketFence/securityonion trusty trusty
+  EOL
+
+  gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
+  gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
+
+ * Install rcdcap
+  sudo apt-get update
+  sudo apt-get install rcdcap  
 
  * Create the file /etc/init.d/rcdcap with a similar content:  
 
