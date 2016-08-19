@@ -8,6 +8,7 @@ use pf::node;
 use pf::util;
 use pf::web;
 use pf::web::device_registration;
+use pf::enforcement qw(reevaluate_access);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -163,6 +164,7 @@ sub registerNode : Private {
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
             node_modify($mac, status => "reg", %info);
+            reevaluate_access($mac, 'manage_register');
         }
     } else {
         $self->showError($c,"Please verify the provided MAC address.");
