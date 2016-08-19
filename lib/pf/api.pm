@@ -1616,11 +1616,13 @@ sub radius_rest_dhcprole :Public :RestPath(/radius/rest/dhcprole) {
     my $logger = pf::log::get_logger();
 
     my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+    my ($dhcp,$args) = pf::util::dhcp::format_from_radius_dhcp(\%remapped_radius_request);
 
-    my $return = pf::dhcpd::dhcprole(%remapped_radius_request);
+    my $return = pf::dhcpd::dhcprole($dhcp);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
+
     return $return;
 }
 
