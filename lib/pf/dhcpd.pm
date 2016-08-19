@@ -25,6 +25,7 @@ use IO::Socket::INET;
 use Net::DHCP::Packet;
 use Net::DHCP::Constants;
 use IPC::Cmd qw[can_run run];
+use POSIX qw(ceil);
 
 BEGIN {
     use Exporter ();
@@ -171,8 +172,8 @@ sub freeradius_populate_dhcpd_config {
                     if (isenabled($net{'split_network'})) {
                         my @categories = nodecategory_view_all();
                         my $count = @categories;
-                        my $add = int((($count+1)/2)+.5);
-                        my $cidr = $add + $current_network->masklen;
+                        my $len = $current_network->masklen;
+                        my $cidr = (ceil(log($count)/log(2)) + $len - 1);
                         if ($cidr > 30) {
                             $logger->error("Can't split network");
                             return;
