@@ -2934,11 +2934,11 @@ On Security Onion:
   gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
 
  * Install rcdcap
+
   sudo apt-get update
   sudo apt-get install rcdcap  
 
  * Create the file /etc/init.d/rcdcap with a similar content:  
-
 ----
 #!/bin/sh
 ### BEGIN INIT INFO
