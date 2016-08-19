@@ -1,4 +1,5 @@
 package pf::services::manager::snmptrapd;
+
 =head1 NAME
 
 pf::services::manager::snmptrapd add documentation
@@ -10,6 +11,7 @@ pf::services::manager::snmptrapd add documentation
 pf::services::manager::snmptrapd
 
 =cut
+
 
 use strict;
 use warnings;
@@ -25,11 +27,17 @@ use pf::file_paths qw(
 );
 use pf::SwitchFactory;
 use pf::util;
+use lib qw(/usr/local/pf/lib);
+use pf::constants qw($TRUE);
+use Data::Dumper;
 use pf::log;
 
+use Template;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'snmptrapd' } );
+has configFilePath => (is => 'rw', builder => 1, lazy => 1);
+has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
 
 my $management_ip = '';
 
@@ -39,8 +47,21 @@ if (ref($management_network)) {
     } else {
         $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     }
-
+    
     $management_ip .= ':162';
+}
+
+sub _build_configFilePath {
+    my ($self) = @_;
+    my $name = $self->name;
+    return "$generated_conf_dir/${name}.conf";
+}
+
+sub _build_configTemplateFilePath {
+    my ($self) = @_;
+    my $name = $self->name;
+    return "$conf_dir/${name}.conf";
+
 }
 
 has '+launcher' => (default => sub { "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On $management_ip" } );
@@ -52,44 +73,27 @@ generate the snmptrapd.conf configuration
 =cut
 
 sub generateConfig {
-    my $logger = get_logger();
-
-    my ($snmpv3_users, $snmp_communities) = _fetch_trap_users_and_communities();
-
-    my %tags;
-    $tags{'authLines'} = '';
-    $tags{'userLines'} = '';
-
-    foreach my $user_key ( sort keys %$snmpv3_users ) {
-        $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
-
-        # grabbing only the username portion of the key
-        my (undef, $username) = split(/ /, $user_key);
-        $tags{'authLines'} .= "authUser log $username priv\n";
-    }
-
-    foreach my $community ( sort keys %$snmp_communities ) {
-        $tags{'authLines'} .= "authCommunity log $community\n";
-    }
-
-    $tags{'template'} = "$conf_dir/snmptrapd.conf";
-    $logger->info("generating $generated_conf_dir/snmptrapd.conf");
-    parse_template( \%tags, "$conf_dir/snmptrapd.conf", "$generated_conf_dir/snmptrapd.conf" );
-    return $TRUE;
+    my ($self) = @_;
+    my $vars = $self->createVars();
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
+    print Dumper ($self);
+    return 1;
 }
 
-=head2 _fetch_trap_users_and_communities
 
-Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and one with unique communities.
+=head2 CreateVars
+
+Returns a tuple of three hashref. One with all SNMPv3 Trap Users values, another parameter containing the SNMPv3 Key value and one with unique communities.
 
 =cut
 
-sub _fetch_trap_users_and_communities {
+sub createVars {
     my $logger = get_logger();
 
     my %switchConfig = %{ pf::SwitchFactory->config };
 
-    my (%snmpv3_users, %snmp_communities);
+    my (%snmpv3_users, %snmp_communities, %auth_users);
     foreach my $key ( sort keys %switchConfig ) {
         next if ( $key =~ /^default$/i );
 
@@ -102,17 +106,20 @@ sub _fetch_trap_users_and_communities {
                 $snmpv3_users{"$switch->{_SNMPEngineID} $switch->{_SNMPUserNameTrap}"} =
                     '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPUserNameTrap} . ' '
                     . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' '
-                    . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap}
-                ;
+                    . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap};
+            $auth_users{$switch->{_SNMPUserNameTrap}} = 1;
             } else {
                 $snmp_communities{$switch->{_SNMPCommunityTrap}} = $TRUE;
             }
         }
     }
+    return {
+           auth_users=> [keys %auth_users],
+           snmpv3_users => [values %snmpv3_users],
+           snmp_communities => [keys %snmp_communities],
+    };
 
-    return (\%snmpv3_users, \%snmp_communities);
 }
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -142,4 +149,3 @@ USA.
 =cut
 
 1;
-
