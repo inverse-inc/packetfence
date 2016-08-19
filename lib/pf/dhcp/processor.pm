@@ -315,10 +315,17 @@ sub parse_dhcp_request {
         );
         $client_mac = $dhcp->{'chaddr'};
     }
+    unless (defined($client_ip) && defined($client_mac)) { 
+        $logger->debug("Undefined client IP or client MAC. Not acting on DHCPREQUEST");
+        return undef;
+    }
+    
 
     # We check if we are running without dhcpd
     # This means we don't see ACK so we need to act on requests
-    if( (defined($client_ip) && defined($client_mac)) && (!$self->pf_is_dhcp($client_ip) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
+    if( !$self->{'net_type'} eq "internal" && 
+        !$self->pf_is_dhcp($client_ip) && 
+        !isenabled($Config{network}{force_listener_update_on_ack}) ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
 
@@ -375,11 +382,16 @@ sub parse_dhcp_ack {
             "invalid DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
         );
     }
+    unless (defined($client_ip) && defined($client_mac)) { 
+        $logger->debug("Undefined client IP or client MAC. Not acting on DHCPACK");
+        return undef;
+    }
 
     # We check if we are running with the DHCPd process.
     # If yes, we are interested with the ACK
     # Packet also has to be valid
-    if( (defined($client_ip) && defined($client_mac)) && ($self->pf_is_dhcp($client_ip) || isenabled($Config{network}{force_listener_update_on_ack})) ){
+    if( $self->pf_is_dhcp($client_ip) || 
+        isenabled $Config{network}{force_listener_update_on_ack} ){
         $self->handle_new_ip($client_mac, $client_ip, $lease_length);
     }
     else {
@@ -396,11 +408,6 @@ Verifies if PacketFence is the DHCP server for the network the IP is in
 
 sub pf_is_dhcp {
     my ($self, $client_ip) = @_;
-
-    if($cluster_enabled){
-        $logger->info("Cluster is enabled, so this server may not be the one offering the lease. Considering DHCP server as external.");
-        return $FALSE;
-    }
 
     foreach my $network_obj (@{$self->{dhcp_networks}}) {
         # We need to rebuild it everytime with the mask from the network as
