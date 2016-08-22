@@ -142,6 +142,7 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd-balancer.conf", "$install_dir/raddb/radiusd-balancer.conf" );
 }
 
 sub generate_radiusd_restconf {
