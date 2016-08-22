@@ -15,6 +15,7 @@
             <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
             <li><a href="#nodeLocationLog" data-toggle="tab">[% l('Location') %]</a></li>
             <li><a href="#nodeViolations" data-href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            <li><a href="#nodeAdditionalTabView" data-href="[% c.uri_for(c.controller('Node').action_for('additional_tab_view'), [node.mac, 'MSE']) %]" data-toggle="tab">[% l('MSE') %]</a></li>
           </ul>
 
           <div class="tab-content">
@@ -200,6 +201,9 @@
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="nodeViolations">
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="nodeAdditionalTabView">
             </div><!--tab-pane-->
 
           </div><!--tab-content-->
