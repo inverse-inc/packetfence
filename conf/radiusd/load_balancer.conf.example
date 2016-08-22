@@ -1,7 +1,7 @@
 
 pidfile = %%pid_file%%
 
-$INCLUDE radiusd.conf
+$INCLUDE radiusd-balancer.conf
 $INCLUDE sites-included/packetfence-cluster
 
 

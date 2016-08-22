@@ -109,20 +109,21 @@ sub build_child {
         }
     }
 
-    if($self->{management_network}){
-        my @management_ips;
-        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
-        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
-        foreach my $management_ip (@management_ips){
-            $tmp_cfg{$management_ip} = {
-                type => 'PacketFence',
-                mode => 'production',
-                radiusSecret => $self->{local_secret},
-                SNMPVersionTrap   => '1',
-                SNMPCommunityTrap => 'public'
-            };
-        }
-    }
+    # Freeradius issue, management ip in clients.conf.inc and in the db
+    #if($self->{management_network}){
+    #    my @management_ips;
+    #    push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
+    #    push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+    #    foreach my $management_ip (@management_ips){
+    #        $tmp_cfg{$management_ip} = {
+    #            type => 'PacketFence',
+    #            mode => 'production',
+    #            radiusSecret => $self->{local_secret},
+    #            SNMPVersionTrap   => '1',
+    #            SNMPCommunityTrap => 'public'
+    #        };
+    #    }
+    #}
 
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
