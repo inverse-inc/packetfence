@@ -79,8 +79,8 @@ The configuration of the Scan engines and the Provisioners has been reworked to 
 # /usr/local/pf/bin/pfcmd configreload hard
 ```
 
-Fingerbank database moving to MySQL (optionnal)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Fingerbank database moving to MySQL (optionnal but highly suggested)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Fingerbank database can now be hosted in the same MySQL database PacketFence uses.
 
@@ -89,13 +89,23 @@ In order to do so, you need to collect the database credentials from the PacketF
 ```
 # /usr/local/pf/bin/pfcmd pfconfig show resource::Database
 $VAR1 = {
-          'pass' => 'fp',
+          'pass' => 'myPassword',
           'db' => 'pf',
           'user' => 'pf',
           'port' => '3306',
           'host' => 'localhost'
         };
 ```
+
+Now, you need to create the database and assign the proper rights to the user by executing the following commands:
+
+```
+# mysql -u root -p -e "CREATE DATABASE pf_fingerbank"
+# mysql -u root -p -e "GRANT ALL PRIVILEGES ON pf_fingerbank.* TO 'pf'@'%' IDENTIFIED BY 'myPassword'"
+# mysql -u root -p -e "GRANT ALL PRIVILEGES ON pf_fingerbank.* TO 'pf'@'localhost' IDENTIFIED BY 'myPassword'"
+```
+
+Replace `myPassword` by the password displayed (`pass`) when running the first command.
 
 Next, head to 'Configuration->Fingerbank Settings' in the web administration interface and configure the following parameters:
 
