@@ -49,6 +49,7 @@ our $dhcp_option82_statements = {};
 
 our @FIELDS = qw(
   mac
+  created_at
   option82_switch
   switch_id
   port
