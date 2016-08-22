@@ -65,7 +65,9 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
 
-    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
+
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeAdditionalTabView"]', this.loadTab);
 
     this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
 
@@ -202,7 +204,7 @@ NodeView.prototype.searchUser = function(query, process) {
     });
 };
 
-NodeView.prototype.readViolations = function(e) {
+NodeView.prototype.loadTab = function(e) {
     var btn = $(e.target);
     var name = btn.attr("href");
     var target = $(name.substr(name.indexOf('#')));
@@ -211,7 +213,7 @@ NodeView.prototype.readViolations = function(e) {
         target.find('.switch').bootstrapSwitch();
     });
     return true;
-};
+}
 
 NodeView.prototype.createNode = function(e) {
     var form = $(e.target),
