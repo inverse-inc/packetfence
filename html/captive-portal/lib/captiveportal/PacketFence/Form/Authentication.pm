@@ -67,6 +67,23 @@ sub render_email_instructions {
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
 }
 
+=head2 check_aup_form
+
+Check AUP form
+
+=cut
+
+sub check_aup_form {
+    my ($self, $field) = @_;
+    if($self->module->with_aup && $self->app->request->method eq "POST"){
+        get_logger->debug("AUP is required and it's value is : ". $field->value);
+        unless($field->value){
+            $field->add_error("You must accept the terms and conditions");
+            $self->app->flash->{error} = "You must accept the terms and conditions";
+        }
+    }
+}
+
 =head2 check_aup
 
 Check that the AUP has been properly accepted
@@ -75,13 +92,8 @@ Check that the AUP has been properly accepted
 
 sub check_aup {
     my ($self) = @_;
-    if($self->form->module->with_aup && $self->form->app->request->method eq "POST"){
-        get_logger->debug("AUP is required and it's value is : ".$self->value);
-        unless($self->value){
-            $self->add_error("You must accept the terms and conditions");
-            $self->form->app->flash->{error} = "You must accept the terms and conditions";
-        }
-    }
+    $self->form->check_aup_form($self);
+    return ;
 }
 
 =head2 get_field
@@ -96,6 +108,17 @@ sub get_field {
     return $self->field($name) || die "Can't build field $name";
 }
 
+=head2 sms_carriers_form
+
+The SMS carriers that are available
+
+=cut
+
+sub sms_carriers_form {
+    my ($self) = @_;
+    return map { $_->{id} => $_->{name} } @{sms_carrier_view_all()};
+}
+
 =head2 sms_carriers
 
 The SMS carriers that are available
@@ -104,7 +127,7 @@ The SMS carriers that are available
 
 sub sms_carriers {
     my ($self) = @_;
-    return map { $_->{id} => $_->{name} } @{sms_carrier_view_all()};
+    return $self->form->sms_carriers_form();
 }
 
 =head1 AUTHOR
@@ -137,5 +160,3 @@ USA.
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-
