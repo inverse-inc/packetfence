@@ -424,6 +424,30 @@ sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 additional_tab_view
+
+Additional Tab View
+
+=cut
+
+sub additional_tab_view :Chained('object') :PathPart :Args(1) :AdminRole('NODES_READ') {
+    my ($self, $c, $tab_name) = @_;
+    my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
+    $c->stash->{template} = "node/tab_${tab_name}.tt";
+    $c->stash->{node} = $result;
+}
+
+=head2 additional_tab_process
+
+Additional Tab Process
+
+=cut
+
+sub additional_tab_process :Chained('object') :PathPart :Args(1) :AdminRole('NODES_READ') {
+    my ($self, $c, $tab_name) = @_;
+    my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
+}
+
 =head2 bulk_apply_bypass_role
 
 =cut
