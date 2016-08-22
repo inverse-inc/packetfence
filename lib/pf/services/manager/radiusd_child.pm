@@ -319,6 +319,7 @@ EOT
             $tags{'config'} .= <<"EOT";
 client $radius_back {
         secret = $local_secret
+        ipaddr = $radius_back
         shortname = pf
 }
 EOT
