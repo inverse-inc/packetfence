@@ -3133,7 +3133,7 @@ Takes into account the active/active clustering and centralized deauth
 
 =cut
 
-sub deauth_source_ip {
+sub orig_deauth_source_ip {
     my ($self) = @_;
     if($cluster_enabled){
         return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
@@ -3141,6 +3141,11 @@ sub deauth_source_ip {
     else {
         return $management_network->tag('vip') || $management_network->tag('ip');
     }
+}
+
+
+sub deauth_source_ip {
+    return $Config{'liupf'}{'deauthsourceip'} || orig_deauth_source_ip();
 }
 
 =item logger
