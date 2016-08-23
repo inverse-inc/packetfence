@@ -229,6 +229,7 @@ sub authorize {
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
     if ($isPhone) {
         $RAD_REPLY_REF = $self->_authorizeVoip($args);
+        $args->{'user_role'} = $VOICE_ROLE;
         goto CLEANUP;
     }
 
