@@ -173,7 +173,7 @@ sub post_auth {
                }
             }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # The rest of result is the reply hash passed by the radius_authorize
-            %RAD_CHECK = (%RAD_CHECK, %$radius_audit); # Add the radius audit data to RAD_CHECK
+            %RAD_CONFIG = (%RAD_CONFIG, %$radius_audit); # Add the radius audit data to RAD_CONFIG
         } else {
             return server_error_handler();
         }
