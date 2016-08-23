@@ -3003,7 +3003,8 @@ esac
 
   sudo /etc/init.d/rcdcap start
 
-  * Rerun Security Onion wizard to configure tweak mon1 interface and include it to be monitored. Attention: network configuration file will be overwritten. Backup if needed, or skip that part in the wizard and adapt manually.
+WARNING: network configuration file will be overwritten by sosetup Network Configuration. Backup /etc/network/interface if needed, or skip that part in the wizard and adapt manually.
+  * Rerun Security Onion wizard to configure/tweak mon1 interface and include it to be monitored.
    
   sudo sosetup
 
