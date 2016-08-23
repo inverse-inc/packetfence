@@ -2914,13 +2914,13 @@ Configuration of a new violation can use the following trigger types:
 ERSPAN
 ++++++
 
-ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic into ERSPAN then GRE and send that traffic to one/multiple destination(s). ERSPAN is a Cisco technology which is available only on some platforms which are namely but not limited to Catalyst 6500, 7600, Nexus, and ASR 1000.
+ERSPAN permits to mirror a local port traffic (low bandwidth) to a remote IP, E.G: your Security Onion already deployed box. ERSPAN encapsulates port traffic into ERSPAN then GRE and send that traffic to one/multiple destination(s). ERSPAN is a Cisco technology which is available only on some platforms, including: Catalyst 6500, 7600, Nexus, and ASR 1000.
 
-One way of accessing encapsulated traffic at the destination host is through a software called RCDCAP, which is a daemon that creates a virtual interface on which both GRE and ERSPAN headers are decapsultated prior to the traffic being injected on the configured interface. Security Onion can then feed on that interface like it would on any other.
+One way of accessing encapsulated traffic at the destination host is through a software called RCDCAP, which is a daemon that creates a virtual interface if not existing, on which both GRE and ERSPAN headers are decapsultated prior to the traffic being injected to the previous interface. Security Onion can then feed on that interface like it would on any other, and if the daemon dies, continueto listen to that interface even though decapsulated traffic won't be available anymore.
 
 
 Assomptions for the example:
-The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a dedicated interface.
+The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, eth2 ideally being a dedicated interface.
 
 On Security Onion:
 
@@ -2933,7 +2933,7 @@ On Security Onion:
   gpg --keyserver keyserver.ubuntu.com --recv 19CDA6A9810273C4
   gpg --export --armor 19CDA6A9810273C4 | sudo apt-key add -
 
- * Install rcdcap
+ * Install RCDCAP
 
   sudo apt-get update
   sudo apt-get install rcdcap  
