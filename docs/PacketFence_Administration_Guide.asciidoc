@@ -2920,7 +2920,7 @@ One way of accessing encapsulated traffic at the destination host is through a s
 
 
 Assomptions for the example:
-The switch is at IP 10.10.10.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a seperate interface optimized for monitoring.
+The switch is at IP 172.16.0.1, the monitored switch port is GigabitEthernet10 and the Security Onion monitoring destination IP is 10.10.10.10 on eth2, ideally on a dedicated interface.
 
 On Security Onion:
 
@@ -2938,85 +2938,28 @@ On Security Onion:
   sudo apt-get update
   sudo apt-get install rcdcap  
 
- * Create the file /etc/init.d/rcdcap with a similar content:  
-----
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          rcdcap
-# Required-Start:    $local_fs $network $named $time $syslog
-# Required-Stop:     $local_fs $network $named $time $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Description:       rcdcap - remote capture preprocessor
-### END INIT INFO
-
-PIDFILE=/var/run/rcdcap.pid
-
-start() {
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
-    echo 'Service already running' >&2
-    return 1
-  fi
-  echo 'Starting service…' >&2
-  local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
-  rcdcap -i eth2 --erspan --tap-persist --tap-device mon1 -d
-  pidof rcdcap > "$PIDFILE"
-  return 0
-  echo 'Service started' >&2
-}
-
-stop() {
-  if [ ! -f "$PIDFILE" ]; then
-    echo 'Service not running' >&2
-    return 1
-  fi
-  echo 'Stopping service…' >&2
-  kill -9 $(cat "$PIDFILE") && rm -f "$PIDFILE"
-  echo 'Service stopped' >&2
-}
-
-
-case "$1" in
-  start)
-    start
-    ;;
-  stop)
-    stop
-    ;;
-  restart)
-    stop
-    start
-    ;;
-  *)
-    echo "Usage: $0 {start|stop|restart|uninstall}"
-esac    
-----
-  * Add executable flag on the file:
-
-  chmod +x /etc/init.d/rcdcap
- 
-  * Enable rcdcap service
-
-  sudo update-rc.d rcdcap defaults 18 02
-
-  * Start service
-
-  sudo /etc/init.d/rcdcap start
-
-WARNING: network configuration file will be overwritten by sosetup Network Configuration. Backup /etc/network/interface if needed, or skip that part in the wizard and adapt manually.
-  * Rerun Security Onion wizard to configure/tweak mon1 interface and include it to be monitored.
-   
-  sudo sosetup
-
-  * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU.
+  * Modify network file (/etc/network/inferfaces) so that eth2 has an IP and a proper MTU. Decapsulated traffic will be injected on mon1. Make sure that the configuration is similar to the following:
 
   auto eth2
   iface eth2 inet static
-  address 10.10.10.10
-  netmask 255.255.255.240
-  up ifconfig $IFACE arp up
-  up ip link set dev $IFACE mtu 1900
+    address 10.10.10.10
+    netmask 255.255.255.240
+    up ip link set $IFACE arp on up
+    up ip link set dev $IFACE mtu 1900
+    post-up ethtool -G $IFACE rx 4096; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+    post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
 
+  auto mon1
+  iface mon1 inet manual
+    pre-up rcdcap -i eth1 --erspan --tap-persist --tap-device $IFACE --expression "host 172.16.0.1" -d
+    up ip link set $IFACE promisc on arp off up
+    down ip link set $IFACE promisc off down
+    post-up ethtool -G $IFACE rx ; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+    post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+
+  * Rerun Security Onion wizard and make sure to skip network configuration step. Make sure that mon1 is selected for monitoring purposes, note that eth2 doesn't need to.
+   
+  sudo sosetup
 
 On the Switch:
 
@@ -3026,7 +2969,7 @@ On the Switch:
   destination
   erspan-id 10
   ip address 10.10.10.10
-  origin ip address 10.10.10.1
+  origin ip address 172.16.0.1
   no shutdown   !   Default is shutdown 
 
 
