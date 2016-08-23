@@ -51,6 +51,14 @@ To do so, put the powershell script `import-users.ps1` as well as `mock_data.csv
 Then execute powershell as Administrator and then switch directory to where you put the two files above.
 Then, launch the script and make sure the users were imported afterwards.
 
+## Importing the iplog information
+
+So portal tests succeed, you need to import the DHCP MAC/IP binding inside the database. In order to do so, execute the following:
+
+```
+# /usr/local/pf/addons/stress-tester/import-dhcp.pl
+```
+
 ## Configure PacketFence
 
 Make sure, you configure PacketFence so that the users that were imported can authenticate both via ntlm_auth and via the authentication sources.

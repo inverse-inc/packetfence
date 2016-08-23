@@ -22,12 +22,17 @@ command=someload -t 300 -l /dev/shm/xload.log -x mock_data.csv -type dhcp -w 1 -
 
 ##
 # This sends 15 concurrent EAP-PEAP requests to the server using the NAS-IP-Address 172.21.2.132
-[radius_normal]
+[radius_dot1x_normal]
 command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap -w 15 -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
 
 ##
+# This sends 15 concurr MAB requests to the server (radius is the secret)
+[radius_mab_normal]
+command=someload -t 30 -l /dev/shm/radload.log -x mock_data.csv -type radius_mab -w 1 -- 10.0.0.100 auth radius
+
+##
 # This sends 5 concurrent EAP-PEAP requests to the server using the NAS-IP-Address 172.21.2.132 and is delayed 60 seconds after the plan is started
-[radius_spike]
+[radius_dot1x_spike]
 delay_by=60
 command=someload -t 30 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap -w 5 -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
 
