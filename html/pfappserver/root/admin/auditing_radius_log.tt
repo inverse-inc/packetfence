@@ -41,6 +41,59 @@
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('RADIUS Audit Log') %]</li>
+              <li class="divider"></li>
+              <li class="" id="accordion-SwithGroup">
+                <a data-toggle="collapse" data-parent="#accordion-SwithGroup" href="#collapseSwitchGroup" class="collapsed">
+                    [% l('Switch Groups')%]
+                <i class="icon-chevron-up pull-right"></i></a>
+                <ul id="collapseSwitchGroup" class="collapse">
+                  <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapseSwitchGroupDefault" class="collapsed">Default<i class="icon-chevron-up pull-right"></i></a>
+                    <li id="collapseSwitchGroupDefault" class="collapse">
+                      <ul>[% FOREACH switch IN switches %]
+                      <li><a href="#" data-toggle="pf-search-form" data-parent="#collapseSwitchGroupDefault"  data-target="#search" data-form-target="#search">[% switch.id %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="nas_ip_address"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="[% switch.id %]"/>
+                        </form>
+                        </li>
+                      [% END %]</ul>
+                    </li>
+                  [% FOREACH switch_group IN switch_groups %]
+                    <a data-toggle="collapse" data-parent="#collapseSwitchGroup" href="#collapse_[% switch_group.id %]" class="collapsed">[% switch_group.id %]<i class="icon-chevron-up pull-right"></i></a>
+                    <li id="collapse_[% switch_group.id %]" class="collapse">
+                      <ul>[% FOREACH member IN switch_group.members %]
+                        <li><a href="#" data-toggle="pf-search-form" data-parent="#collapse_[% switch_group.id %]"  data-target="#search" data-form-target="#search">[% member.id %]</a>
+                          <form>
+                            <input type="hidden" name="searches.0.name" value="nas_ip_address"/>
+                            <input type="hidden" name="searches.0.op" value="is"/>
+                            <input type="hidden" name="searches.0.value" value="[% member.id %]"/>
+                          </form>
+                        </li>
+                      [% END %]
+                      </ul>
+                    </li>
+                  [% END %]
+                </ul>
+              </li>
+
+              <li class="" id="accordion-Role">
+                <a data-toggle="collapse" data-parent="#accordion-Role" href="#collapseRole" class="collapsed">
+                  [% l('Roles') %]
+                <i class="icon-chevron-up pull-right"></i></a>
+                <ul id="collapseRole" class="collapse">
+                  [% FOREACH role IN roles %]
+                    <li>
+                      <a href="#" data-toggle="pf-search-form"  data-target="#search" data-form-target="#search" data-parent="#collapseRole">[% role.name %]</a>
+                        <form>
+                          <input type="hidden" name="searches.0.name" value="role"/>
+                          <input type="hidden" name="searches.0.op" value="is"/>
+                          <input type="hidden" name="searches.0.value" value="[% role.name %]"/>
+                        </form>
+                    </li>
+                  [% END %]
+                </ul>
+              </li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]
