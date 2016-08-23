@@ -93,3 +93,9 @@ BEGIN
            );
 END /
 DELIMITER ;
+
+--
+-- Make the port field bigger as some switch modules record the full interface name (ex: ge-0/0/20.0)
+--
+
+ALTER TABLE `locationlog` modify `port` VARCHAR(20);
