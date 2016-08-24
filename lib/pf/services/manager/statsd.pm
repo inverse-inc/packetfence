@@ -23,7 +23,6 @@ use pf::file_paths qw(
 use pf::util;
 use Moo;
 use Template;
-use Data::Dumper; 
 
 extends 'pf::services::manager';
 
@@ -63,14 +62,6 @@ sub generateConfig {
     my ($self) = @_;
     my $vars = $self->createVars();
     my $tt = Template->new(ABSOLUTE => 1);
-    #$tags{'template'}      = "$conf_dir/monitoring/statsd_config.js";
-    #$tags{'pid_file'}      = "$install_dir/var/run/statsd.pid";
-    
-    #parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/statsd_config.js", '//' );
-    #print Dumper($self->configTemplateFilePath);
-    #print Dumper($vars);
-    #print Dumper($self->configFilePath);
-    
     $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
     return 1
 }
