@@ -12,7 +12,7 @@ pattern = ^stats.*
 retentions = 10s:1d,1m:7d,10m:1y
 
 [packetfence]
-pattern = ^%%hostname%%.*
+pattern = ^[% hostname %].*
 retentions = 10s:1d,1m:7d,10m:1y
 
 [mysql]

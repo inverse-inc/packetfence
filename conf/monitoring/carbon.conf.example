@@ -30,12 +30,12 @@
 #
 #LOCAL_DATA_DIR = /opt/graphite/storage/whisper/
 
-STORAGE_DIR    = %%install_dir%%/var/graphite
-LOCAL_DATA_DIR = %%install_dir%%/var/graphite/whisper/
+STORAGE_DIR    = [% install_dir %]/var/graphite
+LOCAL_DATA_DIR = [% install_dir %]/var/graphite/whisper/
 #WHITELISTS_DIR = /var/lib/carbon/lists/
-CONF_DIR       = %%install_dir%%/conf/monitoring
-LOG_DIR        = %%install_dir%%/logs/
-PID_DIR        = %%install_dir%%/var/run/
+CONF_DIR       = [% install_dir %]/conf/monitoring
+LOG_DIR        = [% install_dir %]/logs/
+PID_DIR        = [% install_dir %]/var/run/
 
 # Enable daily log rotation. If disabled, a kill -HUP can be used after a manual rotate
 ENABLE_LOGROTATION = False
@@ -76,17 +76,17 @@ MAX_UPDATES_PER_SECOND = 500
 # the files quickly but at the risk of slowing I/O down considerably for a while.
 MAX_CREATES_PER_MINUTE = 50
 
-LINE_RECEIVER_INTERFACE = %%management_ip%%
+LINE_RECEIVER_INTERFACE = [% management_ip %]
 LINE_RECEIVER_PORT = 2003
 
 # Set this to True to enable the UDP listener. By default this is off
 # because it is very common to run multiple carbon daemons and managing
 # another (rarely used) port for every carbon instance is not fun.
 ENABLE_UDP_LISTENER = True
-UDP_RECEIVER_INTERFACE = %%management_ip%%
+UDP_RECEIVER_INTERFACE = [% management_ip %]
 UDP_RECEIVER_PORT = 2003
 
-PICKLE_RECEIVER_INTERFACE = %%management_ip%%
+PICKLE_RECEIVER_INTERFACE = [% management_ip %]
 PICKLE_RECEIVER_PORT = 2004
 
 # Set to false to disable logging of successful connections
@@ -269,7 +269,7 @@ REPLICATION_FACTOR = 2
 #
 # If using RELAY_METHOD = rules, all destinations used in relay-rules.conf
 # must be defined in this list
-DESTINATIONS = %%carbon_hosts%%
+DESTINATIONS = [% carbon_hosts %]
 
 # This defines the maximum "message size" between carbon daemons.
 # You shouldn't need to tune this unless you really know what you're doing.

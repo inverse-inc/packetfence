@@ -26,7 +26,7 @@ use pf::config qw(
 );
 use pf::cluster;
 use Moo;
-
+use Template;
 extends 'pf::services::manager';
 
 has '+name'     => ( default => sub { 'carbon-cache' } );
@@ -45,31 +45,33 @@ sub generateConfig {
 }
 
 sub generate_storage_config {
-    my %tags;
-    $tags{'template'}      = "$conf_dir/monitoring/storage-schemas.conf";
-    $tags{'hostname'}      = "$Config{'general'}{'hostname'}";
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'install_dir'}   = "$install_dir";
+    my %vars;
+    $vars{'template'}      = "$conf_dir/monitoring/storage-schemas.conf";
+    $vars{'hostname'}      = "$Config{'general'}{'hostname'}";
+    $vars{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
+    $vars{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $vars{'install_dir'}   = "$install_dir";
 
-    parse_template( \%tags, "$tags{'template'}",
-        "$install_dir/var/conf/storage-schemas.conf" );
+    
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($vars{'template'}, \%vars, "$install_dir/var/conf/storage-schemas.conf");
 }
 
 sub generate_carbon_config {
-    my %tags;
-    $tags{'template'}    = "$conf_dir/monitoring/carbon.conf";
-    $tags{'install_dir'} = "$install_dir";
-    $tags{'management_ip'} =
+    my %vars;
+    $vars{'template'}    = "$conf_dir/monitoring/carbon.conf";
+    $vars{'install_dir'} = "$install_dir";
+    $vars{'management_ip'} =
       defined( $management_network->tag('vip') )
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'carbon_hosts'} =
-      ( get_cluster_destinations() || $tags{'management_ip'} . ":2004" );
-
-    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/carbon.conf" );
+    $vars{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
+    $vars{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $vars{'carbon_hosts'} =
+      ( get_cluster_destinations() || $vars{'management_ip'} . ":2004" );
+    
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($vars{'template'}, \%vars, "$install_dir/var/conf/carbon.conf");
 }
 
 sub get_cluster_destinations {
@@ -77,6 +79,31 @@ sub get_cluster_destinations {
       ? join( ', ', map { $_->{management_ip} . ":2004" } @cluster_servers )
       : undef;
 }
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 1;
