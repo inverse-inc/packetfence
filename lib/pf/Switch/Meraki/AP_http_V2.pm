@@ -27,6 +27,8 @@ use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa);
 
+sub description { 'Meraki cloud controller V2' }
+
 =head2 getVersion - obtain image version information from switch
 
 =cut
