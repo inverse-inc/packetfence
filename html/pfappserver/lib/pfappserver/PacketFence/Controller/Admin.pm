@@ -286,7 +286,10 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
         my $id = $_->{Id};
         {id => $id}
         } @switches_filtered];
-
+    my $sources = getAllAuthenticationSources();
+    my $profiles = pf::ConfigStore::Profile->new->readAll("Id");
+    my $domains = pf::ConfigStore::Domain->new->readAll("Id");
+    my $realms = pf::ConfigStore::Realm->new->readAll("Id");
     $c->stash({
         template => 'admin/auditing_radius_log.tt',
         saved_searches => $saved_searches,
@@ -294,6 +297,10 @@ sub auditing_radius_log :Chained('object') :PathPart('auditing/radius_log') :Arg
         switch_groups => $switch_groups,
         switches => $switches,
         roles => $roles,
+        sources => $sources,
+        profiles => $profiles,
+        domains => $domains,
+        realms => $realms,
     });
 }
 
