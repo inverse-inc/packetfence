@@ -29,7 +29,6 @@ use pf::SwitchFactory;
 use pf::util;
 use lib qw(/usr/local/pf/lib);
 use pf::constants qw($TRUE);
-use Data::Dumper;
 use pf::log;
 
 use Template;
@@ -77,7 +76,6 @@ sub generateConfig {
     my $vars = $self->createVars();
     my $tt = Template->new(ABSOLUTE => 1);
     $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
-    print Dumper ($self);
     return 1;
 }
 
