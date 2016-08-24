@@ -10,12 +10,12 @@
 # Global settings for the daemon.                                            #
 ##############################################################################
 
-Hostname    "%%hostname%%"
+Hostname    "[% hostname %]"
 #FQDNLookup   true
 #BaseDir     "/var/lib/collectd"
-PIDFile     "%%install_dir%%/var/run/collectd.pid"
+PIDFile     "[% install_dir %]/var/run/collectd.pid"
 #PluginDir   "/usr/lib64/collectd"
-TypesDB     "%%install_dir%%/var/conf/types.db"
+TypesDB     "[% install_dir %]/var/conf/types.db"
 
 #----------------------------------------------------------------------------#
 # When enabled, plugins are loaded automatically with the default options    #
@@ -37,7 +37,7 @@ LoadPlugin logfile
 
 <Plugin logfile>
 	LogLevel info
-	File "%%log_dir%%/collectd.log"
+	File "[% log_dir %]/collectd.log"
 	Timestamp true
 	PrintSeverity true
 </Plugin>
@@ -68,7 +68,7 @@ LoadPlugin write_graphite
 ##############################################################################
 <Plugin apache>
   <Instance "portal">
-    URL "https://%%management_ip%%:%%httpd_portal_modstatus_port%%/modstatus/?auto"
+    URL "https://[% management_ip %]:[% httpd_portal_modstatus_port %]/modstatus/?auto"
   </Instance>
 </Plugin>
 
@@ -86,22 +86,22 @@ LoadPlugin write_graphite
 
 <Plugin mysql>
 	<Database pf>
-		Host "%%db_host%%"
-		User "%%db_username%%"
-		Password "%%db_password%%"
-		Database "%%db_database%%"
+		Host "[% db_host %]"
+		User "[% db_username %]"
+		Password "[% db_password %]"
+		Database "[% db_database %]"
 	</Database>
 </Plugin>
 
 <Plugin unixsock>
-	SocketFile "%%install_dir%%/var/run/collectd-unixsock"
+	SocketFile "[% install_dir %]/var/run/collectd-unixsock"
 	SocketGroup "pf"
 	SocketPerms "0660"
 	DeleteSocket true
 </Plugin>
 
 <Plugin write_graphite>
-  <Node "%%hostname%%">
+  <Node "[% hostname %]">
     Host "127.0.0.1"
     Port "2013"
     Protocol "tcp"

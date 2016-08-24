@@ -19,6 +19,7 @@ use pf::file_paths qw(
     $install_dir
     $conf_dir
     $log_dir
+    $generated_conf_dir
 );
 use pf::util;
 use pf::config qw(
@@ -28,7 +29,7 @@ use pf::config qw(
 );
 use Moo;
 use Sys::Hostname;
-
+use Template;
 extends 'pf::services::manager';
 
 has '+name'     => ( default => sub {'collectd'} );
@@ -42,37 +43,73 @@ has '+launcher' => (
 );
 
 sub generateConfig {
-    generateCollectd();
-    generateTypes();
+    my ($self) = @_;
+    $self->generateCollectd();
+    $self->generateTypes();
 }
 
 sub generateCollectd {
-    my %tags;
-    $tags{'template'}    = "$conf_dir/monitoring/collectd.conf.$OS";
-    $tags{'install_dir'} = "$install_dir";
-    $tags{'log_dir'}     = "$log_dir";
-    $tags{'management_ip'}
+    my ($self) = @_;
+    my %vars;
+    $vars{'template'}    = "$conf_dir/monitoring/collectd.conf.$OS";
+    $vars{'install_dir'} = "$install_dir";
+    $vars{'log_dir'}     = "$log_dir";
+    $vars{'management_ip'}
         = defined( $management_network->tag('vip') )
         ? $management_network->tag('vip')
         : $management_network->tag('ip');
-    $tags{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
-    $tags{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
-    $tags{'hostname'}      = hostname;
-    $tags{'db_host'}       = "$Config{'database'}{'host'}";
-    $tags{'db_username'}   = "$Config{'database'}{'user'}";
-    $tags{'db_password'}   = "$Config{'database'}{'pass'}";
-    $tags{'db_database'}   = "$Config{'database'}{'db'}";
-    $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
+    $vars{'graphite_host'} = "$Config{'monitoring'}{'graphite_host'}";
+    $vars{'graphite_port'} = "$Config{'monitoring'}{'graphite_port'}";
+    $vars{'hostname'}      = hostname;
+    $vars{'db_host'}       = "$Config{'database'}{'host'}";
+    $vars{'db_username'}   = "$Config{'database'}{'user'}";
+    $vars{'db_password'}   = "$Config{'database'}{'pass'}";
+    $vars{'db_database'}   = "$Config{'database'}{'db'}";
+    $vars{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
 
-    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/collectd.conf" );
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($vars{'template'}, \%vars, "$install_dir/var/conf/collectd.conf") or die $tt->error();
+    
+    return 1;
 }
 
 sub generateTypes {
-    my %tags;
-    $tags{'template'}    = "$conf_dir/monitoring/types.db";
-    $tags{'install_dir'} = "$install_dir";
-
-    parse_template( \%tags, "$tags{'template'}", "$install_dir/var/conf/types.db" );
+    my ($self) = @_;
+    my %vars;
+    $vars{'template'}    = "$conf_dir/monitoring/types.db";
+    $vars{'install_dir'} = "$install_dir";
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($vars{'template'}, \%vars, "$install_dir/var/conf/types.db") or die $tt->error();
+    
+    return 1;
 }
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2016 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and::or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 1;
