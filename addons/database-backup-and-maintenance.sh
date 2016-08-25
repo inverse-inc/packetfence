@@ -74,7 +74,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     DOW=`date +%w`
     if [ $DOW -eq 0 ]
     then
-        TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p'`
+        TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p' | grep -v '_archive$'` 
 
         # loop through the tables and optimize them
         for TABLENAME in $TABLENAMES
