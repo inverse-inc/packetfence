@@ -70,6 +70,10 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     
     /usr/local/pf/addons/database-cleaner.pl --table=radacct_log --date-field=timestamp --older-than="1 WEEK"
     
+    /usr/local/pf/addons/database-cleaner.pl --table=iplog_archive --date-field=timestamp --older-than="1 MONTH"
+    
+    /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=timestamp --older-than="1 MONTH"
+    
     # lets optimize on Sunday
     DOW=`date +%w`
     if [ $DOW -eq 0 ]
