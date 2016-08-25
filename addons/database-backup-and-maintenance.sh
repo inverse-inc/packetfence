@@ -70,7 +70,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     
     /usr/local/pf/addons/database-cleaner.pl --table=radacct_log --date-field=timestamp --older-than="1 WEEK"
 
-    /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=timestamp --older-than="1 MONTH"
+    /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=end_time --older-than="1 MONTH"
     
     # lets optimize on Sunday
     DOW=`date +%w`
@@ -99,7 +99,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
         INNOBACK_RC=$?
     else
         current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
-        mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
+        mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_archive --ignore-table=$DB_NAME.iplog_archive > $current_filename && \
           gzip $current_filename && \
           find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
     fi
