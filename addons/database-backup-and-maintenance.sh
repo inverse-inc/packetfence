@@ -74,6 +74,8 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     /usr/local/pf/addons/database-cleaner.pl --table=radacct --date-field=acctstarttime --older-than="1 WEEK" --additionnal-condition="acctstoptime IS NOT NULL"
     
     /usr/local/pf/addons/database-cleaner.pl --table=radacct_log --date-field=timestamp --older-than="1 WEEK"
+
+    /usr/local/pf/addons/database-cleaner.pl --table=locationlog_archive --date-field=end_time --older-than="1 MONTH"
     
     /usr/local/pf/addons/database-cleaner.pl --table=auth_log --date-field=attempted_at --older-than="1 WEEK"
 
@@ -83,7 +85,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     DOW=`date +%w`
     if [ $DOW -eq 0 ]
     then
-        TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p'`
+        TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p' | grep -v '_archive$'` 
 
         # loop through the tables and optimize them
         for TABLENAME in $TABLENAMES
@@ -106,7 +108,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
         INNOBACK_RC=$?
     else
         current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
-        mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME > $current_filename && \
+        mysqldump --opt -h $DB_HOST -u $DB_USER -p$DB_PWD $DB_NAME --ignore-table=$DB_NAME.locationlog_archive --ignore-table=$DB_NAME.iplog_archive > $current_filename && \
           gzip $current_filename && \
           find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-*.sql.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
     fi
