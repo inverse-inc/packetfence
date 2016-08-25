@@ -478,7 +478,7 @@ sub format_from {
     my @clause_parts;
     my $dbh = $self->dbh;
     if($type eq 'HASH') {
-        my ($table,$as,$join_type,$using,$on) = @{$from_clause}{qw(table as join using on)};
+        my ($table, $as, $join_type, $using, $on) = @{$from_clause}{qw(table as join using on)};
         if(defined $table) {
             if(ref($table) ) {
                 $table = $$table;
@@ -488,19 +488,19 @@ sub format_from {
             if($join_type) {
                 $join_type = uc($join_type);
                 if(exists $VALID_JOIN_TYPES{$join_type}) {
-                    push @clause_parts,$join_type;
+                    push @clause_parts, $join_type;
                 }
-                push @clause_parts,"JOIN",$table;
-                push @clause_parts,'as',$as if defined $as && length($as) > 0;
+                push @clause_parts, "JOIN", $table;
+                push @clause_parts, 'AS', $as if defined $as && length($as) > 0;
                 if ($using) {
-                    push @clause_parts,'using(',$dbh->quote_identifier($using),')';
+                    push @clause_parts, 'USING(', $dbh->quote_identifier($using), ')';
                 } elsif ($on) {
-                    push @clause_parts,'on',$self->format_from_on(@$on);
+                    push @clause_parts, 'ON', $self->format_from_on(@$on);
                 }
             } else {
                 @clause_parts = ($table);
             }
-            $clause = join(' ',@clause_parts);
+            $clause = join(' ', @clause_parts);
         } else {
             die "table not defined";
         }
