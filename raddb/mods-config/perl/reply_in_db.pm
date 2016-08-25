@@ -32,9 +32,12 @@ use constant {
 
 sub post_proxy {
        my @values;
-       for (keys %RAD_REQUEST_PROXY_REPLY) {
+       my %reply = %RAD_REQUEST_PROXY_REPLY;
+       my @attributes = ("Message-Authenticator", "EAP-Message", "MS-MPPE-Recv-Key", "MS-MPPE-Send-Key");
+       delete @reply{@attributes};
+       for (keys %reply) {
            next if ($_ =~ /^Proxy/);
-           push (@values , "('$RAD_REQUEST{'User-Name'}','$_','$RAD_REQUEST_PROXY_REPLY{$_}')");
+           push (@values , "('$RAD_REQUEST{'Calling-Station-Id'}','$_','$reply{$_}')");
        }
        my $values = join (", ", @values);
        $RAD_CHECK{"PacketFence-reply-insert"} = "INSERT into radreply (username, attribute, value) values $values";

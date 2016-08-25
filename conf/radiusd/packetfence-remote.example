@@ -36,8 +36,8 @@ server pf-remote {
             update control {
                 PacketFence-Proxied-To := "%{home_server:ipaddr}"
             }
-            if (&proxy-reply:Proxy-State) {
-                %{sql_degraded:DELETE FROM radreply where username="%{User-Name}"}
+            if (&proxy-reply:Packet-Type == Access-Accept) {
+                %{sql_degraded:DELETE FROM radreply where username="%{Calling-Station-Id}"}
                 reply_in_db
                 %{sql_degraded:%{control:PacketFence-reply-insert}}
             }
