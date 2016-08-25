@@ -265,6 +265,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
     # Form initialization :
     # Retrieve node details and status
+    our @tabs = qw(Location Violations);
+    if (isenabled($Config{mse_tab}{enabled})) {
+        push @tabs, 'MSE';
+    }
 
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -280,12 +284,9 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     $form->process();
     $c->stash({
         form => $form,
-        tab_MSE => isenabled($Config{mse_tab}{enabled}),
+        tabs => \@tabs,
     });
 
-#    my @now = localtime;
-#    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
-#                         time => POSIX::strftime("%H:%M", @now) };
 }
 
 =head2 update

@@ -1487,3 +1487,25 @@ place_in_dhcp_parking_group=enabled
 #
 # Show the parking portal to the device instead of the usual portal
 show_parking_portal=enabled
+
+[mse_tab]
+#
+# mse_tab.enabled
+#
+# Enabled MSE tab
+enabled=disabled
+#
+# mse_tab.server
+#
+# Server of MSE
+server=
+#
+# mse_tab.user
+#
+# User of MSE server
+user=
+#
+# mse_tab.pass
+#
+# Password of MSE server
+pass=

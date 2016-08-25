@@ -1,0 +1,9 @@
+
+
+[% SET location = localisation.WirelessClientLocation %]
+
+<table>
+    [% FOREACH field IN ['macAddress', 'band', 'ssid', 'apMacAddress', 'dot11Status'] %]
+        <tr><td> [% field %]</td><td>[% location.$field %]</td></tr>
+    [% END %]
+<table>
