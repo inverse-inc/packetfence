@@ -16,7 +16,7 @@ use pf::Authentication::constants;
 use HTML::Entities;
 use List::MoreUtils qw(any uniq all);
 use pf::config;
-use pf::person qw(person_modify);
+use pf::person qw(person_modify person_exist person_add);
 use Email::Valid;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -117,6 +117,9 @@ sub authenticationLogin : Private {
             $c->user_session->{username} = $username // $default_pid;
             $c->user_session->{source_id} = $source_id;
             $c->user_session->{source_match} = $source_id;
+            if(!person_exist($username)){
+                person_add($username);
+            }
             # Logging USER/IP/MAC of the just-authenticated user
             $logger->info("Successfully authenticated ".$username."/".$portalSession->clientIp."/".$portalSession->clientMac);
         } else {
