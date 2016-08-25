@@ -1222,7 +1222,7 @@ iplog_rotation_timeout=10s
 # maintenance.iplog_cleanup_window
 #
 # How long to keep a iplog_archive entry before deleting it
-iplog_cleanup_window=3M
+iplog_cleanup_window=1M
 #
 # maintenance.iplog_cleanup_interval
 #
