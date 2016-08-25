@@ -27,12 +27,12 @@ __PACKAGE__->config(
         # Reconfigure the object action from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'config/radiusremote', CaptureArgs => 1 },
         # Configure access rights
-        view   => { AdminRole => 'REALM_READ' },
-        list   => { AdminRole => 'REALM_READ' },
-        create => { AdminRole => 'REALM_CREATE' },
-        clone  => { AdminRole => 'REALM_CREATE' },
-        update => { AdminRole => 'REALM_UPDATE' },
-        remove => { AdminRole => 'REALM_DELETE' },
+        view   => { AdminRole => 'RADIUSREMOTE_READ' },
+        list   => { AdminRole => 'RADIUSREMOTE_READ' },
+        create => { AdminRole => 'RADIUSREMOTE_CREATE' },
+        clone  => { AdminRole => 'RADIUSREMOTE_CREATE' },
+        update => { AdminRole => 'RADIUSREMOTE_UPDATE' },
+        remove => { AdminRole => 'RADIUSREMOTE_DELETE' },
     },
     action_args => {
         # Setting the global model and form for all actions
