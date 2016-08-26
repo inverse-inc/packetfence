@@ -28,7 +28,7 @@ sub sql_count {
             $self->where_clause(),
             $self->group_by_clause(),
             $self->having_clause(),
-        ") as x"
+        ") AS x"
     ) if($self->has_group_by_clause_elements);
 
     return (

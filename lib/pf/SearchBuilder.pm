@@ -382,7 +382,7 @@ sub sql_count {
             $self->where_clause(),
             $self->group_by_clause(),
             $self->having_clause(),
-        ") as x"
+        ") AS x"
     ) if($self->has_group_by_clause_elements);
 
     return (
@@ -421,7 +421,7 @@ sub select_clause {
 sub select_count_clause {
     my ($self,$dbh) = @_;
 
-    my $sql = 'SELECT COUNT(*) as count ';
+    my $sql = 'SELECT COUNT(*) AS count ';
 
     return $sql;
 }
@@ -444,7 +444,7 @@ sub format_column {
         my $table_name = (exists $column->{table} && $column->{table} ) || $self->first_from_clause_element->{table};
         $column_text = join('.', map {$dbh->quote_identifier($_) } ($table_name,$column->{name}));
     }
-    $column_text .= " as $as" if defined $as;
+    $column_text .= " AS $as" if defined $as;
     return $column_text;
 }
 
@@ -542,7 +542,7 @@ sub where_clause {
     my ($self,@args) = @_;
     my $sql = '';
     if($self->has_where_clause_elements) {
-        $sql = join(' ','WHERE',$self->where_clause_elements());
+        $sql = join(' ', 'WHERE', $self->where_clause_elements());
     }
     return $sql;
 }
