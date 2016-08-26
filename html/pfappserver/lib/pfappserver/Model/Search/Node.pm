@@ -264,6 +264,14 @@ sub make_builder {
                             },
                         ],
                         [')'],
+                        ['OR'],
+                        [
+                            {
+                                'table' => 'r1',
+                                'name'  => 'acctstarttime',
+                            },
+                            'IS NULL',
+                        ],
                         [')'],
                     ],
                 },
