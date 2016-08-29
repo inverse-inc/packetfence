@@ -266,7 +266,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
     # Form initialization :
     # Retrieve node details and status
     our @tabs = qw(Location Violations);
-    if (isenabled($Config{mse_tab}{enabled})) {
+    if (isenabled($Config{mse_tab}{enabled}) && admin_can([$c->user->roles], 'MSE_READ')) {
         push @tabs, 'MSE';
     }
 
