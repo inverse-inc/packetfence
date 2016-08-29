@@ -1112,11 +1112,11 @@ msgstr ""
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
+# html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/interface/view.tt
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -3265,6 +3265,14 @@ msgstr "MAC Addresses - Update"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/AuthorizeNet.pm
 msgid "MD5 hash"
 msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "MSE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "MSE_READ"
+msgstr "MSE - Read"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
@@ -7658,6 +7666,10 @@ msgstr ""
 msgid "any"
 msgstr "Any"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "apMacAddress"
+msgstr "AP MAC Address"
+
 # html/pfappserver/root/admin/users.tt
 msgid "apartment_number"
 msgstr "appartment number"
@@ -7681,6 +7693,10 @@ msgstr "Auto Registration"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "band"
+msgstr "Band"
 
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "bcrypt"
@@ -7852,6 +7868,10 @@ msgstr "Create at"
 # pf::Authentication::Source (common_attributes)
 msgid "current_time"
 msgstr "Current time"
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "currentlyTracked"
+msgstr "Currently Tracked"
 
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_1"
@@ -8051,6 +8071,10 @@ msgstr ""
 msgid "distinguishedName"
 msgstr ""
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "dot11Status"
+msgstr "Dot11 Status"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "eap_type"
 msgstr "EAP Type"
@@ -8187,6 +8211,10 @@ msgstr ""
 # pf::config (SoH Classes)
 msgid "firewall"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "firstLocatedTime"
+msgstr "First Located Time"
 
 # html/pfappserver/root/admin/users.tt
 msgid "firstname"
@@ -8366,6 +8394,10 @@ msgstr "Internal"
 msgid "ip"
 msgstr "IP Address"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "ipAddress"
+msgstr "IP Address"
+
 # html/pfappserver/root/admin/users.tt
 msgid "ip_address"
 msgstr "IP address"
@@ -8402,6 +8434,10 @@ msgstr ""
 msgid "is not"
 msgstr ""
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "isGuestUser"
+msgstr "Is Guest User"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "is_phone"
 msgstr "Is a Phone"
@@ -8413,6 +8449,10 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "lang"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "lastLocatedTime"
+msgstr "Last Located Time"
 
 # html/pfappserver/root/admin/users.tt
 msgid "lastname"
@@ -8436,6 +8476,10 @@ msgstr ""
 # pf::dhcp_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "mac"
+msgstr "MAC Address"
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "macAddress"
 msgstr "MAC Address"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
@@ -9722,6 +9766,10 @@ msgstr "Source"
 # html/pfappserver/root/admin/users.tt
 msgid "sponsor"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "ssId"
+msgstr "SSID"
 
 # pf::config (Inline triggers)
 # pf::radius_audit_log (RADIUS Audit Log)
