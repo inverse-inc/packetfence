@@ -181,14 +181,14 @@ sub process_packet {
 
     $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
     if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
-        $logger->debug(
+        $logger->debug( sub {
             "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
-        );
+        });
         return;
     }
 
     if ( !node_exist($dhcp->{'chaddr'}) ) {
-        $logger->info("Unseen before node added: $dhcp->{'chaddr'}");
+        $logger->debug( sub { "Unseen before node added: $dhcp->{'chaddr'}" } );
         node_add_simple($dhcp->{'chaddr'});
     }
 
@@ -257,15 +257,16 @@ sub process_packet {
 
         $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
 
-        my $modified_node_log_message = '';
-        foreach my $node_key ( keys %tmp ) {
-            $modified_node_log_message .= "$node_key = " . $tmp{$node_key} . ",";
-        }
-        chop($modified_node_log_message);
-
-        $logger->info("$dhcp->{'chaddr'} requested an IP with the following informations: $modified_node_log_message");
+        $logger->debug( sub {
+            my $modified_node_log_message = '';
+            while(my ($k, $v) = each %tmp) {
+                $modified_node_log_message .= "$k = $v,";
+            }
+            chop($modified_node_log_message);
+            "$dhcp->{'chaddr'} requested an IP with the following informations: $modified_node_log_message"
+        });
     } else {
-        $logger->debug("unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}");
+        $logger->debug( sub { "unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}" });
     }
 }
 
