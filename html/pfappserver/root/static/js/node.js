@@ -11,8 +11,10 @@ Nodes.prototype.doAjax = function(url_data, options) {
         .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
+            if (options.errorSibling) {
+                var status_msg = getStatusMsg(jqXHR);
+                showError(options.errorSibling, status_msg);
+            }
         });
 };
 
