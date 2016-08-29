@@ -1,9 +1,25 @@
-
+<hr/>
 
 [% SET location = localisation.WirelessClientLocation %]
 
-<table>
-    [% FOREACH field IN ['macAddress', 'band', 'ssid', 'apMacAddress', 'dot11Status'] %]
-        <tr><td> [% field %]</td><td>[% location.$field %]</td></tr>
-    [% END %]
-<table>
+[% IF status_msg %]
+  <div class="alert alert-error">
+  [%  status_msg %]
+  </div>
+
+[% ELSE %]
+
+  <table class="table table-condensed table-hover" >
+    <tbody>
+
+   [% FOREACH field IN fields %]
+      <tr>
+        <td> [% l(field) %]</td>
+        <td>
+           [% location.$field.join(", ") %]
+        </td>
+      </tr>
+   [% END %]
+    </tbody>
+  <table>
+[% END %]

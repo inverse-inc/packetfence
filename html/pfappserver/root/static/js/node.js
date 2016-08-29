@@ -224,8 +224,15 @@ NodeView.prototype.tabProcess = function(e) {
     var name = a.attr("href");
     var target = $(name);
     var url = a.attr("data-href");
-    target.load(url, function() {
-        target.find('.switch').bootstrapSwitch();
+    this.nodes.get({
+        url: url,
+        always: function(data) {
+            if (typeof data === 'object') {
+                target.html(data.responseText);
+            } else {
+                target.html(data);
+            }
+        }
     });
     return false;
 };
