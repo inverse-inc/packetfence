@@ -25,6 +25,7 @@ use pf::factory::condition::profile;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
+use pfappserver::Model::Node::Tab::MSE;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
@@ -418,6 +419,8 @@ sub extract_modules {
 
     $attributes = pfappserver::Model::Node->availableStatus();
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
+
+    const('pfappserver::Model::Node::Tab::MSE', 'MSE Tab', \@pfappserver::Model::Node::Tab::MSE::FIELDS);
 
     const('pfappserver::PacketFence::Controller::Graph', 'graph type', \@pfappserver::PacketFence::Controller::Graph::GRAPHS);
 
