@@ -1113,6 +1113,7 @@ msgstr ""
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/interface/view.tt
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/dhcpoption82/view.tt
@@ -1312,11 +1313,11 @@ msgstr ""
 msgid "Congratulations!"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Sub Type"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Type"
 msgstr ""
 
@@ -1926,6 +1927,7 @@ msgstr ""
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
@@ -2127,6 +2129,10 @@ msgstr ""
 msgid "Enable DHCP Server"
 msgstr ""
 
+# conf/documentation.conf (mse_tab.enabled)
+msgid "Enable MSE"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Enable NATting"
@@ -2182,7 +2188,7 @@ msgstr ""
 msgid "Encryption"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "End"
 msgstr ""
 
@@ -2446,6 +2452,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
+msgstr ""
+
+# html/pfappserver/root/node/tab_MSE_view.tt
+msgid "Get Current Location"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -3632,7 +3642,7 @@ msgstr ""
 msgid "No fingerprint found"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "No location history"
 msgstr ""
 
@@ -3678,6 +3688,7 @@ msgstr ""
 msgid "No violation defined"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "No violation found"
@@ -3693,6 +3704,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node MAC"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Node MSE Tab"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4968,10 +4983,12 @@ msgstr ""
 msgid "Relative to the beginning of the period"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Release"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Release Date"
@@ -5178,6 +5195,7 @@ msgstr ""
 msgid "Rules Actions"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Run Now"
 msgstr ""
@@ -5507,6 +5525,7 @@ msgstr ""
 msgid "Security type"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
 msgstr ""
@@ -5532,6 +5551,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Server cert path"
+msgstr ""
+
+# conf/documentation.conf (mse_tab.server)
+msgid "Server name for MSE service"
 msgstr ""
 
 # conf/documentation.conf (database.host)
@@ -5886,7 +5909,7 @@ msgstr ""
 msgid "Standard Searches"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/service/status.tt
 msgid "Start"
 msgstr ""
@@ -5896,6 +5919,7 @@ msgid "Start All"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Start Date"
@@ -6043,7 +6067,7 @@ msgstr ""
 msgid "Switch Information"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Switch Mac"
 msgstr ""
 
@@ -6051,6 +6075,7 @@ msgstr ""
 msgid "Switch Type"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/node/view.tt
 msgid "Switch/AP"
 msgstr ""
@@ -6639,6 +6664,7 @@ msgstr ""
 msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Trigger"
 msgstr ""
@@ -6959,7 +6985,7 @@ msgstr ""
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
@@ -7090,7 +7116,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
-# html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
@@ -7959,6 +7984,7 @@ msgstr ""
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.person_cleanup options)
+# conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.force_listener_update_on_ack options)
@@ -8072,6 +8098,7 @@ msgstr ""
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.person_cleanup options)
+# conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.force_listener_update_on_ack options)
@@ -8703,6 +8730,26 @@ msgstr "Graphite Port"
 msgid "months"
 msgstr "Months"
 
+# conf/documentation.conf
+msgid "mse_tab"
+msgstr "MSE Lookup Service"
+
+# conf/documentation.conf
+msgid "mse_tab.enabled"
+msgstr "Enable MSE"
+
+# conf/documentation.conf
+msgid "mse_tab.pass"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "mse_tab.server"
+msgstr "Server"
+
+# conf/documentation.conf
+msgid "mse_tab.user"
+msgstr "Username"
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "mysql"
 msgstr ""
@@ -8929,6 +8976,10 @@ msgstr "Show parking portal"
 msgid "parking.threshold"
 msgstr "Parking threshold"
 
+# conf/documentation.conf (mse_tab.pass)
+msgid "password for MSE service"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
 msgid "pending"
@@ -8950,6 +9001,7 @@ msgstr ""
 msgid "plaintext"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 # pf::dhcp_option82 (DHCP Option 82)
@@ -9849,6 +9901,10 @@ msgstr "Upstream URL"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
 msgstr "Upstream Submit URL"
+
+# conf/documentation.conf (mse_tab.user)
+msgid "user name for MSE service"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
