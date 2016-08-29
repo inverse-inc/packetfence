@@ -103,6 +103,8 @@ table.sources {
               [% pf_section_entry( 'monitoring', 'Monitoring') | none %]
               [% pf_section_entry( 'active_active', 'Clustering') | none %]
               [% pf_section_entry( 'metadefender', 'Metadefender') | none %]
+              [%- END %]
+              [% IF can_access("MSE_READ") %]
               [% pf_section_entry( 'mse_tab', 'Node MSE Tab') | none %]
               [%- END %]
               [%- IF can_access("PORTAL_MODULE_READ") %]
