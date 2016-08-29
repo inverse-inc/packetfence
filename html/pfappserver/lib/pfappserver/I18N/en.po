@@ -9047,7 +9047,7 @@ msgstr "Switch Group"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_mac"
-msgstr ""
+msgstr "Switch Mac"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.switch_port"
