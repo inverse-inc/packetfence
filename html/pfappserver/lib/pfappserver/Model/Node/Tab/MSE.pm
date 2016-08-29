@@ -18,31 +18,20 @@ use Net::Cisco::MSE::REST;
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
 use base qw(pfappserver::Base::Model::Node::Tab);
+use Clone qw(clone);
 
-=head2 process_tab
-
-Process Tab
-
-=cut
-
-our $test_data = {
+our $_TEST_DATA = {
     'WirelessClientLocation' => {
         'Statistics' => {
             'currentServerTime' => '2016-08-23T13:53:03.915-0400',
-            'lastLocatedTime'   => '2016-08-23T13:52:16.061-0400',
-            'firstLocatedTime'  => '2016-08-23T13:52:16.040-0400'
+            'lastLocatedTime'   => '2016-08-23T13:52:16.061-0400', # This
+            'firstLocatedTime'  => '2016-08-23T13:52:16.040-0400' # This
         },
-        'macAddress'    => 'ec:9b:f3:3d:de:31',
-        'band'          => 'UNKNOWN',
-        'ssId'          => 'CUSM-MUHC-PUBLIC',
-        'ipAddress'     => ['10.36.34.49'],
-        'apMacAddress'  => '7c:95:f3:01:d3:a0',
         'MapCoordinate' => {
             'y'    => '220.04',
             'unit' => 'FEET',
             'x'    => '168.32'
         },
-        'isGuestUser' => 0,
         'MapInfo'     => {
             'Dimension' => {
                 'width'   => '296.5',
@@ -52,29 +41,54 @@ our $test_data = {
                 'offsetX' => '0',
                 'height'  => '10'
             },
-            'mapHierarchyString' => 'CampusGlen>BlocB>S2',
+            'mapHierarchyString' => 'CampusGlen>BlocB>S2', # This
             'Image'              => {
                 'imageName' => 'domain_0_1404755339511.jpg'
             },
             'floorRefId' => '-6045787246513093576'
         },
+        'macAddress'    => 'ec:9b:f3:3d:de:31', # This
+        'apMacAddress'  => '7c:95:f3:01:d3:a0', # This
+        'band'          => 'UNKNOWN', # This
         'confidenceFactor' => '256',
-        'dot11Status'      => 'ASSOCIATED',
-        'currentlyTracked' => 1,
+        'currentlyTracked' => 1, # This
+        'dot11Status'      => 'ASSOCIATED', # This
+        'ipAddress'     => ['10.36.34.49'], # Ip address
+        'isGuestUser' => 0, # This
+        'ssId'          => 'CUSM-MUHC-PUBLIC', # This
     }
 };
 
+our @FIELDS = qw(
+    macAddress apMacAddress band
+    currentlyTracked dot11Status ipAddress
+    isGuestUser ssId firstLocatedTime lastLocatedTime
+);
+
+
+=head2 process_tab
+
+Process Tab
+
+=cut
+
 sub process_tab {
     my ($self, $c, @args) = @_;
-    return ($STATUS::OK, {localisation => $test_data});
     my $rest = Net::Cisco::MSE::REST->new(%{$Config{mse}});
     my $localisation;
+    my $mac = $c->stash->{mac};
     eval {
-        $localisation = $rest->real_time_localisation_for_client({id => $c->stash->{mac}});
+        $localisation = $rest->real_time_localisation_for_client({id => $mac});
     };
     if ($@) {
+        $c->log->error($@);
+        return ($STATUS::INTERNAL_SERVER_ERROR, {status_msg => "Error retrieving information for $mac"});
     }
-    return ($STATUS::OK, {localisation => $localisation});
+    my $wireless_client_loc =  $localisation->{WirelessClientLocation};
+    my $stats = $wireless_client_loc->{Statistics};
+    my @stats_keys = keys %$stats;
+    @$wireless_client_loc{@stats_keys} = @{$stats}{@stats_keys};
+    return ($STATUS::OK, {localisation => $localisation, fields => [@FIELDS]});
 }
 
 =head1 AUTHOR
