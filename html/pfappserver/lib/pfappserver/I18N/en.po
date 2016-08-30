@@ -4198,6 +4198,10 @@ msgstr ""
 msgid "Password Reminder"
 msgstr ""
 
+# conf/documentation.conf (mse_tab.pass)
+msgid "Password for MSE service"
+msgstr ""
+
 # conf/documentation.conf (database.pass)
 msgid "Password for the mysql database used by PacketFence."
 msgstr ""
@@ -5561,10 +5565,6 @@ msgstr ""
 msgid "Server cert path"
 msgstr ""
 
-# conf/documentation.conf (mse_tab.server)
-msgid "Server name for MSE service"
-msgstr ""
-
 # conf/documentation.conf (database.host)
 msgid "Server the mysql server is running on."
 msgstr ""
@@ -6716,6 +6716,10 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
+# conf/documentation.conf (mse_tab.url)
+msgid "URL of MSE service"
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
 msgid "URL to fetch the upstream Fingerbank project database"
 msgstr ""
@@ -7011,6 +7015,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 msgid "Username Prefix"
+msgstr ""
+
+# conf/documentation.conf (mse_tab.user)
+msgid "Username for MSE service"
 msgstr ""
 
 # conf/documentation.conf (database.user)
@@ -8787,8 +8795,8 @@ msgid "mse_tab.pass"
 msgstr "Password"
 
 # conf/documentation.conf
-msgid "mse_tab.server"
-msgstr "Server"
+msgid "mse_tab.url"
+msgstr ""
 
 # conf/documentation.conf
 msgid "mse_tab.user"
@@ -9019,10 +9027,6 @@ msgstr "Show parking portal"
 # conf/documentation.conf
 msgid "parking.threshold"
 msgstr "Parking threshold"
-
-# conf/documentation.conf (mse_tab.pass)
-msgid "password for MSE service"
-msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 # pfappserver::Model::Node (availableStatus)
@@ -9949,10 +9953,6 @@ msgstr "Upstream URL"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.submit_url"
 msgstr "Upstream Submit URL"
-
-# conf/documentation.conf (mse_tab.user)
-msgid "user name for MSE service"
-msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
