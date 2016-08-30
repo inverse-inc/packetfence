@@ -386,12 +386,12 @@ sub expand_list {
 }
 
 sub split_list {
-    my ($self,$list) = @_;
+    my ($self, $list) = @_;
     return split(/\s*,\s*/,$list);
 }
 
 sub join_list {
-    my ($self,@list) = @_;
+    my ($self, @list) = @_;
     return join(',',@list);
 }
 
@@ -400,10 +400,12 @@ sub join_list {
 =cut
 
 sub flatten_list {
-    my ( $self,$object,@columns ) = @_;
+    my ($self, $object, @columns) = @_;
     foreach my $column (@columns) {
-        if (exists $object->{$column} && ref($object->{$column}) eq 'ARRAY') {
-            $object->{$column} = $self->join_list(@{$object->{$column}});
+        next unless exists $object->{$column};
+        my $val = $object->{$column};
+        if (ref($val) eq 'ARRAY') {
+            $object->{$column} = $self->join_list(@$val);
         }
     }
 }
