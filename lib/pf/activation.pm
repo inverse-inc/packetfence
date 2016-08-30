@@ -342,9 +342,19 @@ Returns the activation code
 =cut
 
 sub create {
-    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id, $timeout) = @_;
+    my $args = shift;
+    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id, $timeout);
+    (	$mac 		= $args->{'mac'}, 
+        $pid 		= $args->{'pid'}, 
+	$pending_addr 	= $args->{'pending'}, 
+	$type 		= $args->{'type'}, 
+	$portal 	= $args->{'portal'}, 
+	$provider_id 	= $args->{'provider_id'}, 
+	$timeout 	= $args->{'timeout'} );
+	
     my $logger = get_logger();
 
+    $mac = $args->{'mac'}; 
     unless($mac){
         $mac = undef;
     }
@@ -366,6 +376,7 @@ sub create {
     $data{'expiration'} = defined $timeout 
         ? POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout ))
         : POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+
 
     # generate activation code
     $data{'activation_code'} = _generate_activation_code(%data);
@@ -503,7 +514,10 @@ sub create_and_send_activation_code {
     my ($mac, $pid, $pending_addr, $template, $type, $portal, %info) = @_;
 
     my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $pending_addr, $type, $portal, $info{'activation_timeout'});
+    my %args = ( 
+	mac 	=> $mac,  pid 	 => $pid, 	pending => $pending_addr, 
+	type 	=> $type, portal => $portal, 	timeout => $info{'activation_timeout'});
+    my $activation_code = create(\%args);
     if (defined($activation_code)) {
       unless (send_email($activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
@@ -576,7 +590,10 @@ sub sms_activation_create_send {
     $phone_number =~ s/\D//g;
 
     my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $phone_number, 'sms', $portal, $provider_id);
+    my %args = ( 
+	mac  => $mac,  pid    => $pid,    pending     => $phone_number, 
+	type => "sms", portal => $portal, provider_id => $provider_id);
+    my $activation_code = create(\%args);
     if (defined($activation_code)) {
       unless (send_sms($activation_code, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
