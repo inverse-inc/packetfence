@@ -74,7 +74,7 @@ Process Tab
 
 sub process_tab {
     my ($self, $c, @args) = @_;
-    my $rest = Net::Cisco::MSE::REST->new(%{$Config{mse}});
+    my $rest = Net::Cisco::MSE::REST->new(%{$Config{mse_tab}});
     my $localisation;
     my $mac = $c->stash->{mac};
     eval {
