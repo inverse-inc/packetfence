@@ -23,9 +23,24 @@ use warnings;
 use pf::ConfigStore::Violations;
 use base qw(pf::base::cmd::config_store);
 
+our @FIELDS = qw(
+  vid desc enabled actions user_mail_message
+  vclose target_category priority whitelisted_roles
+  trigger auto_enable max_enable grace
+  window_dynamic window delay_by template
+  button_text vlan redirect_url external_command
+);
+
+our %VALID_FIELDS = map { $_ => 1  } @FIELDS;
+
 sub configStoreName { "pf::ConfigStore::Violations" }
 
-sub display_fields { qw(vid desc enabled auto_enable actions max_enable grace window vclose priority template button_text trigger vlan whitelisted_roles target_category ) }
+sub display_fields { @FIELDS }
+
+sub is_valid_field {
+    my ($self, $field_name, $value) = @_;
+    return defined $field_name && exists $VALID_FIELDS{$field_name};
+}
 
 sub idKey { 'vid' }
 
