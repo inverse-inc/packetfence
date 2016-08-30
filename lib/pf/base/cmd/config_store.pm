@@ -129,19 +129,24 @@ sub parse_edit {
 }
 
 sub _parse_attributes {
-    my ($self,@attributes) = @_;
+    my ($self, @attributes) = @_;
     my $rx = qr/
         ([a-zA-Z_][a-zA-Z0-9_]*)  #The parameter name
         =
-        (?|
-            "([&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+\!]*)" |
-            ([\/0-9a-zA-Z_\*\.\-\:_\;\@]+)
-        )
+        (.*)$
     /x;
     my @action_args;
     foreach my $attribute (@attributes) {
-        my (@matches) = ($attribute =~ /$rx/g);
-        push @action_args, @matches;
+        unless ($attribute =~ /$rx/) {
+            print STDERR "$attribute is invalid\n";
+            return 0;
+        }
+        my ($field, $value) = ($1, $2);
+        unless ($self->is_valid_field($field, $value) ) {
+            print STDERR "$field = $value is an invalid field\n";
+            return 0;
+        }
+        push @action_args, $field, $value;
     }
     push @{$self->{action_args}}, @action_args;
     return 1;
@@ -150,6 +155,15 @@ sub _parse_attributes {
 sub configStore { $_[0]->configStoreName->new }
 
 sub configStoreName { die "Did not override configStoreName" }
+
+
+=head2 is_valid_field
+
+Check if field is valid
+
+=cut
+
+sub is_valid_field { 1 }
 
 =head1 AUTHOR
 
