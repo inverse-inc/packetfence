@@ -8688,6 +8688,10 @@ msgstr ""
 msgid "management"
 msgstr "Management"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "mapHierarchyString"
+msgstr "Map Hierarchy"
+
 # pf::Authentication::constants (Actions)
 msgid "mark_as_sponsor"
 msgstr "Mark as Sponsor"

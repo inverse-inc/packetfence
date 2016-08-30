@@ -63,6 +63,7 @@ our @FIELDS = qw(
     macAddress apMacAddress band
     currentlyTracked dot11Status ipAddress
     isGuestUser ssId firstLocatedTime lastLocatedTime
+    mapHierarchyString
 );
 
 
@@ -85,6 +86,7 @@ sub process_tab {
         return ($STATUS::INTERNAL_SERVER_ERROR, {status_msg => "Error retrieving information for $mac"});
     }
     my $wireless_client_loc =  $localisation->{WirelessClientLocation};
+    $wireless_client_loc->{mapHierarchyString} = $wireless_client_loc->{MapInfo}{mapHierarchyString};
     my $stats = $wireless_client_loc->{Statistics};
     my @stats_keys = keys %$stats;
     @$wireless_client_loc{@stats_keys} = @{$stats}{@stats_keys};
