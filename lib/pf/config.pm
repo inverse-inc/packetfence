@@ -148,6 +148,8 @@ our (
     %ConfigSwitchesGroup,
 #Switches List
     %ConfigSwitchesList,
+#Reports
+    %ConfigReport,
 );
 
 BEGIN {
@@ -204,6 +206,7 @@ BEGIN {
         $local_secret
         %ConfigSwitchesGroup
         %ConfigSwitchesList
+        %ConfigReport
     );
 }
 
@@ -281,6 +284,8 @@ tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
 tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
 
 tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
+
+tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
 
 use pf::util::apache qw(url_parser);
 
