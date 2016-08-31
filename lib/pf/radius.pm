@@ -202,6 +202,7 @@ sub authorize {
     #define the current connection value to instantiate the correct portal
     my $options = {};
 
+    $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
     $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
     $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
     $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
