@@ -206,11 +206,15 @@ Stop and backup previous MySQL data
 
   # service mysqld stop
   # mkdir /var/lib/mysql.bak
-  # mv /var/lib/mysql/* /var/lib/mysql.bak/
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optionnal
 
 Mount the partition with:
 
   # mount /dev/drbd0 /var/lib/mysql
+
+Restore previous MariaDB data
+
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optionnal
 
 Start MySQL
 
@@ -626,7 +630,7 @@ Stop and backup previous MariaDB data
 
   # systemctl stop mariadb
   # mkdir /var/lib/mysql.bak
-  # mv /var/lib/mysql/* /var/lib/mysql.bak/
+  # mv /var/lib/mysql/* /var/lib/mysql.bak/ #Optionnal
 
 Mount the partition with:
 
@@ -634,7 +638,7 @@ Mount the partition with:
 
 Restore previous MariaDB data
 
-  # mv /var/lib/mysql.bak/* /var/lib/mysql/
+  # mv /var/lib/mysql.bak/* /var/lib/mysql/ #Optionnal
 
 Start MariaDB
 
