@@ -5,7 +5,7 @@ pf::cmd::pf::violation
 
 =head1 SYNOPSIS
 
- pfcmd violation add <mac> <vid>
+ pfcmd violation add [--json] [--force] <mac> <vid>
  pfcmd violation close <mac> <vid>
  pfcmd violation trigger <mac> <trigger-type> <trigger-id>
 
@@ -31,9 +31,51 @@ use warnings;
 use base qw(pf::base::cmd::action_cmd);
 use pf::util;
 use pf::class;
+use pf::constants qw($TRUE);
 use pf::violation;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::cmd::help;
+use JSON::MaybeXS;
+
+=head2 parse_add
+
+Parse the arguements for add command
+
+=cut
+
+sub parse_add {
+    my ($self, @args) = @_;
+    my %options = (
+        '--json' => 0,
+        '--force' => 0,
+    );
+    my @params =  grep {
+        my $j = 1;
+        if (exists $options{$_}) {
+            $options{$_}++;
+            $j = 0;
+        }
+        $j
+    } @args;
+    if(@params < 2) {
+        print STDERR "Not enough parameters\n";
+        return 0;
+    }
+    my ($mac, $vid) = @params;
+    unless (valid_mac($mac)) {
+        print STDERR "'$mac' MAC address is invalid\n";
+        return 0;
+    }
+    unless(defined(class_view($vid))) {
+        print STDERR "Invalid violation ID\n";
+        return 0;
+    }
+    $self->{mac} = $mac;
+    $self->{vid} = $mac;
+    $self->{json} = $options{'--json'};
+    $self->{force} = $options{'--force'};
+    return 1;
+}
 
 sub validate_mac {
     my ($self, $mac) = @_;
@@ -61,7 +103,7 @@ sub action_close {
     my ($self) = @_;
     my @params = $self->action_args;
     if( @params >= 2 && $self->validate_mac($params[0]) && $self->validate_vid($params[1]) ) {
-        violation_force_close(@params);
+        my ($result) = violation_force_close(@params);
     }
     else {
         print STDERR "Insuficent or invalid parameters supplied.\n";
@@ -97,15 +139,21 @@ handles 'pfcmd violation add' command
 
 sub action_add {
     my ($self) = @_;
-    my @params = $self->action_args;
-    if( @params >= 2 && $self->validate_mac($params[0]) && $self->validate_vid($params[1]) ) {
-        violation_add(@params);
+    my ($id) = violation_add($self->{mac}, $self->{vid}, $self->{force} ? (force => $TRUE ) : ());
+    my @warnings = violation_last_warnings();
+    my @errors   = violation_last_errors();
+    if ($self->{json}) {
+        my %json;
+        $json{'id'}       = $id if $id > 0;
+        $json{'warnings'} = \@warnings if @warnings;
+        $json{'errors'} = \@errors if @errors;
+        print encode_json(\%json);
     }
     else {
-        print STDERR "Insuficent or invalid parameters supplied.\n";
-        $self->showHelp;
+        print STDERR join("\n", "Warnings:", @warnings), "\n" if @warnings;
+        print STDERR join("\n", "Errors:",   @errors),   "\n" if @errors;
     }
-    return $EXIT_SUCCESS;
+    return $id > 0 ? $EXIT_SUCCESS : $EXIT_FAILURE;
 }
 
 =head1 AUTHOR
