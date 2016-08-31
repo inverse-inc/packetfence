@@ -113,6 +113,7 @@ use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::class qw(class_view);
 use pf::constants qw(
     $TRUE
+    $FALSE
 );
 use pf::enforcement;
 use pf::db;
@@ -502,12 +503,13 @@ sub violation_add {
 
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
-        if ( $remaining_time > 0 && $data{'force'} ne $TRUE ) {
+        my $force = defined $data{'force'} ? $data{'force'} : $FALSE;
+        if ( $remaining_time > 0 && $force ne $TRUE ) {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
             return (-1);
-        } elsif ( $remaining_time > 0 && $data{'force'} eq $TRUE ) {
+        } elsif ( $remaining_time > 0 && $force eq $TRUE ) {
             my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
             $logger->info($msg);
         } else {
