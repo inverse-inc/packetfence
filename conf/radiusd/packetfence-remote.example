@@ -31,6 +31,8 @@ server pf-remote {
                 #  Insert pre-proxy rules here
         }
 
+        rewrite_calling_station_id
+        rewrite_called_station_id
 
         post-proxy {
             update control {
@@ -79,6 +81,8 @@ server pf-remote {
 
 server pf.degraded {
 authorize {
+        rewrite_calling_station_id
+        rewrite_called_station_id
 
 	filter_username
 
@@ -90,7 +94,7 @@ authorize {
 
 	ntdomain
 
-	eap {
+	eap-remote {
 		ok = return
 	}
 
@@ -124,7 +128,7 @@ authenticate {
 
 	#
 	#  Allow EAP authentication.
-	eap
+	eap-remote
 }
 
 
@@ -162,7 +166,7 @@ post-auth {
 		# Insert EAP-Failure message if the request was
 		# rejected by policy instead of because of an
 		# authentication failure
-		eap
+		eap-remote
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
@@ -175,7 +179,80 @@ pre-proxy {
 
 post-proxy {
 
-	eap
+	eap-remote
 }
+}
+
+server packetfence-degraded-tunnel {
+
+authorize {
+        filter_username
+        mschap
+        suffix
+        ntdomain
+        update control {
+                &Proxy-To-Realm := LOCAL
+        }
+        eap-remote {
+                ok = return
+        }
+
+        rewrite_called_station_id
+
+        # Uncomment the following line to enable local PEAP authentication
+        packetfence-degraded-auth
+        -sql_degraded
+
+
+        pap
+}
+
+
+authenticate {
+        Auth-Type PAP {
+                pap
+        }
+        Auth-Type CHAP {
+                chap
+        }
+
+        Auth-Type MS-CHAP {
+                mschap
+        }
+
+
+        eap-remote
+}
+
+session {
+        radutmp
+
+}
+
+
+post-auth {
+        update outer.session-state {
+                &MS-MPPE-Encryption-Policy !* ANY
+                &MS-MPPE-Encryption-Types !* ANY
+                &MS-MPPE-Send-Key !* ANY
+                &MS-MPPE-Recv-Key !* ANY
+                &Message-Authenticator !* ANY
+                &EAP-Message !* ANY
+                &Proxy-State !* ANY
+        }
+
+        Post-Auth-Type REJECT {
+                attr_filter.access_reject
+                update outer.session-state {
+                        &Module-Failure-Message := &request:Module-Failure-Message
+                }
+        }
+}
+
+pre-proxy {
+}
+
+post-proxy {
+        eap-remote
 }
 

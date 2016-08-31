@@ -34,8 +34,8 @@ if($state eq "MASTER"){
     my $interface = interface_for_ip($vrrp_ip);
     `arping -c 4 -A -I $interface $vrrp_ip`;
 }
-elsif($state eq "SLAVE"){
-    $logger->info("Transition to master state, stopping management services.");
+elsif($state eq "SLAVE" | $state eq "BACKUP") {
+    $logger->info("Transition to master state, stoping management services.");
 }
 
 =head2 interface_for_ip

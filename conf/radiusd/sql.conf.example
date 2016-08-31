@@ -496,16 +496,18 @@ sql sql_degraded {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = ""
+        authorize_check_query = "SELECT 1, pid, \"NT-Password\", REPLACE(password,'{ntlm}',''), \":=\" \
+          FROM ${authcheck_table} \
+          WHERE pid = '%{Stripped-User-Name}' \
+          AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{Stripped-User-Name}') "
+
 
         postauth_query = ""
         group_membership_query = ""
         pool = sql
-        read_clients = yes
         client_table = "radius_nas"
-        group_attribute = "SQL-Group"
         # Read database-specific queries
-        $INCLUDE ${modconfdir}/${.:name}/main/mysql/queries.conf
-	safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /(),'"
+        $INCLUDE ${modconfdir}/${.:name}/main/mysql/reject.conf
+        safe_characters = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_: /(),'"
 }
 
