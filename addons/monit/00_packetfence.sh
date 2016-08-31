@@ -119,7 +119,7 @@ check process packetfence-pfqueue with pidfile /usr/local/pf/var/run/pfqueue.pid
 check process packetfence-radiusd-acct with pidfile /usr/local/pf/var/run/radiusd-acct.pid
     group PacketFence
     start program = "/usr/sbin/$FREERADIUS_BIN -d /usr/local/pf/raddb -n acct" with timeout 60 seconds
-    stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/radiusd.pid"
+    stop program  = "/usr/bin/pkill -F /usr/local/pf/var/run/radiusd-acct.pid"
 
 check process packetfence-radiusd with pidfile /usr/local/pf/var/run/radiusd.pid
     group PacketFence
