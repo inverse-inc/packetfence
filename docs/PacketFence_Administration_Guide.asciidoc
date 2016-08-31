@@ -223,7 +223,7 @@ NOTE: These are extra steps are required for RHEL 6 systems only, excluding deri
 
 RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
 
-  rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
+  subscription-manager repos --enable rhel-6-server-optional-rpms
 
 RHEL 7.x
 ^^^^^^^^
