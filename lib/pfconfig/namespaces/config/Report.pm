@@ -27,7 +27,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = qw(searches);
+    $self->{expandable_params} = [ qw(searches columns) ];
 }
 
 sub build_child {
@@ -44,6 +44,8 @@ sub build_child {
         }
         $tmp_cfg{$key}{searches} = \@formatted_searches;
 
+        $tmp_cfg{$key}{joins} //= "";
+        $tmp_cfg{$key}{joins} = [ split("\n", $tmp_cfg{$key}{joins}) ];
     }
 
     return \%tmp_cfg;
@@ -52,7 +54,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
-    $self->expand_list( $item, $self->{expandable_params} );
+    $self->expand_list( $item, @{$self->{expandable_params}} );
 }
 
 
