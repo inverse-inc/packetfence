@@ -800,12 +800,9 @@ host=127.0.0.1
 ....
 ----
 
-Make sure you restart, packetfence-config and packetfence
+Make sure you restart MySQL:
 
-  # /usr/local/pf/bin/pfcmd configreload hard
-  # /usr/local/pf/bin/pfcmd pfconfig clear_backend
-  # systemctl restart packetfence-config
-  # systemctl restart packetfence
+# systemctl restart mariadb
 
 Next, you need to remove the empty users from your MySQL database
 
