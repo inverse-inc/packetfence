@@ -1,0 +1,420 @@
+User Guide
+==========
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_User_Guide-docinfo.xml for authors, copyright
+    and license information.
+
+////
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+
+This guide will walk you through the configuration of policies, from a simple example to something complex.
+
+The instructions are based on version {release_version} of PacketFence.
+
+The latest version of this guide is available online at http://www.packetfence.org/documentation/guides.html
+
+Assumptions
+~~~~~~~~~~~
+
+ * You have a PacketFence installed and went through the configurator.
+ * You are using a VLAN enforcement of WebAuth type of installation.
+ * Your PacketFence is up and running, `Management` interface is reachable from your network equipement (wireless controller/switches).
+ * There is no firewall in between your network equipements and PacketFence that could block 1700, 1812, 1813, 3799.
+ * Certain part of this guide: Provisioning, Billing , OAuth require VLAN enforcement mode.
+
+
+Introduction
+~~~~~~~~~~~~
+
+The User Guide is here to help you understand on how to configure your PacketFence for your need. This guide will explain to you how to configure a simple setup and diffrent actions to complexify in the purpose to go to your final objective.
+
+
+Wi-Fi configuration
+~~~~~~~~~~~~~~~~~~~
+
+To kick off we will configure a Public SSID (Open with MAC authentication and a portal login using PacketFence local users source, LDAP or SMS).
+
+Open SSID
+^^^^^^^^^
+
+First of all you need to make sure the following are defined:
+
+ * Wireless controller from which the request will come, in the section `Policies and Access Control->Switches`.
+ * Local source, SMS source or LDAP source in the section `Policies and Access Control->Authentication Sources`.
+
+We will start by configuring a Portal Profile related to this SSID.
+
+Click on the section `Policies and Access Control->Connection Profiles`, now click `Add profile`.
+
+In your Portal profile, define a Name and a description. Add a filter using the condition SSID: `PF-Open`. Add your sources and save.
+
+image::docs/images/connection-profile-creation.png[scaledwidth="100%",alt="Adding a new connection profiles"]
+image::docs/images/connection-profile-filter-simple.png[scaledwidth="100%",alt="Adding a connection profile filter SSID"]
+image::docs/images/connection-profile-sources.png[scaledwidth="100%",alt="Adding a connection profile sources"]
+
+You have some options under the tab `Captive Portal` where you can add your logo company, and a redirection URL or the different languages in which the page will be available for instance. Have a look through those options.
+
+image::docs/images/connection-profile-captive-portal.png[scaledwidth="100%",alt="Captive Portal tab under a connection profile"]
+
+From now on, every one connecting from the SSID `PF-Open` will be landing on the portal define by this Portal Profile. They will be able to loggin with either SMS, local user or LDAP account.
+
+Secure SSID
+^^^^^^^^^^^
+
+We will now add a Secure SSID (WPA2-Entreprise, that allow user to login through EAP-PEAP, User athentication, and autoregister authenticated users)
+
+Configure your SSID on your wireless controller. On PacketFence if you don't have a portal profile with matching condition it will go through the default which if not modified has every availalble authentication sources, scans etc.
+
+To autoregister devices which authenticated successfully simply check the box "Automatically register devices".
+
+
+BYOD and corporate devices
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We will now add the possibility to filter corportate and BYOD devices. One way to do that is to use Machine Authentication (Windows devices only) and for the other `corporate' devices  you need to use EAP-TLS.
+
+Machine Authentication via LDAP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To begin create a new PacketFence role, under `Policies and Access Control->Roles` in the tab configuration, call it `corporate`.
+
+To configure Machine Authentication, please configure a source LDAP with the setting *Username Attribube: servicePrincipalName* and make sure the *Base DN* is equal to the *OU* where the computers you want to authenticate are. In the source rule, create one that will return de role `corporate`.
+
+If you need additional information for configurating this source please refer to https://packetfence.org/doc/PacketFence_Administration_Guide.html#_authentication section `9.2.1: Example`.
+
+Of course while configuring your SSID on your devices, under `Security->Advanced Settings` make sure to select `Computer authentication` in the tab `802.1X settings`. This will force the computer to authenticate via its LDAP machine account.
+
+Others corporate devices
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now that your Windows devices are able to be logged in with Machine Authentication you can class them as `corporate'. Let's say that you now need to add some `Linux computers' and `IPads' as `corporate' devices.
+
+Thoses devices cannot be authenticate via Machine Authentication, so we will need to use EAP-TLS and provide thoses devices with certificate.
+
+First of all make sure that your RADIUS certificate from the PacketFence server and the certificates that you will be provided are delivered from the same CA, else your authentication will not work. To enable EAP-TLS you will need to reconfigure the new RADIUS server certificate in the file conf/radiusd/eap.conf.
+
+While creating the RADIUS server certifcate make sure to have the *Extended key usage: servAuth*.
+
+Under the section `tls-config tls-common`, search for `private_key_file', `certificate_file' and `ca_file'. Those should contain respectively the path of:
+
+ * the private key for your PacketFence server,
+ * the server certificate issued by your CA for your PacketFence server,
+ * the public key of your CA.
+
+If you have an `OCSP' capable PKI you can configure it in the section `OSCP` in the eap.conf file.
+
+Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
+
+ * bin/pfcmd configreload hard
+ * bin/pfcmd service radiusd restart
+
+Make sure everything happens without errors.
+
+Now that your RADIUS is ready to handle EAP-TLS, configure your SSID connection profile on the `corporate' device using this method. Generate a client certificate for your device and install it on.  
+
+Please configure an EAPTLS source which can be found while adding a new sources under `Internal->`, simply give it a name, a description and a catch-all rule. This will allow you to validate the authentication via EAP-TLS.
+
+You can now create a new Portal Profile for EAP-TLS. Under the tab configuration, section `Policies and Access Control->Connection Profiles`, `Add profile` and select as a filter the Sub Connection Type as EAP-TLS, add your source EAP-TLS. Check the box "Automatically register devices". 
+
+You know have a full flow working for your corporate devices.
+
+Provisionning certificate
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's now imagine that we want to automate the certificate process, for enrolling new devices where a certificate cannot be pushed via GPO. This is where the provisioning will act.
+
+PKI
+^^^
+
+You will need to start by adding your PKI provider, at the moment we are able to integreate with SCEP(MSPKI), PacketFence-PKI and local PKI.
+
+For the configuration of SCEP please refer to: https://packetfence.org/doc/PacketFence_MSPKI_Quick_Install_Guide.html
+
+For the configuration of PacketFence-PKI please refer to: https://packetfence.org/doc/PacketFence_PKI_Quick_Install_Guide.html
+
+After finishing configure your PKI in PacketFence we will now do the provisioners.
+
+Provisioning
+^^^^^^^^^^^^
+
+Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
+
+Provisioners are configured in the PacketFence administration GUI under `Advanced Access Configuration->Provisioners`.
+
+Add a new provisioner for each of the device's calsses to be supported amongst Android, Apple Devices and Windows.
+Fill out the form, choosing a different Provisioning Id per provisioner.
+
+* Roles: The "Roles" field defines which devices will be affected by the provisioning item. If empty, all devices for this class will be affected.
+* SSID: The "SSID" field defines which SSID will be configured on the device using the authentication profile.
+* EAP-Type: The EAP type defines the authentication method supported and should be set to EAP-TLS to integrate with the PacketFence PKI.
+* Security type: The security type should be set to WPA2-Entreprise to integrate with the PacketFence PKI.
+* PKI Provider: This should match the provider you configured earlier in the PKI provider section.
+
+The following is an example on how to configure an EAP-TLS connection for Windows/Android/Mac OS X/iOS
+
+image::docs/images/scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. You need to sign it with a Certification Authority already trusted by the device such as e.g. VeriSign.
+Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
+
+image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+
+Fill out the fields with the contents of the Base64 encoded certificates.
+To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
+
+Certificate file example:
+
+----
+----- BEGIN CERTIFICATE -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END CERTIFICATE -----
+----
+
+Copy everything between the BEGIN and END lines, but not the lines themselves.
+Repeat this operation for the certificate key and intermediate certificate.
+
+----
+----- BEGIN PRIVATE KEY -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END PRIVATE KEY -----
+----
+ 
+We also advise you to configure a SSID for provisioning, for instance: `OnBoarding-PF`, open with MAC Authentication, pointing to PacketFence. Create a new Portal Profile, Add a filter SSID with this SSID name, add the source you want the users to authenticate from and add your provisioners to this Portal Profile. From there, users who logged in will have to follow the captive portal instruction to get provided their certificate.
+
+
+Allowed corporate device only on an SSID
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We have seen how to define corporate devices, let's now make sure they are the only capable devices to connect to a certain SSID. To do so we will simply add a VLAN filters which will refuse the device if its role is not `corporate`.
+
+----
+[is_not_corporate]
+filter = node_info.category
+operator = is_not
+value = corporate
+
+[ssid_corporate]
+filter = ssid
+operator = is
+value = MyCompany
+
+[no_corpo_unreg:is_not_corporate&ssid_corporate]
+scope = RegisterationRole 
+role = refuse
+
+[no_corpo:is_not_corporate&ssid_corporate]
+scope = RegisteredRole 
+role = refuse
+----
+
+Scanners
+~~~~~~~~
+
+You recently installed a Nessus 6 on your network and want to use this to scan for malwares, vulnerabilities or configuration compliance. Make sure to configure your Nessus for the wanted tasks. You will now configure PacketFence side, you want this scan to be active only for Windows device connecting on the Secure SSID.
+
+Start by going `Compliance->Scan Engines` under the tab Configuration. Click `Add Scan` and select `Nessus6'. Enter the related information of your Nessus server, you can narrow down to which this scan will apply, using `Roles' or `OS' filter from Fingerbank. Add the `OS' : *Windows* in the section for it. Choose at when do you want the scan to happen, before, after or on registration.
+
+When your scan is configured you need to add it to the Portal Profile. Search for the Portal Profile you configured for the SSID secure and add the newly configurated scanner.
+
+Billing
+~~~~~~~
+
+Your new manager want to make a `pay-to-use` access for Wi-Fi. The idea here will be to use billing. To do the following you will need to go through `Advanced Access Configuration->Billing Tiers` under the tab Configuration. Click `Add billing tier` and create the needed `Billing  Tiers`. This will be the different payement available for your customers, for instance you want them to pay for 1 hour or 1 day. 
+
+image::docs/images/billing-tier-hourly.png[scaledwidth="100%",alt="Billing Tier example hourly"]
+image::docs/images/billing-tier-daily.png[scaledwidth="100%",alt="Billing Tier example daily"]
+
+You now need to add the payement provider you want to use, to do so go through `Policies and Access Control->Sources` and select `Add source`, Billing and your provider. To configure the provider you need please follow: https://packetfence.org/doc/PacketFence_Administration_Guide.html#_billing_engine section `12.2.1.Configuring a billing source` and follow the instructions macthing your provider.
+
+Lastely you will need to add your source and the billing tiers to the Portal Profile, for this edit rhe Portal Profile for your `Open-PF` SSID and change the local and SMS sources for the billing one, add the billing tiers and your Portal Profile is now ready to process paid for access authentication. 
+
+Wired Configuration
+~~~~~~~~~~~~~~~~~~~
+
+We have seen extended wireless configuration, some can be applied to wired but not all. We will now extend our wired configuration.
+
+Deal with EAP authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Let's say that you have a parc of Windows corporate computers, on your wired network for a user to be able to login with his account, you want them to use corporate computers. Here is a way to allow a user to login only if a machine authenticate via Machine Authentication beforehand. To do so we will use the VLAN filters. The full example is available in /usr/local/pf/conf/vlan_filters.conf.example
+
+----
+[EthernetEAP]
+filter = connection_type
+operator = is
+value = Ethernet-EAP
+
+[machine]
+filter = node_info.machine_account
+operator = defined
+
+[EAPTLS]
+filter = radius_request
+attribute = EAP-Type
+operator = is
+value = EAP-TLS
+
+[3:EthernetEAP&!machine&!EAPTLS]
+scope = RegisteredRole
+role = refuse
+
+[4:EthernetEAP&!machine]
+scope = RegistrationRole
+role = refuse
+----
+
+NEAT and switch authentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+NEAT (Network Edge Authentication Topology) is a Cisco protocol to be able to authenticate a switch on another one via 802.1x. Cisco configuraition allow you to do it in EAP-FAST or EAP-MD5. From PacketFence version 6.3, EAP-FAST is supported.
+
+First of all you will need to enable EAP-FAST if it is not, section `System Configuration->Authentication Methods`, and add the needed type. 
+
+image::docs/images/radius-authentication-methods.png[scaledwidth="100%",alt="RADIUS Authentication Methods"]
+
+Now add a RADIUS filter, that will return a specific RADIUS attribute, for the client which authenticate to be seen as a switch using NEAT.
+
+----
+[switches]
+filter = radius_request.User-Name
+operator = is
+value = neat-account
+
+[switches_av_pair:switches]
+scope = returnRadiusAccessAccept
+merge_answer = yes
+answer1 = Cisco-AVPair => device-traffic-class=switch
+----
+
+Testing RADIUS 
+~~~~~~~~~~~~~~
+
+Use eapol_test
+^^^^^^^^^^^^^^
+
+To test your radius you have multiple way, here are few example on how to do it with eapol_test. We assume that your server is joind to your domain, and properly configured to authenticate via EAP-TLS, EAP-PEAP or others.
+
+First of all install eapol_test by doing the following:
+
+----
+yum install eapol_test --enablerepo=packetfence-extra
+----
+
+The configuration file for eapol_test are available at /usr/share/eapol_test/*.conf 
+
+You now need to configure your configuration file to match your user.
+
+Let's start with the EAP-PEAP:
+
+edit the file /usr/share/eapol_test/peap-mschapv2.conf and change the following fields:
+ 
+ * identity="bob"
+ * password="hello"
+
+You can also uncomment the ca_cert line if you want to verifiy the CA during the authentication process. To verify that a Portal Profile with a filter by SSID is working, you can also change the field `ssid="example"`.
+
+To test EAP-TLS you will need to create a configuration file like the following:
+
+----
+network={
+        ssid="example"
+        key_mgmt=WPA-EAP
+        eap=TLS
+        identity="my_client_cert_commun_name"
+        ca_cert=/usr/local/pf/raddb/cert/YourCA.pem
+        client_cert=/usr/local/pf/conf/ssl/YourClientCert.pem
+        private_key=/usr/local/pf/conf/ssl/YourClientKey.key
+        # uncomment the following line if you have a password for your private key file
+        # private_key_passwd="password"
+}
+----
+
+To test EAP-FAST create a file like the following:
+
+----
+network={
+        ssid="example"
+        key_mgmt=WPA-EAP
+        eap=FAST
+        pac_file="/tmp/tmp.pac"
+        phase1="fast_provisioning=2"
+        phase2="autheap=MSCHAPV2"
+        identity="LDAP_Username"
+        password="LDAP_Password"
+        #
+        #  Uncomment the following to perform server certificate validation.
+#       ca_cert="/etc/raddb/certs/ca.der"
+}
+----
+
+Now that you have your different configuration file run eapol_test by doing:
+
+eapol_test -c /usr/share/eapol_test/config_file.conf -a 192.168.0.5 -p 1812 -s RADIUS_secret
+
+192.168.0.5 being your PacketFence management IP address. All the results should be visible on the console where you launched the eapol_test and through the RADIUS Audit Log.
+
+Testing without eapol_test
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you need to test it with a real environnement, start by making sure all your configuration are fine. Make sure your PacketFence server is joined to the domain and also that the CA and RADIUS certificate are correct.
+
+
+
+
+Debugging
+~~~~~~~~~
+
+This are some method you could use if a device is unable to connect or a user is not getting where it should. Since version 6.0 the RADIUS Audit Log was introduce, section Auditing after 6.3. this will be your main tool of diagnostics with /usr/local/pf/logs section.
+
+Debugging example
+^^^^^^^^^^^^^^^^^
+
+image::docs/images/radius-auditlog-overview.png[scaledwidth="100%",alt="RADIUS Audit Log overview"]
+
+The RADIUS Audit Log is one of your main tool when it comes to debugging, it will allow you to see every RADIUS request and answer that went through PacketFence. 
+
+Let's assume the following scenario:
+
+ * Your device has the mac aa:bb:cc:dd:ee:ff, it try to connect from the switch with IP 192.168.0.10 via MAC authentication,
+ you are supposed to be accepted and redirected to the Portal Profile: MACAuth.
+ 
+Now is the request from your device coming through in the RADIUS log?
+
+If the request is not here, you will need to look at the following:
+
+ * RADIUS server configuration on the switch(RADIUS secret, IP, port),
+ * IP based communication between PacketFence management IP and the switch,
+ * General switch configuration,
+ 
+When this has been fixed you should receive the RADIUS request from the client. Now what is the status of this one? 
+
+If it is `Reject` try to see what is the `Reason' for it by clicking `Details'. If the message is not explicit enough, you could select the tab `RADIUS' and have the full RADIUS Request and Reply details. That should allow you to determine what is the reason why the device could not connect.
+
+Once authenticate via RADIUS, you can look in logs/packetfence.log, you should see a line like this:
+
+----
+httpd.aaa(5417) INFO: [mac:aa:bb:cc:dd:ee:ff] Instantiate profile MACAuth (pf::Portal::ProfileFactory::_from_profile)
+----
+
+This mean that the device should be able to see the portal. Now if the user still cannot see it, you can verify if the device hit the portal via logs/httpd.portal.access, you need the IP of the device to do so. In this log file, search for the IP of the device and a 'GET' request.
+
+Let's now imagine the same scenario but the device want to connect in EAP-TLS where there is an auto register filter.
+
+The connection seems to fail from the device, using the same method, you will need to make sure that the mode of authentication (Computer or User) is matching the certificate deployed on the client. Also if there is a fail handshake between the certificates, that will appear as the fail reasons, for instance not issued by the same CA.
+
+If your RADIUS connection was valid, you should know have a line the Audit Log where the status should be reg instead of unreg. Looking though the `Details' you should see in the tab RADIUS the auto register that have been returned.
+
