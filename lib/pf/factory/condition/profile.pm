@@ -114,7 +114,7 @@ sub instantiate {
 }
 
 my %VALUE_FILTERS = (
-    connection_type => \&str_to_connection_type,
+#    connection_type => \&str_to_connection_type,
     connection_sub_type => sub {
         return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
     },
