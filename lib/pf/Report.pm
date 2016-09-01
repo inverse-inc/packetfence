@@ -3,6 +3,7 @@ package pf::Report;
 use Moose;
 use SQL::Abstract::More;
 use pf::db;
+use pf::log;
 
 use constant REPORT => 'Report';
 
@@ -21,7 +22,8 @@ sub Report_db_prepare {}
 
 sub generate_sql_query {
     my ($self, %infos) = @_;
-    use Data::Dumper;
+    my $logger = get_logger;
+
     my $sqla = SQL::Abstract::More->new();
     my $and = [];
 
@@ -43,9 +45,11 @@ sub generate_sql_query {
         my $all = $infos{search}{type} eq "all" ? 1 : 0;
         my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$infos{search}{conditions}};
         if($all) {
+            $logger->debug("Matching for all conditions");
             push @$and, [ -and => \@conditions ];
         }
         else {
+            $logger->debug("Matching for any conditions");
             push @$and, \@conditions;
         }
     }
@@ -72,6 +76,8 @@ sub generate_sql_query {
 sub query {
     my ($self, %infos) = @_;
     my ($sql, $params) = $self->generate_sql_query(%infos);
+    my $print_params = join(", ", map { "'$_'" } @$params);
+    get_logger->debug("Executing query : $sql, with the following params : $print_params");
     return db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
 }
 
