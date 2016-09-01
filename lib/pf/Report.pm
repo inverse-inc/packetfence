@@ -2,6 +2,9 @@ package pf::Report;
 
 use Moose;
 use SQL::Abstract::More;
+use pf::db;
+
+use constant REPORT => 'Report';
 
 has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
 
@@ -13,7 +16,10 @@ has 'columns', (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'date_field', (is => 'rw', isa => 'Str');
 
-sub query {
+# empty since no queries are prepared upfront
+sub Report_db_prepare {}
+
+sub generate_sql_query {
     my ($self, %infos) = @_;
     use Data::Dumper;
     my $sqla = SQL::Abstract::More->new();
@@ -60,7 +66,13 @@ sub query {
         -limit => $infos{per_page},
         -offset => $infos{page} * $infos{per_page},
     );
-    print $sql;
+    return ($sql, \@params);
+}
+
+sub query {
+    my ($self, %infos) = @_;
+    my ($sql, $params) = $self->generate_sql_query(%infos);
+    return db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
 }
 
 1;
