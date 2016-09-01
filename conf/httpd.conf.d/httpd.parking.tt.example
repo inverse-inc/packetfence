@@ -40,6 +40,9 @@
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
   </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -81,6 +84,9 @@
   </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module modules/mod_rewrite.so
   </IfModule>
 </IfDefine>
 
@@ -142,4 +148,8 @@ Header set Cache-Control "no-cache, no-store, must-revalidate"
   [% END %]
 </Directory>
 
-ErrorDocument 404 /index.html
+ErrorDocument 404 /404-not-found
+
+RewriteEngine On
+RewriteRule ^/404-not-found$ /index.html [R]
+
