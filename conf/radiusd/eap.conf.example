@@ -58,10 +58,6 @@ eap {
 	#  connections.  It is insecure, and does not provide for dynamic WEP
 	#  keys or WPA enterprise.
 	#
-[% IF MD5 %]
-	md5 {
-	}
-[% END %]
 
 	## EAP-PWD (Secure password-based authentication)
 	#
@@ -976,6 +972,10 @@ eap {
 		#  information to uniquely identify it.
 #		identity = "FreeRADIUS"
 	}
+[% END %]
+[% IF MD5 %]
+        md5 {
+        }
 [% END %]
 [% IF FAST %]
 
