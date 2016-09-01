@@ -229,12 +229,13 @@ post-auth {
     }
 	#
 	rest
-	if (updated || ok || noop) {
-		request-timing
-		-sql
-	} else {
+	if (&reply:PacketFence-Radius-Reply == "deny") {
 		request-timing
 		-sql_reject
+		reject
+	} else {
+		request-timing
+		-sql
 	}
 
 	update {

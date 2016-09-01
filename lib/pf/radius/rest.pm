@@ -41,9 +41,10 @@ sub format_response {
 
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object;
-
+    $response->{'reply:PacketFence-Radius-Reply'} = 'allow';
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
-        die pf::api::error->new(status => Apache2::Const::HTTP_FORBIDDEN);
+        $response->{'reply:PacketFence-Radius-Reply'} = 'deny';
+        $radius_return = $RADIUS::RLM_MODULE_OK
     }
 
     unless ($radius_return == $RADIUS::RLM_MODULE_OK) {
