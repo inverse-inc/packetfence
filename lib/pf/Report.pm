@@ -44,6 +44,9 @@ sub query {
         }
     }
 
+    $infos{page} //= 0;
+    $infos{per_page} //= 25;
+
     my ($sql, @params) = $sqla->select(
         -columns => $self->columns, 
         -from => [
@@ -54,6 +57,8 @@ sub query {
                 @$and,
             ]
         ],
+        -limit => $infos{per_page},
+        -offset => $infos{page} * $infos{per_page},
     );
     print $sql;
 }
