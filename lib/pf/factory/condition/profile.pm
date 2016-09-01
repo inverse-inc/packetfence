@@ -18,6 +18,8 @@ our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
 use pf::condition_parser qw(parse_condition_string);
+use pf::config::util qw(str_to_connection_type);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 use pf::log;
 
 our %UNARY_OPS = (
@@ -111,6 +113,13 @@ sub instantiate {
     }
 }
 
+my %VALUE_FILTERS = (
+    connection_type => \&str_to_connection_type,
+    connection_sub_type => sub {
+        return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+    },
+);
+
 sub instantiate_advanced {
     my ($class, $filter) = @_;
     my ($condition, $msg) = parse_condition_string($filter);
@@ -137,6 +146,9 @@ sub getData {
     #make a copy to avoid modifing the original data
     my %args = %{$PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$type}};
     my $condition_type = delete $args{type};
+    if (exists $VALUE_FILTERS{$type}) {
+        $value = $VALUE_FILTERS{$type}->($value);
+    }
     $args{value} = $value;
     return $condition_type, \%args;
 }
