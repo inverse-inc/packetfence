@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules', require => 1;
 use pf::config::util qw(str_to_connection_type);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 our @MODULES;
 
@@ -79,10 +80,21 @@ sub _build_parent_condition {
     });
 }
 
+my %VALUE_FILTERS = (
+    connection_type => \&str_to_connection_type,
+    connection_sub_type => sub {
+        return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+    },
+);
+
 sub _build_sub_condition {
     my ($data) = @_;
     my $condition_class = $ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE{$data->{operator}};
-    my $value = $data->{filter} eq 'connection_type' ? str_to_connection_type($data->{value}) : $data->{value};
+    my $filter = $data->{filter};
+    my $value = $data->{value};
+    if (exists $VALUE_FILTERS{$filter}) {
+        $value = $VALUE_FILTERS{$filter}->($value);
+    }
     return $condition_class ? $condition_class->new({value => $value}) : undef;
 }
 
