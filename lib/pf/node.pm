@@ -24,6 +24,7 @@ use Readonly;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
 use pf::error qw(is_success);
+use pf::constants::parking qw($PARKING_VID);
 
 use constant NODE => 'node';
 
@@ -989,6 +990,11 @@ sub node_register {
         return (0);
     }
     $pf::StatsD::statsd->increment( called() . ".called" );
+
+    # Closing any parking violations
+    # loading pf::violation here to prevent circular dependency
+    require pf::violation;
+    pf::violation::violation_force_close($mac, $PARKING_VID);
 
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
     my $scan = $profile->findScan($mac);
