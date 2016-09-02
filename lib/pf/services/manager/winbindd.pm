@@ -52,7 +52,7 @@ sub _build_winbinddManagers {
         pf::services::manager::winbindd_child->new ({
             executable => $self->executable,
             name => "winbindd-$_.conf",
-            launcher => "sudo chroot $CHROOT_PATH $binary -D -s $CONFIGFILE -l $LOGDIRECTORY",
+            launcher => "sudo chroot $CHROOT_PATH $binary -d 10 -D -s $CONFIGFILE -l $LOGDIRECTORY",
             forceManaged => $self->isManaged,
             orderIndex => $self->orderIndex,
             domain => $_,
