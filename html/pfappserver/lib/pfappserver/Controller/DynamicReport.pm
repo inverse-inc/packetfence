@@ -1,44 +1,18 @@
-package pf::factory::report;
+package pfappserver::Controller::DynamicReport;
 
 =head1 NAME
 
-pf::factory::report
-
-=cut
+pfappserver::Controller::DynamicReport
 
 =head1 DESCRIPTION
 
-The factory for reports
+Place all customization for Controller::DynamicReport here
 
 =cut
 
-use strict;
-use warnings;
+use Moose;
 
-use List::MoreUtils qw(any);
-use pf::Report;
-
-use pf::config qw(%ConfigReport);
-
-sub factory_for { 'pf::Report' }
-
-=head2 new
-
-Will create a new pf::report sub class  based off the name of the provider
-If no provider is found the return undef
-
-=cut
-
-sub new {
-    my ($class,$id) = @_;
-    my $report;
-    my $data = $ConfigReport{$id};
-    if ($data) {
-        $data->{id} = $id;
-        $report = factory_for->new($data);
-    }
-    return $report;
-}
+BEGIN { extends 'pfappserver::PacketFence::Controller::DynamicReport'; }
 
 =head1 AUTHOR
 
@@ -67,6 +41,8 @@ USA.
 
 =cut
 
-1;
 
+__PACKAGE__->meta->make_immutable;
+
+1;
 

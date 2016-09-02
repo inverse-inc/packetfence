@@ -1,0 +1,19 @@
+<h2>[% report.id %]</h2>
+
+[% IF items.size > 0 %]
+<table>
+  [% FOREACH key IN items.0.keys %]
+  <th>[% key %]</th>
+  [% END %]
+  
+  [% FOREACH item IN items %]
+  <tr>
+    [% FOREACH key IN item.keys %]
+    <td>[% item.$key %]</td>
+    [% END %]
+  </tr>
+  [% END %]
+</table>
+[% ELSE %]
+<h4>No data to display...</h4>
+[% END %]

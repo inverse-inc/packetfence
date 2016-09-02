@@ -4,8 +4,11 @@ use Moose;
 use SQL::Abstract::More;
 use pf::db;
 use pf::log;
+use Tie::IxHash;
 
 use constant REPORT => 'Report';
+
+has 'id', (is => 'rw', isa => 'Str');
 
 has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
 
@@ -78,7 +81,27 @@ sub query {
     my ($sql, $params) = $self->generate_sql_query(%infos);
     my $print_params = join(", ", map { "'$_'" } @$params);
     get_logger->debug("Executing query : $sql, with the following params : $print_params");
-    return db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    return $self->db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+}
+
+sub db_data {
+    my ($self, $from_module, $module_statements_ref, $query, @params) = @_;
+
+    my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
+
+    my ( $ref, @array );
+    # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
+    my $fields = $sth->{NAME};
+    my $fieldsLength = @$fields;
+    while ( $ref = $sth->fetchrow_arrayref() ) {
+        tie my %record, 'Tie::IxHash';
+        foreach my $i (0..($fieldsLength-1)) {
+            $record{$fields->[$i]} = $ref->[$i];
+        }
+        push( @array, \%record );
+    }
+    $sth->finish();
+    return (@array);
 }
 
 1;
