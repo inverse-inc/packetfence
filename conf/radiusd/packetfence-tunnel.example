@@ -224,16 +224,23 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+	update {
+		&request: += &outer.request:[*]
+	}
 	#
 	rest
-	if (updated || ok || noop) {
-		request-timing
-		-sql
-	} else {
+	if (&reply:PacketFence-Radius-Reply == "deny") {
 		request-timing
 		-sql_reject
+		reject
+	} else {
+		request-timing
+		-sql
 	}
 
+	update {
+		&outer.session-state: += &reply:
+	}
 	#
 	#  Un-comment the following if you have set
 	#  'edir_account_policy_check = yes' in the ldap module sub-section of
@@ -269,6 +276,9 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		update {
+			&request: += &outer.request:[*]
+		}
 		request-timing
 		# log failed authentications in SQL, too.
 		-sql_reject

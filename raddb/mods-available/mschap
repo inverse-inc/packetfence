@@ -16,7 +16,7 @@ mschap {
 	# add MS-CHAP-MPPE-Keys for MS-CHAPv1 and
 	# MS-MPPE-Recv-Key/MS-MPPE-Send-Key for MS-CHAPv2
 	#
-	use_mppe = no
+	use_mppe = yes
 
 	# if mppe is enabled require_encryption makes
 	# encryption moderate

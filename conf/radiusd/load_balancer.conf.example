@@ -1,28 +1,9 @@
 
 pidfile = %%pid_file%%
 
-$INCLUDE radiusd.conf
+$INCLUDE radiusd-balancer.conf
+$INCLUDE sites-included/packetfence-cluster
 
-listen {
-        ipaddr = %%virt_ip%%
-        port = 0
-        type = auth
-        virtual_server = pf.cluster
-}
-
-listen {
-        ipaddr = %%virt_ip%%
-        port = 0
-        type = acct
-        virtual_server = pf.cluster
-}
-
-listen {
-        ipaddr = %%virt_ip%%
-        port = 1815
-        type = auth
-        virtual_server = pfcli.cluster
-}
 
 listen {
     type = control

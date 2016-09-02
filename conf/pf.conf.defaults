@@ -1487,3 +1487,20 @@ place_in_dhcp_parking_group=enabled
 #
 # Show the parking portal to the device instead of the usual portal
 show_parking_portal=enabled
+
+[radius_authentication_methods]
+#
+# radius_authentication_methods.eap_authentication_types
+#
+# EAP Supported Methods. EAP-FAST is disabled by default.
+eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP
+#
+# radius_authentication_methods.eap_fast_opaque_key
+#
+# EAP-FAST 32 bytes Opaque Key (Considered only if EAP-FAST is enabled)
+eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
+#
+# radius_authentication_methods.eap_fast_authority_identity
+#
+# EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
+eap_fast_authority_identity=1234

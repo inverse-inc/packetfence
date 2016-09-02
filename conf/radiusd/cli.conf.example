@@ -1,13 +1,8 @@
 pidfile = %%pid_file%%
 
 $INCLUDE radiusd.conf
+$INCLUDE sites-included/packetfence-cli
 
-listen {
-    ipaddr = %%management_ip%%
-    port = 1815
-    type = auth
-    virtual_server = packetfence-cli
-}
 
 listen {
     type = control
