@@ -46,6 +46,9 @@ Executes a command and returns the results as the domain interfaces expect it
 
 sub run {
     my ($cmd) = @_;
+ 
+    my $logger = get_logger();
+    $logger->info("COMMAND:" . $cmd);   
 
     my $result = `$cmd`;
     my $code = $? >> 8;
