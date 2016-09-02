@@ -151,14 +151,13 @@ sub getBillingTiers {
     my ($self) = @_;
     my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
     if(@tier_ids == 0){
-        @tier_ids = keys %ConfigBillingTiers;
+        @tier_ids = sort(keys %ConfigBillingTiers);
     }
     my @tiers;
-    while(my ($tier_id, $tier) = each %ConfigBillingTiers){
-        if(any { $_ eq $tier_id } @tier_ids){
-            $tier->{id} = $tier_id;
-            push @tiers, $tier;
-        }
+    foreach my $tier_id (@tier_ids) {
+        my $tier = $ConfigBillingTiers{$tier_id};
+        $tier->{id} = $tier_id;
+        push @tiers, $tier;
     }
     return \@tiers;
 }
