@@ -19,7 +19,6 @@
         'admin/nodes',
         'admin/reports'
         'admin/dynamicreport'
-        'admin/common'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',
