@@ -191,6 +191,8 @@ sub authenticate {
     }
 
     else {
+        $username = $self->clean_username($username);
+
         # validate login and password
         my ( $return, $message, $source_id ) =
           pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources );
@@ -268,6 +270,15 @@ sub display_challenge {
         title => $self->challenge_data->{message},
         %{$args},
     });
+}
+
+=head2 clean_username
+
+=cut
+
+sub clean_username {
+    my ($self, $username) = @_;
+    return $username;
 }
 
 
