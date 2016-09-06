@@ -23,6 +23,7 @@ use namespace::autoclean;
 use pf::config qw(
     $management_network
     %Config
+    %ConfigReport
 );
 use pf::cluster;
 use Sys::Hostname;
@@ -490,6 +491,8 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
 sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
+
+    $c->stash->{dynamic_reports} = { map { $_ => $ConfigReport{$_}->{description} } keys(%ConfigReport) };
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 
