@@ -71,13 +71,6 @@ has_block definition =>
    render_list => [ qw(id type password port categories networks cache_updates cache_timeout) ],
   );
 
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
 
 =head2 Methods
 
