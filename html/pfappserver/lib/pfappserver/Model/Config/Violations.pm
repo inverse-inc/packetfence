@@ -16,10 +16,11 @@ use Moose;
 use namespace::autoclean;
 
 use pf::config::cached;
-use pf::config qw(%CAPTIVE_PORTAL);
+use pf::config qw(%CAPTIVE_PORTAL %Profiles_Config);
 use pf::violation_config;
 use HTTP::Status qw(:constants is_error is_success);
 use pf::ConfigStore::Violations;
+use List::MoreUtils qw(uniq);
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -34,11 +35,15 @@ Return the list of available remediation templates
 =cut
 
 sub availableTemplates {
-    opendir(DIR, $CAPTIVE_PORTAL{TEMPLATE_DIR} . '/violations');
-    my @templates = grep { /^[^\.]+\.html$/ } readdir(DIR);
-    s/\.html// for @templates;
-    closedir(DIR);
-
+    my @dirs = map { uniq(@{pf::Portal::ProfileFactory->_from_profile($_)->{_template_paths}}) } keys(%Profiles_Config);
+    my @templates;
+    foreach my $dir (@dirs) {
+        opendir(DIR, $dir . '/violations');
+        push @templates, grep { /^[^\.]+\.html$/ } readdir(DIR);
+        s/\.html// for @templates;
+        closedir(DIR);
+    }
+    @templates = sort(uniq(@templates));
     return \@templates;
 }
 
