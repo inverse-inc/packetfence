@@ -10,6 +10,8 @@ use constant REPORT => 'Report';
 
 has 'id', (is => 'rw', isa => 'Str');
 
+has 'description', (is => 'rw', isa => 'Str');
+
 has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
 
 has 'searches', (is => 'rw', isa => 'ArrayRef[HashRef]');

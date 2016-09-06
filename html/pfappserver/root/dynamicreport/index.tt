@@ -1,4 +1,4 @@
-<h2>[% report.id %]</h2>
+<h2>[% IF report.description ; report.description ; ELSE ; report.id ; END %]</h2>
 
 [%- BLOCK search_options %]
   <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
