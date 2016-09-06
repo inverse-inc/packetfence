@@ -14,8 +14,10 @@
         'js/bootstrapSwitch',
         'js/node',
         'js/user',
+        'admin/searches',
         'admin/nodes',
         'admin/reports'
+        'admin/dynamicreport'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',

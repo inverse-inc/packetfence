@@ -22,12 +22,32 @@ BEGIN {
 
 sub view :Local :Args(1) :AdminRole('REPORTS') {
     my ($self, $c, $report_id) = @_;
-    my $report = $c->stash->{report} = pf::factory::report->new($report_id);
 
-    my @items = $report->query;
-    $c->stash->{items} = \@items;
-    use Data::Dumper;
-    $c->log->info(Dumper(\@items));
+    $c->stash->{template} = "dynamicreport/view.tt";
+    $c->forward("_search", [$report_id]);
 }
 
+sub search :Local :AdminRole('REPORTS') {
+    my ($self, $c) = @_;
+
+    my $report_id = $c->req->param('report_id');
+
+    $c->stash->{template} = "dynamicreport/search.tt";
+    $c->forward("_search", [$report_id]);
+}
+
+sub _search :AdminRole('REPORTS') {
+    my ($self, $c, $report_id) = @_;
+    my $report = $c->stash->{report} = pf::factory::report->new($report_id);
+
+    $c->stash->{page_num} = $c->request->param("page_num") // 1;
+    my %infos = (
+        page => $c->stash->{page_num}, 
+        per_page => $c->request->param("per_page"),
+    );
+    my @items = $report->query(%infos);
+
+    $c->stash->{items} = \@items;
+    $c->stash->{page_count} = $report->page_count(%infos);
+}
 1;

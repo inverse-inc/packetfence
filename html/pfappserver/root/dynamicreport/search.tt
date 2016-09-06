@@ -1,0 +1,32 @@
+
+[% IF items.size > 0 %]
+
+<table id="dynamicReport" class="table table-condensed table-striped items">
+  <thead>
+    <tr>
+    <th colspan="[% items.0.keys.size %]">[% pagination(c.controller.action_for("search"), page_num, page_count,{direction => direction, by => by }, '', null, {"data-no-refresh" => "yes"}) | none %]</th>
+    </tr>
+    <tr>
+    [% FOREACH key IN items.0.keys %]
+    <th>[% key %]</th>
+    [% END %]
+    </tr>
+  </thead>
+  
+  [% FOREACH item IN items %]
+  <tr>
+    [% FOREACH key IN item.keys %]
+    <td>[% item.$key %]</td>
+    [% END %]
+  </tr>
+  [% END %]
+  <tfoot>
+    <tr>
+    <th colspan="[% items.0.keys.size %]">[% pagination(c.controller.action_for("search"), page_num, page_count,{direction => direction, by => by }, '#reportSearch') | none %]</th>
+    </tr>
+  </tfoot>
+</table>
+[% ELSE %]
+<h4>No data to display...</h4>
+[% END %]
+

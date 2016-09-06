@@ -57,11 +57,16 @@ sub generate_sql_query {
         }
     }
 
-    $infos{page} //= 0;
-    $infos{per_page} //= 25;
+    my %limit_offset;
+    unless($infos{count_only}) {
+        %limit_offset = (
+            -limit => $infos{per_page},
+            -offset => ($infos{page}-1) * $infos{per_page},
+        );
+    }
 
     my ($sql, @params) = $sqla->select(
-        -columns => $self->columns, 
+        -columns => $infos{count_only} ? 'count(*) as count' : $self->columns, 
         -from => [
             -join => ($self->base_table, split(" ", join(" ", @{$self->joins}))),
         ],
@@ -70,18 +75,34 @@ sub generate_sql_query {
                 @$and,
             ]
         ],
-        -limit => $infos{per_page},
-        -offset => $infos{page} * $infos{per_page},
+        %limit_offset,
     );
     return ($sql, \@params);
 }
 
+sub ensure_default_infos {
+    my ($self, $infos) = @_;
+    $infos->{page} //= 1;
+    $infos->{per_page} //= 25;
+    $infos->{count_only} //= 0;
+}
+
 sub query {
     my ($self, %infos) = @_;
+    $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos);
     my $print_params = join(", ", map { "'$_'" } @$params);
     get_logger->debug("Executing query : $sql, with the following params : $print_params");
     return $self->db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+}
+
+sub page_count {
+    my ($self, %infos) = @_;
+    $self->ensure_default_infos(\%infos);
+    my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
+    my @results = $self->db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    my $pages = $results[0]->{count} / $infos{per_page};
+    return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
 sub db_data {
