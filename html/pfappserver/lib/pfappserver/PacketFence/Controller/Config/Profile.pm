@@ -473,7 +473,8 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PR
         $c->stash->{path} = $to_path;
         $c->forward('path_exists');
         $c->stash->{current_view} = 'JSON';
-        copy($from_path, $to_path);
+        $c->log->info("Copying file $from_path to $to_path");
+        pf::util::safe_file_update($to_path, $self->getFileContent($c, $from_path));
         # Sync file in cluster if necessary
         $self->_sync_file($c, $to_path);
     }
