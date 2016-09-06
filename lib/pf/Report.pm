@@ -65,6 +65,18 @@ sub generate_sql_query {
         );
     }
 
+    my %ordering;
+    if($infos{order}) {
+        %ordering = (
+            -order_by => [$infos{order}],
+        );
+    }
+    elsif(defined($self->date_field)) {
+        %ordering = (
+            -order_by => ['-'.$self->date_field],
+        );
+    }
+
     my ($sql, @params) = $sqla->select(
         -columns => $infos{count_only} ? 'count(*) as count' : $self->columns, 
         -from => [
@@ -76,6 +88,7 @@ sub generate_sql_query {
             ]
         ],
         %limit_offset,
+        %ordering,
     );
     return ($sql, \@params);
 }
