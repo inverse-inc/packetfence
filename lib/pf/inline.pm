@@ -62,7 +62,7 @@ sub get_technique {
     my $type;
     $type = "pf::ipset";
 
-    $logger->info("Instantiate a new iptables modification method. ". $type);
+    $logger->debug("Instantiate a new iptables modification method. ". $type);
     try {
         # try to import module and re-throw the error to catch if there's one
         eval "use $type";
