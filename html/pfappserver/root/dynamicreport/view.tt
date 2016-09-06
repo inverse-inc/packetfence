@@ -1,9 +1,97 @@
 <h2>[% report.id %]</h2>
 
+[%- BLOCK search_options %]
+  <select name="searches.0.name"[% ' disabled="disabled"' IF disabled %] class="span4">
+  [% FOREACH search IN searches %]
+    <option value="[% search.field %]">[% l(search.display) %]</option>
+  [% END %]
+  </select>
+  <select name="searches.0.op"[% ' disabled="disabled"' IF disabled %] class="span2" >
+    <option value="=">[% l('is') %]</option>
+    <option value="!=">[% l('is not') %]</option>
+    <option value="like">[% l('matches') %]</option>
+  </select>
+  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String..."/>
+[% END -%]
 
-<form id="search" method="POST">
-  [% INCLUDE per_page_select.tt %]
-  <input type="hidden" name="report_id" value="[% report.id %]">
-</form>
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <div class="nav-collapse collapse navbar-responsive-collapse">
+        <form id="search" name="search" class="navbar-search pull-left input-daterange datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
+          <input type="hidden" name="report_id" value="[% report.id %]">
+          <div style="width: 441px">
+            <table id="searchConditions" class="table-dynamic">
+               <thead>
+                  <tr>
+                    <td colspan="2">
+                      <div class="pull-left">
+                        [% match_options = BLOCK %]
+                          <select name="all_or_any" class="input-mini">
+                            <option value="all">[% l('all') %]</option>
+                            <option value="any">[% l('any') %]</option>
+                          </select>
+                        [% END %]
+                        <br/>
+                        [% l('Match [_1] of the following conditions:', [match_options]) | none %]
+                      </div>
+                  </td>
+                </tr>
+              </thead>
+              <tbody data-no-remove="yes">
+                <tr class="hidden dynamic-row">
+                  <td>
+                   [% PROCESS search_options disabled=1 %]
+                  </td>
+                  <td class="action">
+                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>
+                    <div id="searchConditionsEmpty" class="unwell unwell-horizontal">
+                      <p>
+                        <i class="icon-search" style="line-height: 24px"></i>
+                        <a href="#add">[% l('Add a condition.') %]</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 1em">
+                    <div class="pull-left">
+                    [% per_page_options = BLOCK %]
+                      <select name="per_page" class="input-mini">
+                        <option value="25" [% "selected=selected" IF per_page == 25 %]>25</option>
+                        <option value="50" [% "selected=selected" IF per_page == 50 %]>50</option>
+                        <option value="75" [% "selected=selected" IF per_page == 75 %]>75</option>
+                        <option value="100" [% "selected=selected" IF per_page == 100 %]>100</option>
+                      </select>
+                    [% END %]
+                    [% l('Display [_1] entries per page', [per_page_options]) | none %]
+                    </div>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                      <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                           <li><a href="#" data-export-url="[% c.uri_for(c.controller.action_for('search')) %]" data-export-form="#search" class="exportCSVBtn">[% l('Export to CSV') %]</a></li>
+                          <li><a  data-toggle="modal" data-target="#savedSearch" >[% l('Save as...') %]</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 [% INCLUDE 'dynamicreport/search.tt' %]
