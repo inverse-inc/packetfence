@@ -19,6 +19,66 @@ extends 'pfappserver::Base::Form';
 
 =over
 
+=item start
+
+=cut
+
+has_field 'start' => (
+    type => 'Compound',
+);
+
+=item start.date
+
+=cut
+
+has_field 'start.date' =>
+  (
+   type => 'DatePicker',
+   label => 'Start Date',
+   required => 1,
+  );
+
+=item start.time
+
+=cut
+
+has_field 'start.time' =>
+  (
+   type => 'TimePicker',
+   label => 'Start Time',
+   required => 1,
+  );
+
+=item end
+
+=cut
+
+has_field 'end' =>
+  (
+   type => 'Compound',
+  );
+
+=item end.date
+
+=cut
+
+has_field 'end.date' =>
+  (
+   type => 'DatePicker',
+   label => 'End Date',
+   required => 1,
+  );
+
+=item end.time
+
+=cut
+
+has_field 'end.time' =>
+  (
+   type => 'TimePicker',
+   label => 'End Time',
+  );
+
 =item per_page
 
 =cut
