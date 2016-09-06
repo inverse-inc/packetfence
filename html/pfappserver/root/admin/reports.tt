@@ -1,4 +1,5 @@
 [%  jsFiles = [
+        'app/jquery-ui',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
         'app/raphael/g.bar-min',
@@ -18,6 +19,7 @@
         'admin/nodes',
         'admin/reports'
         'admin/dynamicreport'
+        'admin/common'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',

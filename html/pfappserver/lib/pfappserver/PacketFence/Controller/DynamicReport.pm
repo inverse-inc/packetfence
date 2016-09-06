@@ -78,5 +78,11 @@ sub _search :AdminRole('REPORTS') {
     $c->stash->{searches} = $report->searches;
     $c->stash->{items} = \@items;
     $c->stash->{page_count} = $report->page_count(%infos);
+
+    if ($c->request->param('export')) {
+        $c->stash({
+            current_view => 'CSV',
+        });
+    }
 }
 1;
