@@ -26,10 +26,10 @@ __PACKAGE__->config(
     }
 );
 
-sub view :Local :Args(1) :AdminRole('REPORTS') {
+sub index :Path :Args(1) :AdminRole('REPORTS') {
     my ($self, $c, $report_id) = @_;
 
-    $c->stash->{template} = "dynamicreport/view.tt";
+    $c->stash->{template} = "dynamicreport/index.tt";
     $c->forward("_search", [$report_id]);
 }
 
