@@ -16,6 +16,10 @@ has 'group_field', (is => 'rw', isa => 'Str');
 
 has 'order_fields', (is => 'rw', isa => 'ArrayRef[Str]');
 
+has 'base_conditions', (is => 'rw', isa => 'ArrayRef[HashRef]');
+
+has 'base_conditions_operator', (is => 'rw', isa => 'Str', default => 'all');
+
 has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
 
 has 'searches', (is => 'rw', isa => 'ArrayRef[HashRef]');
@@ -54,11 +58,24 @@ sub generate_sql_query {
         my $all = $infos{search}{type} eq "all" ? 1 : 0;
         my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$infos{search}{conditions}};
         if($all) {
-            $logger->debug("Matching for all conditions");
+            $logger->debug("Matching for all conditions for the provided search");
             push @$and, [ -and => \@conditions ];
         }
         else {
-            $logger->debug("Matching for any conditions");
+            $logger->debug("Matching for any conditions for the provided search");
+            push @$and, \@conditions;
+        }
+    }
+
+    if(@{$self->base_conditions} > 0) {
+        my $all = $self->base_conditions_operator eq "all" ? 1 : 0;
+        my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$self->base_conditions};
+        if($all) {
+            $logger->debug("Matching for all base conditions");
+            push @$and, [ -and => \@conditions ];
+        }
+        else {
+            $logger->debug("Matching for any base conditions");
             push @$and, \@conditions;
         }
     }

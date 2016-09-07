@@ -27,7 +27,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = [ qw(searches columns order_fields) ];
+    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions) ];
 }
 
 sub build_child {
@@ -44,6 +44,14 @@ sub build_child {
         }
         $tmp_cfg{$key}{searches} = \@formatted_searches;
 
+        my @formatted_base_conditions;
+        foreach my $condition (@{$tmp_cfg{$key}{base_conditions}}) {
+            my @pieces = split(/\s*\:\s*/, $condition);
+            push @formatted_base_conditions, {field => $pieces[0], operator => $pieces[1], value => $pieces[2]};
+        }
+
+        $tmp_cfg{$key}{base_conditions} = \@formatted_base_conditions;
+        $tmp_cfg{$key}{searches} = \@formatted_searches;
         $tmp_cfg{$key}{joins} //= "";
         $tmp_cfg{$key}{joins} = [ split("\n", $tmp_cfg{$key}{joins}) ];
     }
