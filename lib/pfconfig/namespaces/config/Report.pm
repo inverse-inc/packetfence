@@ -54,6 +54,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
+    # By default expand_list doesn't expand undef values, in this case we want it so we define an empty value when undef
     foreach my $param (@{$self->{expandable_params}}) {
         $item->{$param} //= "";
     }
