@@ -27,7 +27,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = [ qw(searches columns) ];
+    $self->{expandable_params} = [ qw(searches columns order_fields) ];
 }
 
 sub build_child {
@@ -54,6 +54,9 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
+    foreach my $param (@{$self->{expandable_params}}) {
+        $item->{$param} //= "";
+    }
     $self->expand_list( $item, @{$self->{expandable_params}} );
 }
 

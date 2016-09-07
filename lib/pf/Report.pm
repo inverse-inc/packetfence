@@ -12,6 +12,10 @@ has 'id', (is => 'rw', isa => 'Str');
 
 has 'description', (is => 'rw', isa => 'Str');
 
+has 'group_field', (is => 'rw', isa => 'Str');
+
+has 'order_fields', (is => 'rw', isa => 'ArrayRef[Str]');
+
 has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
 
 has 'searches', (is => 'rw', isa => 'ArrayRef[HashRef]');
@@ -70,12 +74,24 @@ sub generate_sql_query {
     my %ordering;
     if($infos{order}) {
         %ordering = (
-            -order_by => [$infos{order}],
+            -order_by => [$infos{order}, @{$self->order_fields}],
+        );
+    }
+    elsif(@{$self->order_fields} > 0) {
+        %ordering = (
+            -order_by => $self->order_fields,
         );
     }
     elsif(defined($self->date_field)) {
         %ordering = (
             -order_by => ['-'.$self->date_field],
+        );
+    }
+
+    my %group_by;
+    if($self->group_field) {
+        %group_by = (
+            -group_by => [$self->group_field],
         );
     }
 
@@ -91,6 +107,7 @@ sub generate_sql_query {
         ],
         %limit_offset,
         %ordering,
+        %group_by,
     );
     return ($sql, \@params);
 }
