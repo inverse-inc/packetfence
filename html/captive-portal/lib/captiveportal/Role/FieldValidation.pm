@@ -44,7 +44,7 @@ sub validate_required_fields {
     my @errors;
     foreach my $field (@{$self->required_fields}){
         unless(defined($self->request_fields->{$field}) && $self->request_fields->{$field}){
-            push @errors, "$field is required";
+            push @errors, $self->app->i18n(["%s is required", $self->app->i18n($field)]);
         }
     }
     return \@errors;
@@ -61,7 +61,7 @@ sub validate_form {
 
     my $errors = $self->validate_required_fields();
     if(@$errors){
-        $self->app->flash->{error} = "The following errors prevented the request to be fulfilled : ".join(', ', @$errors);
+        $self->app->flash->{error} = [ "The following errors prevented the request to be fulfilled : %s", join(', ', @$errors) ];
         return 0;
     }
     my $form = $self->form($self->request_fields);
