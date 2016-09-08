@@ -929,3 +929,115 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Provisioning.pm
 msgid "According to the provisioner %s, your device is not allowed to access the network. Please follow the instruction below."
 msgstr ""
+
+msgid "The following errors prevented the request to be fulfilled : %s"
+msgstr ""
+
+msgid "%s is required"
+msgstr ""
+
+msgid "username"
+msgstr ""
+
+msgid "password"
+msgstr ""
+
+msgid "mobileprovider"
+msgstr "mobile provider"
+
+msgid "aup"
+msgstr "Acceptable Usage Policy"
+
+msgid "pid"
+msgstr ""
+
+msgid "firstname"
+msgstr ""
+
+msgid "lastname"
+msgstr ""
+
+msgid "email"
+msgstr ""
+
+msgid "telephone"
+msgstr ""
+
+msgid "company"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "notes"
+msgstr ""
+
+msgid "sponsor"
+msgstr ""
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr "cell phone"
+
+msgid "work_phone"
+msgstr "work phone"
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr "building number"
+
+msgid "apartment_number"
+msgstr "apartment number"
+
+msgid "room_number"
+msgstr "room number"
+
+msgid "custom_field_1"
+msgstr ""
+
+msgid "custom_field_2"
+msgstr ""
+
+msgid "custom_field_3"
+msgstr ""
+
+msgid "custom_field_4"
+msgstr ""
+
+msgid "custom_field_5"
+msgstr ""
+
+msgid "custom_field_6"
+msgstr ""
+
+msgid "custom_field_7"
+msgstr ""
+
+msgid "custom_field_8"
+msgstr ""
+
+msgid "custom_field_9"
+msgstr ""
+
+msgid "portal"
+msgstr ""
+
+msgid "source"
+msgstr ""
+
