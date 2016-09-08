@@ -2711,6 +2711,43 @@ Here are the main settings:
 * The destination role (thus VLAN) of the user is controlled by 'Advanced -> Role'. You should leave the user in the registration role, but should you want to dedicate a role for parking, you can set it there.
 * The `Template` attribute will only be used when the user is on the normal PacketFence portal and not the one dedicated for parking. If you want the user to access the non-parking portal, disable 'Show parking portal' in 'Configuration -> Parking'
 
+Custom reports
+~~~~~~~~~~~~~~
+
+Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports' tab of the administration interface.
+
+In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report.
+
+The following attributes are available to define your report (the ones that have an asterisk are mandatory):
+
+- * `description` : The user friendly description that will display for this report
+- * `base_table` : The base SQL table that will be used to create the view
+- * `columns` : The columns to select from the table(s) (ex: `node.mac`).
+- * `date_field` : The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
+- `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
+- `group_field` : The field to group the entries by. No grouping is done if this field is omited or empty.
+- `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
+- `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
+- `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
+- `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`). 
+  - `type` defines the type of the search, the only one currently supported is `string`.
+  - `Display Name` is the user friendly name of the field for display. 
+  - `field` is the SQL name of the field to search
+
+NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambigious. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
+
+Examples:
++++++++++
+
+View of the auth_log table:
+
+  [auth_log]
+  description=Super report
+  base_table=auth_log
+  columns=auth_log.*
+  date_field=attempted_at
+  searches=string:Username:auth_log.pid
+
 Optional components
 -------------------
 
