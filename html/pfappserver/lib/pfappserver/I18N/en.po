@@ -1112,10 +1112,11 @@ msgstr ""
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
+# html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/interface/view.tt
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/view.tt
 # html/pfappserver/root/node/violations.tt
-# html/pfappserver/root/dhcpoption82/view.tt
 # html/pfappserver/root/roles/read.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/user/list_password.tt
@@ -1312,11 +1313,11 @@ msgstr ""
 msgid "Congratulations!"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Sub Type"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Connection Type"
 msgstr ""
 
@@ -1926,6 +1927,7 @@ msgstr ""
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
@@ -2127,6 +2129,10 @@ msgstr ""
 msgid "Enable DHCP Server"
 msgstr ""
 
+# conf/documentation.conf (mse_tab.enabled)
+msgid "Enable MSE"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Enable NATting"
@@ -2182,7 +2188,7 @@ msgstr ""
 msgid "Encryption"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "End"
 msgstr ""
 
@@ -2446,6 +2452,10 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/configurator/configuration.tt
 msgid "General"
+msgstr ""
+
+# html/pfappserver/root/node/tab_MSE_view.tt
+msgid "Get Current Location"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -3256,6 +3266,14 @@ msgstr "MAC Addresses - Update"
 msgid "MD5 hash"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "MSE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "MSE_READ"
+msgstr "MSE - Read"
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
 msgstr ""
@@ -3632,7 +3650,7 @@ msgstr ""
 msgid "No fingerprint found"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "No location history"
 msgstr ""
 
@@ -3678,6 +3696,7 @@ msgstr ""
 msgid "No violation defined"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "No violation found"
@@ -3693,6 +3712,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node MAC"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Node MSE Tab"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -4173,6 +4196,10 @@ msgstr ""
 
 # html/pfappserver/root/user/view.tt
 msgid "Password Reminder"
+msgstr ""
+
+# conf/documentation.conf (mse_tab.pass)
+msgid "Password for MSE service"
 msgstr ""
 
 # conf/documentation.conf (database.pass)
@@ -4968,10 +4995,12 @@ msgstr ""
 msgid "Relative to the beginning of the period"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Release"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Release Date"
@@ -5178,6 +5207,7 @@ msgstr ""
 msgid "Rules Actions"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Run Now"
 msgstr ""
@@ -5507,6 +5537,7 @@ msgstr ""
 msgid "Security type"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Select a violation"
 msgstr ""
@@ -5886,7 +5917,7 @@ msgstr ""
 msgid "Standard Searches"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/service/status.tt
 msgid "Start"
 msgstr ""
@@ -5896,6 +5927,7 @@ msgid "Start All"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 msgid "Start Date"
@@ -6043,7 +6075,7 @@ msgstr ""
 msgid "Switch Information"
 msgstr ""
 
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 msgid "Switch Mac"
 msgstr ""
 
@@ -6051,6 +6083,7 @@ msgstr ""
 msgid "Switch Type"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/node/view.tt
 msgid "Switch/AP"
 msgstr ""
@@ -6639,6 +6672,7 @@ msgstr ""
 msgid "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation if one is found. This feature is only available if the dhcpdetector is activated."
 msgstr ""
 
+# html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
 msgid "Trigger"
 msgstr ""
@@ -6680,6 +6714,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "URL"
+msgstr ""
+
+# conf/documentation.conf (mse_tab.url)
+msgid "URL of MSE service"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
@@ -6959,7 +6997,7 @@ msgstr ""
 # html/pfappserver/root/admin/login.tt
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
-# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
@@ -6977,6 +7015,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 msgid "Username Prefix"
+msgstr ""
+
+# conf/documentation.conf (mse_tab.user)
+msgid "Username for MSE service"
 msgstr ""
 
 # conf/documentation.conf (database.user)
@@ -7090,7 +7132,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
-# html/pfappserver/root/node/view.tt
 # html/pfappserver/root/user/view.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
@@ -7633,6 +7674,10 @@ msgstr ""
 msgid "any"
 msgstr "Any"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "apMacAddress"
+msgstr "AP MAC Address"
+
 # html/pfappserver/root/admin/users.tt
 msgid "apartment_number"
 msgstr "appartment number"
@@ -7656,6 +7701,10 @@ msgstr "Auto Registration"
 # pf::action (VIOLATION_ACTIONS)
 msgid "autoreg_action"
 msgstr "Register node"
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "band"
+msgstr "Band"
 
 # conf/documentation.conf (advanced.hash_passwords options)
 msgid "bcrypt"
@@ -7828,6 +7877,10 @@ msgstr "Create at"
 msgid "current_time"
 msgstr "Current time"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "currentlyTracked"
+msgstr "Currently Tracked"
+
 # html/pfappserver/root/admin/users.tt
 msgid "custom_field_1"
 msgstr "custom field 1"
@@ -7959,6 +8012,7 @@ msgstr ""
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.person_cleanup options)
+# conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.force_listener_update_on_ack options)
@@ -8025,6 +8079,10 @@ msgstr ""
 msgid "distinguishedName"
 msgstr ""
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "dot11Status"
+msgstr "Dot11 Status"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "eap_type"
 msgstr "EAP Type"
@@ -8072,6 +8130,7 @@ msgstr ""
 # conf/documentation.conf (inline.accounting options)
 # conf/documentation.conf (inline.should_reauth_on_vlan_change options)
 # conf/documentation.conf (maintenance.person_cleanup options)
+# conf/documentation.conf (mse_tab.enabled options)
 # conf/documentation.conf (network.dhcpdetector options)
 # conf/documentation.conf (network.dhcpoption82logger options)
 # conf/documentation.conf (network.force_listener_update_on_ack options)
@@ -8160,6 +8219,10 @@ msgstr ""
 # pf::config (SoH Classes)
 msgid "firewall"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "firstLocatedTime"
+msgstr "First Located Time"
 
 # html/pfappserver/root/admin/users.tt
 msgid "firstname"
@@ -8339,6 +8402,10 @@ msgstr "Internal"
 msgid "ip"
 msgstr "IP Address"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "ipAddress"
+msgstr "IP Address"
+
 # html/pfappserver/root/admin/users.tt
 msgid "ip_address"
 msgstr "IP address"
@@ -8375,6 +8442,10 @@ msgstr ""
 msgid "is not"
 msgstr ""
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "isGuestUser"
+msgstr "Is Guest User"
+
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "is_phone"
 msgstr "Is a Phone"
@@ -8386,6 +8457,10 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "lang"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "lastLocatedTime"
+msgstr "Last Located Time"
 
 # html/pfappserver/root/admin/users.tt
 msgid "lastname"
@@ -8409,6 +8484,10 @@ msgstr ""
 # pf::dhcp_option82 (DHCP Option 82)
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "mac"
+msgstr "MAC Address"
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "macAddress"
 msgstr "MAC Address"
 
 # conf/documentation.conf (advanced.pfcmd_error_color options)
@@ -8609,6 +8688,10 @@ msgstr ""
 msgid "management"
 msgstr "Management"
 
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "mapHierarchyString"
+msgstr "Map Hierarchy"
+
 # pf::Authentication::constants (Actions)
 msgid "mark_as_sponsor"
 msgstr "Mark as Sponsor"
@@ -8702,6 +8785,26 @@ msgstr "Graphite Port"
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
 msgstr "Months"
+
+# conf/documentation.conf
+msgid "mse_tab"
+msgstr "MSE Lookup Service"
+
+# conf/documentation.conf
+msgid "mse_tab.enabled"
+msgstr "Enable MSE"
+
+# conf/documentation.conf
+msgid "mse_tab.pass"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "mse_tab.url"
+msgstr ""
+
+# conf/documentation.conf
+msgid "mse_tab.user"
+msgstr "Username"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "mysql"
@@ -8950,6 +9053,7 @@ msgstr ""
 msgid "plaintext"
 msgstr ""
 
+# html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 # pf::dhcp_option82 (DHCP Option 82)
@@ -9670,6 +9774,10 @@ msgstr "Source"
 # html/pfappserver/root/admin/users.tt
 msgid "sponsor"
 msgstr ""
+
+# pfappserver::Model::Node::Tab::MSE (MSE Tab)
+msgid "ssId"
+msgstr "SSID"
 
 # pf::config (Inline triggers)
 # pf::radius_audit_log (RADIUS Audit Log)

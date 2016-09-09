@@ -1,0 +1,5 @@
+<a class="btn" id="node_tab_process" href="#node_process_MSE_localize" data-href="[% c.uri_for(c.controller.action_for('tab_process'), [mac], 'MSE') %]">
+    [% l('Get Current Location') %]
+</a>
+<div id="node_process_MSE_localize">
+</div>

@@ -1,0 +1,25 @@
+<hr/>
+
+[% SET location = localisation.WirelessClientLocation %]
+
+[% IF status_msg %]
+  <div class="alert alert-error">
+  [%  status_msg %]
+  </div>
+
+[% ELSE %]
+
+  <table class="table table-condensed table-hover" >
+    <tbody>
+
+   [% FOREACH field IN fields %]
+      <tr>
+        <td> [% l(field) %]</td>
+        <td>
+           [% location.$field.join(", ") %]
+        </td>
+      </tr>
+   [% END %]
+    </tbody>
+  <table>
+[% END %]
