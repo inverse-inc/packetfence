@@ -21,6 +21,8 @@ fi
 cat > /etc/monit.d/packetfence.monit << EOF
 set mailserver localhost
 set alert $ALERT_EMAIL
+# next line make sure we get notified every cycle for specific types of alerts (ie.: resource limit (drive space))
+set alert $ALERT_EMAIL { resource } with reminder on 1 cycle
 
 set mail-format {
     from: monit@\$HOST
