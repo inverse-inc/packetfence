@@ -2719,20 +2719,21 @@ Using the `report.conf` configuration file, you can define reports that create S
 In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report.
 
 The following attributes are available to define your report (the ones that have an asterisk are mandatory):
-
-- * `description` : The user friendly description that will display for this report
-- * `base_table` : The base SQL table that will be used to create the view
-- * `columns` : The columns to select from the table(s) (ex: `node.mac`).
-- * `date_field` : The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
-- `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
-- `group_field` : The field to group the entries by. No grouping is done if this field is omited or empty.
-- `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
-- `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
-- `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
-- `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`). 
-  - `type` defines the type of the search, the only one currently supported is `string`.
-  - `Display Name` is the user friendly name of the field for display. 
-  - `field` is the SQL name of the field to search
+[options="compact"]
+* * `description` : The user friendly description that will display for this report
+* * `base_table` : The base SQL table that will be used to create the view
+* * `columns` : The columns to select from the table(s) (ex: `node.mac`).
+* * `date_field` : The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
+* `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join_specifications[the following documentation].
+* `group_field` : The field to group the entries by. No grouping is done if this field is omited or empty.
+* `order_fields` : Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
+* `base_conditions` : Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
+* `base_conditions_operator` : Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
+* `searches` : Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`). 
+[options="compact"]
+** `type` defines the type of the search, the only one currently supported is `string`.
+** `Display Name` is the user friendly name of the field for display. 
+** `field` is the SQL name of the field to search
 
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambigious. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
@@ -2742,11 +2743,38 @@ Examples:
 View of the auth_log table:
 
   [auth_log]
-  description=Super report
+  description=Authentication report
+  # The table to search from
   base_table=auth_log
+  # The columns to select
   columns=auth_log.*
+  # The date field that should be used for date ranges
   date_field=attempted_at
+  # Allow searching on the PID displayed as Username
   searches=string:Username:auth_log.pid
+
+In this simple example, you will be able to select the whole content of the `auth_log` table and use the date range on the `attempted_at` field as well as search on the `pid` field when viewing the report.
+
+View of the opened violations:
+
+  [open_violations]
+  description=Open violations
+  # The table to search from
+  base_table=violation
+  # The columns to select
+  columns=violation.vid as "Violation ID", violation.mac as "MAC Address", class.description as "Violation description", node.computername as "Hostname", node.pid as "Username", node.notes as "Notes", locationlog.switch_ip as "Last switch IP", violation.start_date as "Opened on"
+  # Left join node, locationlog on the MAC address and class on the violation ID
+  joins=<<EOT
+  =>{violation.mac=node.mac} node|node
+  =>{violation.mac=locationlog.mac} locationlog|locationlog
+  =>{violation.vid=class.vid} class|class
+  EOT
+  date_field=start_date
+  # filter on open locationlog entries or null locationlog entries via the end_date field
+  base_conditions_operator=any
+  base_conditions=locationlog.end_time:=:0000-00-00,locationlog.end_time:IS:
+
+In the example above, you can see that the violation table is 'left joined' to the class, node and locationlog tables. Using that strategy we make sure all the violations are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
 
 Optional components
 -------------------
