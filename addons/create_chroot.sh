@@ -16,18 +16,19 @@ done
 touch /var/cache/samba$NS/secrets.tdb
 cp -fr /var/cache/samba$NS $BASE/$NS/var/cache/
 
-DIRS=(proc lib lib64 bin usr sbin sys var/lib/samba dev var/log/samba var/lock )
+DIRS=(etc proc lib lib64 bin usr sbin sys var/lib/samba dev var/log/samba var/lock )
 
 MOUNTS=(`mount | awk '{print $3}'`)
 
 for dir in "${DIRS[@]}"; do
   value=$BASE/$NS/$dir
   if [[ ! " ${MOUNTS[@]} " =~ " ${value} " ]]; then
-    mount -o bind /$dir           $BASE/$NS/$dir
-  fi
+    if [[ "$dir" != "etc" ]]; then
+      mount -o bind /$dir           $BASE/$NS/$dir
+      else
+        #We make sure we use /etc/resolv.conf of the namespace  (RHEL7+)
+        mkdir -p /tmp/$NS
+        mount -t overlay -o lowerdir=/etc,upperdir=/etc/netns/$NS,workdir=/tmp/$NS overlay /chroots/$NS/etc
+      fi
+    fi
 done
-
-#We make sure we use /etc/resolv.conf of the namespace  (RHEL7+)
-mkdir /tmp/$NS
-mount -t overlay -o lowerdir=/etc,upperdir=/etc/netns/$NS,workdir=/tmp/$NS overlay /chroots/$NS/etc
-
