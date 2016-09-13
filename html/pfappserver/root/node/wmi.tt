@@ -11,22 +11,31 @@
     </thead>
     <tbody>
     [% FOREACH item IN rules %]
-    [% FOREACH items IN item.id %]
-      <tr>
-        <td>[% items | html %]</td>
-        [% IF item.item_exist == 'Yes' %]
-          <td><span class="label label-success">[% item.item_exist | html %]</span></td>
-        [% ELSE %]
-          <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
+      [% IF item.scan_result.size > 0 %]
+        [% FOREACH scans IN item.scan_result %]
+          <tr>
+            <td>[% item.id | html %]</td>
+            [% IF item.item_exist == 'Yes' %]
+              <td><span class="label label-success">[% item.item_exist | html %]</span></td>
+            [% ELSE %]
+              <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
+            [% END %]
+            [% IF item.item_exist == 'Yes' %]
+              <td>[% scans.displayName | html %]</td>
+              <td>[% scans.productState | html %]</td>
+            [% END %]
+          </tr>
         [% END %]
-        [% IF item.item_exist == 'Yes' %]
-          [% FOREACH scans IN item.scan_result %]
-            <td>[% scans.displayName | html %]</td>
-            <td>[% scans.productState | html %]</td>
-          [% END %]
-        [% END %]
-      </tr>
-    [% END %]
+      [% ELSE %]
+        <tr>
+          <td>[% item.id | html %]</td>
+            [% IF item.item_exist == 'Yes' %]
+              <td><span class="label label-success">[% item.item_exist | html %]</span></td>
+            [% ELSE %]
+              <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
+            [% END %]
+        </tr>
+      [% END %]
     [% END %]
     </tbody>
     </table>
