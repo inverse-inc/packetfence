@@ -85,8 +85,6 @@ var NodeView = function(options) {
     
     this.proxyClick(body, '#modalNode #scanProcess', this.scanProcessus);
 
-    this.proxyClick(body, '#modalNode #scanSecuritySofware', this.scanSecuritySoftware);
-
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
 
@@ -417,20 +415,6 @@ NodeView.prototype.scanProcessus = function(e) {
 
     var btn = $(e.target);
     var pane = $('#scanProcessInfo');
-    this.nodes.get({
-        url: btn.attr("href"),
-        success: function(data) {
-            pane.html(data);
-        },
-        errorSibling: pane.children().first()
-    });
-};
-
-NodeView.prototype.scanSecuritySoftware = function(e) {
-    e.preventDefault();
-
-    var btn = $(e.target);
-    var pane = $('#scanSecuritySoftwares');
     this.nodes.get({
         url: btn.attr("href"),
         success: function(data) {
