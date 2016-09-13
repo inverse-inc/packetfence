@@ -3895,6 +3895,39 @@ In a wireless context, there tend to be a lot of connections made to the databas
 
 This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
 
+Using Percona XtraBackup
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/database-backup-and-maintenance.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang. 
+
+This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
+
+The installation instructions below are made for CentOS 6 but adjusting them to CentOS 7 or Debian should only be a matter of installing the proper packages for your MySQL/MariaDB version.
+
+First install the Percona repository:
+
+  # yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+
+Next, install Percona XtraBackup:
+
+  # yum install percona-xtrabackup-20
+
+NOTE: A more recent version of Percona XtraBackup can be used but only if you are running a recent version of MySQL.
+
+Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
+
+  # mysql -u root -p
+  mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pf'@'localhost';
+  mysql> FLUSH PRIVILEGES;
+
+Next, run the maintenance script `/usr/local/pf/addons/database-backup-and-maintenance.sh` and ensure that the following line is part of the output:
+
+  innobackupex: completed OK!
+
+If the backup fails, check `/usr/local/pf/logs/innobackup.log` for details and refer to the Percona XtraBackup documentation for troubleshooting.
+
+NOTE: In the event that you want to stop using Percona XtraBackups for your MySQL backups, simply uninstall it and the database script will fallback to mysqldump.
+
 Captive Portal Optimizations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
