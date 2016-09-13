@@ -1,7 +1,4 @@
 [% IF node.device_class == "Windows" %]
-  <div class="control-group" id="scanSecuritySoftwares">
-    <a href="[% c.uri_for(c.controller('Node').action_for('wmi'), [mac]) %]" id="scanSecuritySoftware" class="btn btn-mini">[% l('Run scan') %]</a>
-  </div>
   <div class="control-group">
     <table class="table table-condensed">
     <thead>
@@ -14,8 +11,9 @@
     </thead>
     <tbody>
     [% FOREACH item IN rules %]
+    [% FOREACH items IN item.id %]
       <tr>
-        <td>[% item.id | html %]</td>
+        <td>[% items | html %]</td>
         [% IF item.item_exist == 'Yes' %]
           <td><span class="label label-success">[% item.item_exist | html %]</span></td>
         [% ELSE %]
@@ -28,6 +26,7 @@
           [% END %]
         [% END %]
       </tr>
+    [% END %]
     [% END %]
     </tbody>
     </table>
