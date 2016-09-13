@@ -1,5 +1,4 @@
 
-[% IF items.size > 0 %]
 
 <table id="dynamicReport" class="table table-condensed table-striped items">
   <thead>
@@ -13,12 +12,16 @@
     </tr>
   </thead>
   
-  [% FOREACH item IN items %]
-  <tr>
-    [% FOREACH key IN item.keys %]
-    <td>[% item.$key %]</td>
+  [% IF items.size == 0 %]
+  <tr><td><h4>No data to display</h4></td></tr>
+  [% ELSE %]
+    [% FOREACH item IN items %]
+    <tr>
+      [% FOREACH key IN item.keys %]
+      <td>[% item.$key %]</td>
+      [% END %]
+    </tr>
     [% END %]
-  </tr>
   [% END %]
   <tfoot>
     <tr>
@@ -26,7 +29,3 @@
     </tr>
   </tfoot>
 </table>
-[% ELSE %]
-<h4>No data to display...</h4>
-[% END %]
-
