@@ -28,7 +28,7 @@ command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type radius_ea
 ##
 # This sends 15 concurrent EAP-PEAP requests to the server using the NAS-IP-Address 172.21.2.132
 [radius_eap_tls_normal]
-command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap_tls -w 15 -tls-cert-path /usr/local/pf/raddb/certs/server.crt -tls-ca-cert-path /usr/local/pf/raddb/certs/ca.pem -tls-key-path /usr/local/pf/raddb/certs/server.key -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
+command=someload -t 300 -l /dev/shm/radload.log -x mock_data.csv -type radius_eap_tls -w 15 -tls-cert-path /usr/local/pf/raddb/certs/client.crt -tls-ca-cert-path /usr/local/pf/raddb/certs/ca.pem -tls-key-path /usr/local/pf/raddb/certs/client.key -- -a 10.0.0.100 -s radius -N30:s:02:02:00:00:00:02:example -N4:x:ac150284 -N87:s:10003
 
 ##
 # This sends 15 concurr MAB requests to the server (radius is the secret)
