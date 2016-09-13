@@ -135,6 +135,7 @@ Joins the domain through the ip namespace
 sub unjoin_domain {
     my ($domain) = @_;
     my $logger = get_logger();
+    my $chroot_path = chroot_path($domain);
 
     my $info = $ConfigDomain{$domain};
     if($info){
