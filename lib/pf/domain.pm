@@ -95,10 +95,6 @@ sub join_domain {
     
     my $info = $ConfigDomain{$domain};
     
-    use Data::Dumper;
-    print Dumper("join_domain: info=" . $info);
-    print Dumper("join_domain: domain=" . $domain);
-    
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
     $logger->info("domain join : ".$output);
 
@@ -140,10 +136,6 @@ sub unjoin_domain {
 
     my $info = $ConfigDomain{$domain};
     
-    use Data::Dumper;
-    print Dumper("unjoin_domain: info=" . $info);
-    print Dumper("unjoin_domain: domain=" . $domain);
-
     if($info){
         my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
         $logger->info("domain leave : ".$output);

@@ -117,7 +117,7 @@ sub pidFile {
 
 =head2 _setupWatchForPidCreate
 
-This setups a watch on the run directory to wait for the pid to
+This setups a watch on the run directory and its childs to wait for the pid file to appear
 
 =cut
 
