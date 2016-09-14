@@ -770,7 +770,6 @@ with code 1, 2 or 3 without reporting it as an error.
 
 sub pf_run {
     my ($command, %options) = @_;
-    
     # Prefixing command using LANG=C to avoid system locale messing up with return
     $command = 'LANG=C ' . $command;
 
