@@ -64,12 +64,12 @@ eap {
 
 	# Supported EAP-types
 
+    [% IF MD5 %]
 	#
 	#  We do NOT recommend using EAP-MD5 authentication
 	#  for wireless connections.  It is insecure, and does
 	#  not provide for dynamic WEP keys.
 	#
-    [% IF MD5 %]
 	md5 {
 	}
     [% END %]
@@ -95,6 +95,7 @@ eap {
 #		virtual_server = "inner-tunnel"
 #	}
 
+    [% IF LEAP %]
 	# Cisco LEAP
 	#
 	#  We do not recommend using LEAP in new deployments.  See:
@@ -107,11 +108,11 @@ eap {
 	#  User-Password, or the NT-Password attributes.
 	#  'System' authentication is impossible with LEAP.
 	#
-    [% IF LEAP %]
 	leap {
 	}
     [% END %]
 
+    [% IF GTC %]
 	#  Generic Token Card.
 	#
 	#  Currently, this is only permitted inside of EAP-TTLS,
@@ -123,7 +124,6 @@ eap {
 	#  the users password will go over the wire in plain-text,
 	#  for anyone to see.
 	#
-    [% IF GTC %]
 	gtc {
 		#  The default challenge, which many clients
 		#  ignore..
@@ -915,12 +915,12 @@ eap {
 		}
 	}
 
+    [% IF TLS %]
 	## EAP-TLS
 	#
 	#  As of Version 3.0, the TLS configuration for TLS-based
 	#  EAP types is above in the "tls-config" section.
 	#
-    [% IF TLS %]
 	tls {
 		# Point to the common TLS configuration
 		tls = tls-common
@@ -936,6 +936,7 @@ eap {
     [% END %]
 
 
+    [% IF TTLS %]
 	## EAP-TTLS
 	#
 	#  The TTLS module implements the EAP-TTLS protocol,
@@ -944,7 +945,6 @@ eap {
 	#
 	#  Surprisingly, it works quite well.
 	#
-    [% IF TTLS %]
 	ttls {
 		#  Which tls-config section the TLS negotiation parameters
 		#  are in - see EAP-TLS above for an explanation.
@@ -1038,6 +1038,7 @@ eap {
     [% END %]
 
 
+    [% IF PEAP %]
 	## EAP-PEAP
 	#
 
@@ -1081,7 +1082,6 @@ eap {
 	#  EAP module.  Inside of the TLS/PEAP tunnel, we
 	#  recommend using EAP-MS-CHAPv2.
 	#
-    [% IF PEAP %]
 	peap {
 		#  Which tls-config section the TLS negotiation parameters
 		#  are in - see EAP-TLS above for an explanation.
@@ -1165,6 +1165,7 @@ eap {
 	}
     [% END %]
 
+    [% IF MSCHAPv2 %]
 	#
 	#  This takes no configuration.
 	#
@@ -1180,7 +1181,6 @@ eap {
 	#  currently support.
 	#
 
-    [% IF MSCHAPv2 %]
 	mschapv2 {
 		#  Prior to version 2.1.11, the module never
 		#  sent the MS-CHAP-Error message to the
@@ -1206,5 +1206,8 @@ eap {
 		#  identify it.
 #		identity = "FreeRADIUS"
 	}
+  [% END %]
+
+  [% IF FAST %]
   [% END %]
 }
