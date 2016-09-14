@@ -1517,6 +1517,26 @@ sub getVoiceVlan {
     return -1;
 }
 
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    my $radius_reply_ref;
+    my $status;
+    $radius_reply_ref->{'Service-Type'} = 'Administrative';
+    $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+    $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnAuthorizeWrite', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
 =back
 
 =head1 AUTHOR
