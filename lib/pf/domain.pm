@@ -47,6 +47,7 @@ Executes a command and returns the results as the domain interfaces expect it
 sub run {
     my ($cmd) = @_;
     my $result = `$cmd`;
+
     my $code = $? >> 8;
 
     return ($code , $result);
@@ -92,9 +93,8 @@ sub join_domain {
     my $chroot_path = chroot_path($domain);
 
     regenerate_configuration();
-    
+ 
     my $info = $ConfigDomain{$domain};
-    
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
     $logger->info("domain join : ".$output);
 
@@ -135,7 +135,6 @@ sub unjoin_domain {
     my $chroot_path = chroot_path($domain);
 
     my $info = $ConfigDomain{$domain};
-    
     if($info){
         my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
         $logger->info("domain leave : ".$output);
