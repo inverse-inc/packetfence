@@ -1236,7 +1236,7 @@ eap {
    	#  this and "pac_opaque_key" have the same value on all of the
    	#  systems.
    	#
-		authority_identity = "1234"
+		authority_identity = [% eap_fast_authority_identity %]
 
    	#  PAC Opaque encryption key (must be exactly 32 bytes in size)
    	#
@@ -1244,11 +1244,11 @@ eap {
    	#
    	#  $ od -vAn -N16 -tx8 < /dev/urandom | sed 's/ //g'
    	#
-		pac_opaque_key = "0123456789abcdef0123456789ABCDEF"
+		pac_opaque_key = [% eap_fast_opaque_key %]
 
    	#  Same as for TTLS, PEAP, etc.
    	#
-		virtual_server = inner-tunnel
+		virtual_server = "packetfence-tunnel"
 	}
   [% END %]
 }
