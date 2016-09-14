@@ -270,6 +270,8 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         push @tabs, 'MSE';
     }
 
+    push @tabs, 'WMI';
+
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{node} = $result;
@@ -377,6 +379,8 @@ sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
 
     my $scan = pf::scan::wmi::rules->new();
     my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
+    use Data::Dumper;
+    $c->log->info(Dumper($c->model('Config')));
     my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
 
     my $host = $result->{iplog}->{ip};
