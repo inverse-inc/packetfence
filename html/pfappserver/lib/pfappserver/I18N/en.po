@@ -2079,6 +2079,14 @@ msgstr ""
 msgid "EAP type"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
+msgid "EAP-FAST Opaque Key (32 randomized bytes)"
+msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_fast_authority_identity)
+msgid "EAP-FAST authority ID"
+msgstr ""
+
 # html/pfappserver/root/user/print.tt
 msgid "Each account will be printed on a single page with the acceptable user policy."
 msgstr ""
@@ -2283,6 +2291,10 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "FAST"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "FILTERS"
 msgstr "Filter Engines"
@@ -2447,6 +2459,10 @@ msgstr "FortiGate Firewall"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Fully qualified device name"
+msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "GTC"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -3262,6 +3278,10 @@ msgstr "MAC Addresses - Read"
 msgid "MAC_UPDATE"
 msgstr "MAC Addresses - Update"
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "MD5"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/AuthorizeNet.pm
 msgid "MD5 hash"
 msgstr ""
@@ -3273,6 +3293,10 @@ msgstr ""
 # pf::admin_roles (Actions)
 msgid "MSE_READ"
 msgstr "MSE - Read"
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "MSCHAPv2"
+msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
@@ -4007,6 +4031,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
+msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "PEAP"
 msgstr ""
 
 # pf::admin_roles (Actions groups)
@@ -6058,6 +6086,10 @@ msgstr ""
 msgid "Successfully dispatched update request for the redis DB. An email will follow for status"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types)
+msgid "Supported EAP Authentication Methods"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/root/config/switch/list.tt
 msgid "Switch Group"
@@ -6110,6 +6142,10 @@ msgstr ""
 msgid "System's timezone in string format. Supported list: <a href=\"http://www.php.net/manual/en/timezones.php\">http://www.php.net/manual/en/timezones.php</a>"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "TLS"
+msgstr ""
+
 # pf::Authentication::Source::EAPTLSSource (available_attributes)
 msgid "TLS-Client-Cert-Common-Name"
 msgstr ""
@@ -6136,6 +6172,10 @@ msgstr ""
 
 # pf::Authentication::Source::EAPTLSSource (available_attributes)
 msgid "TLS-Client-Cert-Subject-Alt-Name-Email"
+msgstr ""
+
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "TTLS"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -9228,6 +9268,22 @@ msgstr "Use Redis"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
 msgstr "Use TCP fingerprinting"
+
+# conf/documentation.conf
+msgid "radius_authentication_methods"
+msgstr "RADIUS Authentication Methods"
+
+# conf/documentation.conf
+msgid "radius_authentication_methods.eap_authentication_types"
+msgstr " EAP Auth Types"
+
+# conf/documentation.conf
+msgid "radius_authentication_methods.eap_fast_authority_identity"
+msgstr "EAP FAST Authority Identity"
+
+# conf/documentation.conf
+msgid "radius_authentication_methods.eap_fast_opaque_key"
+msgstr "EAP FAST Key"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "radius_reply"
