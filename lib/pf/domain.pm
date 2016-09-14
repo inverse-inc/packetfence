@@ -46,8 +46,8 @@ Executes a command and returns the results as the domain interfaces expect it
 
 sub run {
     my ($cmd) = @_;
-    my $result = `$cmd`;
 
+    my $result = `$cmd`;
     my $code = $? >> 8;
 
     return ($code , $result);
