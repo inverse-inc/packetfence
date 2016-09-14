@@ -23,6 +23,7 @@ use pf::file_paths qw($domains_chroot_dir $var_dir);
 use pf::config qw(%ConfigDomain $DISTRIB $DIST_VERSION);
 use pf::util;
 use pfconfig::manager;
+use Linux::Inotify2;
 extends 'pf::services::manager';
 
 has domain => (is => 'rw');
@@ -111,6 +112,34 @@ sub pidFile {
         return "$var_dir/run/$domain/winbindd.pid";
     } else {
         return "$var_dir/run/$domain/$name.pid";
+    }
+}
+
+=head2 _setupWatchForPidCreate
+
+This setups a watch on the run directory to wait for the pid to
+
+=cut
+
+sub _setupWatchForPidCreate {
+    my ($self) = @_;
+    my $inotify = $self->inotify;
+    my $pidFile = $self->pidFile;
+    my $run_dir = "$var_dir/run";
+    my @dirs = ($run_dir);
+    opendir(DIR, $run_dir);
+    while(readdir DIR) {
+        push @dirs, "$run_dir/$_";
+    }
+    closedir(DIR);
+    foreach my $dir (@dirs) {
+        $inotify->watch ($dir, IN_CREATE, sub {
+            my $e = shift;
+            my $name = $e->fullname;
+            if($pidFile eq $name) {
+                 $e->w->cancel;
+            }
+        });
     }
 }
 
