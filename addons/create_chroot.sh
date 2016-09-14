@@ -13,7 +13,7 @@ for dir in "${DIRS[@]}"; do
   [ -d $BASE/$NS/$dir ]                || mkdir -p $BASE/$NS/$dir
 done
 
-DIRS=(proc etc lib lib64 bin usr sbin sys var/lib/samba dev var/log/samba)
+DIRS=(proc etc lib lib64 bin usr sbin sys dev var/log/samba)
 
 MOUNTS=(`mount | awk '{print $3}'`)
 
