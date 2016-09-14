@@ -357,6 +357,101 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 wmiConfig
+
+=cut
+
+sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
+    my ($self, $c, $result) = @_;
+
+    my $scan = pf::scan::wmi::rules->new();
+    my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
+    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
+
+    my $host = $result->{iplog}->{ip};
+    
+    foreach my $value ( keys %{$scan_config} ) {
+        $scan_config->{'_' . $value} = $scan_config->{$value};
+    }
+ 
+    $scan_config->{_scanIp} = $host;
+    return $scan, $scan_config, $scan_exist;
+}
+
+=head2 parseWmi
+
+parsing answer
+
+=cut
+
+sub parseWmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
+    my ($self, $c, $scan, $scan_config) = @_;
+    my $rule_config = $c->model('Config::WMI')->readAll();
+    my @rules = grep {$_->{on_tab}} @$rule_config;
+    foreach my $rule (@rules) { 
+        my $config = $c->model('Config::WMI')->read($rule);
+        my $config_rule = $config->[1];
+        my $scan_result = $scan->runWmi($scan_config, $config_rule);
+        if ($scan_result =~ /0x80041010/ || !@$scan_result) {
+            $rule->{item_exist} = 'No';
+        }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
+            $rule->{item_exist} = 'Request failed';
+        }else {
+            $rule->{item_exist} = 'Yes';
+        }
+        $rule->{scan_result} = $scan_result;
+    }
+    return \@rules;
+}
+
+=head2 wmi
+
+test 
+
+=cut
+
+sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+    my ($self, $c) = @_;
+
+    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
+    if (is_success($status)) {
+        $c->stash->{node} = $result;
+    }
+
+    my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
+    my $rules = parseWmi($self, $c, $scan, $scan_config);
+
+    if (is_success($scan_exist) && $rules) {
+        $c->stash->{rules} = $rules;
+    }else {
+        $c->response->status($scan_exist);
+        $c->stash->{status_msg} = $scan_config;
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
+=head2 scanProcess
+
+=cut
+
+sub scanProcess :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+    my ($self, $c) = @_;
+
+    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
+
+    my ($scan, $scan_config) = wmiConfig($self, $c, $result);
+
+    my $config_process = $c->model('Config::WMI')->read('Process_Running');
+    my $result_process = $scan->runWmi($scan_config, $config_process);
+    if ($result_process =~ /0x80041010/) {
+        $c->stash->{running_process} = 'No';
+    }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
+        $c->stash->{running_process} = 'Request failed';
+    }else {
+        $c->stash->{running_process} = $result_process;
+    }
+}
+
 =head2 violations
 
 =cut

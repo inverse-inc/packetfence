@@ -15,6 +15,7 @@
             <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
             <li><a href="#nodeLocationLog" data-toggle="tab">[% l('Location') %]</a></li>
             <li><a href="#nodeViolations" data-href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            <li><a href="#nodeWmi" data-href="[% c.uri_for(c.controller('Node').action_for('wmi'), [node.mac]) %]" data-toggle="tab">[% l('Wmi') %]</a></li>
           </ul>
 
           <div class="tab-content">
@@ -200,6 +201,9 @@
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="nodeViolations">
+            </div><!--tab-pane-->
+    
+            <div class="tab-pane fade" id="nodeWmi">
             </div><!--tab-pane-->
 
           </div><!--tab-content-->

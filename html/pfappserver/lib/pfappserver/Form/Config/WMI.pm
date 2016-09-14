@@ -27,12 +27,31 @@ has_field 'id' =>
    apply => [ pfappserver::Base::Form::id_validator('name') ]
   );
 
+has_field 'on_tab' =>
+  (
+   type => 'Checkbox',
+   label => 'On Node tab',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Scan this WMI element while editing a node' },
+  );
+
 has_field 'request' =>
   (
    type => 'Text',
    label => 'Request',
    required => 1,
    messages => { required => 'Please specify the sql request like "select * from Win32_Product"' },
+  );
+
+has_field 'namespace' =>
+  (
+   type => 'Text',
+   label => 'Namespace',
+   required => 1,
+   default => 'ROOT\cimv2',
+   messages => { required => 'Please specify the namespace you want to use "ROOT\cimv2"' },
   );
 
 
@@ -49,7 +68,7 @@ has_field 'action' =>
 
 has_block definition =>
   (
-   render_list => [ qw(request action) ],
+   render_list => [ qw( on_tab namespace request action) ],
   );
 
 sub filter_inflate {

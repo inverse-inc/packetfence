@@ -99,6 +99,8 @@ sub runWmi {
     $request->{'Username'} = $rules->{'_domain'} .'/'. $rules->{'_username'} .'%'. $rules->{'_password'};
     $request->{'Host'} = $rules->{'_scanIp'};
     $request->{'Query'} = $rule->{'request'};
+    $request->{'Namespace'} = $rule->{'namespace'};
+    $request->{'NameSpace'} = $rule->{'namespace'}; #this is to fix an issue in the lib WMIClient
     my ($rc, $ret_string) = wmiclient($request);
     if ($rc) {
         return ($rc, $self->parseResult($ret_string));
