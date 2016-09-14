@@ -40,7 +40,11 @@ use pf::file_paths qw(
 );
 use pf::util;
 
+use pfconfig::cached_array;
+
 extends 'pf::services::manager';
+
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 has options => (is => 'rw');
 

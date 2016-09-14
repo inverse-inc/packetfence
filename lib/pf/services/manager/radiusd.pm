@@ -30,9 +30,10 @@ use pf::SwitchFactory;
 use pf::util;
 
 use pfconfig::cached_array;
-tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 extends 'pf::services::manager::submanager';
+
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
