@@ -46,10 +46,6 @@ Executes a command and returns the results as the domain interfaces expect it
 
 sub run {
     my ($cmd) = @_;
- 
-    my $logger = get_logger();
-    $logger->info("COMMAND:" . $cmd);   
-
     my $result = `$cmd`;
     my $code = $? >> 8;
 
@@ -65,7 +61,7 @@ Executes the command in the OS to test the domain join
 sub test_join {
     my ($domain) = @_;
     my $chroot_path = chroot_path($domain);
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf -d 10 2>&1");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
     return ($status, $output);
 }
 
