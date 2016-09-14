@@ -65,7 +65,7 @@ Executes the command in the OS to test the domain join
 sub test_join {
     my ($domain) = @_;
     my $chroot_path = chroot_path($domain);
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf -d 10 2>&1");
     return ($status, $output);
 }
 
@@ -96,8 +96,13 @@ sub join_domain {
     my $chroot_path = chroot_path($domain);
 
     regenerate_configuration();
-
+    
     my $info = $ConfigDomain{$domain};
+    
+    use Data::Dumper;
+    print Dumper("join_domain: info=" . $info);
+    print Dumper("join_domain: domain=" . $domain);
+    
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
     $logger->info("domain join : ".$output);
 
@@ -138,10 +143,14 @@ sub unjoin_domain {
     my $chroot_path = chroot_path($domain);
 
     my $info = $ConfigDomain{$domain};
+    
+    use Data::Dumper;
+    print Dumper("unjoin_domain: info=" . $info);
+    print Dumper("unjoin_domain: domain=" . $domain);
+
     if($info){
         my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
         $logger->info("domain leave : ".$output);
-        $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
     }
     else{
