@@ -147,6 +147,7 @@ sub unjoin_domain {
     if($info){
         my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
         $logger->info("domain leave : ".$output);
+        $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
     }
     else{
