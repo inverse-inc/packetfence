@@ -63,19 +63,6 @@ has_field 'auth_listening_port' => (
     default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('auth_listening_port')->default,
 );
 
-has_field 'acct_listening_port' => (
-    type            => 'PosInteger',
-    label           => 'Accounting listening port',
-    tags            => {
-        after_element   => \&help,
-        help            => 'PacketFence Eduroam RADIUS virtual server accounting listening port',
-    },
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('acct_listening_port')->default,
-    },
-    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('acct_listening_port')->default,
-);
-
 
 =head1 AUTHOR
 

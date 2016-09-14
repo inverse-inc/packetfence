@@ -2,7 +2,6 @@
 [% form.field('tlrs2_server_address').render | none %]
 [% form.field('tlrs_radius_secret').render | none %]
 [% form.field('auth_listening_port').render | none %]
-[% form.field('acct_listening_port').render | none %]
 
 <div class="alert alert-warning">
     <strong>[% l('Note: ') %]</strong>[% l('Adding or modifying an \'Eduroam\' type authentication source requires to restart the radiusd service to be effective.') %]

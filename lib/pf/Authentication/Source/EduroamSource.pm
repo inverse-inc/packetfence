@@ -22,7 +22,6 @@ has 'tlrs1_server_address'  => (isa => 'Str', is => 'rw');
 has 'tlrs2_server_address'  => (isa => 'Str', is => 'rw');
 has 'tlrs_radius_secret'    => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
-has 'acct_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11813');
 
 
 =head2 available_rule_classes

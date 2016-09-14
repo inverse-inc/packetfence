@@ -201,7 +201,6 @@ sub generate_radiusd_eduroamconf {
         $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
         $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         $tags{'eduroam_auth_listening_port'} = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        $tags{'eduroam_acct_listening_port'} = $eduroam_authentication_source[0]{'acct_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );

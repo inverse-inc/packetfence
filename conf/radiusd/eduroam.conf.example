@@ -11,13 +11,6 @@ listen {
 }
 
 listen {
-    ipaddr = %%management_ip%%
-    port = %%eduroam_acct_listening_port%%
-    type = acct
-    virtual_server = eduroam
-}
-
-listen {
     type = control
     socket = %%socket_file%%
     mode = rw
