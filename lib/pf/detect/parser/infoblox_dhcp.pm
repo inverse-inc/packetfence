@@ -29,7 +29,7 @@ sub parse {
 
     my $data = $self->_parse($line);
 
-    if($data->{type} eq "DHCPACK") {
+    if(defined($data->{type}) && $data->{type} eq "DHCPACK") {
         my $apiclient = pf::api::queue->new;
         $apiclient->notify('update_iplog', ( 'mac' => $data->{mac}, ip => $data->{ip} ));
     }
