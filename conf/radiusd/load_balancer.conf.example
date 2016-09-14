@@ -17,6 +17,8 @@ listen {
         virtual_server = pf.cluster
 }
 
+%%eduroam%%
+
 listen {
         ipaddr = %%virt_ip%%
         port = 1815

@@ -1,0 +1,55 @@
+
+%%members%%
+
+#  Put all of the servers into a pool.
+home_server_pool eduroam_pool.cluster {
+        type = keyed-balance
+
+%%home_server%%
+
+}
+
+
+realm eduroam.cluster {
+        auth_pool = eduroam_pool.cluster
+}
+
+
+server eduroam.cluster {
+        pre-proxy {
+                #  Insert pre-proxy rules here
+        }
+
+        post-proxy {
+            update control {
+                PacketFence-Proxied-To := "%{home_server:ipaddr}"
+            }
+        }
+
+        authorize {
+                update control {
+                        Load-Balance-Key := "%{Calling-Station-Id}"
+                        Proxy-To-Realm := "eduroam.cluster"
+                }
+                if(!NAS-IP-Address){
+                        update request {
+                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                        }
+                }
+        }
+
+
+        authenticate {
+        }
+        accounting {
+                update control {
+                        Proxy-To-Realm := "eduroam.cluster"
+                }
+                if(!NAS-IP-Address){
+                        update request {
+                                NAS-IP-Address := "%{Packet-Src-IP-Address}"
+                        }
+                }
+        }
+
+}

@@ -320,7 +320,9 @@ EOT
 }
 
 =head2 generate_radiusd_cluster
+
 Generates the load balancer configuration
+
 =cut
 
 sub generate_radiusd_cluster {
@@ -335,10 +337,13 @@ sub generate_radiusd_cluster {
     $tags{'home_server'} ='';
 
     if ($cluster_enabled) {
-        $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
         my $cluster_ip = pf::cluster::management_cluster_ip();
-        $tags{'virt_ip'} = $cluster_ip;
         my @radius_backend = values %{pf::cluster::members_ips($int)};
+
+        # RADIUS PacketFence cluster virtual server configuration
+        # raddb/sites-available/packetfence-cluster
+        $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
+        $tags{'virt_ip'} = $cluster_ip;
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
             next if($radius_back eq $management_network->{Tip} && isdisabled($Config{active_active}{auth_on_management}));
@@ -378,12 +383,72 @@ EOT
         }
         parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
 
+
+        # RADIUS eduroam cluster virtual server configuration
+        # raddb/sites-available/eduroam-cluster
+        if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+            my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+            %tags = ();
+            $tags{'template'}    = "$conf_dir/radiusd/eduroam-cluster";
+            $tags{'virt_ip'} = $cluster_ip;
+            my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
+            my $i = 0;
+            foreach my $radius_back (@radius_backend) {
+                next if($radius_back eq $management_network->{Tip} && isdisabled($Config{active_active}{auth_on_management}));
+                $tags{'members'} .= <<"EOT";
+home_server eduroam$i.cluster {
+        type = auth
+        ipaddr = $radius_back
+        src_ipaddr = $cluster_ip
+        port = $listening_port
+        secret = $local_secret
+        response_window = 6
+        status_check = status-server
+        revive_interval = 120
+        check_interval = 30
+        num_answers_to_alive = 3
+}
+EOT
+                $tags{'home_server'} .= <<"EOT";
+        home_server =  eduroam$i.cluster
+EOT
+                $i++;
+            }
+            parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
+        } else {
+            unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");
+        }
+
+
+        # RADIUS load_balancer instance configuration
+        # raddb/load_balancer.conf
         %tags = ();
         $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
         $tags{'virt_ip'} = pf::cluster::management_cluster_ip();
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
+
+        # Eduroam integration
+        if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
+            my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+            my $ipaddr = $tags{'virt_ip'};
+            my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
+            $tags{'eduroam'} = <<"EOT";
+# Eduroam integration
+
+listen {
+        ipaddr = $ipaddr
+        port = $listening_port
+        type = auth
+        virtual_server = eduroam.cluster
+}
+EOT
+        } else {
+            $tags{'eduroam'} = "# Eduroam integration is not configured";
+        }
+
         parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
+
         
         push @radius_backend, $cluster_ip;
         foreach my $radius_back (@radius_backend) {
