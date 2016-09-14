@@ -93,7 +93,7 @@ sub join_domain {
     my $chroot_path = chroot_path($domain);
 
     regenerate_configuration();
- 
+
     my $info = $ConfigDomain{$domain};
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
     $logger->info("domain join : ".$output);
