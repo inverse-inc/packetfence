@@ -1515,7 +1515,7 @@ pass=
 # radius_authentication_methods.eap_authentication_types
 #
 # EAP Supported Methods. EAP-FAST is disabled by default.
-eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP
+eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP,TLS,TTLS
 #
 # radius_authentication_methods.eap_fast_opaque_key
 #
