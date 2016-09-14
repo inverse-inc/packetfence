@@ -29,7 +29,10 @@ sub parse {
 
     my $data = $self->_parse($line);
 
-    #implement me...
+    if($data->{type} eq "DHCPACK") {
+        my $apiclient = pf::api::queue->new;
+        $apiclient->notify('update_iplog', ( 'mac' => $data->{mac}, ip => $data->{ip} ));
+    }
 
     return 0;   # Returning 0 to pfdetect indicates "job's done"
 }
