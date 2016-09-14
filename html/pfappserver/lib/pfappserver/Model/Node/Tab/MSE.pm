@@ -74,7 +74,7 @@ Process Tab
 =cut
 
 sub process_tab {
-    my ($self, $c, @args) = @_;
+    my ($self, $c, $type, @args) = @_;
     my $rest = Net::Cisco::MSE::REST->new(%{$Config{mse_tab}});
     my $localisation;
     my $image;
