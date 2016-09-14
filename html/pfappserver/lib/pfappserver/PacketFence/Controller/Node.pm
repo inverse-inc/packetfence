@@ -368,6 +368,8 @@ sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0)
 
 =head2 wmiConfig
 
+Load the Wmi configuration matching the portal profile
+
 =cut
 
 sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
@@ -389,7 +391,7 @@ sub wmiConfig :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
 
 =head2 parseWmi
 
-parsing answer
+parsing Wmi answer
 
 =cut
 
@@ -415,7 +417,7 @@ sub parseWmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
 
 =head2 wmi
 
-test 
+Launch standard security scans
 
 =cut
 
@@ -439,7 +441,36 @@ sub wmi :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
     }
 }
 
+=head2 scanSecuritysoftware
+
+Try to scan for security software onthe client
+
+=cut
+
+sub scanSecuritySoftware :Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+    my ($self, $c) = @_;
+
+    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
+    if (is_success($status)) {
+        $c->stash->{node} = $result;
+    }
+
+    my ($scan, $scan_config, $scan_exist) = wmiConfig($self, $c, $result);
+    my $rules = parseWmi($self, $c, $scan, $scan_config);
+
+    if (is_success($scan_exist) && $rules) {
+        $c->stash->{rules} = $rules;
+    }else {
+        $c->response->status($scan_exist);
+        $c->stash->{status_msg} = $scan_config;
+        $c->stash->{current_view} = 'JSON';
+    }
+
+}
+
 =head2 scanProcess
+
+Try to scan the active processus on the client
 
 =cut
 
