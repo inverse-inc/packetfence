@@ -34,6 +34,8 @@
             [% ELSE %]
               <td><span class="label label-failure">[% item.item_exist | html %]</span></td>
             [% END %]
+            <td></span></td>
+            <td></span></td>
         </tr>
       [% END %]
     [% END %]
