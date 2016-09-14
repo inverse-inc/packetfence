@@ -81,7 +81,7 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
-    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeWmi"]', this.readWmi);
+    //this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeWmi"]', this.readWmi);
     
     this.proxyClick(body, '#modalNode #scanProcess', this.scanProcessus);
 
@@ -243,7 +243,7 @@ NodeView.prototype.tabProcess = function(e) {
     return false;
 };
 
-NodeView.prototype.readWmi = function(e) {
+/*NodeView.prototype.readWmi = function(e) {
     var btn = $(e.target);
     var name = btn.attr("href");
     var target = $(name.substr(name.indexOf('#')));
@@ -252,7 +252,7 @@ NodeView.prototype.readWmi = function(e) {
         target.find('.switch').bootstrapSwitch();
     });
     return true;
-};
+};*/
 
 NodeView.prototype.createNode = function(e) {
     var form = $(e.target),

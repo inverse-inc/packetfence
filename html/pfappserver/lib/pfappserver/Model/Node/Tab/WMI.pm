@@ -33,7 +33,7 @@ sub process_view {
         $c->stash->{node} = $result;
     }
 
-    my ($scan, $scan_config, $scan_exist) = pfappserver::PacketFence::Controller::Node->wmiConfig($self, $c, $result);
+    my ($scan, $scan_config, $scan_exist) = pfappserver::PacketFence::Controller::Node->wmiConfig($c, $result);
 
     return ($STATUS::OK, { items => \$result });
 }
