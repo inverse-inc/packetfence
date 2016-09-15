@@ -51,7 +51,14 @@ sub process_view {
     }
  
     $scan_config->{_scanIp} = $host;
-
+    $c->stash({
+        scan => $scan,
+        scan_exist => $scan_exist,
+        scan_config => $scan_config,
+        result => $result,
+    });
+    use Data::Dumper;
+    $c->log->info(Dumper($scan));
     return ($STATUS::OK, {scan => $scan, scan_exist => $scan_exist, scan_config => $scan_config, result => $result});
 }
 
@@ -69,8 +76,9 @@ sub process_tab {
     my $scan_exist = $c->stash->{scan_exist};
     my $scan = $c->stash->{scan};
 
-    my $rules = parseWmi($scan, $scan_config);
     use Data::Dumper;
+    $c->log->info(Dumper($scan));
+    my $rules = $self->parseWmi($c, $scan, $scan_config);
     $c->log->info(Dumper($rules));
 
     if (is_success($scan_exist) && $rules) {
@@ -81,7 +89,7 @@ sub process_tab {
         $c->stash->{current_view} = 'JSON';
     }
 
-    #return ($STATUS::OK, {rules => $rules})
+    return ($STATUS::OK, {rules => $rules})
 
 }
 
@@ -111,31 +119,31 @@ sub parseWmi {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
     return \@rules;
 }
 
-=head2 scanSecuritySoftware
-
-Launch standard security scans
-
-=cut
-
-sub scanSecuritySoftware {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
-    my ($self, $c) = @_;
-
-    my $scan_config = $c->stash->{scan_config};
-    my $scan_exist = $c->stash->{scan_exist};
-    my $scan = $c->stash->{scan};
-
-    my $rules = parseWmi($self, $c, $scan, $scan_config);
-    use Data::Dumper;
-    $c->log->info(Dumper($rules));
-
-    if (is_success($scan_exist) && $rules) {
-        $c->stash->{rules} = $rules;
-    }else {
-        $c->response->status($scan_exist);
-        $c->stash->{status_msg} = $scan_config;
-        $c->stash->{current_view} = 'JSON';
-    }
-}
+#=head2 scanSecuritySoftware
+#
+#Launch standard security scans
+#
+#=cut
+#
+#sub scanSecuritySoftware {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+#    my ($self, $c) = @_;
+#
+#    my $scan_config = $c->stash->{scan_config};
+#    my $scan_exist = $c->stash->{scan_exist};
+#    my $scan = $c->stash->{scan};
+#
+#    my $rules = parseWmi($self, $c, $scan, $scan_config);
+#    use Data::Dumper;
+#    $c->log->info(Dumper($rules));
+#
+#    if (is_success($scan_exist) && $rules) {
+#        $c->stash->{rules} = $rules;
+#    }else {
+#        $c->response->status($scan_exist);
+#        $c->stash->{status_msg} = $scan_config;
+#        $c->stash->{current_view} = 'JSON';
+#    }
+#}
 
 =head2 scanProcess
 
