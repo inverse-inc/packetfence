@@ -42,7 +42,7 @@ has 'session_id' => (is => 'rw', required => 1);
 
 has 'des_key' => (is => 'rw', required => 1);
 
-has 'domains' => (is => 'rw', required => 1, default => '*.changeme.com');
+has 'domains' => (is => 'rw', required => 1, default => 'trans.merchantpartners.com');
 
 =head2 payment_cache_key
 
