@@ -1,3 +1,14 @@
 [% INCLUDE billing/tier.html %]
 
-<a href="[% world_pay_checkout_url %]">Click here to checkout using WorldPay</a>
+<!-- Display the payment button. -->
+<div class="layout layout--center">
+  <div class="layout__item u-2/3 u-1/1-palm">
+    <a href="[% world_pay_checkout_url %]"
+       class="btn btn--full">
+      <div class="flag">
+        <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
+        <p class="flag__body">[% i18n("Checkout") %]</p>
+      </div>
+    </a>
+  </div>
+</div>
