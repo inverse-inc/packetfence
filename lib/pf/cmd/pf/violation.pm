@@ -71,7 +71,7 @@ sub parse_add {
         return 0;
     }
     $self->{mac} = $mac;
-    $self->{vid} = $mac;
+    $self->{vid} = $vid;
     $self->{json} = $options{'--json'};
     $self->{force} = $options{'--force'};
     return 1;
