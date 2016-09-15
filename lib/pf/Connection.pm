@@ -115,11 +115,13 @@ sub identifyType {
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
-    if ( $nas_port_type =~ /^\d+/ ) {
-        # if it's an integer, look up the type in the radius constants.
-        $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
+    if (defined $nas_port_type) {
+        if ($nas_port_type =~ /^\d+/ && exists $RADIUS::NAS_port_type{$nas_port_type}) {
+            # if it's an integer, look up the type in the radius constants.
+            $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
+        }
+        $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
     }
-    ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $self->transport("Wireless") : $self->transport("Wired");
 
     # Handling EAP connection
     if(defined($eap_type) && ($eap_type ne 0)) {
