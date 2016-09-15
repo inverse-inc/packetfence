@@ -26,6 +26,13 @@ expires_in=1d
 # Amount of time from the current time to expire an entry
 expires_in=6h
 
+[storage billing]
+#
+# storage billing.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=6h
+
 [storage fingerbank]
 #
 # storage fingerbank.expires_in

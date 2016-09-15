@@ -257,7 +257,8 @@ sub confirm {
     get_logger->debug("Entering billing confirmation for user $pid");
 
     my $data = eval {
-          $billing->prepare_payment($self->app->session, $self->session->{tier}, $self->app->request->parameters, $self->app->request->uri)
+          $self->session->{billed_mac} = $self->current_mac;
+          $billing->prepare_payment($self->session, $self->session->{tier}, $self->app->request->parameters, $self->app->request->uri)
     };
     if ($@) {
         get_logger->error($@);

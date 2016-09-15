@@ -55,6 +55,9 @@ has 'des_key' => (is => 'rw', required => 1);
 
 has 'domains' => (is => 'rw', required => 1, default => '*.changeme.com');
 
+sub cache {
+    return pf::CHI->new( namespace => 'billing' );
+}
 =head2 prepare_payment
 
 Prepare the payment from authorize.net
@@ -65,12 +68,21 @@ sub prepare_payment {
     my ($self, $session, $tier, $params, $uri) = @_;
     my $hash = {};
     my $amount    = $tier->{price};
+    print "amount : $amount \n";
     my $crypt = Crypt::TripleDES->new;
 
     my @infos = split(':', $crypt->decrypt3(pack('H*', $self->form_id), $self->des_key));
+    use Data::Dumper;
+    print Dumper(\@infos);
     my $template_id = $infos[2];
 
-    $hash->{world_pay_checkout_url} = $self->base_uri . "?formid=" . uc(unpack('H*', $crypt->encrypt3(join(':', ($infos[0], $infos[1], $template_id, $amount, $self->des_key)), $self->des_key))) . "&sessionid=".$self->session_id;
+    my $cdata = uc(unpack('H*', $crypt->encrypt3("macaddress=".$session->{billed_mac}, $self->des_key)));
+
+    $hash->{world_pay_checkout_url} = 
+        $self->base_uri . 
+        "?formid=" . uc(unpack('H*', $crypt->encrypt3(join(':', ($infos[0], $infos[1], $template_id, $amount, $self->des_key)), $self->des_key))) . 
+        "&sessionid=".$self->session_id . 
+        "&customdata=".$cdata;
 
     return $hash;
 }
@@ -84,14 +96,17 @@ Verify the payment from authorize.net
 sub verify {
     my ($self, $session, $parameters, $uri) = @_;
     my $logger = pf::log::get_logger;
-    my $md5_validation = md5_hex($self->md5_hash.$self->api_login_id.$parameters->{x_trans_id}.$parameters->{x_amount});
-    if(uc($md5_validation) eq $parameters->{x_MD5_Hash}){
-        $logger->info("Payment validation succeeded.");
+    use Data::Dumper;
+    get_logger->info(Dumper($self->cache->get("worldpay-payment-".$session->{billed_mac}), $session));
+    my $payment_amount = $self->cache->get("worldpay-payment-".$session->{billed_mac});
+    if($session->{tier}->{price} eq $payment_amount) {
+        # A payment should only be validated once
+        $self->cache->remove("worldpay-payment-".$session->{billed_mac});
+        return $TRUE;
     }
     else {
-        die "Payment validation failed.";
+        die "Payment doesn't match tier ".$session->{tier}->{id}." price ".$session->{tier}->{price}."\n";
     }
-    return {};
 }
 
 sub handle_hook {
@@ -104,6 +119,11 @@ sub handle_hook {
     my $data = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $content) };
     get_logger->info(Dumper($data));
     get_logger->info($crypt->decrypt3(pack('H*', $data->{postbackurl}), $self->des_key));
+    my $cdata_string = $crypt->decrypt3(pack('H*', $data->{customdata}), $self->des_key);
+    my $cdata = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $cdata_string) };
+    my $mac = clean_mac($cdata->{macaddress});
+    get_logger->info(Dumper($cdata));
+    $self->cache->set("worldpay-payment-$mac", $data->{amount});
 }
 
 =head2 cancel
