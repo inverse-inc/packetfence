@@ -130,7 +130,7 @@ sub handle_hook {
     my $cdata_string = $crypt->decrypt3(pack('H*', $data->{customdata}), $self->des_key);
     my $cdata = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $cdata_string) };
     my $mac = clean_mac($cdata->{macaddress});
-    get_logger->info(sub { use Data::Dumper ; return "Received the following custom data : " . Dumper($cdata) });
+    get_logger->debug(sub { use Data::Dumper ; return "Received the following custom data : " . Dumper($cdata) });
     $self->cache->set($self->payment_cache_key($mac), $data->{amount});
 }
 
