@@ -58,6 +58,12 @@ has 'domains' => (is => 'rw', required => 1, default => '*.changeme.com');
 sub cache {
     return pf::CHI->new( namespace => 'billing' );
 }
+
+sub payment_cache_key {
+    my ($self, @args) = @_;
+    return $self->id . "-payment-" . join(',', @args);
+}
+
 =head2 prepare_payment
 
 Prepare the payment from authorize.net
@@ -97,11 +103,13 @@ sub verify {
     my ($self, $session, $parameters, $uri) = @_;
     my $logger = pf::log::get_logger;
     use Data::Dumper;
-    get_logger->info(Dumper($self->cache->get("worldpay-payment-".$session->{billed_mac}), $session));
-    my $payment_amount = $self->cache->get("worldpay-payment-".$session->{billed_mac});
-    if($session->{tier}->{price} eq $payment_amount) {
+    my $payment_amount = $self->cache->get($self->payment_cache_key($session->{billed_mac}));
+    if(!defined($payment_amount)) {
+        die "Cannot find payment. Either we didn't receive it, it expired, or you are running an active/active cluster. \n";
+    }
+    elsif($session->{tier}->{price} eq $payment_amount) {
         # A payment should only be validated once
-        $self->cache->remove("worldpay-payment-".$session->{billed_mac});
+        $self->cache->remove($self->payment_cache_key($session->{billed_mac}));
         return $TRUE;
     }
     else {
@@ -111,19 +119,19 @@ sub verify {
 
 sub handle_hook {
     my ($self, $headers, $content) = @_;
-    use Data::Dumper;
-    get_logger->info(Dumper($headers, $content));
     
     my $crypt = Crypt::TripleDES->new;
     
+    # Decode payload data
     my $data = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $content) };
-    get_logger->info(Dumper($data));
-    get_logger->info($crypt->decrypt3(pack('H*', $data->{postbackurl}), $self->des_key));
+    get_logger->debug(sub { use Data::Dumper ; return "Received the following payload data : " . Dumper($data) });
+
+    # Decode the custom data
     my $cdata_string = $crypt->decrypt3(pack('H*', $data->{customdata}), $self->des_key);
     my $cdata = { map { my @kv = split('=') ; $kv[0] => $kv[1] } split('&', $cdata_string) };
     my $mac = clean_mac($cdata->{macaddress});
-    get_logger->info(Dumper($cdata));
-    $self->cache->set("worldpay-payment-$mac", $data->{amount});
+    get_logger->info(sub { use Data::Dumper ; return "Received the following custom data : " . Dumper($cdata) });
+    $self->cache->set($self->payment_cache_key($mac), $data->{amount});
 }
 
 =head2 cancel
