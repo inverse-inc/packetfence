@@ -15,21 +15,10 @@ pf::Authentication::Source::WorldPayUS
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($default_pid $fqdn);
 use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
-use HTTP::Status qw(is_success);
-use WWW::Curl::Easy;
-use JSON::MaybeXS;
-use List::Util qw(first);
-use Digest::HMAC_MD5 qw(hmac_md5_hex);
-use Digest::MD5 qw(md5_hex);
-use Time::Local;
-
-
-
 use Crypt::TripleDES;
 
 extends 'pf::Authentication::Source::BillingSource';
@@ -55,9 +44,11 @@ has 'des_key' => (is => 'rw', required => 1);
 
 has 'domains' => (is => 'rw', required => 1, default => '*.changeme.com');
 
-sub cache {
-    return pf::CHI->new( namespace => 'billing' );
-}
+=head2 payment_cache_key
+
+The cache payment key for a defined set of arguments
+
+=cut
 
 sub payment_cache_key {
     my ($self, @args) = @_;

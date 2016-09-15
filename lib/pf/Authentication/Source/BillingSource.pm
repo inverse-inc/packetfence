@@ -159,6 +159,16 @@ sub handle_hook {
     return ;
 }
 
+=head2 cache
+
+The cache for billing sources
+
+=cut
+
+sub cache {
+    return pf::CHI->new( namespace => 'billing' );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
