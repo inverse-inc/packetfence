@@ -1,14 +1,10 @@
 [% IF node.device_class == "Windows" %]
-  <div class="control-group">
-    <a href="[% c.uri_for(c.controller('Node').action_for('wmi'), [mac]) %]" id="scanSecuritySoftware" class="btn btn-mini">[% l('Run security scan') %]</a>
-  </div>
-  <div id="scanSecuritySoftwareInfo">
+    <a href="#scanSecuritySoftware" data-href="[% c.uri_for(c.controller.action_for('tab_process'), [mac], 'WMI', 'scanSecuritySoftware') %]" id="node_tab_process" class="btn btn-mini">[% l('Run security scan') %]</a>
+  <div id="scanSecuritySoftware">
   </div>
 
-  <div class="control-group">
-    <a href="[% c.uri_for(c.controller('Node').action_for('scanProcess'), [mac]) %]" id="scanProcess" class="btn btn-mini">[% l('Scan process') %]</a>
-  </div>
-  <div id="scanProcessInfo">
+    <a href="#scanProcess" data-href="[% c.uri_for(c.controller.action_for('tab_process'), [mac], 'WMI') %]" id="node_tab_process" class="btn btn-mini">[% l('Scan process') %]</a>
+  <div id="scanProcess">
   </div>
             
 [% ELSE %]

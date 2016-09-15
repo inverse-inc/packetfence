@@ -19,9 +19,9 @@ use pf::error qw(is_error is_success);
 use pf::locationlog qw(locationlog_history_mac);
 use base qw(pfappserver::Base::Model::Node::Tab);
 
-=head2 process_tab
+=head2 process_view
 
-Process Tab
+Process view
 
 =cut
 
@@ -33,105 +33,132 @@ sub process_view {
         $c->stash->{node} = $result;
     }
 
-    my ($scan, $scan_config, $scan_exist) = pfappserver::PacketFence::Controller::Node->wmiConfig($c, $result);
+    my $scan = pf::scan::wmi::rules->new();
+    my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
+    my $mac = $c->stash->{mac};
+    my ($scan_exist, $scan_config);
+    eval {
+        ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
+    };
+    if ($@) {
+        $c->log->error($@);
+        return ($STATUS::INTERNAL_SERVER_ERROR, {status_msg => "Error retrieving information for $mac"});
+    }
+    my $host = $result->{iplog}->{ip};
+    
+    foreach my $value ( keys %{$scan_config} ) {
+        $scan_config->{'_' . $value} = $scan_config->{$value};
+    }
+ 
+    $scan_config->{_scanIp} = $host;
 
-    return ($STATUS::OK, { items => \$result });
+    return ($STATUS::OK, {scan => $scan, scan_exist => $scan_exist, scan_config => $scan_config, result => $result});
 }
 
-#=head2 wmiConfig
-#
-#Load the Wmi configuration matching the portal profile
-#
-#=cut
-#
-#sub wmiConfig {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
-#    my ($self, $c, $result) = @_;
-#
-#    my $scan = pf::scan::wmi::rules->new();
-#    my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
-#    my ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
-#
-#    my $host = $result->{iplog}->{ip};
-#    
-#    foreach my $value ( keys %{$scan_config} ) {
-#        $scan_config->{'_' . $value} = $scan_config->{$value};
-#    }
-# 
-#    $scan_config->{_scanIp} = $host;
-#    return $scan, $scan_config, $scan_exist;
-#}
-#
-#=head2 parseWmiSecurity
-#
-#parsing Wmi Security Scan answer
-#
-#=cut
-#
-#sub parseWmiSecurity {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
-#    my ($self, $c, $scan, $scan_config) = @_;
-#    my $rule_config = $c->model('Config::WMI')->readAll();
-#    my @rules = grep {$_->{on_tab}} @$rule_config;
-#    foreach my $rule (@rules) { 
-#        my $config = $c->model('Config::WMI')->read($rule);
-#        my $config_rule = $config->[1];
-#        my $scan_result = $scan->runWmi($scan_config, $config_rule);
-#        if ($scan_result =~ /0x80041010/ || !@$scan_result) {
-#            $rule->{item_exist} = 'No';
-#        }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
-#            $rule->{item_exist} = 'Request failed';
-#        }else {
-#            $rule->{item_exist} = 'Yes';
-#        }
-#        $rule->{scan_result} = $scan_result;
-#    }
-#    return \@rules;
-#}
-#
-#
-#=head2 scanProcess
-#
-#Try to scan the active processus on the client
-#
-#=cut
-#
-#sub scanProcess {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
-#    my ($self, $c) = @_;
-#
-#    my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
-#
-#    my ($scan, $scan_config) = wmiConfig($self, $c, $result);
-#
-#    my $config_process = $c->model('Config::WMI')->read('Process_Running');
-#    my $result_process = $scan->runWmi($scan_config, $config_process);
-#    if ($result_process =~ /0x80041010/) {
-#        $c->stash->{running_process} = 'No';
-#    }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
-#        $c->stash->{running_process} = 'Request failed';
-#    }else {
-#        $c->stash->{running_process} = $result_process;
-#    }
-#}
-#
-#=head2 runScanWmi
-#
-#Lauch the WMI scan
-#
-#=cut
-#
-#sub runScanWmi {
-#    my ($self, $c, $scan, $scan_config, $scan_exist) = @_;
-#
-#    my $rules = parseWmiSecurity($self, $c, $scan, $scan_config);
-#
-#    if (is_success($scan_exist) && $rules) {
-#        $c->stash->{rules} = $rules;
-#    }else {
-#        $c->response->status($scan_exist);
-#        $c->stash->{status_msg} = $scan_config;
-#        $c->stash->{current_view} = 'JSON';
-#    }
-#
-#}
+=head2 process_tab
+
+Process tab
+
+=cut
+
+sub process_tab {
+    my ($self, $c, @args) = @_;
+    #scanSecuritySoftware(); 
+    #scanProcess();
+    my $scan_config = $c->stash->{scan_config};
+    my $scan_exist = $c->stash->{scan_exist};
+    my $scan = $c->stash->{scan};
+
+    my $rules = parseWmi($scan, $scan_config);
+    use Data::Dumper;
+    $c->log->info(Dumper($rules));
+
+    if (is_success($scan_exist) && $rules) {
+        $c->stash->{rules} = $rules;
+    }else {
+        $c->response->status($scan_exist);
+        $c->stash->{status_msg} = $scan_config;
+        $c->stash->{current_view} = 'JSON';
+    }
+
+    #return ($STATUS::OK, {rules => $rules})
+
+}
+
+=head2 parseWmi
+
+parsing Wmi answer
+
+=cut
+
+sub parseWmi {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ'){
+    my ($self, $c, $scan, $scan_config) = @_;
+    my $rule_config = $c->model('Config::WMI')->readAll();
+    my @rules = grep {$_->{on_tab}} @$rule_config;
+    foreach my $rule (@rules) { 
+        my $config = $c->model('Config::WMI')->read($rule);
+        my $config_rule = $config->[1];
+        my $scan_result = $scan->runWmi($scan_config, $config_rule);
+        if ($scan_result =~ /0x80041010/ || !@$scan_result) {
+            $rule->{item_exist} = 'No';
+        }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
+            $rule->{item_exist} = 'Request failed';
+        }else {
+            $rule->{item_exist} = 'Yes';
+        }
+        $rule->{scan_result} = $scan_result;
+    }
+    return \@rules;
+}
+
+=head2 scanSecuritySoftware
+
+Launch standard security scans
+
+=cut
+
+sub scanSecuritySoftware {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+    my ($self, $c) = @_;
+
+    my $scan_config = $c->stash->{scan_config};
+    my $scan_exist = $c->stash->{scan_exist};
+    my $scan = $c->stash->{scan};
+
+    my $rules = parseWmi($self, $c, $scan, $scan_config);
+    use Data::Dumper;
+    $c->log->info(Dumper($rules));
+
+    if (is_success($scan_exist) && $rules) {
+        $c->stash->{rules} = $rules;
+    }else {
+        $c->response->status($scan_exist);
+        $c->stash->{status_msg} = $scan_config;
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
+=head2 scanProcess
+
+Try to scan the active processus on the client
+
+=cut
+
+sub scanProcess {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
+    my ($self, $c) = @_;
+
+    my $scan_config = $c->stash->{scan_config};
+    my $scan = $c->stash->{scan};
+
+    my $config_process = $c->model('Config::WMI')->read('Process_Running');
+    my $result_process = $scan->runWmi($scan_config, $config_process);
+    if ($result_process =~ /0x80041010/) {
+        $c->stash->{running_process} = 'No';
+    }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
+        $c->stash->{running_process} = 'Request failed';
+    }else {
+        $c->stash->{running_process} = $result_process;
+    }
+}
 
 =head1 AUTHOR
 

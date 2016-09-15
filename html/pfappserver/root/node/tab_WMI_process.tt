@@ -1,3 +1,4 @@
+<div id="scanSecuritySoftware">
 <table class="table table-condensed">
   <thead>
     <tr>
@@ -39,6 +40,8 @@
   [% END %]
   </tbody>
 </table>
+</div>
+<div id="scanProcess">
 [% IF running_process == "No" %]
   <span> Error while getting running process. [% running_process | html %]</span><br/>
 [% ELSIF running_process == "Request failed" %]
@@ -59,3 +62,4 @@
     </tbody>
   </table>
 [% END %]
+</div>
