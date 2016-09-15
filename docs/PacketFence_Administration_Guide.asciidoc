@@ -1729,6 +1729,109 @@ Where :
 * *Currency* is the currency that will be used in the transactions.
 * *Test mode* should be activated if you are using a sandbox account.
 
+WorldPay US
++++++++++++
+
+*Creating an account*
+
+First, you will need to contact WorldPay US in order to get an account that has 'WebPay' capabilities. Once that is done, you will have access to https://www.onlinemerchantcenter.com/ where you should login with your new account.
+
+Once you are logged in, go in 'FRISK(TM) Management->Configure Options' and scroll down to the 'Account Number 3DES Encryption' option and click 'Edit'.
+
+Then, click 'Generate a new key', then 'Update' and note the '3DES Key' for usage in the PacketFence configuration.
+
+Next, go in 'Shopping Cart->WebPay', and create a new WebPay form. The 'Payment Option' should be `Credit Card Sale`.
+
+--- screenshot worldpay-create-form
+
+NOTE: The following example assumes that the source identifier in PacketFence will be `world-pay-us`. Adjust the 'Post-Back URL' as well as the `<a>` tag in the 'Accept Message' to reflect any other identifier you should choose.
+
+Then, you will be presented a form generator. Creating a fully customized form is outside the scope of this document so only the basic configuration will be covered so that the payment form works.
+
+fIRst, enter the FQDN of your captive portal prefixed with `http://` (i.e. `http://packetfence.acme.com`) in the 'Host Domain'. 
+
+Next, set 'Post-Back URL' to your 'Host Domain' suffixed by `/hook/billing/worldpay` (i.e. `https://packetfence.acme.com/hook/billing/world-pay-us`). Now for this hook to work properly, you will need to have your management interface have the `portal` type and also have your management interface accessible publically so the WorldPay servers can communicate with the server on the public domain.
+
+Now, hit the 'Submit' button to create your form.
+
+Then, still on the form creation page, in the 'Advanced' tab, Set the following 'Accept Message':
+
+  <div class="webpay resultaccepted" id="resultaccepted">
+  <fieldset class="webpay">
+      <legend class="webpay">Transaction Accepted</legend>
+      <div class="webpay">
+          <span class="webpay">
+              <label for="" class="webpay" alt="">Form of Payment</label><input class="webpay" type="text" value="::PAYTYPE:: ::ACCOUNTNUMBER::" size="32" disabled="true">
+          </span>
+      </div>
+      <div class="webpay">
+          <span class="webpay">
+              <label for="" class="webpay" alt="">Auth Code</label><input class="webpay" type="text" value="::AUTHNO::" size="32" disabled="true">
+          </span>
+      </div>
+      <div class="webpay">
+          <span class="webpay">
+              <label class="webpay" alt="">Order Number</label><input class="webpay" type="text" value="::ORDERID::" size="10" disabled="true">
+          </span>
+      </div>
+  </fieldset>
+  <a href="/billing/world-pay-us/verify">Click here to complete your registration</a>
+  </div>
+
+And the following in the 'Form':
+
+  <fieldset class="webpay">
+    <legend class="webpay">Order Info</legend>
+  </fieldset>
+  <fieldset class="webpay" style="border:0;">
+    <legend class="webpay" style="display:none">Recurring Info</legend>
+  </fieldset>
+  <fieldset class="webpay" style="border:0;">
+    <legend class="webpay" style="display:none">Address Info</legend>
+  </fieldset>
+  <fieldset class="webpay">
+    <legend class="webpay">Payment Info</legend>
+    <div class="webpay">
+      <span class="webpay">
+        <label for="ccname" class="webpay">Name On Card</label><input alt="js_validate_notempty" name="ccname" class="webpay" type="text" value="" size="32" >
+      </span>
+    </div>
+    <div class="webpay">
+      <span class="webpay">
+        <label for="ccnum" class="webpay">Card Number</label><input alt="js_validate_acctnum" name="ccnum" class="webpay" type="text" value="" size="17" >
+      </span>
+    </div>
+    <div class="webpay">
+      <span class="webpay">
+        <label for="expmon" class="webpay">Expiry Date</label><select  alt="js_validate_notempty" name="expmon"  size="1"  class="webpay"><option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+      </span>
+      <span class="webpay"><select  alt="js_validate_notempty" name="expyear"  size="1"  class="webpay"><option value="2010">2010</option><option value="2011">2011</option><option value="2012">2012</option><option value="2013">2013</option><option value="2014">2014</option><option value="2015">2015</option><option value="2016">2016</option><option value="2017">2017</option><option value="2018">2018</option><option value="2019">2019</option><option value="2020">2020</option></select>
+      </span>
+    </div>
+    <div class="webpay">
+      <span class="webpay">
+        <label for="cvv2" class="webpay">CVV2/CVC2/CID</label><input alt="js_validate_acctnum" name="cvv2" class="webpay" type="text" value="" size="4" >
+      </span>
+    </div>
+
+  </fieldset>
+
+Next, hit 'Submit' to save your changes and note down the 'WebPay URL'. In this example it will be `https://trans.merchantpartners.com/cgi-bin/WebPAY.cgi?formid=1EACDCB36D90C2B5C0F0A8150A369A9E3A25C2A0E11473B8C51811D236F1BB80&sessionid=2FD3B68CBF005799`
+
+*PacketFence configuration*
+
+Next in the PacketFence administration interface, go in 'Configuration->Sources' and create a new source of type 'Billing->WorldPayUS'.
+
+image::docs/images/billing/worldpayus-packetfence-config.png[scaledwidth="100%",alt="WorldPayUS PacketFence configuration"]
+
+Where : 
+[options="compact"]
+* *Base uri* is the protocol, domain and path of the 'WebPay URL' you got above (`https://trans.merchantpartners.com/cgi-bin/WebPAY.cgi`)
+* *Form id* is the hexadecimal string of the `formid` parameter (`1EACDCB36D90C2B5C0F0A8150A369A9E3A25C2A0E11473B8C51811D236F1BB80`)
+* *Session id* is the hexadecimal string of the `sessionid` parameter (`2FD3B68CBF005799`)
+* *Des key* is the DES key you generated in the first steps of this section
+* *Authorized domains* is the domains that should be accessible to the user to perform payment. This should match the domain name of the 'WebPay URL'
+
 Mirapay
 +++++++
 
