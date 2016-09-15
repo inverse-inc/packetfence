@@ -1732,6 +1732,8 @@ Where :
 WorldPay US
 +++++++++++
 
+WARNING: Due to the way payment validation works with WorldPay, it isn't possible to use it in an active/active cluster at the moment. Active/passive clusters will work fine. For the same reasons, it isn't currently possible to use pre-registration using WorldPay as the payment validation is tied directly to the MAC address of the device.
+
 *Creating an account*
 
 First, you will need to contact WorldPay US in order to get an account that has 'WebPay' capabilities. Once that is done, you will have access to https://www.onlinemerchantcenter.com/ where you should login with your new account.
