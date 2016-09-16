@@ -66,6 +66,7 @@ our (
     $log_conf_dir,
     $vlan_filters_config_file, $vlan_filters_config_default_file,
     $pfcmd_binary,
+    $report_config_file,
     $realm_config_file,
     $realm_default_config_file,
     $cluster_config_file,
@@ -126,6 +127,7 @@ BEGIN {
         $log_conf_dir
         $vlan_filters_config_file $vlan_filters_config_default_file
         $pfcmd_binary
+        $report_config_file
         $realm_config_file
         $realm_default_config_file
         $cluster_config_file
@@ -202,6 +204,7 @@ $vlan_filters_config_default_file = catfile($conf_dir, "vlan_filters.conf.defaul
 $firewall_sso_config_file =  catfile($conf_dir,"firewall_sso.conf");
 $pfdetect_config_file =  catfile($conf_dir,"pfdetect.conf");
 $pfqueue_config_file =  catfile($conf_dir,"pfqueue.conf");
+$report_config_file = catfile($conf_dir,"report.conf");
 $realm_config_file = catfile($conf_dir,"realm.conf");
 $realm_default_config_file = catfile($conf_dir,"realm.conf.defaults");
 $cluster_config_file = catfile($conf_dir,"cluster.conf");

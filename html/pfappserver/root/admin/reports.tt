@@ -1,4 +1,5 @@
 [%  jsFiles = [
+        'app/jquery-ui',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
         'app/raphael/g.bar-min',
@@ -14,8 +15,10 @@
         'js/bootstrapSwitch',
         'js/node',
         'js/user',
+        'admin/searches',
         'admin/nodes',
         'admin/reports'
+        'admin/dynamicreport'
         ]
      cssFiles = [
         'app/bootstrap-timepicker',
@@ -43,6 +46,10 @@
               <li class="nav-header">[% l('ACCOUNTING') %]</li>
               [% list_entry('graph/nodebandwidth', 'Top 25 Bandwidth Consumers') | none %]
               [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
+              <li class="nav-header">[% l('Custom reports') %]</li>
+              [% FOREACH report_id IN dynamic_reports.keys %]
+              [% list_entry('dynamicreport/' _ report_id, dynamic_reports.$report_id) | none %]
+              [% END %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
