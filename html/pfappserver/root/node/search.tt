@@ -61,6 +61,7 @@
       [%currentPage = currentPage + 1%]
     [% END %]
     [% IF has_next_page %]
+      [% params.page_num = currentPage %]
       <li><a href="[% c.uri_for(action, add_captures, params) %]">[%currentPage%]</a></li>
       [% params.page_num = pageNumber + 1 %]
       <li class="disabled"><span>&hellip;</span></li>
