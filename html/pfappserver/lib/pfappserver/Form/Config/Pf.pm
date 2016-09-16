@@ -46,7 +46,7 @@ sub field_list {
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
-	    type => 'Text',
+            type => 'Text',
           };
         my $type = $doc_section->{type} || "text";
         #skip if hidden
