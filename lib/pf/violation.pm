@@ -815,10 +815,13 @@ sub violation_force_close {
     my ( $mac, $vid ) = @_;
     my $logger = get_logger();
 
+    my $should_run_actions = violation_exist_open($mac, $vid);
     db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
         || return (0);
     $logger->info("violation $vid force-closed for $mac");
-    violation_post_close_action($mac, $vid);
+    if($should_run_actions) {
+        violation_post_close_action($mac, $vid);
+    }
     return (1);
 }
 
