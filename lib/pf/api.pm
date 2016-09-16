@@ -999,11 +999,17 @@ sub close_violation : Public {
 
     my $logger = pf::log::get_logger();
 
-    my $grace = pf::violation::violation_close($postdata{'mac'}, $postdata{'vid'});
-    if ( $grace == -1 ) {
-        $logger->warn("Problem trying to close scan violation");
+    if(defined($postdata{force}) && $postdata{force}) {
+        return pf::violation::violation_force_close($postdata{'mac'}, $postdata{'vid'})
     }
-    return;
+    else {
+        my $grace = pf::violation::violation_close($postdata{'mac'}, $postdata{'vid'});
+        if ( $grace == -1 ) {
+            $logger->warn("Problem trying to close violation");
+            return $pf::config::FALSE;
+        }
+        return $pf::config::TRUE;
+    }
 }
 
 =head2 dynamic_register_node
