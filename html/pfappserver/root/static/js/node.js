@@ -81,12 +81,6 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
 
-    //this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeWmi"]', this.readWmi);
-    
-    this.proxyClick(body, '#modalNode #scanProcess', this.scanProcessus);
-
-    this.proxyClick(body, '#modalNode #scanSecuritySoftware', this.scanSecuritySoftwares);
-
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
 
@@ -243,17 +237,6 @@ NodeView.prototype.tabProcess = function(e) {
     return false;
 };
 
-/*NodeView.prototype.readWmi = function(e) {
-    var btn = $(e.target);
-    var name = btn.attr("href");
-    var target = $(name.substr(name.indexOf('#')));
-    var url = btn.attr("data-href");
-    target.load(btn.attr("data-href"), function() {
-        target.find('.switch').bootstrapSwitch();
-    });
-    return true;
-};*/
-
 NodeView.prototype.createNode = function(e) {
     var form = $(e.target),
     btn = form.find('[type="submit"]').first(),
@@ -407,34 +390,6 @@ NodeView.prototype.triggerViolation = function(e) {
         success: function(data) {
             pane.html(data);
             pane.find('.switch').bootstrapSwitch();
-        },
-        errorSibling: pane.children().first()
-    });
-};
-
-NodeView.prototype.scanProcessus = function(e) {
-    e.preventDefault();
-
-    var btn = $(e.target);
-    var pane = $('#scanProcessInfo');
-    this.nodes.get({
-        url: btn.attr("href"),
-        success: function(data) {
-            pane.html(data);
-        },
-        errorSibling: pane.children().first()
-    });
-};
-
-NodeView.prototype.scanSecuritySoftwares = function(e) {
-    e.preventDefault();
-
-    var btn = $(e.target);
-    var pane = $('#scanSecuritySoftwareInfo');
-    this.nodes.get({
-        url: btn.attr("href"),
-        success: function(data) {
-            pane.html(data);
         },
         errorSibling: pane.children().first()
     });
