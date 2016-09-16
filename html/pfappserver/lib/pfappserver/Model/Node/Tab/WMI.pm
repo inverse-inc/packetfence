@@ -112,30 +112,6 @@ sub parseWmi {
     return $rule_config;
 }
 
-
-=head2 scanProcess
-
-Try to scan the active processus on the client
-
-=cut
-
-sub scanProcess {#:Chained('object') :PathPart :Args(0) :AdminRole('WMI_READ') {
-    my ($self, $c) = @_;
-
-    my $scan_config = $c->stash->{scan_config};
-    my $scan = $c->stash->{scan};
-
-    my $config_process = $c->model('Config::WMI')->read('Process_Running');
-    my $result_process = $scan->runWmi($scan_config, $config_process);
-    if ($result_process =~ /0x80041010/) {
-        $c->stash->{running_process} = 'No';
-    }elsif ($result_process =~ /TIMEOUT/ || $result_process =~ /UNREACHABLE/) {
-        $c->stash->{running_process} = 'Request failed';
-    }else {
-        $c->stash->{running_process} = $result_process;
-    }
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
