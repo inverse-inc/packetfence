@@ -67,6 +67,7 @@ our %ALLOWED_SECTIONS = (
     pki => undef,
     metadefender => undef,
     mse_tab => undef,
+    radius_authentication_methods => undef,
 );
 
 

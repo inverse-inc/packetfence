@@ -46,6 +46,7 @@ sub field_list {
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
+	    type => 'Text',
           };
         my $type = $doc_section->{type} || "text";
         #skip if hidden
@@ -98,6 +99,16 @@ sub field_list {
                             },
                         }];
                 }
+                last;
+            };
+            $type eq 'hex' && do {
+                    $field->{apply} = [{
+                            check   => sub {$_[0]  =~ /^[0-9a-fA-F]+$/},
+                            message => sub {
+                                my ($value, $field) = @_;
+                                return $field->name . " must be hexadecimal";
+                            },
+                        }];
                 last;
             };
             $type eq 'multi' && do {
@@ -168,7 +179,33 @@ sub field_list {
                 last;
             };
         }
+        if ($field->{type} eq 'Text') {
+            if (exists $doc_section->{minimum_length}) {
+                my $minimum_length = $doc_section->{minimum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) >= $minimum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $minimum_length";
+                        },
+                    });
+            }
+            if (exists $doc_section->{maximum_length}) {
+                my $maximum_length = $doc_section->{maximum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) <= $maximum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $maximum_length";
 
+                        },
+                    });
+            }
+        }
         push(@$list, $name => $field);
     }
     return $list;
