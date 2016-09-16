@@ -1,0 +1,62 @@
+[% IF rules.id == "Process_Running" %]
+  [% IF rules.item_exist == "No" %]
+    <span> Error while getting running process. [% rules.item_exist | html %]</span><br/>
+  [% ELSIF rules.item_exist == "Request failed" %]
+    <span>[% rules.items_exist | html %]</span><br/>
+  [% ELSE %]
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>Process running</th>
+        </tr>
+      </thead>
+      <tbody>
+      [% FOREACH process IN rules.scan_result %]
+        <tr>
+          <td>[% process.Name | html %]</td>
+        </tr>
+      [% END %]
+      </tbody>
+    </table>
+  [% END %]
+[% ELSE %]
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th>Item scanned</th>
+      <th>Is Present</th>
+      <th>Name</th>
+      <th>Version</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% IF rules.scan_result.size > 0 %]
+      [% FOREACH item IN rules.scan_result %]
+        <tr>
+          <td>[% rules.id | html %]</td>
+          [% IF rules.item_exist == 'Yes' %]
+            <td><span class="label label-success">[% rules.item_exist | html %]</span></td>
+          [% ELSE %]
+            <td><span class="label label-failure">[% rules.item_exist | html %]</span></td>
+          [% END %]
+          [% IF rules.item_exist == 'Yes' %]
+            <td>[% item.displayName | html %]</td>
+            <td>[% item.productState | html %]</td>
+          [% END %]
+        </tr>
+      [% END %]
+    [% ELSE %]
+      <tr>
+        <td>[% rules.id | html %]</td>
+          [% IF rules.item_exist == 'Yes' %]
+            <td><span class="label label-success">[% rules.item_exist | html %]</span></td>
+          [% ELSE %]
+            <td><span class="label label-failure">[% rules.item_exist | html %]</span></td>
+          [% END %]
+          <td></span></td>
+          <td></span></td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+[% END %]

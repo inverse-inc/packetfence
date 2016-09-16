@@ -38,3 +38,34 @@ value = explorer.exe
 [1:explorer]
 action = allow
 EOT
+
+# Detect if the SCCM client is installed
+[SCCM]
+request=select * from Win32_Process where name='CcmExec.exe'
+action=[sccm]
+namespace=ROOT\cimv2
+on_tab=1
+
+# Detect security product like Firewall, Antivirus or Antispyware
+[FireWall]
+request=select * from FirewallProduct
+action= <<EOT
+[firewall]
+attribute = Name
+operator = match
+value = *
+EOT
+namespace=ROOT\SecurityCenter2
+on_tab=1
+
+[Antivirus]
+request=select * from AntiVirusProduct
+namespace=ROOT\SecurityCenter2
+action=[antivirus]
+on_tab=1
+
+[AntiSpyware]
+request=select * from AntiSpywareProduct
+namespace=ROOT\SecurityCenter2
+action=[antispyware]
+on_tab=1

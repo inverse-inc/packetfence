@@ -270,6 +270,8 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         push @tabs, 'MSE';
     }
 
+    push @tabs, 'WMI';
+
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{node} = $result;
@@ -287,6 +289,9 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         tabs => \@tabs,
     });
 
+#    my @now = localtime;
+#    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
+#                         time => POSIX::strftime("%H:%M", @now) };
 }
 
 =head2 update
