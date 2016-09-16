@@ -56,9 +56,7 @@ sub process_view {
     }
     
  
-    use Data::Dumper;
-    $c->log->info(Dumper(\@items, \@scans, $node->{iplog}->{ip}));
-    return ($STATUS::OK, {items => \@items, node => $node});
+    return ($STATUS::OK, {items => \@items});
 }
 
 =head2 process_tab
@@ -68,19 +66,17 @@ Process tab
 =cut
 
 sub process_tab {
-    my ($self, $c, $scan_id, $rule_id, $node, @args) = @_;
+    my ($self, $c, $scan_id, $rule_id, @args) = @_;
     
-    use Data::Dumper;
-    
-    $self->parseWmi($c, $scan_id, $rule_id);
-    #scanProcess();
-    #my $host = $result->{iplog}->{ip};
-    #foreach my $value ( keys %{$scan_config} ) {
-    #    $scan_config->{'_' . $value} = $scan_config->{$value};
-    #}
-    #$scan_config->{_scanIp} = $host;
-    
-    return ($STATUS::OK);
+    my $rules = $self->parseWmi($c, $scan_id, $rule_id);
+
+    if ($rules) {
+        $c->stash->{rules} = $rules;
+    }else {
+        $c->stash->{current_view} = 'JSON';
+    }
+
+    return ($STATUS::OK, {rules => $rules});
 
 }
 
@@ -91,78 +87,35 @@ parsing Wmi answer
 =cut
 
 sub parseWmi {
-    my ($self, $c, $scan_id, $rule_id, $node) = @_;
+    my ($self, $c, $scan_id, $rule_id) = @_;
     my $scan_model = $c->model("Config::Scan");
+    my $mac = $c->stash->{mac};
     my $wmi_model = $c->model("Config::WMI");
     my $scan = pf::scan::wmi::rules->new();
     my $scan_config = $scan_model->read($scan_id);
     my $rule_config = $wmi_model->read($rule_id);
+    my ($status, $node) = $c->model("Node")->view($mac);
 
     my $host = $node->{iplog}->{ip};
-    use Data::Dumper;
-    $c->log->info(Dumper($scan_config, $rule_config, $node, $host));
-    #    my $rule_detail = $model->read($rule);
-    #    my $config_rule = $rule_detail->[1];
-    my $scan_result = $scan->runWmi($scan_config, $rule_config);
-    $c->log->info(Dumper($scan_result));
-    #    if ($scan_result =~ /0x80041010/ || !@$scan_result) {
-    #        $rule->{item_exist} = 'No';
-    #    }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
-    #        $rule->{item_exist} = 'Request failed';
-    #    }else {
-    #        $rule->{item_exist} = 'Yes';
-    #    }
-    #    $rule->{scan_result} = $scan_result;
-}
-
-=head2 scanSecuritySoftware
-
-Launch standard security scans
-
-=cut
-
-sub scanSecuritySoftware {
-    my ($self, $c) = @_;
-
-    my $scan_config = $c->stash->{scan_config};
-    my $scan = pf::scan::wmi::rules->new();
-    my $scan_exist = "200";#->$scan_exist;
-    #my ($status, $result) = $c->model('Node')->view($c->stash->{mac});
-    #if (is_success($status)) {
-    #    $c->stash->{node} = $result;
-    #}
-
-    #my $profile = pf::Portal::ProfileFactory->instantiate($result->{mac});
-    #my $mac = $c->stash->{mac};
-    #my ($scan_exist, $scan_config);
-    #eval {
-    #    ($scan_exist, $scan_config) = $c->model('Config::Scan')->read($profile->{_scans});
-    #};
-    #if ($@) {
-    #    $c->log->error($@);
-    #    return ($STATUS::INTERNAL_SERVER_ERROR, {status_msg => "Error retrieving information for $mac"});
-    #}
-    #my $host = $result->{iplog}->{ip};
-    #
-    #foreach my $value ( keys %{$scan_config} ) {
-    #    $scan_config->{'_' . $value} = $scan_config->{$value};
-    #}
- 
-    #$scan_config->{_scanIp} = $host;
-
-
-    my $rules = $self->parseWmi($c, $scan, $scan_config);
-    use Data::Dumper;
-    $c->log->info(Dumper($rules));
-
-    if (is_success($scan_exist) && $rules) {
-        $c->stash->{rules} = $rules;
-    }else {
-        $c->response->status($scan_exist);
-        $c->stash->{status_msg} = $scan_config;
-        $c->stash->{current_view} = 'JSON';
+    foreach my $value ( keys %{$scan_config} ) {
+        $scan_config->{'_' . $value} = $scan_config->{$value};
     }
+    $scan_config->{_scanIp} = $host;
+    use Data::Dumper;
+    $c->log->info(Dumper($scan_config, $rule_config, $host));
+    my $scan_result = $scan->runWmi($scan_config, $rule_config);
+    if ($scan_result =~ /0x80041010/ || !@$scan_result) {
+        $rule_config->{item_exist} = 'No';
+    }elsif ($scan_result =~ /TIMEOUT/ || $scan_result =~ /UNREACHABLE/) {
+        $rule_config->{item_exist} = 'Request failed';
+    }else {
+        $rule_config->{item_exist} = 'Yes';
+    }
+    $rule_config->{scan_result} = $scan_result;
+    $c->log->info(Dumper($scan_result, $rule_config));
+    return $rule_config;
 }
+
 
 =head2 scanProcess
 
