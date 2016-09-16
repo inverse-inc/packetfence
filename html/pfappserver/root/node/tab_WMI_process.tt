@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-      [% FOREACH process IN running_process %]
+      [% FOREACH process IN rules.scan_result %]
         <tr>
           <td>[% process.Name | html %]</td>
         </tr>

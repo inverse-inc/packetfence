@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
-use pf::locationlog qw(locationlog_history_mac);
 use base qw(pfappserver::Base::Model::Node::Tab);
 
 =head2 process_view
@@ -101,8 +100,6 @@ sub parseWmi {
         $scan_config->{'_' . $value} = $scan_config->{$value};
     }
     $scan_config->{_scanIp} = $host;
-    use Data::Dumper;
-    $c->log->info(Dumper($scan_config, $rule_config, $host));
     my $scan_result = $scan->runWmi($scan_config, $rule_config);
     if ($scan_result =~ /0x80041010/ || !@$scan_result) {
         $rule_config->{item_exist} = 'No';
@@ -112,7 +109,6 @@ sub parseWmi {
         $rule_config->{item_exist} = 'Yes';
     }
     $rule_config->{scan_result} = $scan_result;
-    $c->log->info(Dumper($scan_result, $rule_config));
     return $rule_config;
 }
 
