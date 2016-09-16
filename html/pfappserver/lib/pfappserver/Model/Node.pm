@@ -184,13 +184,6 @@ sub view {
             $node->{iplog}->{end_time} = $last_iplog->{end_time};
         }
 
-        # Fetch switch location history
-        my @locationlog_history = locationlog_history_mac($mac);
-        #                                                  (start_time => $start_time, end_time => $end_time));
-        if (scalar @locationlog_history > 0) {
-            $node->{locationlog}->{history} = \@locationlog_history;
-        }
-
         $node->{fingerbank_info} = pf::node::fingerbank_info($mac);
 
         #    my $node_accounting = node_accounting_view($mac);

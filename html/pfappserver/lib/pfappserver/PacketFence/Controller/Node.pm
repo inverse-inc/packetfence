@@ -19,6 +19,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::admin_roles;
 use namespace::autoclean;
 use POSIX;
+use pf::config qw(%Config);
+use pf::util;
 
 use pfappserver::Form::Node;
 use pfappserver::Form::Node::Create::Import;
@@ -263,6 +265,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
     # Form initialization :
     # Retrieve node details and status
+    our @tabs = qw(Location Violations);
+    if (isenabled($Config{mse_tab}{enabled}) && admin_can([$c->user->roles], 'MSE_READ')) {
+        push @tabs, 'MSE';
+    }
 
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -276,11 +282,11 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         roles => $c->stash->{roles}
     );
     $form->process();
-    $c->stash->{form} = $form;
+    $c->stash({
+        form => $form,
+        tabs => \@tabs,
+    });
 
-#    my @now = localtime;
-#    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
-#                         time => POSIX::strftime("%H:%M", @now) };
 }
 
 =head2 update
@@ -422,6 +428,36 @@ sub runViolation :Path('run') :Args(1) :AdminRole('NODES_UPDATE') {
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 tab_view
+
+Tab View
+
+=cut
+
+sub tab_view :Chained('object') :PathPart :Args(1) :AdminRole('NODES_READ') {
+    my ($self, $c, $tab_name) = @_;
+    my $model = $c->model("Node::Tab::$tab_name");
+    my ($status, $results) = $model->process_view($c);
+    $c->response->status($status);
+    $c->stash->{template} = "node/tab_${tab_name}_view.tt";
+    $c->stash($results);
+}
+
+=head2 tab_process
+
+Tab Process
+
+=cut
+
+sub tab_process :Chained('object') :PathPart :Args() :AdminRole('NODES_READ') {
+    my ($self, $c, $tab_name, @args) = @_;
+    my $model = $c->model("Node::Tab::$tab_name");
+    my ($status, $results) = $model->process_tab($c, @args);
+    $c->response->status($status);
+    $c->stash->{template} = "node/tab_${tab_name}_process.tt";
+    $c->stash($results);
 }
 
 =head2 bulk_apply_bypass_role

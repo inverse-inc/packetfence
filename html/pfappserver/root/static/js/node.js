@@ -11,8 +11,10 @@ Nodes.prototype.doAjax = function(url_data, options) {
         .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
+            if (options.errorSibling) {
+                var status_msg = getStatusMsg(jqXHR);
+                showError(options.errorSibling, status_msg);
+            }
         });
 };
 
@@ -65,7 +67,11 @@ var NodeView = function(options) {
 
     this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
 
-    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
+
+    this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeAdditionalTabView"]', this.loadTab);
+
+    this.proxyFor(body, 'click', '[data-href*="/node"][data-href*="/tab_process"]', this.tabProcess);
 
     this.proxyClick(body, '#modalNode [href*="/close/"]', this.closeViolation);
 
@@ -202,15 +208,33 @@ NodeView.prototype.searchUser = function(query, process) {
     });
 };
 
-NodeView.prototype.readViolations = function(e) {
+NodeView.prototype.loadTab = function(e) {
     var btn = $(e.target);
     var name = btn.attr("href");
-    var target = $(name.substr(name.indexOf('#')));
+    var target = $(name);
     var url = btn.attr("data-href");
-    target.load(btn.attr("data-href"), function() {
+    target.load(url, function() {
         target.find('.switch').bootstrapSwitch();
     });
     return true;
+}
+
+NodeView.prototype.tabProcess = function(e) {
+    var a = $(e.target);
+    var name = a.attr("href");
+    var target = $(name);
+    var url = a.attr("data-href");
+    this.nodes.get({
+        url: url,
+        always: function(data) {
+            if (typeof data === 'object') {
+                target.html(data.responseText);
+            } else {
+                target.html(data);
+            }
+        }
+    });
+    return false;
 };
 
 NodeView.prototype.createNode = function(e) {

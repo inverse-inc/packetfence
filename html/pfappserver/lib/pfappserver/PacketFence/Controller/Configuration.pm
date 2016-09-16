@@ -66,6 +66,7 @@ our %ALLOWED_SECTIONS = (
     omapi => undef,
     pki => undef,
     metadefender => undef,
+    mse_tab => undef,
 );
 
 

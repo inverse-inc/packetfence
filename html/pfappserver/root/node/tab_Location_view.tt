@@ -1,0 +1,49 @@
+[%- IF items.size %]
+<table class="table table-condensed table-hover">
+<thead>
+  <tr>
+    <th>[% l('Switch/AP') %]</th>
+    <th>[% l('Switch Mac') %]</th>
+    <th>[% l('Connection Type') %]</th>
+    <th>[% l('Connection Sub Type') %]</th>
+    <th>[% l('Username') %]</th>
+    <th>[% l('Start') %]</th>
+    <th>[% l('End') %]</th>
+  </tr>
+</thead>
+<tbody>
+  [% FOR item IN items %]
+  <tr[% IF item.end_time %] class="muted"[% END %]>
+    <td>
+      [% IF switches.${item.switch} %]
+        <a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type | html %] ([% switches.${item.switch}.description | html %])">[% item.switch %]</a>
+      [% ELSE %]
+        [% item.switch | html %]
+      [% END %]
+      <br/>
+      [% IF item.ssid %] 
+        <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid | html %]</span>
+      [% ELSE %]
+        [% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port | html %]</span> [% END %]
+      [% END %]
+      [% IF item.role.length %]<span class="badge badge-info">role [% item.role | html %]</span>[% END %]
+    </td>
+    <td>[% item.switch_mac %]</td>
+    <td>[% l(item.connection_type) %]</td>
+    <td>
+    [% IF item.connection_sub_type.defined %]
+      [% l(item.connection_sub_type) %]
+    [% END %]
+    </td>
+    <td>[% item.dot1x_username | html %]</td>
+    <td>[% item.start_time | html %]</td>
+    <td>[% item.end_time | html %]</td>
+  </tr>
+  [% END %]
+</tbody>
+</table>
+[% ELSE %]
+<div id="noResult" class="unwell">
+<i class="icon-search icon-large"></i><p>[% l('No location history') %]</p>
+</div>
+[% END %]
