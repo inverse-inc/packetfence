@@ -86,8 +86,13 @@ Remove the parking actions that were taken against an IP + MAC
 sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
-    my $omapi = pf::OMAPI->get_client();
-    $omapi->delete_host($mac);
+    eval {
+        my $omapi = pf::OMAPI->get_client();
+        $omapi->delete_host($mac);
+    };
+    if($@) {
+        get_logger->warn("Failed to remove client from parking using OMAPI ($@).");
+    }
 
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }
