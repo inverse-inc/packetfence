@@ -2,7 +2,7 @@
 #
 # redis        init file for starting up the redis daemon
 #
-# chkconfig:   - 345 20 80
+# chkconfig:   345 20 80
 # description: Starts and stops the redis daemon.
 
 # Source function library.
