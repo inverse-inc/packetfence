@@ -142,19 +142,19 @@ sub query {
     my ($sql, $params) = $self->generate_sql_query(%infos);
     my $print_params = join(", ", map { "'$_'" } @$params);
     get_logger->debug("Executing query : $sql, with the following params : $print_params");
-    return $self->db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    return $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
 }
 
 sub page_count {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my @results = $self->db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
+    my @results = $self->_db_data(REPORT, {'report_sql' => $sql}, 'report_sql', @$params);
     my $pages = $results[0]->{count} / $infos{per_page};
     return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
-sub db_data {
+sub _db_data {
     my ($self, $from_module, $module_statements_ref, $query, @params) = @_;
 
     my $sth = db_query_execute($from_module, $module_statements_ref, $query, @params) || return (0);
