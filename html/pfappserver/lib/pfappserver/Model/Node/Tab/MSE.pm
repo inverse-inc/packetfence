@@ -19,6 +19,7 @@ use pf::config qw(%Config);
 use pf::error qw(is_error is_success);
 use base qw(pfappserver::Base::Model::Node::Tab);
 use Clone qw(clone);
+use Image::Magick;
 
 our $_TEST_DATA = {
     'WirelessClientLocation' => {
