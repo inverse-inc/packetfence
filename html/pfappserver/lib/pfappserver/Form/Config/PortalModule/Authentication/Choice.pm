@@ -24,7 +24,7 @@ sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authenticat
 
 sub child_definition {
     my ($self) = @_;
-    return qw(source_id custom_fields);
+    return qw(source_id custom_fields template);
 }
 
 =over
