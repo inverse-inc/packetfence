@@ -46,7 +46,9 @@ sub process_view {
     my $wmi_model = $c->model("Config::WMI");
     my @items;
     foreach my $scan ( @scans) {
-        foreach my $rule_id (@{$scan->{wmi_rules} // []}) {
+        my $rules = $scan->{wmi_rules} // [];
+        $rules = [$rules] unless ref($rules);
+        foreach my $rule_id (@$rules) {
             ($status, my $rule) = $wmi_model->read($rule_id);
             if (is_success($status) && $rule->{on_tab}) {
                 push @items, { scan_id => $scan->{id}, rule_id => $rule->{id} };
