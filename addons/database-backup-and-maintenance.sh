@@ -93,9 +93,9 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
 
     if [ $PERCONA_XTRABACKUP_INSTALLED -eq 1 ]; then
         echo "----- Backup started on `date +%F_%Hh%M` -----" >> /usr/local/pf/logs/innobackup.log
-        innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=tar ./ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.tar.gz
+        innobackupex --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --compress /tmp/ 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
         tail -1 /usr/local/pf/logs/innobackup.log | grep 'innobackupex: completed OK!' && \
-          find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.tar.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
+          find $BACKUP_DIRECTORY -name "$BACKUP_DB_FILENAME-innobackup-*.xbstream.gz" -mtime +$NB_DAYS_TO_KEEP_DB -print0 | xargs -0r rm -f
         INNOBACK_RC=$?
     else
         current_filename=$BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-`date +%F_%Hh%M`.sql
