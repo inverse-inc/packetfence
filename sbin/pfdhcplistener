@@ -105,7 +105,19 @@ my $net_type;
 my $process;
 
 sub reload_config {
-    $process = pf::cluster::is_vip_running($interface);
+    if ( $net_type eq "internal" ) { 
+        $process = $TRUE;
+    }
+    elsif ( pf::cluster::is_vip_running($interface) ) { 
+        $process = $TRUE;
+    }
+    elsif ( !$pf::cluster::cluster_enabled ) { 
+        $process = $TRUE;
+    }
+    else { 
+        $process = $FALSE;
+    }
+
     $logger->info("Reload configuration on $interface with status $process");
 }
 
@@ -181,7 +193,7 @@ sub dhcp_detector {
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    if ($process || !$pf::cluster::cluster_enabled){
+    if ($process){
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
