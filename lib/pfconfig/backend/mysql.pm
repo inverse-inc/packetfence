@@ -43,7 +43,7 @@ sub _get_db {
     my $db;
     eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
-            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
         $logger->error("Caught error $@ while connecting to database.");
