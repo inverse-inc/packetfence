@@ -22,6 +22,9 @@ use pf::file_paths qw(
     $server_cert
     $server_key
     $server_pem
+    $radius_server_key
+    $radius_server_cert
+    $radius_ca_cert
     $conf_dir
     $local_secret_file
 );
@@ -32,6 +35,9 @@ our @FILES_TO_SYNC = (
     $server_cert, 
     $server_key, 
     $server_pem, 
+    $radius_server_key,
+    $radius_server_cert,
+    $radius_ca_cert,
     $local_secret_file, 
     $pfconfig::constants::CONFIG_FILE_PATH, 
     "$conf_dir/iptables.conf", 
