@@ -362,8 +362,8 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
                 delete $c->session->{completed}->{$c->action->name};
             }
             if($alerting_smtpserver) {
-                ( $status, $message ) = $pf_model->update('smtpserver' => {
-                    'smtpserver'  => $alerting_emailaddr,
+                ( $status, $message ) = $pf_model->update('alerting' => {
+                    'smtpserver'  => $alerting_smtpserver,
                 });
                 if (is_error($status)) {
                     $logger->error($message);
