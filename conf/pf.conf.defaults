@@ -267,69 +267,6 @@ pf_status=9191
 # Port the mod_status for httpd.portal listens on.
 httpd_portal_modstatus=1444
 
-[scan]
-#
-# scan.engine
-#
-# Which scan engine to use to perform client-side policy compliance.
-engine=none
-#
-# scan.registration
-#
-# If this option is enabled, the PF system will scan each host after
-# registration is complete.
-registration=disabled
-#
-# scan.duration
-#
-# Approximate duration of a scan. User being scanned on registration are presented a progress bar 
-# for this duration, afterwards the browser refreshes until scan is complete.
-duration=60s
-#
-# scan.host
-#
-# Host the scanning engine is running on.  For performance reasons, we
-# recommend running the scanning engine on a remote server. A passthrough will
-# be automagically created.
-host=127.0.0.1
-#
-# scan.user
-#
-# Username to log into scanning engine with.
-user=admin
-#
-# scan.pass
-#
-# Password to log into scanning engine with.
-pass=packet
-#
-# scan.nessus_port
-#
-# Remote port of the Nessus scanning engine. Default value should be fine in
-# most cases.
-nessus_port=8834
-#
-# scan.nessus_clientpolicy
-#
-# Name of the remote policy on the nessus server
-nessus_clientpolicy=Internal Network Scan
-#
-# scan.openvas_port
-#
-# Remote port of the OpenVAS scanning engine. Default value should be fine in
-# most cases.
-openvas_port=9390
-#
-# scan.openvas_configid
-#
-# ID of the scanning configuration on the OpenVAS server
-openvas_configid=
-#
-# scan.openvas_reportformatid
-#
-# ID of the .NBE report format on the OpenVAS server
-openvas_reportformatid=f5c2a364-47d2-4700-b21d-0a7693daddab
-
 [database]
 #
 # database.pass

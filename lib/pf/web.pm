@@ -201,10 +201,11 @@ sub generate_scan_start_page {
     my $logger = get_logger();
 
     $portalSession->stash({
-        timer           => $Config{'scan'}{'duration'},
+        # Hardcoded here since the scan section is gone.
+        # In case this codepath is still called (pf::web::release is still called by scan in some cases)
+        timer           => 60,
         txt_message     => sprintf(
             i18n("system scan in progress"),
-            $Config{'scan'}{'duration'}
         ),
     });
 

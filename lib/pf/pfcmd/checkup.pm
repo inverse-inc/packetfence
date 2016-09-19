@@ -148,9 +148,6 @@ sub sanity_check {
         #TODO Suricata check
     }
 
-    scan_legacy() if ( lc($Config{'scan'}{'engine'}) ne "none" );
-    scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
-
     billing();
 
     database();
@@ -358,49 +355,6 @@ sub ids {
         add_problem( $WARN, "suricata binary is not executable / does not exist!" );
     }
 
-}
-
-=item scan
-
-Validation related to the vulnerability scanning engine option.
-
-=cut
-
-sub scan_legacy {
-
-    # Check if the configuration provided scan engine is instanciable
-    my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
-    $scan_engine = untaint_chain($scan_engine);
-    try {
-        eval "$scan_engine->require()";
-        die($@) if ($@);
-        my $scan = $scan_engine->new(
-            host => $Config{'scan'}{'host'},
-            user => $Config{'scan'}{'user'},
-            pass => $Config{'scan'}{'pass'},
-        );
-    } catch {
-        chomp($_);
-        add_problem( $WARN, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
-    };
-}
-
-=item scan_openvas
-
-Validation related to the OpenVAS vulnerability scanning engine usage.
-
-=cut
-
-sub scan_openvas {
-    # Check if the mandatory informations are provided in the config file
-    if ( !$Config{'scan'}{'openvas_configid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
-                "scan.openvas_configid field in pf.conf" );
-    }
-    if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
-                "scan.openvas_reportformatid field in pf.conf");
-    }
 }
 
 =item omapi
@@ -659,11 +613,6 @@ Registration configuration sanity
 =cut
 
 sub registration {
-
-    # warn when scan.registration=enabled and trapping.registration=disabled
-    if ( isenabled( $Config{'scan'}{'registration'} ) && isdisabled( $Config{'trapping'}{'registration'} ) ) {
-        add_problem( $WARN, "scan.registration is enabled but trapping.registration is not ... this is strange!" );
-    }
 
 }
 
