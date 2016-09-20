@@ -106,6 +106,8 @@ conf/vlan_filters.conf
 conf/pf_omapi_key
 conf/access_filters.conf
 html/captive-portal/captive_portal.conf
+html/common/node_modules/
+html/common/styles.css.map
 conf/pfdetect_remote.conf
 conf/pfarp_remote.conf
 conf/pfconfig.conf
