@@ -83,6 +83,8 @@ eval {
         uri => 'http://www.packetfence.org/PFAPI',
         proxy => $url
       );
+   $soap->ssl_opts(verify_hostname => 0);
+   $soap->{_transport}->{_proxy}->{ssl_opts}->{verify_hostname} = 0;
 
    my $date = POSIX::strftime("%m/%d-%H:%M:%S",localtime(time));
 
