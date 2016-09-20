@@ -339,10 +339,6 @@ my %COLUMN_MAP = (
         table => 'node_category_bypass_role',
         name  => 'name',
     },
-    dhcp_fingerprint   => {
-       table => 'node',
-       name  => 'device_class',
-    },
     switch_id   => {
        table => 'locationlog',
        name  => 'switch',

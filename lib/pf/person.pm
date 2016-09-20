@@ -157,7 +157,7 @@ sub person_db_prepare {
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class AS dhcp_fingerprint
+        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername, device_class
             FROM node
             WHERE pid = ? ]);
 
