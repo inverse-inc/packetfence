@@ -1,0 +1,65 @@
+# ======================================================================
+#
+# Copyright (C) 2000-2004 Paul Kulchenko (paulclinger@yahoo.com)
+# SOAP::Lite is free software; you can redistribute it
+# and/or modify it under the same terms as Perl itself.
+#
+# $Id: Deserializer.pod 372 2010-04-29 18:32:31Z kutterma $
+#
+# ======================================================================
+
+=pod
+
+=head1 NAME
+
+SOAP::Deserializer - the means by which the toolkit manages the conversion of XML into an object manageable by a developer
+
+=head1 DESCRIPTION
+
+SOAP::Deserializer provides the means by which incoming XML is decoded into a Perl data structure.
+
+=head1 METHODS
+
+=over
+
+=item context
+
+This provides access to the calling context of C<SOAP::Deserializer>. In a client side context the often means a reference to an instance of SOAP::Lite. In a server side context this means a reference to a SOAP::Server instance.
+
+=back
+
+=head1 EXAMPLES
+
+=head2 DESERIALIZING RAW XML INTO A SOAP::SOM OBJECT
+
+A useful utility for SOAP::Deserializer is for parsing raw XML documents or fragments into a SOAP::SOM object. SOAP::Lite developers use this technique to write unit tests for the SOAP::Lite module itself. It is a lot more efficient for testing aspects of the toolkit than generating client calls over the network. This is a perfect way for developers to write unit tests for their custom data types for example.
+
+Here is an example of how raw XML content can be parsed into a SOAP::SOM object by using SOAP::Deserializer:
+
+    $xml = <<END_XML;
+    <foo>
+      <person>
+        <foo>123</foo>
+        <foo>456</foo>
+      </person>
+      <person>
+        <foo>789</foo>
+        <foo>012</foo>
+      </person>
+    </foo>
+    END_XML
+
+    my $som = SOAP::Deserializer->deserialize($xml);
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000-2004 Paul Kulchenko. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Byrne Reese (byrne@majordojo.com)
+
+=cut

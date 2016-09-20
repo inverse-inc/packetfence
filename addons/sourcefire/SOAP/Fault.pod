@@ -1,0 +1,91 @@
+# ======================================================================
+#
+# Copyright (C) 2000-2003 Paul Kulchenko (paulclinger@yahoo.com)
+# SOAP::Lite is free software; you can redistribute it
+# and/or modify it under the same terms as Perl itself.
+#
+# $Id: Fault.pod 98 2007-10-09 09:41:55Z kutterma $
+#
+# ======================================================================
+
+=pod
+
+=head1 NAME
+
+SOAP::Fault - encapsulates SOAP faults prior to their serialization or after their deserialization
+
+=head1 DESCRIPTION
+
+This class encapsulates SOAP faults prior to their serialization or after their deserialization. The methods available are a constructor and four accessors. Each accessor creates an object on demand, just as the other classes do, when called as a static method. Like other accessors in the SOAP::Lite package, they return the object itself when setting the attribute. 
+
+=head1 GENERATING A SOAP FAULT
+
+To generate a SOAP Fault simply issue a Perl die command on the server side as you might normally. The SOAP processor will intercept the die command and return a SOAP Fault, using the string passed to the die command as the faultstring, to the client making the call. If you require having more control over the SOAP Fault returned to the client, then simply pass a SOAP::Fault object to the die command and the SOAP processor will behave accordingly. For example:
+
+  die SOAP::Fault->faultcode('Server.Custom') # will be qualified
+                 ->faultstring('Died in server method')
+                 ->faultdetail(bless {code => 1} => 'BadError')
+                 ->faultactor('http://www.soaplite.com/custom');
+
+=head1 METHODS
+
+=over
+
+=item new(optional data)
+
+    $fault = SOAP::Fault->new(faultcode => 'Server');
+
+Explicitly creates a new SOAP::Fault object. Any of the four attributes represented next by accessor methods may be passed in the argument list with values immediately following their attribute name.
+
+=item faultcode(optional value)
+
+    $fault->faultcode('MethodUnknown');
+
+Returns the current fault code or sets it if a value is given.
+
+=item faultstring(optional value)
+
+    $fault->faultstring("There is no $method here");
+
+Returns or sets the fault string.
+
+=item faultactor(optional value)
+
+    $fault->faultcode($header->actor);
+
+Returns or sets the fault-actor element. Note that the actor isn't always required in a SOAP fault.
+
+=item faultdetail(optional value)
+
+    $fault->faultcode(bless { proxy => $ip }, 'Err');
+
+Returns or sets the fault's detail element. Like the actor, this isn't always a required element. Note that fault detail content in a message is represented as tag blocks. Thus, the values passed to this accessor when setting the value are either SOAP::Data objects, or more general blessed hash references.
+
+=back
+
+In addition to these methods, the SOAP::Fault package also provides detail as an alias for faultdetail. The former is the actual name of the element with SOAP faults, but the latter name is less ambiguous when regarded with the rest of the SOAP::Lite package. Objects of this class also have a special stringification enabled. If an object is printed or otherwise stringified, the value produced is faultcode: faultstring, with the attribute values of the object. 
+
+=head1 SEE ALSO
+
+L<SOAP::Data>, L<SOAP::Header>, L<SOAP::SOM> 
+
+=head1 ACKNOWLEDGEMENTS
+
+Special thanks to O'Reilly publishing which has graciously allowed SOAP::Lite to republish and redistribute large excerpts from I<Programming Web Services with Perl>, mainly the SOAP::Lite reference found in Appendix B.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000-2004 Paul Kulchenko. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Paul Kulchenko (paulclinger@yahoo.com)
+
+Randy J. Ray (rjray@blackperl.com)
+
+Byrne Reese (byrne@majordojo.com)
+
+=cut
