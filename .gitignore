@@ -36,6 +36,7 @@ raddb/eap.conf
 raddb/radiusd.conf
 raddb/auth.conf
 raddb/acct.conf
+raddb/cli.conf
 raddb/sql.conf
 raddb/proxy.conf.inc
 raddb/load_balancer.conf
