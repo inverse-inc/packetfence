@@ -1128,6 +1128,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/violations.conf
 %config(noreplace)      /usr/local/pf/conf/wmi.conf
                         /usr/local/pf/conf/wmi.conf.example
+%config(noreplace)      /usr/local/pf/conf/reports.conf
+                        /usr/local/pf/conf/reports.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
