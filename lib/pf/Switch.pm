@@ -3175,7 +3175,9 @@ sub returnAuthorizeWrite {
     my ($self, $args) = @_;
     my $radius_reply_ref = {};
     my $status = $RADIUS::RLM_MODULE_FAIL;
-    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for enable access login";
+    my $msg = "PacketFence does not support this switch for read access login";
+    $self->logger->info($msg);
+    $radius_reply_ref->{'Reply-Message'} = $msg;
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeWrite', $args);
     if (defined($rule)) {
@@ -3195,7 +3197,9 @@ sub returnAuthorizeRead {
     my ($self, $args) = @_;
     my $radius_reply_ref ={};
     my $status = $RADIUS::RLM_MODULE_FAIL;
-    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for read access login";
+    my $msg = "PacketFence does not support this switch for read access login";
+    $self->logger->info($msg);
+    $radius_reply_ref->{'Reply-Message'} = $msg;
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeRead', $args);
     if (defined($rule)) {
