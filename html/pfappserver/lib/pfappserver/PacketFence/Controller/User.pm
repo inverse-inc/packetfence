@@ -143,6 +143,23 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_DEL
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 unassignNodes
+
+=cut
+
+sub unassignNodes :Chained('object') :PathPart('unassignNodes') :Args(0) :AdminRole('USERS_UPDATE') {
+    my ($self, $c) = @_;
+
+    my ($status, $result) = $self->getModel($c)->unassignNodes($c->stash->{user}->{pid});
+    $self->audit_current_action($c, status => $status, pid => $c->stash->{user}->{pid});
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head2 update
 
 =cut

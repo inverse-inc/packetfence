@@ -62,6 +62,8 @@ var UserView = function(options) {
     this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
 
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
+    
+    this.proxyClick($('body'), '#modalUser [href$="/unassignNodes"]', this.unassignUserNodes);
 
     this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
 
@@ -241,6 +243,28 @@ UserView.prototype.deleteUser = function(e) {
             modal.modal('hide');
             modal.on('hidden', function() {
                 $(window).hashchange();
+            });
+        },
+        errorSibling: modal_body.children().first()
+    });
+};
+
+UserView.prototype.unassignUserNodes = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalUser');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var url = btn.attr('href');
+    this.users.get({
+        url: url,
+        success: function(data) {
+            modal.modal('hide');
+            modal.on('hidden', function() {
+                $(window).hashchange();
+            });
+            $("#section").on('section.loaded', function() {
+              showSuccess($("#section").find('h2').first(), "YAYYY");
             });
         },
         errorSibling: modal_body.children().first()
