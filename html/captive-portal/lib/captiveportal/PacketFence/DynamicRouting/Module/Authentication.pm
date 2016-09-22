@@ -293,7 +293,7 @@ sub prompt_fields {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
-        title => defined($self->source) ? [ "%s authentication", $self->source->type ] : "Authentication",
+        title => defined($self->source) ? $self->source->description : "Authentication",
         %{$args},
     });
 }
