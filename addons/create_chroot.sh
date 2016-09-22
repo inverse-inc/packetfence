@@ -1,4 +1,5 @@
-=$1
+#!/bin/bash
+NS=$1
 BASE=$2
 
 if [ -z "$NS" ] || [ -z "$BASE" ]; then
