@@ -154,8 +154,8 @@ sub unassignNodes :Chained('object') :PathPart('unassignNodes') :Args(0) :AdminR
     $self->audit_current_action($c, status => $status, pid => $c->stash->{user}->{pid});
     if (is_error($status)) {
         $c->response->status($status);
-        $c->stash->{status_msg} = $result;
     }
+    $c->stash->{status_msg} = $result;
 
     $c->stash->{current_view} = 'JSON';
 }

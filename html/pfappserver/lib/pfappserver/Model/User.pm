@@ -321,7 +321,7 @@ sub unassignNodes {
             return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot reset owner of ".$node->{mac});
         }
     }
-    return ($STATUS::OK, 'The nodes were successfully assigned to the default PID.');
+    return ($STATUS::OK, "The nodes of $pid were successfully assigned to the default PID.");
 }
 
 =head2 delete

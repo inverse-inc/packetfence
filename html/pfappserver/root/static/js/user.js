@@ -264,7 +264,7 @@ UserView.prototype.unassignUserNodes = function(e) {
                 $(window).hashchange();
             });
             $("#section").on('section.loaded', function() {
-              showSuccess($("#section").find('h2').first(), "YAYYY");
+              showSuccess($("#section").find('h2').first(), data.status_msg);
             });
         },
         errorSibling: modal_body.children().first()
