@@ -473,11 +473,15 @@ UserView.prototype.submitItems = function(e) {
                     url: target.attr("data-target"),
                     data: items,
                     success: function(data) {
-                        showSuccess($("#section").find('h2').first(), data.status_msg);
+                        var show_msg = function() {
+                            showSuccess($("#section").find('h2').first(), data.status_msg);
+                            $("#section").off('section.loaded', show_msg);
+                        };
+                        $("#section").on('section.loaded', show_msg);
                     },
                     always: function(data) {
                         loader.hide();
-                        section.fadeTo('fast', 1.0);
+                        $(window).hashchange();
                     },
                     errorSibling: status_container
                 });
