@@ -35,6 +35,7 @@ __PACKAGE__->config(
         bulk_deregister      => { AdminRole => 'USERS_UPDATE' },
         bulk_apply_role      => { AdminRole => 'USERS_UPDATE' },
         bulk_apply_violation => { AdminRole => 'USERS_UPDATE' },
+        bulk_delete          => { AdminRole => 'USERS_DELETE' },
     },
     action_args => {
         '*' => { model => 'User'},

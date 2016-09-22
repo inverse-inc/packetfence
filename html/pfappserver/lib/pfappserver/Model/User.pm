@@ -694,6 +694,20 @@ sub bulkCloseViolations {
     return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
 }
 
+=head2 bulkDelete
+
+=cut
+
+sub bulkDelete {
+    my ($self, @ids) = @_;
+    my $count = 0;
+    foreach my $pid ( @ids  ) {
+        if(is_success($self->unassignNodes($pid)) && is_success($self->delete($pid))) {
+            $count++;
+        }
+    }
+    return ($STATUS::OK, ["[_1] users were deleted.",$count]);
+}
 =over
 
 =back
