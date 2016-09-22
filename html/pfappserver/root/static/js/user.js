@@ -449,9 +449,7 @@ UserView.prototype.submitItems = function(e) {
                     url: target.attr("data-target"),
                     data: items,
                     success: function(data) {
-                        $("#section").one('section.loaded', function() {
-                            showSuccess($("#section").find('h2').first(), data.status_msg);
-                        });
+                        showSuccess($("#section").find('h2').first(), data.status_msg);
                     },
                     always: function(data) {
                         loader.hide();
