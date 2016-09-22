@@ -19,10 +19,10 @@ DIRS=(proc lib lib64 bin usr sbin sys dev var/log/samba $ETC_DIRS)
 MOUNTS=(`mount | awk '{print $3}'`)
 
 for dir in "${DIRS[@]}"; do
-    value=$BASE/$NS/$dir
-    if [[ ! " ${MOUNTS[@]} " =~ " ${value} " ]]; then
-        mount -o bind /$dir $BASE/$NS/$dir
-    fi
+   value=$BASE/$NS/$dir
+   if [[ ! " ${MOUNTS[@]} " =~ " ${value} " ]]; then
+       mount -o bind /$dir $BASE/$NS/$dir
+   fi
 done
 
 ETC_FILES=$(find /etc -maxdepth 1 -type f|grep -v resolv.conf)
