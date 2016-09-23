@@ -1292,7 +1292,7 @@ traplog_cleanup_interval=60s
 # maintenance.radius_audit_log_cleanup_window
 #
 # How long to keep a radius_audit_log entry before deleting it
-radius_audit_log_cleanup_window=15D
+radius_audit_log_cleanup_window=7D
 #
 # maintenance.radius_audit_log_cleanup_interval
 #
