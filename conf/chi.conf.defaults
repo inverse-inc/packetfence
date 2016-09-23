@@ -56,13 +56,6 @@ storage=dbi
 [storage dbi]
 driver = DBI
 
-[dbi]
-db = pf
-host = localhost
-port = 3306
-user = pf
-pass = fp
-
 [storage redis]
 #
 # storage redis.driver
