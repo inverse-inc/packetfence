@@ -55,6 +55,7 @@ storage=dbi
 
 [storage dbi]
 driver = DBI
+table = chi_cache
 
 [storage redis]
 #

@@ -114,7 +114,6 @@ sub chiConfigFromIniFile {
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
-    my $dbi = delete $args{dbi};
     copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
@@ -122,7 +121,7 @@ sub chiConfigFromIniFile {
             if($driver eq 'File') {
                 setFileDriverParams($storage);
             } elsif($driver eq 'DBI') {
-                setDBIDriverParams($storage, $dbi);
+                setDBIDriverParams($storage);
             }
         }
         foreach my $param (qw(servers traits roles)) {
@@ -171,7 +170,6 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{table_prefix} = 'cache_';
     $storage->{dbh} = sub {
         my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
         return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
