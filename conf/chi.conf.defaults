@@ -48,6 +48,10 @@ expires_in=7d
 expires_in=24h
 
 [namespace accounting]
+#
+# namespace accounting.storage
+#
+# The storage to use for the namespace
 storage=distributed
 
 [storage distributed]
