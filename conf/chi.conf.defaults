@@ -47,6 +47,22 @@ expires_in=7d
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[namespace accounting]
+storage=distributed
+
+[storage distributed]
+storage=dbi
+
+[storage dbi]
+driver = DBI
+
+[dbi]
+db = pf
+host = localhost
+port = 3306
+user = pf
+pass = fp
+
 [storage redis]
 #
 # storage redis.driver
