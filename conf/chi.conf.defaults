@@ -54,7 +54,15 @@ storage=distributed
 storage=dbi
 
 [storage dbi]
+#
+# storage dbi.driver
+#
+# The driver for the storage
 driver = DBI
+# 
+# storage dbi.table
+#
+# The table to use as the cache store
 table = chi_cache
 
 [storage redis]
