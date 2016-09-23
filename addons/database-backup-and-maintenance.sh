@@ -80,7 +80,7 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
     
     /usr/local/pf/addons/database-cleaner.pl --table=auth_log --date-field=attempted_at --older-than="1 WEEK"
 
-    /usr/local/pf/addons/database-cleaner.pl --table=radius_audit_log --date-field=created_at --older-than="30 DAY"
+    /usr/local/pf/addons/database-cleaner.pl --table=radius_audit_log --date-field=created_at --older-than="7 DAY"
 
     if [ $OPTIMIZE_TABLES -eq 1 ]; then
         # lets optimize on Sunday
