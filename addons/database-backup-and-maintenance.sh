@@ -29,6 +29,7 @@ BACKUP_PF_FILENAME='packetfence-files-dump'
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
 PERCONA_XTRABACKUP_INSTALLED=0
+OPTIMIZE_TABLES=0
 
 # For replication
 ACTIVATE_REPLICATION=0
@@ -81,17 +82,19 @@ if [ -f /var/run/$SQL_ENGINE/$SQL_ENGINE.pid ]; then
 
     /usr/local/pf/addons/database-cleaner.pl --table=radius_audit_log --date-field=created_at --older-than="30 DAY"
 
-    # lets optimize on Sunday
-    DOW=`date +%w`
-    if [ $DOW -eq 0 ]
-    then
-        TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p' | grep -v '_archive$'` 
+    if [ $OPTIMIZE_TABLES -eq 1 ]; then
+        # lets optimize on Sunday
+        DOW=`date +%w`
+        if [ $DOW -eq 0 ]
+        then
+            TABLENAMES=`mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p' | grep -v '_archive$'` 
 
-        # loop through the tables and optimize them
-        for TABLENAME in $TABLENAMES
-        do
-            mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
-        done
+            # loop through the tables and optimize them
+            for TABLENAME in $TABLENAMES
+            do
+                mysql -h $DB_HOST -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
+            done
+        fi
     fi
 
     # Check to see if Percona XtraBackup is installed
