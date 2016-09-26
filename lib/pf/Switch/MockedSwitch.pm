@@ -2965,7 +2965,11 @@ See L<pf::web::externalportal::handle>
 
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
-    return "";
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    return \%params;
 }
 
 =item deauth_source_ip
