@@ -115,7 +115,7 @@ Depends: ${misc:Depends}, vlan,
 # used by bin/pftest
  libio-interactive-perl,
 # cluster
- haproxy (>= 1.5), keepalived (>= 1.2), arping
+ haproxy (>= 1.5), keepalived (>= 1.2), arping,
 # monitoring
  collectd, collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
  python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon, python-whisper,
