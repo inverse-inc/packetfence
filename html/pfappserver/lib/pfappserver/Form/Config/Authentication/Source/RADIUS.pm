@@ -35,6 +35,13 @@ has_field 'secret' =>
    label => 'Secret',
    required => 1,
   );
+has_field 'timeout' =>
+  (
+   type => 'PosInteger',
+   label => 'Timeout',
+   element_class => ['input-mini'],
+   element_attr => {'placeholder' => '1'},
+  );
 has_field 'stripped_user_name' =>
   (
    type            => 'Toggle',

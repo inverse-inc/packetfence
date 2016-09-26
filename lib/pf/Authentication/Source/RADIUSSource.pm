@@ -26,6 +26,7 @@ extends 'pf::Authentication::Source';
 has '+type' => ( default => 'RADIUS' );
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
+has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 
@@ -89,6 +90,7 @@ sub _send_radius_auth {
     my $radius = Authen::Radius->new(
         Host   => "$self->{'host'}:$self->{'port'}",
         Secret => $self->{'secret'},
+        TimeOut => $self->{'timeout'},
     );
 
     if (!defined $radius) {
