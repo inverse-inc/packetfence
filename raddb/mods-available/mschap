@@ -375,3 +375,17 @@ mschap chrooted_mschap {
 	# An optional retry message.
 #	retry_msg = "Re-enter (or reset) the password"
 }
+
+mschap chrooted_mschap_machine {
+
+        use_mppe = yes
+
+        require_encryption = yes
+
+
+        require_strong = yes
+        ntlm_auth = "/usr/bin/sudo /usr/sbin/chroot /chroots/%{PacketFence-Domain} /usr/bin/ntlm_auth --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
+
+        allow_retry = no
+
+}

@@ -159,16 +159,21 @@ authenticate {
 
 	#
 	#  MSCHAP authentication
-	Auth-Type MS-CHAP {
-		packetfence     # increment the StatsD counter
-		if(PacketFence-Domain) {
-			chrooted_mschap
-		}
-		else {
-			mschap
-		}
-	}
+        Auth-Type MS-CHAP {
+                packetfence     # increment the StatsD counter
+                if(PacketFence-Domain) {
+                        if ( "%{User-Name}" =~ /^host\/.*/) {
+                                chrooted_mschap_machine
+                        }
+                        else {
+                                chrooted_mschap
+                        }
 
+                }
+                else {
+                        mschap
+                }
+        }
 
 	# Uncomment it if you want to use ldap for authentication
 	#
