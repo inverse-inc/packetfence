@@ -262,6 +262,7 @@ sub generate_radiusd_cluster {
 
     $tags{'members'} = '';
     $tags{'config'} ='';
+    $tags{'home_server'} ='';
 
     if ($cluster_enabled) {
         $tags{'template'}    = "$conf_dir/radiusd/packetfence-cluster";
