@@ -1052,6 +1052,8 @@ On each interface _with VoIP_:
 
 CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
 
+CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in PacketFence Administration GUI under Network-> Switches for the switch IP configured below.
+
 Global settings:
 ++++++++++++++++
 
@@ -1068,15 +1070,10 @@ RADIUS server configuration:
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
-CoA configuration:
-
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-  port 3799
-
-Enable SNMP v1 on the switch:
+Enable SNMP on the switch:
 
   snmp-server community public RO
+  snmp-server community private RW
 
 On each interface:
 
