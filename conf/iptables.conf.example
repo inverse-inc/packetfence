@@ -6,8 +6,6 @@
 :INPUT DROP [0:0]
 # accept loopback stuff
 -A INPUT --in-interface lo --jump ACCEPT
-# accept anything related
--A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT
 # Accept Ping (easier troubleshooting)
 -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
 
@@ -138,6 +136,10 @@
 # These will redirect to the proper chains based on conf/pf.conf's configuration
 %%filter_if_src_to_chain%%
 %%filter_forward_domain%%
+
+# accept anything related
+-A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT
+
 COMMIT
 
 *mangle
