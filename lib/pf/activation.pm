@@ -127,7 +127,7 @@ sub activation_db_prepare {
     $activation_statements->{'activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, pid, mac, contact_info, activation_code, expiration, status, type, portal, email_pattern as carrier_email_pattern, unregdate
         FROM activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
-        WHERE activation_code = ? AND status = ?
+        WHERE activation_code = ? AND status = ? AND expiration >= NOW()
     ]);
 
     $activation_statements->{'activation_find_code_sql'} = get_db_handle()->prepare(qq[
@@ -342,7 +342,18 @@ Returns the activation code
 =cut
 
 sub create {
-    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id) = @_;
+    my $args = shift;
+    my ($mac, $pid, $pending_addr, $type, $portal, $provider_id, $timeout);
+    (
+        $mac          = $args->{'mac'},
+        $pid          = $args->{'pid'},
+        $pending_addr = $args->{'pending'},
+        $type         = $args->{'type'},
+        $portal       = $args->{'portal'},
+        $provider_id  = $args->{'provider_id'},
+        $timeout      = $args->{'timeout'}
+    );
+
     my $logger = get_logger();
 
     unless($mac){
@@ -363,7 +374,10 @@ sub create {
     );
 
     # caculate activation code expiration
-    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+    $data{'expiration'} = defined $timeout 
+        ? POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $timeout ))
+        : POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+
 
     # generate activation code
     $data{'activation_code'} = _generate_activation_code(%data);
@@ -501,7 +515,16 @@ sub create_and_send_activation_code {
     my ($mac, $pid, $pending_addr, $template, $type, $portal, %info) = @_;
 
     my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $pending_addr, $type, $portal);
+    my %args = (
+        mac     => $mac,
+        pid     => $pid,
+        pending => $pending_addr,
+        type    => $type,
+        portal  => $portal,
+        timeout => $info{'activation_timeout'}
+    );
+
+    my $activation_code = create(\%args);
     if (defined($activation_code)) {
       unless (send_email($activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
@@ -573,8 +596,17 @@ sub sms_activation_create_send {
     # Strip non-digits
     $phone_number =~ s/\D//g;
 
-    my ($success, $err) = ($TRUE, 0);
-    my $activation_code = create($mac, $pid, $phone_number, 'sms', $portal, $provider_id);
+    my ( $success, $err ) = ( $TRUE, 0 );
+    my %args = (
+        mac         => $mac,
+        pid         => $pid,
+        pending     => $phone_number,
+        type        => "sms",
+        portal      => $portal,
+        provider_id => $provider_id
+    );
+
+    my $activation_code = create(\%args);
     if (defined($activation_code)) {
       unless (send_sms($activation_code, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_SMS);
