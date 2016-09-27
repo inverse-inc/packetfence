@@ -152,7 +152,10 @@ ServerAdmin [% server_admin %]
 
 TraceEnable Off
 
+[% IF apache_version == "2.2" %]
 NameVirtualHost *:[% port %]
+[% END %]
+
 Listen 127.0.0.1:[% port %]
 
 <VirtualHost *:[% port %] >
@@ -174,7 +177,10 @@ Listen 127.0.0.1:[% port %]
 [% FOREACH vhost IN vhosts %]
 [% FOREACH proxy_port IN proxy_ports %]
 
+[% IF apache_version == "2.2" %]
 NameVirtualHost [% vhost %]:[% proxy_port %]
+[% END %]
+
 Listen [% vhost %]:[% proxy_port %]
 
 <VirtualHost [% vhost %]:[% proxy_port %] >

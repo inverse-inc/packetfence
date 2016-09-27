@@ -292,8 +292,12 @@ ErrorLog [% install_dir %]/logs/[% name %].error
 
 Listen [% vhost %]:80
 Listen [% vhost %]:443
+
+[% IF apache_version == "2.2" %]
 NameVirtualHost [% vhost %]:80
 NameVirtualHost [% vhost %]:443
+[% END %]
+
 <VirtualHost [% vhost %]:80 > 
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
@@ -444,7 +448,11 @@ NameVirtualHost [% vhost %]:443
 
 [% IF vhost_management_network %]
     Listen [% vhost_management_network %]:[% ports.httpd_portal_modstatus %]
+
+    [% IF apache_version == "2.2" %]
     NameVirtualHost [% vhost_management_network %]:[% ports.httpd_portal_modstatus %]
+    [% END %]
+
     <VirtualHost [% vhost_management_network %]:[% ports.httpd_portal_modstatus %] >
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib

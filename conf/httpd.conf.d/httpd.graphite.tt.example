@@ -127,7 +127,9 @@ TraceEnable Off
 
   Listen [% vhost %]:[% port %]
 
+  [% IF apache_version == "2.2" %]
   NameVirtualHost [% vhost %]:[% port %]
+  [% END %]
 
   <VirtualHost [% vhost %]:[% port %] >
       ServerName [% server_name %]

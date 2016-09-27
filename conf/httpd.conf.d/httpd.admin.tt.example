@@ -204,8 +204,10 @@ ProxyHTMLLinks  script      src for
   Listen [% vhost %]:[% ports.admin %]
   Listen [% vhost %]:[% ports.pf_status %]
 
+  [% IF apache_version == "2.2" %]
   NameVirtualHost [% vhost %]:[% ports.admin %]
   NameVirtualHost [% vhost %]:[% ports.pf_status %]
+  [% END %]
 
   <VirtualHost [% vhost %]:[% ports.admin %] >
       ServerName [% server_name %]

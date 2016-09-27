@@ -137,7 +137,9 @@ Group pf
 
 [% FOREACH vhost IN vhosts %]
 
+[% IF apache_version == "2.2" %]
 NameVirtualHost [% vhost %]:[% port %]
+[% END %]
 
 Listen [% vhost %]:[% port %]
 
