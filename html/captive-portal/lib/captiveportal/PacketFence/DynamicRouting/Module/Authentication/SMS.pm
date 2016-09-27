@@ -130,6 +130,8 @@ sub validate_info {
     $self->update_person_from_fields();
     pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider );
 
+    pf::auth_log::record_guest_attempt($self->source->id, $self->current_mac, $pid);
+
     $self->session->{telephone} = $telephone;
     $self->session->{mobileprovider} = $mobileprovider;
 
