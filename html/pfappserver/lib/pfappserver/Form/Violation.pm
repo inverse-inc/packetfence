@@ -18,6 +18,7 @@ use HTTP::Status qw(:constants is_success);
 
 use pf::action;
 use pf::log;
+use pf::constants::violation qw($MAX_VID);
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -313,11 +314,6 @@ Make sure a role is specified if the role action is selected.
 sub validate {
     my $self = shift;
 
-    # Check the violation ID
-    unless ($self->value->{id} =~ m/^(defaults|\d+)$/) {
-        $self->field('id')->add_error('The violation ID must be a positive integer.');
-    }
-
     # If the close action is selected, make sure a valid closing violation (vclose) is specified
     if (grep {$_ eq 'close'} @{$self->value->{actions}}) {
         my $vclose = $self->value->{vclose};
@@ -335,6 +331,28 @@ sub validate {
         unless (defined $role && grep {$_ eq $role} @roles) {
             $self->field('target_category')->add_error('Specify a role to use.');
         }
+    }
+}
+
+=head2 validate_id
+
+Validate the ID is numeric and doesn't exceed 2000000000 (max int(11) is 2147483648 but we make it a pretty rounded number)
+
+=cut
+
+sub validate_id {
+    my ($self, $field) = @_;
+    my $val = $field->value;
+
+    # Check the violation ID being a number
+    unless ($val =~ m/^(defaults|\d+)$/) {
+        $field->add_error('The violation ID must be a positive integer.');
+        return;
+    }
+
+    if($val <= 0 || $val > $MAX_VID) {
+        $field->add_error('The violation ID should be between 1 and 2000000000');
+        return;
     }
 }
 
