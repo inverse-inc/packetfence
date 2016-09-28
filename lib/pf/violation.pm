@@ -177,13 +177,13 @@ sub violation_db_prepare {
     ]);
 
     $violation_statements->{'violation_view_open_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status!="closed" order by start_date desc ]);
+        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
-        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status!="closed" order by start_date desc ]);
+        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
-        qq [ select mac from violation where status!="closed" group by mac ]);
+        qq [ select mac from violation where status="open" group by mac ]);
 
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
@@ -208,7 +208,7 @@ sub violation_db_prepare {
     $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
 
     $violation_statements->{'violation_close_sql'} = get_db_handle()->prepare(
-        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status!="closed" ]);
+        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status="open" ]);
 
     $violation_statements->{'violation_grace_sql'} = get_db_handle()->prepare(
         qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
@@ -217,16 +217,16 @@ sub violation_db_prepare {
         qq [ select count(*) from violation where mac=? and status="open" ]);
 
     $violation_statements->{'violation_count_reevaluate_access_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status!="closed" ]);
+        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status="open" ]);
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
 
     $violation_statements->{'violation_count_open_vid_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation where mac=? and vid=? and status!="closed" ]);
+        qq [ select count(*) from violation where mac=? and vid=? and status="open" ]);
 
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
+        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status = "open" LIMIT ? ]);
 
     $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
