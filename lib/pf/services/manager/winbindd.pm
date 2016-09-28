@@ -61,26 +61,6 @@ sub _build_winbinddManagers {
     return \@managers;
 }
 
-
-
-=head2 _setupWatchForPidCreate
-
-Setting up inotify to watch for the creation of pidFiles for each winbindd instance
-
-=cut
-
-sub _setupWatchForPidCreate {
-    my ($self) = @_;
-    my $inotify = $self->inotify;
-    my %pidFiles = map { $_->pidFile => undef } $self->managers;
-    my $run_dir = "$var_dir/run";
-    $inotify->watch ($run_dir, IN_CREATE, sub {
-        my $e = shift;
-        delete @pidFiles{ grep { -e $_ } keys %pidFiles };
-        $e->w->cancel unless keys %pidFiles;
-    });
-}
-
 sub postStartCleanup {
     my ($self,$quick) = @_;
     my $result = 0;

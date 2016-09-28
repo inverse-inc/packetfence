@@ -23,6 +23,7 @@ use pf::file_paths qw($domains_chroot_dir $var_dir);
 use pf::config qw(%ConfigDomain $DISTRIB $DIST_VERSION);
 use pf::util;
 use pfconfig::manager;
+use Linux::Inotify2;
 extends 'pf::services::manager';
 
 has domain => (is => 'rw');
@@ -74,12 +75,6 @@ sub build_namespaces(){
         my $OUTERLOGDIRECTORY="$CHROOT_PATH/$LOGDIRECTORY";
         my $OUTERRUNDIRECTORY="$CHROOT_PATH/var/run/samba$domain";
         my $PIDDIRECTORY="$var_dir/run/$domain";
-        my $DOMAIN_IF="$domain-b";
-        my $DOMAIN_IFCFG_VIRT_INT="/etc/sysconfig/network-scripts/ifcfg-$DOMAIN_IF";
-        unless (-e $DOMAIN_IFCFG_VIRT_INT) {
-           my $cmd='echo -e "DEVICE='.$DOMAIN_IF.'\nNM_CONTROLLED=no" |sudo tee '.$DOMAIN_IFCFG_VIRT_INT;
-           pf_run("$cmd");
-        }
         pf_run("sudo mkdir -p $OUTERLOGDIRECTORY && sudo chown root.root $OUTERLOGDIRECTORY");
         pf_run("sudo mkdir -p $OUTERRUNDIRECTORY && sudo chown root.root $OUTERRUNDIRECTORY");
         pf_run("sudo mkdir -p $PIDDIRECTORY && sudo chown root.root $PIDDIRECTORY");
@@ -107,10 +102,38 @@ sub pidFile {
     my ($self) = @_;
     my $name = $self->name;
     my $domain = $self->domain;
-    if ( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) {
+    if (( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) || ( ($DISTRIB eq 'debian') && ($DIST_VERSION gt 8) ) ) {
         return "$var_dir/run/$domain/winbindd.pid";
     } else {
         return "$var_dir/run/$domain/$name.pid";
+    }
+}
+
+=head2 _setupWatchForPidCreate
+
+This setups a watch on the run directory and its childs to wait for the pid file to appear
+
+=cut
+
+sub _setupWatchForPidCreate {
+    my ($self) = @_;
+    my $inotify = $self->inotify;
+    my $pidFile = $self->pidFile;
+    my $run_dir = "$var_dir/run";
+    my @dirs = ($run_dir);
+    opendir(DIR, $run_dir);
+    while(readdir DIR) {
+        push @dirs, "$run_dir/$_";
+    }
+    closedir(DIR);
+    foreach my $dir (@dirs) {
+        $inotify->watch ($dir, IN_CREATE, sub {
+            my $e = shift;
+            my $name = $e->fullname;
+            if($pidFile eq $name) {
+                 $e->w->cancel;
+            }
+        });
     }
 }
 
