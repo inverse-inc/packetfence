@@ -6,17 +6,19 @@
 # Antoine Amacher <aamacher@inverse.ca>, 2015-2016
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012
 # Dominique Couot <dcouot@hotmail.com>, 2012
-# oeufdure <fdurand@inverse.ca>, 2014-2015
+# oeufdure <fdurand@inverse.ca>, 2014-2016
 # inverse <info@inverse.ca>, 2013-2014,2016
 # inverse <info@inverse.ca>, 2012-2013
+# Louis Munro <git@louismunro.com>, 2016
 # lzammit <lzammit@inverse.ca>, 2014,2016
 # obilodeau <obilodeau@inverse.ca>, 2011
+# piellick <prost.pierrick@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-06-06 17:22+0000\n"
-"Last-Translator: Antoine Amacher <aamacher@inverse.ca>\n"
+"PO-Revision-Date: 2016-09-28 12:33+0000\n"
+"Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -96,7 +98,7 @@ msgstr "Installateur alternatif"
 msgid ""
 "An access request was sent to the sponsor's email. You will receive an email"
 " with a username and password once your access has been approved."
-msgstr "Une demande d'accès a été envoyé au courriel du sponsor. Vous recevrez un courriel avec un nom d'utilisateur et un mot de passe une fois que votre accès aura été approuvé."
+msgstr "Une demande d'accès a été envoyée au courriel du sponsor. Vous recevrez un courriel avec un nom d'utilisateur et un mot de passe une fois que votre accès aura été approuvé."
 
 # html/captive-portal/templates/guest/preregistration.html
 msgid ""
@@ -129,7 +131,7 @@ msgstr "Cliquez ici pour télécharger"
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Click here to go to the download website"
-msgstr "Cliquez ici pour accéder au site du téléchargmeent"
+msgstr "Cliquez ici pour accéder au site du téléchargement"
 
 # html/captive-portal/templates/guest.html
 msgid ""
@@ -389,7 +391,7 @@ msgstr "Connectez vous avec votre compte Windows Live"
 
 # html/captive-portal/templates/guest/footer.html
 msgid "Logout"
-msgstr "Dèconnecter"
+msgstr "Déconnecter"
 
 # html/captive-portal/templates/footer.html
 # lib/pf/web.pm
@@ -902,7 +904,7 @@ msgstr "Accès autorisé."
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Sponsor request accepted"
-msgstr "Demande de sponsoing accepter."
+msgstr "Demande acceptée par votre sponsor."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 msgid "scan in progress contact support if too long"
@@ -1034,3 +1036,114 @@ msgid ""
 "According to the provisioner %s, your device is not allowed to access the "
 "network. Please follow the instruction below."
 msgstr "Selon l´approvisionneur %s, votre équipement n´est pas autorisé sur le réseau. Veuillez suivre les instructions ci-dessous"
+
+msgid "The following errors prevented the request to be fulfilled : %s"
+msgstr "Les erreurs suivantes ont empêché la demande d'être finalisée: %s"
+
+msgid "%s is required"
+msgstr "%s est requis"
+
+msgid "username"
+msgstr "nom d'utilisateur"
+
+msgid "password"
+msgstr "mot de passe"
+
+msgid "mobileprovider"
+msgstr "Opérateur mobile"
+
+msgid "aup"
+msgstr "Charte d'usage"
+
+msgid "pid"
+msgstr "pid"
+
+msgid "firstname"
+msgstr "Prénom"
+
+msgid "lastname"
+msgstr "Nom de Famille"
+
+msgid "email"
+msgstr "courriel"
+
+msgid "telephone"
+msgstr "Téléphone"
+
+msgid "company"
+msgstr "Entreprise"
+
+msgid "address"
+msgstr "Adresse"
+
+msgid "notes"
+msgstr "Notes"
+
+msgid "sponsor"
+msgstr "Sponsor"
+
+msgid "anniversary"
+msgstr "Anniversaire"
+
+msgid "birthday"
+msgstr "Anniversaire"
+
+msgid "gender"
+msgstr "Genre"
+
+msgid "lang"
+msgstr "Langue"
+
+msgid "nickname"
+msgstr "Surnom"
+
+msgid "cell_phone"
+msgstr "Cellulaire"
+
+msgid "work_phone"
+msgstr "Téléphone de bureau"
+
+msgid "title"
+msgstr "Titre"
+
+msgid "building_number"
+msgstr "Numéro de bâtiment"
+
+msgid "apartment_number"
+msgstr "Numéro d'appartement"
+
+msgid "room_number"
+msgstr "Numéro de la pièce"
+
+msgid "custom_field_1"
+msgstr "Champ personnalisé 1"
+
+msgid "custom_field_2"
+msgstr "Champ personnalisé 2"
+
+msgid "custom_field_3"
+msgstr "Champ personnalisé 3"
+
+msgid "custom_field_4"
+msgstr "Champ personnalisé 4"
+
+msgid "custom_field_5"
+msgstr "Champ personnalisé 5"
+
+msgid "custom_field_6"
+msgstr "Champ personnalisé 6"
+
+msgid "custom_field_7"
+msgstr "Champ personnalisé 7"
+
+msgid "custom_field_8"
+msgstr "Champ personnalisé 8"
+
+msgid "custom_field_9"
+msgstr "Champ personnalisé 9"
+
+msgid "portal"
+msgstr "Portail"
+
+msgid "source"
+msgstr "Source"

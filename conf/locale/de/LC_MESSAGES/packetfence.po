@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-06-13 20:52+0000\n"
-"Last-Translator: Felix Eckhofer <felix@tribut.de>\n"
+"PO-Revision-Date: 2016-09-27 12:42+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1035,3 +1035,114 @@ msgid ""
 "According to the provisioner %s, your device is not allowed to access the "
 "network. Please follow the instruction below."
 msgstr "Laut der Anbieterkonfiguration %s kann dieses Gerät nicht auf das Netzwerk zugreifen. Bitte den unten stehenden Anweisungen folgen."
+
+msgid "The following errors prevented the request to be fulfilled : %s"
+msgstr ""
+
+msgid "%s is required"
+msgstr ""
+
+msgid "username"
+msgstr ""
+
+msgid "password"
+msgstr ""
+
+msgid "mobileprovider"
+msgstr ""
+
+msgid "aup"
+msgstr ""
+
+msgid "pid"
+msgstr ""
+
+msgid "firstname"
+msgstr ""
+
+msgid "lastname"
+msgstr ""
+
+msgid "email"
+msgstr ""
+
+msgid "telephone"
+msgstr ""
+
+msgid "company"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "notes"
+msgstr ""
+
+msgid "sponsor"
+msgstr ""
+
+msgid "anniversary"
+msgstr ""
+
+msgid "birthday"
+msgstr ""
+
+msgid "gender"
+msgstr ""
+
+msgid "lang"
+msgstr ""
+
+msgid "nickname"
+msgstr ""
+
+msgid "cell_phone"
+msgstr ""
+
+msgid "work_phone"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "building_number"
+msgstr ""
+
+msgid "apartment_number"
+msgstr ""
+
+msgid "room_number"
+msgstr ""
+
+msgid "custom_field_1"
+msgstr ""
+
+msgid "custom_field_2"
+msgstr ""
+
+msgid "custom_field_3"
+msgstr ""
+
+msgid "custom_field_4"
+msgstr ""
+
+msgid "custom_field_5"
+msgstr ""
+
+msgid "custom_field_6"
+msgstr ""
+
+msgid "custom_field_7"
+msgstr ""
+
+msgid "custom_field_8"
+msgstr ""
+
+msgid "custom_field_9"
+msgstr ""
+
+msgid "portal"
+msgstr ""
+
+msgid "source"
+msgstr ""
