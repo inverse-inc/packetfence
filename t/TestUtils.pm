@@ -107,6 +107,7 @@ my @excluded_binaries = qw(
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/bin/mysql_fingerbank_import.sh
+   /usr/local/pf/addons/sourcefire/pfdetect.pl
 );
 my %exclusions = map { $_ => 1 } @excluded_binaries;
 
@@ -120,7 +121,7 @@ sub get_all_perl_binaries {
         wanted => sub {
             /^.*\.pl\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pl\z/s
-            && push(@list, $File::Find::name);
+            && push(@list, $File::Find::name) if not exists $exclusions{ $File::Find::name } ;
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
