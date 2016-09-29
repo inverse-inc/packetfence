@@ -68,6 +68,13 @@ Upgrading from a version prior to X.Y.Z
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Samba cache directory changed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Rejoining the domains from PacketFence GUI is required. 
+
+Go under `Configuration->RADIUS->Domains` and click `Rejoin` for each domain configured.
+
 Configuration changes to the Provisioning and Scaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
