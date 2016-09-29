@@ -6,6 +6,7 @@ $(function() { // DOM ready
     var view = new UserView({ users: users, parent: $('#section') });
 });
 
+
 function init() {
     /* Initialize datepickers */
     $('.tab-content .datepicker').datepicker({ autoclose: true });
@@ -51,6 +52,6 @@ function init() {
     $('form[name="simpleNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
 
     /* Hash change handlder */
-    $(window).hashchange(pfOnHashChange(updateSection,'/node/'));
+    $(window).hashchange(pfOnHashChange(doUpdateSection,'/node/'));
     $(window).hashchange();
 }
