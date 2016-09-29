@@ -97,6 +97,10 @@ function activateNavLink() {
 /* Update #section using an ajax request */
 function updateSection(ajax_data) {
     activateNavLink();
+    doUpdateSection(ajax_data);
+}
+
+function doUpdateSection(ajax_data) {
     var section = $('#section');
     if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
