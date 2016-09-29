@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-27 20:39+0000\n"
+"PO-Revision-Date: 2016-09-29 19:30+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -58,13 +58,13 @@ msgstr "Une liste des durées d'accès disponibles pour l'utilisateur admin sép
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "A description of the billing tier"
-msgstr "Description d'un plan de facturation"
+msgstr "Description du plan de facturation"
 
 # html/pfappserver/root/service/status.tt
 msgid ""
 "A manual start from the command line will be required. Are you sure you want"
 " to continue?"
-msgstr "Le démarrage manuel est requis depuis la ligne de commande. Êtes-vous sûr de vouloir continuer?"
+msgstr "Le démarrage manuel sera nécessaire depuis la ligne de commande. Êtes-vous sûr de vouloir continuer?"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
@@ -191,11 +191,11 @@ msgstr "Gabarit de la charte d'utilisation"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Email.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/SponsorEmail.pm
 msgid "Accept self-registration with email address from the local domain"
-msgstr "Accepter l´auto enregistrement par adresse email du domaine local."
+msgstr "Accepter l´auto enregistrement avec une adresse email appartenant au domaine local."
 
 # html/pfappserver/root/user/print.tt
 msgid "Acceptable Use Policy"
-msgstr "Politique d’Utilisation"
+msgstr "Charte d'utilisation"
 
 # html/pfappserver/root/user/print.tt
 msgid "Access Code"
@@ -228,7 +228,7 @@ msgid ""
 "Accounting sessions created by pfbandwidthd that haven't been updated for "
 "more than this amount of seconds will be considered inactive. This should be"
 " higher than the interval at which pfmon runs Defaults to 300 - 5 minutes"
-msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n'ont pas été mise à jours depuis plus que cette valeur en secondes sera considérée comme inactive. Devrait être plus élevé que l'intervalle qui pfmon utilise par défaut 300 (5 minutes)."
+msgstr "Les sessions de comptabilisation créés par pfbandwidthd qui n'ont pas été mise à jours depuis plus que cette valeur en secondes seront considérées comme inactive. Devrait être plus élevé que l'intervalle que pfmon utilise par défaut 300 (5 minutes)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
@@ -245,7 +245,7 @@ msgid ""
 "reached. Defaults to none. email will send an email every hour if the "
 "limit's still reached. shut will shut the port on the switch and will also "
 "send an email even if email is not specified."
-msgstr "Action que PacketFence prendra lorsque vlan.trap_limit_threshold sera atteint. Par défaut pas de limite. Un e-mail sera envoyé toutes les heures si la limite est toujours atteinte. Shut coupera le port du commutateur et enverra aussi un e-mail, même si e-mail n'est pas spécifié."
+msgstr "Action que PacketFence prendra lorsque vlan.trap_limit_threshold sera atteint. Par défaut pas de limite. Un e-mail sera envoyé toutes les heures si la limite est toujours atteinte. PacketFence coupera le port du commutateur et enverra aussi un e-mail, même si e-mail n'est pas spécifié."
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -319,7 +319,7 @@ msgstr "Ajouter une Entreprise DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 msgid "Add DHCPv6 Fingerprint"
-msgstr "Ajouter un Fingerprint DHCPv6"
+msgstr "Ajouter une empreinte DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/device/list.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/list.tt
@@ -348,7 +348,7 @@ msgstr "Ajouter un module de portail"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid "Add Realm"
-msgstr "Ajouter un domaine (REALM)"
+msgstr "Ajouter un Realm"
 
 # html/pfappserver/root/config/wmi/index.tt
 msgid "Add Rule"
@@ -356,7 +356,7 @@ msgstr "Ajouter une règle"
 
 # html/pfappserver/root/config/scan/index.tt
 msgid "Add Scan"
-msgstr "Ajouter un scan"
+msgstr "Ajouter un scanner"
 
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Add Syslog parser"
@@ -376,11 +376,11 @@ msgstr "Ajouter une entrée Wrix"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a Scan."
-msgstr "Ajouter un scan"
+msgstr "Ajouter un scanner."
 
 # html/pfappserver/root/config/scan/type/wmi.tt
 msgid "Add a WMI rule."
-msgstr "Ajouter une règle WMI"
+msgstr "Ajouter une règle WMI."
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a billing tier."
@@ -392,7 +392,7 @@ msgstr "Ajouter un plan de facturation."
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 msgid "Add a condition."
-msgstr "Ajouter une condition"
+msgstr "Ajouter une condition."
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a filter."
@@ -400,15 +400,15 @@ msgstr "Ajouter un filtre."
 
 # html/pfappserver/root/config/profile/captive-portal-settings.tt
 msgid "Add a language."
-msgstr "Ajouter une langue"
+msgstr "Ajouter une langue."
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a provisioner."
-msgstr "Ajouter un approvisionneur"
+msgstr "Ajouter un approvisionneur."
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a source."
-msgstr "Ajouter une source"
+msgstr "Ajouter une source."
 
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Add admin role"
@@ -428,7 +428,7 @@ msgstr "Ajouter un filtre"
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Add floating device"
-msgstr "Ajouter un appareil flottant"
+msgstr "Ajouter un appareil itinérant"
 
 # html/pfappserver/root/config/portal_module/view.tt
 msgid "Add one."
@@ -474,7 +474,7 @@ msgstr "Ajouter une violation"
 msgid ""
 "Adding or removing a realm requires to restart the radiusd service to be "
 "effective."
-msgstr "L'ajout ou suppression d'un domaine nécessite le redémarrage du service de radiusd pour être appliqué."
+msgstr "L'ajout ou suppression d'un Realm nécessite le redémarrage du service de radiusd pour être appliqué."
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "Additionnal listening daemon(s)"
@@ -597,7 +597,7 @@ msgstr "Rôles du nœud permises"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access durations"
-msgstr "Durées d’accès autorisés"
+msgstr "Durées d’accès autorisées"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "Allowed user access levels"
@@ -634,14 +634,14 @@ msgid ""
 "Amount of time before a violation will be closed automatically. Instead of "
 "allowing people to reactivate the network, you may want to open a violation "
 "for a defined amount of time instead."
-msgstr "Quantité de temps avant qu´une violation ne se ferme automatiquement. Au lieu d´autoriser les utilisateurs à réactiver leur accès réseau vous pouvez sans doute préférez ouvrir une violation pour un temps définis. "
+msgstr "Durée avant qu´une violation ne se ferme automatiquement. Au lieu d´autoriser les utilisateurs à réactiver leur accès réseau vous pouvez sans doute préférez ouvrir une violation pour un temps définis. "
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
 "Amount of time before the violation can reoccur. This is useful to allow "
 "hosts time (in the example 2 minutes) to download tools to fix their issue, "
 "or shutoff their peer-to-peer application."
-msgstr "Quantité de temps avant qu´une violation ne puisse être réactivée. Cela peut être utile par exemple de laisser le temps à un utilisateur de télécharger un outil pour fixer un problème ou alors d´arrêter son application de peer-to-peer.  "
+msgstr "Durée de temps avant qu´une violation ne puisse être réactivée. Cela peut être utile par exemple de laisser le temps à un utilisateur de télécharger un outil pour fixer un problème ou alors d´arrêter son application de peer-to-peer.  "
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/User.pm
 msgid "An email was sent to [_1] out of [_2] users."
@@ -672,18 +672,18 @@ msgstr "Filtres Apache"
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App ID"
-msgstr "Application ID"
+msgstr "Identifiant de l'application"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Instagram.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Pinterest.pm
 msgid "App Secret"
-msgstr "Application Secret"
+msgstr "Secret de l'application"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
 msgid "App URL"
-msgstr "Application URL"
+msgstr "URL de l'application"
 
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Apply Bypass Role"
@@ -725,11 +725,11 @@ msgstr "À quel intervalle le nettoyage du journal d'authentification doit s'éf
 
 # conf/documentation.conf (maintenance.iplog_cleanup_interval)
 msgid "At which interval to run the iplog archive cleanup job"
-msgstr "À quel intervalle le nettoyage d'iplog doit s'effectuer"
+msgstr "À quel intervalle le nettoyage de l'archive iplog doit s'effectuer"
 
 # conf/documentation.conf (maintenance.iplog_rotation_interval)
 msgid "At which interval to run the iplog history rotation job"
-msgstr "À quel intervalle le journal de iplog doit faire se faire rotationner"
+msgstr "À quel intervalle le nettoyage de l'historique iplog doit s'effectuer"
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_interval)
 msgid "At which interval to run the locationlog cleanup job"
@@ -737,7 +737,7 @@ msgstr "À quel intervalle le nettoyage du journal de locationlog doit s'effectu
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_interval)
 msgid "At which interval to run the radius audit log cleanup job"
-msgstr "À quel intervalle le nettoyage du journal d'audit de radius doit s'effectuer"
+msgstr "À quel intervalle le nettoyage de l'audit de radius doit s'effectuer"
 
 # conf/documentation.conf (maintenance.traplog_cleanup_interval)
 msgid "At which interval to run the traplog cleanup job"
@@ -765,11 +765,11 @@ msgstr "Mot de passe d´écriture"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Auth Protocol Read"
-msgstr "Protocole de l'Auth en lecture "
+msgstr "Protocole de l'Authentification en lecture "
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Auth Protocol Trap"
-msgstr "Protocole pour l'Auth des Trap"
+msgstr "Protocole pour l'Authentification des Trap"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Auth Protocol Write"
@@ -902,13 +902,13 @@ msgstr "Acheter maintenant"
 
 # conf/documentation.conf (node_import.voip)
 msgid "By default is an imported node a Voice over IP device or not?"
-msgstr "Par défaut est ce un noeud importé de VOIX IP ou pas ?"
+msgstr "Par défaut est ce un nœud importé de VOIX sur IP ou pas ?"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/admin/nodes.tt
 msgid "Bypass Role"
-msgstr "Role Bypass"
+msgstr "Rôle de contournement"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
@@ -941,11 +941,11 @@ msgstr "Configuration générale"
 
 # pf::admin_roles (Actions)
 msgid "CONFIGURATION_MAIN_READ"
-msgstr "Configuration principale - Lecture"
+msgstr "Configuration générale - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "CONFIGURATION_MAIN_UPDATE"
-msgstr "Configuration principale - Mise à jour"
+msgstr "Configuration générale - Mise à jour"
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -954,7 +954,7 @@ msgstr "Fichier CSV"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Cache match"
-msgstr "Cache match"
+msgstr "Utiliser le cache"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid "Cache timeout"
@@ -999,7 +999,7 @@ msgstr "Annuler"
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Cancel Revert"
-msgstr "Annuler Retour"
+msgstr "Annuler Retablir"
 
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/wrapper.tt
@@ -1010,7 +1010,7 @@ msgstr "Une erreur est survenue durant la connexion avec le serveur. Veuillez re
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Captive Portal"
-msgstr "Portail captif"
+msgstr "Portail Captif"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Captive portal"
@@ -1044,13 +1044,13 @@ msgstr "Cocher cette case si vous voulez signer les profils"
 msgid ""
 "Check this box to have the access duration be a real time usage.<br/>This "
 "requires a working accounting configuration."
-msgstr "Cochez cette case pour que la durée d'accès correspond au temps d'utilisation. <br/> Cela nécessite une configuration d'Accounting fonctionnelle."
+msgstr "Cochez cette case pour que la durée d'accès corresponde au temps d'utilisation. <br/> Cela nécessite une configuration d'Accounting fonctionnelle."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid ""
 "Check this box to have the certificate revoke when the node using it is "
 "unregistered.<br/>Do not use if multiple devices share the same certificate"
-msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu'un nœud est dés-enregistré.</br>À ne pas utiliser si plusieurs appareils partagent le même certificat."
+msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu'un nœud est désenregistré.</br>À ne pas utiliser si plusieurs appareils partagent le même certificat."
 
 # pf::firewallsso (Firewall SSO)
 msgid "Checkpoint"
@@ -1076,7 +1076,7 @@ msgstr "Choisissez le mécanisme d´accès "
 
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "Circuit ID String"
-msgstr "Chaîne de l'ID du circuit"
+msgstr "Identifiant du circuit"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
@@ -1204,7 +1204,7 @@ msgstr "État du cluster"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Clustering"
-msgstr "Clustering"
+msgstr "Cluster"
 
 # conf/documentation.conf (advanced.pfcmd_error_color)
 msgid "Color of the error text for pfcmd"
@@ -1252,13 +1252,13 @@ msgstr "Virgule"
 msgid ""
 "Comma delimited IP addresses or networks CIDR format of trusted clients can "
 "be added to the whitelist to ensure they are never denied."
-msgstr "Addresses IP ou réseaux CIDR séparé par des virgules des clients de confiance peuvent être ajouté à la liste blanche pour assurer qu'ils ne seront jamais refusés."
+msgstr "Adresses IP ou réseaux CIDR séparés par des virgules des clients de confiance peuvent être ajouté à la liste blanche pour assurer qu'ils ne seront jamais refusés."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 msgid ""
 "Comma delimited list of networks on which the SSO applies.<br/>Format : "
 "192.168.0.0/24"
-msgstr "Liste des réseaux sur lesquels le SSO applique délimité par des virgules.<br/>Format: 192.168.0.0/24"
+msgstr "Liste des réseaux délimité par des virgules sur lesquels le SSO s'applique .<br/>Format: 192.168.0.0/24"
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid ""
@@ -1284,7 +1284,7 @@ msgstr "Liste des domaines séparés par une virgule qui seront résolu avec la 
 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Comma-delimited list of DHCP servers in your production environment."
-msgstr "Liste séparé par une virgule des serveurs DHCP de production."
+msgstr "Liste séparée par une virgule des serveurs DHCP de production."
 
 # conf/documentation.conf (general.dhcpservers)
 msgid "Comma-delimited list of DHCP servers."
@@ -1331,7 +1331,7 @@ msgstr "Liste de port(s) utilisé(s) par l'interception proxy séparée par des 
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Comma-separated list of the switch uplinks"
-msgstr "Liste des ports uplinks du commutateur séparé par une virgule."
+msgstr "Liste des ports uplinks du commutateur séparée par une virgule."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Common Name Attribute"
@@ -1446,7 +1446,7 @@ msgid ""
 " sends too many traps to PacketFence causing it to be overloaded. Trap "
 "limiting is controlled by the trap limit threshold and trap limit action "
 "parameters. Default is enabled."
-msgstr "Contrôle si oui ou non la fonction de limite de piège est activé. La limite de piège est un moyen de limiter les dommages causés par des utilisateurs malveillants ou commutateur qui envoi trop de requêtes de pièges à PacketFence l'amenant à être surchargé. La limite de piège est contrôlé par les paramètres de la limite de seuil. Par défaut est activé."
+msgstr "Contrôle si oui ou non la fonction de limite de trap snmp est activé. La limite de trap snmp est un moyen de limiter les dommages causés par des utilisateurs malveillants ou commutateur qui envoi trop de trap snmp à PacketFence l'amenant à être surchargé. La limite de trap snmp est contrôlée par les paramètres de la limite de seuil. Par défaut est activé."
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy"
@@ -1558,7 +1558,7 @@ msgstr "Créer un utilisateur"
 
 # html/pfappserver/root/admin/users.tt
 msgid "Created user"
-msgstr "Créer un utilisateur"
+msgstr "Utilisateur crée"
 
 # html/pfappserver/root/interface/create.tt
 msgid "Creating"
@@ -1581,11 +1581,11 @@ msgstr "Champs personnalisés"
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "DHCP Fingerprint"
-msgstr "Fingerprint DHCP"
+msgstr "Empreinte DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 msgid "DHCP Fingerprint ID"
-msgstr "ID de Fingerprint DHCP"
+msgstr "ID de l'empreinte DHCP"
 
 # html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/auditing_option82.tt
@@ -1595,7 +1595,7 @@ msgstr "Option DHCP 82"
 
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "DHCP Option 82 Vlan"
-msgstr "Vlan Option DHCP 82"
+msgstr "Vlan dans l'Option DHCP 82"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
@@ -1603,11 +1603,11 @@ msgstr "Vlan Option DHCP 82"
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "DHCP Vendor"
-msgstr "DHCP Vendor"
+msgstr "Vendeur DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 msgid "DHCP Vendor ID"
-msgstr "ID du DHCP Vendor"
+msgstr "ID du vendeur DHCP"
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "DHCP filters"
@@ -1615,7 +1615,7 @@ msgstr "Filtres DHCP"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "DHCP fingerprint"
-msgstr "Fingerprint DHCP"
+msgstr "Empreinte DHCP"
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types options)
 msgid "DHCPACK"
@@ -1671,11 +1671,11 @@ msgstr "Organisation de l'entreprise DHCPv6"
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 msgid "DHCPv6 Fingerprint"
-msgstr "Fingerprint DHCPv6"
+msgstr "Empreinte DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
 msgid "DHCPv6 Fingerprint ID"
-msgstr "ID du Fingerprint DHCPv6"
+msgstr "ID de l'empreinte DHCPv6"
 
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 msgid "DNS"
@@ -1683,7 +1683,7 @@ msgstr "DNS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "DNS Enforcement"
-msgstr "Enforcement par DNS"
+msgstr "Fonctionnement par DNS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "DNS Server"
@@ -1737,7 +1737,7 @@ msgstr "Configuration de la base de donnée"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Deauthentication Method"
-msgstr "Méthode de déauthentification."
+msgstr "Méthode de désauthentification."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -1811,7 +1811,7 @@ msgid ""
 "configuration version conflict between cluster members.For example, if this "
 "is set to 5 minutes, then a resolution will be attempted when the members "
 "will be detected running a different version for more than 5 minutes."
-msgstr "Défini le nombre de secondes avant que pfmon essaye de résoudre un conflit de versions  sur les membres d'un cluster. Par exemple si cette valeur est définie à 5 minutes alors la résolutions se fera quand les membres détecterons qu'ils roulent une version différente depuis plus de 5 minutes."
+msgstr "Définit le nombre de secondes avant que pfmon essaye de résoudre un conflit de versions  sur les membres d'un cluster. Par exemple si cette valeur est définie à 5 minutes alors la résolutions se fera quand les membres détecterons qu'ils roulent une version différente depuis plus de 5 minutes."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid ""
@@ -1912,19 +1912,19 @@ msgstr "Supprimer Combinaison"
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 msgid "Delete DHCP Fingerprint"
-msgstr "Supprimer le Fingerpint DHCP"
+msgstr "Supprimer l'empreinte DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 msgid "Delete DHCP Vendor"
-msgstr "Supprimer le DHCP Vendor"
+msgstr "Supprimer le vendeur DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 msgid "Delete DHCPv6 Enterprise"
-msgstr "Supprimer Entreprise DHCPv6"
+msgstr "Supprimer l'entreprise DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 msgid "Delete DHCPv6 Fingerprint"
-msgstr "Supprimer Fingerprint DHCPv6"
+msgstr "Supprimer l'empreinte DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
@@ -1949,7 +1949,7 @@ msgstr "Supprimer un pare-feu SSO"
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Delete Floating Device"
-msgstr "Supprimer un Appareil Flottant "
+msgstr "Supprimer un Appareil Itinérant"
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 msgid "Delete MAC Vendor"
@@ -1973,7 +1973,7 @@ msgstr "Supprimer le Realm"
 
 # html/pfappserver/root/roles/index.tt
 msgid "Delete Role"
-msgstr "Supprimer le Role"
+msgstr "Supprimer le Rôle"
 
 # html/pfappserver/root/config/wmi/index.tt
 msgid "Delete Rule"
@@ -2027,7 +2027,7 @@ msgid ""
 "is the out-of-band VLAN-based device isolation requiring integration in your"
 " network environment and inline is a DHCP-based mode where PacketFence acts "
 "as a filtering gateway."
-msgstr "Définit la manière dont PacketFence va contrôler l'accès au réseau. VLAN est l'isolement du réseau en fonction des appareils qui le supporte le 802.1q et le mode Inline est basé sur le DHCP ou PacketFence agit comme la passerelle de filtrage."
+msgstr "Définit la manière dont PacketFence va contrôler l'accès au réseau. VLAN est l'isolement du réseau en fonction des équipements qui supportent 802.1q et le mode Inline est basé sur le DHCP ou PacketFence agit comme la passerelle de filtrage."
 
 # conf/documentation.conf (interface.type)
 msgid ""
@@ -2042,7 +2042,7 @@ msgid ""
 "dedicated to high-availability (drbd, corosync).</li><li><i>portal</i> "
 "interface have the captive-portal running on them without the need of having"
 " any enforcement mechanism.</li></ul>"
-msgstr "Décrit le type de l'interface nommée. <ul> <li>Interne<i> </i> décrit les interfaces où PacketFence donnera l'accès au réseau. </lii> <li> <i> gestion </i> les interfaces internes ont l'écoute de l'administration web, hôte pour les traps SNMP et le serveur RADIUS. </li> <li> <i> Moniteur </i> est l'interface de snort qui écoute. </li> <li> <i> dhcp -listener </i> est une interface où le trafic DHCP vient soit via un réseau configuration SPAN ou IP-Helpers. </li> <li> <i>haute disponibilité</i> est une interface entre deux serveurs PacketFence dédiés à la haute disponibilité (drbd, corosync). </li><li><i>portail</i> cette interface a le portail captif en écoute sans la nécessité d'avoir un mécanisme d'enregistrement</li> </ ul>"
+msgstr "Décrit le type de l'interface nommée. <ul> <li>Interne<i> </i> décrit les interfaces où PacketFence donnera l'accès au réseau. </lii> <li> <i> Management </i> les interfaces internes ont l'écoute de l'administration web, hôte pour les traps SNMP et le serveur RADIUS. </li> <li> <i> Moniteur </i> est l'interface de snort qui écoute. </li> <li> <i> dhcp -listener </i> est une interface où le trafic DHCP vient soit via un réseau configuration SPAN ou IP-Helpers. </li> <li> <i>haute disponibilité</i> est une interface entre deux serveurs PacketFence dédiés à la haute disponibilité (drbd, corosync). </li><li><i>portail</i> cette interface a le portail captif en écoute sans la nécessité d'avoir un mécanisme d'enregistrement</li> </ ul>"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Rule.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source.pm
@@ -2070,7 +2070,7 @@ msgstr "Description"
 msgid ""
 "Destination Role where PacketFence should put the client when a violation of"
 " this type is open."
-msgstr "Le role de destination dans lequel PacketFence mettra l´appareil lorsque une violation de ce type est ouverte."
+msgstr "Le rôle de destination dans lequel PacketFence mettra l´appareil lorsque une violation de ce type est ouverte."
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
@@ -2080,15 +2080,15 @@ msgstr "URL de destination sur laquelle l´appareil va être redirigé. Par déf
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Detect VoIP with a SNMP request in the CDP MIB"
-msgstr "Détecter la VoIP avec une demande SNMP dans la MIB CDP"
+msgstr "Détecter la VoIP avec une requête SNMP dans la MIB CDP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Detect VoIP with a SNMP request in the LLDP MIB"
-msgstr "Détecter la VoIP avec une demande SNMP dans la MIB LLDP"
+msgstr "Détecter la VoIP avec une requête SNMP dans la MIB LLDP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Detect VoIP with the DHCP Fingerprint"
-msgstr "Détecter la VoIP avec l'empreintes DHCP (Fingerprint)"
+msgstr "Détecter la VoIP avec l'empreinte DHCP (Fingerprint)"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Detected Between:"
@@ -2141,13 +2141,13 @@ msgstr "Annuler les changements pour"
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid ""
 "Dispatched the import job to PID $pid. An e-mail will follow up for status."
-msgstr "Sous traité le travail d'importation au PID $pid. Un email suivra pour le statut."
+msgstr "Sous traiter le travail d'importation au PID $pid. Un email suivra pour le statut."
 
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
 msgid "Display [_1] entries per page"
-msgstr "Afficher [_1] entrées par page"
+msgstr "Afficher [_1] entrés par page"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
@@ -2229,7 +2229,7 @@ msgstr "ID de l'autorité EAP-FAST"
 msgid ""
 "Each account will be printed on a single page with the acceptable user "
 "policy."
-msgstr "Chaque compte sera imprimé sur une seule page avec la Politique d'Utilisation."
+msgstr "Chaque compte sera imprimé sur une seule page avec la Charte d'Utilisation."
 
 # html/pfappserver/root/config/authentication.tt
 msgid ""
@@ -2237,11 +2237,11 @@ msgid ""
 "sources while 802.1X connections use the ordered internal sources to "
 "determine which role to use. External sources are never used with 802.1X "
 "connections."
-msgstr "Chaque profil de portail doit être associé à un ou plusieurs sources d'authentification 802.1X tandis que les connexions utilisent des sources internes dans l'ordre pour déterminer le rôle. Les sources externes ne sont jamais utilisées avec les connexions 802.1X."
+msgstr "Chaque profil de portail doit être associé à une ou plusieurs sources d'authentification 802.1X tandis que les connexions utilisent des sources internes dans l'ordre pour déterminer le rôle. Les sources externes ne sont jamais utilisées avec les connexions 802.1X."
 
 # html/pfappserver/root/config/switch/list.tt
 msgid "Edit floating device"
-msgstr "Editer l'appareil flottant"
+msgstr "Editer l'appareil itinérant"
 
 # html/pfappserver/root/config/floatingdevice/list.tt
 msgid "Edit switch"
@@ -2418,7 +2418,7 @@ msgstr "Entrez l'ID de déclenchement"
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/user/create.tt
 msgid "Error!"
-msgstr "Erreur!"
+msgstr "Erreur !"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "Example"
@@ -2466,15 +2466,15 @@ msgstr "FAST"
 
 # pf::admin_roles (Actions groups)
 msgid "FILTERS"
-msgstr "Filtre d'Engins"
+msgstr "Moteurs de Filtrage"
 
 # pf::admin_roles (Actions)
 msgid "FILTERS_READ"
-msgstr "Filtre d'Engins - Lecture"
+msgstr "Moteurs de Filtrage - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "FILTERS_UPDATE"
-msgstr "Filtre d'Engins - Mise à jour"
+msgstr "Moteurs de Filtrage - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "FINGERBANK"
@@ -2502,23 +2502,23 @@ msgstr "Pare-feux SSO"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_CREATE"
-msgstr "FIREWALL_SSO_CREATE"
+msgstr "Pare-feux SSO - Créer"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_DELETE"
-msgstr "FIREWALL_SSO_DELETE"
+msgstr "Pare-feux SSO - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_READ"
-msgstr "FIREWALL_SSO_READ"
+msgstr "Pare-feux SSO - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_UPDATE"
-msgstr "FIREWALL_SSO_UPDATE"
+msgstr "Pare-feux SSO - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "FLOATING_DEVICES"
-msgstr "Appareil flottant "
+msgstr "Appareil itinérant"
 
 # pf::admin_roles (Actions)
 msgid "FLOATING_DEVICES_CREATE"
@@ -2608,7 +2608,7 @@ msgstr "Prénom"
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/floatingdevice/view.tt
 msgid "Floating Device"
-msgstr "Appareil flottant "
+msgstr "Appareil itinérant"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "For CoA request, if we have to send to another port"
@@ -2757,27 +2757,27 @@ msgstr "Heures"
 
 # conf/documentation.conf (maintenance.iplog_cleanup_timeout)
 msgid "How long a iplog archive cleanup job can take before being killed"
-msgstr "Durée de temps un travail d'un nettoyage d'iplog archive peut prendre avant d'être tué"
+msgstr "Combien de temps un travail de nettoyage d'iplog archive peut prendre avant d'être tué"
 
 # conf/documentation.conf (maintenance.iplog_rotation_timeout)
 msgid "How long a iplog history rotation job can take before being killed"
-msgstr "Durée de temps un travail d'un nettoyage d'iplog history peut prendre avant d'être tué"
+msgstr "Combien de temps un travail de nettoyage d'iplog history peut prendre avant d'être tué"
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_timeout)
 msgid "How long a locationlog cleanup job can take before being killed"
-msgstr "Durée de temps un travail d'un nettoyage de locationlog peut prendre avant d'être tué"
+msgstr "Combien de temps un travail de nettoyage de locationlog peut prendre avant d'être tué"
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_timeout)
 msgid "How long a radius audit log cleanup job can take before being killed"
-msgstr "Durée de temps un travail d'un nettoyage de radius audit log peut prendre avant d'être tué"
+msgstr "Combien de temps un travail de nettoyage de radius audit log peut prendre avant d'être tué"
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_timeout)
 msgid "How long an auth_log cleanup job can take before being killed"
-msgstr "Durée de temps un travail de nettoyage du journal d'authentification peut prendre avant d'être tué"
+msgstr "Combien de temps un travail de nettoyage du journal d'authentification peut prendre avant d'être tué"
 
 # conf/documentation.conf (maintenance.violation_maintenance_timeout)
 msgid "How long is the violation maintenance task is allowed to run"
-msgstr "Pour combien de temps la maintenance des violations est autorisée a tourner"
+msgstr "Combien de temps la maintenance des violations est autorisée a tourner"
 
 # conf/documentation.conf (trapping.redirtimer)
 msgid ""
@@ -2788,32 +2788,32 @@ msgstr "Durée d´affichage de la barre de progression lors de la redirection. L
 
 # conf/documentation.conf (maintenance.iplog_cleanup_window)
 msgid "How long to keep a iplog archive entry before deleting it"
-msgstr "Combien de temps pour garder une entrée d'iplog archive avant de la supprimer"
+msgstr "Combien de temps garder une entrée d'iplog archive avant de la supprimer"
 
 # conf/documentation.conf (maintenance.locationlog_cleanup_window)
 msgid "How long to keep a locationlog entry before deleting it"
-msgstr "Combien de temps pour garder une entrée de locationlog avant de la supprimer"
+msgstr "Combien de temps garder une entrée de locationlog avant de la supprimer"
 
 # conf/documentation.conf (maintenance.node_cleanup_window)
 msgid "How long to keep a node entry before deleting it"
-msgstr "Combien de temps pour garder un noeud avant de la supprimer"
+msgstr "Combien de temps garder un noeud avant de la supprimer"
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
 msgid "How long to keep a radius audit log entry before deleting it"
-msgstr "Combien de temps pour garder une entrée de radius audit log avant de la supprimer"
+msgstr "Combien de temps garder une entrée de radius audit log avant de la supprimer"
 
 # conf/documentation.conf (maintenance.traplog_cleanup_window)
 msgid "How long to keep a traplog entry before deleting it"
-msgstr "Combien de temps pour garder une entrée de traplog avant de la supprimer"
+msgstr "Combien de temps garder une entrée de traplog avant de la supprimer"
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_window)
 msgid "How long to keep an auth_log entry before deleting it"
-msgstr "Garder combien de temps une entrée du journal d'authentification avant de la supprimer"
+msgstr "Garder combien de temps garder une entrée du journal d'authentification avant de la supprimer"
 
 # conf/documentation.conf (maintenance.iplog_rotation_window)
 msgid ""
 "How long to keep iplog history entry before rotating it to iplog archive"
-msgstr "Combien de temps pour garder une entrée d'iplog history avant de la supprimer"
+msgstr "Combien de temps garder une entrée d'iplog history avant de la supprimer"
 
 # conf/documentation.conf (maintenance.auth_log_cleanup_batch)
 msgid "How many auth_log entries to clean up in one job"
@@ -3135,43 +3135,43 @@ msgstr "Intervalle de temps pour laquelle PacketFence va vérifier l'état du cl
 
 # conf/documentation.conf (maintenance.acct_maintenance_interval)
 msgid "Interval at which PacketFence runs accounting maintenance"
-msgstr "Intervalle auquel PacketFence exécute la maintenance de la comptabilisation"
+msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de la comptabilisation"
 
 # conf/documentation.conf (maintenance.inline_accounting_maintenance_interval)
 msgid "Interval at which PacketFence runs inline accounting maintenance"
-msgstr "Intervalle auquel PacketFence exécute la maintenance de la comptabilisation du mode Inline"
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance de la comptabilisation du mode Inline"
 
 # conf/documentation.conf (maintenance.node_cleanup_interval)
 msgid "Interval at which PacketFence runs node cleanup"
-msgstr "Intervalle auquel PacketFence exécute la maintenance de néttoyage des noeuds"
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance de néttoyage des noeuds"
 
 # conf/documentation.conf (maintenance.nodes_maintenance_interval)
 msgid "Interval at which PacketFence runs nodes maintenance"
-msgstr "Intervalle auquel PacketFence exécute la maintenance des noeuds"
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance des noeuds"
 
 # conf/documentation.conf (maintenance.person_cleanup_interval)
 msgid "Interval at which PacketFence runs person cleanup"
-msgstr "Intervalle auquel PacketFence exécute la maintenance de néttoyage des utilisateurs"
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance de néttoyage des utilisateurs"
 
 # conf/documentation.conf (maintenance.provisioning_compliance_poll_interval)
 msgid ""
 "Interval at which PacketFence runs the polling enforcement on the "
 "provisioners."
-msgstr "Intervalle auquel PacketFence exécute la maintenance pour les provisioners."
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance pour les provisioners."
 
 # conf/documentation.conf (maintenance.violation_maintenance_interval)
 msgid "Interval at which PacketFence runs violation maintenance"
-msgstr "Intervalle auquel PacketFence exécute la maintenance des violations"
+msgstr "Intervalle de temps pour l'aquelle PacketFence exécute la maintenance des violations"
 
 # conf/documentation.conf (maintenance.fingerbank_data_update_interval)
 msgid ""
 "Interval at which PacketFence updates the local Fingerbank data from the "
 "cloud API"
-msgstr "Intervalle auquel PacketFence met à jour les données locales de Fingerbank depuis l'API du cloud"
+msgstr "Intervallede temps pour l'aquelle PacketFence met à jour les données locales de Fingerbank depuis l'API du cloud"
 
 # conf/documentation.conf (maintenance.online_node_count_interval)
 msgid "Interval at which PacketFence updates the online node count"
-msgstr "Intervalle auquel PacketFence met à jour le nombre de nœuds en ligne"
+msgstr "Intervalle de temps pour l'aquelle PacketFence met à jour le nombre de nœuds en ligne"
 
 # conf/documentation.conf (maintenance.option82_query_interval)
 msgid ""
@@ -3415,25 +3415,25 @@ msgstr "Emplacement du binaire dhcpd."
 msgid ""
 "Location of the haproxy binary. Only necessary to change if you arenot "
 "running the RPMed version."
-msgstr "Emplacement du binaire haproxy. Seulement nécessaire de le changer si ne vous  exécutez pas la version packagée."
+msgstr "Emplacement du binaire haproxy."
 
 # conf/documentation.conf (services.iptables_binary)
 msgid ""
 "Location of the iptables binary. Only necessary to change if you arenot "
 "running the RPMed version."
-msgstr "Emplacement du binaire iptables. Seulement nécessaire de changer si vous n'utilisez pas la version RPM."
+msgstr "Emplacement du binaire iptables."
 
 # conf/documentation.conf (services.keepalived_binary)
 msgid ""
 "Location of the keepalived binary. Only necessary to change if you arenot "
 "running the RPMed version."
-msgstr "Emplacement du binaire keepalived. Seulement nécessaire de le changer si ne vous  exécutez pas la version packagée."
+msgstr "Emplacement du binaire keepalived."
 
 # conf/documentation.conf (services.openssl_binary)
 msgid ""
 "Location of the openssl binary. Only necessary to change if you are not "
 "running the RPMed version."
-msgstr "Emplacement du binaire openssl. Seulement nécessaire de changer si vous n'utilisez pas la version RPM."
+msgstr "Emplacement du binaire openssl."
 
 # conf/documentation.conf (services.p0f_binary)
 msgid "Location of the p0f binary."
@@ -3447,7 +3447,7 @@ msgstr "Emplacement du binaire radsniff3."
 msgid ""
 "Location of the redis binary. Only necessary to change if you are not "
 "running the packaged version. "
-msgstr "Localisation du binaire redis. Seulement nécessaire de le changer si vous n'utilisez pas la version pré-faite."
+msgstr "Emplacement du binaire redis."
 
 # conf/documentation.conf (services.snmptrapd_binary)
 msgid ""
@@ -3473,7 +3473,7 @@ msgstr "Emplacement du binaire Suricata."
 msgid ""
 "Location of the winbindd binary. Only necessary to change if you arenot "
 "running the RPMed version."
-msgstr "Emplacement du binaire winbindd. Cet option n'est utile que si vous n'utilisez pas la version RPM."
+msgstr "Emplacement du binaire winbindd."
 
 # conf/documentation.conf (alerting.log)
 msgid "Log file where <i>log</i> actions are sent."
@@ -3662,7 +3662,7 @@ msgstr "Membres"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Members can be added after the switch group is saved"
-msgstr "Les membres peuvent être ajoutés après que le groupe de commutateur est enregistré"
+msgstr "Les membres peuvent être ajoutés après que le groupe de commutateur soit enregistré"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "Message"
@@ -3834,7 +3834,7 @@ msgstr "Nouvelle combinaison"
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
 msgid "New DHCP Fingerprint"
-msgstr "Nouveau Fingerprint DHCP"
+msgstr "Nouvelle Empreinte DHCP"
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/view.tt
 msgid "New DHCP Vendor"
@@ -3846,7 +3846,7 @@ msgstr "Nouvelle Entreprise DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/view.tt
 msgid "New DHCPv6 Fingerprint"
-msgstr "Nouvelle Fingerprint DHCPv6"
+msgstr "Nouvelle Empreinte DHCPv6"
 
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -3903,7 +3903,7 @@ msgstr "Nouveau Realm"
 
 # html/pfappserver/root/roles/read.tt
 msgid "New Role"
-msgstr "Nouveau role"
+msgstr "Nouveau Rôle"
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/wmi/view.tt
@@ -3976,7 +3976,7 @@ msgstr "Aucun filtre défini"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "No fingerprint found"
-msgstr "Aucune fingerprint trouvée"
+msgstr "Aucune empreinte trouvée"
 
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "No location history"
@@ -4005,11 +4005,11 @@ msgstr "Aucune règle définit"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "No scan specified."
-msgstr "Pas de scan spécifié"
+msgstr "Aucun scan spécifié"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "No source defined"
-msgstr "Aucune source définit"
+msgstr "Aucune source définie"
 
 # html/pfappserver/root/user/advanced_search.tt
 # html/pfappserver/root/user/simple_search.tt
@@ -4022,7 +4022,7 @@ msgstr "Aucun UserAgent trouvé"
 
 # html/pfappserver/root/violation/list.tt
 msgid "No violation defined"
-msgstr "Aucune violation définit"
+msgstr "Aucune violation définie"
 
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
@@ -4097,7 +4097,7 @@ msgstr "Note"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 msgid "Note : The URL is always prefixed by a slash (/)"
-msgstr "Note : L'URL st toujours préfixer d'un slash (/)"
+msgstr "Note : L'URL est toujours préfixée d'un slash (/)"
 
 # html/pfappserver/root/config/networks/view.tt
 msgid ""
@@ -4127,11 +4127,11 @@ msgid ""
 "Number of times a host will be able to try and self remediate before they "
 "are locked out and have to call the help desk. This is useful for users who "
 "just <i>click through</i> violation pages."
-msgstr "Nombre de fois qu´un appareil aura la possibilité de se redonner un accès au réseau avant que cette possibilité ne soit bloquée et qu´il doive contacter le service informatique. C´est très utile pour les utilisateurs qui n´négligent les pages de violations. "
+msgstr "Nombre de fois qu´un appareil aura la possibilité de se redonner un accès au réseau avant que cette possibilité ne soit bloquée et qu´il doive contacter le service informatique. C´est très utile pour les utilisateurs qui négligent les pages de violations. "
 
 # conf/documentation.conf (vlan.nbtraphandlerthreads)
 msgid "Number of trap handler threads pfsetvlan should start"
-msgstr "Nombre de processus handler que pfsetvlan devrait démarrer"
+msgstr "Nombre de processus que pfsetvlan devrait démarrer"
 
 # conf/documentation.conf (vlan.nbtrapparserthreads)
 msgid "Number of trap parser threads pfsetvlan should start"
@@ -4320,13 +4320,13 @@ msgstr "Option 82"
 msgid ""
 "Order in which the service should be started. Lower order services start "
 "first and stop last."
-msgstr "Ordre dans lequel les services doivent être démarrés. Les services d'indice faible commencent premier et s'arrête dernier."
+msgstr "Ordre dans lequel les services doivent être démarrés. Les services d'indice faible commencent en premier et s'arrête en dernier."
 
 # conf/documentation.conf (services.httpd_collector_order)
 msgid ""
 "Order in which the service should be started.Lower order services start "
 "first and stop last."
-msgstr "Ordre dans lequel les services doivent être démarrés. Les services d'indice faible commencent premier et s'arrête dernier."
+msgstr "Ordre dans lequel les services doivent être démarrés. Les services d'indice faible commencent en premier et s'arrête en dernier."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
@@ -4504,20 +4504,20 @@ msgstr "Configuration PacketFence"
 msgid ""
 "PacketFence is the server that assigns the Role (or ACL) to the devices. "
 "This mode is for web authentication."
-msgstr "PacketFence est le serveur qui assigne le Role (ou l'ACL) a l´équipement. Ce mode est pour l'authentification web."
+msgstr "PacketFence est le serveur qui assigne le Role (ou l'ACL) à l´équipement. Ce mode est pour l'authentification web."
 
 # html/pfappserver/root/configurator/enforcement.tt
 msgid ""
 "PacketFence is the server that assigns the VLAN (or roles) to the devices. "
 "This is the prefered enforcement mechanism for manageable equipment."
-msgstr "PacketFence est le serveur qui assigne le VLAN (ou rôles) a l´équipement. C´est le mode de fonctionnement conseillé pour les équipements manageables."
+msgstr "PacketFence est le serveur qui assigne le VLAN (ou rôles) à l´équipement. C´est le mode de fonctionnement conseillé pour les équipements manageables."
 
 # html/pfappserver/root/configurator/database.tt
 msgid ""
 "PacketFence uses a MySQL database. On this page, you need to specify the "
 "root password to access the MySQL server to create an account specific to "
 "PacketFence and create the required database tables and indexes."
-msgstr "PacketFence utilise un serveur MySQL. Sur cette page vous devez spécifier le mot de passe root pour accéder au serveur de base de données, créer un compte spécifique à PacketFence et pour créer la base donnée et les indexes. "
+msgstr "PacketFence utilise un serveur MySQL. Sur cette page vous devez spécifier le mot de passe root pour accéder au serveur de base de données, créer un compte spécifique à PacketFence et créer la base donnée et les indexes. "
 
 # html/pfappserver/root/admin/wrapper.tt
 msgid "PacketFence version"
@@ -4722,11 +4722,11 @@ msgstr "Veuillez spécifier le nom du rôle."
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Please specify a name for the scan engine"
-msgstr "Veuillez indiquer un nom pour le moteur d'analyse"
+msgstr "Veuillez spécifier un nom pour le moteur d'analyse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 msgid "Please specify an alert pipe"
-msgstr "S'il vous plaît spécifier un pipe d'alerte"
+msgstr "Veuillez spécifier un pipe d'alerte"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule.pm
@@ -4759,19 +4759,19 @@ msgstr "Veuillez spécifier un serveur DNS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the DNS server's IP address(es)."
-msgstr "S'il vous plaît spécifier l'adresse IP du/des serveur(s) DNS."
+msgstr "Veuillez spécifier l'adresse IP du/des serveur(s) DNS."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Please specify the Description Provisioning entry."
-msgstr "Spécifiez la Description pour l'entrée du Provisionner"
+msgstr "Veuillez spécifier la description du Provisionner"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Please specify the ID of the Provisioning entry."
-msgstr "Spécifiez le ID pour l'entrée du Provisionner"
+msgstr "Veuillez spécifier l'ID du Provisionner"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Please specify the IP address/MAC address/Range (CIDR) of the switch."
-msgstr "Adresse IP/ Adresse MAC/masque (CIDR) du commutateur"
+msgstr "Veuillez spécifier l'Adresse IP/ Adresse MAC/masque (CIDR) du commutateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 msgid "Please specify the MAC address of the floating device."
@@ -4779,7 +4779,7 @@ msgstr "Veuillez spécifier l'adresse MAC pour cet appareil itinérant."
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Please specify the command you want to execute."
-msgstr "Veuillez indiquer la commande à éxécuter"
+msgstr "Veuillez spécifier la commande à éxécuter"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the default DHCP lease time."
@@ -4791,7 +4791,7 @@ msgstr "Veuillez spécifier la description du rôle admin."
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Please specify the end date of the registration window."
-msgstr "Veuillez préciser la date de fin du créneau d'enregistrement."
+msgstr "Veuillez spécifier la date de fin du créneau d'enregistrement."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the ending IP address of the DHCP scope."
@@ -4817,13 +4817,13 @@ msgstr "Veuillez spécifier le nom d'hôte ou l'IP du fournisseur de certificats
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 msgid "Please specify the hostname or IP of the firewall"
-msgstr "Spécifiez le nom d'hôte ou l'IP pour le pare-feu"
+msgstr "Veuillez spécifier le nom d'hôte ou l'IP pour le pare-feu"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Please specify the hostname or IP of the scan engine"
-msgstr "Spécifiez le nom d'hôte ou l'IP pour le moteur d'analyse"
+msgstr "Veuillez spécifier le nom d'hôte ou l'IP pour le moteur d'analyse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
@@ -4849,7 +4849,7 @@ msgstr "Veuillez spécifier le réseau."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the password to bind to the Active Directory"
-msgstr "Veuillez indiquer le mot de passe d'un administrateur du domaine Active Directory "
+msgstr "Veuillez spécifier le mot de passe d'un administrateur du domaine Active Directory "
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the router IP address."
@@ -4857,15 +4857,15 @@ msgstr "Veuillez spécifier l'adresse IP du routeur."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the server's name"
-msgstr "Veuillez indiquer le nom du serveur"
+msgstr "Veuillez spécifier le nom du serveur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Please specify the sql request like \"select * from Win32_Product\""
-msgstr "Veuillez indiquer la requête SQL. Exemple: \"select * from Win32_Product\""
+msgstr "Veuillez spécifier la requête SQL. Exemple: \"select * from Win32_Product\""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Please specify the start date of the registration window."
-msgstr "Veuillez préciser la date de début du créneau d'enregistrement."
+msgstr "Veuillez spécifier la date de début du créneau d'enregistrement."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the starting IP address of the DHCP scope."
@@ -4873,23 +4873,23 @@ msgstr "Veuillez spécifier la première adresse de la plage DHCP."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the user to bind to the Active Directory server"
-msgstr "Veuillez indiquer un utilisateur ayant les privilèges requis pour joindre un serveur au domaine Active Directory"
+msgstr "Veuillez spécifier un utilisateur ayant les privilèges requis pour joindre un serveur au domaine Active Directory"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 msgid "Please specify the username for the Barracuda"
-msgstr "Spécifiez le nom d'utilisateur du Barracuda"
+msgstr "Veuillez spécifier le nom d'utilisateur du Barracuda"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Please specify the username for the Scan Engine"
-msgstr "Spécifiez le nom d'utilisateur du moteur d'analyse"
+msgstr "Veuillez spécifier le nom d'utilisateur du moteur d'analyse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
 msgid "Please specify the windows domain"
-msgstr "Veuillez indiquer le domaine Windows"
+msgstr "Veuillez spécifier le domaine Windows"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the workgroup"
-msgstr "Veuillez indiquer le \"Workgroup\""
+msgstr "Veuillez spécifier le \"Workgroup\""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/HTTP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
@@ -4905,7 +4905,7 @@ msgstr "Port du serveur Redis"
 
 # conf/documentation.conf (ports.collector)
 msgid "Port of the collector webservice."
-msgstr "Port du service web du collecteur."
+msgstr "Port d'écoute du service web du collecteur."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -4921,7 +4921,7 @@ msgstr "Port du service"
 
 # conf/documentation.conf (ports.soap)
 msgid "Port of the soap webservice."
-msgstr "Port du service web SOAP."
+msgstr "Port d'écoute du service web SOAP."
 
 # conf/documentation.conf (monitoring.graphite_port)
 msgid "Port on the graphite host to which metrics are sent."
@@ -4929,7 +4929,7 @@ msgstr "Port sur lequel les métriques graphite sont envoyées"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Port on which to contact the PacketFence PKI API"
-msgstr "Le port pour contacter l'API du service de certificat de PacketFence"
+msgstr "Port pour contacter l'API du service de certificat de PacketFence"
 
 # conf/documentation.conf (ports.admin)
 msgid "Port the administrative interface listens on."
@@ -4937,7 +4937,7 @@ msgstr "Port d'écoute de l'interface d'administration."
 
 # conf/documentation.conf (ports.httpd_portal_modstatus)
 msgid "Port the mod_status for httpd.portal listens on."
-msgstr "Ports où http.portal.mod_status écoute"
+msgstr "Port d'écoute de http.portal.mod_status."
 
 # conf/documentation.conf (database.port)
 msgid "Port the mysql server is running on."
@@ -4945,7 +4945,7 @@ msgstr "Port d'écoute du serveur mysql."
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.port)
 msgid "Port the proxy is listening on"
-msgstr "Port sur lequel le proxy écoute "
+msgstr "Port(s) d'écoute du proxy "
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/portal_module/view.tt
@@ -5041,7 +5041,7 @@ msgid ""
 " load balancer).Disabling it will make the management server only proxy "
 "requests to other servers.Useful if your load balancer cannot handle both "
 "tasks.Changing this requires to restart radiusd."
-msgstr "Traiter les demandes d'authentification RADIUS sur le serveur principal (l'actuel équilibreur de la charge). En désactivant ce paramètre, il fera suivre les requêtes au autres serveurs. Utile si votre équilibreur de charge ne peut pas gérer deux tâches. Un redémarrage de radiusd est nécéssaire si vous changez ce paramètre."
+msgstr "Traiter les demandes d'authentification RADIUS sur le serveur principal (l'actuel équilibreur de charge). En désactivant ce paramètre, il fera suivre les requêtes aux autres serveurs. Utile si votre équilibreur de charge ne peut pas gérer deux tâches. Un redémarrage de radiusd est nécessaire si vous changez ce paramètre."
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Processing dropped files..."
@@ -5141,23 +5141,23 @@ msgstr "Journal d'Audit RADIUS - Lecture"
 
 # pf::admin_roles (Actions groups)
 msgid "REALM"
-msgstr "Domaines RADIUS"
+msgstr "Realm RADIUS"
 
 # pf::admin_roles (Actions)
 msgid "REALM_CREATE"
-msgstr "Journal d'Audit RADIUS - Créer"
+msgstr "Realm RADIUS - Créer"
 
 # pf::admin_roles (Actions)
 msgid "REALM_DELETE"
-msgstr "Journal d'Audit RADIUS - Supprimer"
+msgstr "Realm RADIUS - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "REALM_READ"
-msgstr "Journal d'Audit RADIUS - Lecture"
+msgstr "Realm RADIUS - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "REALM_UPDATE"
-msgstr "Journal d'Audit RADIUS - Mise à jour"
+msgstr "Realm RADIUS - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -5182,15 +5182,15 @@ msgstr "Lecture seule"
 
 # html/pfappserver/root/config/fingerbank/combination/index.tt
 msgid "Really delete this Combination?"
-msgstr "Voulez-vous supprimer cette combinaison ?"
+msgstr "Voulez-vous vraiment supprimer cette combinaison ?"
 
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
 msgid "Really delete this DHCP Fingerprint?"
-msgstr "Voulez-vous supprimer ce Fingerprint DHCP ?"
+msgstr "Voulez-vous vraiment supprimer cette Empreinte DHCP ?"
 
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/index.tt
 msgid "Really delete this DHCP Vendor?"
-msgstr "Voulez-vous supprimer ce DHCP Vendor ?"
+msgstr "Voulez-vous vraiment supprimer ce DHCP Vendor ?"
 
 # html/pfappserver/root/config/fingerbank/dhcp6_enterprise/index.tt
 msgid "Really delete this DHCPv6 Enterprise?"
@@ -5198,24 +5198,24 @@ msgstr "Voulez-vous vraiment supprimer l'entreprise DHCPv6 ? "
 
 # html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/index.tt
 msgid "Really delete this DHCPv6 Fingerprint?"
-msgstr "Voulez-vous vraiment supprimer la Fingerprint DHCPv6 ?"
+msgstr "Voulez-vous vraiment supprimer l'empreinte DHCPv6 ?"
 
 # html/pfappserver/root/config/fingerbank/device/index.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/index.tt
 msgid "Really delete this Device?"
-msgstr "Voulez-vous supprimer cet appareil ?"
+msgstr "Voulez-vous vraiment supprimer cet appareil ?"
 
 # html/pfappserver/root/config/domain/index.tt
 msgid "Really delete this Domain ?"
-msgstr "Voulez-vous vraiment supprimer ce domaine"
+msgstr "Voulez-vous vraiment supprimer ce domaine ?"
 
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
-msgstr "Supprimer the pare-feu SSO ?"
+msgstr "Voulez-vous vraiment supprimer le pare-feu SSO ?"
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 msgid "Really delete this MAC Vendor?"
-msgstr "Voulez-vous supprimer ce MAC Vendor ?"
+msgstr "Voulez-vous vraiment supprimer ce MAC Vendor ?"
 
 # html/pfappserver/root/config/pki_provider/index.tt
 msgid "Really delete this PKI Provider?"
@@ -5223,83 +5223,83 @@ msgstr "Voulez vous vraiment supprimer la PKI ?"
 
 # html/pfappserver/root/config/provisioning/index.tt
 msgid "Really delete this Provisioning entry?"
-msgstr "Supprimer cette entrée pour le provisioner"
+msgstr "Voulez-vous vraiment supprimer cette entrée pour le provisioner ?"
 
 # html/pfappserver/root/config/realm/index.tt
 msgid "Really delete this Realm ?"
-msgstr "Êtes vous sur de vouloir supprimer ce Realm?"
+msgstr "Voulez-vous vraiment supprimer ce Realm ?"
 
 # html/pfappserver/root/config/scan/index.tt
 msgid "Really delete this Scan Engine ?"
-msgstr "Voulez-vous vraiment supprimer ce moteur d'analyse? "
+msgstr "Voulez-vous vraiment supprimer ce moteur d'analyse ? "
 
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Really delete this User Agent?"
-msgstr "Voulez-vous supprimer ce User Agent ?"
+msgstr "Voulez-vous vraiment supprimer ce User Agent ?"
 
 # html/pfappserver/root/config/switch/index.tt
 msgid "Really delete this [_1] ?"
-msgstr "Voulez-vous réellement supprimer [_1] ?"
+msgstr "Voulez-vous vraiment supprimer [_1] ?"
 
 # html/pfappserver/root/config/adminroles/index.tt
 msgid "Really delete this admin role?"
-msgstr "Supprimer ce rôle admin?"
+msgstr "Voulez-vous vraiment supprimer ce rôle admin ?"
 
 # html/pfappserver/root/config/billingtiers/index.tt
 msgid "Really delete this billing tier ?"
-msgstr "Êtes vous certain de vouloir supprimer ce plan de facturation?"
+msgstr "Voulez-vous vraiment supprimer ce plan de facturation ?"
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Really delete this file?"
-msgstr "Suppression de ce fichier ?"
+msgstr "Voulez-vous vraiment supprimer ce fichier ?"
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Really delete this floating device?"
-msgstr "Suppression de cet appareil itinérant?"
+msgstr "Voulez-vous vraiment supprimer cet appareil itinérant ?"
 
 # html/pfappserver/root/config/profile/index.tt
 msgid "Really delete this profile?"
-msgstr "Suppression de ce profil ?"
+msgstr "Voulez-vous vraiment supprimer ce profil ?"
 
 # html/pfappserver/root/roles/index.tt
 msgid "Really delete this role?"
-msgstr "Supprimer ce rôle?"
+msgstr "Voulez-vous vraiment supprimer ce rôle ?"
 
 # html/pfappserver/root/config/wmi/index.tt
 msgid "Really delete this rule ?"
-msgstr "Voulez-vous vraiment supprimer cette règle? "
+msgstr "Voulez-vous vraiment supprimer cette règle ? "
 
 # html/pfappserver/root/soh/index.tt
 msgid "Really delete this statement of health filter?"
-msgstr "Suppression de ce filtre SOH?"
+msgstr "Voulez-vous vraiment supprimer ce filtre SOH ?"
 
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Really delete this syslog parser?"
-msgstr "Voulez-vous réellement supprimer ce parser syslog?"
+msgstr "Voulez-vous réellement supprimer ce parser syslog ?"
 
 # html/pfappserver/root/config/authentication.tt
 msgid "Really delete this users source?"
-msgstr "Suppression de cette source?"
+msgstr "Voulez-vous vraiment supprimer cette source ?"
 
 # html/pfappserver/root/violation/list.tt
 msgid "Really delete this violation?"
-msgstr "Suppression cette violation?"
+msgstr "Voulez-vous vraiment supprimer cette violation ?"
 
 # html/pfappserver/root/config/wrix/index.tt
 msgid "Really delete this wrix entry?"
-msgstr "Supprimer cette entrée WRIX?"
+msgstr "Voulez-vous vraiment supprimer cette entrée WRIX ?"
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Really dismiss changes?"
-msgstr "Annuler les changements?"
+msgstr "Annuler les changements ?"
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Really revert all files?"
-msgstr "Revenir à la version précédente des fichiers?"
+msgstr "Revenir à la version précédente des fichiers ?"
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Really revert this file?"
-msgstr "Revenir à la version précédente de ce fichier?"
+msgstr "Revenir à la version précédente de ce fichier ?"
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Really?"
@@ -5310,7 +5310,7 @@ msgstr "Vraiment ?"
 # html/pfappserver/root/config/realm/list.tt
 # html/pfappserver/root/config/realm/view.tt
 msgid "Realm"
-msgstr "Domaine"
+msgstr "Realm"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "Realm Options"
@@ -5439,11 +5439,11 @@ msgstr "Requête"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "Require AUP"
-msgstr "Politique d'utilisation du réseau obligatoire"
+msgstr "Charte d'utilisation du réseau obligatoire"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "Require the user to accept the AUP"
-msgstr "L'utilisateur doit accepté la politique d'utilisation du réseau "
+msgstr "L'utilisateur doit accepter la charte d'utilisation du réseau "
 
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/config/fingerbank/settings/index.tt
@@ -5515,7 +5515,7 @@ msgstr "Révoquer sur désenregistrement"
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/roles/read.tt
 msgid "Role"
-msgstr "Role"
+msgstr "Rôle"
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/root/config/adminroles/list.tt
@@ -5540,19 +5540,19 @@ msgstr "Rôle par access list"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by VLAN ID"
-msgstr "Mappage de rôle par numéro de VLAN"
+msgstr "Traduction de rôle par numéro de VLAN"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by WebAuth URL"
-msgstr "Attribution de role par authentification web"
+msgstr "Traduction de rôle par authentification web"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by access list"
-msgstr "Mappage de rôle par access list"
+msgstr "Traduction de rôle par access list"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Role mapping by switch role"
-msgstr "Mappage de rôle par rôle de commutateur"
+msgstr "Traduction de rôle par rôle de commutateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -5957,7 +5957,7 @@ msgstr "Emplacement du certificat serveur"
 
 # conf/documentation.conf (database.host)
 msgid "Server the mysql server is running on."
-msgstr "Serveur où mysql est installé"
+msgstr "Serveur sur lequel mysql est installé"
 
 # conf/documentation.conf (alerting.smtpserver)
 msgid ""
@@ -5990,7 +5990,7 @@ msgstr "Définissez un mot de passe pour le compte root de MySQL"
 
 # html/pfappserver/root/config/switch/view.tt
 msgid "Set inline mode if any of the following conditions are met:"
-msgstr "Réglez le mode inline si l'une des conditions suivantes sont remplies:"
+msgstr "Activer le mode inline si l'une des conditions suivantes sont remplies:"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Set role"
@@ -6098,13 +6098,13 @@ msgstr "Est-ce que httpd.collector doit être démarré ? Gardez le activé sauf
 msgid ""
 "Should httpd.graphite be started ? This is required for some of the "
 "dashboard functionality."
-msgstr "Démarrer graphite web par défaut? Ce service est requis pour certaines fonctions du tableau de bord"
+msgstr "Est-ce que graphite web doit être démarré ? Ce service est requis pour certaines fonctions du tableau de bord"
 
 # conf/documentation.conf (services.httpd_parking)
 msgid ""
 "Should httpd.parking be started ? Keep enabled unless you know what you're "
 "doing."
-msgstr "Si http.parking doit être démarré? Gardez le activé sauf si vous savez ce que vous faites."
+msgstr "Est-ce que http.parking doit être démarré  ? Gardez le activé sauf si vous savez ce que vous faites."
 
 # conf/documentation.conf (services.httpd_portal)
 msgid ""
@@ -6134,13 +6134,13 @@ msgstr "Est-ce que iptables doit être géré par PacketFence ? Gardez le activ�
 msgid ""
 "Should keepalived be started ? Keep enabled unless you know what you're "
 "doing."
-msgstr "Keepalived devrait être démarré ? Laissez activé sauf si vous savez ce que vous faites."
+msgstr "Est-ce que Keepalived doit être démarré  ? Laissez activé sauf si vous savez ce que vous faites."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid ""
 "Should match the IP of a registration interface or the production DNS server"
 " if the network is Inline L3"
-msgstr "Devrait correspondre a l´adresse IP de l´interface d´enregistrement ou le serveur DNS de production si le réseau est de type Inline niveau 3."
+msgstr "Devrait correspondre à l´adresse IP de l´interface d´enregistrement ou le serveur DNS de production si le réseau est de type Inline niveau 3."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 msgid "Should match the NAC name from the Iboss configuration"
@@ -6509,25 +6509,25 @@ msgstr "Succès !"
 msgid ""
 "Successfully dispatched submit request for unknown/unmatched fingerprints to"
 " Fingerbank. An email will follow for status"
-msgstr "La requête pour les empreintes inconnues ont été correctement envoyée à la BD source de Fingerbank. Un courriel sera envoyé concernant le status"
+msgstr "Demande de mise à jour pour les empreintes inconnues ont été correctement envoyée à la BD source de Fingerbank. Un courriel sera envoyé concernant le status"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid ""
 "Successfully dispatched update request for Fingerbank upstream DB. An email "
 "will follow for status"
-msgstr "La requête de mise à jour pour Fingerbank a été correctement envoyée à la BD source. Un courriel sera envoyé concernant le status"
+msgstr "Demande de mise à jour de Fingerbank a été correctement envoyée à la BD source. Un courriel sera envoyé concernant le status"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid ""
 "Successfully dispatched update request for the p0f map. An email will follow"
 " for status"
-msgstr "Demande de la mise à jour de la carte de p0f effectuée avec succès. Un courriel sera envoyé pour le statut"
+msgstr "Demande de mise à jour de la carte de p0f effectuée avec succès. Un courriel sera envoyé concernant le status"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid ""
 "Successfully dispatched update request for the redis DB. An email will "
 "follow for status"
-msgstr "La requête de mise à jour de la base de donnée de Redis a été correctement envoyée. Un courriel sera envoyé concernant le status"
+msgstr "Demande de mise à jour de la base de donnée de Redis a été correctement envoyée. Un courriel sera envoyé concernant le status"
 
 # conf/documentation.conf
 # (radius_authentication_methods.eap_authentication_types)
@@ -6665,7 +6665,7 @@ msgstr "Texte présenté à l´appareil sur la page de violation."
 
 # conf/documentation.conf (webservices.aaa_port)
 msgid "The AAA webservice port"
-msgstr "Port du AAA webservice"
+msgstr "Port d'écoute du service httpd.aaa"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The Certificate for signing in pem format"
@@ -6760,7 +6760,7 @@ msgid ""
 "(e.g. another 10 seconds). Since the timer is reset for every subsequent "
 "request, it is not necessary to have a long blocking period; in the event of"
 " a DoS attack, this timer will keep getting reset."
-msgstr "Temps (en secondes) que le client sera bloqué pendant lorsqu'il est ajouté à la liste de blocage. Pendant ce temps, toutes les requêtes du client se traduira par un 403 (interdit) et le compteur est remis à zéro. Etant donné que le compteur est réinitialisé à zéro à chaque nouvelle requête, il est pas nécessaire d'avoir une longue période de blocage; dans le cas d'une attaque DoS, ce compteur se fera remettre a zéro pour chaque requêtes."
+msgstr "Temps (en secondes) pour lequel le client sera inscrit dans la liste de blocage. Pendant ce temps, toutes les requêtes du client se traduiront par un 403 (interdit) et le compteur sera remis à zéro. Etant donné que le compteur est réinitialisé à chaque nouvelle requête, il est pas nécessaire d'avoir une longue période de blocage."
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid ""
@@ -6788,7 +6788,7 @@ msgstr "Le nombre de fois qu'un compte local peut être utilisé après sa créa
 msgid ""
 "The authentication source to use in that realm.<br/>(Must also be defined in"
 " the portal profile)"
-msgstr "La source d'authentification à utiliser dans ce Realm. <br/> (Doit également être définie dans le profil de portail)"
+msgstr "La source d'authentification à utiliser dans ce Realm. <br/> (Doit également être défini dans le profil de portail)"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The authentication source was not found."
@@ -6826,7 +6826,7 @@ msgstr "La description qui sera affiché aux usagers."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid "The domain to use for the authentication in that realm"
-msgstr "Le domaine à utiliser pour l'authentification dans ce \"realm\""
+msgstr "Le domaine à utiliser pour l'authentification dans ce \"Realm\""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The email address associated to your paypal account."
@@ -6880,7 +6880,7 @@ msgstr "Le nom d'hôte de la base de données stockant les paramètres de Graphi
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_page_interval)
 msgid "The interval in seconds for the page count threshold."
-msgstr "L'intervalle en secondes pour le seuil du compteur de la page."
+msgstr "L'intervalle en secondes pour le seuil du compteur de page."
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_site_interval)
 msgid "The interval in seconds for the site count threshold."
@@ -6897,17 +6897,17 @@ msgid ""
 "The limit for the number of requests for the same page per page interval by "
 "an IP address. Once the threshold for that interval has been exceeded, the "
 "IP address of the client will be added to the blocked list."
-msgstr "La limite pour le nombre de requêtes demandé pour la même page par page intervalle de temps et par une adresse IP. Une fois le seuil de cet intervalle a été dépassée, l'adresse IP du client sera ajouté à la liste bloquée."
+msgstr "La limite du nombre de requêtes demandées pour la même page par intervalle de temps de page et par une adresse IP. Une fois le seuil de cet intervalle dépassé, l'adresse IP du client sera ajouté à la liste de blocage."
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive_site_count)
 msgid ""
 "The limit for the total number of requests for the portal by an IP address "
 "per site interval."
-msgstr "La limite pour le nombre total de requêtes pour le portail par une adresse IP et par site."
+msgstr "La limite du nombre total de requêtes pour le portail par adresse IP et par site."
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "The maximal unregistration date that can be set."
-msgstr "La date maximale de désenregistrement qui peut etre affecter."
+msgstr "La date maximale de désenregistrement qui peut être affectée."
 
 # conf/documentation.conf
 # (captive_portal.httpd_mod_qos_maximum_connections_per_device)
@@ -6916,7 +6916,7 @@ msgstr "Le nombre maximum de connexions par appareils"
 
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 msgid "The maximum number of nodes a user having this role can register."
-msgstr "Le nombre maximum de nœuds qu´un utilisateurs peut enregistrer avec ce rôle. "
+msgstr "Le nombre maximum de nœuds qu´un utilisateur peut enregistrer avec ce rôle. "
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid ""
@@ -6950,7 +6950,7 @@ msgstr "Emplacement du certificat Paypal que vous avez téléchargé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The path to the RADIUS server certificate"
-msgstr "Le chemin d'acces du certificat du serveur RADIUS"
+msgstr "Emplacement du certificat du serveur RADIUS"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid ""
@@ -6964,12 +6964,12 @@ msgstr "Emplacement du certificat soumis à Paypal"
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 # (tcp_fingerprinting.p0f_socket_map)
 msgid "The path to the p0f map"
-msgstr "Le chemin d’accès des correspondances p0f"
+msgstr "Emplacement du fichier de correspondances p0f"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 # (tcp_fingerprinting.p0f_socket_path)
 msgid "The path to the p0f socket"
-msgstr "Le chemin d'accès du socket p0f"
+msgstr "Emplacement du socket p0f"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Facebook.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Github.pm
@@ -7010,7 +7010,7 @@ msgstr "La clé privée pour signer les profiles"
 msgid ""
 "The role to assign to gaming devices. If none is selected, the role of the "
 "registrant is used."
-msgstr "Le rôle à attribuer à des consoles de jeux. Si aucun n'est sélectionné, on utilise le rôle de la personne inscrite."
+msgstr "Le rôle à attribuer aux consoles de jeux. Si aucun n'est sélectionné, on utilise le rôle de la personne inscrite."
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Authentication/Source.pm
 msgid "The rule was not found."
@@ -7030,19 +7030,19 @@ msgstr "Le rôle à attribuer pour les noeud qui utilise ce plan"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "The template to use for the AUP"
-msgstr "Le modèle a utiliser pour la charte d'utilisation"
+msgstr "Le gabarit à utiliser pour la charte d'utilisation"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "The template to use for the signup"
-msgstr "Le modèle à utiliser pour l'enregistrement"
+msgstr "Le gabarit à utiliser pour l'enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Choice.pm
 msgid "The template to use to display the choices"
-msgstr "Le modèle à utiliser pour afficher les choix"
+msgstr "Le gabarit à utiliser pour afficher les choix"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "The template to use to display the message"
-msgstr "Le modèle à utiliser pour afficher le message"
+msgstr "Le gabarit à utiliser pour afficher le message"
 
 # conf/documentation.conf (parking.threshold)
 msgid ""
@@ -7060,11 +7060,11 @@ msgstr "Expiration sur le socket OMAPI"
 msgid ""
 "The type of payment the user will make. Charge is a one time fee, "
 "subscription will be arecurring fee."
-msgstr "Le type de paiement à l'utilisateur. Charge est payé une seule fois, l'abonnement sera à frais récurrents."
+msgstr "Le type de paiement opéré par l'utilisateur. Chargé et payé une seule fois, l'abonnement sera à frais récurrents."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Paypal.pm
 msgid "The type of transactions this source will do (donations or sales)."
-msgstr "Le type de transactions que cette source fera (dons ou ventes)."
+msgstr "Le type de transaction que cette source fera (dons ou ventes)."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -7091,7 +7091,7 @@ msgstr "Le nom d'utilisateur de connexion MySQL"
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 msgid "The username to use for login to the captive portal."
-msgstr "Le code utilisateur a utiliser pour se connecter sur le portail captif."
+msgstr "Le code utilisateur à utiliser pour se connecter sur le portail captif."
 
 # html/pfappserver/root/user/create.tt
 msgid ""
@@ -7123,7 +7123,7 @@ msgstr "Le mot de passe pour les webservices"
 
 # conf/documentation.conf (webservices.port)
 msgid "The webservices port"
-msgstr "Port des webservices"
+msgstr "Port d'écoute des webservices"
 
 # conf/documentation.conf (webservices.proto)
 msgid "The webservices proto"
@@ -7173,7 +7173,7 @@ msgid ""
 "account that is created while registering. Note that activating this "
 "disables the on-site registration on this portal profile. Also, make sure "
 "the sources on the portal profile have \"Create local account\" enabled."
-msgstr "Cette option active le pré-enregistrement sur le profil de portail. Explication, au lieu de donner l’accès à l'équipement actuellement connecté, un compte local crée lors de l'enregistrement sera affiché. Si cette option est activée, l’enregistrement sur site est désactivé pour ce profil de portail. Vérifiez que les sources du profil de portail ont l'option \"Crée un compte local\" activée."
+msgstr "Cette option active le pré-enregistrement sur le profil de portail. Explication, au lieu de donner l’accès à l'équipement actuellement connecté, un compte local crée lors de l'enregistrement sera affiché. Si cette option est activée, l’enregistrement sur site est désactivé pour ce profil de portail. Vérifiez que les sources du profil de portail ont l'option \"Crée un compte local\" activé."
 
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
 msgid ""
@@ -7205,7 +7205,7 @@ msgid ""
 "and an authentication source needs to be configured for that realm. If users"
 " do not use 802.1x credentials with a domain part, only the NULL realm will "
 "be match IF an authentication source is configured for it."
-msgstr "Cette option émule le Single Sign On quand un appareil tape le portail captif après une authentification 802.1x réussie. Les identifiants 802.1x sont réutilisés sur les sources d'authentification du portail afin de tester les règles et appliquer les actions appropriées. Une sécurité supplémentaire a été mise en place, cette option ne fonctionnera que si une source d'authentification est configurée pour ce realm. Ce qui veut dire que si un identifiant 802.1x a une partie domaine (utilisateur@domaine, domaine\\utilisateur) alors la partie domaine doit être configurée comme un realm dans la section de configuration RADIUS et une source d'authentification doit être configurée pour ce realm. Si l'identifiant ne contient pas de partie domaine alors seulement le realm NULL sera utilisé si une source d'authentification a été configuré pour ça.  "
+msgstr "Cette option émule le Single Sign On quand un appareil tape le portail captif après une authentification 802.1x réussie. Les identifiants 802.1x sont réutilisés sur les sources d'authentification du portail afin de tester les règles et appliquer les actions appropriées. Une sécurité supplémentaire a été mise en place, cette option ne fonctionnera que si une source d'authentification est configurée pour ce Realm. Ce qui veut dire que si un identifiant 802.1x a une partie domaine (utilisateur@domaine, domaine\\utilisateur) alors la partie domaine doit être configurée comme un realm dans la section de configuration RADIUS et une source d'authentification doit être configurée pour ce realm. Si l'identifiant ne contient pas de partie domaine alors seulement le realm NULL sera utilisé si une source d'authentification a été configuré pour ça.  "
 
 # conf/documentation.conf (proxies)
 msgid ""
@@ -7236,7 +7236,7 @@ msgstr "Cette section couvre des éléments basiques de configuration permettant
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
 msgid "This username and password will be valid starting [_1]."
-msgstr "Cet utilisateur et mot de passe seront valide a partir de [_1]."
+msgstr "Cet utilisateur et mot de passe seront valide à partir de [_1]."
 
 # conf/documentation.conf (network.force_listener_update_on_ack)
 msgid ""
@@ -7370,7 +7370,7 @@ msgstr "Utilisateurs - Lecture"
 
 # pf::admin_roles (Actions groups)
 msgid "USERS_ROLES"
-msgstr "Roles d'utilisateurs"
+msgstr "Roles utilisateurs"
 
 # pf::admin_roles (Actions)
 msgid "USERS_ROLES_CREATE"
@@ -7410,7 +7410,7 @@ msgstr "Utilisateurs - Paramétrer la date de désenregistrement"
 
 # pf::admin_roles (Actions groups)
 msgid "USERS_SOURCES"
-msgstr "Sources d'utilisateurs"
+msgstr "Sources utilisateurs"
 
 # pf::admin_roles (Actions)
 msgid "USERS_SOURCES_CREATE"
@@ -7636,7 +7636,7 @@ msgstr "Utilisateur pour le service MSE"
 msgid ""
 "Username of the account with access to the mysql database used by "
 "PacketFence."
-msgstr "Nom d'utilisateur du compte de la base de données mysql utilisée par PacketFence."
+msgstr "Nom d'utilisateur du compte de la base de données MySQL utilisé par PacketFence."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Username to connect to the PKI"
@@ -7738,11 +7738,11 @@ msgstr "Nom de la violation"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
 msgid "Violation Status"
-msgstr "Status de la violation"
+msgstr "Statut de la violation"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Violation to close"
-msgstr "Violation a fermer"
+msgstr "Violation à fermer"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/configuration.tt
@@ -7771,15 +7771,15 @@ msgstr "VoIP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "VoIPCDPDetect"
-msgstr "VOIP, détection de CDP"
+msgstr "VOIP, détection par CDP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "VoIPDHCPDetect"
-msgstr "VOIP, détection de DHCP"
+msgstr "VOIP, détection par DHCP"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "VoIPLLDPDetect"
-msgstr "VOIP, détection de LLDP"
+msgstr "VOIP, détection par LLDP"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Voice Over IP"
@@ -7809,7 +7809,7 @@ msgstr "Règles WMI"
 # html/pfappserver/root/config/scan/type/wmi.tt
 # html/pfappserver/root/config/wmi/list.tt
 msgid "WMI Rules"
-msgstr "Règles"
+msgstr "Règles WMI"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
 msgid "WMI client policy"
@@ -7880,7 +7880,7 @@ msgstr "WRIX - Mise à jour"
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/print.tt
 msgid "Warning!"
-msgstr "Attention!"
+msgstr "Attention !"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/switch/view.tt
@@ -7937,19 +7937,19 @@ msgstr "En sélectionnant l´action <strong>Appliquer un rôle</strong>, activer
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl)
 msgid "Whether or not to verify SSL when using proxying"
-msgstr "Si il est possible, ou pas, de vérifier le SSL lors de l'utilisation d'un proxy"
+msgstr "Si il est possible ou pas, de vérifier le SSL lors de l'utilisation d'un proxy"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Provisioning.pm
 msgid "Whether or not, the provisioning can be skipped"
-msgstr "Si il est possible, ou pas, de contourner l'approvisionnement"
+msgstr "Si il est possible ou pas, de contourner l'approvisionnement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Message.pm
 msgid "Whether or not, this message can be skipped"
-msgstr "Si il est possible, ou pas, de contourner ce message"
+msgstr "Si il est possible ou pas, de contourner ce message"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/URL.pm
 msgid "Whether or not, this redirection can be skipped."
-msgstr "Si il est possible, ou pas, contourner la redirection."
+msgstr "Si il est possible ou pas, contourner la redirection."
 
 # conf/documentation.conf (network.dhcp_filter_by_message_types)
 msgid ""
@@ -8073,7 +8073,7 @@ msgstr "Vous avez correctement configuré et lancé PacketFence,"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must assign an interface to the following types: [_1]"
-msgstr "Vous devez assigner une interface a un de ces types: [_1]"
+msgstr "Vous devez assigner une interface à un de ces types: [_1]"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "You must choose at least one enforcement mechanism."
@@ -8100,7 +8100,7 @@ msgstr "Vous devez spécifier le mot de passe ou bien la clé"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 msgid "You must specify the radius shared secret"
-msgstr "Vous devez spécifier le mot de passe de radius"
+msgstr "Vous devez spécifier le secret de radius"
 
 # html/pfappserver/root/configurator/services.tt
 msgid ""
@@ -8193,7 +8193,7 @@ msgstr "Avancé"
 
 # conf/documentation.conf
 msgid "advanced.disable_pf_domain_auth"
-msgstr "Désactiver l'authentification de PF sur le doamine"
+msgstr "Désactiver l'authentification de PF sur le domaine"
 
 # conf/documentation.conf
 msgid "advanced.hash_passwords"
@@ -8622,7 +8622,7 @@ msgstr "écoute-dhcp"
 # pf::pfcmd::report (SQL)
 # pfappserver::PacketFence::Controller::Graph (osclassbandwidth fields)
 msgid "dhcp_fingerprint"
-msgstr "Fingerprint DHCP"
+msgstr "Empreinte DHCP"
 
 # conf/documentation.conf (interface.type options)
 msgid "dhcplistener"
@@ -9735,7 +9735,7 @@ msgstr "httpd.portal modstatus"
 
 # conf/documentation.conf
 msgid "ports.pf_status"
-msgstr "Status PacketFence"
+msgstr "Statut PacketFence"
 
 # conf/documentation.conf
 msgid "ports.soap"
@@ -9784,7 +9784,7 @@ msgstr "Port"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.realm"
-msgstr "Domaine"
+msgstr "Realm"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.ssid"
@@ -9876,7 +9876,7 @@ msgstr "Utiliser Redis"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "query.use_tcp_fingerprinting"
-msgstr "Utiliser le TCP fingerprinting"
+msgstr "Utiliser l'empreinte TCP"
 
 # conf/documentation.conf
 msgid "radius_authentication_methods"
