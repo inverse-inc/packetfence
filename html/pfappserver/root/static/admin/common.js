@@ -97,7 +97,7 @@ function activateNavLink() {
 /* Update #section using an ajax request */
 function updateSection(ajax_data) {
     activateNavLink();
-    doUpdateSection(ajax_data);
+    return doUpdateSection(ajax_data);
 }
 
 function doUpdateSection(ajax_data) {
@@ -140,6 +140,7 @@ function doUpdateSection(ajax_data) {
                 });
         });
     }
+    return true;
 }
 /* Update #section using an ajax request to a form */
 function updateSectionFromForm(form) {
