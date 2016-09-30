@@ -134,7 +134,7 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| (js|none) )?\%\]/g) {
+            while ($line =~ m/\[\%\s?l\(['"](.+?(?!\\))['"](,.*)?\)\s?(\| (js|none) )?\%\]/g) {
                 add_string($1, $template) unless ($1 =~ m/\${/);
             }
         }
