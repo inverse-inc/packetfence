@@ -251,11 +251,14 @@ InterfaceView.prototype.fakeMacChanged = function(e) {
     var fake_mac = e? $(e.target) : modal.find('[name="fake_mac_enabled"]');
     if (fake_mac.length) {
         var dhcp = $('#dhcp_section');
+        var dhcpd = modal.find('[name="dhcpd_enabled"]').closest('.control-group');
         if (fake_mac.is(':checked')) {
+            dhcpd.find(':input').attr('disabled','disabled');
             dhcp.find(':input').attr('disabled','disabled');
         }
         else {
             dhcp.find(':input').removeAttr('disabled');
+            dhcpd.find(':input').attr('enabled','enabled');
         }
     }
 };
