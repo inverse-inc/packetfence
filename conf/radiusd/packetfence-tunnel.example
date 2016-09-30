@@ -233,7 +233,7 @@ post-auth {
 	rest
         if (&reply:PacketFence-Authorization-Status == "deny") {
                 request-timing
-                -sql-reject
+                -sql_reject
                 reject
         } else {
                 request-timing
