@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-30 12:39+0000\n"
+"PO-Revision-Date: 2016-09-30 14:57+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -391,6 +391,7 @@ msgstr "Ajouter un plan de facturation."
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Add a condition."
 msgstr "Ajouter une condition."
 
@@ -559,6 +560,7 @@ msgstr "Alerte"
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/per_page_select.tt
 msgid "All"
@@ -653,6 +655,7 @@ msgstr "Un autre challenge."
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr "N'importe quel"
@@ -1576,6 +1579,10 @@ msgstr "Création des Utilisateurs ..."
 msgid "Custom Fields"
 msgstr "Champs personnalisés"
 
+# html/pfappserver/root/admin/reports.tt
+msgid "Custom reports"
+msgstr "Rapport personnalisé"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
@@ -2057,6 +2064,7 @@ msgstr "Décrit le type de l'interface nommée. <ul> <li>Interne<i> </i> décrit
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
@@ -2368,10 +2376,12 @@ msgstr "Chiffrement"
 msgid "End"
 msgstr "Fin"
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "End Date"
 msgstr "Date de fin"
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/view.tt
 msgid "End Time"
@@ -2436,6 +2446,10 @@ msgstr "Sources exclusive"
 msgid "Expiration"
 msgstr "Expiration"
 
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Expired Task Counters"
+msgstr "Compteur des tâches expirées"
+
 # html/pfappserver/root/config/wrix/index.tt
 msgid "Export All"
 msgstr "Tout exporter"
@@ -2444,6 +2458,7 @@ msgstr "Tout exporter"
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Export to CSV"
 msgstr "Exporter en CSV"
 
@@ -2644,6 +2659,10 @@ msgstr "Général"
 # html/pfappserver/root/node/tab_MSE_view.tt
 msgid "Get Current Location"
 msgstr "Obtenir la localisation"
+
+# html/pfappserver/root/node/tab_MSE_view.tt
+msgid "Get History Location"
+msgstr "Obtenir l'historique de la localisation"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Grace"
@@ -3581,6 +3600,11 @@ msgstr "MD5"
 msgid "MD5 hash"
 msgstr "Hash MD5"
 
+# conf/documentation.conf
+# (radius_authentication_methods.eap_authentication_types options)
+msgid "MSCHAPv2"
+msgstr "MSCHAPv2"
+
 # pf::admin_roles (Actions groups)
 msgid "MSE"
 msgstr "MSE"
@@ -3588,11 +3612,6 @@ msgstr "MSE"
 # pf::admin_roles (Actions)
 msgid "MSE_READ"
 msgstr "MSE - Lecture"
-
-# conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
-msgid "MSCHAPv2"
-msgstr "MSCHAPv2"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
@@ -3610,6 +3629,7 @@ msgstr "Ajouter manuellement les noeuds dans le système."
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr "Contient [_1] de ces conditions suivantes:"
 
@@ -3774,6 +3794,10 @@ msgstr "Nom de la politique sur le serveur Nessus."
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Name of the scanner to use on the nessus server"
 msgstr "Nom du scanner à utiliser sur le serveur Nessus"
+
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Namespace"
+msgstr "Espace de noms"
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
@@ -4172,6 +4196,10 @@ msgstr "Horsligne"
 msgid "Offline Nodes"
 msgstr "Noeud horsligne"
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "On Node tab"
+msgstr "Sur l'onglet du nœud"
+
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid ""
 "On this page, you can configure Fingerbank which is used for device "
@@ -4341,6 +4369,10 @@ msgstr "Organisme définit dans le certificat"
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Organizational unit for the certificate"
 msgstr "L'unité organisationnelle définit dans le certificat"
+
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Outstanding Task Counters"
+msgstr "Nombre de tâches en attente"
 
 # html/pfappserver/root/admin/status.tt
 msgid "Overview"
@@ -4839,6 +4871,10 @@ msgstr "Veuillez spécifier le nom du fournisseur de certificats"
 msgid "Please specify the name of the admin role."
 msgstr "Veuillez spécifier le nom du rôle admin."
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Please specify the namespace you want to use \"ROOT\\cimv2\""
+msgstr "Veuillez spécifier l'espace de noms que vous voulez utiliser \"ROOT\\cimv2\""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the netmask."
 msgstr "Veuillez spécifier le masque réseau."
@@ -5106,6 +5142,10 @@ msgstr "Quantité"
 # html/pfappserver/root/pfqueue/index.tt
 msgid "Queue"
 msgstr "Queue"
+
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Queue Counts"
+msgstr "Nombre d’éléments dans la queue"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/auditing/radiuslog/view.tt
@@ -5602,6 +5642,10 @@ msgstr "Actions"
 msgid "Run Now"
 msgstr "Lancer maintenant"
 
+# html/pfappserver/root/node/tab_WMI_view.tt
+msgid "Run scan"
+msgstr "Lancer le scan"
+
 # pf::admin_roles (Actions groups)
 msgid "SCAN"
 msgstr "Moteurs de scan"
@@ -5868,6 +5912,10 @@ msgstr "Scanner avant l'enregistrement"
 msgid "Scan on registration"
 msgstr "Scanner lors de l'enregistrement"
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Scan this WMI element while editing a node"
+msgstr "Scanner ces éléments WMI quand on édite le nœud"
+
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Scanners"
 msgstr "Moteurs d'analyse"
@@ -5892,6 +5940,7 @@ msgstr "Score"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Search"
 msgstr "Recherche"
 
@@ -6387,6 +6436,7 @@ msgstr "Démarrer"
 msgid "Start All"
 msgstr "Tout démarrer"
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
@@ -6406,6 +6456,7 @@ msgstr "Démarrez PacketFence"
 msgid "Start TLS"
 msgstr "Démarrer TLS"
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/view.tt
 msgid "Start Time"
@@ -6539,6 +6590,7 @@ msgstr "Méthodes d'authentification EAP supportées"
 msgid "Switch Group"
 msgstr "Groupe de commutateur"
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/index.tt
 msgid "Switch Groups"
 msgstr "Groupes de commutateur"
@@ -7246,6 +7298,10 @@ msgid ""
 "interfaces on which dhcpd runs."
 msgstr "Ne fera la mise à jour de l'iplog et autres tâches liées au DHCP que sur un DHCPACK. Vous devez vous assurer que le réflecteur UDP est en place pour que cela fonctionne sur les réseaux de production et sera implicitement activé sur les interfaces d'enregistrement sur lequel fonctionne Dhcpd."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+msgid "Timeout"
+msgstr "Expiré"
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/graph/report.tt
 msgid "Today"
@@ -7815,6 +7871,10 @@ msgstr "Règles WMI"
 msgid "WMI client policy"
 msgstr "Politique du client WMI"
 
+# html/pfappserver/root/node/tab_WMI_view.tt
+msgid "WMI is not available for this device"
+msgstr "WMI n'est pas disponible sur cet appareil"
+
 # pf::admin_roles (Actions)
 msgid "WMI_CREATE"
 msgstr "Règles WMI - Créer"
@@ -8280,6 +8340,7 @@ msgstr "Préfixe du sujet"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "all"
 msgstr "Tous"
 
@@ -8312,6 +8373,7 @@ msgstr "antivirus"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "any"
 msgstr "N'importe lequel"
 
@@ -9065,6 +9127,7 @@ msgstr "Adresse IP"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr "est"
@@ -9087,6 +9150,7 @@ msgstr "est membre de"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr "n'est pas"
@@ -9351,6 +9415,7 @@ msgstr "Marquer comme Sponsor"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "matches"
 msgstr "contient"
 
@@ -10048,6 +10113,7 @@ msgstr "Utilisateur"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # html/pfappserver/root/node/view.tt
+# html/pfappserver/root/service/status.tt
 msgid "seconds"
 msgstr "secondes"
 
