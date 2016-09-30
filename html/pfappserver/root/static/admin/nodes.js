@@ -19,7 +19,7 @@ function parseQueryString(queryString) {
     return params;
 };
 
-function updateNodeSearchSection(href) {
+function updateNodeSearchSection(href, event) {
     var hash = location.hash;
     var i;
     if (hash && hash.indexOf("#/node/search?") == 0) {
@@ -44,9 +44,17 @@ function updateNodeSearchSection(href) {
             input.val(param.value);
         }
         $('[href="#advanced"][data=toggle="tab"]').click();
-
+        var win = $(window);
+        win.unbind('hashchange');
+        win.hashchange(function() {
+            win.unbind('hashchange');
+            win.hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
+        });
+        location.hash = '';
+        doUpdateSection(href);
+        return false;
     }
-    doUpdateSection(href);
+    return doUpdateSection(href);
 }
 
 function init() {
@@ -94,6 +102,7 @@ function init() {
     $('form[name="simpleNodeSearch"] [name$=".op"]').trigger('saved_search.loaded');
 
     /* Hash change handlder */
-    $(window).hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
-    $(window).hashchange();
+    var win = $(window);
+    win.hashchange(pfOnHashChange(updateNodeSearchSection,'/node/'));
+    win.hashchange();
 }
