@@ -43,7 +43,7 @@ sub index : Path : Args(0) {
         template     => $profile_template,
         current_view => 'MobileConfig',
         provisioner  => $provisioner,
-        username     => $provisioner->for_username,
+        username     => $c->session->{username} ? $c->session->{username} : '',
         cert_content => $pki_session->{b64_cert},
         cert_cn      => $pki_session->{certificate_cn},
         for_windows  => ($provisioner->{type} eq 'windows'),
