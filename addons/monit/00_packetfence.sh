@@ -156,7 +156,7 @@ cat >> /etc/monit.d/packetfence.monit << EOF
 check process packetfence-winbind-$domain with pidfile $PID_FILE
     group PacketFence
     start program = "/usr/sbin/winbindd -D -s /etc/samba/$domain.conf -l /var/log/samba$domain" with timeout 60 seconds
-    stop program  = "/bin/kill $PID_FILE
+    stop program  = "/bin/kill $PID_FILE"
 
 EOF
 
