@@ -238,7 +238,7 @@ Fill out the form for a PKI provider according to your Certificate of Authority 
 
 image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
-For the URL it will be `http://<ServerDNSName>/CertSrv/mscep`.
+For the URL it will be `http://<ServerDNSName>/CertSrv/mscep/`.
 
 You do not need any Username/Password combination for this configuration.
 
