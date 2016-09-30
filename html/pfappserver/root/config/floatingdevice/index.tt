@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('Floating Devices')  %]</h2>
+      <h2>[% l('Floating Devices') %]</h2>
 
       [% INCLUDE config/floatingdevice/list.tt %]
 

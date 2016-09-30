@@ -1,5 +1,5 @@
 
-<h4 class="alert alert-warning">This is an advanced section. Proceed with caution when editing.</h4>
+<h4 class=" [% l('alert alert-warning">This is an advanced section. Proceed with caution when editing.') %]</h4>
 
 <div class="tab-content">
   <ul class="nav nav-tabs">
@@ -26,8 +26,8 @@
       <div id="editor" style="position:relative;height:450px;">[% content %]</div>
       <script>filtersView.setupEditor()</script>
       <div class="form-actions">
-        <input type="submit" class="btn btn-primary disabled" value="Save">
-        <a class="btn btn-danger disabled" id="filtersRevert"><i class="icon-refresh"></i> Revert Changes</a>
+        <input type="submit" class="btn btn-primary disabled" value="[% l('Save') %]">
+        <a class="btn btn-danger disabled" id="filtersRevert"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
       </div>
       </form>
     </div>

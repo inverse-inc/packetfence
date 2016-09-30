@@ -24,9 +24,9 @@
         </div>
       [% ELSE %]
         <h2>[% l('Domain')  %]</h2>
-        <h4 class="alert alert-warning">Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.</h4>
+        <h4 class="alert alert-warning">[% l('Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details.') %]</h4>
         [% UNLESS items.size %]
-        <h4 class="alert alert-warning">After configuring your first domain, you will need to restart the radiusd service to activate domain authentication.</h4>
+        <h4 class="alert alert-warning">[% l('After configuring your first domain, you will need to restart the radiusd service to activate domain authentication.') %]</h4>
         [% END %]
 
         [% INCLUDE config/domain/list.tt %]
