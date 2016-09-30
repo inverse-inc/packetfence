@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 6.0.0\n"
+"Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-04-19 10:35-0400\n"
+"PO-Revision-Date: 2016-09-30 10:02-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -364,6 +364,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/switch/view.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Add a condition."
 msgstr ""
 
@@ -519,6 +520,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/per_page_select.tt
 msgid "All"
@@ -605,6 +607,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/DHCPOption82Search.pm
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "Any"
 msgstr ""
@@ -1480,6 +1483,10 @@ msgstr ""
 msgid "Custom Fields"
 msgstr ""
 
+# html/pfappserver/root/admin/reports.tt
+msgid "Custom reports"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/index.tt
@@ -1926,6 +1933,7 @@ msgstr ""
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
+# html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
@@ -2200,10 +2208,12 @@ msgstr ""
 msgid "End"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 msgid "End Date"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/view.tt
 msgid "End Time"
@@ -2268,6 +2278,10 @@ msgstr ""
 msgid "Expiration"
 msgstr ""
 
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Expired Task Counters"
+msgstr ""
+
 # html/pfappserver/root/config/wrix/index.tt
 msgid "Export All"
 msgstr ""
@@ -2276,6 +2290,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Export to CSV"
 msgstr ""
 
@@ -2472,6 +2487,10 @@ msgstr ""
 
 # html/pfappserver/root/node/tab_MSE_view.tt
 msgid "Get Current Location"
+msgstr ""
+
+# html/pfappserver/root/node/tab_MSE_view.tt
+msgid "Get History Location"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -3286,6 +3305,10 @@ msgstr ""
 msgid "MD5 hash"
 msgstr ""
 
+# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
+msgid "MSCHAPv2"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "MSE"
 msgstr ""
@@ -3314,6 +3337,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Match [_1] of the following conditions:"
 msgstr ""
 
@@ -3469,6 +3493,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Name of the scanner to use on the nessus server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Namespace"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
@@ -3862,6 +3890,10 @@ msgstr ""
 msgid "Offline Nodes"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "On Node tab"
+msgstr ""
+
 # html/pfappserver/root/configurator/fingerbank.tt
 msgid "On this page, you can configure Fingerbank which is used for device fingerprinting."
 msgstr ""
@@ -4016,6 +4048,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Organizational unit for the certificate"
+msgstr ""
+
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Outstanding Task Counters"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
@@ -4501,6 +4537,10 @@ msgstr ""
 msgid "Please specify the name of the admin role."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Please specify the namespace you want to use \"ROOT\cimv2\""
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the netmask."
 msgstr ""
@@ -4755,6 +4795,10 @@ msgstr ""
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/pfqueue/index.tt
 msgid "Queue"
+msgstr ""
+
+# html/pfappserver/root/pfqueue/index.tt
+msgid "Queue Counts"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
@@ -5240,6 +5284,10 @@ msgstr ""
 msgid "Run Now"
 msgstr ""
 
+# html/pfappserver/root/node/tab_WMI_view.tt
+msgid "Run scan"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "SCAN"
 msgstr "Scan Engines"
@@ -5506,6 +5554,10 @@ msgstr ""
 msgid "Scan on registration"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
+msgid "Scan this WMI element while editing a node"
+msgstr ""
+
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Scanners"
 msgstr ""
@@ -5530,6 +5582,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "Search"
 msgstr ""
 
@@ -5954,6 +6007,7 @@ msgstr ""
 msgid "Start All"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/tab_Violations_view.tt
 # html/pfappserver/root/node/violations.tt
@@ -5973,6 +6027,7 @@ msgstr ""
 msgid "Start TLS"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/DynamicReportSearch.pm
 # html/pfappserver/lib/pfappserver/Form/RadiusLogSearch.pm
 # html/pfappserver/root/node/view.tt
 msgid "Start Time"
@@ -6095,6 +6150,7 @@ msgstr ""
 msgid "Switch Group"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/index.tt
 msgid "Switch Groups"
 msgstr ""
@@ -6687,6 +6743,10 @@ msgstr ""
 msgid "This will only do the iplog update and other DHCP related task on a DHCPACK.You need to make sure the UDP reflector is in place so this works on the production network.This is implicitly activated on registration interfaces on which dhcpd runs."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/RADIUS.pm
+msgid "Timeout"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/graph/report.tt
 msgid "Today"
@@ -7240,6 +7300,10 @@ msgstr ""
 msgid "WMI client policy"
 msgstr ""
 
+# html/pfappserver/root/node/tab_WMI_view.tt
+msgid "WMI is not available for this device"
+msgstr ""
+
 # pf::admin_roles (Actions)
 msgid "WMI_CREATE"
 msgstr "WMI Rules - Create"
@@ -7679,6 +7743,7 @@ msgstr "Subject prefix"
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "all"
 msgstr "All"
 
@@ -7711,6 +7776,7 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "any"
 msgstr "Any"
 
@@ -8456,6 +8522,7 @@ msgstr "IP address"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -8478,6 +8545,7 @@ msgstr ""
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -8742,6 +8810,7 @@ msgstr "Mark as Sponsor"
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
 msgid "matches"
 msgstr ""
 
@@ -9439,6 +9508,7 @@ msgstr "User"
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 # html/pfappserver/root/node/view.tt
+# html/pfappserver/root/service/status.tt
 msgid "seconds"
 msgstr ""
 
