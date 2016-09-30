@@ -231,7 +231,7 @@ session {
 post-auth {
 	#
 	rest
-        if (&reply:PacketFence-Radius-Reply == "deny") {
+        if (&reply:PacketFence-Authorization-Status == "deny") {
                 request-timing
                 -sql-reject
                 reject

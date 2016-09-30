@@ -42,10 +42,10 @@ sub format_response {
     get_logger->trace(sub { use Data::Dumper ; "RADIUS REST object : ". Dumper(\%mapped_object) });
     $response = \%mapped_object;
 
-    $response->{'reply:PacketFence-Authorisation-Status'} = 'allow';
+    $response->{'reply:PacketFence-Authorization-Status'} = 'allow';
 
     if($radius_return == $RADIUS::RLM_MODULE_USERLOCK) {
-        $response->{'reply:PacketFence-Authorisation-Status'} = 'deny';
+        $response->{'reply:PacketFence-Authorization-Status'} = 'deny';
         $radius_return = $RADIUS::RLM_MODULE_OK
     }
 
