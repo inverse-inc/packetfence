@@ -200,6 +200,7 @@ sub _graphPie :Private {
                    series => $result->{series},
                    values => $result->{values},
                    piecut => $result->{piecut},
+                   items  => $result->{items},
                    graphtype => 'pie',
                    template => 'graph/pie.tt',
                    current_view => 'HTML'
@@ -704,6 +705,13 @@ sub os :Local :AdminRole('REPORTS') {
                                   count => 'count' },
                      }
                     );
+
+    my $items = $c->stash->{items};
+    if ($items) {
+        for my $item (@$items) {
+            $item->{link} = '/admin/nodes#/node/search?searches.0.name=dhcp_fingerprint&searches.0.op=equal&searches.0.value=' . $item->{label};
+        }
+    }
 }
 
 =head2 connectiontype
