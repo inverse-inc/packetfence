@@ -123,7 +123,7 @@ sub _setupWatchForPidCreate {
     my @dirs = ($run_dir);
     opendir(DIR, $run_dir);
     while(readdir DIR) {
-        push @dirs, "$run_dir/$_";
+        push @dirs, "$run_dir/$_" if defined($_);
     }
     closedir(DIR);
     foreach my $dir (@dirs) {
