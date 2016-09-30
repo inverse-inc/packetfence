@@ -3317,10 +3317,6 @@ msgstr ""
 msgid "MSE_READ"
 msgstr "MSE - Read"
 
-# conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
-msgid "MSCHAPv2"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
 msgstr ""
@@ -4538,7 +4534,7 @@ msgid "Please specify the name of the admin role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
-msgid "Please specify the namespace you want to use \"ROOT\cimv2\""
+msgid "Please specify the namespace you want to use \"ROOT\\cimv2\""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
