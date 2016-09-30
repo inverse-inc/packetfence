@@ -212,7 +212,7 @@ sub regzone {
 
         }
         elsif ($qname eq $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}) {
-            my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+            my ($ttl, $rdata) = ($TTL, (defined($loadb_ip->{$conn->{sockhost}})) ? $loadb_ip->{$conn->{sockhost}} : $conn->{sockhost});
             my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
             push @ans, $rr;
             $rcode = "NOERROR";
