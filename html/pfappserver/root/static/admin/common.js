@@ -159,8 +159,7 @@ function pfOnHashChange(updater, default_url) {
         if (default_url !== undefined && (href == '' || href == '/')) {
             href = default_url;
         }
-        updater(href);
-        return true;
+        return updater(href,event);
     };
 }
 
