@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-30 14:57+0000\n"
+"PO-Revision-Date: 2016-09-30 20:13+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -356,7 +356,7 @@ msgstr "Ajouter une règle"
 
 # html/pfappserver/root/config/scan/index.tt
 msgid "Add Scan"
-msgstr "Ajouter un scanner"
+msgstr "Ajouter un moteur d'analyse"
 
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Add Syslog parser"
@@ -376,7 +376,7 @@ msgstr "Ajouter une entrée Wrix"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a Scan."
-msgstr "Ajouter un scanner."
+msgstr "Ajouter un moteur d’analyse."
 
 # html/pfappserver/root/config/scan/type/wmi.tt
 msgid "Add a WMI rule."
@@ -1449,7 +1449,7 @@ msgid ""
 " sends too many traps to PacketFence causing it to be overloaded. Trap "
 "limiting is controlled by the trap limit threshold and trap limit action "
 "parameters. Default is enabled."
-msgstr "Contrôle si oui ou non la fonction de limite de trap snmp est activé. La limite de trap snmp est un moyen de limiter les dommages causés par des utilisateurs malveillants ou commutateur qui envoi trop de trap snmp à PacketFence l'amenant à être surchargé. La limite de trap snmp est contrôlée par les paramètres de la limite de seuil. Par défaut est activé."
+msgstr "Contrôle si oui ou non la fonction de limite de trap snmp est activée. La limite de trap snmp est un moyen de limiter les dommages causés par des utilisateurs malveillants ou commutateur qui envoi trop de trap snmp à PacketFence l'amenant à être surchargé. La limite de trap snmp est contrôlée par les paramètres de la limite de seuil. Par défaut est activé."
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Copy"
@@ -2989,7 +2989,7 @@ msgid ""
 "packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts, meaning a "
 "span port is not necessary.  This feature is highly recommended if the "
 "internal network is DHCP-based."
-msgstr "Si activé, PacketFence utilisera les éléments spécifiques DHCP tels que les rogues DHCP,le Fingerprinting, la résolution des hôtes et (optionnellement) l'Option-82. Les paquets DHCP analysés sont les DHCPDISCOVERs et DHCPREQUESTs. Cette fonctionnalité est hautement recommandée si le réseau interne est basé sur DHCP."
+msgstr "Si activé, PacketFence utilisera les éléments spécifiques DHCP tels que les rogues DHCP,le Empreintes DHCP, la résolution des hôtes et (optionnellement) l'Option-82. Les paquets DHCP analysés sont les DHCPDISCOVERs et DHCPREQUESTs. Cette fonctionnalité est hautement recommandée si le réseau interne est basé sur DHCP."
 
 # conf/documentation.conf (trapping.registration)
 msgid ""
@@ -3029,19 +3029,19 @@ msgstr "Si le portail captif est derrière un équilibreur de charge qui agit au
 msgid ""
 "If this option is enabled, the PF system will scan each host after "
 "registration is complete."
-msgstr "Si activée, PacketFence scannera chaque nœud lorsque l'enregistrement sera terminé."
+msgstr "Si activée, PacketFence analysera chaque nœud lorsque l'enregistrement sera terminé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid ""
 "If this option is enabled, the PF system will scan host after on the "
 "production vlan."
-msgstr "Si activée, PacketFence scannera chaque appareil lorsque l'enregistrement sera terminé."
+msgstr "Si activée, PacketFence analysera chaque appareil lorsque l'enregistrement sera terminé."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid ""
 "If this option is enabled, the PF system will scan host before the "
 "registration."
-msgstr "Si activée, PacketFence scannera chaque appareil avant l'enregistrement."
+msgstr "Si activée, PacketFence analysera chaque appareil avant l'enregistrement."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid ""
@@ -3428,7 +3428,7 @@ msgstr "Emplacement du binaire collectd."
 msgid ""
 "Location of the dhcpd binary. Only necessary to change if you are not "
 "running the RPMed version."
-msgstr "Emplacement du binaire dhcpd."
+msgstr "Emplacement du binaire DHCPd."
 
 # conf/documentation.conf (services.haproxy_binary)
 msgid ""
@@ -3780,7 +3780,7 @@ msgstr "Nom de la base de données mysql utilisée par PacketFence."
 
 # conf/documentation.conf (scan.nessus_clientpolicy)
 msgid "Name of the policy inside the NessusClient file"
-msgstr "Nom de la politique de scan Nessus"
+msgstr "Nom de la politique d'analyse de Nessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
 msgid "Name of the policy to use"
@@ -3793,7 +3793,7 @@ msgstr "Nom de la politique sur le serveur Nessus."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Name of the scanner to use on the nessus server"
-msgstr "Nom du scanner à utiliser sur le serveur Nessus"
+msgstr "Nom de l'analyseur à utiliser sur le serveur Nessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Namespace"
@@ -3807,11 +3807,11 @@ msgstr "VLAN natif"
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Nessus client policy"
-msgstr "Politique de scan Nessus"
+msgstr "Politique d'analyse Nessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Nessus scanner name"
-msgstr "Nom du scanner Nessus"
+msgstr "Nom de l'analyseur Nessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
@@ -5644,27 +5644,27 @@ msgstr "Lancer maintenant"
 
 # html/pfappserver/root/node/tab_WMI_view.tt
 msgid "Run scan"
-msgstr "Lancer le scan"
+msgstr "Lancer l'analyse"
 
 # pf::admin_roles (Actions groups)
 msgid "SCAN"
-msgstr "Moteurs de scan"
+msgstr "Moteurs d'analyse"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_CREATE"
-msgstr "Moteurs de scan - Créer"
+msgstr "Moteurs d'analyse - Créer"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_DELETE"
-msgstr "Moteurs de scan - Supprimer"
+msgstr "Moteurs d'analyse - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_READ"
-msgstr "Moteurs de scan - Lecture"
+msgstr "Moteurs d'analyse - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "SCAN_UPDATE"
-msgstr "Moteurs de scan - Mise à jour"
+msgstr "Moteurs d'analyse - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -5894,7 +5894,7 @@ msgstr "Moteur d'analyse"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Scan Engines"
-msgstr "Moteurs de scan"
+msgstr "Moteurs d'analyse"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan Type"
@@ -5902,19 +5902,19 @@ msgstr "Type"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan after registration"
-msgstr "Scanner après l'enregistrement"
+msgstr "Analyser après l'enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan before registration"
-msgstr "Scanner avant l'enregistrement"
+msgstr "Analyser avant l'enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Scan on registration"
-msgstr "Scanner lors de l'enregistrement"
+msgstr "Analyser lors de l'enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Scan this WMI element while editing a node"
-msgstr "Scanner ces éléments WMI quand on édite le nœud"
+msgstr "Analyser ces éléments WMI quand on édite le nœud"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Scanners"
@@ -6025,7 +6025,7 @@ msgstr "ID du fournisseur de service"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Service watch"
-msgstr "Monitoring des services"
+msgstr "Surveillance des services"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/status.tt
@@ -8065,7 +8065,7 @@ msgstr "SSID sans fil"
 
 # html/pfappserver/root/config/scan/type/wmi.tt
 msgid "With no WMI rules specified, the scan engine will not be triggered."
-msgstr "Si vous n'indiquez aucune règle WMI, le scan n'aura pas lieu."
+msgstr "Si vous n'indiquez aucune règle WMI, l'analyse n'aura pas lieu."
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no billing tiers specified, all billing tiers will be used."
@@ -8091,7 +8091,7 @@ msgstr "Si vous ne précisez pas de provisioners, les provisioners du profil par
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "With no scan specified, the scan engine will not be triggered."
-msgstr "Si vous n'indiquez aucun scan, le moteur d'analyse ne sera pas activé"
+msgstr "Si vous n'indiquez aucune analyse, le moteur d'analyse ne sera pas activé"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid ""
@@ -8224,7 +8224,7 @@ msgstr "Réévaluation d'accès centralisé"
 
 # conf/documentation.conf
 msgid "active_active.conflict_resolution_threshold"
-msgstr "Seul de résolution de conflit"
+msgstr "Seuil de résolution de conflit"
 
 # conf/documentation.conf
 msgid "active_active.dns_on_vip_only"
@@ -10065,7 +10065,7 @@ msgstr "sAMAccountType"
 
 # conf/documentation.conf
 msgid "scan"
-msgstr "Scan"
+msgstr "Analyse"
 
 # conf/documentation.conf
 msgid "scan.duration"
@@ -10081,7 +10081,7 @@ msgstr "Hôte"
 
 # conf/documentation.conf
 msgid "scan.nessus_clientpolicy"
-msgstr "Politique de scan Nessus"
+msgstr "Politique d'analyse Nessus"
 
 # conf/documentation.conf
 msgid "scan.nessus_port"
@@ -10171,15 +10171,15 @@ msgstr "ordonnancement du service carbon-collectd"
 
 # conf/documentation.conf
 msgid "services.dhcpd"
-msgstr "dhcpd"
+msgstr "DHCPd"
 
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
-msgstr "Emplacement de dhcpd"
+msgstr "Emplacement de DHCPd"
 
 # conf/documentation.conf
 msgid "services.dhcpd_order"
-msgstr "ordonnancement du service dhcpd"
+msgstr "ordonnancement du service DHCPd"
 
 # conf/documentation.conf
 msgid "services.haproxy"
@@ -10191,7 +10191,7 @@ msgstr "Emplacement de HAProxy"
 
 # conf/documentation.conf
 msgid "services.haproxy_order"
-msgstr "ordonnancement du service haproxy"
+msgstr "ordonnancement du service HAProxy"
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
@@ -10459,7 +10459,7 @@ msgstr "ordonnancement du service winbindd"
 
 # conf/documentation.conf
 msgid "servicewatch"
-msgstr "Monitoring des services"
+msgstr "Surveillance des services"
 
 # conf/documentation.conf
 msgid "servicewatch.email"
