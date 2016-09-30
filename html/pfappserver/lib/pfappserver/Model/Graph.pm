@@ -498,6 +498,8 @@ sub _format_ratioBase {
     my @values  = map { $_->[1] } @sorted_rows;
     my @display = map { $_->[2] } @sorted_rows;
 
+    my @items = map {{label => $_->[0], value => $_->[1], display => $_->[2]}} @sorted_rows;
+
     # Compute the last row that will appears in the pie chart
     # See https://github.com/DmitryBaranovskiy/g.raphael/blob/master/g.pie.js
     my $cut = 9;
@@ -516,6 +518,7 @@ sub _format_ratioBase {
     $results->{series} = { values => \@values }; # Structure is suitable for g.raphael.js
     $results->{values} = \@display;
     $results->{piecut} = $cut;
+    $results->{items}  = \@items;
 
     return $results;
 }
