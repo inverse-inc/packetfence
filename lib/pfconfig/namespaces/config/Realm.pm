@@ -43,7 +43,10 @@ sub build_child {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
-    return \%tmp_cfg;
+    # Lower casing all realms to find them consistently
+    my $cfg = { map{lc($_) => $tmp_cfg{$_}} keys(%tmp_cfg) };
+
+    return $cfg;
 
 }
 
