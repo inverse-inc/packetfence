@@ -117,7 +117,7 @@ our (
 #profiles.conf variables
     @Profile_Filters, %Profiles_Config,
 
-    %connection_type, %connection_type_to_str, %connection_type_explained,
+    %connection_type, %connection_type_to_str, %connection_type_explained, %connection_type_explained_to_str,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $thread, $fqdn, $reverse_fqdn,
@@ -176,7 +176,7 @@ BEGIN {
         $WIRELESS $WIRED $EAP
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
-        %connection_type %connection_type_to_str %connection_type_explained
+        %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
         %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
@@ -376,6 +376,8 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $INLINE => 'Inline',
     $UNKNOWN => 'Unknown',
 );
+
+%connection_type_explained_to_str = map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
 
 # VoIP constants
 Readonly our $VOIP    => 'yes';
