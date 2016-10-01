@@ -705,13 +705,8 @@ sub os :Local :AdminRole('REPORTS') {
                                   count => 'count' },
                      }
                     );
+    $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
 
-    my $items = $c->stash->{items};
-    if ($items) {
-        for my $item (@$items) {
-            $item->{link} = '/admin/nodes#/node/advanced_search?searches.0.name=dhcp_fingerprint&searches.0.op=equal&searches.0.value=' . $item->{label};
-        }
-    }
 }
 
 =head2 connectiontype
@@ -760,12 +755,7 @@ sub ssid :Local :AdminRole('REPORTS') {
                                    count => 'nodes' },
                      }
                     );
-    my $items = $c->stash->{items};
-    if ($items) {
-        for my $item (@$items) {
-            $item->{link} = '/admin/nodes#/node/advanced_search?searches.0.name=ssid&searches.0.op=equal&searches.0.value=' . $item->{label};
-        }
-    }
+    $self->_add_links($c, 'ssid', 'equal', 'label');
 }
 
 =head2 nodebandwidth
@@ -791,7 +781,26 @@ sub nodebandwidth :Local :AdminRole('REPORTS') {
                        options => ['accttotal', 'acctinput', 'acctoutput'],
                        option => $option }
                     );
+    $self->_add_links($c, 'mac', 'equal', 'label');
 }
+
+
+=head2 _add_links
+
+
+=cut
+
+sub _add_links {
+    my ($self, $c, $name, $op, $value_key) = @_;
+    my $items = $c->stash->{items};
+    if ($items) {
+        for my $item (@$items) {
+            $item->{link} = "/admin/nodes#/node/advanced_search?searches.0.name=$name&searches.0.op=$op&searches.0.value=" . $item->{$value_key};
+        }
+    }
+    return ;
+}
+
 
 =head2 osclassbandwidth
 
