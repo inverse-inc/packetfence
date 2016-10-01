@@ -22,7 +22,7 @@ function parseQueryString(queryString) {
 function updateNodeSearchSection(href, event) {
     var hash = location.hash;
     var i;
-    if (hash && hash.indexOf("#/node/search?") == 0) {
+    if (hash && hash.indexOf("#/node/advanced_search?") == 0) {
         //Show the advanced search tab
         hash  = hash.replace(/(^#.*\?)/,''); 
         var new_params = parseQueryString(hash);

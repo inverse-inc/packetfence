@@ -709,7 +709,7 @@ sub os :Local :AdminRole('REPORTS') {
     my $items = $c->stash->{items};
     if ($items) {
         for my $item (@$items) {
-            $item->{link} = '/admin/nodes#/node/search?searches.0.name=dhcp_fingerprint&searches.0.op=equal&searches.0.value=' . $item->{label};
+            $item->{link} = '/admin/nodes#/node/advanced_search?searches.0.name=dhcp_fingerprint&searches.0.op=equal&searches.0.value=' . $item->{label};
         }
     }
 }
@@ -736,7 +736,7 @@ sub connectiontype :Local :AdminRole('REPORTS') {
     my $items = $c->stash->{items};
     if ($items) {
         for my $item (@$items) {
-            $item->{link} = '/admin/nodes#/node/search?searches.0.name=connection_type&searches.0.op=equal&searches.0.value=' . $pf::config::connection_type_explained_to_str{$item->{label}};
+            $item->{link} = '/admin/nodes#/node/advanced_search?searches.0.name=connection_type&searches.0.op=equal&searches.0.value=' . $pf::config::connection_type_explained_to_str{$item->{label}};
         }
     }
 }
@@ -763,7 +763,7 @@ sub ssid :Local :AdminRole('REPORTS') {
     my $items = $c->stash->{items};
     if ($items) {
         for my $item (@$items) {
-            $item->{link} = '/admin/nodes#/node/search?searches.0.name=ssid&searches.0.op=equal&searches.0.value=' . $item->{label};
+            $item->{link} = '/admin/nodes#/node/advanced_search?searches.0.name=ssid&searches.0.op=equal&searches.0.value=' . $item->{label};
         }
     }
 }
