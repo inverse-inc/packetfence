@@ -5,6 +5,7 @@
     <option value="bypass_role">[% l('Bypass Role') %]</option>
     <option value="bypass_vlan">[% l('Bypass VLAN') %]</option>
     <option value="computername">[% l('Computer Name') %]</option>
+    <option value="connection_type">[% l('Connection Type') %]</option>
     <option value="device_type">[% l('Device Type') %]</option>
     <option value="last_ip">[% l('Node IP') %]</option>
     <option value="category">[% l('Node Role') %]</option>

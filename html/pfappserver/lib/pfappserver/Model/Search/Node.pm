@@ -362,6 +362,10 @@ my %COLUMN_MAP = (
        table => 'locationlog',
        name  => 'ssid',
     },
+    connection_type   => {
+       table => 'locationlog',
+       name  => 'connection_type',
+    },
     last_ip   => {
        table => 'iplog',
        name  => 'ip',
