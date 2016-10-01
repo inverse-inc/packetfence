@@ -733,6 +733,12 @@ sub connectiontype :Local :AdminRole('REPORTS') {
                                    'count' => 'connections' },
                      }
                     );
+    my $items = $c->stash->{items};
+    if ($items) {
+        for my $item (@$items) {
+            $item->{link} = '/admin/nodes#/node/search?searches.0.name=connection_type&searches.0.op=equal&searches.0.value=' . $pf::config::connection_type_explained_to_str{$item->{label}};
+        }
+    }
 }
 
 =head2 ssid
