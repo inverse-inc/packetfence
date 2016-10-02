@@ -705,7 +705,7 @@ sub os :Local :AdminRole('REPORTS') {
                                   count => 'count' },
                      }
                     );
-    $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
+    $self->_add_links($c, 'device_type', 'equal', 'label');
 
 }
 
@@ -823,6 +823,7 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
                                    count => $option."octets",
                                    value => $option },
                      });
+    $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
 }
 
 sub _generate_hosts {
