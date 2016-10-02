@@ -477,7 +477,7 @@ sub ratioBase {
 sub _format_ratioBase {
     my ($data, $description_field, $count_field, $value_field) = @_;
 
-    my @rows;
+    my (@rows, @labels, @values, @display, @items);
     my $results = {};
 
     $value_field = $count_field unless ($value_field);
@@ -488,31 +488,30 @@ sub _format_ratioBase {
 
     return unless ($total > 0);
 
+
     # Extract only the necessary fields
-    foreach my $row (@{$data}) {
-        push(@rows, [$row->{$description_field}, $row->{$count_field}, $row->{$value_field}]);
+    foreach my $row (sort { $b->{$count_field} <=> $a->{$count_field}} @{$data}) {
+        my $label = $row->{$description_field};
+        my $value = $row->{$count_field};
+        my $display = $row->{$value_field};
+        push @labels, $label;
+        push @values, $value;
+        push @display, $display;
+        push @items, {%$row, label => $label, value => $value, display => $display};
     }
-
-    my @sorted_rows = sort { $b->[1] <=> $a->[1] } @rows; # descending
-    my @labels  = map { $_->[0] } @sorted_rows;
-    my @values  = map { $_->[1] } @sorted_rows;
-    my @display = map { $_->[2] } @sorted_rows;
-
-    my @items = map {{label => $_->[0], value => $_->[1], display => $_->[2]}} @sorted_rows;
 
     # Compute the last row that will appears in the pie chart
     # See https://github.com/DmitryBaranovskiy/g.raphael/blob/master/g.pie.js
     my $cut = 9;
-    my $i;
-    for ($i = 0; $i < scalar @sorted_rows; $i++) {
-        my $row = $sorted_rows[$i];
-        if ($row->[1] * 360 / $total <= 1.5) {
+    my $i = 0;
+    for my $item (@items) {
+        if ($item->{value} * 360 / $total <= 1.5) {
             $cut = $i;
             last;
         }
     }
     $cut = 9 if ($cut > 9);
-    $cut++ if ($cut + 1 == scalar @sorted_rows);
+    $cut++ if ($cut + 1 == scalar @items);
 
     $results->{labels} = \@labels;
     $results->{series} = { values => \@values }; # Structure is suitable for g.raphael.js
