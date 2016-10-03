@@ -11,7 +11,7 @@
     <option value="!=">[% l('is not') %]</option>
     <option value="like">[% l('matches') %]</option>
   </select>
-  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String..."/>
+  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]"/>
 [% END -%]
 
 <div class="navbar">

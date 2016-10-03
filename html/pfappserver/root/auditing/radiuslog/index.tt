@@ -14,7 +14,7 @@
     <option value="ends_with">[% l('ends with') %]</option>
     <option value="like">[% l('matches') %]</option>
   </select>
-  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String..."/>
+  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]"/>
 [% END -%]
 <div id="report_radius_audit_log" class="navbar">
   <div class="navbar-inner">

@@ -117,7 +117,7 @@
             <div class="control-group">
               <label class="control-label" for="pid">Add member</label>
               <div class="controls">
-                <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
+                <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="[% l('Add a member') %]" type="text">
                 <button name="addNewMember" id="addNewMember" data-group="[% item.id %]" class="btn btn-mini btn-success">+</button>
               </div>
             </div>

@@ -374,66 +374,66 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $graphs = [
                {
-                'description' => 'Registrations/min',
+                'description' => $c->loc('Registrations/min'),
                 'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"1min"),5,"sum"),"End-Points registered")',
                     'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"1min"),5,"sum"), "End-Points deregistered")' ],
                 'lineMode' => "staircase",
                 'columns' => 2,
                },
                {
-                'description' => 'Server Load',
+                'description' => $c->loc('Server Load'),
                 'target' => 'aliasByNode(*.load.load.midterm,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Available Memory',
+                'description' => $c->loc('Available Memory'),
                 'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
                 'columns' => 2
                },
                {
-                'description' => 'RADIUS Total Access-Requests/s',
+                'description' => $c->loc('RADIUS Total Access-Requests/s'),
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Access-Requests/s per server',
+                'description' => $c->loc('RADIUS Access-Requests/s per server'),
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Access-Accepts/s per server',
+                'description' => $c->loc('RADIUS Access-Accepts/s per server'),
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'RADIUS Access-Rejects/s per server',
+                'description' => $c->loc('RADIUS Access-Rejects/s per server'),
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Apache AAA call timing',
+                'description' => $c->loc('Apache AAA call timing'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(stats.timers.*.pf__api__radius_rest_authorize.timing.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache AAA Open Connections per server',
+                'description' => $c->loc('Apache AAA Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-aaa.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'NTLM call timing',
+                'description' => $c->loc('NTLM call timing'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(stats.timers.*.ntlm_auth.time.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'NTLM authentication failures',
+                'description' => $c->loc('NTLM authentication failures'),
                 'vtitle' => 'failures/s',
                 'target' => [ 'aliasSub(stats.counters.*.ntlm_auth.failures.count,"^stats.counters.([^.]+).ntlm_auth.failures.count$", "\1 failures")',
                             _generate_timeout_group() ],
@@ -441,37 +441,37 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'drawNullAsZero' => 'true'
                },
                {
-                'description' => 'Portal Open Connections per server',
+                'description' => $c->loc('Portal Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache Webservices Open Connections per server',
+                'description' => $c->loc('Apache Webservices Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Average Access-Request Latency',
+                'description' => $c->loc('RADIUS Average Access-Request Latency'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
                },
                {
-                'description' => 'PF Database Threads',
+                'description' => $c->loc('PF Database Threads'),
                 'vtitle' => 'threads',
                 'target' => 'aliasByNode(*.mysql-pf.threads-*,2)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Accounting requests received/s',
+                'description' => $c->loc('RADIUS Accounting requests received/s'),
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Accounting Latency',
+                'description' => $c->loc('RADIUS Accounting Latency'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1

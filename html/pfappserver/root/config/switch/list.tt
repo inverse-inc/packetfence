@@ -24,7 +24,7 @@
                       <option value="ends_with" [% "selected='selected'" IF op_value == "ends_with" %]>[% l('ends with') %]</option>
                       <option value="like" [% "selected='selected'" IF op_value == "like" %]>[% l('matches') %]</option>
                     </select>
-                    <input name="searches.0.value" type="text" placeholder="String..." value="[%form.field('searches.0.value').value%]"/>
+                    <input name="searches.0.value" type="text" placeholder="[% l('String...') %]" value="[%form.field('searches.0.value').value%]"/>
                     <button type="submit" class="btn btn-primary"><i class="icon-search icon-white"></i></button>
                     <button type="reset" class="btn btn-primary">&times;</button>
                   </div>

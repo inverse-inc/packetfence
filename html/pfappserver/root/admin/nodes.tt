@@ -29,7 +29,7 @@
     <option value="ends_with">[% l('ends with') %]</option>
     <option value="like">[% l('matches') %]</option>
   </select>
-  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="String...">
+  <input name="searches.0.value"[% ' disabled="disabled"' IF disabled %] type="text" class="span6" placeholder="[% l('String...') %]">
   </div>
 [% END -%]
 [%  jsFiles = [
@@ -83,7 +83,7 @@ form {
         <option value="like">[% l('matches') %]</option>
       </select>
 
-      <input id="default_value" name="default_value" type="text" class="span6" placeholder="String...">
+      <input id="default_value" name="default_value" type="text" class="span6" placeholder="[% l('String...') %]">
 
       <select id="violation_status_op" name="" class="span2" >
         <option value="equal">[% l('is') %]</option>
@@ -128,17 +128,17 @@ form {
           [% roles_options | none %]
         </select>
 
-        <input id="[% role_field %]_value_starts_with_op" type="text" class="span6" placeholder="String...">
-        <input id="[% role_field %]_value_ends_with_op" type="text" class="span6" placeholder="String...">
-        <input id="[% role_field %]_value_like_op" type="text" class="span6" placeholder="String...">
+        <input id="[% role_field %]_value_starts_with_op" type="text" class="span6" placeholder="[% l('String...') %]">
+        <input id="[% role_field %]_value_ends_with_op" type="text" class="span6" placeholder="[% l('String...') %]">
+        <input id="[% role_field %]_value_like_op" type="text" class="span6" placeholder="[% l('String...') %]">
       [% END %]
 
-      <input id="switch_id_value" type="text" class="span6" data-provide="typeahead" placeholder="String...">
+      <input id="switch_id_value" type="text" class="span6" data-provide="typeahead" placeholder="[% l('String...') %]">
       [% FOREACH op IN ['equal', 'not_equal'] %]
-        <input id="switch_id_value_[% op %]_op" type="text" class="span6" data-provide="typeahead" placeholder="String...">
+        <input id="switch_id_value_[% op %]_op" type="text" class="span6" data-provide="typeahead" placeholder="[% l('String...') %]">
       [% END %]
       [% FOREACH op IN ['starts_with', 'ends_with', 'like'] %]
-        <input id="switch_id_value_[% op %]_op" type="text" class="span6" placeholder="String...">
+        <input id="switch_id_value_[% op %]_op" type="text" class="span6" placeholder="[% l('String...') %]">
       [% END %]
 
       <select id="online_op" name="online_op" class="span2" >
