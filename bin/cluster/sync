@@ -81,6 +81,7 @@ unless($master_server || $as_master){
 
 my @stores = @{pf::cluster::stores_to_sync()};
 my @files = @FILES_TO_SYNC;
+my @added_files;
 
 my $logger = get_logger();
 
@@ -91,6 +92,7 @@ if (-e '/usr/local/pf/conf/cluster-files.txt') {
     while (my $row = <$fh>) {
         chomp $row;
         push @files, $row;
+        push @added_files, $row;
     }
     close($fh);
 }
@@ -112,6 +114,7 @@ if($as_master){
     else {
         get_logger->info("Synching cluster with this node as the configuration master");
         pf::cluster::sync_config_as_master();
+        pf::cluster::sync_files(\@added_files);
         if($with_fingerbank_db) {
             pf::cluster::sync_files([$fingerbank::FilePath::UPSTREAM_DB_FILE]);
         }
