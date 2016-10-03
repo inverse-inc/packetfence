@@ -261,10 +261,12 @@ Mark fields as readonly when the user is allowed to deal with the role
 
 sub build_update_subfields {
     my ($self) = @_;
+    my $info = $self->SUPER::build_update_subfields();
     my $readonly = $self->readonly;
-    return {
-        all => { readonly => $readonly, disabled => $readonly },
+    $info->{all} = {
+        readonly => $readonly, disabled => $readonly,
     };
+    return $info;
 }
 
 =head2 _build_readonly
