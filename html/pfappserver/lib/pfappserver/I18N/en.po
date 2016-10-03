@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-09-30 10:02-0400\n"
+"PO-Revision-Date: 2016-10-03 11:38-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -503,6 +503,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
 msgid "After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page."
+msgstr ""
+
+# html/pfappserver/root/config/domain/index.tt
+msgid "After configuring your first domain, you will need to restart the radiusd service to activate domain authentication."
 msgstr ""
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons)
@@ -2456,6 +2460,10 @@ msgstr ""
 msgid "Floating Device"
 msgstr ""
 
+# html/pfappserver/root/config/floatingdevice/index.tt
+msgid "Floating Devices"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "For CoA request, if we have to send to another port"
 msgstr ""
@@ -3045,6 +3053,10 @@ msgstr ""
 msgid "Limit the number of login attempts. A value of 0 disables the limit."
 msgstr ""
 
+# html/pfappserver/root/config/portal_module/index.tt
+msgid "List View"
+msgstr ""
+
 # conf/documentation.conf (advanced.ldap_attributes)
 msgid "List of LDAP attributes that can be used in the sources configuration"
 msgstr ""
@@ -3323,6 +3335,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Maintenance"
+msgstr ""
+
+# html/pfappserver/root/config/domain/index.tt
+msgid "Make sure you configure IPv4 forwarding on your server before continuing. Refer to the PacketFence administration guide for details."
 msgstr ""
 
 # html/pfappserver/root/node/create.tt
@@ -5175,6 +5191,7 @@ msgstr ""
 msgid "Revert All Files"
 msgstr ""
 
+# html/pfappserver/root/config/filters/index.tt
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Revert Changes"
 msgstr ""
@@ -5417,6 +5434,7 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/config/adminroles/view.tt
 # html/pfappserver/root/config/billingtiers/view.tt
 # html/pfappserver/root/config/domain/view.tt
+# html/pfappserver/root/config/filters/index.tt
 # html/pfappserver/root/config/fingerbank/combination/view.tt
 # html/pfappserver/root/config/fingerbank/device/upstream/view.tt
 # html/pfappserver/root/config/fingerbank/device/view.tt
@@ -6699,6 +6717,10 @@ msgstr ""
 msgid "This activates preregistration on the portal profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this portal profile. Also, make sure the sources on the portal profile have \"Create local account\" enabled."
 msgstr ""
 
+# html/pfappserver/root/config/filters/index.tt
+msgid "This is an advanced section. Proceed with caution when editing."
+msgstr ""
+
 # conf/documentation.conf (guests_admin_registration.default_access_duration)
 msgid "This is the default access duration value selected in the dropdown. The value must be part of the above list of access duration choices."
 msgstr ""
@@ -6762,6 +6784,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Trapping"
+msgstr ""
+
+# html/pfappserver/root/config/portal_module/index.tt
+msgid "Tree View"
 msgstr ""
 
 # conf/documentation.conf (network.rogue_dhcp_detection)
