@@ -17,8 +17,12 @@ else
     FREERADIUS_BIN=radiusd
 fi
 
+# We delete the monit logging configuration if any since the config below replaces it with syslog
+rm -f /etc/monit.d/logging
 
 cat > /etc/monit.d/packetfence.monit << EOF
+set logfile syslog facility log_daemon
+
 set mailserver localhost
 set alert $ALERT_EMAIL
 # next line make sure we get notified every cycle for specific types of alerts (ie.: resource limit (drive space))
