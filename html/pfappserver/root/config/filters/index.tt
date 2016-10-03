@@ -1,5 +1,5 @@
 
-<h4 class=" [% l('alert alert-warning">This is an advanced section. Proceed with caution when editing.') %]</h4>
+<h4 class="alert alert-warning">[% l('This is an advanced section. Proceed with caution when editing.') %]</h4>
 
 <div class="tab-content">
   <ul class="nav nav-tabs">
