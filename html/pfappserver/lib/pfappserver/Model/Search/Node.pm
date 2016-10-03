@@ -374,7 +374,12 @@ sub add_order_by {
     my ($self, $builder, $params) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
     if ($by && $direction) {
-        $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
+        if ($by eq 'online') {
+            my $temp = $by;
+            $by = \$temp;
+        } else {
+            $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
+        }
         $builder->order_by($by, $direction);
     }
 }
