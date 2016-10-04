@@ -63,7 +63,6 @@ our %PROFILE_FILTER_TYPE_TO_CONDITION_TYPE = (
     'connection_sub_type' => {type => 'equals',        key  => 'last_connection_sub_type'},
     'time'                => {type => 'time'},
     'switch_group'        => {type => 'switch_group',  key  => 'last_switch'},
-    'advanced'            => {type => 'advanced'},
 );
 
 sub modules {
