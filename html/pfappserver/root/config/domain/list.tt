@@ -11,9 +11,9 @@
             <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
             <td>
               [% IF item.join_status == 0 %]
-              <span class="label label-success">[% l('Test join success!') %]</span>
+              <span class="label label-success">[% l('Test join succeed!') %]</span>
               [% ELSE %]
-              <span class="label label-important">[% l('Test join fail!') %] [% item.join_output %]</span>
+              <span class="label label-important">[% l('Test join failed!') %] [% item.join_output %]</span>
               [% END %]
             </td>
             <td>

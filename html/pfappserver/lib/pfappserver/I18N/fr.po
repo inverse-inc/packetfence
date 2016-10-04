@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 14:55+0000\n"
+"PO-Revision-Date: 2016-10-04 17:14+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -884,7 +884,7 @@ msgstr "Bande passante par classe de Système d’exploitation"
 
 # pf::firewallsso (Firewall SSO)
 msgid "BarracudaNG"
-msgstr "Pare-feu Barracuda NG"
+msgstr "Coupe-feu Barracuda NG"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Base DN"
@@ -1091,7 +1091,7 @@ msgstr "Cocher cette case pour que le certificat soit révoqué lorsqu’un nœu
 
 # pf::firewallsso (Firewall SSO)
 msgid "Checkpoint"
-msgstr "Pare-feu Check Point"
+msgstr "Coupe-feu Check Point"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/LDAP.pm
 msgid "Children"
@@ -1391,7 +1391,7 @@ msgid ""
 "Comma-delimited list of MAC addresses that are immune to isolation. In "
 "inline Level 2 enforcement, the firewall is opened for them as if they were "
 "registered. This <i>feature</i> will probably be reworked in the future."
-msgstr "Liste séparée par des virgules des adresses MAC pour lequel l’isolement ne s’applique pas. En inline de Niveau 2, le pare-feu est ouvert pour celle-ci. Cette <i>fonctionnalité</i> sera probablement retravaillée à l’avenir."
+msgstr "Liste séparée par des virgules des adresses MAC pour lequel l’isolement ne s’applique pas. En inline de Niveau 2, le coupe-feu est ouvert pour celle-ci. Cette <i>fonctionnalité</i> sera probablement retravaillée à l’avenir."
 
 # conf/documentation.conf (captive_portal.detection_mecanism_urls)
 msgid ""
@@ -1404,7 +1404,7 @@ msgid ""
 "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to"
 " web sites. The configuration parameter <i>passthrough</i> must be enabled "
 "for passthroughs to be effective."
-msgstr "Liste des domaines HTTP et HTTPS séparée par des virgules pour lesquels on autorise à  passer a travers le pare-feux. Les <i>passthrough</i> doivent être activés."
+msgstr "Liste des domaines HTTP et HTTPS séparée par des virgules pour lesquels on autorise à  passer a travers le coupe-feux. Les <i>passthrough</i> doivent être activés."
 
 # conf/documentation.conf (trapping.proxy_passthroughs)
 msgid ""
@@ -2045,7 +2045,7 @@ msgstr "Supprimer le filtre"
 
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Delete Firewall SSO"
-msgstr "Supprimer un pare-feu SSO"
+msgstr "Supprimer un coupe-feu SSO"
 
 # html/pfappserver/root/config/floatingdevice/index.tt
 msgid "Delete Floating Device"
@@ -2441,7 +2441,7 @@ msgid ""
 " will send a SSO on every DHCP request for every device. Enabling this "
 "enables \"sleep\" periods during which the update is not sent if the "
 "informations stay the same."
-msgstr "Activez cette option pour éviter les requêtes de mises à jour au pare-feu. <br/> Par défaut, PacketFence va envoyer une requête de SSO pour chaque requête DHCP. En activant ce paramètre cela va créer une période pour laquelle les mises à jour ne sont pas envoyées si les informations restent inchangées."
+msgstr "Activez cette option pour éviter les requêtes de mises à jour au coupe-feu. <br/> Par défaut, PacketFence va envoyer une requête de SSO pour chaque requête DHCP. En activant ce paramètre cela va créer une période pour laquelle les mises à jour ne sont pas envoyées si les informations restent inchangées."
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Enabled"
@@ -2601,23 +2601,23 @@ msgstr "Fingerbank - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "FIREWALL_SSO"
-msgstr "Pare-feux SSO"
+msgstr "Coupe-feux SSO"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_CREATE"
-msgstr "Pare-feux SSO - Créer"
+msgstr "Coupe-feux SSO - Créer"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_DELETE"
-msgstr "Pare-feux SSO - Supprimer"
+msgstr "Coupe-feux SSO - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_READ"
-msgstr "Pare-feux SSO - Lecture"
+msgstr "Coupe-feux SSO - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "FIREWALL_SSO_UPDATE"
-msgstr "Pare-feux SSO - Mise à jour"
+msgstr "Coupe-feux SSO - Mise à jour"
 
 # pf::admin_roles (Actions groups)
 msgid "FLOATING_DEVICES"
@@ -2694,12 +2694,12 @@ msgstr "Empreintes"
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "Firewall SSO"
-msgstr "Pare-feu SSO"
+msgstr "Coupe-feu SSO"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/root/config/firewall_sso/list.tt
 msgid "Firewall Type"
-msgstr "Type de pare-feu"
+msgstr "Type de coupe-feu"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -2732,7 +2732,7 @@ msgstr "Forcer l’utilisation du portail captif en HTTPS."
 
 # pf::firewallsso (Firewall SSO)
 msgid "FortiGate"
-msgstr "Pare-feu FortiGate"
+msgstr "Coupe-feu FortiGate"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Fully qualified device name"
@@ -2819,7 +2819,7 @@ msgid ""
 "Host the scanning engine is running on.  For performance reasons, we "
 "recommend running the scanning engine on a remote server. A passthrough will"
 " be automagically created."
-msgstr "Hôte où est exécuté le moteur d’analyse. Pour des raisons de performance, nous vous recommandons d’exécuter le moteur d’analyse sur un autre serveur. Une règle d’autorisation de pare-feu sera automatiquement créé."
+msgstr "Hôte où est exécuté le moteur d’analyse. Pour des raisons de performance, nous vous recommandons d’exécuter le moteur d’analyse sur un autre serveur. Une règle d’autorisation de coupe-feu sera automatiquement créé."
 
 # conf/documentation.conf (monitoring.graphite_host)
 msgid "Host to which graphite metrics are sent."
@@ -4001,7 +4001,7 @@ msgstr "Nouveau filtre"
 
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "New Firewall SSO"
-msgstr "Nouveau pare-feu SSO"
+msgstr "Nouveau coupe-feu SSO"
 
 # html/pfappserver/root/config/floatingdevice/view.tt
 msgid "New Floating Device"
@@ -4812,6 +4812,10 @@ msgid ""
 "Percentage of matching you want to alert the admin on a wirelessIPS trap."
 msgstr "Seuil de pourcentage pour avertir l’administrateur sur des intrusions sans-fil."
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Perform checkup"
+msgstr "Effectuer une vérification"
+
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Perform the following actions:"
 msgstr "Faire les actions suivantes:"
@@ -4832,6 +4836,10 @@ msgstr "Placez l’appareil dans le groupe de parking DHCP lorsque celui-ci est 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Plain text (no encryption)"
 msgstr "Texte brut (pas de chiffrement)"
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Please enter the password for the account :"
+msgstr "Veuillez rentrer un mot de passe pour ce compte :"
 
 # html/pfappserver/root/configurator/admin.tt
 msgid ""
@@ -4959,12 +4967,12 @@ msgstr "Veuillez spécifier la passerelle."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
 msgid "Please specify the hostname or IP of the Check point firewall"
-msgstr "Veuillez spécifier le nom d’hôte ou l’IP du pare-feu Check point"
+msgstr "Veuillez spécifier le nom d’hôte ou l’IP du coupe-feu Check point"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
-msgstr "Veuillez spécifier le nom d’hôte ou l’IP du pare-feu"
+msgstr "Veuillez spécifier le nom d’hôte ou l’IP du coupe-feu"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 msgid "Please specify the hostname or IP of the Iboss"
@@ -4973,7 +4981,7 @@ msgstr "Veuillez spécifier le nom d’hôte ou l’IP du fournisseur de certifi
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
 msgid "Please specify the hostname or IP of the firewall"
-msgstr "Veuillez spécifier le nom d’hôte ou l’IP pour le pare-feu"
+msgstr "Veuillez spécifier le nom d’hôte ou l’IP pour le coupe-feu"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
@@ -5411,7 +5419,7 @@ msgstr "Voulez-vous vraiment supprimer ce domaine ?"
 
 # html/pfappserver/root/config/firewall_sso/index.tt
 msgid "Really delete this Firewall SSO?"
-msgstr "Voulez-vous vraiment supprimer le pare-feu SSO ?"
+msgstr "Voulez-vous vraiment supprimer le coupe-feu SSO ?"
 
 # html/pfappserver/root/config/fingerbank/mac_vendor/index.tt
 msgid "Really delete this MAC Vendor?"
@@ -6894,6 +6902,14 @@ msgstr "Gabarit"
 # html/pfappserver/root/configurator/database.tt
 msgid "Test"
 msgstr "Tester"
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Test join failed!"
+msgstr "Test de jonction échoué !"
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Test join succeed!"
+msgstr "Test de jonction réussi !"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Text displayed on the violation form to hosts."

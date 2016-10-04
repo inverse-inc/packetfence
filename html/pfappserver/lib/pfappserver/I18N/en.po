@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 10:49-0400\n"
+"PO-Revision-Date: 2016-10-04 12:28-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -4473,6 +4473,10 @@ msgstr ""
 msgid "Percentage of matching you want to alert the admin on a wirelessIPS trap."
 msgstr ""
 
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Perform checkup"
+msgstr ""
+
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Perform the following actions:"
 msgstr ""
@@ -4491,6 +4495,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Plain text (no encryption)"
+msgstr ""
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Please enter the password for the account :"
 msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
@@ -6441,6 +6449,14 @@ msgstr ""
 # html/pfappserver/root/authentication/source/type/LDAP.tt
 # html/pfappserver/root/configurator/database.tt
 msgid "Test"
+msgstr ""
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Test join failed!"
+msgstr ""
+
+# html/pfappserver/root/config/domain/list.tt
+msgid "Test join succeed!"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
