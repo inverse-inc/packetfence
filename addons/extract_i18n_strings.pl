@@ -231,6 +231,13 @@ sub parse_forms {
                 $string =~ s/\\'/'/g;
                 add_string($string, $form);
             }
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
+                add_string($string, $form);
+            }
+
         }
         close(PM);
     }

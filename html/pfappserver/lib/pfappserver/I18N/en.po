@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 12:28-0400\n"
+"PO-Revision-Date: 2016-10-04 15:13-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -273,6 +273,7 @@ msgstr ""
 msgid "Active Directory server"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Widget/Field/FingerbankSelect.pm
 # html/pfappserver/root/violation/view.tt
 msgid "Add"
 msgstr ""
@@ -8523,6 +8524,10 @@ msgstr "First Located Time"
 
 # html/pfappserver/root/admin/users.tt
 msgid "firstname"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Widget/Field/FingerbankSelect.pm
+msgid "from Fingerbank"
 msgstr ""
 
 # html/pfappserver/root/admin/users.tt

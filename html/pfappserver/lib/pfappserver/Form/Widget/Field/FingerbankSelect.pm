@@ -32,7 +32,8 @@ sub render_element {
     $select .= '<div style="padding-bottom:5px;">'.
         '<input data-type-ahead-for="'.$self->fingerbank_model.'" data-add-to="'.$self->id.'"'.
         ' class="fingerbank-type-ahead" name="fingerbank-add-'.$self->id.'" data-provide="typeahead"'.
-        ' id="fingerbank-add-'.$self->id.'" data-btn="#btn-fingerbank-add-'.$self->id.'" placeholder="Add '.$self->label.' from Fingerbank" value="" type="text">'.
+        ' id="fingerbank-add-'.$self->id.'" data-btn="#btn-fingerbank-add-'.$self->id.'" placeholder="'.$self->_localize('Add').' '.
+        $self->label.' '.$self->_localize('from Fingerbank').'" value="" type="text">'.
         '<a href="#" class="btn btn-primary" style="margin-left:3px;" id="btn-fingerbank-add-'.$self->id.'"'.$self->id.'><i class="icon-plus icon-white"></i></a>'.
         '</div>';
     $select .= HTML::FormHandler::Widget::Field::Select::render_element($self,$result);
