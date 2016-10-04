@@ -10561,3 +10561,15 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+# html/pfappserver/root/node/search.tt
+msgid "unknown"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "on"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "off'
+msgstr ""
+
