@@ -10570,6 +10570,6 @@ msgid "on"
 msgstr ""
 
 # html/pfappserver/root/node/search.tt
-msgid "off'
+msgid "off"
 msgstr ""
 
