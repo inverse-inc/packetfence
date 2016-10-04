@@ -15,12 +15,13 @@ Assumptions
 -----------
 * You have a configured PacketFence environment with working test equipment;
 * You have, or will create, an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/.
+* You are aware of the licensing options available at https://www.metadefender.com/licensing
 
 Quick installation
 ------------------
 Step 1: Configure OPSWAT Metadefender Endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You will first need to create an OPSWAT Metadefender Endpoint account athttps://www.opswat.com/products/metadefender/endpoint/management/ and configure your account according to OPSWAT's documentation.
+You will first need to create an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/ and configure your account according to OPSWAT's documentation.
 
 Step 2: Developer account
 ~~~~~~~~~~~~~~~~~~~~~~~~~
