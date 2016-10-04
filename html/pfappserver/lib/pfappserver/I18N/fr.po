@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-03 16:51+0000\n"
+"PO-Revision-Date: 2016-10-04 12:29+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -403,6 +403,10 @@ msgstr "Ajouter un filtre."
 msgid "Add a language."
 msgstr "Ajouter une langue."
 
+# html/pfappserver/root/config/switch/view.tt
+msgid "Add a member"
+msgstr "Ajouter un membre"
+
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a provisioner."
 msgstr "Ajouter un approvisionneur."
@@ -672,6 +676,18 @@ msgid ""
 "pfqueue service."
 msgstr "Le moindre changement requiert un redémarrage des services pfdetect et pfqueue."
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache AAA Open Connections per server"
+msgstr "Connections ouvertes par serveur (Apache AAA)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache AAA call timing"
+msgstr "Temps d’exécution (Apache AAA)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache Webservices Open Connections per server"
+msgstr "Connections ouvertes par serveur (Apache Webservices)"
+
 # html/pfappserver/root/config/filters/index.tt
 msgid "Apache filters"
 msgstr "Filtres Apache"
@@ -817,6 +833,10 @@ msgstr "Activation Automatique"
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Automatically register devices"
 msgstr "Enregistrer automatiquement les appareils"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Available Memory"
+msgstr "Mémoire disponible"
 
 # html/pfappserver/root/config/profile/edit.tt
 msgid "Available Variables"
@@ -2321,7 +2341,7 @@ msgid ""
 "Enable all the physical interfaces you want to use for PacketFence. If you "
 "use VLAN enforcement, specify which VLAN is dedicated to your registration, "
 "isolation, and management subnets."
-msgstr "Activez toutes les interfaces réseaux physique que vous voulez utiliser pour PacketFence. Si vous utilisez le type mécanisme d’authentification par VLAN alors spécifiez quel VLAN est dédié a l’enregistrement, l’isolation et à l’interface de management."
+msgstr "Activez toutes les interfaces réseaux physique que vous voulez utiliser pour PacketFence. Si vous utilisez le type d’authentification par VLAN alors spécifiez quel VLAN est dédié à l’enregistrement, l’isolation et à l’interface de management."
 
 # conf/documentation.conf (captive_portal.httpd_mod_evasive)
 msgid "Enable mod_evasive for the captive-portal"
@@ -3767,6 +3787,14 @@ msgstr "Noeuds - Lecture"
 msgid "NODES_UPDATE"
 msgstr "Noeuds - Mise à jour"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "NTLM authentication failures"
+msgstr "Échecs d’authentification NTLM "
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "NTLM call timing"
+msgstr "Temps d’exécution (NTLM)"
+
 # html/pfappserver/root/configurator/configuration.tt
 msgid "NTLM hashing"
 msgstr "Hachage NTLM"
@@ -4414,6 +4442,10 @@ msgstr "Propriétaire"
 msgid "PEAP"
 msgstr "PEAP"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "PF Database Threads"
+msgstr "Unités d'exécution (Base de donnée PacketFence)"
+
 # pf::admin_roles (Actions groups)
 msgid "PFDETECT"
 msgstr "Parser Syslog"
@@ -5008,6 +5040,10 @@ msgstr "Port(s) d’écoute du proxy"
 msgid "Portal Modules"
 msgstr "Modules du portail"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Portal Open Connections per server"
+msgstr "Connections ouvertes par serveur (Apache Portail)"
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Portal Profiles"
 msgstr "Profils de portail"
@@ -5173,15 +5209,43 @@ msgstr "Nombre d’éléments dans la queue"
 msgid "RADIUS"
 msgstr "RADIUS"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Accepts/s per server"
+msgstr "Access-Accepts/s par serveur (RADIUS)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Rejects/s per server"
+msgstr "Access-Rejects/s par serveur (RADIUS)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Requests/s per server"
+msgstr "Access-Requests/s par serveur (RADIUS)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Accounting Latency"
+msgstr "Latence d’Accounting (RADIUS)"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Accounting requests received/s"
+msgstr "Accounting-Requests/s par serveur (RADIUS)"
+
 # html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/auditing_option82.tt
 # html/pfappserver/root/admin/auditing_radius_log.tt
 msgid "RADIUS Audit Log"
 msgstr "Message d’Audit Radius"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Average Access-Request Latency"
+msgstr "Latence moyenne d’Access-Request (RADIUS)"
+
 # html/pfappserver/root/admin/auditing.tt
 msgid "RADIUS Log"
 msgstr "Journaux RADIUS"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Total Access-Requests/s"
+msgstr "Total d’Access-Requests/s (RADIUS)"
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "RADIUS filters"
@@ -5426,6 +5490,10 @@ msgstr "Plage horaire d’enregistrement"
 # html/pfappserver/lib/pfappserver/Model/User.pm
 msgid "Registration must happen before [_1]."
 msgstr "L’enregistrement doit être effectué avant  [_1]."
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Registrations/min"
+msgstr "Enregistrements/min"
 
 # html/pfappserver/root/config/domain/list.tt
 msgid "Rejoin"
@@ -5966,6 +6034,7 @@ msgstr "Score"
 msgid "Search"
 msgstr "Recherche"
 
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/listing.inc
 msgid "Search..."
 msgstr "Recherche..."
@@ -6020,6 +6089,10 @@ msgstr "Point-virgule"
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Server"
 msgstr "Serveur"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Server Load"
+msgstr "Charge moyenne du serveur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -6548,6 +6621,18 @@ msgstr "Arrêter quand même"
 # html/pfappserver/root/service/status.tt
 msgid "Stopped"
 msgstr "Arreté"
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/fingerbank/search.tt
+# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
+msgid "String..."
+msgstr "Chaîne..."
 
 # html/pfappserver/root/config/wrix/search_form.tt
 msgid "Sub Location Type"
@@ -8200,7 +8285,7 @@ msgstr "Vous allez maintenant être redirigé vers l’interface d’administrat
 
 # html/pfappserver/root/configurator/networks.tt
 msgid "Your gateway IP address to access Internet."
-msgstr "Votre adresse IP de la passerelle pour accéder à Internet."
+msgstr "Adresse IP de la passerelle pour accéder à Internet."
 
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
 msgid ""

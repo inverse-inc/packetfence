@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-03 11:38-0400\n"
+"PO-Revision-Date: 2016-10-04 08:09-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -376,6 +376,10 @@ msgstr ""
 msgid "Add a language."
 msgstr ""
 
+# html/pfappserver/root/config/switch/view.tt
+msgid "Add a member"
+msgstr ""
+
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Add a provisioner."
 msgstr ""
@@ -620,6 +624,18 @@ msgstr ""
 msgid "Any change to the syslog parsers requires a restart of the pfdetect and pfqueue service."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache AAA Open Connections per server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache AAA call timing"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Apache Webservices Open Connections per server"
+msgstr ""
+
 # html/pfappserver/root/config/filters/index.tt
 msgid "Apache filters"
 msgstr ""
@@ -761,6 +777,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Automatically register devices"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Available Memory"
 msgstr ""
 
 # html/pfappserver/root/config/profile/edit.tt
@@ -3459,6 +3479,14 @@ msgstr "Nodes - Read"
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "NTLM authentication failures"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "NTLM call timing"
+msgstr ""
+
 # html/pfappserver/root/configurator/configuration.tt
 msgid "NTLM hashing"
 msgstr ""
@@ -4085,6 +4113,10 @@ msgstr ""
 msgid "PEAP"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "PF Database Threads"
+msgstr ""
+
 # pf::admin_roles (Actions groups)
 msgid "PFDETECT"
 msgstr "Syslog Parsers"
@@ -4666,6 +4698,10 @@ msgstr ""
 msgid "Portal Modules"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Portal Open Connections per server"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Portal Profiles"
 msgstr ""
@@ -4819,15 +4855,43 @@ msgstr ""
 msgid "RADIUS"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Accepts/s per server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Rejects/s per server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Access-Requests/s per server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Accounting Latency"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Accounting requests received/s"
+msgstr ""
+
 # html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/admin/auditing_option82.tt
 # html/pfappserver/root/admin/auditing_radius_log.tt
 msgid "RADIUS Audit Log"
 msgstr "RADIUS Audit Log"
 
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Average Access-Request Latency"
+msgstr ""
+
 # html/pfappserver/root/admin/auditing.tt
 msgid "RADIUS Log"
 msgstr "RADIUS Log"
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "RADIUS Total Access-Requests/s"
+msgstr ""
 
 # html/pfappserver/root/config/filters/index.tt
 msgid "RADIUS filters"
@@ -5065,6 +5129,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
 msgid "Registration must happen before [_1]."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Registrations/min"
 msgstr ""
 
 # html/pfappserver/root/config/domain/list.tt
@@ -5600,6 +5668,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/config/listing.inc
 msgid "Search..."
 msgstr ""
@@ -5653,6 +5722,10 @@ msgstr ""
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
+msgid "Server Load"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
@@ -6110,6 +6183,18 @@ msgstr ""
 # html/pfappserver/root/service/cluster_status.tt
 # html/pfappserver/root/service/status.tt
 msgid "Stopped"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/fingerbank/search.tt
+# html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/dhcpoption82/index.tt
+# html/pfappserver/root/dynamicreport/index.tt
+msgid "String..."
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
