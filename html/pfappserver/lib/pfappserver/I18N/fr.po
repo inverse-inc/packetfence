@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 19:17+0000\n"
+"PO-Revision-Date: 2016-10-04 20:03+0000\n"
 "Last-Translator: oeufdure <fdurand@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -24,9 +24,13 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+# html/pfappserver/root/user/list.tt
+msgid "# nodes"
+msgstr "# appareils"
+
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Node.pm
 msgid "%1 nodes imported, %2 skipped"
-msgstr "%1 noeuds importés, %2 rejetés"
+msgstr "%1 appareils importés, %2 rejetés"
 
 # html/pfappserver/lib/pfappserver/Model/User.pm
 msgid "%1: Guest Network Access Information"
@@ -913,6 +917,7 @@ msgid "Billing Tier"
 msgstr "Plan de facturation"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/billingtiers/index.tt
 # html/pfappserver/root/config/billingtiers/list.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Billing Tiers"
@@ -945,12 +950,14 @@ msgstr "Par défaut est ce un nœud importé de VOIX sur IP ou pas ?"
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Bypass Role"
 msgstr "Rôle de contournement"
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Bypass VLAN"
 msgstr "VLAN de contournement"
 
@@ -1281,7 +1288,7 @@ msgstr "Fermer"
 
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop)
 msgid "Close the locationlog for a node on accounting stop"
-msgstr "Fermez l’entré de locationlog pour un noeud sur l’arrêt de la comptabilisation"
+msgstr "Fermez l’entré de locationlog pour un appareil sur l’arrêt de la comptabilisation"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Closed"
@@ -1458,6 +1465,7 @@ msgid "Compliance"
 msgstr "Conformité"
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "Computer Name"
 msgstr "Nom de l’ordinateur"
@@ -1593,7 +1601,7 @@ msgstr "Créer un nouveau fichier"
 
 # html/pfappserver/root/node/create.tt
 msgid "Create Nodes"
-msgstr "Créer des noeuds"
+msgstr "Créer des appareils"
 
 # html/pfappserver/root/user/create.tt
 msgid "Create Users"
@@ -1659,7 +1667,7 @@ msgstr "Création"
 
 # html/pfappserver/root/node/create.tt
 msgid "Creating Nodes .."
-msgstr "Creation des noeuds .."
+msgstr "Création d’appareils .."
 
 # html/pfappserver/root/user/create.tt
 msgid "Creating Users .."
@@ -2156,6 +2164,7 @@ msgstr "Décrit le type de l’interface nommée. <ul> <li>Interne<i> </i> décr
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
@@ -2175,6 +2184,11 @@ msgid ""
 "will use the Redirection URL from the portal profile configuration."
 msgstr "URL de destination sur laquelle l’appareil va être redirigé. Par défaut l’URL  de redirection du profil de portail sera utilisée."
 
+# html/pfappserver/root/auditing/radiuslog/search.tt
+# html/pfappserver/root/dhcpoption82/search.tt
+msgid "Details"
+msgstr "Détails"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Detect VoIP with a SNMP request in the CDP MIB"
 msgstr "Détecter la VoIP avec une requête SNMP dans la MIB CDP"
@@ -2190,6 +2204,10 @@ msgstr "Détecter la VoIP avec l’empreinte DHCP (Fingerprint)"
 # html/pfappserver/root/admin/nodes.tt
 msgid "Detected Between:"
 msgstr "Détecté entre:"
+
+# html/pfappserver/root/node/search.tt
+msgid "Detected Date"
+msgstr "Date de détection"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
 # html/pfappserver/root/config/pfdetect/list.tt
@@ -2248,6 +2266,7 @@ msgstr "Afficher %1 entrés par page"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+# html/pfappserver/root/config/domain/index.tt
 # html/pfappserver/root/config/domain/list.tt
 # html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -2347,6 +2366,7 @@ msgstr "Editer le commutateur"
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Email"
 msgstr "Courriel"
 
@@ -2652,8 +2672,10 @@ msgstr "Nom du fichier"
 msgid "File Path"
 msgstr "Emplacement du fichier"
 
+# html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Files"
 msgstr "Fichiers"
 
@@ -2689,10 +2711,15 @@ msgid "Fingerbank on-boarding"
 msgstr "Configuration Fingerbank"
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "Fingerprint"
+msgstr "Empreinte"
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Fingerprints"
 msgstr "Empreintes"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "Firewall SSO"
 msgstr "Coupe-feu SSO"
@@ -2706,6 +2733,7 @@ msgstr "Type de coupe-feu"
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Firstname"
 msgstr "Prénom"
 
@@ -2908,7 +2936,7 @@ msgstr "Combien de temps garder une entrée de locationlog avant de la supprimer
 
 # conf/documentation.conf (maintenance.node_cleanup_window)
 msgid "How long to keep a node entry before deleting it"
-msgstr "Combien de temps garder un noeud avant de la supprimer"
+msgstr "Combien de temps garder un appareil avant de la supprimer"
 
 # conf/documentation.conf (maintenance.radius_audit_log_cleanup_window)
 msgid "How long to keep a radius audit log entry before deleting it"
@@ -2964,6 +2992,8 @@ msgstr "Combien de violations pfmon traite"
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 msgid "ID"
 msgstr "ID"
 
@@ -3005,6 +3035,7 @@ msgstr "IP"
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/interface/list.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
 msgstr "Adresse IP"
@@ -3115,7 +3146,7 @@ msgid ""
 "not changed to automatically log the X-Forwarded-By header. Modify "
 "conf/httpd.conf.d/captive-portal-common.conf to use load balanced combined "
 "instead of combined in CustomLog statement."
-msgstr "Si le portail captif est derrière un équilibreur de charge qui agit au niveau 7 (niveau HTTP) comme proxy inverse alors le portail captif ne pourra pas identifier les noeuds qui s’y connecte. Dans ce cas là, les équilibreurs de charge doivent terminer la connexion SSL, ajouter une entête X-Forwarded-By  et renvoyer le trafic HTTP vers PacketFence. La plupart le font par défaut. Dans ce paramètre, vous devez spécifier l’adresse IP des différents répartiteurs de charge. Ce changement indique au portail captif  de prendre les IP des clients dans l’entête X-Forwarded-For au lieu de les prendre l’adresse IP source de la connexion courante. Les adresses IP doivent être séparées par des virgules. Remarque: le log de Apache n’est pas adapté pour tracer l’entête X-Forwarded-For. Modifier le fichier conf/httpd.conf.d/captive-portal-common.conf pour utiliser la variable loadbalanced_combined à la place de combined dans la partie CustomLog."
+msgstr "Si le portail captif est derrière un équilibreur de charge qui agit au niveau 7 (niveau HTTP) comme proxy inverse alors le portail captif ne pourra pas identifier les appareils qui s’y connecte. Dans ce cas là, les équilibreurs de charge doivent terminer la connexion SSL, ajouter une entête X-Forwarded-By  et renvoyer le trafic HTTP vers PacketFence. La plupart le font par défaut. Dans ce paramètre, vous devez spécifier l’adresse IP des différents répartiteurs de charge. Ce changement indique au portail captif de prendre les IP des clients dans l’entête X-Forwarded-For au lieu de les prendre l’adresse IP source de la connexion courante. Les adresses IP doivent être séparées par des virgules. Remarque: le log de Apache n’est pas adapté pour tracer l’entête X-Forwarded-For. Modifier le fichier conf/httpd.conf.d/captive-portal-common.conf pour utiliser la variable loadbalanced_combined à la place de combined dans la partie CustomLog."
 
 # conf/documentation.conf (scan.registration)
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -3255,11 +3286,11 @@ msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de
 
 # conf/documentation.conf (maintenance.node_cleanup_interval)
 msgid "Interval at which PacketFence runs node cleanup"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de néttoyage des noeuds"
+msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance de néttoyage des appareils"
 
 # conf/documentation.conf (maintenance.nodes_maintenance_interval)
 msgid "Interval at which PacketFence runs nodes maintenance"
-msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance des noeuds"
+msgstr "Intervalle de temps pour laquelle PacketFence exécute la maintenance des appareils"
 
 # conf/documentation.conf (maintenance.person_cleanup_interval)
 msgid "Interval at which PacketFence runs person cleanup"
@@ -3360,6 +3391,7 @@ msgstr "6 dernières heures"
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Lastname"
 msgstr "Nom de famille"
 
@@ -3439,6 +3471,17 @@ msgid ""
 "List of roles available to the admin user to assign to a user. If none are "
 "provided then all roles are available"
 msgstr "Liste des rôles assignables à un utilisateur disponibles pour l’utilisateur admin. Si aucun n’est fourni, alors tous les rôles sont disponibles."
+
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Local"
+msgstr "Locale"
 
 # html/pfappserver/root/configurator/configuration.tt
 msgid "Local Database Passwords"
@@ -3650,6 +3693,7 @@ msgstr "MAC"
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/node/search.tt
 msgid "MAC Address"
 msgstr "Adresse MAC"
 
@@ -3726,11 +3770,12 @@ msgstr "Vérifier que vous avez activé le routage (ip forwarding) sur votre ser
 
 # html/pfappserver/root/node/create.tt
 msgid "Manually add nodes to the system."
-msgstr "Ajouter manuellement les noeuds dans le système."
+msgstr "Ajouter manuellement les appareils dans le système."
 
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
 msgid "Match %1 of the following conditions:"
@@ -3747,7 +3792,7 @@ msgstr "Durée maximum du bail"
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/root/roles/index.tt
 msgid "Max nodes per user"
-msgstr "Noeuds maximum par utilisateur"
+msgstr "Appareils maximum par utilisateur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Maximum MAC addresses"
@@ -3832,23 +3877,23 @@ msgstr "Nom du NAC"
 
 # pf::admin_roles (Actions groups)
 msgid "NODES"
-msgstr "Noeuds"
+msgstr "Appareils"
 
 # pf::admin_roles (Actions)
 msgid "NODES_CREATE"
-msgstr "Noeuds - Créer"
+msgstr "Appareils - Créer"
 
 # pf::admin_roles (Actions)
 msgid "NODES_DELETE"
-msgstr "Noeuds - Supprimer"
+msgstr "Appareils - Supprimer"
 
 # pf::admin_roles (Actions)
 msgid "NODES_READ"
-msgstr "Noeuds - Lecture"
+msgstr "Appareils - Lecture"
 
 # pf::admin_roles (Actions)
 msgid "NODES_UPDATE"
-msgstr "Noeuds - Mise à jour"
+msgstr "Appareils - Mise à jour"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "NTLM authentication failures"
@@ -3904,7 +3949,7 @@ msgstr "Nom de la politique sur le serveur Nessus."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 msgid "Name of the scanner to use on the nessus server"
-msgstr "Nom de ’analyseur à utiliser sur le serveur Nessus"
+msgstr "Nom de l’analyseur à utiliser sur le serveur Nessus"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "Namespace"
@@ -4049,6 +4094,10 @@ msgstr "Nouvelle règle"
 msgid "New Scan Engine"
 msgstr "Nouveau moteur d’analyse"
 
+# html/pfappserver/root/authentication/source/read.tt
+msgid "New Source"
+msgstr "Nouvelle source"
+
 # html/pfappserver/root/config/pfdetect/view.tt
 msgid "New Syslog parser"
 msgstr "Nouveau parseur Syslog"
@@ -4123,7 +4172,7 @@ msgstr "Adresses MAC non-existante"
 
 # html/pfappserver/root/node/search.tt
 msgid "No node found"
-msgstr "Noeud non trouvé"
+msgstr "Appareil non trouvé"
 
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "No provisioner specified."
@@ -4175,39 +4224,39 @@ msgstr "Aucune violation trouvée"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node IP"
-msgstr "IP du noeud"
+msgstr "IP du l’appareils"
 
 # html/pfappserver/root/auditing/radiuslog/view.tt
 msgid "Node Information"
-msgstr "Information du noeud"
+msgstr "Information de l’appareil"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node MAC"
-msgstr "Adresse MAC du noeud"
+msgstr "Adresse MAC de l’appareil"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Node MSE Tab"
-msgstr "Onglet MSE du noeud"
+msgstr "Onglet MSE de l’appareil"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Node Role"
-msgstr "Role du noeud"
+msgstr "Rôle de l’appareil"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Nodes"
-msgstr "Noeuds"
+msgstr "Appareils"
 
 # html/pfappserver/root/admin/reports.tt
 msgid "Nodes States"
-msgstr "Etats des noeuds"
+msgstr "Etats des appareils"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Nodes with the selected OS will be affected"
-msgstr "Les noeuds avec ces OS seront affectés"
+msgstr "Les appareils avec ces OS seront affectés"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
@@ -4218,12 +4267,12 @@ msgstr "Les noeuds avec ces OS seront affectés"
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "Nodes with the selected roles will be affected"
-msgstr "Rôles des noeuds sur lesquels cela va s’appliquer. "
+msgstr "Rôles des appareils sur lesquels cela va s’appliquer. "
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
 "Nodes with the selected roles won't be affected by a violation of this type."
-msgstr "Rôles de noeuds sur lesquels ce type de violation ne va pas s’appliquer."
+msgstr "Rôles des appareils sur lesquels ce type de violation ne va pas s’appliquer."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 msgid "Non compliance violation"
@@ -4260,6 +4309,7 @@ msgstr "Notez que cette action est optionnelle et peut être outrepassée."
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Notes"
 msgstr "Notes"
 
@@ -4301,11 +4351,21 @@ msgid "OS"
 msgstr "OS"
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "OS (DHCP)"
 msgstr "OS (DHCP)"
 
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "OS Class"
+msgstr "Class d'OS"
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "OS Class ID"
+msgstr "ID de la classe d'OS"
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "OUI"
 msgstr "OUI"
 
@@ -4315,7 +4375,7 @@ msgstr "Horsligne"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Offline Nodes"
-msgstr "Noeud horsligne"
+msgstr "Appareils hors ligne"
 
 # html/pfappserver/lib/pfappserver/Form/Config/WMI.pm
 msgid "On Node tab"
@@ -4360,11 +4420,15 @@ msgstr "En ligne entre le:"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Online Nodes"
-msgstr "Noeuds en ligne"
+msgstr "Appareils en ligne"
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Online Status"
 msgstr "Status en ligne"
+
+# html/pfappserver/root/node/search.tt
+msgid "Online/Offline"
+msgstr "En ligne/Hors ligne"
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid ""
@@ -4425,6 +4489,10 @@ msgstr "Ouvert le Mardi"
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Wednesday"
 msgstr "Ouvert le Mercredi"
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "Operating System"
+msgstr "Système d'exploitation"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
@@ -4507,6 +4575,7 @@ msgstr "Écraser l’utilisateur (PID) si celui-ci existe déjà."
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/node/search.tt
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -5131,6 +5200,7 @@ msgstr "Profils de portail"
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Portal Profiles and Pages"
 msgstr "Profil des portails et des pages."
@@ -5241,6 +5311,10 @@ msgstr "Nom du profil"
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Profile used for the generation of certificate"
 msgstr "Le profil utilisé pour la génération de certificats"
+
+# html/pfappserver/root/config/useragents/simple_search.tt
+msgid "Property"
+msgstr "Propriété"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Protocol"
@@ -5512,6 +5586,7 @@ msgstr "Vraiment ?"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+# html/pfappserver/root/config/realm/index.tt
 # html/pfappserver/root/config/realm/list.tt
 # html/pfappserver/root/config/realm/view.tt
 msgid "Realm"
@@ -5562,6 +5637,10 @@ msgstr "Nœuds enregistrés"
 # html/pfappserver/root/admin/configuration.tt
 msgid "Registration"
 msgstr "Enregistrement"
+
+# html/pfappserver/root/node/search.tt
+msgid "Registration Date"
+msgstr "Date d'enregistrement"
 
 # html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
@@ -5721,6 +5800,7 @@ msgstr "Révoquer sur désenregistrement"
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/roles/read.tt
 msgid "Role"
 msgstr "Rôle"
@@ -5773,6 +5853,7 @@ msgstr "Traduction de rôle par rôle de commutateur"
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/roles/index.tt
 msgid "Roles"
 msgstr "Rôles"
 
@@ -5879,6 +5960,7 @@ msgstr "Filtres SoH - Mise à jours"
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/wrix/view.tt
+# html/pfappserver/root/node/search.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
 msgstr "SSID"
@@ -6055,6 +6137,7 @@ msgstr "Enregistrement du fichier"
 msgid "Saving profile "
 msgstr "Enregistrement du profil"
 
+# html/pfappserver/root/config/scan/index.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/scan/view.tt
 msgid "Scan Engine"
@@ -6305,7 +6388,7 @@ msgstr "Haproxy devrait être démarré ? Laissez activé sauf si vous savez ce 
 
 # conf/documentation.conf (inline.should_reauth_on_vlan_change)
 msgid "Should have to reauthenticate the node if vlan change"
-msgstr "Est-ce que l’on doit réauthentifier un noeud si il y a changement de VLAN ? (Plusieurs VLAN Inline)"
+msgstr "Est-ce que l’on doit réauthentifier un appareil si il y a changement de VLAN ? (Plusieurs VLAN Inline)"
 
 # conf/documentation.conf (services.httpd_aaa)
 msgid ""
@@ -6667,6 +6750,7 @@ msgid "State for the certificate"
 msgstr "État du certificat"
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/soh/index.tt
 msgid "Statement of Health"
 msgstr "Déclaration d’intégrité (SoH)"
 
@@ -6674,6 +6758,7 @@ msgstr "Déclaration d’intégrité (SoH)"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/nodes.tt
 # html/pfappserver/root/user/violations.tt
@@ -6792,17 +6877,37 @@ msgstr "Groupes de commutateur"
 msgid "Switch ID"
 msgstr "ID du commutateur"
 
+# html/pfappserver/root/node/search.tt
+msgid "Switch IP Address"
+msgstr "Adresse IP du commutateur"
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch Identifier"
+msgstr "Identifiant du commutateur"
+
 # html/pfappserver/root/auditing/radiuslog/view.tt
 msgid "Switch Information"
 msgstr "Informations du commutateur"
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch MAC Address"
+msgstr "Adresse MAC du commutateur"
 
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "Switch Mac"
 msgstr "MAC du commutateur"
 
+# html/pfappserver/root/node/search.tt
+msgid "Switch Port"
+msgstr "Port du commutateur"
+
 # html/pfappserver/root/config/switch/list.tt
 msgid "Switch Type"
 msgstr "Type de commutateur"
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch description"
+msgstr "Description du commutateur"
 
 # html/pfappserver/root/node/tab_Location_view.tt
 # html/pfappserver/root/node/view.tt
@@ -6889,6 +6994,7 @@ msgid "Task type"
 msgstr "Type de tâche"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/root/user/list.tt
 msgid "Telephone"
 msgstr "Téléphone"
 
@@ -6993,7 +7099,7 @@ msgstr "La clé WiFi pour se connecter au SSID"
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The access duration of the devices that use this tier."
-msgstr "Durée d’accès du noeud utilisant ce plan"
+msgstr "Durée d’accès de l’appareil utilisant ce plan"
 
 # conf/documentation.conf (advanced.hash_passwords)
 msgid ""
@@ -7279,7 +7385,7 @@ msgstr "La source à utiliser pour l’autorisation (règle correspondante) "
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 msgid "The target role of the devices that use this tier."
-msgstr "Le rôle à attribuer pour les noeud qui utilise ce plan"
+msgstr "Le rôle à attribuer pour les appareils qui utilisent ce plan"
 
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/Authentication.pm
 msgid "The template to use for the AUP"
@@ -7734,6 +7840,7 @@ msgid "Unregistration"
 msgstr "Désenregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/node/search.tt
 msgid "Unregistration Date"
 msgstr "Date de désenregistrement"
 
@@ -7768,6 +7875,17 @@ msgstr "Upload"
 # html/pfappserver/root/config/profile/files.tt
 msgid "Upload failed"
 msgstr "L’envoi a échoué"
+
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Upstream"
+msgstr "En amont"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Use CoA"
@@ -7873,6 +7991,7 @@ msgstr "User_Agent"
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/node/tab_Location_view.tt
+# html/pfappserver/root/user/list.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
@@ -7919,6 +8038,10 @@ msgstr "Nom d’utilisateur pour se connecter au moteur d’analyse."
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
 msgstr "Utilisateurs"
+
+# html/pfappserver/root/config/authentication.tt
+msgid "Users Sources"
+msgstr "Sources Utilisateurs"
 
 # conf/documentation.conf (maintenance.person_cleanup)
 msgid ""
@@ -7976,6 +8099,7 @@ msgid "Value"
 msgstr "Valeur"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "Vendor"
 msgstr "Vendor"
 
@@ -8012,6 +8136,7 @@ msgstr "Violation à fermer"
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/list.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
 msgstr "Violations"
@@ -8030,6 +8155,7 @@ msgstr "Accédez à l’interface d’administration maintenant !"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "VoIP"
 msgstr "VoIP"
 
@@ -8071,6 +8197,7 @@ msgstr "Règles WMI"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/scan/type/wmi.tt
+# html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wmi/list.tt
 msgid "WMI Rules"
 msgstr "Règles WMI"
@@ -8585,6 +8712,7 @@ msgstr "Adresse MAC du point d’accès."
 msgid "apartment_number"
 msgstr "Numéro d’appartement"
 
+# html/pfappserver/root/auditing/radiuslog/search.tt
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auth_status"
 msgstr "État d’authentification"
@@ -9275,7 +9403,7 @@ msgstr "Redirection de ports"
 
 # conf/documentation.conf
 msgid "inline.should_reauth_on_vlan_change"
-msgstr "Réauthentifier le noeud"
+msgstr "Réauthentifier l’appareil"
 
 # conf/documentation.conf (interface.enforcement options)
 msgid "inlinel2"
@@ -9513,19 +9641,19 @@ msgstr "Plage horaire de nettoyage du Locationlog"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_interval"
-msgstr "Intervalle de nettoyage des noeuds"
+msgstr "Intervalle de nettoyage des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.node_cleanup_window"
-msgstr "Plage horaire de nettoyage des noeuds"
+msgstr "Plage horaire de nettoyage des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.nodes_maintenance_interval"
-msgstr "Intervalle de la maintenance des noeuds"
+msgstr "Intervalle de la maintenance des appareils"
 
 # conf/documentation.conf
 msgid "maintenance.online_node_count_interval"
-msgstr "Intervalle de mise à jour du status des noeuds en ligne"
+msgstr "Intervalle de mise à jour du status des appareils en ligne"
 
 # conf/documentation.conf
 msgid "maintenance.option82_query_interval"
@@ -9847,11 +9975,11 @@ msgstr "VoIP"
 
 # conf/documentation.conf (advanced.reevaluate_access_reasons options)
 msgid "node_modify"
-msgstr "Modifier le noeud"
+msgstr "Modifier l’appareil"
 
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "node_status"
-msgstr "Status du noeud"
+msgstr "Statut de l’appareil"
 
 # pfappserver::PacketFence::Controller::Graph (ssid fields)
 msgid "nodes"
@@ -10041,7 +10169,7 @@ msgstr "Réseau"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.node_role"
-msgstr "Rôle du noeud"
+msgstr "Rôle de l’appareil"
 
 # profile.filter (Portal Profile Filters)
 msgid "profile.filter.port"
@@ -10859,7 +10987,7 @@ msgstr "non enregistré"
 
 # pf::action (VIOLATION_ACTIONS)
 msgid "unreg_action"
-msgstr "Désenregistrer le noeud"
+msgstr "Désenregistrer l’appareil"
 
 # pf::config (SoH Status)
 msgid "up2date"

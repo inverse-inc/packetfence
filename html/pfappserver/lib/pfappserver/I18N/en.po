@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 6.2.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2016-10-04 15:13-0400\n"
+"PO-Revision-Date: 2016-10-04 15:52-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -14,6 +14,10 @@ msgstr ""
 "Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# html/pfappserver/root/user/list.tt
+msgid "# nodes"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Node.pm
 msgid "%1 nodes imported, %2 skipped"
@@ -858,6 +862,7 @@ msgid "Billing Tier"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/billingtiers/index.tt
 # html/pfappserver/root/config/billingtiers/list.tt
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Billing Tiers"
@@ -890,12 +895,14 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Bypass Role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Bypass VLAN"
 msgstr "Bypass VLAN"
 
@@ -1376,6 +1383,7 @@ msgid "Compliance"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "Computer Name"
 msgstr ""
@@ -2023,6 +2031,7 @@ msgstr ""
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/user/violations.tt
@@ -2036,6 +2045,11 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration."
+msgstr ""
+
+# html/pfappserver/root/auditing/radiuslog/search.tt
+# html/pfappserver/root/dhcpoption82/search.tt
+msgid "Details"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -2052,6 +2066,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Detected Between:"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Detected Date"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfdetect.pm
@@ -2110,6 +2128,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/WMI.pm
+# html/pfappserver/root/config/domain/index.tt
 # html/pfappserver/root/config/domain/list.tt
 # html/pfappserver/root/config/domain/view.tt
 # html/pfappserver/root/configurator/configuration.tt
@@ -2201,6 +2220,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Email"
 msgstr ""
 
@@ -2481,8 +2501,10 @@ msgstr ""
 msgid "File Path"
 msgstr ""
 
+# html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
 # html/pfappserver/root/config/profile/files.tt
+# html/pfappserver/root/config/profile/view.tt
 msgid "Files"
 msgstr ""
 
@@ -2518,10 +2540,15 @@ msgid "Fingerbank on-boarding"
 msgstr ""
 
 # html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "Fingerprint"
+msgstr ""
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
 msgid "Fingerprints"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/firewall_sso/index.tt
 # html/pfappserver/root/config/firewall_sso/view.tt
 msgid "Firewall SSO"
 msgstr ""
@@ -2535,6 +2562,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Firstname"
 msgstr ""
 
@@ -2773,6 +2801,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/DHCP_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/User_Agent.pm
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+# html/pfappserver/root/config/useragents/simple_search.tt
 msgid "ID"
 msgstr ""
 
@@ -2814,6 +2844,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Interface.pm
 # html/pfappserver/root/config/floatingdevice/list.tt
 # html/pfappserver/root/interface/list.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
 msgstr ""
@@ -3100,6 +3131,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/user/list.tt
 msgid "Lastname"
 msgstr ""
 
@@ -3166,6 +3198,17 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 msgid "List of roles available to the admin user to assign to a user. If none are provided then all roles are available"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Local"
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -3354,6 +3397,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/config/wrix/search_form.tt
+# html/pfappserver/root/node/search.tt
 msgid "MAC Address"
 msgstr ""
 
@@ -3431,6 +3475,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
 msgid "Match %1 of the following conditions:"
@@ -3741,6 +3786,10 @@ msgstr ""
 msgid "New Scan Engine"
 msgstr ""
 
+# html/pfappserver/root/authentication/source/read.tt
+msgid "New Source"
+msgstr ""
+
 # html/pfappserver/root/config/pfdetect/view.tt
 msgid "New Syslog parser"
 msgstr ""
@@ -3949,6 +3998,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "Notes"
 msgstr ""
 
@@ -3987,11 +4037,21 @@ msgid "OS"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
 msgid "OS (DHCP)"
 msgstr ""
 
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "OS Class"
+msgstr ""
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "OS Class ID"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "OUI"
 msgstr ""
 
@@ -4045,6 +4105,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Online Status"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Online/Offline"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -4101,6 +4165,10 @@ msgstr "Open Tuesday"
 # pfappserver::Form::Config::Wrix (open hours)
 msgid "Open_Wednesday"
 msgstr "Open Wednesday"
+
+# html/pfappserver/root/config/fingerprints/simple_search.tt
+msgid "Operating System"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/reports.tt
@@ -4179,6 +4247,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/node/search.tt
 msgid "Owner"
 msgstr ""
 
@@ -4789,6 +4858,7 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/edit.tt
+# html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/profile/view.tt
 msgid "Portal Profiles and Pages"
 msgstr ""
@@ -4886,6 +4956,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Profile used for the generation of certificate"
+msgstr ""
+
+# html/pfappserver/root/config/useragents/simple_search.tt
+msgid "Property"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -5154,6 +5228,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Authentication/Source/Kerberos.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+# html/pfappserver/root/config/realm/index.tt
 # html/pfappserver/root/config/realm/list.tt
 # html/pfappserver/root/config/realm/view.tt
 msgid "Realm"
@@ -5201,6 +5276,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/admin/configuration.tt
 msgid "Registration"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Registration Date"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -5355,6 +5434,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/roles/read.tt
 msgid "Role"
 msgstr ""
@@ -5407,6 +5487,7 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/roles/index.tt
 msgid "Roles"
 msgstr ""
 
@@ -5513,6 +5594,7 @@ msgstr "SoH Filters - Update"
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/config/wrix/view.tt
+# html/pfappserver/root/node/search.tt
 # pf::Authentication::Source (common_attributes)
 msgid "SSID"
 msgstr "SSID"
@@ -5689,6 +5771,7 @@ msgstr ""
 msgid "Saving profile "
 msgstr ""
 
+# html/pfappserver/root/config/scan/index.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/scan/view.tt
 msgid "Scan Engine"
@@ -6230,6 +6313,7 @@ msgid "State for the certificate"
 msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/soh/index.tt
 msgid "Statement of Health"
 msgstr ""
 
@@ -6237,6 +6321,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/node/search.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/nodes.tt
 # html/pfappserver/root/user/violations.tt
@@ -6344,16 +6429,36 @@ msgstr ""
 msgid "Switch ID"
 msgstr ""
 
+# html/pfappserver/root/node/search.tt
+msgid "Switch IP Address"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch Identifier"
+msgstr ""
+
 # html/pfappserver/root/auditing/radiuslog/view.tt
 msgid "Switch Information"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch MAC Address"
 msgstr ""
 
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "Switch Mac"
 msgstr ""
 
+# html/pfappserver/root/node/search.tt
+msgid "Switch Port"
+msgstr ""
+
 # html/pfappserver/root/config/switch/list.tt
 msgid "Switch Type"
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Switch description"
 msgstr ""
 
 # html/pfappserver/root/node/tab_Location_view.tt
@@ -6437,6 +6542,7 @@ msgid "Task type"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/root/user/list.tt
 msgid "Telephone"
 msgstr ""
 
@@ -7165,6 +7271,7 @@ msgid "Unregistration"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/node/search.tt
 msgid "Unregistration Date"
 msgstr ""
 
@@ -7198,6 +7305,17 @@ msgstr ""
 
 # html/pfappserver/root/config/profile/files.tt
 msgid "Upload failed"
+msgstr ""
+
+# html/pfappserver/root/config/fingerbank/device/list.tt
+# html/pfappserver/root/config/fingerbank/device/upstream/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_enterprise/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp6_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
+# html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
+# html/pfappserver/root/config/fingerbank/user_agent/list.tt
+msgid "Upstream"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -7298,6 +7416,7 @@ msgstr ""
 # html/pfappserver/root/configurator/admin.tt
 # html/pfappserver/root/configurator/database.tt
 # html/pfappserver/root/node/tab_Location_view.tt
+# html/pfappserver/root/user/list.tt
 # html/pfappserver/root/user/list_password.tt
 # html/pfappserver/root/user/print.tt
 msgid "Username"
@@ -7341,6 +7460,10 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
+msgstr ""
+
+# html/pfappserver/root/config/authentication.tt
+msgid "Users Sources"
 msgstr ""
 
 # conf/documentation.conf (maintenance.person_cleanup)
@@ -7397,6 +7520,7 @@ msgid "Value"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/MAC_Vendor.pm
+# html/pfappserver/root/config/macaddress/simple_search.tt
 msgid "Vendor"
 msgstr ""
 
@@ -7433,6 +7557,7 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/list.tt
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Violations"
 msgstr ""
@@ -7451,6 +7576,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/search.tt
 msgid "VoIP"
 msgstr ""
 
@@ -7492,6 +7618,7 @@ msgstr "WMI Rules"
 
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/scan/type/wmi.tt
+# html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wmi/list.tt
 msgid "WMI Rules"
 msgstr ""
@@ -7980,6 +8107,7 @@ msgstr "AP MAC Address"
 msgid "apartment_number"
 msgstr "appartment number"
 
+# html/pfappserver/root/auditing/radiuslog/search.tt
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "auth_status"
 msgstr "Auth Status"
